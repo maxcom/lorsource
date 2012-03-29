@@ -172,7 +172,7 @@
             </a>
           </div>
           </c:if>
-          <ul>
+          <ul id="topicMenu">
           <c:if test="${not message.expired}">
             <c:if test="${messageMenu.commentsAllowed}">
               <li><a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a></li>
@@ -192,29 +192,7 @@
                 <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a></li>
             </c:if>
         </c:if>
-<%
-    if (tmpl.isSessionAuthorized()) {
-      int memId = messageMenu.getMemoriesId();
-
-      if (memId!=0) {
-%>
-        <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
-          <input type="hidden" name="id" value="<%= memId %>">
-          <input type="hidden" name="remove" value="remove">
-          <li><a onclick="$('#memories_form').submit(); return false;" href="#">Удалить из избранного</a></li>
-        </form>
-<%
-      } else {
-%>
-        <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
-          <input type="hidden" name="msgid" value="${message.id}">
-          <input type="hidden" name="add" value="add">
-          <li><a onclick="$('#memories_form').submit(); return false;" href="#">Добавить в избранное</a></li>
-        </form>
-        <%
-      }
-    }
-%>     </ul>
+          </ul>
         <c:if test="${template.sessionAuthorized}">
           <br>${preparedMessage.postscoreInfo}
         </c:if>
@@ -224,3 +202,53 @@
 </div>
   <div style="clear: both"></div>
 </article>
+
+<c:if test="${template.sessionAuthorized}">
+<script type="text/javascript">
+  function memories_add(event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: "/memories.jsp",
+      type: "POST",
+      data: { msgid : ${message.id}, add: "add" }
+    }).done(function(t) {
+              memories_form_setup(t);
+            });
+  }
+
+  function memories_remove(event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: "/memories.jsp",
+      type: "POST",
+      data: { id : memId, remove: "remove" }
+    }).done(function(t) {
+              memories_form_setup(0);
+            });
+  }
+
+  function memories_form_setup(memId) {
+    if (memId==0) {
+      $("#memories_button").text("Добавить в избранное");
+
+      $('#memories_button').unbind("click", memories_remove);
+      $('#memories_button').bind("click", memories_add);
+    } else {
+      $("#memories_button").text("Удалить из избранного");
+
+      $('#memories_button').unbind("click", memories_add);
+      $('#memories_button').bind("click", memories_remove);
+    }
+  }
+
+  $(document).ready(function() {
+    memId = ${messageMenu.memoriesId};
+
+    $("#topicMenu").append("<li><a id=\"memories_button\" href=\"#\"></a></li>");
+
+    memories_form_setup(memId);
+  });
+</script>
+</c:if>

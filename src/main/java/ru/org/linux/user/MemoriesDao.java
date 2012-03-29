@@ -15,9 +15,11 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,14 +33,16 @@ import java.util.List;
 @Repository
 public class MemoriesDao {
   private JdbcTemplate jdbcTemplate;
+  private SimpleJdbcInsert insertTemplate;
 
   @Autowired
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
+    insertTemplate = new SimpleJdbcInsert(ds).withTableName("memories").usingGeneratedKeyColumns("id").usingColumns("userid", "topic");
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void addToMemories(int userid, int topic) {
+  public int addToMemories(int userid, int topic) {
     List<Integer> res = jdbcTemplate.queryForList(
             "SELECT id FROM memories WHERE userid=? AND topic=? FOR UPDATE",
             Integer.class,
@@ -47,11 +51,9 @@ public class MemoriesDao {
     );
 
     if (res.isEmpty()) {
-      jdbcTemplate.update(
-              "INSERT INTO memories (userid, topic) values (?,?)",
-              userid,
-              topic
-      );
+      return insertTemplate.executeAndReturnKey(ImmutableMap.<String, Object>of("userid", userid, "topic", topic)).intValue();
+    } else {
+      return res.get(0);
     }
   }
 

@@ -20,13 +20,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.bind.annotation.ResponseBody;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.ServletRequest;
 
@@ -39,7 +37,7 @@ public class MemoriesController {
   private MemoriesDao memoriesDao;
 
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
-  public View add(
+  public @ResponseBody Integer add(
           ServletRequest request,
           @RequestParam("msgid") int msgid
   ) throws Exception {
@@ -58,13 +56,11 @@ public class MemoriesController {
       throw new UserErrorException("Тема удалена");
     }
 
-    memoriesDao.addToMemories(user.getId(), topic.getId());
-
-    return new RedirectView(topic.getLink());
+    return memoriesDao.addToMemories(user.getId(), topic.getId());
   }
 
   @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)
-  public ModelAndView remove(
+  public @ResponseBody void remove(
           ServletRequest request,
           @RequestParam("id") int id
   ) throws Exception {
@@ -85,13 +81,7 @@ public class MemoriesController {
         throw new AccessViolationException("Нельзя удалить чужую запись");
       }
 
-      Topic topic = messageDao.getById(m.getTopic());
-
       memoriesDao.delete(id);
-
-      return new ModelAndView(new RedirectView(topic.getLink()));
-    } else {
-      return new ModelAndView("action-done", "message", "Запись уже удалена");
     }
   }
 }
