@@ -216,6 +216,18 @@ div.quote {
 	content: "[";
 }
 
+.tag a {
+    font-style: italic;
+}
+
+.message-table .tag:after {
+	content: "]";
+}
+
+.message-table .tag:before {
+	content: "[";
+}
+
 @media screen and (max-width:360px) {
 
 	#head-main {

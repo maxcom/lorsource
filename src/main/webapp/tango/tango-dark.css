@@ -148,3 +148,7 @@ fieldset legend {
 .message-table a.secondary {
     color: #babdb6 !important;
 }
+
+.message-table .tag {
+    background-color: #555753;
+}

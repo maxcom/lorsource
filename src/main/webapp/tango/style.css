@@ -223,10 +223,6 @@ p {
 	font-size: 0.8em;
 }
 
-.tag {
-    font-style: normal;
-}
-
 div.msg_body h1 {
     font-weight: bold;
     font-size: medium;
@@ -364,6 +360,12 @@ div.quote {
     -moz-border-radius: 0.2em;
     border-radius: 0.2em;
     zoom: 1;
+}
+
+.message-table .tag {
+    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 1px 4px 2px;
 }
 
 @media screen and (max-width: 800px) {

@@ -95,3 +95,7 @@ fieldset legend {
 #bd .nav li a:visited {
     color: #3F77FF;
 }
+
+.message-table .tag {
+    background-color: #C7CBB1;
+}

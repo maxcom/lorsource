@@ -226,3 +226,15 @@ div#hd a, div#hd a:visited {
     margin-top: 0.5em;
     list-style: none;
 }
+
+.tag a {
+    font-style: italic;
+}
+
+.message-table .tag:after {
+	content: "]";
+}
+
+.message-table .tag:before {
+	content: "[";
+}
