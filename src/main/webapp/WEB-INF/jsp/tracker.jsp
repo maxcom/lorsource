@@ -96,7 +96,7 @@
             <a href="${msg.url}">
               <% } %>
               <c:forEach var="tag" items="${msg.tags}">
-                <span class="tag">tag</span>
+                <span class="tag">${tag}</span>
               </c:forEach>
 
               ${msg.title}

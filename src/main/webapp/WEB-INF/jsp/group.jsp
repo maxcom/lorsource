@@ -188,7 +188,7 @@
 
     <c:set var="topic_tags">
       <c:forEach var="tag" items="${topic.tags}">
-        <span class="tag">tag</span>
+        <span class="tag">${tag}</span>
       </c:forEach>
     </c:set>
 
