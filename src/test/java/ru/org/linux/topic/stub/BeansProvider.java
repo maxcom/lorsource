@@ -16,8 +16,8 @@
 package ru.org.linux.topic.stub;
 
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.topic.TagDao;
-import ru.org.linux.topic.TagService;
+import ru.org.linux.tag.TagDao;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.UserTagDao;
 
 import static org.mockito.Mockito.*;

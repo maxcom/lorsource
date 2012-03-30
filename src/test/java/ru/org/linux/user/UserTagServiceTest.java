@@ -23,8 +23,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import ru.org.linux.topic.TagDao;
-import ru.org.linux.topic.TagNotFoundException;
+import ru.org.linux.tag.TagDao;
+import ru.org.linux.tag.TagNotFoundException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

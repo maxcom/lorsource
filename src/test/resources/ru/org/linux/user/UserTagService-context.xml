@@ -30,5 +30,6 @@
           factory-method="getTagDao"/>
 
     <bean id="userTagService" class="ru.org.linux.user.UserTagService"/>
+    <bean id="tagService" class="ru.org.linux.tag.TagService"/>
 
 </beans>

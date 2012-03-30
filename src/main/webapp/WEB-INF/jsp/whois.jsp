@@ -200,12 +200,33 @@
   </form>
   </c:if>
   </c:if>
+  <c:if test="${fn:length(favoriteTags)>0}">
+    <fieldset>
+    <legend>Фаворитные теги</legend>
+      <ul>
+        <c:forEach var="tagName" items="${favoriteTags}">
+          <li><span style="white-space: nowrap">${tagName}</span></li>
+        </c:forEach>
+      </ul>
+    </fieldset>
+  </c:if>
+  <c:if test="${moderatorOrCurrentUser && fn:length(ignoreTags)>0}">
+    <fieldset>
+    <legend>Игнорированные теги</legend>
+      <ul>
+        <c:forEach var="tagName" items="${ignoreTags}">
+          <li><span style="white-space: nowrap">${tagName}</span></li>
+        </c:forEach>
+      </ul>
+    </fieldset>
+  </c:if>
 
   <c:if test="${currentUser}">
     <h2>Действия</h2>
     <ul>
       <li><a href="register.jsp">Изменить регистрацию</a></li>
       <li><a href="edit-profile.jsp">Изменить настройки</a></li>
+      <li><a href="<c:url value="/user-filter"/>">настройка фильтрации сообщений</a></li>
     </ul>
   </c:if>
 

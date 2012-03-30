@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
+package ru.org.linux.tag;
 
 import java.io.Serializable;
 import java.sql.ResultSet;

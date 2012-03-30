@@ -47,6 +47,7 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
@@ -79,6 +80,9 @@ public class TopicDao {
 
   @Autowired
   private TagService tagService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   @Autowired
   private UserEventService userEventService;
@@ -390,7 +394,7 @@ public class TopicDao {
     if (form.getTags() != null) {
       List<String> tags = tagService.parseSanitizeTags(form.getTags());
 
-      tagService.updateTags(msgid, tags);
+      topicTagService.updateTags(msgid, tags);
       tagService.updateCounters(Collections.<String>emptyList(), tags);
 
       // оповещение пользователей по тегам
@@ -417,7 +421,7 @@ public class TopicDao {
   }
 
   private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
-    List<String> oldTags = tagService.getMessageTags(msg.getId());
+    List<String> oldTags = topicTagService.getMessageTags(msg.getId());
 
     EditInfoDto editInfo = new EditInfoDto();
 
@@ -466,7 +470,7 @@ public class TopicDao {
     }
 
     if (newTags != null) {
-      boolean modifiedTags = tagService.updateTags(msg.getId(), newTags);
+      boolean modifiedTags = topicTagService.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
         editInfo.setOldtags(TagService.toString(oldTags));

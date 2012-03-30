@@ -22,6 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
+import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 

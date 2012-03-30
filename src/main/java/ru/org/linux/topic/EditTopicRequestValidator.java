@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.util.URLUtil;
 
 @Component
@@ -31,7 +32,7 @@ public class EditTopicRequestValidator implements Validator {
   private static final int MAX_EDITOR_BONUS = 5;
 
   @Autowired
-  private TagService tagService;
+  private TopicTagService topicTagService;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -86,7 +87,7 @@ public class EditTopicRequestValidator implements Validator {
     }
 
     if (form.getTags()!=null) {
-      tagService.parseTags(form.getTags(), errors);
+      topicTagService.parseTags(form.getTags(), errors);
     }
   }
 }
