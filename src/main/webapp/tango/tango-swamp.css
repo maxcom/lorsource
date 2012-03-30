@@ -83,7 +83,8 @@ fieldset legend {
 
 #bd .nav li a {
     border-color: #3F77FF;
-    color: #3F77FF;
+    text-decoration: none;
+    color: black !important;
 }
 
 #bd .nav li a.current {
@@ -93,5 +94,5 @@ fieldset legend {
 }
 
 #bd .nav li a:visited {
-    color: #3F77FF;
+    color: black;
 }
