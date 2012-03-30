@@ -9,6 +9,8 @@
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="favoriteTags" required="false" type="java.util.List" %>
+<%@ attribute name="ignoreTags" required="false" type="java.util.List" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -41,7 +43,7 @@
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
           [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
         </c:if>
-        
+
         [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
         [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]
 
@@ -107,7 +109,7 @@
     </c:if>
 <footer>
 <c:if test="${not empty preparedMessage.tags}">
-  <lor:tags list="${preparedMessage.tags}"/>
+  <lor:tags list="${preparedMessage.tags}" favoriteTags="${favoriteTags}" ignoreTags="${ignoreTags}"/>
 </c:if>
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>

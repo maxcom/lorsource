@@ -37,6 +37,7 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserTagService;
 import ru.org.linux.util.LorURL;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,6 +74,9 @@ public class TopicController {
 
   @Autowired
   private Configuration configuration;
+
+  @Autowired
+  private UserTagService userTagService;
 
   @Autowired
   private IPBlockDao ipBlockDao;
@@ -427,6 +431,15 @@ public class TopicController {
       int limit = 0;
       int messages = tmpl.getProf().getMessages();
 
+      params.put(
+        "userFavoriteTags",
+        userTagService.favoritesGet(tmpl.getCurrentUser())
+      );
+
+      params.put(
+        "userIgnoreTags",
+        userTagService.ignoresGet(tmpl.getCurrentUser())
+      );
       if (page != -1) {
         limit = messages;
         offset = messages * page;
@@ -607,7 +620,7 @@ public class TopicController {
       Topic topic = ex.getTopic();
       mav.addObject("msgTitle", "Ошибка: сообщения не существует");
       mav.addObject("msgHeader", "Сообщение удалено или не существует");
-      
+
       mav.addObject("msgMessage",
           String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует",
           ex.getId(), topic.getLink(), topic.getTitle()));

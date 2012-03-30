@@ -55,7 +55,7 @@
           <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
         </c:if>
         <c:if test="${editInfo.tags != null}">
-          <lor:tags list="${editInfo.tags}"/>
+          <lor:tags list="${editInfo.tags}" favoriteTags="${userFavoriteTags}" ignoreTags="${userIgnoreTags}"/>
         </c:if>
       </div>
     </div>

@@ -10,6 +10,8 @@
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="favoriteTags" required="false" type="java.util.List" %>
+<%@ attribute name="ignoreTags" required="false" type="java.util.List" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -135,7 +137,7 @@
   <c:if test="${preparedMessage.section.imagepost}">
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
-  
+
   ${preparedMessage.processedMessage}
 <%
   if (url != null && !imagepost && !votepoll) {
@@ -167,7 +169,7 @@
 %>
   </div>
 <c:if test="${not empty preparedMessage.tags}">
-  <lor:tags list="${preparedMessage.tags}"/>
+  <lor:tags list="${preparedMessage.tags}" favoriteTags="${favoriteTags}" ignoreTags="${ignoreTags}"/>
 </c:if>
 
   <div class=sign>

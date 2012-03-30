@@ -263,9 +263,12 @@
 
 <lor:message
         messageMenu="${messageMenu}"
-        preparedMessage="${preparedMessage}" 
+        preparedMessage="${preparedMessage}"
         message="${message}"
-        showMenu="true"/>
+        showMenu="true"
+        favoriteTags="${userFavoriteTags}"
+        ignoreTags="${userIgnoreTags}"
+        />
 
 <c:out value="${scroller}" escapeXml="false"/>
 
