@@ -5,6 +5,10 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
     <changeSet id="2012032701" author="Slava Zanko">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="t">select version() like 'PostgreSQL 9.0%'</sqlCheck>
+        </preConditions>
+
         <sql>
 	INSERT INTO pg_enum (enumtypid, enumlabel) SELECT typelem, 'TAG' FROM pg_type WHERE typname = '_event_type' ;
         </sql>
