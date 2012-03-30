@@ -226,7 +226,7 @@
     <ul>
       <li><a href="register.jsp">Изменить регистрацию</a></li>
       <li><a href="edit-profile.jsp">Изменить настройки</a></li>
-      <li><a href="<c:url value="/user-filter"/>">настройка фильтрации сообщений</a></li>
+      <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>
     </ul>
   </c:if>
 
