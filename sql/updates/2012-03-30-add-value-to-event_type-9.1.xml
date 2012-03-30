@@ -22,6 +22,7 @@
     <changeSet id="2012033001" author="Slava Zanko" runInTransaction="false">
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="f">select version() like 'PostgreSQL 9.0%'</sqlCheck>
+            <sqlCheck expectedResult="f">select version() like 'PostgreSQL 8.4%'</sqlCheck>
         </preConditions>
 
         <sql>
