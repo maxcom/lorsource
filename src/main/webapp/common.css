@@ -455,3 +455,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .hideon-desktop {
     display: none;
 }
+
+.message-table .tag:after {
+	content: "]";
+}
+
+.message-table .tag:before {
+	content: "[";
+}

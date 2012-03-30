@@ -124,15 +124,7 @@ public class TrackerItem {
 
   public String getTitle() {
     if(section != 0) {
-      StringBuilder subjBuilder = new StringBuilder();
-
-      for (String tag : tags) {
-        subjBuilder.append('[').append(tag).append("] ");
-      }
-
-      subjBuilder.append(title);
-
-      return subjBuilder.toString();
+      return title;
     } else {
       if(title.startsWith("Comments:")) {
         return title.substring(9); // откусываем Comments

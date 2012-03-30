@@ -95,7 +95,11 @@
                 <% } else { %>
             <a href="${msg.url}">
               <% } %>
-                ${msg.title}
+              <c:forEach var="tag" items="${msg.tags}">
+                <span class="tag">tag</span>
+              </c:forEach>
+
+              ${msg.title}
             </a>
 
                 (<%--

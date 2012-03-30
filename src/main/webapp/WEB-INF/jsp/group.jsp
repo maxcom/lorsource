@@ -186,15 +186,21 @@
       <img src="/img/solved.png" width="15" height="15" alt="Решено" title="Решено"/>
     </c:if>
 
+    <c:set var="topic_tags">
+      <c:forEach var="tag" items="${topic.tags}">
+        <span class="tag">tag</span>
+      </c:forEach>
+    </c:set>
+
     <c:if test="${firstPage and topic.pages<=1}">
         <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}">
-          ${topic.subj}
+          ${topic_tags} ${topic.subj}
         </a>
     </c:if>
 
     <c:if test="${not firstPage or topic.pages>1}">
       <a href="${group.url}${topic.msgid}">
-          ${topic.subj}
+          ${topic_tags} ${topic.subj}
       </a>
     </c:if>
 

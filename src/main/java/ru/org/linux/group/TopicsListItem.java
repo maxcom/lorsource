@@ -65,16 +65,7 @@ public class TopicsListItem implements Serializable {
   }
 
   public String getSubj() {
-    StringBuilder subjBuilder = new StringBuilder();
-
-    for (String tag : tags) {
-      subjBuilder.append('[').append(tag).append("] ");
-    }
-
-
-    subjBuilder.append(subj);
-
-    return subjBuilder.toString();
+    return subj;
   }
 
   public Timestamp getLastmod() {
