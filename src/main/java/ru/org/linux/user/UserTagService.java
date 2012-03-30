@@ -21,11 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.tag.ITagActionHandler;
-import ru.org.linux.tag.IncorrectTagException;
-import ru.org.linux.tag.TagDao;
-import ru.org.linux.tag.TagNotFoundException;
-import ru.org.linux.tag.TagService;
+import ru.org.linux.tag.*;
 
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
@@ -181,5 +177,27 @@ public class UserTagService {
     return ImmutableList.copyOf(tagSet);
   }
 
+  /**
+   * Проверяет, есть ли указанный фаворитный тег у пользователя.
+   *
+   * @param user    объект пользователя
+   * @param tagName название тега
+   * @return true если у пользователя есть тег
+   */
+  public boolean hasFavoriteTag(User user, String tagName) {
+    ImmutableList<String> tags = favoritesGet(user);
+    return tags.contains(tagName);
+  }
 
+  /**
+   * Проверяет, есть ли указанный игнорируемый тег у пользователя.
+   *
+   * @param user    объект пользователя
+   * @param tagName название тега
+   * @return true если у пользователя есть тег
+   */
+  public boolean hasIgnoreTag(User user, String tagName) {
+    ImmutableList<String> tags = ignoresGet(user);
+    return tags.contains(tagName);
+  }
 }

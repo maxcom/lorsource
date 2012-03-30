@@ -58,6 +58,9 @@ public class TopicListController {
   @Autowired
   private TagService tagService;
 
+  @Autowired
+  private UserTagService userTagService;
+
   // TODO: здесь должен быть сервис, а не DAO
   @Autowired
   private GroupDao groupDao;
@@ -91,6 +94,7 @@ public class TopicListController {
       group = groupDao.getGroup(topicListForm.getGroup());
     }
     checkRequestConditions(section, group, topicListForm);
+    Template tmpl = Template.getTemplate(request);
 
     ModelAndView modelAndView = new ModelAndView("view-news");
 
@@ -100,6 +104,23 @@ public class TopicListController {
       queryString.add("tag", topicListForm.getTag());
       queryString.add("section", topicListForm.getSection());
       modelAndView.addObject("params", queryString.toString());
+
+      modelAndView.addObject(
+        "isShowFavoriteTagButton",
+        !userTagService.hasFavoriteTag(
+          tmpl.getCurrentUser(),
+          topicListForm.getTag()
+        )
+      );
+      if (!tmpl.isModeratorSession()) {
+        modelAndView.addObject(
+          "isShowIgnoreTagButton",
+          !userTagService.hasIgnoreTag(
+            tmpl.getCurrentUser(),
+            topicListForm.getTag()
+          )
+        );
+      }
     }
 
 
@@ -130,7 +151,6 @@ public class TopicListController {
       topicListForm.getMonth()
     );
 
-    Template tmpl = Template.getTemplate(request);
     modelAndView.addObject(
       "messages",
       prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
