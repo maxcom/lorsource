@@ -202,7 +202,7 @@
   </c:if>
   <c:if test="${fn:length(favoriteTags)>0}">
     <fieldset>
-    <legend>Фаворитные теги</legend>
+    <legend>Избранные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${favoriteTags}">
           <li><span style="white-space: nowrap">${tagName}</span></li>
