@@ -38,20 +38,22 @@
     <div class="nav-buttons">
       <ul>
       <c:if test="${not empty topicListRequest.tag}">
-        <li>
         <c:if test="${isShowFavoriteTagButton}">
-          <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
-            <input type="hidden" name="tagName" value="<c:out value="${topicListRequest.tag}"/>">
-            <input type="submit" name="add" value="В избранные теги">
-          </form>
+          <li>
+            <c:url var="tagFavUrl" value="/user-filter">
+              <c:param name="newFavoriteTagName" value="${topicListRequest.tag}"/>
+            </c:url>
+
+            <a href="${tagFavUrl}">В избранные теги</a>
+          </li>
         </c:if>
         <c:if test="${isShowIgnoreTagButton}">
-          <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
-            <input type="hidden" name="tagName" value="<c:out value="${topicListRequest.tag}"/>">
-            <input type="submit" name="add" value="В игнорируемые теги">
-          </form>
+          <c:url var="tagIgnUrl" value="/user-filter">
+            <c:param name="newIgnoredTagName" value="${topicListRequest.tag}"/>
+          </c:url>
+
+          <a href="${tagIgnUrl}">Игнорировать тег</a>
         </c:if>
-        </li>
       </c:if>
 
       <c:if test="${sectionList == null and template.moderatorSession and group!=null}">

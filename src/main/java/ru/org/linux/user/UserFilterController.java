@@ -29,6 +29,7 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.tag.IncorrectTagException;
 import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -48,8 +49,11 @@ public class UserFilterController {
   private UserTagService userTagService;
 
   @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView showList(HttpServletRequest request)
-    throws AccessViolationException, UserNotFoundException {
+  public ModelAndView showList(
+          HttpServletRequest request,
+          @RequestParam(value="newFavoriteTagName", required = false) String newFavoriteTagName,
+          @RequestParam(value="newIgnoredTagName", required = false) String newIgnoredTagName
+  ) throws AccessViolationException, UserNotFoundException {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -69,6 +73,15 @@ public class UserFilterController {
     } else {
       modelAndView.addObject("isModerator", true);
     }
+
+    if (newFavoriteTagName!=null && TagService.isGoodTag(newFavoriteTagName)) {
+      modelAndView.addObject("newFavoriteTagName", newFavoriteTagName);
+    }
+
+    if (newIgnoredTagName!=null && TagService.isGoodTag(newIgnoredTagName)) {
+      modelAndView.addObject("newIgnoredTagName", newIgnoredTagName);
+    }
+
     return modelAndView;
   }
 
@@ -169,7 +182,7 @@ public class UserFilterController {
       errorMessage = e.getMessage();
     }
     if (errorMessage != null) {
-      ModelAndView modelAndView = showList(request);
+      ModelAndView modelAndView = showList(request, tagName, null);
       modelAndView.addObject("favoriteTagAddError", tagName + ": " + errorMessage);
       return modelAndView;
     }
@@ -246,7 +259,7 @@ public class UserFilterController {
     }
 
     if (errorMessage != null) {
-      ModelAndView modelAndView = showList(request);
+      ModelAndView modelAndView = showList(request, null, tagName);
       modelAndView.addObject("ignoreTagAddError", tagName + ": " + errorMessage);
       return modelAndView;
     }
