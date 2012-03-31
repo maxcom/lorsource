@@ -105,21 +105,27 @@ public class TopicListController {
       queryString.add("section", topicListForm.getSection());
       modelAndView.addObject("params", queryString.toString());
 
-      modelAndView.addObject(
-        "isShowFavoriteTagButton",
-        !userTagService.hasFavoriteTag(
-          tmpl.getCurrentUser(),
-          topicListForm.getTag()
-        )
-      );
-      if (!tmpl.isModeratorSession()) {
+      if (tmpl.isSessionAuthorized() && !Strings.isNullOrEmpty(topicListForm.getTag())) {
         modelAndView.addObject(
-          "isShowIgnoreTagButton",
-          !userTagService.hasIgnoreTag(
-            tmpl.getCurrentUser(),
-            topicListForm.getTag()
-          )
+                "isShowFavoriteTagButton",
+                !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
         );
+
+        modelAndView.addObject(
+                "isShowUnFavoriteTagButton",
+                userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+        );
+
+        if (!tmpl.isModeratorSession()) {
+          modelAndView.addObject(
+                  "isShowIgnoreTagButton",
+                  !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+          );
+          modelAndView.addObject(
+                  "isShowUnIgnoreTagButton",
+                  userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+          );
+        }
       }
     }
 

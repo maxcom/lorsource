@@ -260,19 +260,46 @@ public class UserFilterController {
   }
 
   /**
+   * Удаление тега у пользователя.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws TagNotFoundException     тег не найден
+   * @throws AccessViolationException нарушение прав доступа
+   */
+  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del", headers="Accept=application/json")
+  public @ResponseBody Map<String, String > favoriteTagDelJSON(
+    ServletRequest request,
+    @RequestParam String tagName
+  ) throws TagNotFoundException, AccessViolationException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    userTagService.favoriteDel(user, tagName);
+
+    return ImmutableMap.of();
+  }
+
+  /**
    * Добавление игнорированного тега к пользователю.
    *
    * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
-   * @throws UserNotFoundException    пользователь не найден
    */
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add")
   public ModelAndView ignoreTagAdd(
     HttpServletRequest request,
     @RequestParam String tagName
-  ) throws AccessViolationException, UserNotFoundException {
+  ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -309,6 +336,47 @@ public class UserFilterController {
   }
 
   /**
+   * Добавление игнорированного тега к пользователю.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws AccessViolationException нарушение прав доступа
+   */
+  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers="Accept=application/json")
+  public @ResponseBody Map<String, String> ignoreTagAddJSON(
+    HttpServletRequest request,
+    @RequestParam String tagName
+  ) throws AccessViolationException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+    if (tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Модераторам нельзя игнорировать теги");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    try {
+      ImmutableList<String> tagList = userTagService.parseTags(tagName);
+      for (String tag : tagList) {
+        userTagService.ignoreAdd(user, tag);
+      }
+    } catch (TagNotFoundException e) {
+      return ImmutableMap.of("error", e.getMessage());
+    } catch (DuplicateKeyException e) {
+      return ImmutableMap.of("error", "Тег уже добавлен");
+    } catch (IncorrectTagException e) {
+      return ImmutableMap.of("error", e.getMessage());
+    }
+
+    return ImmutableMap.of();
+  }
+
+  /**
    * Удаление игнорированного тега у пользователя.
    *
    * @param request данные запроса от web-клиента
@@ -338,5 +406,37 @@ public class UserFilterController {
     userTagService.ignoreDel(user, tagName);
 
     return new ModelAndView(new RedirectView("/user-filter"));
+  }
+
+  /**
+   * Удаление игнорированного тега у пользователя.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws TagNotFoundException     тег не найден
+   * @throws AccessViolationException нарушение прав доступа
+   */
+  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers="Accept=application/json")
+  public @ResponseBody Map<String, String> ignoreTagDelJSON(
+    ServletRequest request,
+    @RequestParam String tagName
+  ) throws TagNotFoundException, AccessViolationException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    if (tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Модераторам нельзя игнорировать теги");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    userTagService.ignoreDel(user, tagName);
+
+    return ImmutableMap.of();
   }
 }
