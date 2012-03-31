@@ -41,4 +41,17 @@
             <rtexprvalue>false</rtexprvalue>
         </attribute>
     </tag>
+
+    <function>
+        <description>
+            Tests if an input array contain specified value.
+        </description>
+        <name>arrayContains</name>
+        <function-class>ru.org.linux.site.tags.Collection</function-class>
+        <function-signature>boolean arrayContains(java.util.List, java.lang.Object)</function-signature>
+        <example>
+            &lt;c:if test="${lor:arrayContains(array, "someVal")}">
+        </example>
+    </function>
+
 </taglib>

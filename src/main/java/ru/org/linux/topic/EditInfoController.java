@@ -20,6 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.Template;
+import ru.org.linux.user.UserTagService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -32,6 +34,9 @@ public class EditInfoController {
 
   @Autowired
   private EditInfoPrepareService prepareService;
+
+  @Autowired
+  private UserTagService userTagService;
 
   @RequestMapping({
     "/news/{group}/{id}/history",
@@ -53,6 +58,18 @@ public class EditInfoController {
     javaScriptsForLayout.add("diff_match_patch.js");
     javaScriptsForLayout.add("lor_view_diff_history.js");
     mv.addObject("javascriptsForLayout", javaScriptsForLayout);
+
+    Template template = Template.getTemplate(request);
+
+    mv.addObject(
+      "userFavoriteTags",
+      userTagService.favoritesGet(template.getCurrentUser())
+    );
+
+    mv.addObject(
+      "userIgnoreTags",
+      userTagService.ignoresGet(template.getCurrentUser())
+    );
 
     mv.getModel().put("message", message);
     mv.getModel().put("editInfos", editInfos);

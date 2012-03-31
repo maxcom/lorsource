@@ -127,6 +127,12 @@ $(document).ready(function() {
   });
 });
 
+function addUserTag(a_obj, tagName, isAdd) {
+    var actionForm = (isAdd) ? "form.favoriteTagForm" : "form.ignoreTagForm";
+    var form= $(actionForm).get(0);
+    $(".tagName", form).val(tagName);
+    $(form).submit();
+}
 hljs.initHighlightingOnLoad();
 
 
