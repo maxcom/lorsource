@@ -57,9 +57,9 @@
 </fieldset>
 <br />
 <fieldset>
-<legend>Список фаворитных тегов</legend>
+<legend>Список избранных тегов</legend>
 <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
-  Тег: <input type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80">
+  <label>Тег: <input type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${favoriteTagAddError != null}"><div class="error">${favoriteTagAddError}</div></c:if>
 </form>
@@ -87,7 +87,7 @@
 </c:when>
 <c:otherwise>
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
-  Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80">
+  <label>Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${ignoreTagAddError != null}"><div class="error">${ignoreTagAddError}</div></c:if>
 </form>
