@@ -368,6 +368,16 @@ div.quote {
     padding: 1px 4px 2px;
 }
 
+.msg_body .nav {
+    opacity: 0.6;
+    -webkit-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
+}
+
+.msg_body .nav:hover {
+    opacity: 1;
+}
+
 @media screen and (max-width: 800px) {
     .hideon-tablet {
         display: none;
