@@ -368,13 +368,13 @@ div.quote {
     padding: 1px 4px 2px;
 }
 
-.msg_body .nav {
+.msg_body .nav li {
     opacity: 0.6;
-    -webkit-transition: opacity 0.5s linear;
-    -moz-transition: opacity 0.5s linear;
+    -webkit-transition: opacity 0.2s linear;
+    -moz-transition: opacity 0.2s linear;
 }
 
-.msg_body .nav:hover {
+.msg_body .nav li:hover {
     opacity: 1;
 }
 
