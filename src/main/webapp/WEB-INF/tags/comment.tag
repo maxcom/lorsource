@@ -122,6 +122,7 @@
       </c:if>
     </div>
   <c:if test="${not comment.comment.deleted and showMenu}">
+    <c:if test="${template.moderatorSession}">
     <ul style="float: right; margin:0" class=nav>
       <c:forEach items="${comment.marks}" var="mark">
         <li>
@@ -133,6 +134,7 @@
         </li>
       </c:forEach>
     </ul>
+    </c:if>
 
     <div class=reply>
       <c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
