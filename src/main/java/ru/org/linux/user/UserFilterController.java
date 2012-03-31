@@ -16,12 +16,14 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -53,7 +55,7 @@ public class UserFilterController {
           HttpServletRequest request,
           @RequestParam(value="newFavoriteTagName", required = false) String newFavoriteTagName,
           @RequestParam(value="newIgnoredTagName", required = false) String newIgnoredTagName
-  ) throws AccessViolationException, UserNotFoundException {
+  ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -85,11 +87,15 @@ public class UserFilterController {
     return modelAndView;
   }
 
-  private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
+  private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) {
     Map<Integer, User> ignoreMap = new HashMap<Integer, User>(ignoreList.size());
 
     for (int id : ignoreList) {
-      ignoreMap.put(id, userDao.getUserCached(id));
+      try {
+        ignoreMap.put(id, userDao.getUserCached(id));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     return ignoreMap;
@@ -153,13 +159,53 @@ public class UserFilterController {
    * @param tagName название тега
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
-   * @throws UserNotFoundException    пользователь не найден
    */
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add")
-  public ModelAndView favoriteTagAdd(
+  public ModelAndView favoriteTagAddHTML(
     HttpServletRequest request,
     @RequestParam String tagName
-  ) throws AccessViolationException, UserNotFoundException {
+  ) throws AccessViolationException {
+    String r = favoriteTagAdd(request, tagName);
+
+    if (r != null) {
+      ModelAndView modelAndView = showList(request, tagName, null);
+      modelAndView.addObject("favoriteTagAddError", tagName + ": " + r);
+      return modelAndView;
+    }
+
+    return new ModelAndView(new RedirectView("/user-filter"));
+  }
+
+  /**
+   * Добавление тега к пользователю.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws AccessViolationException нарушение прав доступа
+   */
+  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add", headers="Accept=application/json")
+  @ResponseBody
+  public Map<String, String> favoriteTagAddJSON(
+    HttpServletRequest request,
+    @RequestParam String tagName
+  ) throws AccessViolationException {
+    String r = favoriteTagAdd(request, tagName);
+
+    if (r != null) {
+      return ImmutableMap.of("error", r);
+    }
+
+    return ImmutableMap.of();
+  }
+
+  /**
+    @return null if ok, error otherwise
+   */
+  private String favoriteTagAdd(
+    HttpServletRequest request,
+    @RequestParam String tagName
+  ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -168,26 +214,21 @@ public class UserFilterController {
 
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
-    String errorMessage = null;
+
     try {
       ImmutableList<String> tagList = userTagService.parseTags(tagName);
       for (String tag : tagList) {
         userTagService.favoriteAdd(user, tag);
       }
     } catch (TagNotFoundException e) {
-      errorMessage = e.getMessage();
+      return e.getMessage();
     } catch (DuplicateKeyException e) {
-      errorMessage = "Тег уже добавлен";
+      return "Тег уже добавлен";
     } catch (IncorrectTagException e) {
-      errorMessage = e.getMessage();
-    }
-    if (errorMessage != null) {
-      ModelAndView modelAndView = showList(request, tagName, null);
-      modelAndView.addObject("favoriteTagAddError", tagName + ": " + errorMessage);
-      return modelAndView;
+      return e.getMessage();
     }
 
-    return new ModelAndView(new RedirectView("/user-filter"));
+    return null;
   }
 
   /**

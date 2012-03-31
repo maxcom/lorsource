@@ -44,7 +44,7 @@
               <c:param name="newFavoriteTagName" value="${topicListRequest.tag}"/>
             </c:url>
 
-            <a href="${tagFavUrl}">В избранные теги</a>
+            <a id="tagFavAdd" href="${tagFavUrl}">В избранные теги</a>
           </li>
         </c:if>
         <c:if test="${isShowIgnoreTagButton}">
@@ -52,7 +52,7 @@
             <c:param name="newIgnoredTagName" value="${topicListRequest.tag}"/>
           </c:url>
 
-          <a href="${tagIgnUrl}">Игнорировать тег</a>
+          <a id="tagIgnAdd" href="${tagIgnUrl}">Игнорировать тег</a>
         </c:if>
       </c:if>
 
@@ -152,5 +152,30 @@
     </tr>
   </table>
 </c:if>
+
+<script type="text/javascript">
+  function tag_filter(url, event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      dataType: "json",
+      data: { tagName: "${topicListRequest.tag}", add: "add" }
+    }).done(function(t) {
+              $(event.target).fadeOut();
+            });
+  }
+
+  $(document).ready(function() {
+    $("#tagFavAdd").bind("click", function() {
+      tag_filter("/user-filter/favorite-tag", event);
+    });
+
+    $("#tagIgnAdd").bind("click", function() {
+      tag_filter("/user-filter/ignore-tag", event);
+    });
+  });
+</script>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
