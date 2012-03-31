@@ -29,7 +29,7 @@ function sh(type, id) {
       reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
       reply.append(element);
       reply_to.attr('value', id);
-      element.slideDown('slow');
+      element.slideDown('slow', function() { $("#msg").focus(); });
     } else {
       element.slideUp('slow');
     }
@@ -45,7 +45,7 @@ function sh(type, id) {
       reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
       reply.append(element);
       reply_to.attr('value', '0');
-      element.slideDown('slow');
+      element.slideDown('slow', function() { $("#msg").focus(); });
     } else {
       element.slideUp('slow');
     }
