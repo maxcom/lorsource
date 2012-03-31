@@ -127,6 +127,23 @@ $(document).ready(function() {
   });
 });
 
+function mark_message(event, msgid, mark) {
+    event.preventDefault();
+
+    if ($(event.target).hasClass("current")) {
+        return;
+    }
+
+    $.ajax({
+        url: "/mark",
+        type: "POST",
+        data: { msgid: msgid, mark: mark }
+    }).done(function(d) {
+        $(event.target).addClass("current");
+        $(event.target).nextUntil(null, "span").text(d)
+    });
+}
+
 hljs.initHighlightingOnLoad();
 
 

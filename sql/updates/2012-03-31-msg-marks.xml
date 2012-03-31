@@ -1,0 +1,35 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012033101" author="Maxim Valyanskiy">
+        <createTable tableName="msg_marks">
+            <column name="userid" type="integer">
+                <constraints nullable="false" references="users(id)" foreignKeyName="msg_marks_userid_fkey"/>
+            </column>
+            <column name="msgid" type="integer">
+                <constraints nullable="false" references="msgbase(id)" foreignKeyName="msg_marks_msgid_fkey"/>
+            </column>
+            <column name="mark" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="msg_marks" indexName="msg_marks_unique" unique="true">
+            <column name="msgid"/>
+            <column name="mark"/>
+            <column name="userid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2012033102" author="Maxim Valyanskiy">
+        <sql>
+            GRANT ALL ON TABLE msg_marks TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE ALL ON TABLE msg_marks FROM linuxweb;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

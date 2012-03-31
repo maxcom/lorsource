@@ -78,7 +78,6 @@ public class DeleteCommentController {
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
-    HttpSession session,
     HttpServletRequest request,
     @RequestParam("msgid") int msgid
   ) throws Exception {
@@ -114,7 +113,7 @@ public class DeleteCommentController {
 
     List<Comment> list = cv.getCommentsSubtree(msgid);
 
-    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure()));
+    params.put("commentsPrepared", prepareService.prepareCommentList(tmpl.getCurrentUser(), comments, list, request.isSecure()));
     params.put("comments", comments);
 
     return new ModelAndView("delete_comment", params);
@@ -125,7 +124,6 @@ public class DeleteCommentController {
     @RequestParam("msgid") int msgid,
     @RequestParam("reason") String reason,
     @RequestParam(value="bonus", defaultValue="0") int bonus,
-    HttpSession session,
     HttpServletRequest request
   ) throws Exception {
     if (bonus < 0 || bonus > 20) {

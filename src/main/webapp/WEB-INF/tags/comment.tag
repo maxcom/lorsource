@@ -4,6 +4,7 @@
 <%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
+<%@ tag import="ru.org.linux.marks.MessageMark" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -121,6 +122,18 @@
       </c:if>
     </div>
   <c:if test="${not comment.comment.deleted and showMenu}">
+    <ul style="float: right; margin:0" class=nav>
+      <c:forEach items="${comment.marks}" var="mark">
+        <li>
+          <c:set var="current">
+            <lor:contains collection="${comment.currentUserMarks}" value="${mark.key}"/>
+          </c:set>
+          <a <c:if test="${current}">class="current"</c:if> onclick="mark_message(event, ${comment.comment.id}, ${mark.key.id})" href="#">${mark.key.title}</a><br>
+          <span style="font-size: x-small">&nbsp;<c:if test="${mark.value>0}">${mark.value}</c:if>&nbsp;</span>
+        </li>
+      </c:forEach>
+    </ul>
+
     <div class=reply>
       <c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
 
@@ -137,6 +150,7 @@
 
       </c:if>
       </ul>
+        
       </c:if>
      </div>
   </c:if>

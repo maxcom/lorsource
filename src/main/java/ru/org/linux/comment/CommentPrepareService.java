@@ -15,8 +15,13 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.marks.MessageMark;
+import ru.org.linux.marks.MessageMarksDao;
+import ru.org.linux.marks.MessageMarksService;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
@@ -37,16 +42,25 @@ public class CommentPrepareService {
 
   @Autowired
   private MsgbaseDao msgbaseDao;
+  
+  @Autowired
+  private MessageMarksService messageMarksService;
 
   public PreparedComment prepareCommentRSS(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, true);
+    return prepareComment(null, comment, comments, secure, true);
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, false);
+  public PreparedComment prepareComment(User currentUser, Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(currentUser, comment, comments, secure, false);
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
+  private PreparedComment prepareComment(
+          User currentUser,
+          Comment comment, 
+          CommentList comments,
+          boolean secure, 
+          boolean rss
+  ) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
     if(!rss) {
@@ -67,18 +81,32 @@ public class CommentPrepareService {
     } else {
       replyAuthor = null;
     }
-    return new PreparedComment(comment, author, processedMessage, replyAuthor);
+    
+    return new PreparedComment(
+            comment, 
+            author, 
+            processedMessage, 
+            replyAuthor, 
+            messageMarksService.getMarks(comment),
+            ImmutableSet.copyOf(messageMarksService.getMarks(comment, currentUser)));
   }
 
-  public PreparedComment prepareComment(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, (CommentList)null, secure);
+  public PreparedComment prepareComment(User currentUser, Comment comment, boolean secure) throws UserNotFoundException {
+    return prepareComment(currentUser, comment, (CommentList)null, secure);
   }
 
   public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage = lorCodeService.parseComment(message, secure);
 
-    return new PreparedComment(comment, author, processedMessage, null);
+    return new PreparedComment(
+            comment, 
+            author, 
+            processedMessage, 
+            null,
+            ImmutableSortedMap.<MessageMark, Integer>of(),
+            ImmutableSet.<MessageMark>of()
+    );
   }
 
   public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
@@ -89,10 +117,10 @@ public class CommentPrepareService {
     return commentsPrepared;
   }
 
-  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentList(User currentUser, CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure));
+      commentsPrepared.add(prepareComment(currentUser, comment, comments, secure));
     }
     return commentsPrepared;
   }

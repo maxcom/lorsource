@@ -319,7 +319,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, HttpServletRequest request) throws UserNotFoundException {
     if (add.getReplyto()!=null) {
-      formParams.put("onComment", prepareService.prepareComment(add.getReplyto(), request.isSecure()));
+      Template tmpl = Template.getTemplate(request);
+      formParams.put("onComment", prepareService.prepareComment(tmpl.getCurrentUser(), add.getReplyto(), request.isSecure()));
     }
   }
 

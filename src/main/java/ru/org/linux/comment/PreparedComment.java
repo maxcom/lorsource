@@ -15,19 +15,29 @@
 
 package ru.org.linux.comment;
 
+import ru.org.linux.marks.MessageMark;
 import ru.org.linux.user.User;
+
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
 
 public class PreparedComment {
   private final Comment comment;
   private final User author;
   private final String processedMessage;
   private final User replyAuthor;
+  
+  private final SortedMap<MessageMark, Integer> marks;
+  private final Set<MessageMark> currentUserMarks;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor) {
+  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, SortedMap<MessageMark, Integer> marks, Set<MessageMark> currentUserMarks) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
+    this.marks = marks;
+    this.currentUserMarks = currentUserMarks;
   }
 
   public Comment getComment() {
@@ -44,5 +54,13 @@ public class PreparedComment {
 
   public User getReplyAuthor() {
     return replyAuthor;
+  }
+
+  public SortedMap<MessageMark, Integer> getMarks() {
+    return marks;
+  }
+
+  public Set<MessageMark> getCurrentUserMarks() {
+    return currentUserMarks;
   }
 }

@@ -434,7 +434,7 @@ public class TopicController {
 
       List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(currentUser, comments, commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
 
