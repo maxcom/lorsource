@@ -128,12 +128,16 @@ public class UserDao {
     return getUserInternal(id);
   }
 
-  private User getUserInternal(int id) throws UserNotFoundException {
+  private User getUserInternal(final int id) throws UserNotFoundException {
     List<User> list = jdbcTemplate.query(
             queryUserById, new RowMapper<User>() {
       @Override
       public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new User(rs);
+        boolean mod = rs.getBoolean("canmod");
+
+        int banCount = jdbcTemplate.queryForInt("SELECT count(*) FROM ban_info WHERE ban_by=?", id);
+
+        return new User(rs, banCount);
       }
     },
             id

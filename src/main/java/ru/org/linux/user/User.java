@@ -66,8 +66,10 @@ public class User implements Serializable {
   public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 
   private static final long serialVersionUID = 69986652856916540L;
+  private final int banCount;
 
-  public User(ResultSet rs) throws SQLException {
+  public User(ResultSet rs, int banCount) throws SQLException {
+    this.banCount = banCount;
     id = rs.getInt("id");
     nick = rs.getString("nick");
     canmod = rs.getBoolean("canmod");
@@ -233,7 +235,11 @@ public class User implements Serializable {
   }
 
   public String getStars() {
-    return getStars(score, maxScore);
+    if (canmod) {
+      return " <span style=\"color: red\">&#9733;</span> "+banCount;
+    } else {
+      return getStars(score, maxScore);
+    }
   }
 
   public static String getStars(int score, int maxScore) {
@@ -399,5 +405,9 @@ public class User implements Serializable {
   @Override
   public int hashCode() {
     return id;
+  }
+
+  public int getBanCount() {
+    return banCount;
   }
 }
