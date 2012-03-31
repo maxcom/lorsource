@@ -122,7 +122,7 @@
       </c:if>
     </div>
   <c:if test="${not comment.comment.deleted and showMenu}">
-    <c:if test="${template.moderatorSession}">
+    <c:if test="${template.sessionAuthorized}">
     <ul style="float: right; margin:0" class=nav>
       <c:forEach items="${comment.marks}" var="mark">
         <li>
