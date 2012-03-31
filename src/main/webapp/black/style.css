@@ -216,6 +216,26 @@ div.quote {
 	content: "[";
 }
 
+.msg_body .nav li:after {
+	content: "";
+}
+
+.msg_body .nav li:before {
+	content: "";
+}
+
+.msg_body .nav {
+    white-space: nowrap;
+    text-align: center !important;
+    font-style: normal !important;
+}
+
+.msg_body .nav a {
+    text-decoration: underline;
+    margin-right: 5px;
+    font-style: normal;
+}
+
 .tag a {
     font-style: italic;
 }
