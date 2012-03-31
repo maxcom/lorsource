@@ -34,4 +34,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
 </c:if>
 
+<script type="text/javascript">
+  if (typeof jQuery == 'undefined') {
+      document.write(unescape("%3Cscript src='/js/jquery-1.5.2.min.js' type='text/javascript'%3E%3C/script%3E"));
+  }
+</script>
+
 <script src="/js/head.js" type="text/javascript"></script>
