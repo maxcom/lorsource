@@ -35,5 +35,11 @@
       out.append(poll.renderPoll());
     %>
   </c:if>
+  
+  <c:if test="${not empty preparedMessage.tags}">
+    <p>
+      <lor:tags list="${preparedMessage.tags}"/>
+    </p>
+  </c:if>  
 ]]>
 </description>
