@@ -44,7 +44,7 @@
   Topic nextMessage = (Topic) request.getAttribute("nextMessage");
 %>
 
-<title>${preparedMessage.section.title} - ${preparedMessage.group.title} - ${message.title}</title>
+<title>${message.title} - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
