@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
@@ -32,6 +33,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -250,58 +252,61 @@ public class TrackerDao {
       query = String.format(queryTrackerZeroMain, partIgnored);
     }
 
-    return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItem>() {
-      @Override
-      public TrackerItem mapRow(ResultSet resultSet, int i) throws SQLException {
-        User author;
-        try {
-          int author_id = resultSet.getInt("author");
-          if(author_id != 0) {
-            author = userDao.getUserCached(author_id);
-          } else {
-            author = null;
-          }
-        } catch (UserNotFoundException e) {
-          throw new RuntimeException(e);
-        }
-        int msgid = resultSet.getInt("id");
-        Timestamp lastmod = resultSet.getTimestamp("lastmod");
-        int stat1 = resultSet.getInt("stat1");
-        int groupId = resultSet.getInt("gid");
-        String groupTitle = resultSet.getString("gtitle");
-        String title = resultSet.getString("title");
-        int cid = resultSet.getInt("cid");
-        User lastCommentBy;
-        try {
-          int id = resultSet.getInt("last_comment_by");
+    SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
-          if (id != 0) {
-            lastCommentBy = userDao.getUserCached(id);
-          } else {
-            lastCommentBy = null;
-          }
-        } catch (UserNotFoundException e) {
-          throw new RuntimeException(e);
-        }
-        boolean resolved = resultSet.getBoolean("resolved");
-        int section = resultSet.getInt("section");
-        String groupUrlName = resultSet.getString("urlname");
-        Timestamp postdate = resultSet.getTimestamp("postdate");
-        boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
-        int pages = Topic.getPageCount(stat1, messagesInPage);
-
-        ImmutableList<String> tags;
-
-        if (msgid!=0) {
-          tags = topicTagService.getMessageTagsForTitle(msgid);
+    List<TrackerItem> res = new ArrayList<TrackerItem>(topics);
+    
+    while (resultSet.next()) {
+      User author;
+      try {
+        int author_id = resultSet.getInt("author");
+        if (author_id != 0) {
+          author = userDao.getUserCached(author_id);
         } else {
-          tags = ImmutableList.of();
+          author = null;
         }
-
-        return new TrackerItem(author, msgid, lastmod, stat1,
-                groupId, groupTitle, title, cid, lastCommentBy, resolved,
-            section, groupUrlName, postdate, uncommited, pages, tags);
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
       }
-    });
+      int msgid = resultSet.getInt("id");
+      Timestamp lastmod = resultSet.getTimestamp("lastmod");
+      int stat1 = resultSet.getInt("stat1");
+      int groupId = resultSet.getInt("gid");
+      String groupTitle = resultSet.getString("gtitle");
+      String title = resultSet.getString("title");
+      int cid = resultSet.getInt("cid");
+      User lastCommentBy;
+      try {
+        int id = resultSet.getInt("last_comment_by");
+
+        if (id != 0) {
+          lastCommentBy = userDao.getUserCached(id);
+        } else {
+          lastCommentBy = null;
+        }
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+      boolean resolved = resultSet.getBoolean("resolved");
+      int section = resultSet.getInt("section");
+      String groupUrlName = resultSet.getString("urlname");
+      Timestamp postdate = resultSet.getTimestamp("postdate");
+      boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
+      int pages = Topic.getPageCount(stat1, messagesInPage);
+
+      ImmutableList<String> tags;
+
+      if (msgid != 0) {
+        tags = topicTagService.getMessageTagsForTitle(msgid);
+      } else {
+        tags = ImmutableList.of();
+      }
+
+      res.add(new TrackerItem(author, msgid, lastmod, stat1,
+              groupId, groupTitle, title, cid, lastCommentBy, resolved,
+              section, groupUrlName, postdate, uncommited, pages, tags));
+    }
+    
+    return res;
   }
 }
