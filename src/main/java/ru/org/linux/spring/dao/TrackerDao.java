@@ -292,7 +292,7 @@ public class TrackerDao {
 
         ImmutableList<String> tags;
 
-        if (msgid!=0 && !resultSet.getBoolean("smod")) {
+        if (msgid!=0) {
           tags = topicTagService.getMessageTagsForTitle(msgid);
         } else {
           tags = ImmutableList.of();
