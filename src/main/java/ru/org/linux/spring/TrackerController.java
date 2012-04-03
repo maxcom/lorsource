@@ -27,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.TrackerDao;
-import ru.org.linux.spring.dao.TrackerDao.TrackerFilter;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
@@ -47,24 +46,23 @@ public class TrackerController {
   @Autowired
   private DeleteInfoDao deleteInfoDao;
 
-  private static final Set<String> filterValuesSet =
-          ImmutableSet.copyOf(Iterables.transform(
-                  Arrays.asList(TrackerFilter.values()),
-                  new Function<TrackerFilter, String>() {
-                    @Override
-                    public String apply(TrackerFilter input) {
-                      return input.getValue();
-                    }
-                  }));
+  private static final Set<String> filterValues;
 
-  @ModelAttribute("filterItems")
-  public static List<TrackerFilter> getFilter(HttpServletRequest request) {
+  static {
+    filterValues = new HashSet<String>();
+    for (TrackerFilterEnum eventFilter : TrackerFilterEnum.values()) {
+      filterValues.add(eventFilter.getValue());
+    }
+  }
+
+  @ModelAttribute("filter")
+  public static List<TrackerFilterEnum> getFilter(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
     if(tmpl.isSessionAuthorized()) {
-      return Arrays.asList(TrackerFilter.values());
+      return Arrays.asList(TrackerFilterEnum.values());
     } else {
-      List<TrackerFilter> trackerFilters = new ArrayList<TrackerFilter>();
-      for(TrackerFilter trackerFilter : TrackerFilter.values()) {
+      List<TrackerFilterEnum> trackerFilters = new ArrayList<TrackerFilterEnum>();
+      for(TrackerFilterEnum trackerFilter : TrackerFilterEnum.values()) {
         if("mine".equals(trackerFilter.getValue())) {
           continue;
         }
@@ -75,20 +73,21 @@ public class TrackerController {
   }
 
   @RequestMapping("/tracker.jsp")
+  public String tracker() {
+    return "redirect:tracker";
+  }
+
+  @RequestMapping("/tracker")
   public ModelAndView tracker(
       @ModelAttribute("tracker") TrackerFilterAction action,
       @RequestParam(value="offset", required = false) Integer offset,
       HttpServletRequest request) throws Exception {
 
     if (action.getFilter()==null) {
-      action.setFilter(TrackerFilter.ALL.getValue());
+      action.setFilter(TrackerFilterEnum.ALL.getValue());
     }
 
-    String filter = action.getFilter();
-
-    if (!filterValuesSet.contains(filter)) {
-      throw new UserErrorException("Некорректное значение filter");
-    }
+    String filterAction = action.getFilter();
 
     if (offset==null) {
       offset = 0;
@@ -98,32 +97,26 @@ public class TrackerController {
       }
     }
 
-    TrackerFilter trackerFilter;
-    if(filter != null) {
-      if("notalks".equals(filter)) {
-        trackerFilter = TrackerFilter.NOTALKS;
-      } else if ("tech".equals(filter)) {
-        trackerFilter = TrackerFilter.TECH;
-      } else if ("mine".equals(filter)) {
-        trackerFilter = TrackerFilter.MINE;
-      } else if ("zero".equals(filter)) {
-        trackerFilter = TrackerFilter.ZERO;
-      } else {
-        trackerFilter = TrackerFilter.ALL;
-      }
+    TrackerFilterEnum trackerFilter;
+    if(filterValues.contains(filterAction)) {
+      trackerFilter = TrackerFilterEnum.valueOf(filterAction.toUpperCase());
     } else {
-      trackerFilter = TrackerFilter.ALL;
+      trackerFilter = TrackerFilterEnum.ALL;
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("mine", trackerFilter == TrackerFilter.MINE);
+    params.put("mine", trackerFilter == TrackerFilterEnum.MINE);
     params.put("offset", offset);
-    params.put("filter", filter);
-    params.put("tracker", new TrackerFilterAction(filter));
-    /*params.put("filterItems", filterItems);*/
+
+    if(trackerFilter != TrackerFilterEnum.ALL) {
+      params.put("addition_query", "&amp;filter=" + trackerFilter.getValue());
+    } else {
+      params.put("addition_query", "");
+    }
+
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-    if(trackerFilter == TrackerFilter.MINE) {
+    if(trackerFilter == TrackerFilterEnum.MINE) {
       calendar.add(Calendar.MONTH, -6);
     } else {
       calendar.add(Calendar.HOUR, -24);
@@ -135,22 +128,17 @@ public class TrackerController {
     int topics = tmpl.getProf().getTopics();
 
     params.put("topics", topics);
-    if (filter!=null) {
-      params.put("query", "&filter="+filter);
-    } else {
-      params.put("query", "");
-    }
 
     User user = tmpl.getCurrentUser();
 
-    if (trackerFilter == TrackerFilter.MINE) {
+    if (trackerFilter == TrackerFilterEnum.MINE) {
       if (!tmpl.isSessionAuthorized()) {
         throw new UserErrorException("Not authorized");
       }
     }
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
 
-    if (tmpl.isModeratorSession() && trackerFilter != TrackerFilter.MINE) {
+    if (tmpl.isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
       params.put("newUsers", userDao.getNewUsers());
       params.put("deleteStats", deleteInfoDao.getRecentStats());
     }

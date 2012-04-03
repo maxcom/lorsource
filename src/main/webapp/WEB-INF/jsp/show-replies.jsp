@@ -44,23 +44,32 @@
    -->
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<form:form commandName="notifications" ACTION="/notifications" method="GET">
 <div class=nav>
 <tr>
     <div id="navPath">
     ${title}
     </div>
     <div class="nav-buttons">
-        <form:select path="filter">
-            <form:options items="${filter}" itemValue="value" itemLabel="label"/>
-        </form:select>
-        <input type="submit" value="показать">
+        <ul>
+        <c:forEach var="f" items="${filter}">
+        <c:url var="fUrl" value="/notifications">
+            <c:param name="filter">${f.value}</c:param>
+        </c:url>
+        <c:choose>
+            <c:when test="${f.value == notifications.filter}">
+                <li><a href="${fUrl}" class="current">${f.label}</a></li>
+            </c:when>
+            <c:otherwise>
+                <li><a href="${fUrl}">${f.label}</a></li>
+            </c:otherwise>
+        </c:choose>
+        </c:forEach>
+        </ul>
         <ul>
         <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
         </ul>
     </div>
 </div>
-</form:form>
 
 <h1 class="optional">${title}</h1>
 

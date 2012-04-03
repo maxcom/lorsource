@@ -27,7 +27,7 @@
 <table>
 <tr>
   <td><a href="/news/">Новости</a></td>
-  <td><a href="/tracker.jsp">Трекер</a></td>
+  <td><a href="/tracker/">Трекер</a></td>
   <td><a href="server.jsp">О сервере</a></td>
 </tr>
 <tr>

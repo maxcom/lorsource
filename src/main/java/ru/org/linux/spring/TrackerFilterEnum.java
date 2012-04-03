@@ -12,24 +12,34 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package ru.org.linux.spring;
 
-/**
- *
- */
-public class TrackerFilterAction {
-  private String filter;
-  public TrackerFilterAction() {
-    filter = "all";
+public enum TrackerFilterEnum {
+  ALL("all", "все сообщения", true),
+  NOTALKS("notalks", "без talks", false),
+  TECH("tech", "тех. разделы форума", false),
+  MINE("mine", "мои темы", false),
+  ZERO("zero", "без ответов", false);
+
+  private final String value;
+  private final String label;
+  private final boolean def;
+
+  TrackerFilterEnum(String value, String label, boolean def) {
+    this.value = value;
+    this.label = label;
+    this.def = def;
   }
-  public TrackerFilterAction(String filter) {
-    this.filter = filter;
+
+  public String getValue() {
+    return value;
   }
-  public String getFilter() {
-    return filter;
+
+  public String getLabel() {
+    return label;
   }
-  public void setFilter(String filter) {
-    this.filter = filter;
+
+  public boolean isDefault() {
+    return def;
   }
 }
