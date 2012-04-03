@@ -17,11 +17,11 @@ package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.spring.TrackerFilterEnum;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
@@ -30,8 +30,6 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,36 +55,6 @@ public class TrackerDao {
   @Autowired
   private TopicTagService topicTagService;
 
-  public enum TrackerFilter {
-    ALL("all", "все сообщения", true),
-    NOTALKS("notalks", "без talks", false),
-    TECH("tech", "тех. разделы форума", false),
-    MINE("mine", "мои темы", false),
-    ZERO("zero", "без ответов", false);
-
-    private final String value;
-    private final String label;
-    private final boolean def;
-
-    TrackerFilter(String value, String label, boolean def) {
-      this.value = value;
-      this.label = label;
-      this.def = def;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public String getLabel() {
-      return label;
-    }
-
-    public boolean isDefault() {
-      return def;
-    }
-  }
-  
   private static final String queryTrackerZeroMain =
       "SELECT " +
           "t.userid as author, " +
@@ -203,7 +171,7 @@ public class TrackerDao {
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
 
-  public List<TrackerItem> getTrackAll(TrackerFilter filter, User currentUser, Timestamp interval,
+  public List<TrackerItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Timestamp interval,
                                        int topics, int offset, final int messagesInPage) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
@@ -246,7 +214,7 @@ public class TrackerDao {
 
     String query;
 
-    if(filter != TrackerFilter.ZERO) {
+    if(filter != TrackerFilterEnum.ZERO) {
       query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter, partWiki);
     } else {
       query = String.format(queryTrackerZeroMain, partIgnored);

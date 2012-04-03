@@ -46,14 +46,14 @@
 
   <div class="nav-buttons">
     <ul>
-      <c:forEach items="${filterItems}" var="f">
+      <c:forEach items="${filter}" var="f">
         <li>
-          <c:url var="fUrl" value="/tracker.jsp">
+          <c:url var="fUrl" value="/tracker/">
             <c:if test="${not f.default}">
               <c:param name="filter">${f.value}</c:param>
             </c:if>
           </c:url>
-          <c:if test="${tracker.filter!=f.value}">
+          <c:if test="${tracker.filter != f.value}">
             <a href="${fUrl}">${f.label}</a>
           </c:if>
           <c:if test="${tracker.filter==f.value}">
@@ -136,12 +136,12 @@
   <div style="display: table; width: 100%">
     <div style="display: table-cell; text-align: left">
       <c:if test="${offset>0}">
-        <a href="tracker.jsp?offset=${offset-topics}${query}">← предыдущие</a>
+        <a href="/tracker/?offset=${offset-topics}${additional_query}">← предыдущие</a>
       </c:if>
     </div>
     <div style="display: table-cell; text-align: right">
       <c:if test="${offset+topics<300 and fn:length(msgs)==topics}">
-        <a href="tracker.jsp?offset=${offset+topics}${query}">следующие →</a>
+        <a href="/tracker/?offset=${offset+topics}${additional_query}">следующие →</a>
       </c:if>
     </div>
   </div>

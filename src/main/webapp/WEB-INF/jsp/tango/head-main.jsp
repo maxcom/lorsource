@@ -74,7 +74,7 @@
           <li><a href="/gallery/">Галерея</a></li>
 
           <li><a href="/forum/">Форум</a></li>
-          <li><a href="/tracker.jsp">Трекер</a></li>
+          <li><a href="/tracker/">Трекер</a></li>
           <li><a href="/wiki/">Wiki</a></li>
           <c:if test="${template.sessionAuthorized}">
             <li>
