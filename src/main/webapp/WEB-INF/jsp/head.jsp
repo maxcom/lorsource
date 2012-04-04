@@ -18,8 +18,10 @@
 <html lang=ru>
 <head>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
+
   <c:if test="${template.style=='black' and template.prof.useHover}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
   </c:if>
 
 <!--[if lt IE 9]>

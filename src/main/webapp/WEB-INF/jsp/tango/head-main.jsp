@@ -16,7 +16,6 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<LINK REL="stylesheet" TYPE="text/css" HREF="/tango/combined.css">
 <LINK REL="stylesheet" TYPE="text/css" ID="theme" HREF="/tango/tango-dark.css">
 <c:if test="${template.style == 'tango'}">
   <script type="text/javascript">
