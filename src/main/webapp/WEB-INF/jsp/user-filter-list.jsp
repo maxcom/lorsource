@@ -70,7 +70,11 @@
 <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
   <label>Тег: <input type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
-  <c:if test="${favoriteTagAddError != null}"><div class="error">${favoriteTagAddError}</div></c:if>
+  <c:if test="${favoriteTagAddError != null}"><div class="error">
+  <c:forEach var="tagAddError" items="${favoriteTagAddError}">
+    ${tagAddError}<br />
+  </c:forEach>
+  </div></c:if>
 </form>
 
 <c:if test="${fn:length(favoriteTags)>0}">
@@ -104,7 +108,11 @@
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
   <label>Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
-  <c:if test="${ignoreTagAddError != null}"><div class="error">${ignoreTagAddError}</div></c:if>
+  <c:if test="${ignoreTagAddError != null}"><div class="error">
+  <c:forEach var="tagAddError" items="${ignoreTagAddError}">
+    ${tagAddError}<br />
+  </c:forEach>
+  </div></c:if>
 </form>
 
 <c:if test="${fn:length(ignoreTags)>0}">

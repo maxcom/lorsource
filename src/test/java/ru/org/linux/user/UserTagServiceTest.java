@@ -21,8 +21,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.validation.Errors;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
 
@@ -32,10 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("UserTagService-context.xml")
@@ -135,4 +134,44 @@ public class UserTagServiceTest {
     Assert.assertEquals(etalon.size(), actual.size());
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }
+
+  @Test
+  public void addMultiplyTagsTest() {
+    UserTagService mockUserTagService = mock(UserTagService.class);
+    when(mockUserTagService.addMultiplyTags(any(User.class), anyString(), anyBoolean())).thenCallRealMethod();
+    when(mockUserTagService.parseTags(anyString(), any(Errors.class))).thenCallRealMethod();
+    try{
+      doThrow(new TagNotFoundException()).when(mockUserTagService).favoriteAdd(eq(user), eq("uytutut"));
+      doThrow(new DuplicateKeyException("duplicate")).when(mockUserTagService).favoriteAdd(eq(user), eq("tag3"));
+    } catch (Exception e) {}
+
+    List<String> strErrors = mockUserTagService.addMultiplyTags(user, "tag1, tag2, tag3, uytutut, @#$%$#", true);
+    try{
+      verify(mockUserTagService).favoriteAdd(eq(user), eq("tag1"));
+      verify(mockUserTagService).favoriteAdd(eq(user), eq("tag2"));
+      verify(mockUserTagService).favoriteAdd(eq(user), eq("uytutut"));
+      verify(mockUserTagService, never()).favoriteAdd(eq(user), eq("@#$%$#"));
+      verify(mockUserTagService, never()).ignoreAdd(any(User.class), anyString());
+    } catch (Exception e) {}
+    Assert.assertEquals(strErrors.size(), 3);
+
+    reset(mockUserTagService);
+    when(mockUserTagService.addMultiplyTags(any(User.class), anyString(), anyBoolean())).thenCallRealMethod();
+    when(mockUserTagService.parseTags(anyString(), any(Errors.class))).thenCallRealMethod();
+    try{
+      doThrow(new TagNotFoundException()).when(mockUserTagService).ignoreAdd(eq(user), eq("uytutut"));
+      doThrow(new DuplicateKeyException("duplicate")).when(mockUserTagService).ignoreAdd(eq(user), eq("tag3"));
+    } catch (Exception e) {}
+
+    strErrors = mockUserTagService.addMultiplyTags(user, "tag1, tag2, tag3, uytutut, @#$%$#", false);
+    try{
+      verify(mockUserTagService).ignoreAdd(eq(user), eq("tag1"));
+      verify(mockUserTagService).ignoreAdd(eq(user), eq("tag2"));
+      verify(mockUserTagService).ignoreAdd(eq(user), eq("uytutut"));
+      verify(mockUserTagService, never()).ignoreAdd(eq(user), eq("@#$%$#"));
+      verify(mockUserTagService, never()).favoriteAdd(any(User.class), anyString());
+    } catch (Exception e) {}
+    Assert.assertEquals(strErrors.size(), 3);
+  }
+
 }
