@@ -46,17 +46,17 @@
 
   <div class="nav-buttons">
     <ul>
-      <c:forEach items="${filter}" var="f">
+      <c:forEach items="${filters}" var="f">
         <li>
           <c:url var="fUrl" value="/tracker/">
             <c:if test="${not f.default}">
               <c:param name="filter">${f.value}</c:param>
             </c:if>
           </c:url>
-          <c:if test="${tracker.filter != f.value}">
+          <c:if test="${filter != f.value}">
             <a href="${fUrl}">${f.label}</a>
           </c:if>
-          <c:if test="${tracker.filter==f.value}">
+          <c:if test="${filter==f.value}">
             <a href="${fUrl}" class="current">${f.label}</a>
           </c:if>
         </li>

@@ -56,7 +56,7 @@ public class TrackerController {
     }
   }
 
-  @ModelAttribute("filter")
+  @ModelAttribute("filters")
   public static List<TrackerFilterEnum> getFilter(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
     if(tmpl.isSessionAuthorized()) {
@@ -115,6 +115,7 @@ public class TrackerController {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("mine", trackerFilter == TrackerFilterEnum.MINE);
     params.put("offset", offset);
+    params.put("filter", trackerFilter.getValue());
 
     if(trackerFilter != TrackerFilterEnum.ALL) {
       params.put("addition_query", "&amp;filter=" + trackerFilter.getValue());
