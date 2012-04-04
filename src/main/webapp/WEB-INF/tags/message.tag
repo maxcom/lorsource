@@ -83,10 +83,13 @@
 
   <c:if test="${preparedMessage.section.imagepost}">
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
-    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
   </c:if>
 
     ${preparedMessage.processedMessage}
+
+    <c:if test="${preparedMessage.section.imagepost}">
+      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+    </c:if>
 
     <c:if test="${preparedMessage.section.votePoll}">
       <c:choose>
