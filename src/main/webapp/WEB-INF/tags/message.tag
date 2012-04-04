@@ -81,6 +81,11 @@
     ${message.title}
   </h1>
 
+  <c:if test="${preparedMessage.section.imagepost}">
+    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+  </c:if>
+
     ${preparedMessage.processedMessage}
 
     <c:if test="${preparedMessage.section.votePoll}">
@@ -101,10 +106,6 @@
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
   }
 %>
-    <c:if test="${preparedMessage.section.imagepost}">
-      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
-      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
-    </c:if>
 <footer>
 <c:if test="${not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
