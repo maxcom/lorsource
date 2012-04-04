@@ -17,12 +17,7 @@
 <!DOCTYPE html>
 <html lang=ru>
 <head>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
 
-  <c:if test="${template.style=='black' and template.prof.useHover}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
-  </c:if>
 
 <!--[if lt IE 9]>
 <script src="/js/html5.js" type="text/javascript"></script>
@@ -41,5 +36,11 @@
       document.write(unescape("%3Cscript src='/js/jquery-1.5.2.min.js' type='text/javascript'%3E%3C/script%3E"));
   }
 </script>
+  <c:if test="${template.style=='black' and template.prof.useHover}">
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
+  </c:if>
+
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
 
 <script src="/js/head.js" type="text/javascript"></script>
