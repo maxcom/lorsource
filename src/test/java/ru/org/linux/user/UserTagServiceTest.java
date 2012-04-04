@@ -128,9 +128,9 @@ public class UserTagServiceTest {
     etalon.add(123);
     List<String> tags = new ArrayList<String>();
     tags.add("tag1");
-    when(userTagDao.getUserIdListByTags(tags)).thenReturn(etalon);
+    when(userTagDao.getUserIdListByTags(1, tags)).thenReturn(etalon);
 
-    List<Integer> actual = userTagService.getUserIdListByTags(tags);
+    List<Integer> actual = userTagService.getUserIdListByTags(user, tags);
     Assert.assertEquals(etalon.size(), actual.size());
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }

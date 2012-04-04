@@ -25,7 +25,6 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -119,18 +118,22 @@ public class UserTagDao {
   /**
    * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
    *
-   * @param tags  список фаворитных тегов
+   * @param userId идентификационный номер пользователя, которому не нужно слать оповещение
+   * @param tags   список фаворитных тегов
    * @return список ID пользователей
    */
-  public List<Integer> getUserIdListByTags(List<String> tags) {
+  public List<Integer> getUserIdListByTags(int userId, List<String> tags) {
     if (tags.isEmpty()) {
       return ImmutableList.of();
     }
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue("values", tags);
+    parameters.addValue("user_id", userId);
 
     return jdbcTemplate.queryForList(
       "select distinct user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) "
-        + "AND is_favorite = true",
-      Collections.singletonMap("values", tags),
+        + "AND is_favorite = true AND user_id <> :user_id",
+      parameters,
       Integer.class
     );
   }

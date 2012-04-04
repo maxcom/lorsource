@@ -139,11 +139,12 @@ public class UserTagService {
   /**
    * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
    *
+   * @param user объект пользователя, которому не нужно слать оповещение
    * @param tags список фаворитных тегов
    * @return список ID пользователей
    */
-  public List<Integer> getUserIdListByTags(List<String> tags) {
-    return userTagDao.getUserIdListByTags(tags);
+  public List<Integer> getUserIdListByTags(User user, List<String> tags) {
+    return userTagDao.getUserIdListByTags(user.getId(), tags);
   }
 
   /**
