@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserTagDao;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -35,7 +34,7 @@ import java.util.regex.Pattern;
 public class TagService {
   private static final Log logger = LogFactory.getLog(TagService.class);
 
-  private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-.]+)", Pattern.CASE_INSENSITIVE);
 
   public static final int MIN_TAG_LENGTH = 2;
   public static final int MAX_TAG_LENGTH = 25;
