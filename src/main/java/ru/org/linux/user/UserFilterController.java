@@ -15,10 +15,9 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,13 +28,13 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.tag.IncorrectTagException;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,9 +51,9 @@ public class UserFilterController {
 
   @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(
-          HttpServletRequest request,
-          @RequestParam(value="newFavoriteTagName", required = false) String newFavoriteTagName,
-          @RequestParam(value="newIgnoredTagName", required = false) String newIgnoredTagName
+    HttpServletRequest request,
+    @RequestParam(value = "newFavoriteTagName", required = false) String newFavoriteTagName,
+    @RequestParam(value = "newIgnoredTagName", required = false) String newIgnoredTagName
   ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
@@ -76,11 +75,11 @@ public class UserFilterController {
       modelAndView.addObject("isModerator", true);
     }
 
-    if (newFavoriteTagName!=null && TagService.isGoodTag(newFavoriteTagName)) {
+    if (newFavoriteTagName != null && TagService.isGoodTag(newFavoriteTagName)) {
       modelAndView.addObject("newFavoriteTagName", newFavoriteTagName);
     }
 
-    if (newIgnoredTagName!=null && TagService.isGoodTag(newIgnoredTagName)) {
+    if (newIgnoredTagName != null && TagService.isGoodTag(newIgnoredTagName)) {
       modelAndView.addObject("newIgnoredTagName", newIgnoredTagName);
     }
 
@@ -165,11 +164,11 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    String r = favoriteTagAdd(request, tagName);
+    List<String> r = favoriteTagAdd(request, tagName);
 
-    if (r != null) {
+    if (r.size() != 0) {
       ModelAndView modelAndView = showList(request, tagName, null);
-      modelAndView.addObject("favoriteTagAddError", tagName + ": " + r);
+      modelAndView.addObject("favoriteTagAddError", r);
       return modelAndView;
     }
 
@@ -184,25 +183,24 @@ public class UserFilterController {
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
    */
-  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add", headers="Accept=application/json")
+  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   @ResponseBody
   public Map<String, String> favoriteTagAddJSON(
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    String r = favoriteTagAdd(request, tagName);
-
-    if (r != null) {
-      return ImmutableMap.of("error", r);
+    List<String> r = favoriteTagAdd(request, tagName);
+    if (r.size() != 0) {
+      return ImmutableMap.of("error", StringUtils.join(r, "; "));
     }
 
     return ImmutableMap.of();
   }
 
   /**
-    @return null if ok, error otherwise
+   * @return null if ok, error otherwise
    */
-  private String favoriteTagAdd(
+  private List<String> favoriteTagAdd(
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
@@ -215,20 +213,7 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    try {
-      ImmutableList<String> tagList = userTagService.parseTags(tagName);
-      for (String tag : tagList) {
-        userTagService.favoriteAdd(user, tag);
-      }
-    } catch (TagNotFoundException e) {
-      return e.getMessage();
-    } catch (DuplicateKeyException e) {
-      return "Тег уже добавлен";
-    } catch (IncorrectTagException e) {
-      return e.getMessage();
-    }
-
-    return null;
+    return userTagService.addMultiplyTags(user, tagName, true);
   }
 
   /**
@@ -268,8 +253,10 @@ public class UserFilterController {
    * @throws TagNotFoundException     тег не найден
    * @throws AccessViolationException нарушение прав доступа
    */
-  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del", headers="Accept=application/json")
-  public @ResponseBody Map<String, String > favoriteTagDelJSON(
+  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
+  public
+  @ResponseBody
+  Map<String, String> favoriteTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
@@ -312,23 +299,11 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    String errorMessage = null;
-    try {
-      ImmutableList<String> tagList = userTagService.parseTags(tagName);
-      for (String tag : tagList) {
-        userTagService.ignoreAdd(user, tag);
-      }
-    } catch (TagNotFoundException e) {
-      errorMessage = e.getMessage();
-    } catch (DuplicateKeyException e) {
-      errorMessage = "Тег уже добавлен";
-    } catch (IncorrectTagException e) {
-      errorMessage = e.getMessage();
-    }
+    List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
 
-    if (errorMessage != null) {
+    if (errorMessage.size() != 0) {
       ModelAndView modelAndView = showList(request, null, tagName);
-      modelAndView.addObject("ignoreTagAddError", tagName + ": " + errorMessage);
+      modelAndView.addObject("ignoreTagAddError", errorMessage);
       return modelAndView;
     }
 
@@ -343,8 +318,10 @@ public class UserFilterController {
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
    */
-  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers="Accept=application/json")
-  public @ResponseBody Map<String, String> ignoreTagAddJSON(
+  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
+  public
+  @ResponseBody
+  Map<String, String> ignoreTagAddJSON(
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
@@ -360,17 +337,9 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    try {
-      ImmutableList<String> tagList = userTagService.parseTags(tagName);
-      for (String tag : tagList) {
-        userTagService.ignoreAdd(user, tag);
-      }
-    } catch (TagNotFoundException e) {
-      return ImmutableMap.of("error", e.getMessage());
-    } catch (DuplicateKeyException e) {
-      return ImmutableMap.of("error", "Тег уже добавлен");
-    } catch (IncorrectTagException e) {
-      return ImmutableMap.of("error", e.getMessage());
+    List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
+    if (errorMessage.size() != 0) {
+      return ImmutableMap.of("error", StringUtils.join(errorMessage,"; "));
     }
 
     return ImmutableMap.of();
@@ -417,8 +386,10 @@ public class UserFilterController {
    * @throws TagNotFoundException     тег не найден
    * @throws AccessViolationException нарушение прав доступа
    */
-  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers="Accept=application/json")
-  public @ResponseBody Map<String, String> ignoreTagDelJSON(
+  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
+  public
+  @ResponseBody
+  Map<String, String> ignoreTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {

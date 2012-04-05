@@ -20,10 +20,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.WebDataBinder;
 import ru.org.linux.tag.*;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -134,11 +139,12 @@ public class UserTagService {
   /**
    * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
    *
+   * @param user объект пользователя, которому не нужно слать оповещение
    * @param tags список фаворитных тегов
    * @return список ID пользователей
    */
-  public List<Integer> getUserIdListByTags(List<String> tags) {
-    return userTagDao.getUserIdListByTags(tags);
+  public List<Integer> getUserIdListByTags(User user, List<String> tags) {
+    return userTagDao.getUserIdListByTags(user.getId(), tags);
   }
 
   /**
@@ -146,13 +152,11 @@ public class UserTagService {
    *
    * @param tags список тегов через запятую
    * @return список тегов
-   * @throws IncorrectTagException
    */
-  public ImmutableList<String> parseTags(String tags)
-    throws IncorrectTagException {
+  public ImmutableList<String> parseTags(String tags, Errors errors) {
     Set<String> tagSet = new HashSet<String>();
 
-    // Теги разделяютчя пайпом или запятой
+    // Теги разделяются пайпом или запятой
     tags = tags.replaceAll("\\|", ",");
     String[] tagsArr = tags.split(",");
 
@@ -169,7 +173,8 @@ public class UserTagService {
 
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
       if (!tagService.isGoodTag(tag)) {
-        throw new IncorrectTagException("Некорректный тег: '" + tag + '\'');
+        errors.reject("Некорректный тег: '" + tag + '\'');
+        continue;
       }
 
       tagSet.add(tag);
@@ -200,4 +205,50 @@ public class UserTagService {
     ImmutableList<String> tags = ignoresGet(user);
     return tags.contains(tagName);
   }
+
+  /**
+   * Добавление нескольких тегов из строки. разделённых запятой.
+   *
+   * @param user        объект пользователя
+   * @param tagsStr     строка, содержащая разделённые запятой теги
+   * @param isFavorite  добавлять фаворитные теги (true) или игнорируемые (false)
+   * @return null если не было ошибок; строка если были ошибки при добавлении.
+   */
+  public List<String> addMultiplyTags(User user, String tagsStr, boolean isFavorite) {
+    WebDataBinder binder = new WebDataBinder("");
+    Errors errors = binder.getBindingResult();
+    ImmutableList<String> tagList = parseTags(tagsStr, errors);
+    for (String tag : tagList) {
+      try {
+        if (isFavorite) {
+          favoriteAdd(user, tag);
+        } else {
+          ignoreAdd(user, tag);
+        }
+      } catch (TagNotFoundException e) {
+        errors.reject(e.getMessage() + ": '" + tag);
+      } catch (DuplicateKeyException e) {
+        errors.reject("Тег уже добавлен: '" + tag);
+      }
+    }
+    return errorsToStringList(errors);
+  }
+
+  /**
+   * преобразование ошибок в массив строк.
+   *
+   * @param errors  объект ошибок
+   * @return массив строк, содержащий описания ошибок
+   */
+  private List<String> errorsToStringList(Errors errors) {
+    List<String> strErrors = new ArrayList<String>();
+
+    if (errors.hasErrors()) {
+      for (ObjectError objectError : errors.getAllErrors()) {
+        strErrors.add(objectError.getCode());
+      }
+    }
+    return strErrors;
+  }
+
 }
