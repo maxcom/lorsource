@@ -197,7 +197,7 @@
             </c:if>
         </c:if>
           </ul>
-        <c:if test="${template.sessionAuthorized}">
+        <c:if test="${template.sessionAuthorized and not message.expired}">
           <br>${preparedMessage.postscoreInfo}
         </c:if>
         </div>
