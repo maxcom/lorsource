@@ -246,17 +246,17 @@ public class UserTagDaoIntegrationTest {
     List<Integer> userIdList;
     List<String> tags = new ArrayList<String>();
     tags.add("UserTagDaoIntegrationTest_tag1");
-    userIdList = userTagDao.getUserIdListByTags(tags);
-    Assert.assertEquals("Wrong count of user ID's.", 2, userIdList.size());
+    userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
+    Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
 
     tags.add("UserTagDaoIntegrationTest_tag2");
-    userIdList = userTagDao.getUserIdListByTags(tags);
-    Assert.assertEquals("Wrong count of user ID's.", 2, userIdList.size());
+    userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
+    Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
 
     tags.clear();
     userTagDao.deleteTag(user1Id, tag5Id, true);
     tags.add("UserTagDaoIntegrationTest_tag5");
-    userIdList = userTagDao.getUserIdListByTags(tags);
+    userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
     Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
   }
 

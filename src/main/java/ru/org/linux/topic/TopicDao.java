@@ -92,7 +92,7 @@ public class TopicDao {
 
   @Autowired
   private Configuration configuration;
-  
+
   @Autowired
   private MsgbaseDao msgbaseDao;
 
@@ -398,7 +398,7 @@ public class TopicDao {
       tagService.updateCounters(Collections.<String>emptyList(), tags);
 
       // оповещение пользователей по тегам
-      List<Integer> userIdListByTags = userTagService.getUserIdListByTags(tags);
+      List<Integer> userIdListByTags = userTagService.getUserIdListByTags(user, tags);
 
       List<Integer> userRefIds = new ArrayList<Integer>();
       for (User userRef: userRefs) {
@@ -429,13 +429,13 @@ public class TopicDao {
     editInfo.setEditor(editor.getId());
 
     boolean modified = false;
-    
+
     String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
 
     if (!oldText.equals(newText)) {
       editInfo.setOldmessage(oldText);
       modified = true;
-      
+
       msgbaseDao.updateMessage(msg.getId(), newText);
     }
 
@@ -593,7 +593,7 @@ public class TopicDao {
     );
 
     userDao.changeScore(msg.getUid(), bonus);
-    
+
     if (editorBonus!=null) {
       for (Map.Entry<Integer, Integer> entry : editorBonus.entrySet()) {
         userDao.changeScore(entry.getKey(), entry.getValue());
@@ -776,7 +776,7 @@ public class TopicDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void moveTopic(Topic msg, Group newGrp, User moveBy) {
     String url = msg.getUrl();
-    
+
     boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
