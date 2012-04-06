@@ -102,6 +102,14 @@ TR.color2 { background: #f0f0f0; }
   background: #f0f0f0;
 }
 
+.message-table .tag:after {
+	content: "]";
+}
+
+.message-table .tag:before {
+	content: "[";
+}
+
 /* view-message */
 .entry-body .nav A {
   text-decoration: underline;
