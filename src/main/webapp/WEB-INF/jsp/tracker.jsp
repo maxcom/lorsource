@@ -136,12 +136,12 @@
   <div style="display: table; width: 100%">
     <div style="display: table-cell; text-align: left">
       <c:if test="${offset>0}">
-        <a href="/tracker/?offset=${offset-topics}${additional_query}">← предыдущие</a>
+        <a href="/tracker/?offset=${offset-topics}${addition_query}">← предыдущие</a>
       </c:if>
     </div>
     <div style="display: table-cell; text-align: right">
       <c:if test="${offset+topics<300 and fn:length(msgs)==topics}">
-        <a href="/tracker/?offset=${offset+topics}${additional_query}">следующие →</a>
+        <a href="/tracker/?offset=${offset+topics}${addition_query}">следующие →</a>
       </c:if>
     </div>
   </div>
