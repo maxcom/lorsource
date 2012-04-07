@@ -431,6 +431,10 @@ div.quote {
     #hd {
         padding-left: 0.5em;
     }
+
+    #commentForm textarea {
+        width: 100%;
+    }
 }
 
 @media screen and (max-width: 640px) {
