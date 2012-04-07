@@ -31,9 +31,9 @@
          value="<%= StringUtil.escapeHtml(session.getId()) %>">
   <c:if test="${!template.sessionAuthorized}">
     <label for="nick">Имя:</label>
-    <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
+    <input id="nick" type='text' name='nick' value="anonymous"><br>
     <label for="password">Пароль:</label>
-    <input id="password" type=password name=password size=40><br>
+    <input id="password" type=password name=password><br>
     ${postscoreInfo}
     <br>
   </c:if>
@@ -50,13 +50,11 @@
   </select>  <br>
 
   <label for="title">Заглавие:</label><br>
-  <input type=text id="title" name=title style="width: 40em" value="<%= title %>"><br>
+  <input type=text id="title" name=title value="<%= title %>"><br>
 
   <label for="msg">Сообщение:</label><br>
 
-  <textarea id="msg" class="required" name="msg" style="width: 40em"
-            rows="20"><%= msg == null ? "" : StringUtil.escapeHtml(msg)
-  %></textarea><br>
+  <textarea id="msg" class="required" name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
   <font size="2">* В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br>
                  Пустая строка (два раза Enter) начинает новый абзац.<br>
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>

@@ -283,6 +283,19 @@ label.error {
     font-size: medium;
 }
 
+#commentForm textarea {
+    width: 40em;
+    height: 20em;
+}
+
+#commentForm input[type="text"] {
+    width: 40em;
+}
+
+#commentForm input[type="password"] {
+    width: 40em;
+}
+
 .message-w-userpic {
     padding-left: 160px;
 }

@@ -483,6 +483,10 @@ div.quote {
         float: none;
     }
 
+    #commentForm textarea {
+        height: 10em;
+    }
+
     html {
         -webkit-text-size-adjust: none; /* Prevent font scaling in landscape */
     }
