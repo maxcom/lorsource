@@ -435,6 +435,10 @@ div.quote {
     #commentForm textarea {
         width: 100%;
     }
+
+    #commentForm input[type='text'] {
+        width: 100%;
+    }
 }
 
 @media screen and (max-width: 640px) {
