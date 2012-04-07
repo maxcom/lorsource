@@ -16,7 +16,7 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.Timestamp;
 
 public class DeleteInfo implements Serializable {
   private final String nick;
@@ -51,5 +51,9 @@ public class DeleteInfo implements Serializable {
 
   public Timestamp getDelDate() {
     return delDate;
+  }
+
+  public int getBonus() {
+    return bonus!=null?bonus:0;
   }
 }

@@ -35,6 +35,7 @@ import java.util.List;
 public class DeleteInfoDao {
   private JdbcTemplate jdbcTemplate;
   private static final String QUERY_DELETE_INFO = "SELECT nick,reason,users.id as userid, deldate, bonus FROM del_info,users WHERE msgid=? AND users.id=del_info.delby";
+  private static final String QUERY_DELETE_INFO_FOR_UPDATE = "SELECT nick,reason,users.id as userid, deldate, bonus FROM del_info,users WHERE msgid=? AND users.id=del_info.delby FOR UPDATE";
   private static final String INSERT_DELETE_INFO = "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)";
 
   @Autowired
@@ -48,7 +49,19 @@ public class DeleteInfoDao {
    * @return информация о удаленном сообщении
    */
   public DeleteInfo getDeleteInfo(int id) {
-    List<DeleteInfo> list = jdbcTemplate.query(QUERY_DELETE_INFO, new RowMapper<DeleteInfo>() {
+    return getDeleteInfo(id, false);
+  }
+
+  /**
+   * Кто, когда и почему удалил сообщение
+   * @param id id проверяемого сообщения
+   * @param forUpdate блокировать запись до конца текущей транзакции (SELECT ... FOR UPDATE)
+   * @return информация о удаленном сообщении
+   */
+  public DeleteInfo getDeleteInfo(int id, boolean forUpdate) {
+    List<DeleteInfo> list = jdbcTemplate.query(
+            forUpdate?QUERY_DELETE_INFO_FOR_UPDATE:QUERY_DELETE_INFO,
+            new RowMapper<DeleteInfo>() {
       @Override
       public DeleteInfo mapRow(ResultSet resultSet, int i) throws SQLException {
         Integer bonus = resultSet.getInt("bonus");

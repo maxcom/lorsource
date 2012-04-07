@@ -42,17 +42,14 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserEventService;
-import ru.org.linux.user.UserTagService;
+import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -132,7 +129,7 @@ public class TopicDao {
 
   private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
 
-  public static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
+  private static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
 
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -285,6 +282,12 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void undelete(Topic message) {
+    DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(message.getId(), true);
+
+    if (deleteInfo!=null && deleteInfo.getBonus()!=0) {
+      userDao.changeScore(message.getUid(), -deleteInfo.getBonus());
+    }
+
     jdbcTemplate.update(updateUndeleteMessage, message.getId());
     jdbcTemplate.update(updateUneleteInfo, message.getId());
   }
