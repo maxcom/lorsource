@@ -26,8 +26,8 @@ function sh(type, id) {
     }
 
     if (element.is(':hidden')) {
-      reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
-      reply.append(element);
+      reply = $('div.msg_body', $('#comment-' + id));
+      reply.after(element);
       reply_to.attr('value', id);
       element.slideDown('slow', function() { $("#msg").focus(); });
     } else {
@@ -42,8 +42,8 @@ function sh(type, id) {
     }
 
     if (element.is(':hidden')) {
-      reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
-      reply.append(element);
+      reply = $('div.msg_body', $('#topic-' + topic_id));
+      reply.after(element);
       reply_to.attr('value', '0');
       element.slideDown('slow', function() { $("#msg").focus(); });
     } else {
