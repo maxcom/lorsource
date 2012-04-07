@@ -431,11 +431,6 @@ div.quote {
     #hd {
         padding-left: 0.5em;
     }
-
-    .msg #commentForm {
-        margin-left: 10px;
-        margin-right: 10px;
-    }
 }
 
 @media screen and (max-width: 640px) {
