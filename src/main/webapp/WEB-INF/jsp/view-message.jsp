@@ -104,9 +104,8 @@
 </form>
 
 <c:set var="scroller"><c:if test="${topScroller}">
-  <div class=nav>
-  <div style="display: table; width: 100%">
-    <div style="vertical-align: middle; width: 35%; display: table-cell">
+  <div class="nav grid-row">
+    <div class="grid-3-1">
       <table>
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
@@ -122,9 +121,9 @@
         </tr>
       </table>
     </div>
-    <div style="vertical-align: middle; width: 30%; display: table-cell">
+    <div class="grid-3-2">
     </div>
-    <div style="vertical-align: middle; width: 35%; display: table-cell; text-align: right">
+    <div class="grid-3-3">
       <c:if test="${nextMessage != null}">
         <table align="right">
           <tr valign=middle align=right>
@@ -141,13 +140,11 @@
       </c:if>
     </div>
   </div>
-  </div>
 </c:if></c:set>
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
-  <div class=nav>
-  <div style="display: table; width: 100%">
-    <div style="vertical-align: middle; width: 35%; display: table-cell">
+  <div class="nav grid-row">
+    <div class="grid-3-1">
       <table>
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
@@ -163,13 +160,13 @@
         </tr>
       </table>
     </div>
-    <div style="vertical-align: middle; width: 30%; display: table-cell; text-align: center">
+    <div class="grid-3-2">
       <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
          href="${group.url}">
           ${preparedMessage.group.title}
       </a>
     </div>
-    <div style="vertical-align: middle; width: 35%; display: table-cell; text-align: right">
+    <div class="grid-3-3">
       <c:if test="${nextMessage != null}">
         <table align="right">
           <tr valign=middle align=right>
@@ -185,7 +182,6 @@
         </table>
       </c:if>
     </div>
-  </div>
   </div>
 </c:if></c:set>
 
