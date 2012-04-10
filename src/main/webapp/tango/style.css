@@ -442,6 +442,10 @@ div.quote {
 }
 
 @media screen and (max-width: 640px) {
+    .hideon-phone {
+        display: none;
+    }
+
     div.entry-userpic {
         float: right;
     }

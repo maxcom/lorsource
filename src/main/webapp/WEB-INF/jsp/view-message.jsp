@@ -112,7 +112,7 @@
             <td style="padding-right: 5px">
               <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
             </td>
-            <td align=left valign=top>
+            <td align=left valign=top class="hideon-phone">
               <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
                 <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
               </a>
@@ -127,7 +127,7 @@
       <c:if test="${nextMessage != null}">
         <table align="right">
           <tr valign=middle align=right>
-            <td>
+            <td class="hideon-phone">
               <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
                 <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
               </a>
@@ -151,7 +151,7 @@
             <td style="padding-right: 5px">
               <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
             </td>
-            <td align=left valign=top>
+            <td align=left valign=top class="hideon-phone">
               <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
                 <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
               </a>
@@ -170,7 +170,7 @@
       <c:if test="${nextMessage != null}">
         <table align="right">
           <tr valign=middle align=right>
-            <td>
+            <td class="hideon-phone">
               <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
                 <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
               </a>
