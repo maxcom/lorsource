@@ -15,17 +15,14 @@
 
 package ru.org.linux.gallery;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import ru.org.linux.spring.boxlets.AbstractBoxlet;
-import ru.org.linux.spring.commons.CacheProvider;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
 public class GalleryBoxlet extends AbstractBoxlet {
@@ -33,20 +30,12 @@ public class GalleryBoxlet extends AbstractBoxlet {
   @Autowired
   private GalleryDao galleryDao;
 
-  @Autowired
-  private CacheProvider cacheProvider;
-
   @Override
   @RequestMapping("/gallery.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    List<GalleryItem> list = getFromCache(cacheProvider, new GetCommand<List<GalleryItem>>() {
-      @Override
-      public List<GalleryItem> get() {
-        return galleryDao.getGalleryItems(COUNT_ITEMS);
-      }
-    });
+    List<GalleryItem> list = galleryDao.getGalleryItems(COUNT_ITEMS);
     mav.addObject("items", list);
     return mav;
   }
