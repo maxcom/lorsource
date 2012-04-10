@@ -42,10 +42,6 @@ public abstract class AbstractBoxlet extends AbstractController {
     return mav;
   }
 
-  protected <T> T getFromCache(CacheProvider cacheProvider, GetCommand<T> callback) throws Exception {
-    return getFromCache(cacheProvider, getCacheKey(), callback);
-  }
-
   protected <T> T getFromCache(CacheProvider cacheProvider, String key, GetCommand<T> callback) throws Exception {
     @SuppressWarnings("unchecked")
     T result = (T) cacheProvider.getFromCache(key);
