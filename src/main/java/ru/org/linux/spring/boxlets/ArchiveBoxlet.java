@@ -15,30 +15,27 @@
 
 package ru.org.linux.spring.boxlets;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.ArchiveDao;
 import ru.org.linux.topic.ArchiveDao.ArchiveDTO;
 
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
 @Controller
 public class ArchiveBoxlet extends AbstractBoxlet {
+  @Autowired
   private ArchiveDao archiveDao;
-  private CacheProvider cacheProvider;
 
   @Autowired
-  SectionService sectionService;
+  private SectionService sectionService;
 
   private Section sectionNews;
 
@@ -49,30 +46,14 @@ public class ArchiveBoxlet extends AbstractBoxlet {
    * @throws SectionNotFoundException
    */
   @PostConstruct
-  private void initializeBoxlet()
-    throws SectionNotFoundException {
+  private void initializeBoxlet() throws SectionNotFoundException {
     sectionNews = sectionService.getSection(Section.SECTION_NEWS);
-  }
-
-  @Autowired
-  public void setArchiveDao(ArchiveDao archiveDao) {
-    this.archiveDao = archiveDao;
-  }
-
-  @Autowired
-  public void setCacheProvider(CacheProvider cacheProvider) {
-    this.cacheProvider = cacheProvider;
   }
 
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    List<ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDTO>>() {
-      @Override
-      public List<ArchiveDTO> get() {
-        return archiveDao.getArchiveDTO(sectionNews, 13);
-      }
-    });
+    List<ArchiveDTO> list = archiveDao.getArchiveDTO(sectionNews, 13);
 
     return new ModelAndView("boxlets/archive", "items", list);
   }
