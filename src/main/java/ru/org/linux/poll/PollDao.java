@@ -100,7 +100,7 @@ public class PollDao {
    * @param pollId идентификатор голосвания
    * @return кол-во голосов всего (несколько вариантов от одного пользователя суммируется"
    */
-  public Integer getVotersCount(Integer pollId) {
+  public int getVotersCount(Integer pollId) {
     return jdbcTemplate.queryForInt(queryCountVotes, pollId);
   }
 
