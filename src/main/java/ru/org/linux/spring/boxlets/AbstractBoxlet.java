@@ -17,14 +17,11 @@ package ru.org.linux.spring.boxlets;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-import ru.org.linux.spring.commons.CacheProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public abstract class AbstractBoxlet extends AbstractController {
-  private static final int DEFAULT_EXPIRE = 30000;
-
   protected abstract ModelAndView getData(HttpServletRequest request
   ) throws Exception;
 
@@ -40,28 +37,5 @@ public abstract class AbstractBoxlet extends AbstractController {
       mav.addObject("editMode", Boolean.TRUE);
     }
     return mav;
-  }
-
-  protected <T> T getFromCache(CacheProvider cacheProvider, String key, GetCommand<T> callback) throws Exception {
-    @SuppressWarnings("unchecked")
-    T result = (T) cacheProvider.getFromCache(key);
-    if (result == null){
-       result = callback.get();
-       cacheProvider.storeToCache(key, result, getExpiryTime());
-    }
-    
-    return result;
-  }
-
-  public interface GetCommand<T>{
-    T get() throws Exception;
-  }
-
-  public String getCacheKey(){
-    return getClass().getName();
-  }
-
-  public int getExpiryTime(){
-    return DEFAULT_EXPIRE;
   }
 }
