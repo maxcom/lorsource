@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.io.File;
@@ -232,7 +234,7 @@ public class TopicPrepareService {
       PreparedImage preparedImage;
 
       if (group.isImagePostAllowed() && message.getUrl()!=null) {
-        preparedImage = prepareImage(message);
+        preparedImage = prepareImage(message, secure);
       } else {
         preparedImage = null;
       }
@@ -267,7 +269,7 @@ public class TopicPrepareService {
     }
   }
   
-  private PreparedImage prepareImage(Topic topic) {
+  private PreparedImage prepareImage(Topic topic, boolean secure) {
     String mediumName = Screenshot.getMediumName(topic.getUrl());
 
     String htmlPath = configuration.getHTMLPathPrefix();
@@ -282,8 +284,10 @@ public class TopicPrepareService {
               fullName,
               ImageInfo.detectImageType(new File(fullName))
       );
-      
-      return new PreparedImage(mediumName, mediumImageInfo, topic.getUrl(), fullInfo);
+      LorURL medURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+mediumName);
+      LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+topic.getUrl());
+
+      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo);
     } catch (BadImageException e) {
       logger.warn(e);
       return null;
