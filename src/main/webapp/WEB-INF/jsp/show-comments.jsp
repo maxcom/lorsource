@@ -44,7 +44,7 @@
 </c:if>  
 </div>
 <div style="float: right">
-<c:if test="${fn:length(list)==topics}">
+<c:if test="${fn:length(list)==topics and (offset+topics<1000)}">
   <a rel=next rev=prev href="show-comments.jsp?nick=${user.nick}&amp;offset=<%= offset + topics %>">вперед →</a>
 </c:if>
 </div>

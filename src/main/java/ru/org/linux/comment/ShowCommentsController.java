@@ -57,6 +57,10 @@ public class ShowCommentsController {
       throw new ServletParameterException("offset<0!?");
     }
 
+    if (offset>1000) {
+      throw new ServletParameterException("Доступно не более 1000 комментариев");
+    }
+
     mv.getModel().put("offset", offset);
 
     boolean firstPage = offset==0;
