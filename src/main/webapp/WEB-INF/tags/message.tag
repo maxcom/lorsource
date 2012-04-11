@@ -86,7 +86,7 @@
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
 
-  <div  <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
+  <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
     ${preparedMessage.processedMessage}
   </div>
 
@@ -107,11 +107,13 @@
       </c:choose>
     </c:if>
 
+    <c:if test="${message.haveLink and not empty message.url}">
+      <p <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
     <%
-  if (message.getUrl() != null && message.isHaveLink() && !message.getUrl().isEmpty()) {
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
-  }
+    out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
 %>
+      </p>
+    </c:if>
 <footer>
 <c:if test="${not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
