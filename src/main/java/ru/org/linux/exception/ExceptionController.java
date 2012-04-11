@@ -35,11 +35,16 @@ public class ExceptionController {
     HttpServletResponse response,
     Object handler
   ) {
-    Exception ex = (Exception) request.getAttribute("javax.servlet.error.exception");
+    Throwable ex = (Throwable) request.getAttribute("javax.servlet.error.exception");
     if (ex == null) {
       return new ModelAndView(new RedirectView("/"));
     }
-    return exceptionResolver.resolveException(request, response, handler, ex);
+
+    if (!(ex instanceof Exception)) {
+      return exceptionResolver.resolveException(request, response, handler, new RuntimeException(ex));
+    } else {
+      return exceptionResolver.resolveException(request, response, handler, (Exception) ex);
+    }
   }
 
 }
