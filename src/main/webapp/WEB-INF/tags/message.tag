@@ -32,7 +32,7 @@
   Template tmpl = Template.getTemplate(request);
 %>
   <!-- ${message.id}  -->
-<article class=msg id="topic-${message.id}" <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
+<article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
     <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
@@ -78,7 +78,7 @@
   </c:if>
 
   <div class="msg_body ${msgBodyStyle}">
-  <h1>
+  <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
     ${message.title}
   </h1>
 
@@ -86,7 +86,9 @@
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
 
+  <div  <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
     ${preparedMessage.processedMessage}
+  </div>
 
     <c:if test="${preparedMessage.section.imagepost}">
       <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
