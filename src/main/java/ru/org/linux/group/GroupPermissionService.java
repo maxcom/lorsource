@@ -16,6 +16,7 @@ import java.util.Date;
 
 @Service
 public class GroupPermissionService {
+  private static final int EDIT_SELF_ALWAYS_SCORE = 300;
   private SectionService sectionService;
 
   @Autowired
@@ -196,7 +197,19 @@ public class GroupPermissionService {
     }
 
     if (by.getId()==author.getId() && !message.isCommited()) {
-      return message.isSticky() || section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < PreparedTopic.EDIT_PERIOD;
+      if (message.isSticky()) {
+        return true;
+      }
+
+      if (section.isPremoderated()) {
+        return true;
+      }
+
+      if (author.getScore()>=EDIT_SELF_ALWAYS_SCORE) {
+        return !message.isExpired();
+      }
+
+      return (System.currentTimeMillis() - message.getPostdate().getTime()) < PreparedTopic.EDIT_PERIOD;
     }
 
     return false;
