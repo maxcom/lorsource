@@ -26,6 +26,7 @@
   <p <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <a href="${preparedImage.fullName}"itemprop="contentURL">
       <img itemprop="thumbnail" class="medium-image" src="${preparedImage.mediumName}" alt="${topic.title}" ${preparedImage.mediumInfo.code}>
+      <meta itemprop="caption" content="${topic.title}">
     </a>
   </p>
 </c:if>
