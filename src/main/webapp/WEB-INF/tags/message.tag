@@ -9,6 +9,7 @@
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -31,7 +32,7 @@
   Template tmpl = Template.getTemplate(request);
 %>
   <!-- ${message.id}  -->
-<article class=msg id="topic-${message.id}">
+<article class=msg id="topic-${message.id}" <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
 <c:if test="${showMenu}">
   <div class=title>
     <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>

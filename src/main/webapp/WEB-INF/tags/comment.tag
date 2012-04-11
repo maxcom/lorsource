@@ -25,6 +25,7 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="commentsAllowed" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
+<%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -38,7 +39,7 @@
   out.append(Integer.toString(comment.getComment().getMessageId()));
   out.append(" -->\n");
 %>
-<article class="msg" id="comment-${comment.comment.messageId}">
+<article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
   <div class=title>
 <c:if test="${showMenu}">
 <%
@@ -103,7 +104,7 @@
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
-  <div class="msg_body ${msgBodyStyle}">
+  <div class="msg_body ${msgBodyStyle}" <c:if test="${enableSchema}">itemprop="commentText"</c:if>>
     <c:if test="${fn:length(comment.comment.title)>0}">
       <h2>${comment.comment.title}</h2>
     </c:if>
@@ -127,7 +128,7 @@
       <c:if test="${deletable or commentsAllowed}">
       <ul>
       <c:if test="${commentsAllowed}">
-        <li><a href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
+        <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
       </c:if>
 
       <c:if test="${deletable}">

@@ -64,12 +64,13 @@
 <script src="/js/addComments.js" type="text/javascript"></script>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<div class=messages>
+
+<div class=messages itemscope itemtype="http://schema.org/Article">
 
 <form method="GET" action="view-message.jsp">
 <input type=hidden name=msgid value="${message.id}">
   <div class=nav>
-  <div id="navPath">
+  <div id="navPath" itemprop="articleSection">
     <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
     <a href="${group.url}">${group.title}</a>
     <c:if test="${preparedMessage.section.premoderated and not message.commited}">
@@ -261,7 +262,7 @@
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
         message="${message}"
-        showMenu="true"/>
+        showMenu="true" enableSchema="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 
