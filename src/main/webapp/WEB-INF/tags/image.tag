@@ -21,10 +21,11 @@
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="showImage" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="showInfo" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:if test="${showImage!=null and showImage and preparedImage!=null}">
-  <p>
-    <a href="${preparedImage.fullName}">
-      <img class="medium-image" src="${preparedImage.mediumName}" alt="${topic.title}" ${preparedImage.mediumInfo.code}>
+  <p <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
+    <a href="${preparedImage.fullName}"itemprop="contentURL">
+      <img itemprop="thumbnail" class="medium-image" src="${preparedImage.mediumName}" alt="${topic.title}" ${preparedImage.mediumInfo.code}>
     </a>
   </p>
 </c:if>
