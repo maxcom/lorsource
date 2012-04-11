@@ -155,10 +155,6 @@ public class GroupPermissionService {
     return ret;
   }
 
-  public boolean canUseTags(Group group, User user) {
-    return true; // TODO: inline after 2 april 2012
-  }
-
   /**
    * Можно ли редактировать сообщения полностью
    *
@@ -217,10 +213,6 @@ public class GroupPermissionService {
     Topic message = topic.getMessage();
     Section section = topic.getSection();
     User author = topic.getAuthor();
-
-    if (!canUseTags(topic.getGroup(), by)) {
-      return false;
-    }
 
     if (message.isDeleted()) {
       return false;

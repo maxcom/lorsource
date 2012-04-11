@@ -23,7 +23,6 @@
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
 <%--@elvariable id="postscoreInfo" type="java.lang.String"--%>
-<%--@elvariable id="useTags" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -99,7 +98,7 @@
   <form:hidden path="group"/>
   <p>
 
-  <c:if test="${not group.moderated && useTags}">
+  <c:if test="${not group.moderated}">
     <label>
       Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
       <form:input id="tags" path="tags" style="width: 40em"/>
@@ -144,7 +143,7 @@
 Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
 </label><br>
 <% } %>
-<c:if test="${group.moderated && useTags}">
+<c:if test="${group.moderated}">
     <label>
     Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
     <form:input id="tags" path="tags" style="width: 40em"/>

@@ -168,10 +168,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     params.put("group", group);
 
-    if (groupPermissionService.canUseTags(group, tmpl.getCurrentUser())) {
-      params.put("topTags", tagService.getTopTags());
-      params.put("useTags", true);
-    }
+    params.put("topTags", tagService.getTopTags());
 
     params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
@@ -212,9 +209,8 @@ public class AddTopicController extends ApplicationObjectSupport {
       params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
     }
 
-    if (group!=null && groupPermissionService.canUseTags(group, tmpl.getCurrentUser())) {
+    if (group!=null) {
       params.put("topTags", tagService.getTopTags());
-      params.put("useTags", true);
     }
 
     if (group!=null) {
