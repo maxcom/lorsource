@@ -1,3 +1,4 @@
+<%@ tag import="org.joda.time.format.ISODateTimeFormat" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag import="java.util.Calendar" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
@@ -15,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="date" required="true" type="java.util.Date" %><%
+<%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= ISODateTimeFormat.dateTime().print(date.getTime()) %>"><%
   long diff = System.currentTimeMillis() - date.getTime();
   Calendar c = Calendar.getInstance();
   c.setTime(date);
@@ -48,4 +49,4 @@
   } else {
     out.print(DateFormats.createShort().format(date));
   }
-%>
+%></time>

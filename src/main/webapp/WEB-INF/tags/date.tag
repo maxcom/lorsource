@@ -1,6 +1,7 @@
-<%@ tag import="java.text.DateFormat" %><%@
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%@
+        tag import="org.joda.time.format.ISODateTimeFormat" %><%@
         tag import="ru.org.linux.site.DateFormats" %><%@
-        tag pageEncoding="UTF-8"%><%--
+        tag import="java.text.DateFormat" %><%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
@@ -13,8 +14,10 @@
   ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
-  --%><%@ attribute name="date" required="true" type="java.util.Date" %><%
+  --%><%@ attribute name="date" required="true" type="java.util.Date" %><%@
+        taglib tagdir="/WEB-INF/tags" prefix="lor" %><%--
+--%><time datetime="<%= ISODateTimeFormat.dateTime().print(date.getTime()) %>"><%
   DateFormat dateFormat = DateFormats.createDefault();
 
   out.print(dateFormat.format(date));
-%>
+%></time>

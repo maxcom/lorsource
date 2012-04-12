@@ -1,7 +1,6 @@
-<%@ tag import="java.text.DateFormat" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag pageEncoding="UTF-8"%>
-
+<%@ tag import="java.text.DateFormat" %>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
