@@ -21,6 +21,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -147,7 +148,6 @@ public class PollDao {
     return getPoll(getCurrentPollId());
   }
 
-
   /**
    * Получить голосование по идентификатору.
    *
@@ -156,24 +156,21 @@ public class PollDao {
    * @throws PollNotFoundException если голосование не существует
    */
   public Poll getPoll(final int pollId) throws PollNotFoundException {
-    final int currentPollId = getCurrentPollId();
-    try {
-    return jdbcTemplate.queryForObject(queryPool,
-        new RowMapper<Poll>() {
-          @Override
-          public Poll mapRow(ResultSet resultSet, int i) throws SQLException {
-            return new Poll(
-                    pollId,
-                    resultSet.getInt("topic"),
-                    resultSet.getBoolean("multiselect"),
-                    pollId == currentPollId,
-                    getVoteDTO(pollId)
-            );
-          }
-        }, pollId);
-    } catch (EmptyResultDataAccessException exception) {
+    int currentPollId = getCurrentPollId();
+
+    SqlRowSet rs = jdbcTemplate.queryForRowSet(queryPool, pollId);
+
+    if (!rs.next()) {
       throw new PollNotFoundException();
     }
+
+    return new Poll(
+            pollId,
+            rs.getInt("topic"),
+            rs.getBoolean("multiselect"),
+            pollId == currentPollId,
+            getVoteDTO(pollId)
+    );
   }
 
   /**
