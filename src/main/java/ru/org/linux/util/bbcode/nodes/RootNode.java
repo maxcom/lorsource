@@ -159,6 +159,11 @@ public class RootNode extends Node {
     return renderChildrenBBCode();
   }
 
+  @Override
+  public String renderOg() {
+    return renderChildrenOg();
+  }
+
   public int getCutCount() {
     cutCount += 1;
     return cutCount;

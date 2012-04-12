@@ -118,6 +118,25 @@ public class Node {
       stringBuilder.append(child.renderBBCode());
     }
     return stringBuilder.toString();
+  }
 
+  public String renderOg() {
+    return "";
+  }
+
+  public String renderChildrenOg() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for(Node child : children) {
+      stringBuilder.append(child.renderOg());
+      stringBuilder.append(" ");
+      if(stringBuilder.length() >= 250) {
+        break;
+      }
+    }
+    if(stringBuilder.length() <= 250) {
+      return stringBuilder.toString().trim();
+    } else {
+      return stringBuilder.substring(0, 250).trim();
+    }
   }
 }

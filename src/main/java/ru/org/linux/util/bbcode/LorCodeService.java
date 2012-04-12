@@ -60,6 +60,10 @@ public class LorCodeService {
     return defaultParser.parseRoot(prepareCommentRootNode(secure, true), text).renderXHtml();
   }
 
+  public String parseForOgDescription(String text) {
+    return defaultParser.parseRoot(prepareCommentRootNode(false, true), text).renderOg();
+  }
+
   /**
    * Возвращает множество пользователей упомянутых в сообщении
    * @param text сообщение
