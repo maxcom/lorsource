@@ -51,7 +51,7 @@
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
 </c:if>
 <c:if test="${not preparedMessage.section.imagepost}">
-  <meta property="og:image" content="/img/good-penguin.jpg">
+  <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.jpg">
 </c:if>
 <c:if test="${not empty preparedMessage.ogDescription}">
   <meta property="og:description" content="${preparedMessage.ogDescription}">
