@@ -50,9 +50,15 @@
 <c:if test="${preparedMessage.section.imagepost}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
 </c:if>
+<c:if test="${not preparedMessage.section.imagepost}">
+  <meta property="og:image" content="/img/good-penguin.jpg">
+</c:if>
 <c:if test="${not empty preparedMessage.ogDescription}">
   <meta property="og:description" content="${preparedMessage.ogDescription}">
 </c:if>
+
+<meta property="og:url" content="${message.link}">
+
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
