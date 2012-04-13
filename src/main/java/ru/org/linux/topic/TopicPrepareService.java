@@ -194,6 +194,7 @@ public class TopicPrepareService {
       }
 
       String processedMessage;
+      String ogDescription;
       boolean lorcode;
 
       if (text == null) {
@@ -211,8 +212,10 @@ public class TopicPrepareService {
           } else {
             processedMessage = lorCodeService.parseTopic(messageText.getText(), secure);
           }
+          ogDescription = lorCodeService.parseForOgDescription(messageText.getText());
         } else {
           processedMessage = "<p>" + messageText.getText();
+          ogDescription = "";
         }
       } else {
         lorcode = true;
@@ -227,6 +230,7 @@ public class TopicPrepareService {
         } else {
           processedMessage = lorCodeService.parseTopic(text, secure);
         }
+        ogDescription = lorCodeService.parseForOgDescription(text);
       }
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
@@ -244,7 +248,8 @@ public class TopicPrepareService {
               author, 
               deleteInfo, 
               deleteUser, 
-              processedMessage, 
+              processedMessage,
+              ogDescription,
               preparedPoll, 
               commiter, 
               tags,
