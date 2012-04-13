@@ -215,7 +215,7 @@ public class TopicPrepareService {
           ogDescription = lorCodeService.parseForOgDescription(messageText.getText());
         } else {
           processedMessage = "<p>" + messageText.getText();
-          ogDescription = messageText.getText();
+          ogDescription = "";
         }
       } else {
         lorcode = true;
