@@ -59,6 +59,8 @@
 
 <meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
 
+<link rel="canonical" href="${template.mainUrlNoSlash}<%= message.getLinkPage(npage) %>">
+
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
