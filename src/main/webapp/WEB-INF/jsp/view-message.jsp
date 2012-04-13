@@ -50,6 +50,7 @@
 <c:if test="${preparedMessage.section.imagepost}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
 </c:if>
+  <meta property="og:description" content="${preparedMessage.ogDescription}">
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
