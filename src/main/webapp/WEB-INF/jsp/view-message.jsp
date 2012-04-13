@@ -57,7 +57,7 @@
   <meta property="og:description" content="${preparedMessage.ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${message.link}">
+<meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
 
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
