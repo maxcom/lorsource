@@ -161,7 +161,12 @@ public class RootNode extends Node {
 
   @Override
   public String renderOg() {
-    return renderChildrenOg();
+    String ret = renderChildrenOg();
+    if(ret.length() < 250) {
+      return ret;
+    } else {
+      return ret.substring(0,250).trim() + "...";
+    }
   }
 
   public int getCutCount() {
