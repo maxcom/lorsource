@@ -60,6 +60,11 @@ public class LorCodeService {
     return defaultParser.parseRoot(prepareCommentRootNode(secure, true), text).renderXHtml();
   }
 
+  /**
+   * Получить og:description из LORCODE текста. Тоесть только текст и без содержимого [code]
+   * @param text обрабатываемый текст
+   * @return og:description
+   */
   public String parseForOgDescription(String text) {
     return defaultParser.parseRoot(prepareCommentRootNode(false, true), text).renderOg();
   }
