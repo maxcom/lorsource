@@ -95,5 +95,9 @@ public class TagNode extends Node {
     return bbtag.renderNodeBBCode(this);
   }
 
+  @Override
+  public String renderOg() {
+    return bbtag.renderNodeOg(this);
+  }
 
 }
