@@ -129,14 +129,7 @@ public class Node {
     for(Node child : children) {
       stringBuilder.append(child.renderOg());
       stringBuilder.append(" ");
-      if(stringBuilder.length() >= 250) {
-        break;
-      }
     }
-    if(stringBuilder.length() <= 250) {
-      return stringBuilder.toString().trim();
-    } else {
-      return stringBuilder.substring(0, 250).trim();
-    }
+    return stringBuilder.toString().trim();
   }
 }
