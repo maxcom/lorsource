@@ -115,7 +115,7 @@
       </c:if>
       </ul>
       <c:if test="${sectionList != null}">
-        <form:form commandName="topicListRequest" id="filterForm" action="" method="get">
+        <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
           <c:if test="${not empty topicListRequest.tag}">
             <form:hidden path="tag"/>
           </c:if>
