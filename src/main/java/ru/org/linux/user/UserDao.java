@@ -284,11 +284,14 @@ public class UserDao {
    * @param cleaner пользователь который чистит
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void removePhoto(User user, User cleaner) {
-    setPhoto(user, null);
-    if(cleaner.isModerator() && cleaner.getId() != user.getId()){
+  public boolean removePhoto(User user, User cleaner) {
+    boolean r = resetPhoto(user);
+
+    if(r && cleaner.isModerator() && cleaner.getId() != user.getId()){
       changeScore(user.getId(), -10);
     }
+
+    return r;
   }
 
   /**
@@ -298,7 +301,17 @@ public class UserDao {
    */
   @CacheEvict(value="Users", key="#user.id")
   public void setPhoto(User user, String photo){
-    jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
+    jdbcTemplate.update("UPDATE users SET photo=? WHERE id=? and photo!=?", photo, user.getId(), photo);
+  }
+
+  /**
+   * Сброс userpic-а пользовтаеля
+   * @param user пользователь
+   * @return true если обновлено, false если userpic не установлен
+   */
+  @CacheEvict(value="Users", key="#user.id")
+  public boolean resetPhoto(User user){
+    return jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId())>0;
   }
 
   /**
