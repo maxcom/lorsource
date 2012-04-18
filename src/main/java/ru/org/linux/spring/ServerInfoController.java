@@ -29,7 +29,7 @@ public class ServerInfoController {
   @Autowired
   private UserDao userDao;
 
-  @RequestMapping("/server.jsp")
+  @RequestMapping("/about")
   public ModelAndView serverInfo() {
     List<User> moderators = userDao.getModerators();
 
