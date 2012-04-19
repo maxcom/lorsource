@@ -66,6 +66,7 @@ var pageTracker = _gat._getTracker("UA-2184304-1");
 pageTracker._setCustomVar(1, "Authorized", "${template.sessionAuthorized}");
 pageTracker._setCustomVar(2, "Style", "${template.style}");
 
+pageTracker._setSiteSpeedSampleRate(10);
 pageTracker._trackPageview();
 pageTracker._trackPageLoadTime();
 } catch(err) {}</script>
