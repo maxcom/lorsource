@@ -15,9 +15,7 @@
 
 package ru.org.linux.user;
 
-import ru.org.linux.site.ScriptErrorException;
-
-public class UserNotFoundException extends ScriptErrorException {
+public class UserNotFoundException extends Exception {
   public UserNotFoundException(String name) {
     super("Пользователь \"" + name + "\" не существует");
   }
