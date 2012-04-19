@@ -199,10 +199,10 @@ public class LoginController {
   }
 
   /**
-   * Обрабатываем исключительную ситуацию для забаненого пользователя
+   * Обрабатываем исключительную ситуацию для отсутствующего пользователя
    */
   @ExceptionHandler(UserNotFoundException.class)
-  @ResponseStatus(HttpStatus.FORBIDDEN)
+  @ResponseStatus(HttpStatus.OK)
   public ModelAndView handleUserNotFoundException(HttpServletRequest request) {
     boolean ajax = isAjax(request);
     return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
