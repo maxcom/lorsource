@@ -68,7 +68,6 @@ pageTracker._setCustomVar(2, "Style", "${template.style}");
 
 pageTracker._setSiteSpeedSampleRate(10);
 pageTracker._trackPageview();
-pageTracker._trackPageLoadTime();
 } catch(err) {}</script>
 
 </div>
