@@ -3,7 +3,6 @@ package ru.org.linux.group;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.topic.PreparedTopic;
 import ru.org.linux.topic.Topic;
@@ -25,13 +24,7 @@ public class GroupPermissionService {
   }
 
   private int getEffectivePostscore(Group group) {
-    Section section;
-
-    try {
-      section = sectionService.getSection(group.getSectionId());
-    } catch (SectionNotFoundException e) {
-      throw new RuntimeException("bad section", e);
-    }
+    Section section = sectionService.getSection(group.getSectionId());
 
     return Math.max(group.getTopicRestriction(), section.getTopicsRestriction());
   }
@@ -130,13 +123,7 @@ public class GroupPermissionService {
 
     boolean ret = false;
 
-    Section section;
-
-    try {
-      section = sectionService.getSection(topic.getSectionId());
-    } catch (SectionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    Section section = sectionService.getSection(topic.getSectionId());
 
     // Если раздел премодерируемый и топик не подтвержден удалять можно
     if(section.isPremoderated() && !topic.isCommited()) {

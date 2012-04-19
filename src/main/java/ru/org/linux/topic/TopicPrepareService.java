@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollPrepareService;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.Configuration;
@@ -268,8 +266,6 @@ public class TopicPrepareService {
     } catch (UserNotFoundException e) {
       throw new RuntimeException(e);
     } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (SectionNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
