@@ -149,7 +149,8 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     text.append("\n\n");
 
     Template tmpl = Template.getTemplate(request);
-    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
+//    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
+    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getPathInfo());
 
     if (request.getQueryString() != null) {
       text.append('?').append(request.getQueryString()).append('\n');
