@@ -50,6 +50,17 @@
 <c:if test="${preparedMessage.section.imagepost}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
 </c:if>
+<c:if test="${not preparedMessage.section.imagepost}">
+  <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.jpg">
+</c:if>
+<c:if test="${not empty preparedMessage.ogDescription}">
+  <meta property="og:description" content="${preparedMessage.ogDescription}">
+</c:if>
+
+<meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
+
+<link rel="canonical" href="${template.mainUrlNoSlash}<%= message.getLinkPage(npage) %>">
+
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
@@ -315,21 +326,6 @@
 </form>
 <hr>
 <% } %>
-
-<%--
-<c:if test="${showAdsense and not pageContext.request.secure}">
-  <script type="text/javascript">
-    <!--
-    $(document).ready(function(){
-      var iframe = $('<iframe src="/dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>');
-      $('#dw').append(iframe);
-    });
-    -->
-  </script>
-<div align=center id="dw">
-</div>
-</c:if>
---%>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">

@@ -118,6 +118,18 @@ public class Node {
       stringBuilder.append(child.renderBBCode());
     }
     return stringBuilder.toString();
+  }
 
+  public String renderOg() {
+    return "";
+  }
+
+  public String renderChildrenOg() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for(Node child : children) {
+      stringBuilder.append(child.renderOg());
+      stringBuilder.append(" ");
+    }
+    return stringBuilder.toString().trim();
   }
 }

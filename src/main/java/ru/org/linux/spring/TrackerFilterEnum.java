@@ -39,7 +39,7 @@ public enum TrackerFilterEnum {
     return label;
   }
 
-  public boolean isDefault() {
+  public boolean isDefaultValue() {
     return def;
   }
 }

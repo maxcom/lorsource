@@ -191,7 +191,7 @@ public class RegisterController extends ApplicationObjectSupport {
     }
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    ipBlockDao.checkBlockIP(ipBlockInfo, errors, null);
+    ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
 
     boolean emailChanged = false;
 
@@ -210,7 +210,7 @@ public class RegisterController extends ApplicationObjectSupport {
         if (user.getEmail()!=null && user.getEmail().equals(form.getEmail())) {
           newEmail = null;
         } else {
-          if (userDao.getByEmail(mail.getAddress()) != null) {
+          if (userDao.getByEmail(mail.getAddress(), false) != null) {
             errors.rejectValue("email", null, "такой email уже используется");
           }
 
@@ -246,7 +246,7 @@ public class RegisterController extends ApplicationObjectSupport {
         errors.rejectValue("url", null, "Некорректный URL");
       }
 
-      if (mail != null && userDao.getByEmail(mail.getAddress()) != null) {
+      if (mail != null && userDao.getByEmail(mail.getAddress(), false) != null) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
                 "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
       }

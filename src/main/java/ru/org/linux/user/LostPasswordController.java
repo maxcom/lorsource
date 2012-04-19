@@ -66,7 +66,7 @@ public class LostPasswordController {
       throw new BadInputException("email не задан");
     }
 
-    User user = userDao.getByEmail(email);
+    User user = userDao.getByEmail(email, true);
     if (user==null) {
       throw new BadInputException("Ваш email не зарегистрирован");
     }

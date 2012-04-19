@@ -12,11 +12,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <h2>Новые материалы на IBM developerWorks</h2>
 <div class="boxlet_content">
-  <iframe src="dw.jsp?height=400&amp;width=219&amp;main=1" width="222" height="400" scrolling="no"
+  <iframe src="/dw.jsp" width="222" height="400" scrolling="no"
           frameborder="0"></iframe>
   <h3>My developerWorks!</h3>
   <a rel="nofollow" style="text-decoration: underline" href="http://www.ibm.com/developerworks/mydeveloperworks/?lang=ru" title="">Вступай</a> в сообщество профессионалов&nbsp;IBM!<br>

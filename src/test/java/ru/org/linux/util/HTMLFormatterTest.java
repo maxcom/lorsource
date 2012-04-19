@@ -654,4 +654,40 @@ public class HTMLFormatterTest {
     );
   }
 
+  @Test
+  public void testOg() {
+    assertEquals(
+        "hello",
+        lorCodeService.parseForOgDescription("hello")
+    );
+
+    assertEquals(
+        "one crap two three",
+        lorCodeService.parseForOgDescription("[list]\n" +
+            "[*]one\n" +
+            "\n" +
+            "crap\n" +
+            "[*]two\n" +
+            "[*]three\n" +
+            "[/list]")
+    );
+    assertEquals(
+        "due one teo neo wuf?\nok",
+        lorCodeService.parseForOgDescription("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
+    );
+    assertEquals(
+        "",
+        lorCodeService.parseForOgDescription("[code]&#9618;[/code]")
+    );
+    String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
+    assertEquals(
+        "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
+        lorCodeService.parseForOgDescription(txt)
+    );
+    assertEquals(
+        250+3,
+        lorCodeService.parseForOgDescription(txt).length()
+    );
+  }
+
 }

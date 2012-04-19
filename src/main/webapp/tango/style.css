@@ -254,9 +254,11 @@ pre {
 
 .code {
     background-color: #2e3436;
+    border-radius: 3px;
+    border: 1px dashed #777;
 }
 
-.boxlet, .code {
+.boxlet {
 -moz-border-radius: 1em;
 -webkit-border-radius: 1em;
 -khtml-border-radius: 1em;

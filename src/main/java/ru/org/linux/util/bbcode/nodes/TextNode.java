@@ -82,4 +82,9 @@ public class TextNode extends Node {
   public boolean allows(String tagname) {
     return false;
   }
+
+  @Override
+  public String renderOg() {
+    return Parser.escape(text);
+  }
 }

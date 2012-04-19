@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -55,8 +56,8 @@
       <li>Apache Tomcat 6</li>
       <li>memcached 1.2</li>
       <li>ActiveMQ 5.3.2</li>
-      <li>Spring 3.0</li>
-      <li>Wiki: JamWiki 1.1.1</li>
+      <li>Spring 3.1</li>
+      <li>Wiki: JamWiki 1.1.5</li>
       <li>Поиск: Apache Solr 3.5.0</li>
     </ul>
 
@@ -78,8 +79,7 @@
   <ul>
 <c:forEach var="user" items="${moderators}">
   <li>
-    <c:url var="whois" value="/people/${user.nick}/profile"/>
-    <a href="${whois}"><c:out escapeXml="true" value="${user.name}"/></a> (<c:out escapeXml="true" value="${user.nick}"/>)
+    <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" decorate="true" link="true"/>)
   </li>
 </c:forEach>
 
@@ -89,13 +89,12 @@
   <ul>
     <c:forEach var="user" items="${correctors}">
       <li>
-        <c:url var="whois" value="/people/${user.nick}/profile"/>
         <c:choose>
             <c:when test="${not empty user.name}">
-                <a href="${whois}"><c:out escapeXml="true" value="${user.name}"/></a> (<c:out escapeXml="true" value="${user.nick}"/>)
+                <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" decorate="true" link="true"/>)
             </c:when>
             <c:otherwise>
-                <a href="${whois}"><c:out escapeXml="true" value="${user.nick}"/></a>
+                <lor:user user="${user}" decorate="true" link="true"/>
             </c:otherwise>
         </c:choose>
       </li>

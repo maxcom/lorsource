@@ -15,30 +15,16 @@
 
 package ru.org.linux.util;
 
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletRequest;
-
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
+
+import javax.servlet.ServletRequest;
+import java.util.regex.Pattern;
 
 public class ServletParameterParser {
   private static final Pattern ipRE = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
 
   private ServletParameterParser() {
-  }
-
-  public static boolean getBoolean(ServletRequest rq, String name) throws ServletParameterException, ServletRequestBindingException {
-    int value = ServletRequestUtils.getRequiredIntParameter(rq, name);
-
-    switch (value) {
-      case 0:
-        return false;
-      case 1:
-        return true;
-      default:
-        throw new ServletParameterBadValueException(name, "not boolean");
-    }
   }
 
   public static String getIP(ServletRequest rq, String name) throws ServletParameterException, ServletRequestBindingException {

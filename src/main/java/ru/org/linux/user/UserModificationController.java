@@ -27,10 +27,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -265,8 +265,11 @@ public class UserModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Пользователь " + user.getNick() + " картинки не имеет");
     }
 
-    userDao.removePhoto(user, currentUser);
-    logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
+    if (userDao.removePhoto(user, currentUser)) {
+      logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
+    } else {
+      logger.debug("SKIP Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
+    }
 
     return redirectToProfile(user);
   }

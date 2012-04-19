@@ -20,6 +20,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filterItems" type="java.util.List<ru.org.linux.spring.dao.TrackerDao.TrackerFilter>"--%>
+<%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -49,7 +50,7 @@
       <c:forEach items="${filters}" var="f">
         <li>
           <c:url var="fUrl" value="/tracker/">
-            <c:if test="${not f.default}">
+            <c:if test="${not f.defaultValue}">
               <c:param name="filter">${f.value}</c:param>
             </c:if>
           </c:url>

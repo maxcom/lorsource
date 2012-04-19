@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollPrepareService;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.Configuration;
@@ -194,6 +192,7 @@ public class TopicPrepareService {
       }
 
       String processedMessage;
+      String ogDescription;
       boolean lorcode;
 
       if (text == null) {
@@ -211,8 +210,10 @@ public class TopicPrepareService {
           } else {
             processedMessage = lorCodeService.parseTopic(messageText.getText(), secure);
           }
+          ogDescription = lorCodeService.parseForOgDescription(messageText.getText());
         } else {
           processedMessage = "<p>" + messageText.getText();
+          ogDescription = "";
         }
       } else {
         lorcode = true;
@@ -227,6 +228,7 @@ public class TopicPrepareService {
         } else {
           processedMessage = lorCodeService.parseTopic(text, secure);
         }
+        ogDescription = lorCodeService.parseForOgDescription(text);
       }
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
@@ -244,7 +246,8 @@ public class TopicPrepareService {
               author, 
               deleteInfo, 
               deleteUser, 
-              processedMessage, 
+              processedMessage,
+              ogDescription,
               preparedPoll, 
               commiter, 
               tags,
@@ -263,8 +266,6 @@ public class TopicPrepareService {
     } catch (UserNotFoundException e) {
       throw new RuntimeException(e);
     } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (SectionNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

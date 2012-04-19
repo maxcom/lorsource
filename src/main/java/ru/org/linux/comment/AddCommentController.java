@@ -248,7 +248,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     user.checkBlocked(errors);
 
-    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
+    if (ipBlockInfo.isBlocked()) {
       ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
     }
 

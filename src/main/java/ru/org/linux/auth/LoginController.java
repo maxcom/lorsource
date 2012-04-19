@@ -21,12 +21,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
+import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.http.Cookie;
@@ -73,11 +74,20 @@ public class LoginController {
       return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Не указан nick"));
     }
 
-    if (!StringUtil.checkLoginName(nick)) {
-      return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Некорректный nick"));
-    }
+    User user;
 
-    final User user = userDao.getUser(nick);
+    if (nick.contains("@")) {
+      user = userDao.getByEmail(nick, true);
+      if (user==null) {
+        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
+      }
+    } else {
+      if (!StringUtil.checkLoginName(nick)) {
+        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Некорректный nick"));
+      }
+
+      user = userDao.getUser(nick);
+    }
 
     if(user.isBlocked()) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user));
@@ -184,8 +194,17 @@ public class LoginController {
    */
   @ExceptionHandler(UserBanedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
+  public ModelAndView handleUserBanedException(UserBanedException ex) {
     return new ModelAndView("errors/user-banned", "exception", ex);
   }
 
+  /**
+   * Обрабатываем исключительную ситуацию для отсутствующего пользователя
+   */
+  @ExceptionHandler(UserNotFoundException.class)
+  @ResponseStatus(HttpStatus.OK)
+  public ModelAndView handleUserNotFoundException(HttpServletRequest request) {
+    boolean ajax = isAjax(request);
+    return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
+  }
 }

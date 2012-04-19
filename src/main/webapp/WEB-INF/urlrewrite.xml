@@ -66,6 +66,11 @@
   </rule>
 
   <rule>
+    <from>^/server.jsp$</from>
+    <to type="redirect">/about</to>
+  </rule>
+
+  <rule>
     <from>^/rss.xml$</from>
     <to type="redirect">/section-rss.jsp</to>
   </rule>

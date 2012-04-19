@@ -15,9 +15,7 @@
 
 package ru.org.linux.section;
 
-import ru.org.linux.site.ScriptErrorException;
-
-public class SectionNotFoundException extends ScriptErrorException {
+public class SectionNotFoundException extends RuntimeException {
   public SectionNotFoundException(int id) {
     super("Неправильно задан номер секции: "+id);
   }
