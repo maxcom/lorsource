@@ -22,12 +22,12 @@
 <h1>Вход</h1>
 
 <c:if test="${error!=null}">
-    <strong>Ошибка: ${error}</strong>
+    <div class=error>Ошибка: ${error}</div>
 </c:if>
 
 <form method=POST action="login.jsp">
-Имя:<br><input type=text name=nick size=15><br>
-Пароль:<br><input type=password name=passwd size=15><br>
+Имя:<br><input type=text name=nick size=40 placeholder="nick или email"><br>
+Пароль:<br><input type=password name=passwd size=40><br>
 <input type=submit value="Вход">
 </form>
 

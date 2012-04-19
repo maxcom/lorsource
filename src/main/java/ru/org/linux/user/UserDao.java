@@ -470,12 +470,15 @@ public class UserDao {
     return users;
   }
 
-  public User getByEmail(String email) {
+  public User getByEmail(String email, boolean searchBlocked) {
     try {
-      int id = jdbcTemplate.queryForInt(
-              "SELECT id FROM users WHERE email=? AND not blocked",
-              email
-      );
+      int id;
+
+      if (searchBlocked) {
+        id = jdbcTemplate.queryForInt("SELECT id FROM users WHERE email=? ORDER BY blocked ASC, id DESC LIMIT 1", email);
+      } else {
+        id = jdbcTemplate.queryForInt("SELECT id FROM users WHERE email=? AND not blocked", email);
+      }
 
       return getUser(id);
     } catch (EmptyResultDataAccessException ex) {
