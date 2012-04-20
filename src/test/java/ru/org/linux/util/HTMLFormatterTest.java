@@ -22,8 +22,8 @@ import org.junit.Test;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.group.Group;
-import ru.org.linux.topic.Topic;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -33,7 +33,8 @@ import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static ru.org.linux.util.bbcode.tags.QuoteTag.*;
+import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
+import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -47,16 +48,6 @@ public class HTMLFormatterTest {
 
   private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
   private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/pro...</a>";
-
-  private static final String QUOTING1 = "> 1";
-  private static final String RESULT_QUOTING1 = "[quote] 1[/quote]";
-  private static final String RESULT_QUOTING1_NOQUOTING = "> 1";
-
-  private static final String QUOTING2 = "> 1\n2";
-  private static final String RESULT_QUOTING2 = "[quote] 1[br][/quote]2";
-
-  private static final String QUOTING3 = "> 1\n2\n\n3";
-  private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -214,23 +205,6 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testToLorCodeTexFormatter() {
-    assertEquals(RESULT_QUOTING1, toLorCodeTexFormatter.format(QUOTING1, true));
-    assertEquals(RESULT_QUOTING1_NOQUOTING, toLorCodeTexFormatter.format(QUOTING1, false));
-    assertEquals(RESULT_QUOTING2, toLorCodeTexFormatter.format(QUOTING2, true));
-    assertEquals(RESULT_QUOTING3, toLorCodeTexFormatter.format(QUOTING3, true));
-
-    assertEquals("[quote]test[br][/quote]test", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
-    assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest", true)); // 1
-    assertEquals("test\n\n[quote]test[/quote]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
-    assertEquals("test &", toLorCodeTexFormatter.format("test &", true)); // 8
-    assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest", true)); // 9
-    assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest", true)); // 10
-    assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest", true)); // 11
-    assertEquals("[quote]test[br]test[/quote]", toLorCodeFormatter.format(">test\n>test", true)); // 12
-  }
-
-  @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68929...</a>",
@@ -274,7 +248,6 @@ public class HTMLFormatterTest {
 
   @Test
   public void testToLorCodeFormatter2() {
-
     String[] text = {
         ">one\n",
         ">one\n>one\n",
@@ -327,26 +300,6 @@ public class HTMLFormatterTest {
       assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
       assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
     }
-  }
-
-  @Test
-  public void codeEscape() {
-    assertEquals("[[code]][[/code]]",
-        toLorCodeTexFormatter.format("[code][/code]", true));
-    assertEquals("[[code=perl]][[/code]]",
-        toLorCodeTexFormatter.format("[code=perl][/code]", true));
-    assertEquals("[[code]][[/code]]",
-        toLorCodeFormatter.format("[code][/code]", true));
-    assertEquals("[[code=perl]][[/code]]",
-        toLorCodeFormatter.format("[code=perl][/code]", true));
-  }
-
-  @Test
-  public void againQuoteFormatter() {
-    assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
-        toLorCodeFormatter.format(">one\n>>two\n>one\n>>>three", true));
-    assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
-        toLorCodeTexFormatter.format(">one\n>>two\n>one\n>>>three", true));
   }
 
   @Test
