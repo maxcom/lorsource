@@ -128,6 +128,10 @@ fieldset legend {
 	background-color: #5c3566;
 }
 
+.nav li a:hover {
+    box-shadow: 0 0 1px 1px #729FCF;
+}
+
 .page-number {background-color: #272c2d;}
 
 .nav li a {
