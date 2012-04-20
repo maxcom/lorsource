@@ -63,9 +63,6 @@
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
-
-  ${postscoreInfo}
-
   <br>
   <lor:captcha ipBlockInfo="${ipBlockInfo}" />
 
