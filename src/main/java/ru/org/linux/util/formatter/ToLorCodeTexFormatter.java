@@ -27,30 +27,16 @@ import java.util.regex.Pattern;
  */
 @Service
 public class ToLorCodeTexFormatter {
-
-  /**
-   * Форматирует текст
-   * @param text текст
-   * @param quoting выделять ли в тексте цитаты
-   * @return отфарматированный текст
-   */
-  public String format(String text, boolean quoting) {
-    if(quoting) {
-      return quote(text);
-    } else {
-      return text;
-    }
-  }
-
   public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
   private static final Pattern CODE_PATTERN = Pattern.compile("\\[code(:?=[\\w\\s]+)?\\]");
   private static final Pattern CODE_END_PATTERN = Pattern.compile("\\[/code\\]");
 
-  private String escapeCode(String text) {
-    return text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
-  }
-
-  protected String quote(String text) {
+  /**
+   * Форматирует текст
+   * @param text текст
+   * @return отфарматированный текст
+   */
+  public String format(String text) {
     StringBuilder buf = new StringBuilder();
     String[] lines = text.split("(\\r?\\n)");
     int globalNestingLevel = 0;
@@ -123,5 +109,7 @@ public class ToLorCodeTexFormatter {
     return buf.toString();
   }
 
-
+  private String escapeCode(String text) {
+    return text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
+  }
 }

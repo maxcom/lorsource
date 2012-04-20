@@ -294,8 +294,8 @@ public class HTMLFormatterTest {
 
     for(int i = 0; i<text.length; i++){
       String entry = text[i];
-      assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry, true));
-      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry, true), false));
+      assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry));
+      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry), false));
 
       assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
       assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
@@ -328,13 +328,9 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a, true)
+        toLorCodeTexFormatter.format(a)
     );
-    assertEquals(
-        "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a, false)
-    );
-    
+
     // toLorCodeFormatter.format(a, true)
     String b = toLorCodeFormatter.format(a, true);
     assertEquals(
@@ -374,7 +370,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a, true)
-    b = toLorCodeTexFormatter.format(a, true);
+    b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -393,7 +389,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a, false)
-    b = toLorCodeTexFormatter.format(a, true);
+    b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -426,11 +422,7 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a, true)
-    );
-    assertEquals(
-        "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a, false)
+        toLorCodeTexFormatter.format(a)
     );
 
     // toLorCodeFormatter.format(a, true)
@@ -472,26 +464,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a, true)
-    b = toLorCodeTexFormatter.format(a, true);
-    assertEquals(
-        "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
-    );
-    assertEquals(
-        "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, true)
-    );
-    assertEquals(
-        "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
-    );
-    assertEquals(
-        "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true)
-    );
-
-    // toLorCodeTexFormatter.format(a, false)
-    b = toLorCodeTexFormatter.format(a, false);
+    b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -523,11 +496,7 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a, true)
-    );
-    assertEquals(
-        "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a, false)
+        toLorCodeTexFormatter.format(a)
     );
 
     // toLorCodeFormatter.format(a, true)
@@ -569,26 +538,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a, true)
-    b = toLorCodeTexFormatter.format(a, true);
-    assertEquals(
-        "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
-    );
-    assertEquals(
-        "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, true)
-    );
-    assertEquals(
-        "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
-    );
-    assertEquals(
-        "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true)
-    );
-
-    // toLorCodeTexFormatter.format(a, false)
-    b = toLorCodeTexFormatter.format(a, false);
+    b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)

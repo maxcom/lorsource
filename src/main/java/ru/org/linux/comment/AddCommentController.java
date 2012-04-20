@@ -183,7 +183,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }else if("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);
     } else {
-      return toLorCodeTexFormatter.format(msg, true);
+      return toLorCodeTexFormatter.format(msg);
     }
   }
 
