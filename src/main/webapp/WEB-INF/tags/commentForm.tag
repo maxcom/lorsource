@@ -67,7 +67,6 @@
   ${postscoreInfo}
 
   <br>
-  <lor:captcha ipBlockInfo="${ipBlockInfo}" />
 
   <input type=submit value="Поместить">
   <input type=submit name=preview value="Предпросмотр">
