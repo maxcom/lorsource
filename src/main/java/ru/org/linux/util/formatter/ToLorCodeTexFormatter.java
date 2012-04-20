@@ -109,7 +109,7 @@ public class ToLorCodeTexFormatter {
     return buf.toString();
   }
 
-  private String escapeCode(String text) {
+  public static String escapeCode(String text) {
     return text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
   }
 }

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.util.StringUtil;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Формирует сообщение для сохранения в базе
@@ -27,7 +26,6 @@ import java.util.regex.Pattern;
  */
 @Service
 public class ToLorCodeFormatter {
-
   private static final String NL_REGEXP = "\r?\n";
 
   /**
@@ -37,7 +35,7 @@ public class ToLorCodeFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean quoting) {
-    String newText = text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
+    String newText = ToLorCodeTexFormatter.escapeCode(text);
     if(quoting) {
       return quote(newText);
     } else {
@@ -48,9 +46,6 @@ public class ToLorCodeFormatter {
   private static String fixNL(String text) {
     return text.replaceAll(NL_REGEXP, "[br]");
   }
-
-  public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
-
 
   protected String quote(String text) {
     StringBuilder buf = new StringBuilder();
@@ -69,7 +64,7 @@ public class ToLorCodeFormatter {
         }
         continue;
       }
-      Matcher m = QUOTE_PATTERN.matcher(line);
+      Matcher m = ToLorCodeTexFormatter.QUOTE_PATTERN.matcher(line);
       if(m.find()) {
         int nestingLevel = m.group(1).length();
         if(globalNestingLevel == 0) {
@@ -102,5 +97,4 @@ public class ToLorCodeFormatter {
     }
     return buf.toString();
   }
-
 }
