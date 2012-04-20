@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 @Service
 public class ToLorCodeTexFormatter {
   public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
-  private static final Pattern CODE_PATTERN = Pattern.compile("\\[code(:?=[\\w\\s]+)?\\]");
+  private static final Pattern CODE_PATTERN = Pattern.compile("(?:[^\\[]|^)\\[code(:?=[\\w\\s]+)?\\]");
   private static final Pattern CODE_END_PATTERN = Pattern.compile("\\[/code\\]");
 
   /**
@@ -45,7 +45,7 @@ public class ToLorCodeTexFormatter {
     boolean isCode = false;
 
     for(String line : lines) {
-      currentLine = currentLine + 1;
+      currentLine += 1;
 
       if(line.isEmpty()) {
         if(globalNestingLevel > 0) {

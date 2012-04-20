@@ -124,6 +124,16 @@ public class ToLorCodeFormatterTest {
               "> [[code]] test"
             )
     );
+
+    assertEquals(
+            "[[code]] test\n" +
+            "[quote] test[/quote]",
+            toLorCodeTexFormatter.format(
+              "[[code]] test\n" +
+              "> test\n"
+            )
+    );
+
   }
 
   @Test
