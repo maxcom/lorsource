@@ -126,7 +126,9 @@ $(document).ready(function() {
     <% String formatMode=tmpl.getFormatMode(); %>
     <input type=radio name=format_mode id="format-quot"  value=quot   <%= "quot".equals(formatMode)?"checked":"" %>><label for="format-quot">TeX paragraphs (default)</label><br>
     <input type=radio name=format_mode id="format-ntobr" value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>><label for="format-ntobr">User line break</label><br>
+<%--
     <input type=radio name=format_mode id="format-lorcode" value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>><label for="format-lorcode">LORCODE</label><br>
+--%>
   </td>
 </tr>
 

@@ -42,14 +42,16 @@
   <c:if test="${replyto != null}">
     <input type=hidden name=replyto value="<%= replyto %>">
   </c:if>
+  <c:if test="${mode == 'ntobr'}">
   <label for="mode">Разметка:*</label><br>
   <select id="mode" name="mode">
   <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
-<c:if test="${mode == 'ntobr'}">
   <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
-</c:if>
+<%--
   <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
+--%>
   </select>  <br>
+  </c:if>
 
   <label for="title">Заглавие:</label><br>
   <input type=text id="title" name=title value="<%= title %>"><br>
@@ -57,8 +59,7 @@
   <label for="msg">Сообщение:</label><br>
 
   <textarea id="msg" class="required" name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
-  <font size="2">* В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br>
-                 Пустая строка (два раза Enter) начинает новый абзац.<br>
+  <font size="2">Пустая строка (два раза Enter) начинает новый абзац.<br>
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
