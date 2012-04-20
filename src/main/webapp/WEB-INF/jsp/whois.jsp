@@ -133,7 +133,12 @@
       </c:if>
       <br>
       <b>Score:</b> ${user.score}<br>
-      <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
+      <c:if test="${currentUser}">
+        <b>Вас игнорируют</b>: ${userStat.ignoreCount}<br>
+      </c:if>
+      <c:if test="${not currentUser}">
+        <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
+      </c:if>
     </div>
   </c:if>
 
