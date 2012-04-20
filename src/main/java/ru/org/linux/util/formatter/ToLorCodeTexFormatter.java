@@ -35,15 +35,20 @@ public class ToLorCodeTexFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean quoting) {
-    String newText = text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
     if(quoting) {
-      return quote(newText);
+      return quote(text);
     } else {
-      return newText;
+      return text;
     }
   }
 
   public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
+  private static final Pattern CODE_PATTERN = Pattern.compile("\\[code(:?=[\\w\\s]+)?\\]");
+  private static final Pattern CODE_END_PATTERN = Pattern.compile("\\[/code\\]");
+
+  private String escapeCode(String text) {
+    return text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
+  }
 
   protected String quote(String text) {
     StringBuilder buf = new StringBuilder();
@@ -51,8 +56,11 @@ public class ToLorCodeTexFormatter {
     int globalNestingLevel = 0;
     int currentLine = 0;
 
+    boolean isCode = false;
+
     for(String line : lines) {
       currentLine = currentLine + 1;
+
       if(line.isEmpty()) {
         if(globalNestingLevel > 0) {
           buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
@@ -62,8 +70,9 @@ public class ToLorCodeTexFormatter {
         }
         continue;
       }
+
       Matcher m = QUOTE_PATTERN.matcher(line);
-      if(m.find()) {
+      if(!isCode && m.find()) {
         int nestingLevel = m.group(1).length();
         if(globalNestingLevel == 0) {
           buf.append(StringUtil.repeat("[quote]", nestingLevel));
@@ -75,7 +84,7 @@ public class ToLorCodeTexFormatter {
           buf.append(StringUtil.repeat("[quote]", nestingLevel - globalNestingLevel));
           globalNestingLevel = nestingLevel;
         }
-        buf.append(line.substring(nestingLevel));
+        buf.append(escapeCode(line.substring(nestingLevel)));
         if(currentLine < lines.length) {
           buf.append("[br]");
         }
@@ -84,15 +93,33 @@ public class ToLorCodeTexFormatter {
           buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
           globalNestingLevel = 0;
         }
+
+        Matcher codeMatcher = CODE_PATTERN.matcher(line);
+
+        if (codeMatcher.find()) {
+          isCode = true;
+        }
+
+        Matcher codeEndMatcher = CODE_END_PATTERN.matcher(line);
+        if (codeEndMatcher.find()) {
+          if (globalNestingLevel>0) {
+            line = escapeCode(line);
+          } else {
+            isCode = false;
+          }
+        }
+
         buf.append(line);
         if(currentLine < lines.length) {
           buf.append('\n');
         }
       }
     }
+
     if(globalNestingLevel > 0) {
       buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
     }
+
     return buf.toString();
   }
 

@@ -37,14 +37,63 @@ public class ToLorCodeFormatterTest {
 
   @Test
   public void codeEscape() {
-    assertEquals("[[code]][[/code]]",
+    assertEquals("[code][/code]",
         toLorCodeTexFormatter.format("[code][/code]", true));
-    assertEquals("[[code=perl]][[/code]]",
+    assertEquals("[code=perl][/code]",
         toLorCodeTexFormatter.format("[code=perl][/code]", true));
     assertEquals("[[code]][[/code]]",
         toLorCodeFormatter.format("[code][/code]", true));
     assertEquals("[[code=perl]][[/code]]",
         toLorCodeFormatter.format("[code=perl][/code]", true));
+  }
+
+  @Test
+  public void codeAndQuoteTest() {
+    assertEquals(
+            "[quote] test [br][/quote][code]\n" +
+            "> test\n" +
+            "[/code]",
+            toLorCodeTexFormatter.format(
+                    "> test \n\n"+
+                    "[code]\n"+
+                    "> test\n"+
+                    "[/code]", true)
+    );
+
+    assertEquals(
+            "[quote] test [br][/quote][code]\n" +
+            "> test\n" +
+            "[/code]",
+            toLorCodeTexFormatter.format(
+                    "> test \n"+
+                    "[code]\n"+
+                    "> test\n"+
+                    "[/code]", true)
+    );
+
+    assertEquals(
+            "[quote] test [br] [[code]] [br] test [/quote]",
+            toLorCodeTexFormatter.format(
+                    "> test \n"+
+                    "> [code] \n"+
+                    "> test \n", true)
+    );
+
+    assertEquals(
+            "[quote] test [[code]] [br] test[br] test [[/code]][/quote]",
+            toLorCodeTexFormatter.format(
+                    "> test [code] \n"+
+                    "> test\n"+
+                    "> test [/code]\n", true)
+    );
+
+    assertEquals(
+            "[code]test[/code]\n" +
+            "[quote] test[/quote]",
+            toLorCodeTexFormatter.format(
+                    "[code]test[/code]\n"+
+                    "> test\n", true)
+    );
   }
 
   @Test
