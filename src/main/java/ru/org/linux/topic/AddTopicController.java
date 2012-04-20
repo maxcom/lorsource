@@ -181,10 +181,10 @@ public class AddTopicController extends ApplicationObjectSupport {
       return "";
     }
 
-    if ("lorcode".equals(mode)) {
-      return msg;
-    } else {
+    if ("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, false);
+    } else {
+      return msg;
     }
   }
 

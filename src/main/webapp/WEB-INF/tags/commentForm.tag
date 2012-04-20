@@ -45,7 +45,9 @@
   <label for="mode">Разметка:*</label><br>
   <select id="mode" name="mode">
   <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
+<c:if test="${mode == 'ntobr'}">
   <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
+</c:if>
   <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
   </select>  <br>
 

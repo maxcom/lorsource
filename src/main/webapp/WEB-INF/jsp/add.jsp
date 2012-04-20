@@ -127,13 +127,15 @@
         <label>Мультивыбор: <form:checkbox path="multiSelect" size="40"/></label>
       </p>
   </c:if>
+
+<c:if test="${form.mode == 'ntobr'}">
 <label>Разметка:*<br>
 <form:select path="mode" items="${modes}"/></label><br>
+</c:if>
 
 <label for="form_msg">Сообщение:</label><br>
 <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
 <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
-
 
 <% if (group!=null && group.isLinksAllowed()) { %>
 <label>
