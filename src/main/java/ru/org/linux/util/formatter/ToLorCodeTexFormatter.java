@@ -110,6 +110,6 @@ public class ToLorCodeTexFormatter {
   }
 
   public static String escapeCode(String text) {
-    return text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
+    return text.replaceAll("([^\\[]|^)\\[(/?code(:?=[\\w\\s]+)?)\\]", "$1[[$2]]");
   }
 }

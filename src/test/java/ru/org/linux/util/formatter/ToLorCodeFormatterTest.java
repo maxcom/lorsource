@@ -34,15 +34,33 @@ public class ToLorCodeFormatterTest {
   }
 
   @Test
+  public void codeEscapeBasic() {
+    assertEquals("[[code]]", ToLorCodeTexFormatter.escapeCode("[code]"));
+    assertEquals(" [[code]]", ToLorCodeTexFormatter.escapeCode(" [code]"));
+    assertEquals("[[/code]]", ToLorCodeTexFormatter.escapeCode("[/code]"));
+    assertEquals(" [[/code]]", ToLorCodeTexFormatter.escapeCode(" [/code]"));
+    assertEquals("[[code]]", ToLorCodeTexFormatter.escapeCode("[[code]]"));
+    assertEquals(" [[code]]", ToLorCodeTexFormatter.escapeCode(" [[code]]"));
+    assertEquals(" [[/code]]", ToLorCodeTexFormatter.escapeCode(" [[/code]]"));
+
+    assertEquals("][[code]]", ToLorCodeTexFormatter.escapeCode("][code]"));
+    assertEquals("[[code]] [[code]]", ToLorCodeTexFormatter.escapeCode("[code] [code]"));
+    assertEquals("[[code]] [[/code]]", ToLorCodeTexFormatter.escapeCode("[code] [/code]"));
+
+    // TODO
+    //     assertEquals("[[code]][[code]]", ToLorCodeTexFormatter.escapeCode("[code][code]"));
+  }
+
+  @Test
   public void codeEscape() {
     assertEquals("[code][/code]",
         toLorCodeTexFormatter.format("[code][/code]"));
     assertEquals("[code=perl][/code]",
         toLorCodeTexFormatter.format("[code=perl][/code]"));
-    assertEquals("[[code]][[/code]]",
-        toLorCodeFormatter.format("[code][/code]", true));
-    assertEquals("[[code=perl]][[/code]]",
-        toLorCodeFormatter.format("[code=perl][/code]", true));
+    assertEquals("[[code]] [[/code]]",
+        toLorCodeFormatter.format("[code] [/code]", true));
+    assertEquals("[[code=perl]] [[/code]]",
+        toLorCodeFormatter.format("[code=perl] [/code]", true));
   }
 
   @Test
@@ -91,6 +109,20 @@ public class ToLorCodeFormatterTest {
             toLorCodeTexFormatter.format(
                     "[code]test[/code]\n"+
                     "> test\n")
+    );
+
+    assertEquals(
+            "[[code]] test",
+            toLorCodeTexFormatter.format(
+              "[[code]] test"
+            )
+    );
+
+    assertEquals(
+            "[quote] [[code]] test[/quote]",
+            toLorCodeTexFormatter.format(
+              "> [[code]] test"
+            )
     );
   }
 
