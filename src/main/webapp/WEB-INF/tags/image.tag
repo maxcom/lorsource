@@ -1,7 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ tag import="ru.org.linux.topic.Topic" %>
-<%@ tag import="ru.org.linux.topic.PreparedImage" %>
-<%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -35,10 +32,8 @@
   <c:if test="${preparedImage != null}">
     <p>
       &gt;&gt;&gt; <a href="${preparedImage.fullName}">Просмотр</a>
-      (<i>
-        ${preparedImage.fullInfo.width}x${preparedImage.fullInfo.height},
-        ${preparedImage.fullInfo.sizeString}
-    </i>)
+      (<i>${preparedImage.fullInfo.width}x${preparedImage.fullInfo.height},
+        ${preparedImage.fullInfo.sizeString}</i>)
     </p>
   </c:if>
   <c:if test="${preparedImage == null}">
