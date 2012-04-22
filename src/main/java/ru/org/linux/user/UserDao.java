@@ -301,7 +301,7 @@ public class UserDao {
    */
   @CacheEvict(value="Users", key="#user.id")
   public void setPhoto(User user, String photo){
-    jdbcTemplate.update("UPDATE users SET photo=? WHERE id=? and photo!=?", photo, user.getId(), photo);
+    jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
   }
 
   /**
