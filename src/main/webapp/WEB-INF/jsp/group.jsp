@@ -240,7 +240,7 @@
   %>
   </c:if>
 
-  <c:if test="${count!=null || offset+template.prof.topics<count}">
+  <c:if test="${count!=null && offset+template.prof.topics<count}">
   <%
     out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
   %>
