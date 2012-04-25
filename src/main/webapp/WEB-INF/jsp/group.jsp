@@ -123,7 +123,9 @@
     out.print("</div>");
   }
 %>
-<lor:groupinfo group="${groupInfo}"/>
+<c:if test="${year == null && offset==0}">
+  <lor:groupinfo group="${groupInfo}"/>
+</c:if>
 <div class=forum>
 <table class="message-table">
 <thead>
