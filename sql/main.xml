@@ -19,5 +19,6 @@
     <include file="sql/updates/2012-03-26-drop-sections-preformat.xml"/>
     <include file="sql/updates/2012-03-27-add-value-to-event_type.xml"/>
     <include file="sql/updates/2012-03-30-add-value-to-event_type-9.1.xml"/>
+    <include file="sql/updates/2012-04-25-sticky-index.xml"/>
 
 </databaseChangeLog>
