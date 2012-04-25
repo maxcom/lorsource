@@ -51,15 +51,8 @@
 
     Group group = (Group) request.getAttribute("group");
 
-    int count = (Integer) request.getAttribute("count");
     int topics = tmpl.getProf().getTopics();
-    Integer year = (Integer) request.getAttribute("year");
     String url = (String) request.getAttribute("url");
-
-    int pages = count / topics;
-    if (count % topics != 0) {
-      count = (pages + 1) * topics;
-    }
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 %>
@@ -239,13 +232,19 @@
 %>
 </div>
 <div style="float: right">
+  <c:if test="${count==null && fn:length(topicsList)==template.prof.topics}">
   <%
-    if (offset + topics < count) {
-      if (year!=null || (offset+topics) < GroupController.MAX_OFFSET) {
-        out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
-      }
+    if ((offset + topics) < GroupController.MAX_OFFSET) {
+      out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
     }
   %>
+  </c:if>
+
+  <c:if test="${count!=null || offset+template.prof.topics<count}">
+  <%
+    out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
+  %>
+  </c:if>
 </div>
 </tfoot>
 </table>

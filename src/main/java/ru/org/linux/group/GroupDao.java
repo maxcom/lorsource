@@ -102,32 +102,6 @@ public class GroupDao {
   }
 
   /**
-   * Подсчитать количество тем в группе.
-   *
-   * @param group       объект группы
-   * @param showDeleted - учитывать ли удалённые темы
-   * @return количество тем в группе
-   */
-  public int calcTopicsCount(Group group, boolean showDeleted) {
-    String query = "SELECT count(topics.id) " +
-      "FROM topics WHERE " +
-      (group.isModerated() ? "moderate AND " : "") +
-      "groupid=?";
-
-    if (!showDeleted) {
-      query += " AND NOT topics.deleted";
-    }
-
-    List<Integer> res = jdbcTemplate.queryForList(query, Integer.class, group.getId());
-
-    if (!res.isEmpty()) {
-      return res.get(0);
-    } else {
-      return 0;
-    }
-  }
-
-  /**
    * Изменить настройки группы.
    *
    * @param group      объект группы

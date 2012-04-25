@@ -274,9 +274,7 @@ public class GroupController {
 
     params.put("topicsList", topicsList);
 
-    if (year == null) {
-      params.put("count", groupDao.calcTopicsCount(group, showDeleted));
-    } else {
+    if (year != null) {
       params.put("count", getArchiveCount(group.getId(), year, month));
     }
 
