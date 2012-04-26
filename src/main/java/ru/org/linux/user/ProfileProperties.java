@@ -15,13 +15,13 @@
 
 package ru.org.linux.user;
 
+import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.util.ProfileHashtable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.util.ProfileHashtable;
 
 public class ProfileProperties {
   public static final String STYLE_PROPERTY = "style";
@@ -199,7 +199,8 @@ public class ProfileProperties {
   }
 
   public boolean isThreeColumnsOnMain() {
-    return threeColumnsOnMain;
+    return false;
+    //return threeColumnsOnMain;
   }
 
   public void setThreeColumnsOnMain(boolean threeColumnsOnMain) {
