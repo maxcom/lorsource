@@ -15,7 +15,7 @@
 
 /* (c) ���� ��������� 1999 <maxcom@vinchi.ru> */
 
-BODY { font-family: serif; }
+BODY { font-family: serif; max-width: 80em; margin:auto; }
 
 .hr { background: #B0B0B0; }
 hr { color: #B0B0B0; }
