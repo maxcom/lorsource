@@ -19,7 +19,7 @@
 
 <jsp:include page="head.jsp"/>
 
-<title>Регистрация пользователя</title>
+<title>Изменение регистрации</title>
 <script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
 <script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -60,7 +60,7 @@
 <input type=hidden name=mode value="change">
 <label> Полное имя: <form:input path="name" size="40"/></label><br>
 <label>Пароль:
-<input class="required" type=password name="oldpass" size="20"></label><br>
+<input required type=password name="oldpass" size="20"></label><br>
 <label>Новый пароль:
 <input type=password name="password" size="20"> (не заполняйте если не хотите менять)</label><br>
 <label>Повторите новый пароль:
@@ -68,7 +68,7 @@
 
 <label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" type="url" size="50"/></label><br>
 
-<label>Email: <form:input path="email" type="email" size="50" cssClass="required email"/></label><br>
+<label>Email: <form:input path="email" type="email" size="50" required="required" cssClass="email"/></label><br>
 
 <label>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,

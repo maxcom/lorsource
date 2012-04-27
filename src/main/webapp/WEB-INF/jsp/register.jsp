@@ -48,18 +48,18 @@
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
     <form:errors path="*" element="div" cssClass="error"/>
     
-<label><b>Login:</b> <form:input path="nick" cssClass="required" size="40"/></label><br>
+<label><b>Login:</b> <form:input path="nick" required="required" size="40"/></label><br>
 
 <label>Полное имя: <form:input path="name" size="40"/></label><br>
 <label><b>Пароль:</b>
-<input class="required" id="password" type=password name=password size=20 maxlength="40"></label><br>
+<input required id="password" type=password name=password size=20 maxlength="40"></label><br>
 <label><b>Повторите пароль:</b>
-<input class="required" id="password2" type=password name=password2 size=20 maxlength="40"></label><br>
+<input required id="password2" type=password name=password2 size=20 maxlength="40"></label><br>
 
 <label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" type="url" size="50"/></label><br>
 
 <label><b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
-<form:input path="email" type="email" cssClass="required email" size="50"/></label><br>
+<form:input path="email" type="email" required="required" cssClass="email" size="50"/></label><br>
 
     <label>
     Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,

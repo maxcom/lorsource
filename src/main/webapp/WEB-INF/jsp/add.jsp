@@ -88,7 +88,7 @@
 
   <c:if test="${not template.sessionAuthorized}">
     <label>
-        Имя:<br> <input type=text class="required" value="anonymous" name="nick" style="width: 40em">
+        Имя:<br> <input type=text required value="anonymous" name="nick" style="width: 40em">
     </label><br>
     <label>
         Пароль:<br> <input type=password name=password style="width: 40em">
@@ -107,7 +107,7 @@
 
 
   <label>Заглавие:<br>
-    <form:input path="title" cssClass="required" style="width: 40em"/><br>
+    <form:input path="title" required="required" style="width: 40em"/><br>
    </label>
 
   <c:if test="${group!=null and group.imagePostAllowed}">

@@ -58,7 +58,7 @@
 
   <label for="msg">Сообщение:</label><br>
 
-  <textarea id="msg" class="required" name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
+  <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
   <font size="2">Пустая строка (два раза Enter) начинает новый абзац.<br>
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>

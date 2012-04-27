@@ -34,7 +34,7 @@
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
   Старое название: ${tagRequestChange.oldTagName}<br />
-  Название: <form:input path="tagName" cssClass="required" style="width: 40em" /><br />
+  Название: <form:input path="tagName" required="required" style="width: 40em" /><br />
   <input type="submit" value="Изменить" />
   <c:url var="list_url" value="/tags/${firstLetter}" />
   <input type="button" value="Отменить" onClick="window.location='${list_url}';" />
