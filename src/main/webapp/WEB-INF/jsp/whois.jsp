@@ -210,7 +210,11 @@
     <legend>Избранные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${favoriteTags}">
-          <li><span style="white-space: nowrap">${tagName}</span></li>
+          <c:url var="tagLink" value="view-news.jsp">
+            <c:param name="tag">${tagName}</c:param>
+          </c:url>
+
+          <li><a href="${tagLink}"><span style="white-space: nowrap">${tagName}</span></a></li>
         </c:forEach>
       </ul>
     </fieldset>
