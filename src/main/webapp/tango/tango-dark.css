@@ -45,6 +45,18 @@ a {
 	color: #fcaf3e;
 }
 
+#bd .tags a:visited {
+	color: #fcaf3e;
+}
+
+#bd a.tag {
+	color: #fcaf3e;
+}
+
+#bd a.tag:visited {
+	color: #fcaf3e;
+}
+
 #bd .sign a {
 	color: #8ae234;
 }
