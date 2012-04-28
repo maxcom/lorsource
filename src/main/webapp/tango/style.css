@@ -157,8 +157,6 @@ p {
 #bd li {
 	margin-left: 2em;
 	list-style: inherit;
-    padding-top: 0.125em;
-    padding-bottom: 0.125em;
 }
 
 #bd .tags {

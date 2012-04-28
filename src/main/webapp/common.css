@@ -489,3 +489,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     display: table-cell;
     text-align: right;
 }
+
+#bd li {
+    padding-top: 0.125em;
+    padding-bottom: 0.125em;
+}
