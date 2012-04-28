@@ -16,7 +16,6 @@
   --%>
 
 <!-- head-main -->
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/black/combined.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body style="margin-top: 0">
