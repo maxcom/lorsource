@@ -201,7 +201,7 @@
   }
 
   $(document).ready(function() {
-    addFav = function() {
+    addFav = function(event) {
       <c:if test="${isShowFavoriteTagButton}">
         tag_filter("/user-filter/favorite-tag", event, "Удалить из избранного", true );
       </c:if>
@@ -210,7 +210,7 @@
       </c:if>
     };
 
-    addIgn = function() {
+    addIgn = function(event) {
       <c:if test="${isShowIgnoreTagButton}">
         tag_filter("/user-filter/ignore-tag", event, "Не игнорировать тег", true);
       </c:if>
