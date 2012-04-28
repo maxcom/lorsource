@@ -37,7 +37,6 @@
   <div class=title>
     <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
     <c:if test="${not message.deleted}">
-      [<a href="${message.link}">#</a>]
       <c:if test="${template.moderatorSession}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
           [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
@@ -79,7 +78,7 @@
 
   <div class="msg_body ${msgBodyStyle}">
   <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
-    ${message.title}
+    <a href="${message.link}">${message.title}</a>
   </h1>
 
   <c:if test="${preparedMessage.section.imagepost}">
