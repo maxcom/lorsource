@@ -361,6 +361,10 @@ pre code span {
     font-size: small;
 }
 
+.tag {
+    white-space: nowrap;
+}
+
 .msg h1 {
     font-size: x-large;
 }
