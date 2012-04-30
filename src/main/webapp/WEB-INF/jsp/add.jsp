@@ -98,14 +98,6 @@
   <form:hidden path="group"/>
   <p>
 
-  <c:if test="${not group.moderated}">
-    <label>
-      Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
-      <form:input id="tags" path="tags" style="width: 40em"/>
-    </label><br>
-  </c:if>
-
-
   <label>Заглавие:<br>
     <form:input path="title" required="required" style="width: 40em"/><br>
    </label>
@@ -145,16 +137,22 @@
 Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
 </label><br>
 <% } %>
+
+<label>
+<c:if test="${not group.moderated}">
+  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
+</c:if>
+
 <c:if test="${group.moderated}">
-    <label>
-    Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
+  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
+</c:if>
+
     <form:input id="tags" path="tags" style="width: 40em"/>
     </label><p>
     Популярные теги:
      <c:forEach items="${topTags}" var="topTag" varStatus = "status">
 ${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
      </c:forEach>
-</c:if>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <br>
