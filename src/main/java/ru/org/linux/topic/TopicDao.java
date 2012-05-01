@@ -25,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.*;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -99,6 +99,9 @@ public class TopicDao {
   @Autowired
   private UserTagService userTagService;
 
+  @Autowired
+  EditHistoryService editHistoryService;
+
   /**
    * Запрос получения полной информации о топике
    */
@@ -118,8 +121,6 @@ public class TopicDao {
    */
   private static final String updateDeleteMessage = "UPDATE topics SET deleted='t',sticky='f' WHERE id=?";
 
-  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
-
   private static final String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
 
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
@@ -133,7 +134,6 @@ public class TopicDao {
 
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
-  private SimpleJdbcInsert editInsert;
 
   @Autowired
   private UserDao userDao;
@@ -142,10 +142,6 @@ public class TopicDao {
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    editInsert =
-      new SimpleJdbcInsert(dataSource)
-        .withTableName("edit_info")
-        .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
   }
 
   /**
@@ -214,30 +210,6 @@ public class TopicDao {
         return resultSet.getInt("id");
       }
     }, ts_start, ts_end);
-  }
-
-  /**
-   * Получить информации о редактировании топика
-   * @param id id топика
-   * @return список изменений топика
-   */
-  public List<EditInfoDto> getEditInfo(int id) {
-    final List<EditInfoDto> editInfoDTOs = new ArrayList<EditInfoDto>();
-    jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        EditInfoDto editInfoDTO = new EditInfoDto();
-        editInfoDTO.setId(resultSet.getInt("id"));
-        editInfoDTO.setMsgid(resultSet.getInt("msgid"));
-        editInfoDTO.setEditor(resultSet.getInt("editor"));
-        editInfoDTO.setOldmessage(resultSet.getString("oldmessage"));
-        editInfoDTO.setEditdate(resultSet.getTimestamp("editdate"));
-        editInfoDTO.setOldtitle(resultSet.getString("oldtitle"));
-        editInfoDTO.setOldtags(resultSet.getString("oldtags"));
-        editInfoDTOs.add(editInfoDTO);
-      }
-    }, id);
-    return editInfoDTOs;
   }
 
   /**
@@ -426,17 +398,17 @@ public class TopicDao {
   private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
     List<String> oldTags = topicTagService.getMessageTags(msg.getId());
 
-    EditInfoDto editInfo = new EditInfoDto();
+    EditHistoryDto editHistoryDto = new EditHistoryDto();
 
-    editInfo.setMsgid(msg.getId());
-    editInfo.setEditor(editor.getId());
+    editHistoryDto.setMsgid(msg.getId());
+    editHistoryDto.setEditor(editor.getId());
 
     boolean modified = false;
 
     String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
 
     if (!oldText.equals(newText)) {
-      editInfo.setOldmessage(oldText);
+      editHistoryDto.setOldmessage(oldText);
       modified = true;
 
       msgbaseDao.updateMessage(msg.getId(), newText);
@@ -444,7 +416,7 @@ public class TopicDao {
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {
       modified = true;
-      editInfo.setOldtitle(oldMsg.getTitle());
+      editHistoryDto.setOldtitle(oldMsg.getTitle());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET title=:title WHERE id=:id",
@@ -454,7 +426,7 @@ public class TopicDao {
 
     if (!equalStrings(oldMsg.getLinktext(), msg.getLinktext())) {
       modified = true;
-      editInfo.setOldlinktext(oldMsg.getLinktext());
+      editHistoryDto.setOldlinktext(oldMsg.getLinktext());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET linktext=:linktext WHERE id=:id",
@@ -464,7 +436,7 @@ public class TopicDao {
 
     if (!equalStrings(oldMsg.getUrl(), msg.getUrl())) {
       modified = true;
-      editInfo.setOldurl(oldMsg.getUrl());
+      editHistoryDto.setOldurl(oldMsg.getUrl());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET url=:url WHERE id=:id",
@@ -476,7 +448,7 @@ public class TopicDao {
       boolean modifiedTags = topicTagService.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
-        editInfo.setOldtags(TagService.toString(oldTags));
+        editHistoryDto.setOldtags(TagService.toString(oldTags));
         tagService.updateCounters(oldTags, newTags);
         modified = true;
       }
@@ -489,7 +461,7 @@ public class TopicDao {
     }
 
     if (modified) {
-      editInsert.execute(new BeanPropertySqlParameterSource(editInfo));
+      editHistoryService.insert(editHistoryDto);
     }
 
     return modified;
@@ -745,16 +717,6 @@ public class TopicDao {
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public List<EditInfoDto> loadEditInfo(int msgid)  {
-    List<EditInfoDto> list = jdbcTemplate.query(
-      "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC",
-      BeanPropertyRowMapper.newInstance(EditInfoDto.class),
-      msgid
-    );
-
-    return ImmutableList.copyOf(list);
   }
 
   public void resolveMessage(int msgid, boolean b) {

@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -92,6 +94,9 @@ public class TopicPrepareService {
   
   @Autowired
   private MsgbaseDao msgbaseDao;
+
+  @Autowired
+  private EditHistoryService editHistoryService;
   
   public PreparedTopic prepareTopic(Topic message, boolean minimizeCut, boolean secure, User user) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user, null);
@@ -176,17 +181,17 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      List<EditInfoDto> editInfo = messageDao.getEditInfo(message.getId());
-      EditInfoDto lastEditInfo;
+      List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(message.getId());
+      EditHistoryDto editHistoryDto;
       User lastEditor;
       int editCount;
 
-      if (!editInfo.isEmpty()) {
-        lastEditInfo = editInfo.get(0);
-        lastEditor = userDao.getUserCached(lastEditInfo.getEditor());
-        editCount = editInfo.size();
+      if (!editHistoryDtoList.isEmpty()) {
+        editHistoryDto = editHistoryDtoList.get(0);
+        lastEditor = userDao.getUserCached(editHistoryDto.getEditor());
+        editCount = editHistoryDtoList.size();
       } else {
-        lastEditInfo = null;
+        editHistoryDto = null;
         lastEditor = null;
         editCount = 0;
       }
@@ -253,7 +258,7 @@ public class TopicPrepareService {
               tags,
               group,
               section,
-              lastEditInfo,
+              editHistoryDto,
               lastEditor, 
               editCount,
               userAgent, 

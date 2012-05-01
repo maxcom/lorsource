@@ -13,25 +13,27 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
+package ru.org.linux.edithistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-public class EditInfoController {
+public class EditHistoryController {
   @Autowired
   private TopicDao messageDao;
 
   @Autowired
-  private EditInfoPrepareService prepareService;
+  private EditHistoryService editHistoryService;
 
   @RequestMapping({
     "/news/{group}/{id}/history",
@@ -45,18 +47,18 @@ public class EditInfoController {
   ) throws Exception {
     Topic message = messageDao.getById(msgid);
 
-    List<PreparedEditInfo> editInfos = prepareService.prepareEditInfo(message, request.isSecure());
+    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message, request.isSecure());
 
-    ModelAndView mv = new ModelAndView("history");
+    ModelAndView modelAndView = new ModelAndView("history");
 
     List<String> javaScriptsForLayout = new ArrayList<String>();
     javaScriptsForLayout.add("diff_match_patch.js");
     javaScriptsForLayout.add("lor_view_diff_history.js");
-    mv.addObject("javascriptsForLayout", javaScriptsForLayout);
+    modelAndView.addObject("javascriptsForLayout", javaScriptsForLayout);
 
-    mv.getModel().put("message", message);
-    mv.getModel().put("editInfos", editInfos);
+    modelAndView.getModel().put("message", message);
+    modelAndView.getModel().put("editHistories", editHistories);
 
-    return mv;
+    return modelAndView;
   }
 }

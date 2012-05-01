@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
-<%--@elvariable id="editInfos" type="java.util.List<ru.org.linux.topic.PreparedEditInfo>"--%>
+<%--@elvariable id="editInfos" type="java.util.List<ru.org.linux.edithistory.PreparedEditHistory>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>История изменений</title>
@@ -24,20 +24,20 @@
 <h1>История изменений</h1>
 <div id="historyButtonBar"></div>
 <div class="messages">
-  <c:forEach items="${editInfos}" var="editInfo">
+  <c:forEach items="${editHistories}" var="editHistory">
     <p>
-      <c:if test="${editInfo.original}">
+      <c:if test="${editHistory.original}">
         Исходная версия
       </c:if>
 
-      <c:if test="${not editInfo.original}">
+      <c:if test="${not editHistory.original}">
         Исправление
       </c:if>
 
-      <lor:user link="true" decorate="true" user="${editInfo.editor}"/>,
-      <lor:dateinterval date="${editInfo.editInfo.editdate}"/>
+      <lor:user link="true" decorate="true" user="${editHistory.editor}"/>,
+      <lor:dateinterval date="${editHistory.editHistoryDto.editdate}"/>
 
-      <c:if test="${editInfo.current}">
+      <c:if test="${editHistory.current}">
         (текущая версия)
       </c:if>
 
@@ -45,17 +45,17 @@
     </p>
     <div class="msg">
       <div class="msg_header">
-        <h2>${editInfo.title}</h2>
+        <h2>${editHistory.title}</h2>
       </div>
       <div class="msg_body">
-        ${editInfo.message}
+        ${editHistory.message}
       </div>
       <div class="msg_footer">
-        <c:if test="${(editInfo.linktext != null) || (editInfo.url != null)}">
-          <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
+        <c:if test="${(editHistory.linktext != null) || (editHistory.url != null)}">
+          <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? "#" : editHistory.url}">${editHistory.linktext==null ? "(текст ссылки не изменен)" : editHistory.linktext}</a>
         </c:if>
-        <c:if test="${editInfo.tags != null}">
-          <lor:tags list="${editInfo.tags}"/>
+        <c:if test="${editHistory.tags != null}">
+          <lor:tags list="${editHistory.tags}"/>
         </c:if>
       </div>
     </div>

@@ -16,6 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
@@ -38,7 +39,7 @@ public final class PreparedTopic {
   private final Group group;
   private final Section section;
 
-  private final EditInfoDto lastEditInfo;
+  private final EditHistoryDto editHistoryDto;
   private final User lastEditor;
   private final int editCount;
 
@@ -62,7 +63,7 @@ public final class PreparedTopic {
           List<String> tags,
           Group group,
           Section section,
-          EditInfoDto lastEditInfo,
+          EditHistoryDto editHistoryDto,
           User lastEditor,
           int editorCount,
           String userAgent,
@@ -86,7 +87,7 @@ public final class PreparedTopic {
     }
     this.group = group;
     this.section = section;
-    this.lastEditInfo = lastEditInfo;
+    this.editHistoryDto = editHistoryDto;
     this.lastEditor = lastEditor;
     editCount = editorCount;
     this.userAgent = userAgent;
@@ -125,8 +126,8 @@ public final class PreparedTopic {
     return commiter;
   }
 
-  public EditInfoDto getLastEditInfo() {
-    return lastEditInfo;
+  public EditHistoryDto getEditHistoryDto() {
+    return editHistoryDto;
   }
 
   public User getLastEditor() {
