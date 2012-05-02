@@ -249,10 +249,15 @@ public class CommentService {
 
       Integer replyto = commentRequest.getReplyto() != null ? commentRequest.getReplyto().getId() : null;
 
+      int commentId = commentRequest.getOriginal() == null
+        ? 0
+        : commentRequest.getOriginal().getId();
+
       comment = new Comment(
         replyto,
         StringUtil.escapeHtml(title),
         commentRequest.getTopic().getId(),
+        commentId,
         user.getId(),
         request.getHeader("user-agent"),
         request.getRemoteAddr()
@@ -375,6 +380,47 @@ public class CommentService {
   }
 
   /**
+   *
+   * @param oldComment
+   * @param newComment
+   * @param commentBody
+   * @param remoteAddress
+   * @param xForwardedFor
+   * @throws ServletParameterException
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void edit(
+    Comment oldComment,
+    Comment newComment,
+    String commentBody,
+    String remoteAddress,
+    String xForwardedFor
+  )
+    throws ServletParameterException {
+
+    commentDao.edit(oldComment, newComment, commentBody);
+
+    /* кастование пользователей */
+    Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
+
+    MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
+    Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
+    Set<User> userRefs = new HashSet<User>();
+    /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
+    for (User user : newUserRefs) {
+      if (!oldUserRefs.contains(user)) {
+        userRefs.add(user);
+      }
+    }
+
+    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), oldComment.getTopicId(), oldComment.getId());
+
+    String logMessage = makeLogString("Изменён комментарий " + oldComment.getId(), remoteAddress, xForwardedFor);
+    logger.info(logMessage);
+
+  }
+
+  /**
    * Формирование строки в лог-файл.
    *
    * @param message        сообщение
@@ -398,7 +444,7 @@ public class CommentService {
 
     return logMessage.toString();
   }
-
+  
   private String processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);

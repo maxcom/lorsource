@@ -149,6 +149,13 @@
       </c:if>
 
       <c:if test="${deletable}">
+
+        <c:url var="edit_url" value="/edit_comment">
+          <c:param name="original" value="${comment.comment.messageId}"/>
+          <c:param name="topic" value="${topic.id}"/>
+        </c:url>
+        <li><a href="${edit_url}">Править</a></li>
+
         <c:url var="delete_url" value="/delete_comment.jsp">
           <c:param name="msgid" value="${comment.comment.messageId}"/>
         </c:url>

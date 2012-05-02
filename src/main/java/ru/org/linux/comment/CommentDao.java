@@ -449,6 +449,26 @@ public class CommentDao {
     return msgid;
   }
 
+  /**
+   *
+   * @param oldComment
+   * @param newComment
+   * @param commentBody
+   */
+  public void edit(final Comment oldComment, final Comment newComment, final String commentBody) {
+    jdbcTemplate.update(
+      "UPDATE comments SET title=? WHERE id=?",
+      newComment.getTitle(),
+      oldComment.getId()
+    );
+
+    jdbcTemplate.update(
+      "UPDATE msgbase SET message=? WHERE id=?",
+      commentBody,
+      oldComment.getId()
+    );
+  }
+
   public CommentList getCommentList(Topic topic, boolean showDeleted) {
     CacheProvider mcc = MemCachedSettings.getCache();
 

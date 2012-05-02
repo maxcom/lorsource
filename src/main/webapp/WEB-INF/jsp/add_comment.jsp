@@ -99,12 +99,15 @@
   </div>
 </c:if>
 
+<c:url var="form_action_url" value="/add_comment.jsp" />
+
 <lor:commentForm
         topic="${add.topic}"
         title="<%= title %>"
         replyto="<%= replyto %>"
         msg="${add.msg}"
         mode="${add.mode}"
+        form_action_url="${form_action_url}"
         postscoreInfo="${postscoreInfo}" />
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

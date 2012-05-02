@@ -60,11 +60,12 @@ public class Comment implements Serializable {
           Integer replyto,
           String title,
           int topic,
+          int msgid,
           int userid,
           String userAgent,
           String postIP
   ) {
-    msgid =0;
+    this.msgid = msgid;
     this.title=title;
     this.topic=topic;
 
