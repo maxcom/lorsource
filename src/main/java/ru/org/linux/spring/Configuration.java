@@ -95,4 +95,11 @@ public class Configuration {
   public String getAdminEmailAddress() {
     return properties.getProperty("admin.emailAddress");
   }
+
+  public Integer getCommentExpireMinutesForEdit() {
+    String property = properties.getProperty("comment.expireMinutesForEdit");
+    if (property == null)
+      return null;
+    return Integer.valueOf(property) * 60;
+  }
 }
