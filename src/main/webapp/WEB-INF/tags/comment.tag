@@ -76,7 +76,10 @@
   Boolean deletable = moderatorMode ||
     (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()));
 
-  Boolean editable = !topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick());
+  Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
+  if (!editable) {
+    editable = comment.getAuthor().getNick().equals(tmpl.getNick());
+  }
 %>
   <c:set var="reply" value="<%= reply %>"/>
   <c:set var="replyPage" value="<%= replyPage %>"/>

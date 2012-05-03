@@ -96,10 +96,10 @@ public class Configuration {
     return properties.getProperty("admin.emailAddress");
   }
 
-  public Integer getCommentExpireMinutesForEdit() {
-    String property = properties.getProperty("comment.expireMinutesForEdit");
+  public Boolean isModeratorAllowedToEditComments() {
+    String property = properties.getProperty("comment.isModeratorAllowedToEdit");
     if (property == null)
-      return null;
-    return Integer.valueOf(property) * 60;
+      return false;
+    return Boolean.valueOf(property);
   }
 }

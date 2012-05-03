@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.search.SearchQueueSender;
@@ -111,6 +112,11 @@ public class EditCommentController extends ApplicationObjectSupport {
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(commentRequest.getTopic().getPostScore()));
       topicPermissionService.checkCommentsAllowed(commentRequest.getTopic(), user, errors);
       formParams.put("comment", commentPrepareService.prepareComment(comment, msg, request.isSecure()));
+    }
+
+    boolean editable = topicPermissionService.isCommentsEditingAllowed(commentRequest,request, user, errors);
+    if (!editable) {
+      throw new AccessViolationException("у Вас нет прав на редактирование этого сообщения");
     }
 
     if (commentRequest.isPreviewMode() || errors.hasErrors() && comment == null) {

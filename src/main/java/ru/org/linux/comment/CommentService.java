@@ -32,10 +32,12 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -143,6 +145,8 @@ public class CommentService {
   }
 
   /**
+   * Проверка валидности данных запроса.
+   *
    * @param commentRequest
    * @param user
    * @param ipBlockInfo

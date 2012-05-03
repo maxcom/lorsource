@@ -15,9 +15,15 @@
 
 package ru.org.linux.topic;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import ru.org.linux.comment.CommentRequest;
+import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class TopicPermissionService {
@@ -25,7 +31,10 @@ public class TopicPermissionService {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
-  
+
+  @Autowired
+  Configuration configuration;
+
   public static String getPostScoreInfo(int postscore) {
     switch (postscore) {
       case POSTSCORE_UNRESTRICTED:
@@ -109,5 +118,31 @@ public class TopicPermissionService {
     } else {
       return user.getScore() >= score;
     }
-  }  
+  }
+
+  /**
+   * Проверка на права редактирования комментария.
+   *
+   * @param commentRequest
+   * @param request
+   * @param user
+   * @param errors
+   * @return
+   */
+  public boolean isCommentsEditingAllowed(
+    CommentRequest commentRequest,
+    HttpServletRequest request,
+    User user,
+    Errors errors
+  ) {
+    Template tmpl = Template.getTemplate(request);
+
+    Boolean editable = tmpl.isModeratorSession() && configuration.isModeratorAllowedToEditComments();
+
+    if (!editable) {
+      editable = commentRequest.getOriginal().getUserid() == user.getId();
+    }
+    return editable;
+  }
+
 }
