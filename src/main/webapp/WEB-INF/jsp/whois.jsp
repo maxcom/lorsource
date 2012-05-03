@@ -133,11 +133,8 @@
       </c:if>
       <br>
       <b>Score:</b> ${user.score}<br>
-      <c:if test="${currentUser}">
-        <b>Вас игнорируют</b>: ${userStat.ignoreCount}<br>
-      </c:if>
-      <c:if test="${not currentUser}">
-        <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
+      <c:if test="${not currentUser && template.moderatorSession}">
+        <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
       </c:if>
     </div>
   </c:if>
