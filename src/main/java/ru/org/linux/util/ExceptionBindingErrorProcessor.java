@@ -19,12 +19,13 @@ import org.springframework.beans.PropertyAccessException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DefaultBindingErrorProcessor;
 import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.user.UserNotFoundException;
 
 public class ExceptionBindingErrorProcessor extends DefaultBindingErrorProcessor {
   @Override
   public void processPropertyAccessException(PropertyAccessException e, BindingResult bindingResult) {
     if (e.getCause() instanceof IllegalArgumentException &&
-            e.getCause().getCause() instanceof ScriptErrorException) {
+            (e.getCause().getCause() instanceof ScriptErrorException || e.getCause().getCause() instanceof UserNotFoundException)) {
       bindingResult.rejectValue(
               e.getPropertyChangeEvent().getPropertyName(),
               null,
