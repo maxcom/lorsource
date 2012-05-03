@@ -120,7 +120,7 @@
       </p>
   </c:if>
 
-<c:if test="${form.mode == 'ntobr'}">
+<c:if test="${template.prof.formatMode == 'ntobr'}">
 <label>Разметка:*<br>
 <form:select path="mode" items="${modes}"/></label><br>
 </c:if>

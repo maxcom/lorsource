@@ -53,18 +53,23 @@ public class TemplateFilter implements Filter {
       return;
     }
 
-    try {
-      Template tmpl = new Template(
-              (HttpServletRequest) servletRequest,
-              (HttpServletResponse) servletResponse,
-              userDao,
-              configuration
-      );
+    HttpServletRequest hsr = (HttpServletRequest) servletRequest;
 
-      servletRequest.setAttribute("template", tmpl);
-    } catch (Exception ex) {
-      logger.fatal("Can't build Template", ex);
-      return;
+    String path = hsr.getServletPath();
+    if (!path.endsWith(".css") && !path.endsWith(".png") && !path.endsWith(".jpg") && !path.endsWith("jpg")) {
+      try {
+        Template tmpl = new Template(
+                (HttpServletRequest) servletRequest,
+                (HttpServletResponse) servletResponse,
+                userDao,
+                configuration
+        );
+
+        servletRequest.setAttribute("template", tmpl);
+      } catch (Exception ex) {
+        logger.fatal("Can't build Template", ex);
+        return;
+      }
     }
 
     filterChain.doFilter(servletRequest, servletResponse);

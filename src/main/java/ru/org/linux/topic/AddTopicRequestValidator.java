@@ -47,12 +47,18 @@ public class AddTopicRequestValidator implements Validator {
 
     String title = form.getTitle();
 
-    if (title!=null && title.trim().isEmpty()) {
-      errors.rejectValue("title", null, "заголовок сообщения не может быть пустым");
-    }
+    if (title!=null) {
+      if (title.trim().isEmpty()) {
+        errors.rejectValue("title", null, "заголовок сообщения не может быть пустым");
+      }
 
-    if (title!=null && title.length() > MAX_TITLE_LENGTH) {
-      errors.rejectValue("title", null, "Слишком большой заголовок");
+      if (title.length() > MAX_TITLE_LENGTH) {
+        errors.rejectValue("title", null, "Слишком большой заголовок");
+      }
+
+      if (title.trim().startsWith("[")) {
+        errors.rejectValue("title", null, "Не добавляйте теги в заголовки, используйте предназначенное для тегов поле ввода");
+      }
     }
 
     if (form.getMsg() != null) {
