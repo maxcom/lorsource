@@ -45,9 +45,11 @@ public class CommentPrepareService {
   @Autowired
   private MsgbaseDao msgbaseDao;
 
+  @Autowired
+  private CommentService commentService;
+
   private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-
     return prepareComment(messageText, comment, comments, secure, rss);
   }
 
@@ -74,7 +76,11 @@ public class CommentPrepareService {
     } else {
       replyAuthor = null;
     }
-    return new PreparedComment(comment, author, processedMessage, replyAuthor);
+    boolean haveAnswers = false;
+    if (comments != null) {
+      haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
+    }
+    return new PreparedComment(comment, author, processedMessage, replyAuthor, haveAnswers);
   }
 
   public PreparedComment prepareComment(Comment comment, boolean secure) throws UserNotFoundException {
@@ -85,7 +91,7 @@ public class CommentPrepareService {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage = lorCodeService.parseComment(message, secure);
 
-    return new PreparedComment(comment, author, processedMessage, null);
+    return new PreparedComment(comment, author, processedMessage, null, commentService.isHaveAnswers(comment));
   }
 
   public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {

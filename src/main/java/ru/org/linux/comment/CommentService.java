@@ -1,4 +1,5 @@
 /*
+/*
  * Copyright 1998-2012 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,7 +38,6 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -265,7 +265,8 @@ public class CommentService {
         commentId,
         user.getId(),
         request.getHeader("user-agent"),
-        request.getRemoteAddr()
+        request.getRemoteAddr(),
+        commentDao.getReplaysCount(commentId) > 0
       );
     }
     return comment;
@@ -374,17 +375,7 @@ public class CommentService {
   }
 
   /**
-   * Получить объект комментария по идентификационному номеру
-   *
-   * @param id идентификационный номер комментария
-   * @return объект комментария
-   * @throws MessageNotFoundException если комментарий не найден
-   */
-  public Comment getById(int id) throws MessageNotFoundException {
-    return commentDao.getById(id);
-  }
-
-  /**
+   * Редактирование комментария.
    *
    * @param oldComment
    * @param newComment
@@ -426,6 +417,16 @@ public class CommentService {
   }
 
   /**
+   * Проверка, имет ли указанный комментарий ответы.
+   *
+   * @param comment  объект комментария
+   * @return true если есть ответы, иначе false
+   */
+  public boolean isHaveAnswers(Comment comment) {
+    return commentDao.isHaveAnswers(comment.getId());
+  }
+
+  /**
    * Формирование строки в лог-файл.
    *
    * @param message        сообщение
@@ -449,7 +450,7 @@ public class CommentService {
 
     return logMessage.toString();
   }
-  
+
   private String processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);

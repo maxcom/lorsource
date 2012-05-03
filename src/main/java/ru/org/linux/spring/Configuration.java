@@ -109,4 +109,11 @@ public class Configuration {
       return null;
     return Integer.valueOf(property);
   }
+
+  public Boolean isCommentEditingAllowedIfAnswersExists() {
+    String property = properties.getProperty("comment.isEditingAllowedIfAnswersExists");
+    if (property == null)
+      return false;
+    return Boolean.valueOf(property);
+  }
 }

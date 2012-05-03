@@ -198,6 +198,9 @@ public class CommentDao {
   }
 
   private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
+
+    int inReplyId = jdbcTemplate.queryForInt("SELECT replyto FROM comments WHERE id=? AND NOT deleted", msgid);
+
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {
@@ -533,6 +536,11 @@ public class CommentDao {
             },
             user.getId()
     );
+  }
+
+  public boolean isHaveAnswers(int commentId) {
+    int answersCount = jdbcTemplate.queryForInt("select count (id) from comments where replyto = ?",commentId);
+    return answersCount != 0;
   }
 
   public static class DeletedListItem {

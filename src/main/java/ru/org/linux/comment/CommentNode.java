@@ -29,6 +29,7 @@ import java.util.Set;
 public class CommentNode implements Serializable {
   private final LinkedList<CommentNode> childs = new LinkedList<CommentNode>();
   private Comment comment = null;
+  private boolean haveAnswers = false;
 
   public CommentNode() {
   }
@@ -47,6 +48,14 @@ public class CommentNode implements Serializable {
 
   public int getMessageId() {
     return comment==null?0:comment.getMessageId();
+  }
+
+  public boolean isHaveAnswers() {
+    return haveAnswers;
+  }
+
+  public void setHaveAnswers(boolean haveAnswers) {
+    this.haveAnswers = haveAnswers;
   }
 
   public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws SQLException, UserNotFoundException {

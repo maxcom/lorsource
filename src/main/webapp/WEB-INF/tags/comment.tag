@@ -79,15 +79,24 @@
   Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
   if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
     Integer minutesToEdit = tmpl.getConfig().getCommentExpireMinutesForEdit();
+
+    boolean isbyMinutesEnable = false;
     if (minutesToEdit != null && !minutesToEdit.equals(0)) {
       long commentTimestamp = comment.getComment().getPostdate().getTime();
-      long deltaTimestamp = minutesToEdit*60*1000;
+      long deltaTimestamp = minutesToEdit * 60 * 1000;
       long nowTimestamp = new java.util.Date().getTime();
 
-      editable = commentTimestamp + deltaTimestamp > nowTimestamp;
+      isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
     } else {
-      editable = true;
+      isbyMinutesEnable = true;
     }
+
+    boolean isbyAnswersEnable = true;
+    if (!tmpl.getConfig().isCommentEditingAllowedIfAnswersExists()
+      && comment.isHaveAnswers()) {
+      isbyAnswersEnable = false;
+    }
+    editable = isbyMinutesEnable & isbyAnswersEnable;
   }
 %>
   <c:set var="reply" value="<%= reply %>"/>

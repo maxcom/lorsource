@@ -63,7 +63,8 @@ public class Comment implements Serializable {
           int msgid,
           int userid,
           String userAgent,
-          String postIP
+          String postIP,
+          boolean haveAnswers
   ) {
     this.msgid = msgid;
     this.title=title;

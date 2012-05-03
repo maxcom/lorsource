@@ -35,3 +35,6 @@ comment.isModeratorAllowedToEdit=false
 # можно редактировать (не распространяется на модераторов).
 # если не установлено или равно 0, то редактировать можно будет всегда.
 comment.expireMinutesForEdit=0
+
+# разрешить редактировать комментарии, которые имеют ответы
+comment.isEditingAllowedIfAnswersExists=false
