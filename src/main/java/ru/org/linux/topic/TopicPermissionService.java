@@ -24,6 +24,7 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 @Service
 public class TopicPermissionService {
@@ -137,10 +138,22 @@ public class TopicPermissionService {
   ) {
     Template tmpl = Template.getTemplate(request);
 
+    /* Проверка на то, что пользователь модератор */
     Boolean editable = tmpl.isModeratorSession() && configuration.isModeratorAllowedToEditComments();
 
-    if (!editable) {
-      editable = commentRequest.getOriginal().getUserid() == user.getId();
+    /* проверка на то, что пользователь владелец комментария */
+    if (!editable && commentRequest.getOriginal().getUserid() == user.getId()) {
+      /* проверка на то, что время редактирования не вышло */
+      Integer minutesToEdit = configuration.getCommentExpireMinutesForEdit();
+      if (minutesToEdit != null && !minutesToEdit.equals(0)) {
+        long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
+        long deltaTimestamp = minutesToEdit*60*1000;
+        long nowTimestamp = new Date().getTime();
+
+        editable = commentTimestamp + deltaTimestamp > nowTimestamp;
+      } else {
+        editable = true;
+      }
     }
     return editable;
   }

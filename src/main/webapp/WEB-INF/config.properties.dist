@@ -30,3 +30,8 @@ admin.emailAddress=specify_your_real_email_if_you_want_reicive_messages
 
 # разрешение модераторам на редактирование комментов пользователей
 comment.isModeratorAllowedToEdit=false
+
+# время (в минутах), в течении которого с момента создания коммента его
+# можно редактировать (не распространяется на модераторов).
+# если не установлено или равно 0, то редактировать можно будет всегда.
+comment.expireMinutesForEdit=0

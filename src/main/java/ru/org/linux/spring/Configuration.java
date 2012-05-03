@@ -102,4 +102,11 @@ public class Configuration {
       return false;
     return Boolean.valueOf(property);
   }
+
+  public Integer getCommentExpireMinutesForEdit() {
+    String property = properties.getProperty("comment.expireMinutesForEdit");
+    if (property == null)
+      return null;
+    return Integer.valueOf(property);
+  }
 }

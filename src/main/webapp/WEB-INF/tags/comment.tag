@@ -77,8 +77,17 @@
     (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()));
 
   Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
-  if (!editable) {
-    editable = comment.getAuthor().getNick().equals(tmpl.getNick());
+  if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
+    Integer minutesToEdit = tmpl.getConfig().getCommentExpireMinutesForEdit();
+    if (minutesToEdit != null && !minutesToEdit.equals(0)) {
+      long commentTimestamp = comment.getComment().getPostdate().getTime();
+      long deltaTimestamp = minutesToEdit*60*1000;
+      long nowTimestamp = new java.util.Date().getTime();
+
+      editable = commentTimestamp + deltaTimestamp > nowTimestamp;
+    } else {
+      editable = true;
+    }
   }
 %>
   <c:set var="reply" value="<%= reply %>"/>
