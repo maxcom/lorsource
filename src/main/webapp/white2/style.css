@@ -15,12 +15,23 @@
 
 /* (c) ���� ��������� 1999 <maxcom@vinchi.ru> */
 
-BODY { font-family: serif; max-width: 95em; margin:auto; padding:8px;}
+body { font-family: serif; max-width: 95em; margin:auto; padding:8px;}
+
+a {
+    color: #00E;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #00E;
+}
+
+a:hover {
+    text-decoration: underline;
+}
 
 .hr { background: #B0B0B0; }
 hr { color: #B0B0B0; }
-
-.head A { text-decoration: none; }
 
 /* info boxes on columns */
 DIV.boxlet H2
@@ -39,9 +50,6 @@ DIV.boxlet H3
    {
     font-size: x-small;
    }
-
-DIV.boxlet H2 A { text-decoration: none; color: white }
-DIV.boxlet A { text-decoration: none }
 
 DIV.boxlet
    { 
@@ -69,8 +77,6 @@ H1 A { color: #786af2 }
 .news DIV.nav { text-align: left; margin-top: 1em; }
 
 /* view-forum */
-DIV.forum A { text-decoration: none; }
-DIV.forum A:link { color: black; }
 .color1 { background: #aea6f2; }
 
 .nav {
@@ -105,26 +111,14 @@ TR.color2 { background: #f0f0f0; }
   background: #f0f0f0;
 }
 
-/* view-message */
-.entry-body .nav A {
-  text-decoration: underline;
-  margin-bottom: 0;
-}
-
-
 DIV.messages .title { background: #aea6f2; }
 .messages .comment .title { background: #defefc; }
 .messages .msg { background: #f0f0f0; width: 100%; }
-.messages H1 A { color: black } 
 
 /* comment signature */
 div.sig {
     margin: 1ex 0 0 70%;
     font-style: italic;
-}
-
-div.sig a.nick {
-    text-decoration: none;
 }
 
 /* general */
@@ -136,10 +130,6 @@ DIV.notes
     margin-bottom: 0.5em;
     border: solid black;
    }
-
-.nav A {
-  text-decoration: none
-}
 
 .bluehead {
     background: #defefc;
@@ -195,10 +185,6 @@ div.quote {
 #hd {
     background-color: #defefc;
     margin-bottom: 0.4em;
-}
-
-div#hd a, div#hd a:visited {
-    color: #00E;
 }
 
 #hd .menu {
