@@ -1,0 +1,32 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012050401" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION msgdel() RETURNS trigger
+                LANGUAGE plpgsql
+                AS $$
+            DECLARE
+                    grid int;
+                    stat_1 int;
+                    stat int;
+                    thetopic topics%ROWTYPE;
+                    thecomment comments%ROWTYPE;
+            BEGIN
+                    SELECT * INTO thetopic FROM topics WHERE id = NEW.msgid;
+                    IF FOUND THEN
+                            SELECT groupid INTO grid FROM topics WHERE id = NEW.msgid;
+                            UPDATE groups SET stat1=stat1-1 WHERE id = grid;
+                            UPDATE topics SET lastmod=CURRENT_TIMESTAMP WHERE id = NEW.msgid;
+                            UPDATE comments SET topic_deleted=true WHERE topic = NEW.msgid;
+                    END IF;
+                    RETURN NULL;
+            END;
+            $$;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
