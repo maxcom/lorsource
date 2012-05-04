@@ -454,9 +454,6 @@ textarea, input {
     margin-right: 1em;
 }
 
-.message-table a.secondary {
-    text-decoration: underline !important;
-}
 
 .message-table {
     width: 100%;
