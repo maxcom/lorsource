@@ -16,11 +16,15 @@
 body { font-family: serif; max-width: 95em; margin:auto; padding:8px;}
 
 a {
-    color: #00E;
+    color: #026;
     text-decoration: none;
 }
 
 a:visited {
+    color: #026;
+}
+
+.message-table a:visited {
     color: #00E;
 }
 
