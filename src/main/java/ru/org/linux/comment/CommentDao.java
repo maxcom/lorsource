@@ -197,6 +197,8 @@ public class CommentDao {
     if (deleteCount > 0) {
       deleteInfoDao.insert(msgid, user, reason, scoreBonus);
 
+      updateStatsAfterDelete(msgid);
+
       if (scoreBonus != 0) {
         jdbcTemplate.update(updateScore, scoreBonus, msgid);
       }
@@ -208,6 +210,17 @@ public class CommentDao {
       logger.info("Пропускаем удаление уже удаленного " + msgid);
       return false;
     }
+  }
+
+  private void updateStatsAfterDelete(int commentId) {
+    int topicId = jdbcTemplate.queryForInt("SELECT topic FROM comments WHERE id=?", commentId);
+    jdbcTemplate.update("UPDATE topics SET stat1=stat1-1, lastmod=CURRENT_TIMESTAMP WHERE id = ?", topicId);
+    jdbcTemplate.update("UPDATE topics SET stat2=stat1 WHERE id=? AND stat2 > stat1", topicId);
+    jdbcTemplate.update("UPDATE topics SET stat3=stat1 WHERE id=? AND stat3 > stat1", topicId);
+    jdbcTemplate.update("UPDATE topics SET stat4=stat1 WHERE id=? AND stat4 > stat1", topicId);
+
+    int groupId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id = ?", topicId);
+    jdbcTemplate.update("UPDATE groups SET stat1=stat1-1 WHERE id = ?", groupId);
   }
 
   public List<Integer> deleteReplys(int msgid, User user, boolean score) {
