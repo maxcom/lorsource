@@ -369,6 +369,10 @@ div.quote {
     padding: 1px 4px 2px;
 }
 
+.message-table a.secondary {
+    text-decoration: underline !important;
+}
+
 @media screen and (max-width: 800px) {
     .hideon-tablet {
         display: none;
