@@ -180,7 +180,13 @@ public class CommentDao {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
 
-    return doDeleteComment(msgid, reason, user, scoreBonus);
+    boolean deleted = doDeleteComment(msgid, reason, user, scoreBonus);
+
+    if (deleted) {
+      updateStatsAfterDelete(msgid, 1);
+    }
+
+    return deleted;
   }
 
   private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) throws SQLException {
@@ -188,7 +194,13 @@ public class CommentDao {
       throw new SQLException("Нельзя удалить комментарий с ответами");
     }
 
-    return doDeleteComment(msgid, reason, user, 0);
+    boolean deleted = doDeleteComment(msgid, reason, user, 0);
+
+    if (deleted) {
+      updateStatsAfterDelete(msgid, 1);
+    }
+
+    return deleted;
   }
 
   private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
@@ -196,8 +208,6 @@ public class CommentDao {
 
     if (deleteCount > 0) {
       deleteInfoDao.insert(msgid, user, reason, scoreBonus);
-
-      updateStatsAfterDelete(msgid);
 
       if (scoreBonus != 0) {
         jdbcTemplate.update(updateScore, scoreBonus, msgid);
@@ -212,19 +222,31 @@ public class CommentDao {
     }
   }
 
-  private void updateStatsAfterDelete(int commentId) {
+  /**
+   * Обновляет статистику после удаления комментариев в одном топике
+   * @param commentId идентификатор любого из удаленных комментариев (обычно корневой в цепочке)
+   * @param count количество удаленных комментариев
+   */
+  private void updateStatsAfterDelete(int commentId, int count) {
     int topicId = jdbcTemplate.queryForInt("SELECT topic FROM comments WHERE id=?", commentId);
-    jdbcTemplate.update("UPDATE topics SET stat1=stat1-1, lastmod=CURRENT_TIMESTAMP WHERE id = ?", topicId);
+
+    jdbcTemplate.update("UPDATE topics SET stat1=stat1-?, lastmod=CURRENT_TIMESTAMP WHERE id = ?", count, topicId);
     jdbcTemplate.update("UPDATE topics SET stat2=stat1 WHERE id=? AND stat2 > stat1", topicId);
     jdbcTemplate.update("UPDATE topics SET stat3=stat1 WHERE id=? AND stat3 > stat1", topicId);
     jdbcTemplate.update("UPDATE topics SET stat4=stat1 WHERE id=? AND stat4 > stat1", topicId);
 
     int groupId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id = ?", topicId);
-    jdbcTemplate.update("UPDATE groups SET stat1=stat1-1 WHERE id = ?", groupId);
+    jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
   }
 
   public List<Integer> deleteReplys(int msgid, User user, boolean score) {
-    return deleteReplys(msgid, user, score, 0);
+    List<Integer> deleted = deleteReplys(msgid, user, score, 0);
+
+    if (!deleted.isEmpty()) {
+      updateStatsAfterDelete(msgid, deleted.size());
+    }
+
+    return deleted;
   }
 
   private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
