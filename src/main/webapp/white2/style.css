@@ -24,6 +24,14 @@ a:visited {
     color: #00E;
 }
 
+.message-table a {
+    color: #4183C4;
+}
+
+.message-table a:visited {
+    color: #495961;
+}
+
 a:hover {
     text-decoration: underline;
 }
@@ -70,8 +78,8 @@ DIV.columnimg
 
 /* news items */
 .news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
-.news H2 A { color: #786af2; } 
-H1 A { color: #786af2 } 
+.news H2 A { color: #786af2; }
+H1 A { color: #786af2 }
 .news DIV.nav { text-align: left; margin-top: 1em; }
 
 /* view-forum */
