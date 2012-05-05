@@ -239,7 +239,7 @@ public class CommentDao {
     jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
   }
 
-  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
+  private List<Integer> doDeleteReplys(int msgid, User user, boolean score) {
     List<Integer> deleted = deleteReplys(msgid, user, score, 0);
 
     if (!deleted.isEmpty()) {
@@ -247,6 +247,11 @@ public class CommentDao {
     }
 
     return deleted;
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
+    return doDeleteReplys(msgid, user, score);
   }
 
   private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
@@ -340,7 +345,7 @@ public class CommentDao {
               @Override
               public void processRow(ResultSet resultSet) throws SQLException {
                 int msgid = resultSet.getInt("id");
-                deletedCommentIds.addAll(deleteReplys(msgid, moderator, false));
+                deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
                 if (deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
                   deletedCommentIds.add(msgid);
                 }
