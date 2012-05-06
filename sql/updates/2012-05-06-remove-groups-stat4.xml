@@ -1,0 +1,72 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012050601" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION stat_update2() RETURNS timestamp with time zone
+                LANGUAGE plpgsql
+                AS $$
+            DECLARE
+                grp record;
+                st1 int;
+                st2 int;
+                st3 int;
+                t1 int;
+                t2 int;
+                t3 int;
+                t4 int;
+                now timestamp;
+            BEGIN
+                now=CURRENT_TIMESTAMP;
+                FOR grp IN SELECT id FROM groups WHERE stat2!=0 FOR UPDATE LOOP
+                    SELECT sum(stat1) INTO st1 FROM topics WHERE groupid = grp.id AND NOT deleted;
+                    SELECT sum(stat2) INTO st2 FROM topics WHERE groupid = grp.id AND NOT deleted;
+                    SELECT sum(stat3) INTO st3 FROM topics WHERE groupid = grp.id AND NOT deleted;
+                    SELECT count(*) INTO t1 FROM topics WHERE groupid = grp.id AND NOT deleted;
+                    SELECT count(*) INTO t2 FROM topics WHERE groupid = grp.id AND now-'3 day'::interval&lt;postdate AND NOT deleted;
+                    SELECT count(*) INTO t3 FROM topics WHERE groupid = grp.id AND now-'1 day'::interval&lt;postdate AND NOT deleted;
+                    UPDATE groups SET stat1 = st1 + t1 ,stat2 = st2 + t2 ,stat3 = st3 + t3 WHERE id = grp.id AND ( stat1 != st1 + t1 OR stat2 != st2 + t2 OR stat3 != st3 + t3);
+                END LOOP;
+                RETURN now;
+            END;
+            $$;
+        </sql>
+        <dropColumn tableName="groups" columnName="stat4"/>
+    </changeSet>
+
+    <changeSet id="2012050602" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION comins() RETURNS trigger
+                LANGUAGE plpgsql
+                AS $$
+            DECLARE
+                    cgroup int;
+            BEGIN
+                    SELECT groupid INTO cgroup FROM topics WHERE topics.id = NEW.topic FOR UPDATE;
+                    UPDATE topics SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1,lastmod=CURRENT_TIMESTAMP WHERE topics.id = NEW.topic;
+                    UPDATE groups SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1 WHERE id = cgroup;
+                    RETURN NULL;
+            END;
+            $$;
+        </sql>
+    </changeSet>
+
+    <changeSet id="2012050603" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION topins() RETURNS trigger
+                LANGUAGE plpgsql
+                AS $$
+            BEGIN
+                UPDATE groups SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1 WHERE groups.id = NEW.groupid;
+                UPDATE topics SET lastmod=CURRENT_TIMESTAMP WHERE id = NEW.id;
+                INSERT INTO memories (userid, topic) VALUES (NEW.userid, NEW.id);
+                RETURN NULL;
+            END;
+            $$;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
