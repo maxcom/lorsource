@@ -54,7 +54,7 @@ public class StatUpdater {
   }
 
   @Scheduled(fixedDelay = 60*60*1000)
-  public void creanEvents() {
+  public void cleanEvents() {
     userEventService.cleanupOldEvents(MAX_EVENTS);
   }
 }
