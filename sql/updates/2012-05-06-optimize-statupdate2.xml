@@ -1,0 +1,32 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012050606" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION stat_update2() RETURNS timestamp with time zone
+                LANGUAGE plpgsql
+                AS $$
+            DECLARE
+                grp record;
+                stat record;
+                t2 int;
+                t3 int;
+                t4 int;
+                now timestamp;
+            BEGIN
+                now=CURRENT_TIMESTAMP;
+                FOR grp IN SELECT id FROM groups WHERE stat2!=0 FOR UPDATE LOOP
+                    SELECT sum(stat1) as st1, sum(stat2) as st2, sum(stat3) as st3, count(*) as t1 INTO stat FROM topics WHERE groupid = grp.id AND NOT deleted;
+                    SELECT count(*) INTO t2 FROM topics WHERE groupid = grp.id AND now-'3 day'::interval&lt;postdate AND NOT deleted;
+                    SELECT count(*) INTO t3 FROM topics WHERE groupid = grp.id AND now-'1 day'::interval&lt;postdate AND NOT deleted;
+                    UPDATE groups SET stat1 = stat.st1 + stat.t1 ,stat2 = stat.st2 + t2 ,stat3 = stat.st3 + t3 WHERE id = grp.id AND ( stat1 != stat.st1 + stat.t1 OR stat2 != stat.st2 + t2 OR stat3 != stat.st3 + t3);
+                END LOOP;
+                RETURN now;
+            END;
+            $$;
+        </sql>
+    </changeSet>
+</databaseChangeLog>
