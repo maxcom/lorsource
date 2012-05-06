@@ -22,5 +22,6 @@
     <include file="sql/updates/2012-04-25-sticky-index.xml"/>
     <include file="sql/updates/2012-05-04-comdel-to-java.xml"/>
     <include file="sql/updates/2012-05-06-remove-groups-stat4.xml"/>
+    <include file="sql/updates/2012-05-06-optimize-statupdate2.xml"/>
 
 </databaseChangeLog>
