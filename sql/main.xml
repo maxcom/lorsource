@@ -21,5 +21,6 @@
     <include file="sql/updates/2012-03-30-add-value-to-event_type-9.1.xml"/>
     <include file="sql/updates/2012-04-25-sticky-index.xml"/>
     <include file="sql/updates/2012-05-04-comdel-to-java.xml"/>
+    <include file="sql/updates/2012-05-06-remove-groups-stat4.xml"/>
 
 </databaseChangeLog>

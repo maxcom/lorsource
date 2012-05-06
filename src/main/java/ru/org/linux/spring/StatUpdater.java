@@ -49,12 +49,18 @@ public class StatUpdater {
     logger.debug("Updating statistics");
 
     statUpdate.execute();
-    statUpdate2.execute();
     statMonthly.execute();
   }
 
+  @Scheduled(fixedDelay=60*60*1000)
+  public void updateGroupStats() {
+    logger.debug("Updating group statistics");
+
+    statUpdate2.execute();
+  }
+
   @Scheduled(fixedDelay = 60*60*1000)
-  public void creanEvents() {
+  public void cleanEvents() {
     userEventService.cleanupOldEvents(MAX_EVENTS);
   }
 }
