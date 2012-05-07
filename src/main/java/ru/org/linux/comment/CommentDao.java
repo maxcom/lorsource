@@ -41,6 +41,7 @@ import ru.org.linux.util.StringUtil;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Операции над комментариями
@@ -52,9 +53,11 @@ public class CommentDao {
 
   private static final String queryCommentById = "SELECT " +
           "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-          "deleted, replyto, user_agents.name AS useragent, comments.postip " +
+          "deleted, replyto, edit_count, edit_date, editors.nick as edit_nick, " +
+          "user_agents.name AS useragent, comments.postip " +
           "FROM comments " +
           "INNER JOIN users ON (users.id=comments.userid) " +
+          "LEFT JOIN users as editors ON comments.editor_id=editors.id " +
           "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
           "WHERE comments.id=?";
 
@@ -63,8 +66,10 @@ public class CommentDao {
    */
   private static final String queryCommentListByTopicId = "SELECT " +
           "comments.title, topic, postdate, userid, comments.id as msgid, " +
-          "replyto, deleted, user_agents.name AS useragent, comments.postip " +
+          "replyto, edit_count, edit_date, editors.nick as edit_nick, deleted, " +
+          "user_agents.name AS useragent, comments.postip " +
           "FROM comments " +
+          "LEFT JOIN users as editors ON comments.editor_id=editors.id " +
           "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
           "WHERE topic=? ORDER BY msgid ASC";
 
@@ -73,8 +78,10 @@ public class CommentDao {
    */
   private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
           "comments.title, topic, postdate, userid, comments.id as msgid, " +
-          "replyto, deleted, user_agents.name AS useragent, comments.postip " +
+          "replyto, edit_count, edit_date, editors.nick as edit_nick, deleted, " +
+          "user_agents.name AS useragent, comments.postip " +
           "FROM comments " +
+          "LEFT JOIN users as editors ON comments.editor_id=editors.id " +
           "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
           "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 
@@ -444,16 +451,16 @@ public class CommentDao {
     );
 
     insertMsgbase.execute(ImmutableMap.<String, Object>of(
-            "id", msgid,
-            "message", message,
-            "bbcode", true)
+      "id", msgid,
+      "message", message,
+      "bbcode", true)
     );
 
     return msgid;
   }
 
   /**
-   *
+   * Редактирование комментария.
    * @param oldComment
    * @param newComment
    * @param commentBody
@@ -469,6 +476,16 @@ public class CommentDao {
       "UPDATE msgbase SET message=? WHERE id=?",
       commentBody,
       oldComment.getId()
+    );
+  }
+
+  public void updateLatestEditorInfo (int id, int editorId, Date editDate, int editCount) {
+    jdbcTemplate.update(
+      "UPDATE comments set editor_id = ? , edit_date = ?, edit_count = ? WHERE id = ?",
+      editorId,
+      new Timestamp(editDate.getTime()),
+      editCount,
+      id
     );
   }
 

@@ -19,7 +19,6 @@ package ru.org.linux.comment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +32,8 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
-import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -58,8 +55,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -476,13 +473,36 @@ public class CommentService {
   }
 
   /**
-   * Формирование строки в лог-файл.
+   * Обновление информации о последнем изменении коммента.
    *
-   * @param message        сообщение
-   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
-   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
-   * @return строка, готовая для добавления в лог-файл
+   * @param editor   пользователь, изменивший комментарий
+   * @param original оригинал (старый комментарий)
+   * @param comment  изменённый комментарий
    */
+  public void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
+    List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
+
+    int historySize = editHistoryDtoList.size();
+    if (historySize == 1) {
+      historySize = 0;
+    }
+
+    commentDao.updateLatestEditorInfo(
+      original.getId(),
+      editor.getId(),
+      comment.getPostdate(),
+      historySize + 1
+    );
+  }
+
+ /**
+  * Формирование строки в лог-файл.
+  *
+    * @param message        сообщение
+  * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+  * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+  * @return строка, готовая для добавления в лог-файл
+  */
   private String makeLogString(String message, String remoteAddress, String xForwardedFor) {
     StringBuilder logMessage = new StringBuilder();
 

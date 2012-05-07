@@ -158,8 +158,20 @@
 
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
+
       <c:if test="${template.moderatorSession}">
         (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+      </c:if>
+
+      <c:if test="${comment.comment.editCount != 0}">
+        <span class="sign_more">
+        <br>
+        Последнее исправление: ${comment.comment.editNick} <lor:date date="${comment.comment.editDate}"/>
+        (всего <a href="${topic.link}/${comment.comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
+        </span>
+      </c:if>
+
+      <c:if test="${template.moderatorSession}">
         <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>

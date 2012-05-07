@@ -36,6 +36,9 @@ public class Comment implements Serializable {
   private final DeleteInfo deleteInfo;
   private final String userAgent;
   private final String postIP;
+  private final String editNick;
+  private final Timestamp editDate;
+  private final int editCount;
   public static final int TITLE_LENGTH = 250;
 
   public Comment(ResultSet rs, DeleteInfoDao deleteInfoDao) throws SQLException {
@@ -48,6 +51,9 @@ public class Comment implements Serializable {
     userid=rs.getInt("userid");
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
+    editCount = rs.getInt("edit_count");
+    editNick = rs.getString("edit_nick");
+    editDate =rs.getTimestamp("edit_date");
 
     if (deleted) {
       deleteInfo = deleteInfoDao.getDeleteInfo(msgid);
@@ -76,6 +82,9 @@ public class Comment implements Serializable {
       this.replyto=0;
     }
 
+    this.editCount = 0;
+    this.editDate = null;
+    this.editNick = null;
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;
@@ -138,5 +147,17 @@ public class Comment implements Serializable {
 
   public String getPostIP() {
     return postIP;
+  }
+
+  public String getEditNick() {
+    return editNick;
+  }
+
+  public Timestamp getEditDate() {
+    return editDate;
+  }
+
+  public int getEditCount() {
+    return editCount;
   }
 }

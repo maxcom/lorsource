@@ -136,7 +136,8 @@ public class EditCommentController extends ApplicationObjectSupport {
     );
     searchQueueSender.updateComment(commentRequest.getOriginal().getId());
 
-    commentService.addEditHistoryItem(user, commentRequest.getOriginal(), originalMessageText, comment,  msg);
+    commentService.addEditHistoryItem(user, commentRequest.getOriginal(), originalMessageText, comment, msg);
+    commentService.updateLatestEditorInfo(user, commentRequest.getOriginal(), comment);
 
     String returnUrl =
       "/jump-message.jsp?msgid=" + commentRequest.getTopic().getId() +
