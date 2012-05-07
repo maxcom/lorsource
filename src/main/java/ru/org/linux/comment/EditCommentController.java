@@ -125,6 +125,8 @@ public class EditCommentController extends ApplicationObjectSupport {
       return modelAndView;
     }
 
+    String originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal().getId()).getText();
+
     commentService.edit(
       commentRequest.getOriginal(),
       comment,
@@ -133,6 +135,8 @@ public class EditCommentController extends ApplicationObjectSupport {
       request.getHeader("X-Forwarded-For")
     );
     searchQueueSender.updateComment(commentRequest.getOriginal().getId());
+
+    commentService.addEditHistoryItem(user, commentRequest.getOriginal(), originalMessageText, comment,  msg);
 
     String returnUrl =
       "/jump-message.jsp?msgid=" + commentRequest.getTopic().getId() +

@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
@@ -181,7 +182,7 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(message.getId());
+      List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
       EditHistoryDto editHistoryDto;
       User lastEditor;
       int editCount;

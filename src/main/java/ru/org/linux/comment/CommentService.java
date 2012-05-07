@@ -30,6 +30,9 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
+import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
@@ -102,6 +105,9 @@ public class CommentService {
 
   @Autowired
   private IgnoreListDao ignoreListDao;
+
+  @Autowired
+  private EditHistoryService editHistoryService;
 
   /**
    * @param binder
@@ -417,13 +423,56 @@ public class CommentService {
   }
 
   /**
-   * Проверка, имет ли указанный комментарий ответы.
+   * Проверка, имеет ли указанный комментарий ответы.
    *
    * @param comment  объект комментария
    * @return true если есть ответы, иначе false
    */
   public boolean isHaveAnswers(Comment comment) {
     return commentDao.isHaveAnswers(comment.getId());
+  }
+  /**
+   * Получить объект комментария по идентификационному номеру
+   *
+   * @param id идентификационный номер комментария
+   * @return объект комментария
+   * @throws MessageNotFoundException если комментарий не найден
+   */
+  public Comment getById(int id) throws MessageNotFoundException {
+    return commentDao.getById(id);
+  }
+
+  /**
+   * Добавить элемент истории для комментария.
+   *
+   * @param editor              пользователь, изменивший комментарий
+   * @param original            оригинал (старый комментарий)
+   * @param originalMessageText старое содержимое комментария
+   * @param comment             изменённый комментарий
+   * @param messageText         новое содержимое комментария
+   */
+  public void addEditHistoryItem(User editor, Comment original, String originalMessageText, Comment comment, String messageText) {
+
+    EditHistoryDto editHistoryDto = new EditHistoryDto();
+    editHistoryDto.setMsgid(original.getId());
+    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
+    editHistoryDto.setEditor(editor.getId());
+
+    boolean modified = false;
+    if (!original.getTitle().equals(comment.getTitle())) {
+      editHistoryDto.setOldtitle(original.getTitle());
+      modified = true;
+    }
+
+    if (!originalMessageText.equals(messageText)) {
+      editHistoryDto.setOldmessage(originalMessageText);
+      modified = true;
+    }
+
+    if (modified) {
+      editHistoryService.insert(editHistoryDto);
+    }
+
   }
 
   /**

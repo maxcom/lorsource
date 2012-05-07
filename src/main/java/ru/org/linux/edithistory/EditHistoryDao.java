@@ -32,7 +32,7 @@ import java.util.List;
 
 @Repository
 public class EditHistoryDao {
-  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? AND object_type = 'TOPIC' ORDER BY id DESC";
+  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC";
 
   private JdbcTemplate jdbcTemplate;
   private SimpleJdbcInsert editInsert;
@@ -52,9 +52,10 @@ public class EditHistoryDao {
    * Получить информации о редактировании топика.
    *
    * @param id id топика
+   * @param objectTypeEnum
    * @return список изменений топика
    */
-  public List<EditHistoryDto> getEditInfo(int id) {
+  public List<EditHistoryDto> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     final List<EditHistoryDto> editInfoDTOs = new ArrayList<EditHistoryDto>();
     jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
       @Override
@@ -70,7 +71,10 @@ public class EditHistoryDao {
         editHistoryDto.setObjectType(resultSet.getString("object_type"));
         editInfoDTOs.add(editHistoryDto);
       }
-    }, id);
+    },
+      id,
+      objectTypeEnum.toString()
+    );
     return editInfoDTOs;
   }
 
