@@ -52,7 +52,7 @@ public class EditHistoryService {
   private EditHistoryDao editHistoryDao;
 
   public List<PreparedEditHistory> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
-    List<EditHistoryDto> editInfoDTOs = editHistoryDao.loadEditInfo(message.getId());
+    List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId());
     List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
 
     String baseText = msgbaseDao.getMessageText(message.getId()).getText();
@@ -151,6 +151,7 @@ public class EditHistoryService {
     editInfoDto.setOldtags(TagService.toString(topicTagService.getMessageTags(message.getMessageId())));
     editInfoDto.setOldlinktext(message.getLinktext());
     editInfoDto.setOldurl(message.getUrl());
+    editInfoDto.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
 
     return editInfoDto;
   }

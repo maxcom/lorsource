@@ -33,6 +33,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
@@ -404,6 +405,7 @@ public class TopicDao {
     EditHistoryDto editHistoryDto = new EditHistoryDto();
 
     editHistoryDto.setMsgid(msg.getId());
+    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
     editHistoryDto.setEditor(editor.getId());
 
     boolean modified = false;
