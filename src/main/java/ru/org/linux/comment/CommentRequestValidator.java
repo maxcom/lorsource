@@ -22,15 +22,15 @@ import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.util.StringUtil;
 
-public class AddCommentRequestValidator implements Validator {
+public class CommentRequestValidator implements Validator {
   @Override
   public boolean supports(Class<?> clazz) {
-    return AddCommentRequest.class.equals(clazz);
+    return CommentRequest.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    AddCommentRequest add = (AddCommentRequest) target;
+    CommentRequest add = (CommentRequest) target;
 
     if (add.getTitle() != null) {
       String title = StringUtil.escapeHtml(add.getTitle());
