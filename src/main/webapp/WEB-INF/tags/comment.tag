@@ -2,7 +2,6 @@
 <%@ tag import="ru.org.linux.comment.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.user.User" %>
-<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
@@ -71,7 +70,6 @@
 <c:set var="showLastMod" value="<%= showLastMod %>"/>
 <c:set var="replyAuthor" value="<%= replyAuthor %>"/>
 <c:set var="replyDate" value="<%= replyDate %>"/>
-<c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
 <c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
 
 <!-- ${comment.comment.messageId}  -->
@@ -116,7 +114,7 @@
 
   &nbsp;</div>
 
-  <c:if test="${showPhotos}">
+  <c:if test="${template.prof.showPhotos}">
     <lor:userpic author="${comment.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
