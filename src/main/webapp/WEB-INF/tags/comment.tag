@@ -32,13 +32,22 @@
 <%
 
   Template tmpl = Template.getTemplate(request);
-  String replyDate = null;
   boolean moderatorMode = tmpl.isModeratorSession();
+%>
+<c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
 
+<!-- ${comment.comment.messageId}  -->
+<article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
+  <div class=title>
+<c:choose>
+<c:when test="${not showMenu}">[#]</c:when>
+<c:otherwise>
+<%
   Comment reply = null;
   int replyPage = 0;
   String topicPage = null;
-  String title = null;
+  String replyTitle = null;
+  String replyDate = null;
   Boolean showLastMod = false;
   User replyAuthor = null;
 
@@ -49,9 +58,9 @@
         replyPage = comments.getCommentPage(reply, tmpl);
         topicPage = topic.getLinkPage(replyPage);
 
-        title = reply.getTitle();
-        if (title.trim().isEmpty()) {
-          title = "комментарий";
+        replyTitle = reply.getTitle();
+        if (replyTitle.trim().isEmpty()) {
+          replyTitle = "комментарий";
         }
         showLastMod = (!expired && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1);
         replyAuthor = comment.getReplyAuthor();
@@ -63,21 +72,13 @@
     }
   }
 %>
-<c:set var="reply" value="<%= reply %>"/>
-<c:set var="replyPage" value="<%= replyPage %>"/>
-<c:set var="topicPage" value="<%= topicPage %>"/>
-<c:set var="title" value="<%= title %>"/>
-<c:set var="showLastMod" value="<%= showLastMod %>"/>
-<c:set var="replyAuthor" value="<%= replyAuthor %>"/>
-<c:set var="replyDate" value="<%= replyDate %>"/>
-<c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
-
-<!-- ${comment.comment.messageId}  -->
-<article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
-  <div class=title>
-<c:choose>
-<c:when test="${not showMenu}">[#]</c:when>
-<c:otherwise>
+  <c:set var="reply" value="<%= reply %>"/>
+  <c:set var="replyPage" value="<%= replyPage %>"/>
+  <c:set var="topicPage" value="<%= topicPage %>"/>
+  <c:set var="title" value="<%= replyTitle %>"/>
+  <c:set var="replyDate" value="<%= replyDate %>"/>
+  <c:set var="showLastMod" value="<%= showLastMod %>"/>
+  <c:set var="replyAuthor" value="<%= replyAuthor %>"/>
 
   <c:choose>
     <c:when test="${not comment.comment.deleted}">
