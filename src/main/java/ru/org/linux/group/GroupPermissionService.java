@@ -16,6 +16,8 @@ import java.util.Date;
 @Service
 public class GroupPermissionService {
   private static final int EDIT_SELF_ALWAYS_SCORE = 300;
+  private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
+
   private SectionService sectionService;
 
   @Autowired
@@ -196,7 +198,7 @@ public class GroupPermissionService {
         return !message.isExpired();
       }
 
-      return (System.currentTimeMillis() - message.getPostdate().getTime()) < PreparedTopic.EDIT_PERIOD;
+      return (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
     }
 
     return false;
@@ -247,7 +249,7 @@ public class GroupPermissionService {
         return !message.isExpired();
       }
 
-      return (System.currentTimeMillis() - message.getPostdate().getTime()) < PreparedTopic.EDIT_PERIOD;
+      return (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
     }
 
     return false;

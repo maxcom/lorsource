@@ -39,7 +39,7 @@ public final class PreparedTopic {
   private final Group group;
   private final Section section;
 
-  private final EditHistoryDto editHistoryDto;
+  private final EditHistoryDto lastHistoryDto;
   private final User lastEditor;
   private final int editCount;
 
@@ -48,8 +48,6 @@ public final class PreparedTopic {
   private final PreparedImage image;
   
   private final String postscoreInfo;
-
-  public static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   public PreparedTopic(
           Topic message,
@@ -63,7 +61,7 @@ public final class PreparedTopic {
           List<String> tags,
           Group group,
           Section section,
-          EditHistoryDto editHistoryDto,
+          EditHistoryDto lastHistoryDto,
           User lastEditor,
           int editorCount,
           String userAgent,
@@ -87,7 +85,7 @@ public final class PreparedTopic {
     }
     this.group = group;
     this.section = section;
-    this.editHistoryDto = editHistoryDto;
+    this.lastHistoryDto = lastHistoryDto;
     this.lastEditor = lastEditor;
     editCount = editorCount;
     this.userAgent = userAgent;
@@ -126,8 +124,8 @@ public final class PreparedTopic {
     return commiter;
   }
 
-  public EditHistoryDto getEditHistoryDto() {
-    return editHistoryDto;
+  public EditHistoryDto getLastHistoryDto() {
+    return lastHistoryDto;
   }
 
   public User getLastEditor() {
