@@ -2,7 +2,6 @@
 <%@ tag import="ru.org.linux.comment.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.user.User" %>
-<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
@@ -31,75 +30,91 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%
-  Template tmpl = Template.getTemplate(request);
 
+  Template tmpl = Template.getTemplate(request);
+  String replyDate = null;
   boolean moderatorMode = tmpl.isModeratorSession();
 
-  out.append("\n\n<!-- ");
-  out.append(Integer.toString(comment.getComment().getMessageId()));
-  out.append(" -->\n");
-%>
-<article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
-  <div class=title>
-<c:if test="${showMenu}">
-<%
-    DateFormat dateFormat = tmpl.dateFormat;
+  Comment reply = null;
+  int replyPage = 0;
+  String topicPage = null;
+  String title = null;
+  Boolean showLastMod = false;
+  User replyAuthor = null;
 
-    if (!comment.getComment().isDeleted()) {
-      out.append("[<a href='").append(topic.getLink()).append("?cid=").append(Integer.toString(comment.getComment().getMessageId())).append("'>#</a>]");
-    }
+  if (comment.getComment().getReplyTo() != 0) {
+    CommentNode replyNode = comments.getNode(comment.getComment().getReplyTo());
+    if (replyNode != null) {
+        reply = replyNode.getComment();
+        replyPage = comments.getCommentPage(reply, tmpl);
+        topicPage = topic.getLinkPage(replyPage);
 
-    if (comment.getComment().isDeleted()) {
-      if (comment.getComment().getDeleteInfo() ==null) {
-        out.append("<strong>Сообщение удалено</strong>");
-      } else {
-        out.append("<strong>Сообщение удалено ").append(comment.getComment().getDeleteInfo().getNick()).append(" по причине '").append(StringUtil.escapeHtml(comment.getComment().getDeleteInfo().getReason())).append("'</strong>");
-      }
-    }
-%>
-<c:if test="${comment.comment.replyTo!=0}">
-    <%
-      CommentNode replyNode = comments.getNode(comment.getComment().getReplyTo());
-      if (replyNode != null) {
-        Comment reply = replyNode.getComment();
-
-        out.append(" Ответ на: <a href=\"");
-
-        int replyPage = comments.getCommentPage(reply, tmpl);
-
-        String urladd = "";
-        if (!expired && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1) {
-          urladd = "?lastmod=" + comments.getLastModified();
-        }
-
-        out.append(topic.getLinkPage(replyPage)).append(urladd).append("#comment-").append(Integer.toString(comment.getComment().getReplyTo()));
-
-        out.append("\" onclick=\"highlightMessage(").append(Integer.toString(reply.getMessageId())).append(");\">");
-
-        User replyAuthor = comment.getReplyAuthor();
-
-        String title = reply.getTitle();
-
+        title = reply.getTitle();
         if (title.trim().isEmpty()) {
           title = "комментарий";
         }
+        showLastMod = (!expired && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1);
+        replyAuthor = comment.getReplyAuthor();
 
-        out.append(title).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(dateFormat.format(reply.getPostdate()));
-      } else {
+        DateFormat dateFormat = tmpl.dateFormat;
+        replyDate = dateFormat.format(reply.getPostdate());
+    } else {
 //        logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
-      }
-    %>
-</c:if>
+    }
+  }
+%>
+<c:set var="reply" value="<%= reply %>"/>
+<c:set var="replyPage" value="<%= replyPage %>"/>
+<c:set var="topicPage" value="<%= topicPage %>"/>
+<c:set var="title" value="<%= title %>"/>
+<c:set var="showLastMod" value="<%= showLastMod %>"/>
+<c:set var="replyAuthor" value="<%= replyAuthor %>"/>
+<c:set var="replyDate" value="<%= replyDate %>"/>
+<c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
+
+<!-- ${comment.comment.messageId}  -->
+<article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
+  <div class=title>
+<c:choose>
+<c:when test="${not showMenu}">[#]</c:when>
+<c:otherwise>
+
+  <c:choose>
+    <c:when test="${not comment.comment.deleted}">
+      <c:url var="self_link" value="${topic.link}">
+        <c:param name="cid" value="${comment.comment.messageId}"/>
+      </c:url>
+      [<a href="${self_link}">#</a>]
+    </c:when>
+    <c:otherwise>
+      <c:choose>
+        <c:when test="${comment.comment.deleteInfo == null}">
+          <strong>Сообщение удалено</strong>
+        </c:when>
+        <c:otherwise>
+          <strong>Сообщение удалено ${comment.comment.deleteInfo.nick}
+          по причине <C:out value="${comment.comment.deleteInfo.reason}" escapeXml="true"/></strong>
+        </c:otherwise>
+      </c:choose>
+    </c:otherwise>
+  </c:choose>
+
+  <c:if test="${comment.comment.replyTo != 0}">
+    <c:url var="reply_url" value="${topicPage}">
+      <c:if test="${showLastMod}">
+        <c:param name="lastmod" value="${comments.lastModified}" />
+      </c:if>
+    </c:url>
+    Ответ на:
+    <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${reply.messageId}')" >${title}</a>
+    от ${replyAuthor.nick} ${replyDate}
   </c:if>
+</c:otherwise>
+</c:choose>
 
-  <c:if test="${not showMenu}">
-    [#]
-  </c:if>
-    &nbsp;</div>
+  &nbsp;</div>
 
-  <c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
-
-  <c:if test="${showPhotos}">
+  <c:if test="${template.prof.showPhotos}">
     <lor:userpic author="${comment.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
@@ -121,9 +136,9 @@
         </c:if>
       </c:if>
     </div>
+
   <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
-      <c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
 
       <c:if test="${deletable or commentsAllowed}">
       <ul>
@@ -132,10 +147,11 @@
       </c:if>
 
       <c:if test="${deletable}">
-          <li><%
-      out.append("<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>");
-          %></li>
+        <c:url var="delete_url" value="/delete_comment.jsp">
+          <c:param name="msgid" value="${comment.comment.messageId}"/>
+        </c:url>
 
+        <li><a href="${delete_url}">Удалить</a></li>
       </c:if>
       </ul>
       </c:if>

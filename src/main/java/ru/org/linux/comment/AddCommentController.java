@@ -133,7 +133,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
-    @ModelAttribute("add") @Valid AddCommentRequest add,
+    @ModelAttribute("add") @Valid CommentRequest add,
     HttpServletRequest request
   ) throws Exception {
     if (add.getTopic()==null) {
@@ -157,7 +157,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(
-    @ModelAttribute("add") @Valid AddCommentRequest add,
+    @ModelAttribute("add") @Valid CommentRequest add,
     HttpServletRequest request
   ) {
     Template tmpl = Template.getTemplate(request);
@@ -189,7 +189,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   public ModelAndView addComment(
-    @ModelAttribute("add") @Valid AddCommentRequest add,
+    @ModelAttribute("add") @Valid CommentRequest add,
     Errors errors,
     HttpServletRequest request
   ) throws Exception {
@@ -317,7 +317,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     return modelAndView;
   }
 
-  private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, HttpServletRequest request) throws UserNotFoundException {
+  private void prepareReplyto(CommentRequest add, Map<String, Object> formParams, HttpServletRequest request) throws UserNotFoundException {
     if (add.getReplyto()!=null) {
       formParams.put("onComment", prepareService.prepareComment(add.getReplyto(), request.isSecure()));
     }
@@ -325,7 +325,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @InitBinder("add")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new AddCommentRequestValidator());
+    binder.setValidator(new CommentRequestValidator());
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
