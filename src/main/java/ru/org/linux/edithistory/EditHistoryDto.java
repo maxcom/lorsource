@@ -13,13 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
-
-import ru.org.linux.tag.TagService;
+package ru.org.linux.edithistory;
 
 import java.sql.Timestamp;
 
-public class EditInfoDto {
+public class EditHistoryDto {
   private int id;
   private int msgid;
   private int editor;
@@ -100,19 +98,5 @@ public class EditInfoDto {
 
   public void setOldurl(String oldurl) {
     this.oldurl = oldurl;
-  }
-
-  public static EditInfoDto createFromMessage(TopicTagService topicTagService, Topic message, String text) {
-    EditInfoDto current = new EditInfoDto();
-
-    current.setOldmessage(text);
-    current.setEditdate(message.getPostdate());
-    current.setEditor(message.getUid());
-    current.setMsgid(message.getMessageId());
-    current.setOldtags(TagService.toString(topicTagService.getMessageTags(message.getMessageId())));
-    current.setOldlinktext(message.getLinktext());
-    current.setOldurl(message.getUrl());
-
-    return current;
   }
 }

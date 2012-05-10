@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
+package ru.org.linux.edithistory;
 
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -22,8 +22,8 @@ import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;
 
-public class PreparedEditInfo {
-  private final EditInfoDto editInfo;
+public class PreparedEditHistory {
+  private final EditHistoryDto editHistoryDto;
   private final boolean original;
   private final User editor;
   private final String message;
@@ -33,11 +33,11 @@ public class PreparedEditInfo {
   private final String url;
   private final String linktext;
 
-  public PreparedEditInfo(
+  public PreparedEditHistory(
     LorCodeService lorCodeService,
     boolean secure,
     UserDao userDao,
-    EditInfoDto editInfo,
+    EditHistoryDto editHistoryDto,
     String message,
     String title,
     String url,
@@ -46,10 +46,10 @@ public class PreparedEditInfo {
     boolean current,
     boolean original
   ) throws UserNotFoundException {
-    this.editInfo = editInfo;
+    this.editHistoryDto = editHistoryDto;
     this.original = original;
 
-    editor = userDao.getUserCached(editInfo.getEditor());
+    editor = userDao.getUserCached(editHistoryDto.getEditor());
 
     if (message!=null) {
       this.message = lorCodeService.parseComment(message, secure);
@@ -66,8 +66,8 @@ public class PreparedEditInfo {
     this.tags = tags;
   }
 
-  public EditInfoDto getEditInfo() {
-    return editInfo;
+  public EditHistoryDto getEditHistoryDto() {
+    return editHistoryDto;
   }
 
   public User getEditor() {

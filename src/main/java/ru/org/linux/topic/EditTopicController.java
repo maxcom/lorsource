@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -89,6 +91,9 @@ public class EditTopicController {
   
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private EditHistoryService editHistoryService;
 
   @Autowired
   private EditTopicRequestValidator editTopicRequestValidator;
@@ -174,7 +179,7 @@ public class EditTopicController {
     boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, currentUser);
     params.put("tagsEditable", tagsEditable);
 
-    List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
@@ -223,18 +228,18 @@ public class EditTopicController {
     return new ModelAndView("edit", params);
   }
 
-  private ImmutableSet<User> getEditors(final Topic message, List<EditInfoDto> editInfoList) {
+  private ImmutableSet<User> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
     return ImmutableSet.copyOf(
             Iterables.transform(
-                    Iterables.filter(editInfoList, new Predicate<EditInfoDto>() {
+                    Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
                       @Override
-                      public boolean apply(EditInfoDto input) {
+                      public boolean apply(EditHistoryDto input) {
                         return input.getEditor() != message.getUid();
                       }
                     }),
-                    new Function<EditInfoDto, User>() {
+                    new Function<EditHistoryDto, User>() {
                       @Override
-                      public User apply(EditInfoDto input) {
+                      public User apply(EditHistoryDto input) {
                         try {
                           return userDao.getUserCached(input.getEditor());
                         } catch (UserNotFoundException e) {
@@ -294,7 +299,7 @@ public class EditTopicController {
       }
     }
 
-    List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId());
 
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
@@ -302,10 +307,10 @@ public class EditTopicController {
     }
 
     if (!editInfoList.isEmpty()) {
-      EditInfoDto dbEditInfo = editInfoList.get(0);
-      params.put("editInfo", dbEditInfo);
+      EditHistoryDto editHistoryDto = editInfoList.get(0);
+      params.put("editInfo", editHistoryDto);
 
-      if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
+      if (lastEdit == null || editHistoryDto.getEditdate().getTime()!=lastEdit) {
         errors.reject(null, "Сообщение было отредактировано независимо");
       }
     }
@@ -416,14 +421,14 @@ public class EditTopicController {
     if (form.getEditorBonus() != null) {
       ImmutableSet<Integer> editors = ImmutableSet.copyOf(
               Iterables.transform(
-                      Iterables.filter(editInfoList, new Predicate<EditInfoDto>() {
+                      Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
                         @Override
-                        public boolean apply(EditInfoDto input) {
+                        public boolean apply(EditHistoryDto input) {
                           return input.getEditor() != message.getUid();
                         }
-                      }), new Function<EditInfoDto, Integer>() {
+                      }), new Function<EditHistoryDto, Integer>() {
                 @Override
-                public Integer apply(EditInfoDto input) {
+                public Integer apply(EditHistoryDto input) {
                   return input.getEditor();
                 }
               }));

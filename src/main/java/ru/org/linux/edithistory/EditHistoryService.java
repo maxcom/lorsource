@@ -13,12 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
+package ru.org.linux.edithistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
@@ -28,9 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class EditInfoPrepareService {
-  @Autowired
-  private TopicDao messageDao;
+public class EditHistoryService {
 
   @Autowired
   private TagService tagService;
@@ -48,9 +48,12 @@ public class EditInfoPrepareService {
   @Autowired
   private MsgbaseDao msgbaseDao;
 
-  public List<PreparedEditInfo> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
-    List<EditInfoDto> editInfoDTOs = messageDao.loadEditInfo(message.getId());
-    List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
+  @Autowired
+  private EditHistoryDao editHistoryDao;
+
+  public List<PreparedEditHistory> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
+    List<EditHistoryDto> editInfoDTOs = editHistoryDao.loadEditInfo(message.getId());
+    List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
 
     String baseText = msgbaseDao.getMessageText(message.getId()).getText();
 
@@ -61,20 +64,20 @@ public class EditInfoPrepareService {
     List<String> currentTags = topicTagService.getMessageTags(message.getMessageId());
 
     for (int i = 0; i<editInfoDTOs.size(); i++) {
-      EditInfoDto dto = editInfoDTOs.get(i);
+      EditHistoryDto dto = editInfoDTOs.get(i);
 
-      editInfos.add(
-        new PreparedEditInfo(
+      editHistories.add(
+        new PreparedEditHistory(
           lorCodeService,
           secure,
           userDao,
           dto,
-          dto.getOldmessage()!=null ? currentMessage : null,
-          dto.getOldtitle()!=null ? currentTitle : null,
-          dto.getOldurl()!=null ? currentUrl : null,
-          dto.getOldlinktext()!=null ? currentLinktext : null,
-          dto.getOldtags()!=null ? currentTags : null,
-          i==0,
+          dto.getOldmessage() != null ? currentMessage : null,
+          dto.getOldtitle() != null ? currentTitle : null,
+          dto.getOldurl() != null ? currentUrl : null,
+          dto.getOldlinktext() != null ? currentLinktext : null,
+          dto.getOldtags() != null ? currentTags : null,
+          i == 0,
           false
         )
       );
@@ -101,15 +104,54 @@ public class EditInfoPrepareService {
     }
 
     if (!editInfoDTOs.isEmpty()) {
-      EditInfoDto current = EditInfoDto.createFromMessage(topicTagService, message, baseText);
+      EditHistoryDto current = getEditInfoDto(topicTagService, message, baseText);
 
       if (currentTags.isEmpty()) {
         currentTags = null;
       }
 
-      editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
+      editHistories.add(new PreparedEditHistory(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }
 
-    return editInfos;
+    return editHistories;
+  }
+
+  /**
+   *
+   *
+   * @param id
+   * @return
+   */
+  public List<EditHistoryDto> getEditInfo(int id) {
+    return editHistoryDao.getEditInfo(id);
+  }
+
+  /**
+   *
+   * @param editHistoryDto
+   */
+  public void insert(EditHistoryDto editHistoryDto) {
+    editHistoryDao.insert(editHistoryDto);
+  }
+
+  /**
+   *
+   * @param topicTagService
+   * @param message
+   * @param text
+   * @return
+   */
+  private EditHistoryDto getEditInfoDto(TopicTagService topicTagService, Topic message, String text) {
+    EditHistoryDto editInfoDto = new EditHistoryDto();
+
+    editInfoDto.setOldmessage(text);
+    editInfoDto.setEditdate(message.getPostdate());
+    editInfoDto.setEditor(message.getUid());
+    editInfoDto.setMsgid(message.getMessageId());
+    editInfoDto.setOldtags(TagService.toString(topicTagService.getMessageTags(message.getMessageId())));
+    editInfoDto.setOldlinktext(message.getLinktext());
+    editInfoDto.setOldurl(message.getUrl());
+
+    return editInfoDto;
   }
 }

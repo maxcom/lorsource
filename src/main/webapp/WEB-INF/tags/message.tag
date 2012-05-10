@@ -152,7 +152,7 @@
   if (preparedMessage.getEditCount()>0) {
   %>
   <br>
-  Последнее исправление: <%= preparedMessage.getLastEditor().getNick() %> <lor:date date="<%= preparedMessage.getLastEditInfo().getEditdate() %>"/>
+  Последнее исправление: <%= preparedMessage.getLastEditor().getNick() %> <lor:date date="<%= preparedMessage.getEditHistoryDto().getEditdate() %>"/>
     (всего <a href="${message.link}/history">исправлений: ${preparedMessage.editCount}</a>)
   <%
   }
