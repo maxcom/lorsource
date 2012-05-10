@@ -18,7 +18,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="add" type="ru.org.linux.spring.AddCommentRequest"--%>
 <%--@elvariable id="onComment" type="ru.org.linux.comment.PreparedComment"--%>
 <%--@elvariable id="comment" type="ru.org.linux.comment.PreparedComment"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -86,7 +85,7 @@
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${null}"/>
+    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${add.topic}"/>
   </div>
 </c:if>
 
