@@ -135,7 +135,7 @@ public class UserEventDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void resetUnreadReplies(int userId) {
     jdbcTemplate.update(UPDATE_RESET_UNREAD_REPLIES, userId);
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=?", userId);
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread", userId);
   }
 
   /**
