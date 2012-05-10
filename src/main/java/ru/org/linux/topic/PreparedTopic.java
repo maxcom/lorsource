@@ -49,8 +49,6 @@ public final class PreparedTopic {
   
   private final String postscoreInfo;
 
-  public static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
-
   public PreparedTopic(
           Topic message,
           User author,
