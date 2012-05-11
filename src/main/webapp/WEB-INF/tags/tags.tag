@@ -27,7 +27,7 @@
     }
 
     try {
-      buf.append("<a rel=tag href=\"view-news.jsp?tag=").append(URLEncoder.encode(mtag, "UTF-8")).append("\">").append(mtag).append("</a>");
+      buf.append("<a class=tag rel=tag href=\"view-news.jsp?tag=").append(URLEncoder.encode(mtag, "UTF-8")).append("\">").append(mtag).append("</a>");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -35,7 +35,7 @@
 
   String result = buf.toString();
 %>
-  Метки: <span class=tag><%= result %></span>
+  Метки: <%= result %>
 </p>
 
 
