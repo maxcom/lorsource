@@ -144,9 +144,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   private String processMessage(String msg, String mode) {
-/*    if ("lorcode".equals(mode)) {
-      return msg;
-    }else*/ if("ntobr".equals(mode)) {
+    if("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);
     } else {
       return toLorCodeTexFormatter.format(msg);
