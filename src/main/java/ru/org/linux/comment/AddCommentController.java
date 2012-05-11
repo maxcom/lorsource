@@ -159,8 +159,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    if (add.getMsg()==null || add.getMsg().trim().isEmpty()) {
-      errors.rejectValue("msg", null, "комментарий не может быть пустым");
+    if (add.getMsg()==null) {
+      errors.rejectValue("msg", null, "комментарий не задан");
       add.setMsg("");
     }
 
