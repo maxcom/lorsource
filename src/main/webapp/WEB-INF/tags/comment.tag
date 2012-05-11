@@ -94,7 +94,7 @@
         </c:when>
         <c:otherwise>
           <strong>Сообщение удалено ${comment.comment.deleteInfo.nick}
-          по причине <C:out value="${comment.comment.deleteInfo.reason}" escapeXml="true"/></strong>
+          по причине: <c:out value="${comment.comment.deleteInfo.reason}" escapeXml="true"/></strong>
         </c:otherwise>
       </c:choose>
     </c:otherwise>
