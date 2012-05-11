@@ -58,16 +58,37 @@ import java.util.Set;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CaptchaService captcha;
+
+  @Autowired
   private FloodProtector dupeProtector;
+
+  @Autowired
   private CommentDao commentDao;
+
+  @Autowired
   private TopicDao messageDao;
+
+  @Autowired
   private UserDao userDao;
+
+  @Autowired
   private IPBlockDao ipBlockDao;
+
+  @Autowired
   private CommentPrepareService prepareService;
+
+  @Autowired
   private LorCodeService lorCodeService;
+
+  @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
+
+  @Autowired
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
@@ -75,61 +96,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @Autowired
   private TopicPrepareService messagePrepareService;
-
-  @Autowired
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
-  }
-
-  @Autowired
-  public void setDupeProtector(FloodProtector dupeProtector) {
-    this.dupeProtector = dupeProtector;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
-  public void setPrepareService(CommentPrepareService prepareService) {
-    this.prepareService = prepareService;
-  }
-
-  @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
-  }
-
-  @Autowired
-  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
-    this.toLorCodeFormatter = toLorCodeFormatter;
-  }
-
-  @Autowired
-  public void setToLorCodeTexFormatter(ToLorCodeTexFormatter toLorCodeTexFormatter) {
-    this.toLorCodeTexFormatter = toLorCodeTexFormatter;
-  }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
@@ -178,9 +144,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   private String processMessage(String msg, String mode) {
-/*    if ("lorcode".equals(mode)) {
-      return msg;
-    }else*/ if("ntobr".equals(mode)) {
+    if("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);
     } else {
       return toLorCodeTexFormatter.format(msg);
@@ -195,8 +159,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    if (add.getMsg()==null || add.getMsg().trim().isEmpty()) {
-      errors.rejectValue("msg", null, "комментарий не может быть пустым");
+    if (add.getMsg()==null) {
+      errors.rejectValue("msg", null, "комментарий не задан");
       add.setMsg("");
     }
 
