@@ -99,3 +99,7 @@ fieldset legend {
 .message-table .tag {
     background-color: #C7CBB1;
 }
+
+.fav-buttons .selected [class^="icon-"] {
+    color: #3F77FF;
+}

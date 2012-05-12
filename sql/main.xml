@@ -23,5 +23,7 @@
     <include file="sql/updates/2012-05-04-comdel-to-java.xml"/>
     <include file="sql/updates/2012-05-06-remove-groups-stat4.xml"/>
     <include file="sql/updates/2012-05-06-optimize-statupdate2.xml"/>
+    <include file="sql/updates/2012-05-11-memories-type.xml"/>
+    <include file="sql/updates/2012-05-12-memories-topic-index.xml"/>
 
 </databaseChangeLog>

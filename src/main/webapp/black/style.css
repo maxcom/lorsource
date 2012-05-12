@@ -225,6 +225,10 @@ div.quote {
 	content: "[";
 }
 
+.fav-buttons .selected [class^="icon-"] {
+    color: orange;
+}
+
 @media screen and (max-width:360px) {
 
 	#head-main {

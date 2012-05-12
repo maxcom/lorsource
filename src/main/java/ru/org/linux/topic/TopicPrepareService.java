@@ -344,25 +344,33 @@ public class TopicPrepareService {
     boolean editable = currentUser!=null && (groupPermissionService.isEditable(message, currentUser) || groupPermissionService.isTagsEditable(message, currentUser)) ;
     boolean resolvable;
     int memoriesId;
+    int favsId;
     boolean deletable;
+
+    List<Integer> topicStats = memoriesDao.getTopicStats(message.getMessage().getId());
 
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
-      memoriesId = memoriesDao.getId(currentUser, message.getMessage());
+      memoriesId = memoriesDao.getId(currentUser, message.getMessage(), true);
+      favsId = memoriesDao.getId(currentUser, message.getMessage(), false);
       deletable = groupPermissionService.isDeletable(message.getMessage(), currentUser);
     } else {
       resolvable = false;
       memoriesId = 0;
+      favsId = 0;
       deletable = false;
     }
 
     return new TopicMenu(
             editable, 
             resolvable, 
-            memoriesId, 
-            topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser), 
+            memoriesId,
+            favsId,
+            topicStats.get(0),
+            topicStats.get(1),
+            topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser),
             deletable
     );
   }

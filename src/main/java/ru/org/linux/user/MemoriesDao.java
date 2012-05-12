@@ -16,8 +16,10 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -28,6 +30,7 @@ import ru.org.linux.topic.Topic;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -38,20 +41,25 @@ public class MemoriesDao {
   @Autowired
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
-    insertTemplate = new SimpleJdbcInsert(ds).withTableName("memories").usingGeneratedKeyColumns("id").usingColumns("userid", "topic");
+    insertTemplate = new SimpleJdbcInsert(ds).withTableName("memories").usingGeneratedKeyColumns("id").usingColumns("userid", "topic", "watch");
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addToMemories(int userid, int topic) {
+  public int addToMemories(int userid, int topic, boolean watch) {
     List<Integer> res = jdbcTemplate.queryForList(
-            "SELECT id FROM memories WHERE userid=? AND topic=? FOR UPDATE",
+            "SELECT id FROM memories WHERE userid=? AND topic=? AND watch=? FOR UPDATE",
             Integer.class,
             userid,
-            topic
+            topic,
+            watch
     );
 
     if (res.isEmpty()) {
-      return insertTemplate.executeAndReturnKey(ImmutableMap.<String, Object>of("userid", userid, "topic", topic)).intValue();
+      return insertTemplate.executeAndReturnKey(ImmutableMap.<String, Object>of(
+              "userid", userid,
+              "topic", topic,
+              "watch", watch
+      )).intValue();
     } else {
       return res.get(0);
     }
@@ -64,12 +72,13 @@ public class MemoriesDao {
    * @param topic
    * @return
    */
-  public int getId(User user, Topic topic) {
+  public int getId(User user, Topic topic, boolean watch) {
     List<Integer> res = jdbcTemplate.queryForList(
-            "SELECT id FROM memories WHERE userid=? AND topic=?",
+            "SELECT id FROM memories WHERE userid=? AND topic=? AND watch=?",
             Integer.class,
             user.getId(),
-            topic.getId()
+            topic.getId(),
+            watch
     );
 
     if (res.isEmpty()) {
@@ -77,6 +86,32 @@ public class MemoriesDao {
     } else {
       return res.get(0);
     }
+  }
+
+  /**
+   * get number of memories/favs for topic
+   * @return list(0) - memories, list(1) - favs
+   */
+  public List<Integer> getTopicStats(int topic) {
+    final List<Integer> res = Lists.newArrayList(0, 0);
+
+    jdbcTemplate.query(
+            "SELECT watch, count(*) FROM memories WHERE topic=? GROUP BY watch",
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet rs) throws SQLException {
+                if (rs.getBoolean("watch")) {
+                  res.set(0, rs.getInt("count"));
+                } else {
+                  res.set(1, rs.getInt("count"));
+                }
+              }
+            },
+            topic
+    );
+
+    return res;
+
   }
 
   public MemoriesListItem getMemoriesListItem(int id) {
