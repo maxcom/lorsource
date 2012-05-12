@@ -498,7 +498,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .fav-buttons {
     float: right;
-    font-size: 250%;
     margin-right: 0.5em;
     margin-left: 0.4em;
+    text-align: center;
+    line-height: 1;
+}
+
+.fav-buttons a {
+    font-size: 250%;
+}
+
+.fav-buttons span {
+    font-size: small;
+}
+
+.fav-buttons [class^="icon-"] {
+    margin-right: 0;
 }

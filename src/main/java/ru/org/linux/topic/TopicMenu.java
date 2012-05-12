@@ -18,8 +18,13 @@ package ru.org.linux.topic;
 public class TopicMenu {
   private final boolean editable;
   private final boolean resolvable;
+
   private final int memoriesId;
   private final int favsId;
+
+  private final int memoriesCount;
+  private final int favsCount;
+
   private final boolean commentsAllowed;
   private final boolean deletable;
 
@@ -28,12 +33,16 @@ public class TopicMenu {
           boolean resolvable,
           int memoriesId,
           int favsId,
+          int memoriesCount,
+          int favsCount,
           boolean commentsAllowed,
           boolean deletable) {
     this.editable = editable;
     this.resolvable = resolvable;
     this.memoriesId = memoriesId;
     this.favsId = favsId;
+    this.memoriesCount = memoriesCount;
+    this.favsCount = favsCount;
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
   }
@@ -60,5 +69,13 @@ public class TopicMenu {
 
   public int getFavsId() {
     return favsId;
+  }
+
+  public int getMemoriesCount() {
+    return memoriesCount;
+  }
+
+  public int getFavsCount() {
+    return favsCount;
   }
 }

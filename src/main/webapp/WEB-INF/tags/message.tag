@@ -221,7 +221,12 @@
       type: "POST",
       data: { msgid : ${message.id}, add: "add", watch: event.data.watch }
     }).done(function(t) {
-       memories_form_setup(t, event.data.watch);
+       memories_form_setup(t['id'], event.data.watch);
+       if (event.data.watch) {
+         $('#memories_count').text(t['count']);
+       } else {
+         $('#favs_count').text(t['count']);
+       }
     });
   }
 
@@ -234,6 +239,13 @@
       data: { id : event.data.id, remove: "remove" }
     }).done(function(t) {
       memories_form_setup(0, event.data.watch);
+      if (t>=0) {
+        if (event.data.watch) {
+          $('#memories_count').text(t);
+        } else {
+          $('#favs_count').text(t);
+        }
+      }
     });
   }
 
@@ -264,8 +276,8 @@
   $(document).ready(function() {
     $("div[itemprop=articleBody]").prepend(
             "<div class='fav-buttons'>" +
-                    "<a id=\"favs_button\" href=\"#\"><i class=\"icon-star\"></i></a><br>" +
-                    "<a id=\"memories_button\" href=\"#\"><i class=\"icon-eye\"></i></a>" +
+                    "<a id=\"favs_button\" href=\"#\"><i class=\"icon-star\"></i></a><br><span id=\"favs_count\">${messageMenu.favsCount}</span><br>" +
+                    "<a id=\"memories_button\" href=\"#\"><i class=\"icon-eye\"></i></a><br><span id=\"memories_count\">${messageMenu.memoriesCount}</span>" +
             "</div>"
     );
 

@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.ServletRequest;
+import java.util.Map;
 
 @Controller
 public class MemoriesController {
@@ -37,7 +39,8 @@ public class MemoriesController {
   private MemoriesDao memoriesDao;
 
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
-  public @ResponseBody Integer add(
+  public @ResponseBody
+  Map<String, Integer> add(
           ServletRequest request,
           @RequestParam("msgid") int msgid,
           @RequestParam("watch") boolean watch
@@ -57,11 +60,15 @@ public class MemoriesController {
       throw new UserErrorException("Тема удалена");
     }
 
-    return memoriesDao.addToMemories(user.getId(), topic.getId(), watch);
+    int id = memoriesDao.addToMemories(user.getId(), topic.getId(), watch);
+
+    int count = memoriesDao.getTopicStats(msgid).get(watch?0:1);
+
+    return ImmutableMap.of("id", id, "count", count);
   }
 
   @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)
-  public @ResponseBody void remove(
+  public @ResponseBody int remove(
           ServletRequest request,
           @RequestParam("id") int id
   ) throws Exception {
@@ -83,6 +90,10 @@ public class MemoriesController {
       }
 
       memoriesDao.delete(id);
+
+      return memoriesDao.getTopicStats(m.getTopic()).get(m.isWatch()?0:1);
+    } else {
+      return -1;
     }
   }
 }

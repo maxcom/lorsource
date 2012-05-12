@@ -24,12 +24,14 @@ public class MemoriesListItem {
   private final int userid;
   private final Timestamp timestamp;
   private final int topic;
+  private final boolean watch;
 
   public MemoriesListItem(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     userid = rs.getInt("userid");
     timestamp = rs.getTimestamp("add_date");
     topic = rs.getInt("topic");
+    watch = rs.getBoolean("watch");
   }
 
   public int getId() {
@@ -46,5 +48,9 @@ public class MemoriesListItem {
 
   public int getTopic() {
     return topic;
+  }
+
+  public boolean isWatch() {
+    return watch;
   }
 }
