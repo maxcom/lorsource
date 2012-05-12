@@ -239,12 +239,14 @@
 
   function memories_form_setup(memId) {
     if (memId==0) {
-      $("#memories_button").text("Отслеживать");
+      $('#memories_button').removeClass('selected');
+      $("#memories_button").attr('title', "Отслеживать");
 
       $('#memories_button').unbind("click", memories_remove);
       $('#memories_button').bind("click", memories_add);
     } else {
-      $("#memories_button").text("Не отслеживать");
+      $('#memories_button').addClass('selected');
+      $("#memories_button").attr('title', "Не отслеживать");
 
       $('#memories_button').unbind("click", memories_add);
       $('#memories_button').bind("click", memories_remove);
@@ -254,7 +256,7 @@
   $(document).ready(function() {
     memId = ${messageMenu.memoriesId};
 
-    $("#topicMenu").append("<li><a id=\"memories_button\" href=\"#\"></a></li>");
+    $("div[itemprop=articleBody]").prepend("<div class='fav-buttons'><a id=\"memories_button\" href=\"#\"><i class=\"icon-eye\"></i></a></div>");
 
     memories_form_setup(memId);
   });

@@ -495,3 +495,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     padding-top: 0.125em;
     padding-bottom: 0.125em;
 }
+
+.fav-buttons {
+    float: right;
+    font-size: 250%;
+    margin-right: 0.5em;
+    margin-left: 0.4em;
+}

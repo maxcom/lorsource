@@ -172,3 +172,7 @@ fieldset legend {
 .msg_body h1 a {
     color: #babdb6;
 }
+
+.fav-buttons .selected [class^="icon-"] {
+    color: #c17d11;
+}
