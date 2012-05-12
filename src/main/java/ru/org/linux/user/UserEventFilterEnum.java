@@ -17,7 +17,7 @@ package ru.org.linux.user;
 public enum UserEventFilterEnum {
   ALL("all", "все уведомления", ""),
   ANSWERS("answers", "ответы", "REPLY"),
-  FAVORITES("favorites", "избранное", "WATCH"),
+  FAVORITES("favorites", "отслеживаемое", "WATCH"),
   DELETED("deleted", "удаленное", "DEL"),
   REFERENCE("reference", "упоминания", "REF"),
   TAG("tag", "теги", "TAG");
