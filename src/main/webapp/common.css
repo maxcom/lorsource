@@ -515,3 +515,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .fav-buttons [class^="icon-"] {
     margin-right: 0;
 }
+
+div[itemprop="articleBody"] {
+    margin-right: 4em;
+}
