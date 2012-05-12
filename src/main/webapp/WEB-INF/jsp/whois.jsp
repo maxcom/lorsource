@@ -293,7 +293,7 @@
   </li>
 </c:if>
   <li>
-    <a href="/people/${user.nick}/favs">Отслеживаемые темы</a>
+    <a href="/people/${user.nick}/favs">Избранные темы</a>
   </li>
 </ul>
 </c:if>

@@ -110,7 +110,7 @@
         Ваш статус: ${template.currentUser.status}
         <ul>
           <li><a href="/people/${template.nick}/">Мои темы</a></li>
-          <li><a href="/people/${template.nick}/favs">Отслеживаемые темы</a></li>
+          <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
           <c:set var="events">
              <lorDir:events/>

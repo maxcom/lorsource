@@ -196,6 +196,10 @@ public class TopicListDaoImpl implements TopicListDao {
       }
     }
 
+    if (topicListDto.isUserFavs()) {
+      where.append(" AND NOT watch ");
+    }
+
     if (topicListDto.isNotalks()) {
       where.append(" AND not topics.groupid=8404");
     }
