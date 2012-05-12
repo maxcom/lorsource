@@ -224,3 +224,8 @@ div.quote {
 .message-table .tag:before {
 	content: "[";
 }
+
+.fav-buttons .selected [class^="icon-"] {
+    color: orange;
+}
+
