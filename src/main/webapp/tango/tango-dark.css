@@ -176,3 +176,7 @@ fieldset legend {
 .fav-buttons .selected [class^="icon-"] {
     color: #c17d11;
 }
+
+.fav-buttons a {
+    color: #BABDB6;
+}
