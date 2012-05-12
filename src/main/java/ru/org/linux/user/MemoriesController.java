@@ -39,7 +39,8 @@ public class MemoriesController {
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
   public @ResponseBody Integer add(
           ServletRequest request,
-          @RequestParam("msgid") int msgid
+          @RequestParam("msgid") int msgid,
+          @RequestParam("watch") boolean watch
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -56,7 +57,7 @@ public class MemoriesController {
       throw new UserErrorException("Тема удалена");
     }
 
-    return memoriesDao.addToMemories(user.getId(), topic.getId());
+    return memoriesDao.addToMemories(user.getId(), topic.getId(), watch);
   }
 
   @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)

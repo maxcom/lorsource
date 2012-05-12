@@ -19,6 +19,7 @@ public class TopicMenu {
   private final boolean editable;
   private final boolean resolvable;
   private final int memoriesId;
+  private final int favsId;
   private final boolean commentsAllowed;
   private final boolean deletable;
 
@@ -26,11 +27,13 @@ public class TopicMenu {
           boolean editable,
           boolean resolvable,
           int memoriesId,
+          int favsId,
           boolean commentsAllowed,
           boolean deletable) {
     this.editable = editable;
     this.resolvable = resolvable;
     this.memoriesId = memoriesId;
+    this.favsId = favsId;
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
   }
@@ -53,5 +56,9 @@ public class TopicMenu {
 
   public boolean isDeletable() {
     return deletable;
+  }
+
+  public int getFavsId() {
+    return favsId;
   }
 }

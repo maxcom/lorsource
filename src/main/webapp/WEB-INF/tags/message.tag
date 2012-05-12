@@ -219,10 +219,10 @@
     $.ajax({
       url: "/memories.jsp",
       type: "POST",
-      data: { msgid : ${message.id}, add: "add" }
+      data: { msgid : ${message.id}, add: "add", watch: event.data.watch }
     }).done(function(t) {
-              memories_form_setup(t);
-            });
+       memories_form_setup(t, event.data.watch);
+    });
   }
 
   function memories_remove(event) {
@@ -231,31 +231,37 @@
     $.ajax({
       url: "/memories.jsp",
       type: "POST",
-      data: { id : memId, remove: "remove" }
+      data: { id : event.data.id, remove: "remove" }
     }).done(function(t) {
-              memories_form_setup(0);
-            });
+      memories_form_setup(0, event.data.watch);
+    });
   }
 
-  function memories_form_setup(memId) {
-    if (memId==0) {
-      $('#memories_button').removeClass('selected');
-      $("#memories_button").attr('title', "Отслеживать");
+  function memories_form_setup(memId, watch) {
+    var el;
 
-      $('#memories_button').unbind("click", memories_remove);
-      $('#memories_button').bind("click", memories_add);
+    if (watch) {
+      el = $('#memories_button');
     } else {
-      $('#memories_button').addClass('selected');
-      $("#memories_button").attr('title', "Не отслеживать");
+      el = $('#favs_button');
+    }
 
-      $('#memories_button').unbind("click", memories_add);
-      $('#memories_button').bind("click", memories_remove);
+    if (memId==0) {
+      el.removeClass('selected');
+      el.attr('title', "Отслеживать");
+
+      el.unbind("click", memories_remove);
+      el.bind("click", {watch: watch}, memories_add);
+    } else {
+      el.addClass('selected');
+      el.attr('title', "Не отслеживать");
+
+      el.unbind("click", memories_add);
+      el.bind("click", {watch: watch, id: memId}, memories_remove);
     }
   }
 
   $(document).ready(function() {
-    memId = ${messageMenu.memoriesId};
-
     $("div[itemprop=articleBody]").prepend(
             "<div class='fav-buttons'>" +
                     "<a id=\"favs_button\" href=\"#\"><i class=\"icon-star\"></i></a><br>" +
@@ -263,7 +269,8 @@
             "</div>"
     );
 
-    memories_form_setup(memId);
+    memories_form_setup(${messageMenu.memoriesId}, true);
+    memories_form_setup(${messageMenu.favsId}, false);
   });
 </script>
 </c:if>
