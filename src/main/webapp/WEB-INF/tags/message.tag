@@ -256,7 +256,12 @@
   $(document).ready(function() {
     memId = ${messageMenu.memoriesId};
 
-    $("div[itemprop=articleBody]").prepend("<div class='fav-buttons'><a id=\"memories_button\" href=\"#\"><i class=\"icon-eye\"></i></a></div>");
+    $("div[itemprop=articleBody]").prepend(
+            "<div class='fav-buttons'>" +
+                    "<a id=\"favs_button\" href=\"#\"><i class=\"icon-star\"></i></a><br>" +
+                    "<a id=\"memories_button\" href=\"#\"><i class=\"icon-eye\"></i></a>" +
+            "</div>"
+    );
 
     memories_form_setup(memId);
   });
