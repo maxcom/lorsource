@@ -85,6 +85,11 @@
     <lor:image enableSchema="true" preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
 
+    <div class="fav-buttons">
+      <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
+      <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
+    </div>
+
   <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
     ${preparedMessage.processedMessage}
   </div>
@@ -274,13 +279,6 @@
   }
 
   $(document).ready(function() {
-    $("div[itemprop=articleBody]").prepend(
-            "<div class='fav-buttons'>" +
-                    "<a id=\"favs_button\" href=\"#\"><i class=\"icon-star\"></i></a><br><span id=\"favs_count\">${messageMenu.favsCount}</span><br>" +
-                    "<a id=\"memories_button\" href=\"#\"><i class=\"icon-eye\"></i></a><br><span id=\"memories_count\">${messageMenu.memoriesCount}</span>" +
-            "</div>"
-    );
-
     memories_form_setup(${messageMenu.memoriesId}, true);
     memories_form_setup(${messageMenu.favsId}, false);
   });
