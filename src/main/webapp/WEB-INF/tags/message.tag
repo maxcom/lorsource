@@ -260,13 +260,13 @@
 
     if (memId==0) {
       el.removeClass('selected');
-      el.attr('title', "Отслеживать");
+      el.attr('title', watch?"Отслеживать":"В избранное");
 
       el.unbind("click", memories_remove);
       el.bind("click", {watch: watch}, memories_add);
     } else {
       el.addClass('selected');
-      el.attr('title', "Не отслеживать");
+      el.attr('title', watch?"Не отслеживать":"Удалить из избранного");
 
       el.unbind("click", memories_add);
       el.bind("click", {watch: watch, id: memId}, memories_remove);
