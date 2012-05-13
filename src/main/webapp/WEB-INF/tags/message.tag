@@ -81,14 +81,14 @@
     <a href="${message.link}">${message.title}</a>
   </h1>
 
-  <c:if test="${preparedMessage.section.imagepost}">
-    <lor:image enableSchema="true" preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
-  </c:if>
-
     <div class="fav-buttons">
       <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
       <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
     </div>
+
+  <c:if test="${preparedMessage.section.imagepost}">
+    <lor:image enableSchema="true" preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+  </c:if>
 
   <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
     ${preparedMessage.processedMessage}
