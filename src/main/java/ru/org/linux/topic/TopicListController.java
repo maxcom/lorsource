@@ -419,6 +419,7 @@ public class TopicListController {
       section,
       group,
       topicListForm.getOffset(),
+      false,
       false
     );
 
@@ -485,7 +486,45 @@ public class TopicListController {
     modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("topicListForm", topicListForm);
 
-    List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true);
+    List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, false);
+    prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+    return modelAndView;
+  }
+
+  /**
+   * @param nick
+   * @param topicListForm
+   * @param request
+   * @param response
+   * @return
+   * @throws Exception
+   */
+  @RequestMapping("/people/{nick}/tracked")
+  public ModelAndView showUserWatches(
+    HttpServletRequest request,
+    TopicListRequest topicListForm,
+    @PathVariable String nick,
+    HttpServletResponse response
+  ) throws Exception {
+    setExpireHeaders(response, topicListForm);
+
+    ModelAndView modelAndView = new ModelAndView();
+
+    User user = getUserByNickname(modelAndView, nick);
+
+    modelAndView.addObject("url", "/people/" + nick + "/tracked");
+    modelAndView.addObject("whoisLink", "/people/" + nick + '/' + "profile");
+
+    modelAndView.addObject("ptitle", "Отслеживаемые сообщения " + user.getNick());
+    modelAndView.addObject("navtitle", "Отслеживаемые сообщения " + user.getNick());
+
+    topicListForm.setOffset(
+      topicListService.fixOffset(topicListForm.getOffset())
+    );
+    modelAndView.addObject("offsetNavigation", true);
+    modelAndView.addObject("topicListForm", topicListForm);
+
+    List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, true);
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
     return modelAndView;
   }

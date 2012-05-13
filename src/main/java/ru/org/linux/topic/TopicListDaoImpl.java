@@ -194,10 +194,14 @@ public class TopicListDaoImpl implements TopicListDao {
           .append(" AND userid=")
           .append(topicListDto.getUserId());
       }
-    }
 
-    if (topicListDto.isUserFavs()) {
-      where.append(" AND NOT watch ");
+      if (topicListDto.isUserFavs()) {
+        if (topicListDto.isUserWatches()) {
+          where.append(" AND watch ");
+        } else {
+          where.append(" AND NOT watch ");
+        }
+      }
     }
 
     if (topicListDto.isNotalks()) {

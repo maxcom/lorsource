@@ -131,8 +131,8 @@ public class TopicListService {
    * @param isFavorite true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
-  public List<Topic> getUserTopicsFeed(User user, Integer offset, boolean isFavorite) {
-    return getUserTopicsFeed(user, null, null, offset, isFavorite);
+  public List<Topic> getUserTopicsFeed(User user, Integer offset, boolean isFavorite, boolean watches) {
+    return getUserTopicsFeed(user, null, null, offset, isFavorite, watches);
   }
 
   /**
@@ -141,17 +141,17 @@ public class TopicListService {
    * @param user       объект пользователя
    * @param section    секция, из которой выбрать сообщения
    * @param offset     смещение в результатах выборки
-   * @param isFavorite true если нужно выбрать избранные сообщения пользователя
+   * @param favorites true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
-  public List<Topic> getUserTopicsFeed(User user, Section section, Group group, Integer offset, boolean isFavorite) {
+  public List<Topic> getUserTopicsFeed(User user, Section section, Group group, Integer offset, boolean favorites, boolean watches) {
     logger.debug(
         new StringBuilder()
             .append("TopicListService.getTopicsFeed()")
             .append("; user=").append((user != null) ? user.toString() : "(null)")
             .append("; section=").append(section)
             .append("; offset=").append(offset)
-            .append("; isFavorite=").append(String.valueOf(isFavorite))
+            .append("; isFavorite=").append(String.valueOf(favorites))
             .toString()
     );
 
@@ -160,7 +160,8 @@ public class TopicListService {
     topicListDto.setOffset(offset);
     topicListDto.setCommitMode(TopicListDao.CommitMode.ALL);
     topicListDto.setUserId(user.getId());
-    topicListDto.setUserFavs(isFavorite);
+    topicListDto.setUserFavs(favorites);
+    topicListDto.setUserWatches(watches);
     if (section != null) {
       topicListDto.getSections().add(section.getId());
     }
@@ -398,6 +399,10 @@ public class TopicListService {
     }
 
     if (topicListDto.getCommitMode() == TopicListDao.CommitMode.COMMITED_ONLY) {
+      return 0;
+    }
+
+    if (topicListDto.getUserId()!=0) {
       return 0;
     }
 

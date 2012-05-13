@@ -33,6 +33,7 @@ public class TopicListDto {
   private final Set<Integer> sections = new HashSet<Integer>();
   private int userId = 0;
   private boolean userFavs = false;
+  private boolean userWatches = false;
   private int group = 0;
   private int tag = 0;
   private Integer limit = null;
@@ -126,6 +127,14 @@ public class TopicListDto {
 
   public void setUserFavs(boolean userFavs) {
     this.userFavs = userFavs;
+  }
+
+  public boolean isUserWatches() {
+    return userWatches;
+  }
+
+  public void setUserWatches(boolean userWatches) {
+    this.userWatches = userWatches;
   }
 
   public boolean isNotalks() {

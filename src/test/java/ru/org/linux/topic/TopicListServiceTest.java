@@ -105,7 +105,7 @@ public class TopicListServiceTest {
     when(user.getId()).thenReturn(12345);
 
     List<Topic> topicList = topicListService.getUserTopicsFeed(
-      user, 123, true
+      user, 123, true, false
     );
 
     assertEquals(new Integer(20), topicListDto.getLimit());
@@ -123,7 +123,7 @@ public class TopicListServiceTest {
     when(user.getId()).thenReturn(12345);
 
     List<Topic> topicList = topicListService.getUserTopicsFeed(
-        user, section1, group, 123, true
+        user, section1, group, 123, true, false
     );
 
     assertEquals(1, topicListDto.getSections().size());
