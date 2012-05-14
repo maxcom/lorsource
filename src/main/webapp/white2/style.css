@@ -16,16 +16,16 @@
 body { font-family: serif; max-width: 95em; margin:auto; padding:8px;}
 
 a {
-    color: #000050;
+    color: #0000AA;
     text-decoration: none;
 }
 
 a:visited {
-    color: #00000050;
+    color: #0000AA;
 }
 
 .message-table a:visited {
-    color: #500050;
+    color: #AA00AA;
 }
 
 a:hover {
