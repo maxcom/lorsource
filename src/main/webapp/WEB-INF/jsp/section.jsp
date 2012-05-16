@@ -58,7 +58,7 @@
     <li>
       <a class="navLink" href="${group.url}">${group.title}</a>
 
-      (${group.stat1}/${group.stat2}/${group.stat3})
+      (всего ${group.stat1} • сегодня ${group.stat3})
 
       <c:if test="${group.info != null}">
         - <em><c:out value="${group.info}" escapeXml="false"/></em>
