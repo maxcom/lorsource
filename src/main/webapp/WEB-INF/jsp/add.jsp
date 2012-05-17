@@ -43,6 +43,16 @@
         title : "Введите заголовок"
       }
     });
+
+    window.onbeforeunload = function() {
+        if ($("#form_msg").val()!='') {
+          return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+        }
+      };
+
+    $("#messageForm").bind("submit", function() {
+        window.onbeforeunload = null;
+    });
   });
 </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
