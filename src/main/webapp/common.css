@@ -278,6 +278,11 @@ label.error {
     display: inline-block;
 }
 
+#registerForm input {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 #commentForm {
     margin-top: 0.5em;
     font-size: medium;

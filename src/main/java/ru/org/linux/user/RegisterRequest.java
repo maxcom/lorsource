@@ -22,6 +22,7 @@ public class RegisterRequest {
   private String town;
   private String info;
   private String nick;
+  private String rules;
 
   private String password;
   private String password2;
@@ -88,5 +89,13 @@ public class RegisterRequest {
 
   public void setPassword2(String password2) {
     this.password2 = password2;
+  }
+
+  public String getRules() {
+    return rules;
+  }
+
+  public void setRules(String rules) {
+    this.rules = rules;
   }
 }

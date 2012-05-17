@@ -47,33 +47,24 @@
 
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
     <form:errors path="*" element="div" cssClass="error"/>
-    
-<label><b>Login:</b> <form:input path="nick" required="required" size="40"/></label><br>
+    <dl>
+        <dt><label>Login:</label></dt>
+        <dd><form:input path="nick" required="required" size="40"/></dd>
 
-<label>Полное имя: <form:input path="name" size="40"/></label><br>
-<label><b>Пароль:</b>
-<input required id="password" type=password name=password size=20 maxlength="40"></label><br>
-<label><b>Повторите пароль:</b>
-<input required id="password2" type=password name=password2 size=20 maxlength="40"></label><br>
+        <dt><label>E-mail:</label></dt>
+        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40"/></dd>
 
-<label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" type="url" size="50"/></label><br>
+        <dt><label>Пароль:</label></dt>
+        <dd><form:password path="password" size="40" required="required"/></dd>
 
-<label><b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
-<form:input path="email" type="email" required="required" cssClass="email" size="50"/></label><br>
+        <dt><label>Подтвердите пароль:</label></dt>
+        <dd><form:password path="password2" size="40" required="required"/></dd>
 
-    <label>
-    Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
-    <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-    <form:input path="town" size="50" maxlength="100"/></label> <br>
+        <dt><label>Защита от робатов:</label></dt>
+        <dd><lor:captcha/></dd>
 
-    <label>Дополнительная информация:<br>
-      <form:textarea path="info" cols="50" rows="5"/>
-    </label>
-
-<p>
-  <lor:captcha/>
-
-<br>
-<input type=submit value="Зарегистрироваться">
+        <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required"/></dt>
+        <dd class="button"><input type=submit value="Зарегистрироваться"></dd>
+    </dl>
 </form:form>
 <jsp:include page="footer.jsp"/>
