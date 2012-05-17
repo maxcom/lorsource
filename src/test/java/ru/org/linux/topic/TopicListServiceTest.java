@@ -48,7 +48,7 @@ public class TopicListServiceTest {
   Section section2 = new Section("testSection 2", false, false, 12, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED);
   Group group = new Group(false, false, false, false, 11,
     "", "", "", 1, 1,
-    111, 1, 1, 1, false);
+    111, 1, 1, false);
 
   @Test
   public void getTopicsFeedYear_commonTest()
