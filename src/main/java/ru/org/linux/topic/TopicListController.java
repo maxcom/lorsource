@@ -119,6 +119,7 @@ public class TopicListController {
     }
 
     modelAndView.addObject("url", tagListUrl(tag));
+    modelAndView.addObject("params", null);
 
     return modelAndView;
   }
