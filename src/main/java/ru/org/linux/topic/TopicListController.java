@@ -16,8 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -25,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriTemplate;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
@@ -42,7 +41,7 @@ import java.util.*;
 
 @Controller
 public class TopicListController {
-  private static final Log logger = LogFactory.getLog(TopicListController.class);
+  private static final UriTemplate TAG_URI_TEMPLATE = new UriTemplate("/tag/{tag}");
 
   @Autowired
   private SectionService sectionService;
@@ -68,11 +67,21 @@ public class TopicListController {
   private UserDao userDao;
 
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD}, params = {"tag"})
+  public View tagFeedOld(
+          TopicListRequest topicListForm
+  ) throws Exception {
+    return new RedirectView(TAG_URI_TEMPLATE.expand(topicListForm.getTag()).toString());
+  }
+
+  @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView tagFeed(
     HttpServletRequest request,
     TopicListRequest topicListForm,
-    HttpServletResponse response
+    HttpServletResponse response,
+    @PathVariable String tag
   ) throws Exception {
+    topicListForm.setTag(tag);
+
     ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response);
 
     boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
