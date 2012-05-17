@@ -1,11 +1,7 @@
 package ru.org.linux.topic;
 
 /**
- * <Short description here>.
- *
  * @author Viachaslau Zanko
- * @version 2012-02-09
- *          created 09.02.12 16:13
  */
 public class TopicListRequest {
   private Integer section;
