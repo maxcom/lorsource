@@ -70,7 +70,11 @@ public class TopicListController {
   public View tagFeedOld(
           TopicListRequest topicListForm
   ) throws Exception {
-    return new RedirectView(TAG_URI_TEMPLATE.expand(topicListForm.getTag()).toString());
+    return new RedirectView(tagListUrl(topicListForm.getTag()));
+  }
+
+  public static String tagListUrl(String tag) {
+    return TAG_URI_TEMPLATE.expand(tag).toString();
   }
 
   @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
@@ -114,6 +118,8 @@ public class TopicListController {
       }
     }
 
+    modelAndView.addObject("url", tagListUrl(tag));
+
     return modelAndView;
   }
 
@@ -139,7 +145,6 @@ public class TopicListController {
     if(!Strings.isNullOrEmpty(topicListForm.getTag()) ||
         topicListForm.getSection() != null) {
       URLUtil.QueryString queryString = new URLUtil.QueryString();
-      queryString.add("tag", topicListForm.getTag());
       queryString.add("section", topicListForm.getSection());
       modelAndView.addObject("params", queryString.toString());
     }
@@ -625,10 +630,6 @@ public class TopicListController {
 
     URLUtil.QueryString queryString = new URLUtil.QueryString();
     queryString.add("offset", topicListForm.getOffset());
-
-    if (topicListForm.getTag() != null && !topicListForm.getTag().trim().isEmpty()) {
-      queryString.add("tag", topicListForm.getTag());
-    }
 
     String queryStr = queryString.toString();
     if (!queryStr.isEmpty()) {
