@@ -109,7 +109,7 @@
   <p>
 
   <label>Заглавие:<br>
-    <form:input path="title" required="required" style="width: 40em"/><br>
+    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
    </label>
 
   <c:if test="${group!=null and group.imagePostAllowed}">
