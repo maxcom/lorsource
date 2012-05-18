@@ -16,6 +16,7 @@
 package ru.org.linux.spring;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,7 @@ public class Configuration {
   private Properties properties;
 
   private URI mainURI;
-  private String mainHost;
-  private int mainPort;
+  private URI secureURI;
 
   /**
    * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
@@ -52,14 +52,20 @@ public class Configuration {
     if(!mainURI.isAbsoluteURI()) {
       throw new RuntimeException(ERR_MSG +"URI not absolute path");
     }
+
     try {
-      mainHost = mainURI.getHost();
-      mainPort = mainURI.getPort();
+      String mainHost = mainURI.getHost();
       if(mainHost == null) {
         throw new RuntimeException(ERR_MSG +"bad URI host");
       }
-    } catch (Exception e) {
+    } catch (URIException e) {
      throw new RuntimeException(ERR_MSG +e.getMessage());
+    }
+
+    try {
+      secureURI = new URI(properties.getProperty("SecureUrl", mainURI.toString().replaceFirst("http", "https")), true, "UTF-8");
+    } catch (Exception e) {
+      throw new RuntimeException(ERR_MSG +e.getMessage());
     }
   }
 
@@ -67,16 +73,12 @@ public class Configuration {
     return mainURI.toString();
   }
 
-  public URI getMainURI() {
-    return mainURI;
+  public String getSecureUrl() {
+    return secureURI.toString();
   }
 
-  public boolean compareWithMainURI(URI uri) {
-    try {
-      return (mainHost.equals(uri.getHost()) && mainPort == uri.getPort());
-    } catch (Exception e) {
-      return false;
-    }
+  public URI getMainURI() {
+    return mainURI;
   }
 
   public String getPathPrefix() {
