@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.user.User"   buffer="60kb" %>
+<%@ page import="ru.org.linux.topic.TopicListController"   buffer="60kb" %>
+<%@ page import="ru.org.linux.user.User" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -207,9 +208,10 @@
     <legend>Избранные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${favoriteTags}">
-          <c:url var="tagLink" value="view-news.jsp">
-            <c:param name="tag">${tagName}</c:param>
-          </c:url>
+          <%
+            String tagName = (String) pageContext.getAttribute("tagName");
+          %>
+          <c:url var="tagLink" value="<%= TopicListController.tagListUrl(tagName) %>"/>
 
           <li><a class="tag" href="${tagLink}">${tagName}</a></li>
         </c:forEach>
@@ -221,9 +223,10 @@
     <legend>Игнорированные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${ignoreTags}">
-          <c:url var="tagLink" value="view-news.jsp">
-            <c:param name="tag">${tagName}</c:param>
-          </c:url>
+          <%
+            String tagName = (String) pageContext.getAttribute("tagName");
+          %>
+          <c:url var="tagLink" value="<%= TopicListController.tagListUrl(tagName) %>"/>
 
           <li><a class="tag" href="${tagLink}">${tagName}</a></li>
         </c:forEach>

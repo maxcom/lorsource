@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date"   %>
+<%@ page import="ru.org.linux.topic.TopicListController"   %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.Map" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -49,11 +51,13 @@ ${status.first ? '' : ', '}
   <c:forEach var="tag" items="${tags}">
     <c:if test="${tag.value != 0 || template.moderatorSession}">
       <li>
+        <%
+          Map.Entry<String, Integer> tag = (Map.Entry<String, Integer>) pageContext.getAttribute("tag");
+        %>
+
         <c:choose>
           <c:when test="${tag.value != 0}">
-            <c:url value="/view-news.jsp" var="tag_url">
-                <c:param name="tag" value="${tag.key}"/>
-            </c:url>
+            <c:url value="<%= TopicListController.tagListUrl(tag.getKey()) %>" var="tag_url"/>
             <a href="${fn:escapeXml(tag_url)}">${tag.key}</a>
           </c:when>
           <c:otherwise>
