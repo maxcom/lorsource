@@ -56,8 +56,8 @@
 
             <c:if test="${not template.sessionAuthorized}">
               <div id="regmenu" class="head">
-                <a href="/register.jsp">Регистрация</a> -
-                <a id="loginbutton" href="/login.jsp">Вход</a>
+                <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
+                <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
               </div>
 
               <form method=POST action="login.jsp" style="display: none" id="regform">
