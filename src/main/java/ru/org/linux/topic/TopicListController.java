@@ -16,6 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -861,7 +862,7 @@ public class TopicListController {
         }
 
         if (topicListForm.getTag() != null) {
-          ptitle.append(" - ").append(topicListForm.getTag());
+          ptitle.append(" - ").append(WordUtils.capitalize(topicListForm.getTag()));
         }
       } else {
         ptitle.append(topicListForm.getTag());
@@ -900,7 +901,7 @@ public class TopicListController {
     StringBuilder navTitle = new StringBuilder();
 
     if (!Strings.isNullOrEmpty(topicListForm.getTag())) {
-      navTitle.append(topicListForm.getTag());
+      navTitle.append(WordUtils.capitalize(topicListForm.getTag()));
 
       if (section!=null) {
         navTitle.append(" - ");
