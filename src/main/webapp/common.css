@@ -290,6 +290,13 @@ label.error {
     margin-bottom: 5px;
 }
 
+#editRegForm .hint {
+    display: block;
+    padding: 5px;
+    font-style: italic;
+    font-size: medium;
+}
+
 #commentForm {
     margin-top: 0.5em;
     font-size: medium;

@@ -45,26 +45,35 @@
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
 
-<form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
-    <form:errors path="*" element="div" cssClass="error"/>
+<form:form modelAttribute="form" method="POST" action="/edit-reg.jsp" id="editRegForm">
+    <form:errors element="div" cssClass="error"/>
     <dl>
-        <dt><label>Login:</label></dt>
-        <dd><form:input path="nick" required="required" size="40"/></dd>
+        <dt><label>Полное имя:</label></dt>
+        <dd><form:input path="name" size="40"/><form:errors path="name" cssClass="error-validation"/></dd>
 
-        <dt><label>E-mail:</label></dt>
-        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40"/></dd>
 
         <dt><label>Пароль:</label></dt>
-        <dd><form:password path="password" size="40" required="required"/></dd>
+        <dd><form:password path="oldpass" size="40" /><form:errors path="oldpass" cssClass="error-validation"/></dd>
 
-        <dt><label>Подтвердите пароль:</label></dt>
-        <dd><form:password path="password2" size="40" required="required"/></dd>
+        <dt><label>Новый пароль:</label></dt>
+        <dd><form:password path="password" size="40" /><form:errors path="password" cssClass="error-validation"/><span class="hint">не заполняйте если не хотите менять</span></dd>
 
-        <dt><label>Защита от робатов:</label></dt>
-        <dd><lor:captcha/></dd>
+        <dt><label>Подтвердите новый пароль:</label></dt>
+        <dd><form:password path="password2" size="40" /><form:errors path="password2" cssClass="error-validation"/></dd>
 
-        <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required"/></dt>
-        <dd class="button"><input type=submit value="Зарегистрироваться"></dd>
+        <dt><label>URL:</label></dt>
+        <dd><form:input path="url" size="60"/><form:errors path="url" cssClass="error-validation"/><span class="hint">не забудьте добавить <i>http://</i></span></dd>
+
+        <dt><label>E-mail:</label></dt>
+        <dd><form:input path="email" type="email" cssClass="email" size="60"/><form:errors path="email" cssClass="error-validation"/></dd>
+
+        <dt><label>Город:</label></dt>
+        <dd><form:input path="town" size="60"/><form:errors path="town" cssClass="error-validation"/><span class="hint">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
+
+        <dt><label>Дополнительная информация::</label></dt>
+        <dd><form:textarea path="info" cols="60" rows="10"/><form:errors path="info" cssClass="error-validation"/></dd>
+
     </dl>
+    <input type=submit value="Обновить">
 </form:form>
 <jsp:include page="footer.jsp"/>

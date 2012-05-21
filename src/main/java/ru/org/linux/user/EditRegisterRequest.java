@@ -22,7 +22,7 @@ public class EditRegisterRequest {
   private String url;
   private String town;
   private String info;
-  private String nick;
+  private String oldpass;
 
   private String password;
   private String password2;
@@ -67,14 +67,6 @@ public class EditRegisterRequest {
     this.info = info;
   }
 
-  public String getNick() {
-    return nick;
-  }
-
-  public void setNick(String nick) {
-    this.nick = nick;
-  }
-
   public String getPassword() {
     return password;
   }
@@ -89,5 +81,13 @@ public class EditRegisterRequest {
 
   public void setPassword2(String password2) {
     this.password2 = password2;
+  }
+
+  public String getOldpass() {
+    return oldpass;
+  }
+
+  public void setOldpass(String oldpass) {
+    this.oldpass = oldpass;
   }
 }
