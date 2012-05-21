@@ -30,13 +30,16 @@
         }
       }
     });
-    $("#changeForm").validate();    
+    $("#changeForm").validate();
   });
 </script>
 
 <jsp:include page="header.jsp"/>
 <%
+  response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+
      session.setAttribute("register-visited", Boolean.TRUE);
+
 %>
 <H1>Регистрация</H1>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
