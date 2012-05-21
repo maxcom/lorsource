@@ -190,7 +190,7 @@ public class EditRegisterController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new EditRegisterValidator());
+    binder.setValidator(new EditRegisterRequestValidator());
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }

@@ -43,24 +43,24 @@
 <a href="../../lostpwd.jsp">сюда</a>.
 
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
-    <form:errors path="*" element="div" cssClass="error"/>
+    <form:errors element="div" cssClass="error-validation"/>
     <dl>
         <dt><label>Login:</label></dt>
-        <dd><form:input path="nick" required="required" size="40"/></dd>
+        <dd><form:input path="nick" required="required" size="40"/><form:errors path="nick" cssClass="error-validation"/></dd>
 
         <dt><label>E-mail:</label></dt>
-        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40"/></dd>
+        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40"/><form:errors path="email" cssClass="error-validation"/></dd>
 
         <dt><label>Пароль:</label></dt>
-        <dd><form:password path="password" size="40" required="required"/></dd>
+        <dd><form:password path="password" size="40" required="required"/><form:errors path="password" cssClass="error-validation"/></dd>
 
         <dt><label>Подтвердите пароль:</label></dt>
-        <dd><form:password path="password2" size="40" required="required"/></dd>
+        <dd><form:password path="password2" size="40" required="required"/><form:errors path="password2" cssClass="error-validation"/></dd>
 
-        <dt><label>Защита от робатов:</label></dt>
+        <dt><label>Защита от робатов:</label><form:errors path="nick" /></dt>
         <dd><lor:captcha/></dd>
 
-        <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required"/></dt>
+        <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required"/><form:errors path="rules" cssClass="error-validation"/></dd></dt>
         <dd class="button"><input type=submit value="Зарегистрироваться"></dd>
     </dl>
 </form:form>

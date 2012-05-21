@@ -24,7 +24,7 @@ import ru.org.linux.util.URLUtil;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-public class EditRegisterValidator extends RegisterRequestValidator implements Validator {
+public class EditRegisterRequestValidator extends RegisterRequestValidator implements Validator {
 
   @Override
   public boolean supports(Class<?> aClass) {

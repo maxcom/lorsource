@@ -92,74 +92,36 @@ public class RegisterController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
 
-    String nick;
+    if (!errors.hasErrors()) {
+      captcha.checkCaptcha(request, errors);
 
-    nick = form.getNick();
+      if (session.getAttribute("register-visited") == null) {
+        logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
+        errors.reject(null, "Временная ошибка, попробуйте еще раз");
+      }
 
-    if (Strings.isNullOrEmpty(nick)) {
-      errors.rejectValue("nick", null, "не задан nick");
-    }
+      IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+      ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
 
-    if (nick!=null && !StringUtil.checkLoginName(nick)) {
-      errors.rejectValue("nick", null, "некорректное имя пользователя");
-    }
+      if (userDao.isUserExists(form.getNick())) {
+        errors.rejectValue("nick", null, "пользователь " + form.getNick() + " уже существует");
+      }
 
-    if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
-      errors.rejectValue("nick", null, "слишком длинное имя пользователя");
-    }
-
-    String password = Strings.emptyToNull(form.getPassword());
-
-    if (password!=null && password.equalsIgnoreCase(nick)) {
-      errors.reject(null, "пароль не может совпадать с логином");
-    }
-
-    InternetAddress mail = null;
-
-    if (!Strings.isNullOrEmpty(form.getEmail())) {
-      try {
-        mail = new InternetAddress(form.getEmail());
-      } catch (AddressException e) {
-        errors.rejectValue("email", null, "Некорректный e-mail: " + e.getMessage());
+      if (userDao.getByEmail(new InternetAddress(form.getEmail()).getAddress(), false) != null) {
+        errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
+                "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
       }
     }
 
-    if (Strings.isNullOrEmpty(password)) {
-      errors.reject(null, "пароль не может быть пустым");
-    }
-
-    String name = Strings.emptyToNull(form.getName());
-
-    if (name != null) {
-      name = StringUtil.escapeHtml(name);
-    }
-
-    captcha.checkCaptcha(request, errors);
-
-    if (session.getAttribute("register-visited") == null) {
-      logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
-      errors.reject(null, "Временная ошибка, попробуйте еще раз");
-    }
-
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
-
-    if (userDao.isUserExists(nick)) {
-      errors.rejectValue("nick", null, "пользователь " + nick + " уже существует");
-    }
-
-    if (mail != null && userDao.getByEmail(mail.getAddress(), false) != null) {
-      errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
-              "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
-    }
-
     if (!errors.hasErrors()) {
-      int userid = userDao.createUser(name, nick, password, "", mail, "", "");
+      InternetAddress mail = new InternetAddress(form.getEmail());
 
-      String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
+      int userid = userDao.createUser("", form.getNick(), form.getPassword(), "", mail, "", "");
+
+      String logmessage = "Зарегистрирован пользователь " + form.getNick() + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
       logger.info(logmessage);
 
-      emailService.sendEmail(nick, mail.getAddress(), true);
+      emailService.sendEmail(form.getNick(), mail.getAddress(), true);
     } else {
       return new ModelAndView("register");
     }

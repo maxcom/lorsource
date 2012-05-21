@@ -65,6 +65,41 @@ public class RegisterRequestValidator implements Validator {
   public void validate(Object o, Errors errors) {
     RegisterRequest form = (RegisterRequest) o;
 
+    /*
+    Nick validate
+     */
+    String nick = form.getNick();
+
+    if (Strings.isNullOrEmpty(nick)) {
+      errors.rejectValue("nick", null, "не задан nick");
+    }
+
+    if (nick!=null && !StringUtil.checkLoginName(nick)) {
+      errors.rejectValue("nick", null, "некорректное имя пользователя");
+    }
+
+    if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
+      errors.rejectValue("nick", null, "слишком длинное имя пользователя");
+    }
+
+    /*
+    Password validate
+     */
+
+    String password = Strings.emptyToNull(form.getPassword());
+    String password2 = Strings.emptyToNull(form.getPassword2());
+
+    if (Strings.isNullOrEmpty(password)) {
+      errors.reject("password", null, "пароль не может быть пустым");
+    }
+    if (Strings.isNullOrEmpty(password2)) {
+      errors.reject("password2", null, "пароль не может быть пустым");
+    }
+
+    if (password!=null && password.equalsIgnoreCase(nick)) {
+      errors.reject(password, null, "пароль не может совпадать с логином");
+    }
+
     if (form.getPassword2() != null &&
             form.getPassword() != null &&
             !form.getPassword().equals(form.getPassword2())) {
@@ -72,8 +107,12 @@ public class RegisterRequestValidator implements Validator {
     }
 
     if (!Strings.isNullOrEmpty(form.getPassword()) && form.getPassword().length()< MIN_PASSWORD_LEN) {
-      errors.reject(null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
+      errors.reject("password", null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
     }
+
+    /*
+    Email validate
+     */
 
     if (Strings.isNullOrEmpty(form.getEmail())) {
       errors.rejectValue("email", null, "Не указан e-mail");
@@ -84,6 +123,16 @@ public class RegisterRequestValidator implements Validator {
       } catch (AddressException e) {
         errors.rejectValue("email", null, "Некорректный e-mail: " + e.getMessage());
       }
+    }
+
+    /*
+    Rules validate
+     */
+
+    if(Strings.isNullOrEmpty(form.getRules())) {
+      errors.reject("rules", null, "Вы не согласились с правилами");
+    } else if(!"okay".equals(form.getRules())) {
+      errors.reject("rules", null, "Вы не согласились с правилами");
     }
   }
 }
