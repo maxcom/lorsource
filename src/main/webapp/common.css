@@ -285,7 +285,7 @@ label.error {
     display: inline-block;
 }
 
-#registerForm input {
+#registerForm input, #activateForm input {
     margin-top: 5px;
     margin-bottom: 5px;
 }
