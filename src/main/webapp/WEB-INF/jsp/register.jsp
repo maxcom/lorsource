@@ -41,24 +41,24 @@
 <a href="../../lostpwd.jsp">сюда</a>.
 
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
-    <form:errors element="div" cssClass="error-validation"/>
+    <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label>Login:</label></dt>
-        <dd><form:input path="nick" required="required" size="40"/><form:errors path="nick" cssClass="error-validation"/></dd>
+        <dd><form:input path="nick" required="required" size="40" cssErrorClass="error"/><form:errors path="nick" element="label" cssClass="error"/></dd>
 
         <dt><label>E-mail:</label></dt>
-        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40"/><form:errors path="email" cssClass="error-validation"/></dd>
+        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/><form:errors path="email" element="label" cssClass="error"/></dd>
 
         <dt><label>Пароль:</label></dt>
-        <dd><form:password path="password" size="40" required="required"/><form:errors path="password" cssClass="error-validation"/></dd>
+        <dd><form:password path="password" size="40" required="required" cssErrorClass="error"/><form:errors path="password" element="label" cssClass="error"/></dd>
 
         <dt><label>Подтвердите пароль:</label></dt>
-        <dd><form:password path="password2" size="40" required="required"/><form:errors path="password2" cssClass="error-validation"/></dd>
+        <dd><form:password path="password2" size="40" required="required" cssErrorClass="error"/><form:errors path="password2" element="label" cssClass="error"/></dd>
 
-        <dt><label>Защита от роботов:</label><form:errors path="nick" /></dt>
+        <dt><label>Защита от роботов:</label></dt>
         <dd><lor:captcha/></dd>
 
-        <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required"/><form:errors path="rules" cssClass="error-validation"/></dd></dt>
+        <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required" cssErrorClass="error"/><form:errors path="rules" element="label" cssClass="error"/></dd></dt>
         <dd class="button"><input type=submit value="Зарегистрироваться"></dd>
     </dl>
 </form:form>

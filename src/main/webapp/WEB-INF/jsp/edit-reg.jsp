@@ -21,14 +21,13 @@
 <title>Регистрация пользователя</title>
 <script type="text/javascript">
   $(document).ready(function() {
-    $("#registerForm").validate({
+    $("#editRegForm").validate({
       rules : {
         password2: {
           equalTo: "#password"
         }
       }
     });
-    $("#changeForm").validate();
   });
 </script>
 
@@ -52,33 +51,33 @@
 <a href="../../lostpwd.jsp">сюда</a>.
 
 <form:form modelAttribute="form" method="POST" action="/edit-reg.jsp" id="editRegForm">
-    <form:errors element="div" cssClass="error-validation"/>
+    <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label>Полное имя:</label></dt>
-        <dd><form:input path="name" size="40"/><form:errors path="name" cssClass="error-validation"/></dd>
+        <dd><form:input path="name" size="40" cssErrorClass="error" /><form:errors path="name" element="label" cssClass="error"/><span class="hint">&nbsp</span></dd>
 
         <dt><label>Новый пароль:</label></dt>
-        <dd><form:password path="password" size="40" /><form:errors path="password" cssClass="error-validation"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
+        <dd><form:password path="password" size="40" cssErrorClass="error" /><form:errors path="password" element="label" cssClass="error"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
 
         <dt><label>Подтвердите новый пароль:</label></dt>
-        <dd><form:password path="password2" size="40" /><form:errors path="password2" cssClass="error-validation"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
+        <dd><form:password path="password2" size="40" cssErrorClass="error" /><form:errors path="password2" element="label" cssClass="error"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
 
         <dt><label>URL:</label></dt>
-        <dd><form:input path="url" size="60"/><form:errors path="url" cssClass="error-validation"/><span class="hint">не забудьте добавить <i>http://</i></span></dd>
+        <dd><form:input path="url" size="60" cssErrorClass="error"/><form:errors path="url" element="label" cssClass="error"/><span class="hint">не забудьте добавить <i>http://</i></span></dd>
 
         <dt><label>E-mail:</label></dt>
-        <dd><form:input path="email" type="email" cssClass="email" size="60"/><form:errors path="email" cssClass="error-validation"/></dd>
+        <dd><form:input path="email" type="email" cssClass="email" cssErrorClass="email error" size="60"/><form:errors path="email" element="label" cssClass="error"/><span class="hint">виден только вам и модераторам</span></dd>
 
         <dt><label>Город:</label></dt>
-        <dd><form:input path="town" size="60"/><form:errors path="town" cssClass="error-validation"/><span class="hint">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
+        <dd><form:input path="town" size="60" cssErrorClass="error"/><form:errors path="town" element="label" cssClass="error"/><span class="hint">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
 
         <dt><label>Дополнительная информация:</label></dt>
-        <dd><form:textarea path="info" cols="60" rows="10"/><form:errors path="info" cssClass="error-validation"/></dd>
+        <dd><form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/><form:errors path="info" element="label" cssClass="error"/><span class="hint">&nbsp</span></dd>
 
         <dt><label>Пароль:</label></dt>
-        <dd><form:password path="oldpass" size="40" /><form:errors path="oldpass" cssClass="error-validation"/></dd>
+        <dd><form:password path="oldpass" size="40" cssErrorClass="error" /><form:errors path="oldpass" element="label" cssClass="error"/><span class="hint">&nbsp</span></dd>
 
     </dl>
-    <input type=submit value="Применить изменения">
+    <input type="submit" value="Применить изменения">
 </form:form>
 <jsp:include page="footer.jsp"/>

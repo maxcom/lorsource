@@ -227,13 +227,6 @@ pre {
     padding: 1em;
 }
 
-.error-validation {
-    background: red;
-    color: black;
-    margin-left: 1em;
-    padding: 5px;
-}
-
 .message-table td {
     padding: 3px 5px 3px 5px;
 }

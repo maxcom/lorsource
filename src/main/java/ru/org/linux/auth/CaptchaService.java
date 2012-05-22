@@ -42,7 +42,7 @@ public class CaptchaService {
     String captchaResponse = request.getParameter("recaptcha_response_field");
 
     if (captchaChallenge==null || captchaResponse==null) {
-      errors.reject(null, "Код проверки не указан");
+      errors.reject(null, "Код проверки защиты от роботов не указан");
       return;
     }
 
@@ -50,7 +50,7 @@ public class CaptchaService {
       ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
 
       if (!response.isValid()) {
-        errors.reject(null, "Код проверки не совпадает");
+        errors.reject(null, "Код проверки защиты от роботов не совпадает");
       }
     } catch (ReCaptchaException e) {
       logger.warn("Unable to check captcha", e);

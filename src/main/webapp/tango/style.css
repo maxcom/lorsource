@@ -363,14 +363,6 @@ div.quote {
     zoom: 1;
 }
 
-.error-validation {
-    -webkit-border-radius: 0.2em;
-    -moz-border-radius: 0.2em;
-    border-radius: 0.2em;
-    background-color: #ef2929;
-    color: 2e3436;
-}
-
 .message-table .tag {
     border-radius: 3px;
     font-size: 0.8em;
