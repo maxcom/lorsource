@@ -297,6 +297,11 @@ label.error {
     font-size: medium;
 }
 
+#editRegForm dd {
+    margin:0;
+    padding:0;
+}
+
 #commentForm {
     margin-top: 0.5em;
     font-size: medium;
