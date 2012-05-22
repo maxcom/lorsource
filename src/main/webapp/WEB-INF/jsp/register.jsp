@@ -55,7 +55,7 @@
         <dt><label>Подтвердите пароль:</label></dt>
         <dd><form:password path="password2" size="40" required="required"/><form:errors path="password2" cssClass="error-validation"/></dd>
 
-        <dt><label>Защита от робатов:</label><form:errors path="nick" /></dt>
+        <dt><label>Защита от роботов:</label><form:errors path="nick" /></dt>
         <dd><lor:captcha/></dd>
 
         <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required"/><form:errors path="rules" cssClass="error-validation"/></dd></dt>
