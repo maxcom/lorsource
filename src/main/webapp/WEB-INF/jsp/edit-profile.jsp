@@ -44,7 +44,7 @@ $(document).ready(function() {
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <div class=nav>
+<div class=nav>
     <div id="navPath">
       Настройки профиля
     </div>

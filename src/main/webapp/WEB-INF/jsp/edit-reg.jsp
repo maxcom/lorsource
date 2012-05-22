@@ -35,6 +35,20 @@
 </script>
 
 <jsp:include page="header.jsp"/>
+
+<div class=nav>
+    <div id="navPath">
+      Изменение регистрации
+    </div>
+
+    <div class="nav-buttons">
+      <ul>
+        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
+        <li><a href="/edit-profile.jsp">Настройки профиля</a></li>
+      </ul>
+     </div>
+</div>
+
 <H1>Изменение регистрации</H1>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
