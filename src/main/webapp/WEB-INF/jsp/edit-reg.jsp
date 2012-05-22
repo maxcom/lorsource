@@ -35,31 +35,21 @@
 </script>
 
 <jsp:include page="header.jsp"/>
-<%
-  response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-
-     session.setAttribute("register-visited", Boolean.TRUE);
-
-%>
-<H1>Регистрация</H1>
+<H1>Изменение регистрации</H1>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
 
 <form:form modelAttribute="form" method="POST" action="/edit-reg.jsp" id="editRegForm">
-    <form:errors element="div" cssClass="error"/>
+    <form:errors element="div" cssClass="error-validation"/>
     <dl>
         <dt><label>Полное имя:</label></dt>
         <dd><form:input path="name" size="40"/><form:errors path="name" cssClass="error-validation"/></dd>
 
-
-        <dt><label>Пароль:</label></dt>
-        <dd><form:password path="oldpass" size="40" /><form:errors path="oldpass" cssClass="error-validation"/></dd>
-
         <dt><label>Новый пароль:</label></dt>
-        <dd><form:password path="password" size="40" /><form:errors path="password" cssClass="error-validation"/><span class="hint">не заполняйте если не хотите менять</span></dd>
+        <dd><form:password path="password" size="40" /><form:errors path="password" cssClass="error-validation"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
 
         <dt><label>Подтвердите новый пароль:</label></dt>
-        <dd><form:password path="password2" size="40" /><form:errors path="password2" cssClass="error-validation"/></dd>
+        <dd><form:password path="password2" size="40" /><form:errors path="password2" cssClass="error-validation"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
 
         <dt><label>URL:</label></dt>
         <dd><form:input path="url" size="60"/><form:errors path="url" cssClass="error-validation"/><span class="hint">не забудьте добавить <i>http://</i></span></dd>
@@ -70,10 +60,13 @@
         <dt><label>Город:</label></dt>
         <dd><form:input path="town" size="60"/><form:errors path="town" cssClass="error-validation"/><span class="hint">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
 
-        <dt><label>Дополнительная информация::</label></dt>
+        <dt><label>Дополнительная информация:</label></dt>
         <dd><form:textarea path="info" cols="60" rows="10"/><form:errors path="info" cssClass="error-validation"/></dd>
 
+        <dt><label>Пароль:</label></dt>
+        <dd><form:password path="oldpass" size="40" /><form:errors path="oldpass" cssClass="error-validation"/></dd>
+
     </dl>
-    <input type=submit value="Обновить">
+    <input type=submit value="Применить изменения">
 </form:form>
 <jsp:include page="footer.jsp"/>

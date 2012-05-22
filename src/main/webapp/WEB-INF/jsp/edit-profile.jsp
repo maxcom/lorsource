@@ -51,8 +51,8 @@ $(document).ready(function() {
 
     <div class="nav-buttons">
       <ul>
-        <li><a href="addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="register.jsp">Изменение регистрации</a></li>
+        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
+        <li><a href="/edit-reg.jsp">Изменение регистрации</a></li>
       </ul>
      </div>
  </div>

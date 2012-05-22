@@ -17,6 +17,8 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -49,7 +51,9 @@ import java.util.Properties;
 
 @SuppressWarnings("ProhibitedExceptionDeclared")
 @Controller
-public class RegisterController extends ApplicationObjectSupport {
+public class RegisterController {
+  private static final Log logger = LogFactory.getLog(RegisterController.class);
+
   private CaptchaService captcha;
   private IPBlockDao ipBlockDao;
 
@@ -86,8 +90,7 @@ public class RegisterController extends ApplicationObjectSupport {
   public ModelAndView doRegister(
     HttpServletRequest request,
     @Valid @ModelAttribute("form") RegisterRequest form,
-    Errors errors,
-    @RequestParam(required=false) String oldpass
+    Errors errors
   ) throws Exception {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);

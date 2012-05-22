@@ -38,11 +38,13 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/edit-reg.jsp")
 public class EditRegisterController {
 
+  @Autowired
   private IPBlockDao ipBlockDao;
 
   @Autowired
@@ -80,10 +82,9 @@ public class EditRegisterController {
 
   @RequestMapping(method = RequestMethod.POST)
   public ModelAndView edit(
-      @ModelAttribute("form") EditRegisterRequest form,
       HttpServletRequest request,
-      Errors errors,
-      @RequestParam(required=false) String oldpass
+      @Valid @ModelAttribute("form") EditRegisterRequest form,
+      Errors errors
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -139,8 +140,10 @@ public class EditRegisterController {
 
     User user = userDao.getUser(nick);
 
-    if (!user.matchPassword(oldpass)) {
-      errors.reject(null, "Неверный пароль");
+    if (Strings.isNullOrEmpty(form.getOldpass())) {
+      errors.rejectValue("oldpass", null, "Для изменения регстрации нужен ваш пароль");
+    } else if (!user.matchPassword(form.getOldpass())) {
+      errors.rejectValue("oldpass", null, "Неверный пароль");
     }
 
     user.checkAnonymous();

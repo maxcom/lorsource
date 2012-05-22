@@ -16,6 +16,8 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.util.StringUtil;
@@ -27,7 +29,7 @@ import javax.mail.internet.InternetAddress;
 public class EditRegisterRequestValidator extends RegisterRequestValidator implements Validator {
 
   @Override
-  public boolean supports(Class<?> aClass) {
+  public boolean supports(Class aClass) {
     return EditRegisterRequest.class.equals(aClass);
   }
 
@@ -64,5 +66,6 @@ public class EditRegisterRequestValidator extends RegisterRequestValidator imple
         errors.rejectValue("email", null, "Некорректный e-mail: " + e.getMessage());
       }
     }
+
   }
 }

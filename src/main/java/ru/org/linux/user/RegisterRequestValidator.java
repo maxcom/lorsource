@@ -57,7 +57,7 @@ public class RegisterRequestValidator implements Validator {
   }
 
   @Override
-  public boolean supports(Class<?> aClass) {
+  public boolean supports(Class aClass) {
     return RegisterRequest.class.equals(aClass);
   }
 
