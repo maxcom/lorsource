@@ -70,7 +70,7 @@ public class TopicListController {
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD}, params = {"tag"})
   public View tagFeedOld(
           TopicListRequest topicListForm
-  ) throws Exception {
+  ) {
     return new RedirectView(tagListUrl(topicListForm.getTag()));
   }
 
@@ -118,6 +118,8 @@ public class TopicListController {
         );
       }
     }
+
+    modelAndView.addObject("counter", tagService.getCounter(tag));
 
     modelAndView.addObject("url", tagListUrl(tag));
     modelAndView.addObject("params", null);

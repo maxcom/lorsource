@@ -186,15 +186,19 @@ public class TagDao {
   }
 
   /**
-   * Получение идентификационного номера тега по названию. Тег должен использоваться.
+   * Получение идентификационного номера тега по названию.
    *
    * @param tag название тега
+   * @param skipZero пропускать неиспользуемые теги
    * @return идентификационный номер
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag)
-    throws TagNotFoundException {
-    List<Integer> res = jdbcTemplate.queryForList(QUERY_TAG_ID_BY_NAME + " AND counter>0", Integer.class, tag);
+  public int getTagId(String tag, boolean skipZero) throws TagNotFoundException {
+    List<Integer> res = jdbcTemplate.queryForList(
+            QUERY_TAG_ID_BY_NAME + (skipZero?" AND counter>0":""),
+            Integer.class,
+            tag
+    );
 
     if (res.isEmpty()) {
       throw new TagNotFoundException();
@@ -203,20 +207,11 @@ public class TagDao {
     }
   }
 
-  /**
-   * Получение идентификационного номера тега по названию.
-   *
-   * @param tagName название тега
-   * @return идентификационный номер
-   * @throws TagNotFoundException
-   */
-  public int getTagIdByName(String tagName)
-    throws TagNotFoundException {
-    List<Integer> res = jdbcTemplate.queryForList(QUERY_TAG_ID_BY_NAME, Integer.class, tagName);
-    if (res.isEmpty()) {
-      throw new TagNotFoundException();
-    } else {
-      return res.get(0);
-    }
+  public int getTagId(String tagName) throws TagNotFoundException {
+    return getTagId(tagName, false);
+  }
+
+  public int getCounter(int tagId) {
+    return jdbcTemplate.queryForInt("SELECT counter FROM tags_values WHERE id=?", tagId);
   }
 }

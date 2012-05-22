@@ -25,7 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
-import ru.org.linux.tag.*;
+import ru.org.linux.tag.ITagActionHandler;
+import ru.org.linux.tag.TagDao;
+import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -76,7 +79,7 @@ public class UserTagService {
    */
   public void favoriteAdd(User user, String tagName)
     throws TagNotFoundException {
-    int tagId = tagDao.getTagIdByName(tagName);
+    int tagId = tagDao.getTagId(tagName);
     userTagDao.addTag(user.getId(), tagId, true);
   }
 
@@ -88,7 +91,7 @@ public class UserTagService {
    */
   public void favoriteDel(User user, String tagName)
     throws TagNotFoundException {
-    int tagId = tagDao.getTagIdByName(tagName);
+    int tagId = tagDao.getTagId(tagName);
     userTagDao.deleteTag(user.getId(), tagId, true);
   }
 
@@ -100,7 +103,7 @@ public class UserTagService {
    */
   public void ignoreAdd(User user, String tagName)
     throws TagNotFoundException {
-    int tagId = tagDao.getTagIdByName(tagName);
+    int tagId = tagDao.getTagId(tagName);
     userTagDao.addTag(user.getId(), tagId, false);
   }
 
@@ -112,7 +115,7 @@ public class UserTagService {
    */
   public void ignoreDel(User user, String tagName)
     throws TagNotFoundException {
-    int tagId = tagDao.getTagIdByName(tagName);
+    int tagId = tagDao.getTagId(tagName);
     userTagDao.deleteTag(user.getId(), tagId, false);
   }
 
@@ -240,7 +243,7 @@ public class UserTagService {
    * @param errors  объект ошибок
    * @return массив строк, содержащий описания ошибок
    */
-  private List<String> errorsToStringList(Errors errors) {
+  private static List<String> errorsToStringList(Errors errors) {
     List<String> strErrors = new ArrayList<String>();
 
     if (errors.hasErrors()) {

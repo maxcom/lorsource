@@ -61,9 +61,9 @@ public class TagServiceTest {
   @Test
   public void changeTest()
     throws Exception {
-    when(tagDao.getTagIdByName("testTag")).thenReturn(123);
-    when(tagDao.getTagIdByName("testNewTag")).thenReturn(456);
-    when(tagDao.getTagIdByName("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+    when(tagDao.getTagId("testTag")).thenReturn(123);
+    when(tagDao.getTagId("testNewTag")).thenReturn(456);
+    when(tagDao.getTagId("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
 
     prepareChangeDataBinder();
     tagService.change("InvalidTestTag", "testNewTag", binder.getBindingResult());
@@ -81,7 +81,7 @@ public class TagServiceTest {
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
-    when(tagDao.getTagIdByName("testNewTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+    when(tagDao.getTagId("testNewTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
     prepareChangeDataBinder();
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
     assertFalse(binder.getBindingResult().hasErrors());
@@ -90,7 +90,7 @@ public class TagServiceTest {
   public void deleteTest()
     throws Exception {
 
-    when(tagDao.getTagIdByName("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+    when(tagDao.getTagId("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
 
     prepareDeleteDataBinder();
     tagService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());

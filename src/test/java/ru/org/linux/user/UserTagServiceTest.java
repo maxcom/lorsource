@@ -54,7 +54,7 @@ public class UserTagServiceTest {
   public void resetMockObjects() throws Exception {
     reset(userTagDao);
     reset(tagDao);
-    when(tagDao.getTagIdByName("tag1")).thenReturn(2);
+    when(tagDao.getTagId("tag1")).thenReturn(2);
     user = getUser(1);
   }
 
@@ -62,8 +62,7 @@ public class UserTagServiceTest {
     ResultSet rs = mock(ResultSet.class);
     try {
       when(rs.getInt("id")).thenReturn(id);
-      User user = new User(rs);
-      return user;
+      return new User(rs);
     } catch (SQLException ignored) {
       return null;
     }
@@ -72,7 +71,7 @@ public class UserTagServiceTest {
   @Test
   public void favoriteAddTest()
     throws TagNotFoundException {
-    when(tagDao.getTagIdByName("tag1")).thenReturn(2);
+    when(tagDao.getTagId("tag1")).thenReturn(2);
     userTagService.favoriteAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(true));
   }
@@ -153,7 +152,7 @@ public class UserTagServiceTest {
       verify(mockUserTagService, never()).favoriteAdd(eq(user), eq("@#$%$#"));
       verify(mockUserTagService, never()).ignoreAdd(any(User.class), anyString());
     } catch (Exception e) {}
-    Assert.assertEquals(strErrors.size(), 3);
+    Assert.assertEquals(3, strErrors.size());
 
     reset(mockUserTagService);
     when(mockUserTagService.addMultiplyTags(any(User.class), anyString(), anyBoolean())).thenCallRealMethod();
@@ -171,7 +170,7 @@ public class UserTagServiceTest {
       verify(mockUserTagService, never()).ignoreAdd(eq(user), eq("@#$%$#"));
       verify(mockUserTagService, never()).favoriteAdd(any(User.class), anyString());
     } catch (Exception e) {}
-    Assert.assertEquals(strErrors.size(), 3);
+    Assert.assertEquals(3, strErrors.size());
   }
 
 }

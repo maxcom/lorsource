@@ -68,7 +68,7 @@ public class TagService {
   public int getTagId(String tag)
     throws UserErrorException, TagNotFoundException {
     checkTag(tag);
-    return tagDao.getTagId(tag);
+    return tagDao.getTagId(tag, true);
   }
 
   public void checkTag(String tag) throws UserErrorException {
@@ -198,7 +198,7 @@ public class TagService {
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       checkTag(tagName);
-      int tagId = tagDao.getTagIdByName(tagName);
+      int tagId = tagDao.getTagId(tagName);
       errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
     } catch (TagNotFoundException ignored) {
       create(tagName);
@@ -218,9 +218,9 @@ public class TagService {
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       checkTag(tagName);
-      int oldTagId = tagDao.getTagIdByName(oldTagName);
+      int oldTagId = tagDao.getTagId(oldTagName);
       try {
-        int tagId = tagDao.getTagIdByName(tagName);
+        int tagId = tagDao.getTagId(tagName);
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
       } catch (TagNotFoundException ignored) {
         tagDao.changeTag(oldTagId, tagName);
@@ -252,7 +252,7 @@ public class TagService {
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       checkTag(tagName);
-      int oldTagId = tagDao.getTagIdByName(tagName);
+      int oldTagId = tagDao.getTagId(tagName);
       if (!Strings.isNullOrEmpty(newTagName)) {
         if (newTagName.equals(tagName)) {
           errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
@@ -296,11 +296,11 @@ public class TagService {
     int id;
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
-      id = tagDao.getTagIdByName(tagName);
+      id = tagDao.getTagId(tagName);
     } catch (TagNotFoundException e) {
       create(tagName);
       try {
-        id = tagDao.getTagIdByName(tagName);
+        id = tagDao.getTagId(tagName);
       } catch (TagNotFoundException e2) {
         id = 0;
       }
@@ -333,5 +333,11 @@ public class TagService {
     for (ITagActionHandler actionHandler : actionHandlers) {
       actionHandler.reCalculateAllCounters();
     }
+  }
+
+  public int getCounter(String tag) throws TagNotFoundException {
+    int tagId = tagDao.getTagId(tag);
+
+    return tagDao.getCounter(tagId);
   }
 }

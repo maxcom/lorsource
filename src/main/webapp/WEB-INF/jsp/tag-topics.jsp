@@ -17,7 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="counter" type="java.lang.Integer"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
@@ -81,6 +81,11 @@
     </div>
 </div>
 <H1 class="optional">${ptitle}</H1>
+
+<div class="infoblock">
+  Всего сообщений: ${counter}
+</div>
+
 <c:forEach var="msg" items="${messages}">
   <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==null && group==null}" moderateMode="false"/>
 </c:forEach>
