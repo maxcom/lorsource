@@ -22,7 +22,7 @@
 </c:if>
 
 <c:if test="${group.longInfo != null}">
-  <div class="infoblock" style="text-align: left; padding: 5px; font-size: smaller">
+  <div class="infoblock">
   ${group.longInfo}
     <% if (tmpl.isModeratorSession()) { %>
     <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
