@@ -3,7 +3,6 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,40 +36,6 @@
     </div>
     <div class="nav-buttons">
       <ul>
-      <c:if test="${not empty topicListRequest.tag}">
-        <c:if test="${isShowFavoriteTagButton}">
-          <li>
-            <c:url var="tagFavUrl" value="/user-filter">
-              <c:param name="newFavoriteTagName" value="${topicListRequest.tag}"/>
-            </c:url>
-
-            <a id="tagFavAdd" href="${tagFavUrl}">В избранные теги</a>
-          </li>
-        </c:if>
-        <c:if test="${isShowUnFavoriteTagButton}">
-          <li>
-            <c:url var="tagFavUrl" value="/user-filter"/>
-
-            <a id="tagFavAdd" href="${tagFavUrl}">Удалить из избранного</a>
-          </li>
-        </c:if>
-        <c:if test="${isShowIgnoreTagButton}">
-          <li>
-          <c:url var="tagIgnUrl" value="/user-filter">
-            <c:param name="newIgnoredTagName" value="${topicListRequest.tag}"/>
-          </c:url>
-
-          <a id="tagIgnAdd" href="${tagIgnUrl}">Игнорировать тег</a>
-            </li>
-        </c:if>
-        <c:if test="${isShowUnIgnoreTagButton}">
-          <li>
-          <c:url var="tagIgnUrl" value="/user-filter"/>
-
-          <a id="tagIgnAdd" href="${tagIgnUrl}">Не игнорировать тег</a>
-          </li>
-        </c:if>
-      </c:if>
 
       <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
         <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
@@ -166,60 +131,5 @@
     </tr>
   </table>
 </c:if>
-
-<script type="text/javascript">
-  function tag_filter(url, event, newText, add) {
-    event.preventDefault();
-
-    var data = { tagName: "${topicListRequest.tag}"};
-
-    if (add) {
-      data['add'] = 'add';
-    } else {
-      data['del'] = 'del';
-    }
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      dataType: "json",
-      data: data
-    }).done(function(t) {
-      if (t.error) {
-        alert(t.error);
-      } else {
-        $(event.target).unbind("click");
-        text = $(event.target).text();
-        $(event.target).text(newText);
-        $(event.target).bind("click", function(event) {
-          tag_filter(url, event, text, !add);
-        });
-      }
-    });
-  }
-
-  $(document).ready(function() {
-    addFav = function(event) {
-      <c:if test="${isShowFavoriteTagButton}">
-        tag_filter("/user-filter/favorite-tag", event, "Удалить из избранного", true );
-      </c:if>
-      <c:if test="${not isShowFavoriteTagButton}">
-        tag_filter("/user-filter/favorite-tag", event, "В избранные теги", false );
-      </c:if>
-    };
-
-    addIgn = function(event) {
-      <c:if test="${isShowIgnoreTagButton}">
-        tag_filter("/user-filter/ignore-tag", event, "Не игнорировать тег", true);
-      </c:if>
-      <c:if test="${isShowUnIgnoreTagButton}">
-        tag_filter("/user-filter/ignore-tag", event, "Игнорировать тег", false);
-      </c:if>
-    };
-
-    $("#tagFavAdd").bind("click", addFav);
-    $("#tagIgnAdd").bind("click", addIgn);
-  });
-</script>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

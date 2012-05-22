@@ -122,6 +122,8 @@ public class TopicListController {
     modelAndView.addObject("url", tagListUrl(tag));
     modelAndView.addObject("params", null);
 
+    modelAndView.setViewName("tag-topics");
+
     return modelAndView;
   }
 
