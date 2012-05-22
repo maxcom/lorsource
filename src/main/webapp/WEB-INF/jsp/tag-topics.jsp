@@ -28,7 +28,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
   <div class=nav>
     <div id="navPath">
-      ${navtitle}
+      <i class="icon-tag"></i> ${navtitle}
     </div>
     <div class="nav-buttons">
       <ul>
