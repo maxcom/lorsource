@@ -97,8 +97,6 @@
 
     <div class="nav-buttons">
       <ul>
-      <li><a href="${message.link}?output=rss">RSS</a></li>
-
       <c:if test="${!showDeleted}">
         <input type=hidden name=page value="${page}">
         <c:if test="${not template.usingDefaultProfile}">
