@@ -16,8 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriTemplate;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
@@ -42,7 +42,7 @@ import java.util.*;
 
 @Controller
 public class TopicListController {
-  private static final Log logger = LogFactory.getLog(TopicListController.class);
+  private static final UriTemplate TAG_URI_TEMPLATE = new UriTemplate("/tag/{tag}");
 
   @Autowired
   private SectionService sectionService;
@@ -67,21 +67,69 @@ public class TopicListController {
   @Autowired
   private UserDao userDao;
 
+  @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD}, params = {"tag"})
+  public View tagFeedOld(
+          TopicListRequest topicListForm
+  ) throws Exception {
+    return new RedirectView(tagListUrl(topicListForm.getTag()));
+  }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param response
-   * @return
-   * @throws Exception
-   */
-  @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView mainTopicsFeedHandler(
+  public static String tagListUrl(String tag) {
+    return TAG_URI_TEMPLATE.expand(tag).toString();
+  }
+
+  @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
+  public ModelAndView tagFeed(
+    HttpServletRequest request,
+    TopicListRequest topicListForm,
+    HttpServletResponse response,
+    @PathVariable String tag
+  ) throws Exception {
+    topicListForm.setTag(tag);
+
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response);
+
+    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
+    if (!rss) {
+      modelAndView.addObject("sectionList", sectionService.getSectionList());
+    }
+
+    Template tmpl = Template.getTemplate(request);
+
+    if (tmpl.isSessionAuthorized()) {
+      modelAndView.addObject(
+              "isShowFavoriteTagButton",
+              !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+      );
+
+      modelAndView.addObject(
+              "isShowUnFavoriteTagButton",
+              userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+      );
+
+      if (!tmpl.isModeratorSession()) {
+        modelAndView.addObject(
+                "isShowIgnoreTagButton",
+                !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+        );
+        modelAndView.addObject(
+                "isShowUnIgnoreTagButton",
+                userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+        );
+      }
+    }
+
+    modelAndView.addObject("url", tagListUrl(tag));
+    modelAndView.addObject("params", null);
+
+    return modelAndView;
+  }
+
+  private ModelAndView mainTopicsFeedHandler(
     HttpServletRequest request,
     TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
-
     Section section = null;
     if (topicListForm.getSection() != null && topicListForm.getSection()!=0) {
       section = sectionService.getSection(topicListForm.getSection());
@@ -99,34 +147,9 @@ public class TopicListController {
     if(!Strings.isNullOrEmpty(topicListForm.getTag()) ||
         topicListForm.getSection() != null) {
       URLUtil.QueryString queryString = new URLUtil.QueryString();
-      queryString.add("tag", topicListForm.getTag());
       queryString.add("section", topicListForm.getSection());
       modelAndView.addObject("params", queryString.toString());
-
-      if (tmpl.isSessionAuthorized() && !Strings.isNullOrEmpty(topicListForm.getTag())) {
-        modelAndView.addObject(
-                "isShowFavoriteTagButton",
-                !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
-        );
-
-        modelAndView.addObject(
-                "isShowUnFavoriteTagButton",
-                userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
-        );
-
-        if (!tmpl.isModeratorSession()) {
-          modelAndView.addObject(
-                  "isShowIgnoreTagButton",
-                  !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
-          );
-          modelAndView.addObject(
-                  "isShowUnIgnoreTagButton",
-                  userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
-          );
-        }
-      }
     }
-
 
     modelAndView.addObject("url", "view-news.jsp");
     if (section != null) {
@@ -161,13 +184,6 @@ public class TopicListController {
     );
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth() == null);
-
-    if (!Strings.isNullOrEmpty(topicListForm.getTag())) {
-      boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
-      if (!rss) {
-        modelAndView.addObject("sectionList", sectionService.getSectionList());
-      }
-    }
 
     if (section != null && Strings.isNullOrEmpty(topicListForm.getTag())) {
       String rssLink = "/section-rss.jsp?section=" + section.getId();
@@ -376,18 +392,16 @@ public class TopicListController {
     @PathVariable String nick,
     HttpServletResponse response
   ) throws Exception {
-
-
     setExpireHeaders(response, topicListForm);
 
     ModelAndView modelAndView = new ModelAndView();
 
     Section section = null;
     Group group = null;
-    if (topicListForm.getSection() != null && topicListForm.getSection().intValue() != 0) {
+    if (topicListForm.getSection() != null && topicListForm.getSection() != 0) {
       section = sectionService.getSection(topicListForm.getSection());
 
-      if (topicListForm.getGroup() != null && topicListForm.getGroup().intValue() != 0) {
+      if (topicListForm.getGroup() != null && topicListForm.getGroup() != 0) {
         group = groupDao.getGroup(topicListForm.getGroup());
       }
     }
@@ -437,10 +451,10 @@ public class TopicListController {
       modelAndView.addObject("sectionList", sectionService.getSectionList());
     }
 
-    if ("0".equals(topicListForm.getSection())) {
+    if (Integer.valueOf(0).equals(topicListForm.getSection())) {
       topicListForm.setSection(null);
     }
-    if ("0".equals(topicListForm.getGroup())) {
+    if (Integer.valueOf(0).equals(topicListForm.getGroup())) {
       topicListForm.setGroup(null);
     }
     URLUtil.QueryString queryString = new URLUtil.QueryString();
@@ -556,7 +570,7 @@ public class TopicListController {
   public ModelAndView viewAll(
     @RequestParam(value = "section", required = false, defaultValue = "0") int sectionId,
     HttpServletRequest request
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     ModelAndView modelAndView = new ModelAndView("view-all");
@@ -597,7 +611,7 @@ public class TopicListController {
     TopicListRequest topicListForm
   ) throws Exception {
 
-    if ("0".equals(topicListForm.getGroup())) {
+    if (Integer.valueOf(0).equals(topicListForm.getGroup())) {
       topicListForm.setGroup(null);
     }
 
@@ -619,12 +633,8 @@ public class TopicListController {
     URLUtil.QueryString queryString = new URLUtil.QueryString();
     queryString.add("offset", topicListForm.getOffset());
 
-    if (topicListForm.getTag() != null && !topicListForm.getTag().trim().isEmpty()) {
-      queryString.add("tag", topicListForm.getTag());
-    }
-
     String queryStr = queryString.toString();
-    if (queryStr.length() > 0) {
+    if (!queryStr.isEmpty()) {
       redirectLink
         .append('?')
         .append(queryStr);
@@ -660,8 +670,8 @@ public class TopicListController {
     String userAgent = request.getHeader("User-Agent");
     final boolean feedBurner = userAgent != null && userAgent.contains("FeedBurner");
 
-    if (topicListForm.getSection().intValue() == 1 &&
-      topicListForm.getGroup().intValue() == 0 && !notalks && !tech && !feedBurner
+    if (topicListForm.getSection() == 1 &&
+            topicListForm.getGroup() == 0 && !notalks && !tech && !feedBurner
       && request.getParameter("noredirect") == null) {
       return new ModelAndView(new RedirectView("http://feeds.feedburner.com/org/LOR"));
     }
@@ -781,9 +791,9 @@ public class TopicListController {
    * @param response
    * @param topicListForm
    */
-  private void setExpireHeaders(
-    HttpServletResponse response,
-    TopicListRequest topicListForm
+  private static void setExpireHeaders(
+          HttpServletResponse response,
+          TopicListRequest topicListForm
   ) {
     if (topicListForm.getMonth() == null) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
@@ -840,7 +850,7 @@ public class TopicListController {
    * @return
    * @throws BadDateException
    */
-  private String calculatePTitle(Section section, Group group, TopicListRequest topicListForm)
+  private static String calculatePTitle(Section section, Group group, TopicListRequest topicListForm)
     throws BadDateException {
     StringBuilder ptitle = new StringBuilder();
 
@@ -852,7 +862,7 @@ public class TopicListController {
         }
 
         if (topicListForm.getTag() != null) {
-          ptitle.append(" - ").append(topicListForm.getTag());
+          ptitle.append(" - ").append(WordUtils.capitalize(topicListForm.getTag()));
         }
       } else {
         ptitle.append(topicListForm.getTag());
@@ -885,13 +895,13 @@ public class TopicListController {
    * @throws BadDateException
    * @throws SectionNotFoundException
    */
-  private String calculateNavTitle(Section section, Group group, TopicListRequest topicListForm)
+  private static String calculateNavTitle(Section section, Group group, TopicListRequest topicListForm)
     throws BadDateException, SectionNotFoundException {
 
     StringBuilder navTitle = new StringBuilder();
 
     if (!Strings.isNullOrEmpty(topicListForm.getTag())) {
-      navTitle.append(topicListForm.getTag());
+      navTitle.append(WordUtils.capitalize(topicListForm.getTag()));
 
       if (section!=null) {
         navTitle.append(" - ");

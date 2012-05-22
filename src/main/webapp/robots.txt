@@ -19,6 +19,7 @@ Disallow: /commit.jsp
 Disallow: /delete_comment.jsp
 Disallow: /addphoto.jsp
 Disallow: /dw.jsp
+Disallow: /activate.jsp
 
 Disallow: /wiki/en/Special:History
 Disallow: /wiki/en/Special:Diff

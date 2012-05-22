@@ -377,6 +377,18 @@
                             <value>target/test-classes/solr</value>
                         </systemProperty>
                     </systemProperties>
+
+                    <connectors>
+                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                            <port>8080</port>
+                        </connector>
+                        <connector implementation="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
+                            <port>8443</port>
+                            <keystore>${build.testOutputDirectory}/test.jks</keystore>
+                            <password>qwerty</password>
+                            <keyPassword>qwerty</keyPassword>
+                        </connector>
+                    </connectors>
                 </configuration>
             </plugin>
 

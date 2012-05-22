@@ -1,5 +1,4 @@
-<%@ tag import="java.io.UnsupportedEncodingException" %>
-<%@ tag import="java.net.URLEncoder" %>
+<%@ tag import="ru.org.linux.topic.TopicListController" %>
 <%@ tag import="java.util.List" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -26,11 +25,7 @@
       buf.append(", ");
     }
 
-    try {
-      buf.append("<a class=tag rel=tag href=\"view-news.jsp?tag=").append(URLEncoder.encode(mtag, "UTF-8")).append("\">").append(mtag).append("</a>");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    buf.append("<a class=tag rel=tag href=\"").append(TopicListController.tagListUrl(mtag)).append("\">").append(mtag).append("</a>");
   }
 
   String result = buf.toString();

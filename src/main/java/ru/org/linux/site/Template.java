@@ -195,7 +195,7 @@ public final class Template {
   }
 
   public String getSecureMainUrl() {
-    return configuration.getMainUrl().replaceFirst("http", "https");
+    return configuration.getSecureUrl();
   }
 
   public Configuration getConfig() {

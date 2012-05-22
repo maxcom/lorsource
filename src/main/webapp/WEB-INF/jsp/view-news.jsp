@@ -116,9 +116,6 @@
       </ul>
       <c:if test="${sectionList != null}">
         <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
-          <c:if test="${not empty topicListRequest.tag}">
-            <form:hidden path="tag"/>
-          </c:if>
           <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
             <form:option value="0" label="Все" />
             <form:options items="${sectionList}" itemLabel="title" itemValue="id" />

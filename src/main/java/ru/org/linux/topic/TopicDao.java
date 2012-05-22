@@ -24,7 +24,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -542,7 +545,7 @@ public class TopicDao {
       if (changeGroupId != null) {
         if (oldMsg.getGroupId() != changeGroupId) {
           jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, oldMsg.getId());
-          jdbcTemplate.update("UPDATE groups SET stat4=stat4+1 WHERE id=? or id=?", oldMsg.getGroupId(), changeGroupId);
+          jdbcTemplate.update("UPDATE groups SET stat3=stat3+1 WHERE id=? or id=?", oldMsg.getGroupId(), changeGroupId);
         }
       }
 

@@ -43,6 +43,16 @@
         title : "Введите заголовок"
       }
     });
+
+    window.onbeforeunload = function() {
+        if ($("#form_msg").val()!='') {
+          return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+        }
+      };
+
+    $("#messageForm").bind("submit", function() {
+        window.onbeforeunload = null;
+    });
   });
 </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
@@ -99,7 +109,7 @@
   <p>
 
   <label>Заглавие:<br>
-    <form:input path="title" required="required" style="width: 40em"/><br>
+    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
    </label>
 
   <c:if test="${group!=null and group.imagePostAllowed}">
