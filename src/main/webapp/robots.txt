@@ -6,12 +6,13 @@ Disallow: /add.jsp
 Disallow: /add2.jsp
 Disallow: /search.jsp
 Disallow: /register.jsp
+Disallow: /people/*/edit
 Disallow: /lostpwd.jsp
 Disallow: /login.jsp
 Disallow: /logout.jsp
 Disallow: /edit-boxes.jsp
 Disallow: /add_comment.jsp
-Disallow: /edit-profile.jsp
+Disallow: /people/*/settings
 Disallow: /comment-message.jsp
 Disallow: /show-replies.jsp
 Disallow: /user-filter

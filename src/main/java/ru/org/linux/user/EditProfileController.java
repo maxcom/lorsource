@@ -18,6 +18,7 @@ package ru.org.linux.user;
 import javax.servlet.ServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
@@ -31,7 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-@RequestMapping("/edit-profile.jsp")
+@RequestMapping("/people/{nick}/settings")
 public class EditProfileController {
   private UserDao userDao;
 
@@ -42,12 +43,17 @@ public class EditProfileController {
 
   
   @RequestMapping(method=RequestMethod.GET)
-  public ModelAndView showForm(ServletRequest request) throws Exception {
+  public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
+
+    if(!tmpl.getNick().equals(nick)) {
+      throw new AccessViolationException("Not authorized");
+    }
+
 
     return new ModelAndView("edit-profile");
   }
@@ -57,7 +63,8 @@ public class EditProfileController {
           ServletRequest request,
           @RequestParam("tags") int tags,
           @RequestParam("topics") int topics,
-          @RequestParam("messages") int messages
+          @RequestParam("messages") int messages,
+          @PathVariable String nick
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -65,7 +72,9 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
-    String nick = tmpl.getNick();
+    if(!tmpl.getNick().equals(nick)) {
+      throw new AccessViolationException("Not authorized");
+    }
 
     if (topics <= 0 || topics > 500) {
       throw new BadInputException("некорректное число тем");

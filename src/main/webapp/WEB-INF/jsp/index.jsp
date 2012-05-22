@@ -118,7 +118,8 @@
           <li>${fn:trim(events)}</li>
         </ul>
         <ul>
-          <li><a href="edit-profile.jsp">Настройки</a></li>
+          <li><a href="/people/${template.nick}/settings">Настройки</a></li>
+          <li><a href="/people/${template.nick}/edit">Регистрация</a></li>
         </ul>
       </div>
     </div>

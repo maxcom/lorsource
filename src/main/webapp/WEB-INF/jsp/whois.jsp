@@ -237,8 +237,8 @@
   <c:if test="${currentUser}">
     <h2>Действия</h2>
     <ul>
-      <li><a href="/edit-reg.jsp">Изменить регистрацию</a></li>
-      <li><a href="/edit-profile.jsp">Изменить настройки</a></li>
+      <li><a href="/people/${user.nick}/edit">Изменить регистрацию</a></li>
+      <li><a href="/people/${nick}/settings">Изменить настройки</a></li>
       <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>
     </ul>
   </c:if>
