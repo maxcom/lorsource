@@ -27,6 +27,8 @@ public class EditRegisterRequest {
   private String password;
   private String password2;
 
+  private String nick;
+
   public String getEmail() {
     return email;
   }
@@ -89,5 +91,13 @@ public class EditRegisterRequest {
 
   public void setOldpass(String oldpass) {
     this.oldpass = oldpass;
+  }
+
+  public String getNick() {
+    return nick;
+  }
+
+  public void setNick(String nick) {
+    this.nick = nick;
   }
 }

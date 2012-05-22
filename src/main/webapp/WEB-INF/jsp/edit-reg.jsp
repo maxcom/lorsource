@@ -50,7 +50,7 @@
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
 
-<form:form modelAttribute="form" method="POST" action="/edit-reg.jsp" id="editRegForm">
+<form:form modelAttribute="form" method="POST" action="/people/${nick}/edit" id="editRegForm">
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label>Полное имя:</label></dt>

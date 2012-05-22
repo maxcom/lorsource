@@ -20,6 +20,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
-@RequestMapping("/edit-reg.jsp")
+@RequestMapping("/people/{nick}/edit")
 public class EditRegisterController {
 
   @Autowired
@@ -57,11 +58,15 @@ public class EditRegisterController {
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
       @ModelAttribute("form") EditRegisterRequest form,
+      @PathVariable String nick,
       HttpServletRequest request,
       HttpServletResponse response
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+    if(!tmpl.getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
     User user = tmpl.getCurrentUser();
