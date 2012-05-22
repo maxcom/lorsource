@@ -36,7 +36,7 @@
 <%
      session.setAttribute("register-visited", Boolean.TRUE);
 %>
-<H1>Регистрация</H1>
+<H1 class="optional">Регистрация</H1>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
 
