@@ -65,7 +65,7 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
-    String profile = tmpl.getNick();
+    String nick = tmpl.getNick();
 
     if (topics <= 0 || topics > 500) {
       throw new BadInputException("некорректное число тем");
@@ -109,8 +109,8 @@ public class EditProfileController {
     tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
     tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
 
-    tmpl.writeProfile(profile);
+    tmpl.writeProfile(nick);
 
-    return new ModelAndView(new RedirectView("/"));
+    return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
 }
