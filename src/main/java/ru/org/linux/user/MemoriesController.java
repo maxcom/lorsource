@@ -38,9 +38,9 @@ public class MemoriesController {
   @Autowired
   private MemoriesDao memoriesDao;
 
+  @ResponseBody
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
-  public @ResponseBody
-  Map<String, Integer> add(
+  public Map<String, Integer> add(
           ServletRequest request,
           @RequestParam("msgid") int msgid,
           @RequestParam("watch") boolean watch
@@ -60,15 +60,16 @@ public class MemoriesController {
       throw new UserErrorException("Тема удалена");
     }
 
-    int id = memoriesDao.addToMemories(user.getId(), topic.getId(), watch);
+    int id = memoriesDao.addToMemories(user, topic, watch);
 
     int count = memoriesDao.getTopicStats(msgid).get(watch?0:1);
 
     return ImmutableMap.of("id", id, "count", count);
   }
 
+  @ResponseBody
   @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)
-  public @ResponseBody int remove(
+  public int remove(
           ServletRequest request,
           @RequestParam("id") int id
   ) throws Exception {

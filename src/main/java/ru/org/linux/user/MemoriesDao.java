@@ -18,6 +18,7 @@ package ru.org.linux.user;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
@@ -30,7 +31,6 @@ import ru.org.linux.topic.Topic;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -44,24 +44,26 @@ public class MemoriesDao {
     insertTemplate = new SimpleJdbcInsert(ds).withTableName("memories").usingGeneratedKeyColumns("id").usingColumns("userid", "topic", "watch");
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addToMemories(int userid, int topic, boolean watch) {
-    List<Integer> res = jdbcTemplate.queryForList(
-            "SELECT id FROM memories WHERE userid=? AND topic=? AND watch=? FOR UPDATE",
-            Integer.class,
-            userid,
-            topic,
-            watch
-    );
+  public int addToMemories(User user, Topic topic, boolean watch) {
+    try {
+      return doAddToMemories(user, topic, watch);
+    } catch (DuplicateKeyException ignored) {
+      return getId(user, topic, watch);
+    }
+  }
 
-    if (res.isEmpty()) {
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  private int doAddToMemories(User user, Topic topic, boolean watch) {
+    int id = getId(user, topic, watch);
+
+    if (id==0) {
       return insertTemplate.executeAndReturnKey(ImmutableMap.<String, Object>of(
-              "userid", userid,
-              "topic", topic,
+              "userid", user.getId(),
+              "topic", topic.getId(),
               "watch", watch
       )).intValue();
     } else {
-      return res.get(0);
+      return id;
     }
   }
 
