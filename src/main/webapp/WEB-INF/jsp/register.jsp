@@ -43,19 +43,19 @@
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
     <form:errors element="label" cssClass="error"/>
     <dl>
-        <dt><label>Login:</label></dt>
+        <dt><label>Login</label></dt>
         <dd><form:input path="nick" required="required" size="40" cssErrorClass="error"/><form:errors path="nick" element="label" cssClass="error"/></dd>
 
-        <dt><label>E-mail:</label></dt>
+        <dt><label>E-mail</label></dt>
         <dd><form:input path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/><form:errors path="email" element="label" cssClass="error"/></dd>
 
-        <dt><label>Пароль:</label></dt>
+        <dt><label>Пароль</label></dt>
         <dd><form:password path="password" size="40" required="required" cssErrorClass="error"/><form:errors path="password" element="label" cssClass="error"/></dd>
 
-        <dt><label>Подтвердите пароль:</label></dt>
+        <dt><label>Подтвердите пароль</label></dt>
         <dd><form:password path="password2" size="40" required="required" cssErrorClass="error"/><form:errors path="password2" element="label" cssClass="error"/></dd>
 
-        <dt><label>Защита от роботов:</label></dt>
+        <dt><label>Защита от роботов</label></dt>
         <dd><lor:captcha/></dd>
 
         <dt class="button"><label>С <a href="/rules.jsp">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required" cssErrorClass="error"/><form:errors path="rules" element="label" cssClass="error"/></dd></dt>
