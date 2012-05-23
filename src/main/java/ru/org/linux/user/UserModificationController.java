@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.comment.CommentDao;
+import ru.org.linux.comment.CommentService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
@@ -47,17 +47,13 @@ public class UserModificationController {
 
   private SearchQueueSender searchQueueSender;
   private UserDao userDao;
-  private CommentDao commentDao;
+  @Autowired
+  private CommentService commentService;
 
   @Autowired
   @Required
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao){
-    this.commentDao = commentDao;
   }
 
   @Autowired
@@ -158,7 +154,7 @@ public class UserModificationController {
     }
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("message", "Удалено");
-    DeleteCommentResult deleteCommentResult = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+    DeleteCommentResult deleteCommentResult = commentService.deleteAllCommentsAndBlock(user, moderator, reason);
 
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 

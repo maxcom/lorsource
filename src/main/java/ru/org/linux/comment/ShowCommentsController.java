@@ -41,7 +41,7 @@ public class ShowCommentsController {
   private UserDao userDao;
 
   @Autowired
-  private CommentDao commentDao;
+  private CommentService commentService;
 
   @RequestMapping("/show-comments.jsp")
   public ModelAndView showComments(
@@ -85,12 +85,12 @@ public class ShowCommentsController {
       throw new UserErrorException("Функция только для зарегистрированных пользователей");
     }
 
-    List<CommentsListItem> out = commentDao.getUserComments(user, topics, offset);
+    List<CommentsListItem> out = commentService.getUserComments(user, topics, offset);
 
     mv.getModel().put("list", out);
 
     if (tmpl.isModeratorSession()) {
-      mv.getModel().put("deletedList", commentDao.getDeletedComments(user));
+      mv.getModel().put("deletedList", commentService.getDeletedComments(user));
     }
 
     return mv;

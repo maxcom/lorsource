@@ -781,4 +781,29 @@ public class TopicDao {
       msgbaseDao.appendMessage(msg.getId(), add);
     }
   }
+  /**
+   * Массовое удаление всех топиков пользователя.
+   *
+   * @param user      пользователь для экзекуции
+   * @param moderator экзекутор-модератор
+   * @return список удаленных топиков
+   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
+   */
+  public List<Integer> deleteAllByUser(User user, final User moderator) {
+    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
+    // Удаляем все топики
+    jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
+      new RowCallbackHandler() {
+        @Override
+        public void processRow(ResultSet rs) throws SQLException {
+          int mid = rs.getInt("id");
+          jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
+          deleteInfoDao.insert(mid, moderator, "Блокировка пользователя с удалением сообщений", 0);
+          deletedTopicIds.add(mid);
+        }
+      },
+      user.getId());
+    return deletedTopicIds;
+  }
+
 }

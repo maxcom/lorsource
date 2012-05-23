@@ -32,8 +32,11 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -55,6 +58,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -495,14 +500,146 @@ public class CommentService {
     );
   }
 
- /**
-  * Формирование строки в лог-файл.
-  *
-    * @param message        сообщение
-  * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
-  * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
-  * @return строка, готовая для добавления в лог-файл
-  */
+  /**
+   * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
+   *
+   * @param msgid      id удаляемого сообщения
+   * @param reason     причина удаления
+   * @param user       модератор который удаляет
+   * @param scoreBonus кол-во отрезаемого шкворца
+   * @throws ru.org.linux.site.ScriptErrorException генерируем исключение если на комментарий есть ответы
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
+
+    if (commentDao.getReplaysCount(msgid) != 0) {
+      throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
+    }
+
+    boolean deleted = commentDao.deleteComment(msgid, reason, user, scoreBonus);
+
+    if (deleted) {
+      commentDao.updateStatsAfterDelete(msgid, 1);
+    }
+
+    return deleted;
+  }
+
+  /**
+   * Список комментариев топика.
+   *
+   * @param topicId     id топика
+   * @param showDeleted вместе с удаленными
+   * @return список комментариев топика
+   */
+  public List<Comment> getCommentList(int topicId, boolean showDeleted) {
+    return commentDao.getCommentList(topicId, showDeleted);
+  }
+
+  /**
+   * Список комментариев топика.
+   *
+   * @param topic       топик
+   * @param showDeleted вместе с удаленными
+   * @return список комментариев топика
+   */
+  public CommentList getCommentList(Topic topic, boolean showDeleted) {
+    CacheProvider mcc = MemCachedSettings.getCache();
+
+    String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;
+
+    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
+
+    if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
+      commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      mcc.storeToCache(cacheId, commentList);
+    }
+
+    return commentList;
+  }
+
+  /**
+   * Удаление ответов на комментарии.
+   *
+   * @param msgid
+   * @param user
+   * @param score
+   * @return
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
+    return commentDao.doDeleteReplys(msgid, user, score);
+  }
+
+  /**
+   * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
+   *
+   * @param ip        ip для которых удаляем сообщения (не проверяется на корректность)
+   * @param timeDelta врменной промежуток удаления (не проверяется на корректность)
+   * @param moderator экзекутор-можератор
+   * @param reason    причина удаления, которая будет вписана для удаляемых топиков
+   * @return список id удаленных сообщений
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public DeleteCommentResult deleteCommentsByIPAddress(
+    String ip,
+    Timestamp timeDelta,
+    final User moderator,
+    final String reason) {
+    return commentDao.deleteCommentsByIPAddress(ip, timeDelta, moderator, reason);
+  }
+
+  /**
+   *
+   * @param user
+   * @param limit
+   * @param offset
+   * @return
+   */
+  public List<CommentDao.CommentsListItem> getUserComments(User user, int limit, int offset) {
+    return commentDao.getUserComments(user.getId(), limit, offset);
+  }
+
+  /**
+   *
+   * @param user
+   * @return
+   */
+  public List<CommentDao.DeletedListItem> getDeletedComments(User user) {
+    return commentDao.getDeletedComments(user.getId());
+  }
+
+  /**
+   * Блокировка и массивное удаление всех топиков и комментариев пользователя со всеми ответами на комментарии
+   *
+   * @param user      пользователь для экзекуции
+   * @param moderator экзекутор-модератор
+   * @param reason    прична блокировки
+   * @return список удаленных комментариев
+   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
+    List<Integer> deletedTopicIds = new ArrayList<Integer>();
+    List<Integer> deletedCommentIds = new ArrayList<Integer>();
+
+    userDao.blockWithoutTransaction(user, moderator, reason);
+
+    deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
+
+    deletedCommentIds = commentDao.deleteAllByUser(user, moderator);
+
+    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
+  }
+
+  /**
+   * Формирование строки в лог-файл.
+   *
+   * @param message        сообщение
+   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+   * @return строка, готовая для добавления в лог-файл
+   */
   private String makeLogString(String message, String remoteAddress, String xForwardedFor) {
     StringBuilder logMessage = new StringBuilder();
 

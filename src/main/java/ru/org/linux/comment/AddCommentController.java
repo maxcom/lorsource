@@ -49,9 +49,6 @@ public class AddCommentController {
   private static final Log logger = LogFactory.getLog(AddCommentController.class);
 
   @Autowired
-  private CommentDao commentDao;
-
-  @Autowired
   private UserDao userDao;
 
   @Autowired
