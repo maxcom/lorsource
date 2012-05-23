@@ -21,7 +21,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Конструктор страницы</h1>
-[<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/edit-profile.jsp"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
+[<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/people/${template.nick}/settings"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
 <br/>
 <s:form method="post" modelAttribute="form" action="/remove-box.jsp">
   <s:errors path="*" cssClass="error"/><br/>

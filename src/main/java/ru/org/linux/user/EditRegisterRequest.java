@@ -13,15 +13,21 @@
  *    limitations under the License.
  */
 
+
 package ru.org.linux.user;
 
-public class RegisterRequest {
+public class EditRegisterRequest {
   private String email;
-  private String nick;
-  private String rules;
+  private String name;
+  private String url;
+  private String town;
+  private String info;
+  private String oldpass;
 
   private String password;
   private String password2;
+
+  private String nick;
 
   public String getEmail() {
     return email;
@@ -31,12 +37,36 @@ public class RegisterRequest {
     this.email = email;
   }
 
-  public String getNick() {
-    return nick;
+  public String getName() {
+    return name;
   }
 
-  public void setNick(String nick) {
-    this.nick = nick;
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public String getTown() {
+    return town;
+  }
+
+  public void setTown(String town) {
+    this.town = town;
+  }
+
+  public String getInfo() {
+    return info;
+  }
+
+  public void setInfo(String info) {
+    this.info = info;
   }
 
   public String getPassword() {
@@ -55,11 +85,19 @@ public class RegisterRequest {
     this.password2 = password2;
   }
 
-  public String getRules() {
-    return rules;
+  public String getOldpass() {
+    return oldpass;
   }
 
-  public void setRules(String rules) {
-    this.rules = rules;
+  public void setOldpass(String oldpass) {
+    this.oldpass = oldpass;
+  }
+
+  public String getNick() {
+    return nick;
+  }
+
+  public void setNick(String nick) {
+    this.nick = nick;
   }
 }

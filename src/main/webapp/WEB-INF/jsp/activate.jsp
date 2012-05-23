@@ -1,5 +1,6 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,38 +24,29 @@
 <h1>Активация</h1>
 
 <c:if test="${not template.sessionAuthorized}">
-  <form method=POST action="login.jsp">
-    <table>
-      <tr>
-        <td>Nick:</td>
-        <td><input type=text name=nick></td>
-      </tr>
-
-      <tr>
-        <td>Пароль:</td>
-        <td><input type=password name=passwd></td>
-      </tr>
-
-      <tr>
-        <td>Код активациии:</td>
-        <td><input type=text name=activation></td>
-      </tr>
-
-    </table>
-
+  <form method=POST action="login.jsp" id="activateForm">
+    <dl>
+      <dt><label>Login:</label></dt>
+      <dd><input type="text" name="nick" /></dd>
+    </dl>
+    <dl>
+      <dt><label>Пароль:</label></dt>
+      <dd><input type="password" name="passwd" /></dd>
+    </dl>
+    <dl>
+      <dt><label>Код активациии:</label></dt>
+      <dd><input type="text" name="activation" /></dd>
+    </dl>
     <input type=submit value="Активировать">
   </form>
 </c:if>
 
 <c:if test="${template.sessionAuthorized}">
-  <form method=POST action="activate.jsp">
-    <table>
-      <tr>
-        <td>Код активациии:</td>
-        <td><input type=text name=activation></td>
-      </tr>
-
-    </table>
+  <form method=POST action="activate.jsp" id="activateForm">
+    <dl>
+      <dt><label>Код активациии:</label></dt>
+      <dd><input type="text" name="activation" /></dd>
+    </dl>
 
     <input type=submit value="Активировать">
   </form>
