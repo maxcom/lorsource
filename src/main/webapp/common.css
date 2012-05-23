@@ -283,7 +283,7 @@ label.error {
     margin-bottom: 5px;
 }
 
-#editRegForm .hint {
+#editRegForm .help-block {
     display: block;
     padding: 5px;
     font-style: italic;

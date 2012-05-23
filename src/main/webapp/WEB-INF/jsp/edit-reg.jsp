@@ -52,28 +52,28 @@
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label>Полное имя:</label></dt>
-        <dd><form:input path="name" size="40" cssErrorClass="error" /><form:errors path="name" element="label" cssClass="error"/><span class="hint">&nbsp</span></dd>
+        <dd><form:input path="name" size="40" cssErrorClass="error" /><form:errors path="name" element="label" cssClass="error"/><span class="help-block">&nbsp</span></dd>
 
         <dt><label>Новый пароль:</label></dt>
-        <dd><form:password path="password" size="40" cssErrorClass="error" /><form:errors path="password" element="label" cssClass="error"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
+        <dd><form:password path="password" size="40" cssErrorClass="error" /><form:errors path="password" element="label" cssClass="error"/><span class="help-block">не заполняйте если не хотите менять пароль</span></dd>
 
         <dt><label>Подтвердите новый пароль:</label></dt>
-        <dd><form:password path="password2" size="40" cssErrorClass="error" /><form:errors path="password2" element="label" cssClass="error"/><span class="hint">не заполняйте если не хотите менять пароль</span></dd>
+        <dd><form:password path="password2" size="40" cssErrorClass="error" /><form:errors path="password2" element="label" cssClass="error"/><span class="help-block">не заполняйте если не хотите менять пароль</span></dd>
 
         <dt><label>URL:</label></dt>
-        <dd><form:input path="url" size="60" cssErrorClass="error"/><form:errors path="url" element="label" cssClass="error"/><span class="hint">не забудьте добавить <i>http://</i></span></dd>
+        <dd><form:input path="url" size="60" cssErrorClass="error"/><form:errors path="url" element="label" cssClass="error"/><span class="help-block">не забудьте добавить <i>http://</i></span></dd>
 
         <dt><label>E-mail:</label></dt>
-        <dd><form:input path="email" type="email" cssClass="email" cssErrorClass="email error" size="60"/><form:errors path="email" element="label" cssClass="error"/><span class="hint">виден только вам и модераторам</span></dd>
+        <dd><form:input path="email" type="email" cssClass="email" cssErrorClass="email error" size="60"/><form:errors path="email" element="label" cssClass="error"/><span class="help-block">виден только вам и модераторам</span></dd>
 
         <dt><label>Город:</label></dt>
-        <dd><form:input path="town" size="60" cssErrorClass="error"/><form:errors path="town" element="label" cssClass="error"/><span class="hint">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
+        <dd><form:input path="town" size="60" cssErrorClass="error"/><form:errors path="town" element="label" cssClass="error"/><span class="help-block">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
 
         <dt><label>Дополнительная информация:</label></dt>
-        <dd><form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/><form:errors path="info" element="label" cssClass="error"/><span class="hint">&nbsp</span></dd>
+        <dd><form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/><form:errors path="info" element="label" cssClass="error"/><span class="help-block">&nbsp</span></dd>
 
         <dt><label>Пароль:</label></dt>
-        <dd><form:password path="oldpass" size="40" cssErrorClass="error" /><form:errors path="oldpass" element="label" cssClass="error"/><span class="hint">&nbsp</span></dd>
+        <dd><form:password path="oldpass" size="40" cssErrorClass="error" /><form:errors path="oldpass" element="label" cssClass="error"/><span class="help-block">&nbsp</span></dd>
 
     </dl>
     <input type="submit" value="Применить изменения">
