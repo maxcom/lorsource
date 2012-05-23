@@ -125,6 +125,9 @@ $(document).ready(function() {
       title : "Введите заголовок"
     }
   });
+
+  // remove hidden quote elements
+  $(".none").remove()
 });
 
 hljs.initHighlightingOnLoad();
