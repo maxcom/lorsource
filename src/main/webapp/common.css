@@ -285,7 +285,7 @@ label.error {
 
 #editRegForm .help-block {
     display: block;
-    padding: 5px;
+    font-size: small;
 }
 
 #editRegForm dd {
