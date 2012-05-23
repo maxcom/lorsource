@@ -15,8 +15,9 @@
 
 package ru.org.linux.comment;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -57,7 +58,9 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class AddCommentController extends ApplicationObjectSupport {
+public class AddCommentController {
+  private static final Log logger = LogFactory.getLog(AddCommentController.class);
+
   @Autowired
   private SearchQueueSender searchQueueSender;
 

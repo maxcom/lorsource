@@ -15,8 +15,9 @@
 
 package ru.org.linux.topic;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 
 @Controller
-public class DeleteTopicController extends ApplicationObjectSupport {
+public class DeleteTopicController {
+  private static final Log logger = LogFactory.getLog(DeleteTopicController.class);
+
   @Autowired
   private SearchQueueSender searchQueueSender;
   @Autowired

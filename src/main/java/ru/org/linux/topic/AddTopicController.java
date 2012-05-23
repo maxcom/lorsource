@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -67,7 +66,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Controller
-public class AddTopicController extends ApplicationObjectSupport {
+public class AddTopicController {
   private static final Log logger = LogFactory.getLog(AddTopicController.class);
 
   private SearchQueueSender searchQueueSender;
@@ -145,7 +144,7 @@ public class AddTopicController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) throws Exception {
+  public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
@@ -349,7 +348,7 @@ public class AddTopicController extends ApplicationObjectSupport {
   }
 
   @RequestMapping("/add-section.jsp")
-  public ModelAndView showForm(@RequestParam("section") int sectionId) throws Exception {
+  public ModelAndView showForm(@RequestParam("section") int sectionId) {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("sectionId", sectionId);

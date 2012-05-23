@@ -15,20 +15,23 @@
 
 package ru.org.linux.spring;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+
 @Service
-public class FeedPinger extends ApplicationObjectSupport {
-  @Autowired(required = true)
+public class FeedPinger {
+  private static final Log logger = LogFactory.getLog(FeedPinger.class);
+
+  @Autowired
   private XmlRpcClientConfigImpl config;
 
   @Autowired

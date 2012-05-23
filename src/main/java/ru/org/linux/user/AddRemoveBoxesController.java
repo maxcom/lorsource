@@ -15,23 +15,8 @@
 
 package ru.org.linux.user;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
-import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.spring.validators.EditBoxesRequestValidator;
-import ru.org.linux.storage.StorageException;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -39,10 +24,22 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.site.Template;
+import ru.org.linux.spring.validators.EditBoxesRequestValidator;
+import ru.org.linux.storage.StorageException;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 @SessionAttributes("allboxes")
-public class AddRemoveBoxesController extends ApplicationObjectSupport {
+public class AddRemoveBoxesController {
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
   public ModelMap showRemove(@RequestParam String tag,
                              @RequestParam(required = false) Integer pos,

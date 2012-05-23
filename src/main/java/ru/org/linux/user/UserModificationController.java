@@ -15,9 +15,10 @@
 
 package ru.org.linux.user;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -41,7 +42,9 @@ import java.util.Map;
 import java.util.Random;
 
 @Controller
-public class UserModificationController extends ApplicationObjectSupport {
+public class UserModificationController {
+  private static final Log logger = LogFactory.getLog(UserModificationController.class);
+
   private SearchQueueSender searchQueueSender;
   private UserDao userDao;
   private CommentDao commentDao;
