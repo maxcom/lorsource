@@ -70,7 +70,7 @@
         <dd><form:input path="town" size="60" cssErrorClass="error"/><form:errors path="town" element="label" cssClass="error"/><span class="help-block">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span></dd>
 
         <dt><label>Дополнительная информация</label></dt>
-        <dd><form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/><form:errors path="info" element="label" cssClass="error"/><span class="help-block">&nbsp</span></dd>
+        <dd><form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/><form:errors path="info" element="label" cssClass="error"/><span class="help-block"><a href="/wiki/en/Lorcode">справка по разметке LORCODE</a></span></dd>
 
         <dt><label>Пароль</label></dt>
         <dd><form:password path="oldpass" size="40" cssErrorClass="error" /><form:errors path="oldpass" element="label" cssClass="error"/><span class="help-block">&nbsp</span></dd>
