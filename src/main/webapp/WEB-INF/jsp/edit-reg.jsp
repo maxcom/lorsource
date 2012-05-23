@@ -55,7 +55,7 @@
         <dd>
             <form:input path="name" size="40" cssErrorClass="error" />
             <form:errors path="name" element="label" cssClass="error" for="name"/>
-            <span class="help-block">&nbsp</span>
+            <span class="help-block">&nbsp;</span>
         </dd>
 
         <dt><label for="password">Новый пароль</label></dt>
@@ -104,7 +104,7 @@
         <dd>
             <form:password path="oldpass" size="40" cssErrorClass="error" />
             <form:errors path="oldpass" element="label" cssClass="error" for="oldpass"/>
-            <span class="help-block">&nbsp</span>
+            <span class="help-block">&nbsp;</span>
         </dd>
     </dl>
     <input type="submit" value="Применить изменения">
