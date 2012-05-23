@@ -70,15 +70,17 @@
 
 </ul>
 
-<h1>Настройки</h1>
 <c:if test="${not template.sessionAuthorized}">
-Если вы еще не зарегистрировались - вам <a href="register.jsp">сюда</a>.
+<p>Если вы еще не зарегистрировались - вам <a href="/register.jsp">сюда</a>.</p>
 </c:if>
+<c:if test="${template.sessionAuthorized}">
+<h1>Настройки</h1>
 <ul>
 <li><a href="addphoto.jsp">Добавить фотографию</a>
-<li><a href="register.jsp">Изменение регистрации</a>
+<li><a href="/people/${template.nick}/edit">Изменение регистрации</a>
 <li><a href="lostpwd.jsp">Получить забытый пароль</a>
-<li><a href="edit-profile.jsp">Персональные настройки сайта</a>
+<li><a href="/people/${template.nick}/settings">Персональные настройки сайта</a>
 </ul>
+</c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

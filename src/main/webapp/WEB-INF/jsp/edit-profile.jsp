@@ -44,15 +44,15 @@ $(document).ready(function() {
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <div class=nav>
+<div class=nav>
     <div id="navPath">
       Настройки профиля
     </div>
 
     <div class="nav-buttons">
       <ul>
-        <li><a href="addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="register.jsp">Изменение регистрации</a></li>
+        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
+        <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
       </ul>
      </div>
  </div>
@@ -61,7 +61,7 @@ $(document).ready(function() {
 
 <h2>Параметры профиля</h2>
 <% ProfileProperties profHash=tmpl.getProf(); %>
-<form method=POST id="profileForm" action="edit-profile.jsp">
+<form method=POST id="profileForm" action="/people/${nick}/settings">
 <table>
 <tr><td colspan=2><hr></td></tr>
 <tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>

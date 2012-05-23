@@ -26,10 +26,10 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 public class RegisterRequestValidator implements Validator {
-  private static final int TOWN_LENGTH = 100;
-  private static final int MIN_PASSWORD_LEN = 4;
+  protected static final int TOWN_LENGTH = 100;
+  protected static final int MIN_PASSWORD_LEN = 4;
 
-  private static final ImmutableSet<String> BAD_DOMAINS = ImmutableSet.of(
+  protected static final ImmutableSet<String> BAD_DOMAINS = ImmutableSet.of(
           "asdasd.ru",
           "nepwk.com",
           "klzlk.com",
@@ -50,14 +50,14 @@ public class RegisterRequestValidator implements Validator {
           "rppkn.com"
   );
 
-  private void checkEmail(InternetAddress email, Errors errors) {
+  protected void checkEmail(InternetAddress email, Errors errors) {
     if (BAD_DOMAINS.contains(email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase())) {
       errors.reject("email", "некорректный email домен");
     }
   }
 
   @Override
-  public boolean supports(Class<?> aClass) {
+  public boolean supports(Class aClass) {
     return RegisterRequest.class.equals(aClass);
   }
 
@@ -65,14 +65,39 @@ public class RegisterRequestValidator implements Validator {
   public void validate(Object o, Errors errors) {
     RegisterRequest form = (RegisterRequest) o;
 
-    if (!Strings.isNullOrEmpty(form.getTown())) {
-      if (StringUtil.escapeHtml(form.getTown()).length() > TOWN_LENGTH) {
-        errors.rejectValue("town", null, "Слишком длиное название города (максимум "+TOWN_LENGTH+" символов)");
-      }
+    /*
+    Nick validate
+     */
+    String nick = form.getNick();
+
+    if (Strings.isNullOrEmpty(nick)) {
+      errors.rejectValue("nick", null, "не задан nick");
     }
 
-    if (!Strings.isNullOrEmpty(form.getUrl()) && !URLUtil.isUrl(form.getUrl())) {
-      errors.rejectValue("url", null, "Некорректный URL");
+    if (nick!=null && !StringUtil.checkLoginName(nick)) {
+      errors.rejectValue("nick", null, "некорректное имя пользователя");
+    }
+
+    if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
+      errors.rejectValue("nick", null, "слишком длинное имя пользователя");
+    }
+
+    /*
+    Password validate
+     */
+
+    String password = Strings.emptyToNull(form.getPassword());
+    String password2 = Strings.emptyToNull(form.getPassword2());
+
+    if (Strings.isNullOrEmpty(password)) {
+      errors.reject("password", null, "пароль не может быть пустым");
+    }
+    if (Strings.isNullOrEmpty(password2)) {
+      errors.reject("password2", null, "пароль не может быть пустым");
+    }
+
+    if (password!=null && password.equalsIgnoreCase(nick)) {
+      errors.reject(password, null, "пароль не может совпадать с логином");
     }
 
     if (form.getPassword2() != null &&
@@ -82,8 +107,12 @@ public class RegisterRequestValidator implements Validator {
     }
 
     if (!Strings.isNullOrEmpty(form.getPassword()) && form.getPassword().length()< MIN_PASSWORD_LEN) {
-      errors.reject(null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
+      errors.reject("password", null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
     }
+
+    /*
+    Email validate
+     */
 
     if (Strings.isNullOrEmpty(form.getEmail())) {
       errors.rejectValue("email", null, "Не указан e-mail");
@@ -94,6 +123,16 @@ public class RegisterRequestValidator implements Validator {
       } catch (AddressException e) {
         errors.rejectValue("email", null, "Некорректный e-mail: " + e.getMessage());
       }
+    }
+
+    /*
+    Rules validate
+     */
+
+    if(Strings.isNullOrEmpty(form.getRules())) {
+      errors.reject("rules", null, "Вы не согласились с правилами");
+    } else if(!"okay".equals(form.getRules())) {
+      errors.reject("rules", null, "Вы не согласились с правилами");
     }
   }
 }
