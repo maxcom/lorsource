@@ -47,6 +47,12 @@ public class ToHtmlFormatter {
 
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
+  /*
+  Замена двойного минуса на тире
+   */
+  private static final String MDASH_REGEX = " -- ";
+  private static final String MDASH_REPLACE = "&nbsp;&mdash; ";
+
   private Configuration configuration;
   private TopicDao messageDao;
   private CommentDao commentDao;
@@ -80,7 +86,8 @@ public class ToHtmlFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean secure) {
-    String escapedText = StringUtil.escapeHtml(text);
+    String escapedText = StringUtil.escapeHtml(text.replaceAll(MDASH_REGEX, MDASH_REPLACE));
+
 
     StringTokenizer st = new StringTokenizer(escapedText, " \n", true);
     StringBuilder sb = new StringBuilder();
