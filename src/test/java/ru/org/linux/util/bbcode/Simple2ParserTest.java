@@ -321,4 +321,15 @@ public class Simple2ParserTest {
     assertEquals(citeHeader + "<p>прювет!</p>" + citeFooter,
         lorCodeService.parseComment("[quote][quote][quote][QUOTE][quote][quote][quote][quote][quote][quote][quote][quote][quote][QUOTE][quote][quote][quote][quote]прювет![/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/QUOTE]", false));
   }
+
+  @Test
+  public void testMDash() {
+    assertEquals("test&nbsp;&mdash; test",
+        toHtmlFormatter.format("test -- test", false));
+    assertEquals("<p>test&nbsp;&mdash; test</p>",
+        lorCodeService.parseComment("test -- test", false));
+    assertEquals("<p>test<div class=\"code\"><pre class=\"no-highlight\"><code> -- </code></pre></div>test</p>",
+        lorCodeService.parseComment("test[code] -- [/code]test", false));
+  }
+
 }

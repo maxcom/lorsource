@@ -278,6 +278,8 @@ public class AddCommentController {
       String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
 
       return new ModelAndView(new RedirectView(returnUrl));
+    } else {
+          add.setMsg(StringUtil.escapeForceHtml(add.getMsg()));
     }
     ModelAndView modelAndView = new ModelAndView("add_comment", formParams);
     modelAndView.addObject("ipBlockInfo", ipBlockInfo);
