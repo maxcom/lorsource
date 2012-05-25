@@ -24,3 +24,5 @@ Disallow: /activate.jsp
 
 Disallow: /wiki/en/Special:History
 Disallow: /wiki/en/Special:Diff
+Disallow: /wiki/en/Special:Logout
+Disallow: /wiki/en/Special:Print
