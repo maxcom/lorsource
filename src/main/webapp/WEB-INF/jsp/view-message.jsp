@@ -103,17 +103,18 @@
       <c:if test="${!showDeleted}">
         <input type=hidden name=page value="${page}">
       </ul>
-
+      <c:if test="${not template.usingDefaultProfile}">
         <select name="filter" onChange="submit();">
 <%
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_NONE) + '\"' + (filterMode == CommentFilter.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-    out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + ((filterMode&CommentFilter.FILTER_ANONYMOUS)!=0 ? " selected=\"selected\"" : "") + ">без анонимных</option>");
+//    out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + ((filterMode&CommentFilter.FILTER_ANONYMOUS)!=0 ? " selected=\"selected\"" : "") + ">без анонимных</option>");
 
-    if (!tmpl.isUsingDefaultProfile()) {
+//    if (!tmpl.isUsingDefaultProfile()) {
       out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_IGNORED) + '\"' + (filterMode == CommentFilter.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
-    }
+//    }
 %>
           </select>
+      </c:if>
       </c:if>
     </div>
   </div>
