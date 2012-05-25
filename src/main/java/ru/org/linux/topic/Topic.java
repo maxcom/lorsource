@@ -21,6 +21,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -266,7 +267,7 @@ public class Topic implements Serializable {
   }
 
   public String getTitle() {
-    return title;
+    return title.replace(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
   }
 
   public Timestamp getLastModified() {

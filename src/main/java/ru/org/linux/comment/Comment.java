@@ -17,6 +17,7 @@ package ru.org.linux.comment;
 
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -115,7 +116,7 @@ public class Comment implements Serializable {
   }
 
   public String getTitle() {
-    return title;
+    return title.replace(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
   }
 
   public Date getPostdate() {

@@ -50,8 +50,8 @@ public class ToHtmlFormatter {
   /*
   Замена двойного минуса на тире
    */
-  private static final String MDASH_REGEX = " -- ";
-  private static final String MDASH_REPLACE = "&nbsp;&mdash; ";
+  public static final String MDASH_REGEX = " -- ";
+  public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
 
   private Configuration configuration;
   private TopicDao messageDao;
