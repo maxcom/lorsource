@@ -102,9 +102,6 @@
       <ul>
       <c:if test="${!showDeleted}">
         <input type=hidden name=page value="${page}">
-        <c:if test="${not template.usingDefaultProfile}">
-           <li><a href="<c:url value="/user-filter"/>">Фильтр</a></li>
-        </c:if>
       </ul>
 
         <select name="filter" onChange="submit();">
