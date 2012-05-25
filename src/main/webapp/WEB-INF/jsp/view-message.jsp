@@ -31,6 +31,7 @@
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
+<%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -87,38 +88,15 @@
 
 <div class=messages itemscope itemtype="http://schema.org/Article">
 
-<form method="GET" action="view-message.jsp">
-<input type=hidden name=msgid value="${message.id}">
-  <div class=nav>
+<div class=nav>
   <div id="navPath" itemprop="articleSection">
     <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
     <a href="${group.url}">${group.title}</a>
     <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-        (не подтверждено)
+      (не подтверждено)
     </c:if>
   </div>
-
-    <div class="nav-buttons">
-      <ul>
-      <c:if test="${!showDeleted}">
-        <input type=hidden name=page value="${page}">
-      </ul>
-      <c:if test="${not template.usingDefaultProfile}">
-        <select name="filter" onChange="submit();">
-<%
-    out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_NONE) + '\"' + (filterMode == CommentFilter.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-//    out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + ((filterMode&CommentFilter.FILTER_ANONYMOUS)!=0 ? " selected=\"selected\"" : "") + ">без анонимных</option>");
-
-//    if (!tmpl.isUsingDefaultProfile()) {
-      out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_IGNORED) + '\"' + (filterMode == CommentFilter.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
-//    }
-%>
-          </select>
-      </c:if>
-      </c:if>
-    </div>
-  </div>
-</form>
+</div>
 
 <c:set var="scroller"><c:if test="${topScroller}">
   <div class="nav grid-row">
@@ -300,6 +278,18 @@
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
   <div class=nav>
     сообщения отсортированы в порядке убывания даты их написания
+  </div>
+</c:if>
+
+<c:if test="${fn:length(commentsPrepared)!=unfilteredCount}">
+  <div class=nav>
+    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="<%= message.getLinkPage(npage) %>?filter=show">все</a>.
+  </div>
+</c:if>
+
+<c:if test="${filterMode!=defaultFilterMode}">
+  <div class=nav>
+    Показаны все комментарии. <a href="<%= message.getLinkPage(npage) %>">Скрыть</a> игнорируемые.
   </div>
 </c:if>
 

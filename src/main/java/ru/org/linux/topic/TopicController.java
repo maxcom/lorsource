@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -433,6 +434,9 @@ public class TopicController {
       }
 
       List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
+      List<Comment> commentsFull = cv.getComments(reverse, offset, limit, ImmutableSet.<Integer>of());
+
+      params.put("unfilteredCount", commentsFull.size());
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
