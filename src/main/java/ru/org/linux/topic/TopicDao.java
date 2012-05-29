@@ -771,7 +771,7 @@ public class TopicDao {
       String add;
 
       if (lorcode) {
-        add = '\n' + link + "\n[i]Перемещено " + moveBy.getNick() + " из " + title + "[/i]\n";
+        add = '\n' + link + "\n\n[i]Перемещено " + moveBy.getNick() + " из " + title + "[/i]\n";
       } else {
         add = '\n' + link + "<br><i>Перемещено " + moveBy.getNick() + " из " + title + "</i>\n";
       }
