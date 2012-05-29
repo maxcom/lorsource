@@ -144,6 +144,9 @@ public class TrackerController {
       if (!tmpl.isSessionAuthorized()) {
         throw new UserErrorException("Not authorized");
       }
+      params.put("title", "Последние сообщения (мои темы)");
+    } else {
+      params.put("title", "Последние сообщения");
     }
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
 
