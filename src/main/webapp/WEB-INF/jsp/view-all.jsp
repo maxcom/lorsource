@@ -44,7 +44,7 @@
 
   <div class=nav>
     <div id="navPath">
-      Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %>
+      Просмотр неподтвержденных сообщений — <%= section==null?"Все":section.getName() %>
     </div>
 
     <div class="nav-buttons">
