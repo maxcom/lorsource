@@ -1,4 +1,6 @@
+<%@ tag import="ru.org.linux.tag.TagService" %>
 <%@ tag import="ru.org.linux.topic.TopicListController" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.util.List" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -25,7 +27,11 @@
       buf.append(", ");
     }
 
-    buf.append("<a class=tag rel=tag href=\"").append(TopicListController.tagListUrl(mtag)).append("\">").append(mtag).append("</a>");
+    if (TagService.isGoodTag(mtag)) {
+      buf.append("<a class=tag rel=tag href=\"").append(TopicListController.tagListUrl(mtag)).append("\">").append(StringUtil.escapeHtml(mtag)).append("</a>");
+    } else {
+      buf.append(StringUtil.escapeHtml(mtag));
+    }
   }
 
   String result = buf.toString();
