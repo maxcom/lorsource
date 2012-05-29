@@ -106,7 +106,9 @@
           <c:otherwise>
               <lor:poll poll="${preparedMessage.poll}"/>
 
-            <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+              <c:if test="${preparedMessage.poll.poll.current}">
+                <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+              </c:if>
           </c:otherwise>
       </c:choose>
     </c:if>
