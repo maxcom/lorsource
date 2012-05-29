@@ -96,7 +96,14 @@
       && comment.isHaveAnswers()) {
       isbyAnswersEnable = false;
     }
-    editable = isbyMinutesEnable & isbyAnswersEnable;
+
+    Integer scoreToEdit = tmpl.getConfig().getCommentScoreValueForEditing();
+    boolean isByScoreEnable = true;
+    if (scoreToEdit != null && scoreToEdit > tmpl.getCurrentUser().getScore()) {
+      isByScoreEnable = false;
+    }
+
+    editable = isbyMinutesEnable & isbyAnswersEnable & isByScoreEnable;
   }
 %>
   <c:set var="reply" value="<%= reply %>"/>

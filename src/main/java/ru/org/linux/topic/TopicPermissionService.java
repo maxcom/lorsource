@@ -150,23 +150,32 @@ public class TopicPermissionService {
       /* проверка на то, что время редактирования не вышло */
       Integer minutesToEdit = configuration.getCommentExpireMinutesForEdit();
 
-      boolean isbyMinutesEnable = false;
+      boolean isByMinutesEnable = false;
       if (minutesToEdit != null && !minutesToEdit.equals(0)) {
         long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
         long deltaTimestamp = minutesToEdit * 60 * 1000;
         long nowTimestamp = new Date().getTime();
 
-        isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
+        isByMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
       } else {
-        isbyMinutesEnable = true;
+        isByMinutesEnable = true;
       }
 
-      boolean isbyAnswersEnable = true;
+      /* Проверка на то, что у комментария нет ответов */
+      boolean isByAnswersEnable = true;
       if (!configuration.isCommentEditingAllowedIfAnswersExists()
         && commentService.isHaveAnswers(commentRequest.getOriginal())) {
-        isbyAnswersEnable = false;
+        isByAnswersEnable = false;
       }
-      editable = isbyMinutesEnable & isbyAnswersEnable;
+
+      /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
+      Integer scoreToEdit = configuration.getCommentScoreValueForEditing();
+      boolean isByScoreEnable = true;
+      if (scoreToEdit != null && scoreToEdit > tmpl.getCurrentUser().getScore()) {
+        isByScoreEnable = false;
+      }
+
+      editable = isByMinutesEnable & isByAnswersEnable & isByScoreEnable;
     }
     return editable;
   }

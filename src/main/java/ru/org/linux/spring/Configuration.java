@@ -116,4 +116,11 @@ public class Configuration {
       return false;
     return Boolean.valueOf(property);
   }
+
+  public Integer getCommentScoreValueForEditing() {
+    String property = properties.getProperty("comment.scoreValueForEditing");
+    if (property == null)
+      return null;
+    return Integer.valueOf(property);
+  }
 }
