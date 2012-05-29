@@ -34,7 +34,7 @@
       <author><lor:user user="${msg.author}"/></author>
       <link>http://www.linux.org.ru${msg.message.link}</link>
       <guid>http://www.linux.org.ru${msg.message.link}</guid>
-      <title><l:title><c:out escapeXml="true" value="${msg.message.title}"/></l:title></title>
+      <title><c:out escapeXml="true" value="${msg.message.title}"/></title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
       </c:if>
