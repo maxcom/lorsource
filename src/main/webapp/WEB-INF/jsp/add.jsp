@@ -84,6 +84,7 @@
       до <%= Screenshot.MAX_SCREENSHOT_SIZE %>x<%= Screenshot.MAX_SCREENSHOT_SIZE %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
     <li>Размер не более <%= (Screenshot.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
+    <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
   </ul>
 </p>
 <%   } %>
