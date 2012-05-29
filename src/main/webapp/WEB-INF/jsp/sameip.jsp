@@ -40,6 +40,7 @@
       <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
       <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a>
+      <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
       ]
     </div>
 </div>
