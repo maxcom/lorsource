@@ -30,20 +30,12 @@
 <%@ taglib prefix="ftm" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
-<%
-    String title = "Последние сообщения";
-    if ((Boolean) request.getAttribute("mine")) {
-      title += " (мои темы)";
-    }
-%>
-
-<title><%= title %>
-</title>
+<title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class=nav>
   <div id="navPath">
-    <%= title %>
+    ${title}
   </div>
 
   <div class="nav-buttons">
