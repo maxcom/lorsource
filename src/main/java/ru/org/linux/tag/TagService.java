@@ -171,11 +171,10 @@ public class TagService {
    * Получить список тегов по первому символу.
    *
    * @param firstLetter     первый символ
-   * @param skipEmptyUsages пропускать ли неиспользуемые теги
    * @return список тегов по первому символу
    */
-  public Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skipEmptyUsages) {
-    return tagDao.getTagsByFirstLetter(firstLetter, skipEmptyUsages);
+  public Map<String, Integer> getTagsByFirstLetter(String firstLetter) {
+    return tagDao.getTagsByFirstLetter(firstLetter);
   }
 
   /**

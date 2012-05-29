@@ -85,7 +85,7 @@ public class TagController {
     }
     modelAndView.addObject("currentLetter", firstLetter);
 
-    Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter, !tmpl.isModeratorSession());
+    Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter);
 
     if (tags.size() == 0) {
       throw new TagNotFoundException("Tag list is empty");
@@ -113,7 +113,7 @@ public class TagController {
   List<String> showTagListHandlerJSON(
     @RequestParam("term") final String term
   ) {
-    Map<String, Integer> tags = tagService.getTagsByFirstLetter(term.substring(0, 1), false);
+    Map<String, Integer> tags = tagService.getTagsByFirstLetter(term.substring(0, 1));
 
     return ImmutableList.copyOf(Iterables.filter(tags.keySet(), new Predicate<String>() {
       @Override

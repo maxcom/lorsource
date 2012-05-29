@@ -124,17 +124,13 @@ public class TagDao {
    * Получение списка тегов по первой букве.
    *
    * @param firstLetter       фильтр: первая буква для тегов, которые должны быть показаны
-   * @param skip_empty_usages пропускать ли буквы, теги которых нигде не используются
    * @return список тегов
    */
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skip_empty_usages) {
+  Map<String, Integer> getTagsByFirstLetter(String firstLetter) {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     StringBuilder query = new StringBuilder();
     query.append("select counter, value from tags_values where lower(substr(value,1,1)) = ? ");
-
-    if (skip_empty_usages) {
-      query.append(" and counter > 0 ");
-    }
+    query.append(" and counter > 0 ");
     query.append(" order by value");
 
     jdbcTemplate.query(query.toString(),
@@ -146,6 +142,7 @@ public class TagDao {
       },
       firstLetter
     );
+
     return builder.build();
   }
 
