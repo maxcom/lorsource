@@ -3,6 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,7 +57,7 @@
 <tr>
   <td>${comment.sectionTitle}</td>
   <td>${comment.groupTitle}</td>
-  <td><a href="jump-message.jsp?msgid=${comment.topicId}&amp;cid=${comment.commentId}" rev=contents>${comment.title}</a></td>
+  <td><a href="jump-message.jsp?msgid=${comment.topicId}&amp;cid=${comment.commentId}" rev=contents><l:title>${comment.title}</l:title></a></td>
   <td><lor:dateinterval date="${comment.postdate}"/></td>
 </c:forEach>
 
@@ -98,7 +99,7 @@
         <td>${item.ptitle}</td>
         <td>${item.gtitle}</td>
         <td>
-          <a href="view-message.jsp?msgid=${item.msgid}" rev=contents>${item.title}</a>
+          <a href="view-message.jsp?msgid=${item.msgid}" rev=contents><l:title>${item.title}</l:title></a>
         </td>
         <td><c:out value="${item.reason}" escapeXml="true"/></td>
         <td>

@@ -11,6 +11,7 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
@@ -78,7 +79,7 @@
 
   <div class="msg_body ${msgBodyStyle}">
   <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
-    <a href="${message.link}">${message.title}</a>
+    <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
 
     <div class="fav-buttons">

@@ -12,6 +12,7 @@
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -101,7 +102,7 @@
   Group group = preparedMessage.getGroup();
 %>
 <h2>
-  <a href="${fn:escapeXml(message.link)}">${message.title}</a>
+  <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 </h2>
 <c:if test="${multiPortal}">
   <div class="group">
@@ -206,7 +207,7 @@
 <c:if test="${message.minor}">
 <article class="infoblock mini-news" id="topic-${message.id}">
 Мини-новость:
-  <a href="${fn:escapeXml(message.link)}">${message.title}</a>
+  <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 
 <c:if test="${multiPortal}">
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">

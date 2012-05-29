@@ -41,4 +41,22 @@
             <rtexprvalue>false</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <description>Process title</description>
+        <name>title</name>
+        <tag-class>ru.org.linux.site.tags.TitleTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
+        <description>Make title</description>
+        <name>mkTitle</name>
+        <tag-class>ru.org.linux.site.tags.MakeTitleTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+    <tag>
+        <description>Make title</description>
+        <name>makeTitle</name>
+        <tag-class>ru.org.linux.site.tags.MakeTitleTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
 </taglib>

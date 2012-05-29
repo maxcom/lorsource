@@ -17,6 +17,7 @@
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
@@ -51,7 +52,7 @@
   </c:if>
 
   <label for="title">Заглавие:</label><br>
-  <input type=text id="title" name=title value="<%= title %>"><br>
+  <input type=text id="title" name=title value="<l:title><%= title %>"></l:title><br>
 
   <label for="msg">Сообщение:</label><br>
 

@@ -27,6 +27,7 @@
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%
@@ -107,7 +108,7 @@
       </c:if>
     </c:url>
     Ответ на:
-    <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${reply.messageId}')" >${title}</a>
+    <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${reply.messageId}')" ><l:title>${title}</l:title></a>
     от ${replyAuthor.nick} ${replyDate}
   </c:if>
 </c:otherwise>
@@ -122,7 +123,7 @@
 
   <div class="msg_body ${msgBodyStyle}" <c:if test="${enableSchema}">itemprop="commentText"</c:if>>
     <c:if test="${fn:length(comment.comment.title)>0}">
-      <h2>${comment.comment.title}</h2>
+      <h2><l:title>${comment.comment.title}</l:title></h2>
     </c:if>
 
     ${comment.processedMessage}
