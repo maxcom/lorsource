@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.util.formatter.ToHtmlFormatter;
+
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -52,6 +54,10 @@ public final class StringUtil {
     }
 
     return loginCheckRE.matcher(login).matches();
+  }
+
+  public static String processTitle(String title) {
+    return title.replace(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
   }
 
   public static String makeTitle(String title) {

@@ -15,6 +15,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <h2>Top 10</h2>
 
@@ -28,7 +29,7 @@
           <c:param name="lastmod" value="${message.lastmod.time}"/>
         </c:if>
       </c:url>
-      <a href="${fn:escapeXml(msg_link)}">${message.title}</a>
+      <a href="${fn:escapeXml(msg_link)}"><l:title>${message.title}</l:title></a>
       <c:if test="${message.pages gt 1}">
         <c:url value="${message.url}/page${message.pages-1}" var="page_link">
           <c:param name="lastmod" value="${message.lastmod.time}"/>

@@ -15,6 +15,7 @@
   ~    limitations under the License.
   --%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="poll" type="ru.org.linux.poll.Poll"--%>
 
@@ -25,7 +26,7 @@
 
 <H1>Голосование</H1>
 <h2><a href="view-message.jsp?msgid=${poll.topicId}">Опрос</a></h2>
-<h3><c:out value="${message.title}" escapeXml="true"/></h3>
+<h3><l:title><c:out value="${message.title}" escapeXml="true"/></l:title></h3>
 
 <lor:poll-form poll="${poll}" enabled="true"/>
 

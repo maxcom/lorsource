@@ -17,6 +17,7 @@
 <%@ page import="java.util.Date"   buffer="200kb"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <rss version="2.0">
   <channel>
     <link>http://www.linux.org.ru/</link>

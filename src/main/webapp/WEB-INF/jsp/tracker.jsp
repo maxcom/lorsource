@@ -28,6 +28,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="ftm" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
 <%
     String title = "Последние сообщения";
@@ -100,7 +101,7 @@
                 <span class="tag">${tag}</span>
               </c:forEach>
 
-              ${msg.title}
+              <l:title>${msg.title}</l:title>
             </a>
 
                 (<%--

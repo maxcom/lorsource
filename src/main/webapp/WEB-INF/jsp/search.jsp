@@ -2,6 +2,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -109,7 +110,7 @@
     <c:forEach items="${result}" var="item">
       <div class="msg">
         <div class="msg_header">
-          <h2><a href="${item.url}"><c:out escapeXml="true" value="${item.title}"/></a></h2>
+          <h2><a href="${item.url}"><l:title><c:out escapeXml="true" value="${item.title}"/></l:title></a></h2>
         </div>
         <div class="msg_body">
 
