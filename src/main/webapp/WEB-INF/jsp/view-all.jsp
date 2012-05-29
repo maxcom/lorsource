@@ -36,7 +36,7 @@
     }
 
 %>
-<title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
+<title>Просмотр неподтвержденных сообщений — <%= section==null?"Все":section.getName() %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <c:url var="urlFilterHandler" value="view-all.jsp" />
