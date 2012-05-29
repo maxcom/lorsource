@@ -72,6 +72,14 @@ public class EditCommentController extends ApplicationObjectSupport {
     commentService.initBinder(binder);
   }
 
+  /**
+   * Показ формы изменения комментария.
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param request         данные запроса от web-клиента
+   * @return объект web-модели
+   * @throws ServletParameterException
+   */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.GET)
   public ModelAndView editCommentShowHandler(
     @ModelAttribute("edit") @Valid CommentRequest commentRequest,
@@ -91,6 +99,15 @@ public class EditCommentController extends ApplicationObjectSupport {
     return new ModelAndView("edit_comment");
   }
 
+  /**
+   * Изменение комментария.
+   *
+   * @param commentRequest WEB-форма, содержащая данные
+   * @param errors         обработчик ошибок ввода для формы
+   * @param request        данные запроса от web-клиента
+   * @return объект web-модели
+   * @throws Exception
+   */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.POST)
   public ModelAndView editCommentPostHandler(
     @ModelAttribute("edit") @Valid CommentRequest commentRequest,

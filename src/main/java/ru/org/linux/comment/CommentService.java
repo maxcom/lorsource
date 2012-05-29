@@ -156,11 +156,11 @@ public class CommentService {
   /**
    * Проверка валидности данных запроса.
    *
-   * @param commentRequest
-   * @param user
-   * @param ipBlockInfo
-   * @param request
-   * @param errors
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param user            пользователь, добавляющий или изменяющий комментарий
+   * @param ipBlockInfo     информация о банах
+   * @param request         данные запроса от web-клиента
+   * @param errors          обработчик ошибок ввода для формы
    * @throws UserNotFoundException
    * @throws UnknownHostException
    * @throws TextParseException
@@ -216,10 +216,12 @@ public class CommentService {
   }
 
   /**
-   * @param commentRequest
-   * @param user
-   * @param errors
-   * @return
+   * Получить текст комментария.
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param user            пользователь, добавляющий или изменяющий комментарий
+   * @param errors          обработчик ошибок ввода для формы
+   * @return текст комментария
    */
   public String getCommentBody(
     CommentRequest commentRequest,
@@ -240,10 +242,12 @@ public class CommentService {
   }
 
   /**
-   * @param commentRequest
-   * @param user
-   * @param request
-   * @return
+   * Получить объект комментария из WEB-запроса.
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param user            пользователь, добавляющий или изменяющий комментарий
+   * @param request         данные запроса от web-клиента
+   * @return объект комментария из WEB-запроса
    */
   public Comment getComment(
     CommentRequest commentRequest,
@@ -281,10 +285,12 @@ public class CommentService {
   }
 
   /**
-   * @param commentRequest
-   * @param request
-   * @param errors
-   * @return
+   * Получить объект пользователя, добавляющего или изменяющего комментарий
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param request         данные запроса от web-клиента
+   * @param errors          обработчик ошибок ввода для формы
+   * @return объект пользователя
    */
   public User getCommentUser(
     CommentRequest commentRequest,
@@ -330,11 +336,11 @@ public class CommentService {
   /**
    * Создание нового комментария.
    *
-   * @param comment
-   * @param commentBody
-   * @param remoteAddress
-   * @param xForwardedFor
-   * @return
+   * @param comment        объект комментария
+   * @param commentBody    текст комментария
+   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+   * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -385,11 +391,11 @@ public class CommentService {
   /**
    * Редактирование комментария.
    *
-   * @param oldComment
-   * @param newComment
-   * @param commentBody
-   * @param remoteAddress
-   * @param xForwardedFor
+   * @param oldComment     данные старого комментария
+   * @param newComment     данные нового комментария
+   * @param commentBody    текст нового комментария
+   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
    * @throws ServletParameterException
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -433,6 +439,7 @@ public class CommentService {
   public boolean isHaveAnswers(Comment comment) {
     return commentDao.isHaveAnswers(comment.getId());
   }
+
   /**
    * Получить объект комментария по идентификационному номеру
    *
@@ -561,10 +568,10 @@ public class CommentService {
   /**
    * Удаление ответов на комментарии.
    *
-   * @param msgid
-   * @param user
-   * @param score
-   * @return
+   * @param msgid  идентификационнай номер комментария
+   * @param user   пользователь, удаляющий комментарий
+   * @param score  сколько снять скора у автора комментария
+   * @return список идентификационных номеров удалённых комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public List<Integer> deleteReplys(int msgid, User user, boolean score) {
@@ -590,20 +597,22 @@ public class CommentService {
   }
 
   /**
+   * Получить список комментариев пользователя.
    *
-   * @param user
-   * @param limit
-   * @param offset
-   * @return
+   * @param user    объект пользователя
+   * @param limit   сколько записей должно быть в ответе
+   * @param offset  начиная с какой позиции выдать ответ
+   * @return список комментариев пользователя
    */
   public List<CommentDao.CommentsListItem> getUserComments(User user, int limit, int offset) {
     return commentDao.getUserComments(user.getId(), limit, offset);
   }
 
   /**
+   * Получить список последних удалённых комментариев пользователя.
    *
-   * @param user
-   * @return
+   * @param user  объект пользователя
+   * @return список удалённых комментариев пользователя
    */
   public List<CommentDao.DeletedListItem> getDeletedComments(User user) {
     return commentDao.getDeletedComments(user.getId());
@@ -657,6 +666,13 @@ public class CommentService {
     return logMessage.toString();
   }
 
+  /**
+   * Обработать тект комментария посредством парсеров (LorCode или Tex).
+   *
+   * @param msg   текст комментария
+   * @param mode  режим обработки
+   * @return обработанная строка
+   */
   private String processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);

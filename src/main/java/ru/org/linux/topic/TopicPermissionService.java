@@ -128,11 +128,11 @@ public class TopicPermissionService {
   /**
    * Проверка на права редактирования комментария.
    *
-   * @param commentRequest
-   * @param request
-   * @param user
-   * @param errors
-   * @return
+   * @param commentRequest WEB-форма, содержащая данные
+   * @param request        данные запроса от web-клиента
+   * @param user           пользователь, добавивший комментарий.
+   * @param errors         обработчик ошибок ввода для формы
+   * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
   public boolean isCommentsEditingAllowed(
     CommentRequest commentRequest,

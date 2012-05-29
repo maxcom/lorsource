@@ -160,6 +160,15 @@ class CommentDao {
     return comments;
   }
 
+  /**
+   * Удалить комментарий, не начиная транзакции. Обновить статистику, если было осуществлено удаление.
+   *
+   * @param msgid   идентификационнай номер комментария
+   * @param reason  причина удаления
+   * @param user    пользователь, удаляющий комментарий
+   * @return true если комментарий был удалён, иначе false
+   * @throws SQLException
+   */
   private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) throws SQLException {
     if (getReplaysCount(msgid) != 0) {
       throw new SQLException("Нельзя удалить комментарий с ответами");
@@ -175,12 +184,13 @@ class CommentDao {
   }
 
   /**
+   * Удалить комментарий.
    *
-   * @param msgid
-   * @param reason
-   * @param user
-   * @param scoreBonus
-   * @return
+   * @param msgid       идентификационнай номер комментария
+   * @param reason      причина удаления
+   * @param user        пользователь, удаляющий комментарий
+   * @param scoreBonus  сколько снять скора у автора комментария
+   * @return true если комментарий был удалён, иначе false
    */
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) {
 
@@ -205,7 +215,8 @@ class CommentDao {
   }
 
   /**
-   * Обновляет статистику после удаления комментариев в одном топике
+   * Обновляет статистику после удаления комментариев в одном топике.
+   *
    * @param commentId идентификатор любого из удаленных комментариев (обычно корневой в цепочке)
    * @param count количество удаленных комментариев
    */
@@ -221,6 +232,14 @@ class CommentDao {
     jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
   }
 
+  /**
+   * Удалить рекурсивно ответы на комментарий
+   *
+   * @param msgid  идентификационнай номер комментария
+   * @param user   пользователь, удаляющий комментарий
+   * @param score  сколько снять скора у автора комментария
+   * @return список идентификационных номеров удалённых комментариев
+   */
   public List<Integer> doDeleteReplys(int msgid, User user, boolean score) {
     List<Integer> deleted = deleteReplys(msgid, user, score, 0);
 
@@ -231,6 +250,15 @@ class CommentDao {
     return deleted;
   }
 
+  /**
+   * Помощник по рекурсивному удалению комментариев
+   *
+   * @param msgid  идентификационнай номер комментария
+   * @param user   пользователь, удаляющий комментарий
+   * @param score  сколько снять скора у автора комментария
+   * @param depth  текущий уровень ответов
+   * @return список идентификационных номеров удалённых комментариев
+   */
   private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
     List<Integer> replys = getReplysForUpdate(msgid);
     List<Integer> deleted = new LinkedList<Integer>();
@@ -367,10 +395,11 @@ class CommentDao {
   }
 
   /**
+   * Добавить новый комментарий.
    *
-   * @param comment
-   * @param message
-   * @return
+   * @param comment  данные комментария
+   * @param message  текст комментария
+   * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
   public int saveNewMessage(
@@ -415,9 +444,10 @@ class CommentDao {
 
   /**
    * Редактирование комментария.
-   * @param oldComment
-   * @param newComment
-   * @param commentBody
+   *
+   * @param oldComment   данные старого комментария
+   * @param newComment   данные нового комментария
+   * @param commentBody  текст нового комментария
    */
   public void edit(final Comment oldComment, final Comment newComment, final String commentBody) {
     jdbcTemplate.update(
@@ -433,6 +463,14 @@ class CommentDao {
     );
   }
 
+  /**
+   * Обновить информацию о последнем редакторе комментария.
+   *
+   * @param id         идентификационный номер комментария
+   * @param editorId   идентификационный номер редактора комментария
+   * @param editDate   дата редактирования
+   * @param editCount  количество исправлений
+   */
   public void updateLatestEditorInfo (int id, int editorId, Date editDate, int editCount) {
     jdbcTemplate.update(
       "UPDATE comments set editor_id = ? , edit_date = ?, edit_count = ? WHERE id = ?",
@@ -443,6 +481,14 @@ class CommentDao {
     );
   }
 
+  /**
+   * Получить список комментариев пользователя.
+   *
+   * @param userId  идентификационный номер пользователя
+   * @param limit   сколько записей должно быть в ответе
+   * @param offset  начиная с какой позиции выдать ответ
+   * @return список комментариев пользователя
+   */
   public List<CommentsListItem> getUserComments(int userId, int limit, int offset) {
     return jdbcTemplate.query(
             "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
@@ -472,6 +518,12 @@ class CommentDao {
     );
   }
 
+  /**
+   * Получить список последних удалённых комментариев пользователя.
+   *
+   * @param userId  идентификационный номер пользователя
+   * @return список удалённых комментариев пользователя
+   */
   public List<DeletedListItem> getDeletedComments(int userId) {
     return jdbcTemplate.query(
             "SELECT " +
@@ -494,11 +546,20 @@ class CommentDao {
     );
   }
 
+  /**
+   * Проверить, имеет ли комментарий ответы.
+   *
+   * @param commentId идентификационный номер комментария
+   * @return true если у комментария есть ответы, иначе false
+   */
   public boolean isHaveAnswers(int commentId) {
     int answersCount = jdbcTemplate.queryForInt("select count (id) from comments where replyto = ?",commentId);
     return answersCount != 0;
   }
 
+  /**
+   * DTO-класс, описывающий данные удалённого комментария
+   */
   public static class DeletedListItem {
     private final String ptitle;
     private final String gtitle;

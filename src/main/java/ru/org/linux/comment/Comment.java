@@ -25,6 +25,9 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Set;
 
+/**
+ * DTO-объект для хранения одного  комментария из DAO
+ */
 public class Comment implements Serializable {
   private final int msgid;
   private final String title;
