@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page buffer="200kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +22,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>${add.topic.title} - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
+<title><l:title>${add.topic.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${add.topic}" showMenu="false"/>

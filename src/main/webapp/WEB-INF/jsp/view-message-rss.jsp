@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
@@ -31,10 +32,10 @@
     <item>
       <title>
         <c:if test="${fn:length(comment.comment.title)>0}">
-          <c:out escapeXml="true" value="${comment.comment.title}"/>
+          <l:title><c:out escapeXml="true" value="${comment.comment.title}"/></l:title>
         </c:if>
         <c:if test="${fn:length(comment.comment.title)==0}">
-          <c:out escapeXml="true" value="${message.title}"/>
+          <l:title><c:out escapeXml="true" value="${message.title}"/></l:title>
         </c:if>
       </title>
       <author><lor:user user="${comment.author}"/></author>

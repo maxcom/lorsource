@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -22,7 +23,7 @@
 <c:if test="${showImage!=null and showImage and preparedImage!=null}">
   <p <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <a href="${preparedImage.fullName}"itemprop="contentURL">
-      <img itemprop="thumbnail" class="medium-image" src="${preparedImage.mediumName}" alt="${topic.title}" ${preparedImage.mediumInfo.code}>
+      <img itemprop="thumbnail" class="medium-image" src="${preparedImage.mediumName}" alt="<l:title>${topic.title}</l:title>" ${preparedImage.mediumInfo.code}>
       <meta itemprop="caption" content="${topic.title}">
     </a>
   </p>

@@ -3,6 +3,7 @@
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -45,8 +46,8 @@
   Topic nextMessage = (Topic) request.getAttribute("nextMessage");
 %>
 
-<title>${message.title} - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
-<meta property="og:title" content="${message.title}" >
+<title><l:title>${message.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
+<meta property="og:title" content="<l:title>${message.title}</l:title>" >
 
 <c:if test="${preparedMessage.section.imagepost}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
@@ -63,11 +64,11 @@
 <link rel="canonical" href="${template.mainUrlNoSlash}<%= message.getLinkPage(npage) %>">
 
 <c:if test="${prevMessage != null}">
-  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
+  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
 </c:if>
 
 <c:if test="${nextMessage != null}">
-  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
+  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>">
 </c:if>
 
 <c:if test="${not message.expired}">
@@ -131,7 +132,7 @@
             </td>
             <td align=left valign=top class="hideon-phone">
               <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
-                <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
+                <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
           </c:if>
@@ -146,7 +147,7 @@
           <tr valign=middle align=right>
             <td class="hideon-phone">
               <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
-                <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
             <td align="right" valign="middle" style="padding-left: 5px">
@@ -170,7 +171,7 @@
             </td>
             <td align=left valign=top class="hideon-phone">
               <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
-                <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
+                <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
           </c:if>
@@ -189,7 +190,7 @@
           <tr valign=middle align=right>
             <td class="hideon-phone">
               <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
-                <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
             <td align="right" valign="middle" style="padding-left: 5px">

@@ -17,6 +17,7 @@
 <%@ page import="java.util.Date"   buffer="200kb"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <rss version="2.0">
   <channel>
     <link>http://www.linux.org.ru/</link>
@@ -33,7 +34,7 @@
       <author><lor:user user="${msg.author}"/></author>
       <link>http://www.linux.org.ru${msg.message.link}</link>
       <guid>http://www.linux.org.ru${msg.message.link}</guid>
-      <title><c:out escapeXml="true" value="${msg.message.title}"/></title>
+      <title><l:title><c:out escapeXml="true" value="${msg.message.title}"/></l:title></title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
       </c:if>

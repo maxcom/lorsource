@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -189,13 +190,13 @@
 
     <c:if test="${firstPage and topic.pages<=1}">
         <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}">
-          ${topic_tags} ${topic.subj}
+          ${topic_tags} <l:title>${topic.subj}</l:title>
         </a>
     </c:if>
 
     <c:if test="${not firstPage or topic.pages>1}">
       <a href="${group.url}${topic.msgid}">
-          ${topic_tags} ${topic.subj}
+          ${topic_tags} <l:title>${topic.subj}</l:title>
       </a>
     </c:if>
 
