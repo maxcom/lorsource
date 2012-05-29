@@ -93,19 +93,16 @@ public class TagDao {
   /**
    * Получение списка первых букв тегов.
    *
-   * @param skipEmptyUsages пропускать ли буквы, теги которых нигде не используются
    * @return список первых букв тегов.
    */
-  SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
+  SortedSet<String> getFirstLetters() {
     final SortedSet<String> set = new TreeSet<String>();
 
     StringBuilder query = new StringBuilder();
     query.append("select distinct firstchar from ")
       .append("(select lower(substr(value,1,1)) as firstchar from tags_values ");
 
-    if (skipEmptyUsages) {
-      query.append(" where counter > 0 ");
-    }
+    query.append(" where counter > 0 ");
     query.append(" order by firstchar) firstchars");
 
     jdbcTemplate.query(

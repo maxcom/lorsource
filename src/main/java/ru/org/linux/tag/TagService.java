@@ -163,8 +163,8 @@ public class TagService {
    *
    * @return список первых букв тегов
    */
-  public SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
-    return tagDao.getFirstLetters(skipEmptyUsages);
+  public SortedSet<String> getFirstLetters() {
+    return tagDao.getFirstLetters();
   }
 
   /**

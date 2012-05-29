@@ -67,22 +67,18 @@ public class TagController {
    */
   @RequestMapping("/tags/{firstLetter}")
   public ModelAndView showTagListHandler(
-    @PathVariable String firstLetter,
-    HttpServletRequest request
+    @PathVariable String firstLetter
   )
     throws TagNotFoundException {
     ModelAndView modelAndView = new ModelAndView("tags");
 
-    Template tmpl = Template.getTemplate(request);
-    modelAndView.addObject("isModeratorSession", tmpl.isModeratorSession());
-
-    SortedSet<String> firstLetters = tagService.getFirstLetters(!tmpl.isModeratorSession());
+    SortedSet<String> firstLetters = tagService.getFirstLetters();
     modelAndView.addObject("firstLetters", firstLetters);
-
 
     if (Strings.isNullOrEmpty(firstLetter)) {
       firstLetter = firstLetters.first();
     }
+
     modelAndView.addObject("currentLetter", firstLetter);
 
     Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter);

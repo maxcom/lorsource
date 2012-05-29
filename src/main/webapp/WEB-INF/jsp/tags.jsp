@@ -17,6 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
@@ -66,7 +67,7 @@ ${status.first ? '' : ', '}
         </c:choose>
 
         (${tag.value})
-        <c:if test="${isModeratorSession}">
+        <c:if test="${template.moderatorSession}">
           <span class="action-buttons">
               <c:url var="edit_url" value="/tags/change">
                 <c:param name="firstLetter" value="${currentLetter}"/>
