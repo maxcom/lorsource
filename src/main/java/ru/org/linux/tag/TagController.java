@@ -52,11 +52,8 @@ public class TagController {
    * @return объект web-модели
    */
   @RequestMapping("/tags")
-  public ModelAndView showDefaultTagListHandlertags(
-    HttpServletRequest request
-  )
-    throws TagNotFoundException {
-    return showTagListHandler("", request);
+  public ModelAndView showDefaultTagListHandlertags() throws TagNotFoundException {
+    return showTagListHandler("");
   }
 
   /**
