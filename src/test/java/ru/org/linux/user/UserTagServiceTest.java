@@ -37,7 +37,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("UserTagService-context.xml")
+@ContextConfiguration("unit-tests-context.xml")
 public class UserTagServiceTest {
   @Autowired
   TagDao tagDao;

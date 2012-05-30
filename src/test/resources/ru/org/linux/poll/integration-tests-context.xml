@@ -19,16 +19,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
     >
 
-  <bean class="ru.org.linux.topic.stub.BeansProvider" id="beansProvider"/>
+    <import resource="classpath:database.xml"/>
+    <import resource="classpath:common.xml"/>
 
-  <bean id="tagDao"
-        factory-bean="beansProvider"
-        factory-method="getTagDao"/>
-
-  <bean id="userTagDao"
-        factory-bean="beansProvider"
-        factory-method="getUserTagDao"/>
-
-  <bean id="tagService" class="ru.org.linux.tag.TagService" />
+    <bean class="ru.org.linux.poll.PollDao" id="pollDao"/>
 
 </beans>
