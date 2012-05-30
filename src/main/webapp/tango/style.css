@@ -69,6 +69,7 @@ p {
 
 #hd {
     padding-left: 1em;
+    margin-bottom: 0.5em;
 }
 
 #hd:after {
@@ -90,7 +91,6 @@ p {
 }
 
 #hd .menu {
-	margin-bottom: 0.5em;
     font-size: 1.1em;
 }
 
