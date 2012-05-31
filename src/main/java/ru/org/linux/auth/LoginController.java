@@ -132,7 +132,7 @@ public class LoginController {
     }
   }
 
-  @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)
+  @RequestMapping(value = "/logout.jsp", method = {RequestMethod.GET, RequestMethod.POST})
   public ModelAndView logout(
           HttpServletRequest request,
           HttpSession session,
