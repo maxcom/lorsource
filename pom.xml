@@ -586,7 +586,7 @@
         <repository>
             <id>spymemcached</id>
             <name>spymemcached</name>
-            <url>http://bleu.west.spy.net/~dustin/m2repo/</url>
+            <url>http://files.couchbase.com/maven2/</url>
         </repository>
     </repositories>
 
