@@ -9,7 +9,7 @@ Disallow: /register.jsp
 Disallow: /people/*/edit
 Disallow: /lostpwd.jsp
 Disallow: /login.jsp
-Disallow: /logout.jsp
+Disallow: /logout
 Disallow: /edit-boxes.jsp
 Disallow: /add_comment.jsp
 Disallow: /people/*/settings

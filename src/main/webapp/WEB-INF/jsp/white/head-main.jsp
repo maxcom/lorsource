@@ -20,7 +20,7 @@
 
 <c:if test="${template.sessionAuthorized}">
 <div style="float: right">
-  [<a href="/logout.jsp?sessionId=<%= session.getId() %>">выйти</a>]
+  [<a href="/logout?sessionId=<%= session.getId() %>">выйти</a>]
 </div>
 </c:if>
 

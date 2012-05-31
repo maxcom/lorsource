@@ -23,7 +23,7 @@
 
 Подтвердите выход:
 
-<form action="logout.jsp" method="POST">
+<form action="logout" method="POST">
   <input type="hidden" value="<%= session.getId() %>" name="sessionId">
   <input type="submit" value="Logout">
 </form>
