@@ -73,7 +73,7 @@
 
 <c:set var="showPhotos" value="${template.prof.showPhotos}"/>
   <c:if test="${showPhotos}">
-    <lor:userpic author="${preparedMessage.author}"/>
+    <l:userpic author="${preparedMessage.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 

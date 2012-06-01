@@ -117,7 +117,7 @@
   &nbsp;</div>
 
   <c:if test="${template.prof.showPhotos}">
-    <lor:userpic author="${comment.author}"/>
+    <l:userpic author="${comment.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
