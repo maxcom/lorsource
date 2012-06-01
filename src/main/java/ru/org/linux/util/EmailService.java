@@ -40,7 +40,7 @@ public class EmailService {
 
     text.append("Здравствуйте!\n\n");
     if (isNew) {
-      text.append("\tВ форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n");
+      text.append("\tНа форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n");
     } else {
       text.append("\tНа форуме по адресу http://www.linux.org.ru/ была изменена регистрационная запись,\n");
     }
