@@ -49,7 +49,7 @@
 <%
 %>
 <div id="whois_userpic">
-  <lor:userpic author="${user}"/>
+  <l:userpic author="${user}"/>
     <div style="clear: both">
   </div>
 <c:if test="${user.photo !=null && moderatorOrCurrentUser}">

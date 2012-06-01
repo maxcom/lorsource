@@ -59,4 +59,16 @@
         <tag-class>ru.org.linux.site.tags.MakeTitleTag</tag-class>
         <body-content>JSP</body-content>
     </tag>
+    <tag>
+        <description>Userpic</description>
+        <name>userpic</name>
+        <tag-class>ru.org.linux.site.tags.UserPic</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>author</name>
+            <required>true</required>
+            <type>ru.org.linux.user.User</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>
