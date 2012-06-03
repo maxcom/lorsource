@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicPrepareService;
@@ -71,6 +72,17 @@ public class AddCommentController {
   @Autowired
   private TopicPrepareService messagePrepareService;
 
+  @Autowired
+  private SearchQueueSender searchQueueSender;
+
+  /**
+   * Показ формы добавления комментария.
+   *
+   * @param add      WEB-форма, содержащая данные
+   * @param request  данные запроса от web-клиента
+   * @return объект web-модели
+   * @throws Exception
+   */
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid CommentRequest add,
@@ -155,6 +167,7 @@ public class AddCommentController {
       request.getRemoteAddr(),
       request.getHeader("X-Forwarded-For")
     );
+    searchQueueSender.updateComment(comment.getId());
 
     String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
     return new ModelAndView(new RedirectView(returnUrl));

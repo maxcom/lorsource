@@ -98,9 +98,6 @@ public class CommentService {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private SearchQueueSender searchQueueSender;
-
-  @Autowired
   private IgnoreListDao ignoreListDao;
 
   /**
@@ -360,17 +357,46 @@ public class CommentService {
       }
     }
 
-    String logmessage = "Написан комментарий " + commentId + " ip:" + remoteAddress;
-    if (xForwardedFor != null) {
-      logmessage = logmessage + " XFF:" + xForwardedFor;
-    }
-
-    logger.info(logmessage);
-
-    // TODO надо разобраться с транзакциями и засунуть это в saveNewMessage
-    searchQueueSender.updateComment(commentId);
+    String logMessage = makeLogString("Написан комментарий " + commentId, remoteAddress, xForwardedFor);
+    logger.info(logMessage);
 
     return commentId;
+  }
+
+  /**
+   * Получить объект комментария по идентификационному номеру
+   *
+   * @param id идентификационный номер комментария
+   * @return объект комментария
+   * @throws MessageNotFoundException если комментарий не найден
+   */
+  public Comment getById(int id) throws MessageNotFoundException {
+    return commentDao.getById(id);
+  }
+
+  /**
+   * Формирование строки в лог-файл.
+   *
+   * @param message        сообщение
+   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+   * @return строка, готовая для добавления в лог-файл
+   */
+  private String makeLogString(String message, String remoteAddress, String xForwardedFor) {
+    StringBuilder logMessage = new StringBuilder();
+
+    logMessage
+      .append(message)
+      .append("; ip: ")
+      .append(remoteAddress);
+
+    if (xForwardedFor != null) {
+      logMessage
+        .append(" XFF:")
+        .append(xForwardedFor);
+    }
+
+    return logMessage.toString();
   }
 
   private String processMessage(String msg, String mode) {
