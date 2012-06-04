@@ -2,6 +2,7 @@
 <%@ page import="ru.org.linux.topic.TopicListController"   buffer="60kb" %>
 <%@ page import="ru.org.linux.user.User" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
