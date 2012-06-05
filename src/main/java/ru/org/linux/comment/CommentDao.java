@@ -90,12 +90,6 @@ public class CommentDao {
   private SimpleJdbcInsert insertMsgbase;
 
   @Autowired
-  private UserEventService userEventService;
-
-  @Autowired
-  private IgnoreListDao ignoreListDao;
-  
-  @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -166,7 +160,7 @@ public class CommentDao {
   }
 
   /**
-   * Удаляем клментарий, если на комментарий есть ответы - генерируем исключение
+   * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
    *
    * @param msgid      id удаляемого сообщения
    * @param reason     причина удаления
@@ -408,11 +402,16 @@ public class CommentDao {
     return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  /**
+   *
+   * @param comment
+   * @param message
+   * @return
+   * @throws MessageNotFoundException
+   */
   public int saveNewMessage(
           final Comment comment,
-          String message,
-          Set<User> userRefs
+          String message
   ) throws MessageNotFoundException {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
@@ -446,32 +445,6 @@ public class CommentDao {
             "message", message,
             "bbcode", true)
     );
-
-    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
-
-    if (comment.getReplyTo() != 0) {
-      try {
-        Comment parentComment = getById(comment.getReplyTo());
-
-        if (parentComment.getUserid() != comment.getUserid()) {
-          User parentAuthor = userDao.getUserCached(parentComment.getUserid());
-
-          if (!parentAuthor.isAnonymous()) {
-            Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
-
-            if (!ignoreList.contains(comment.getUserid())) {
-              userEventService.addReplyEvent(
-                      parentAuthor,
-                      comment.getTopicId(),
-                      msgid
-              );
-            }
-          }
-        }
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    }
 
     return msgid;
   }
