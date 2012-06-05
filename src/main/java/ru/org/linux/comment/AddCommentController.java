@@ -167,7 +167,7 @@ public class AddCommentController {
       request.getRemoteAddr(),
       request.getHeader("X-Forwarded-For")
     );
-    searchQueueSender.updateComment(comment.getId());
+    searchQueueSender.updateComment(msgid);
 
     String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
     return new ModelAndView(new RedirectView(returnUrl));

@@ -117,6 +117,11 @@ public class SearchQueueListener {
     boolean delete = false;
 
     for (Integer msgid : msgUpdate.getMsgids()) {
+      if (msgid==0) {
+        logger.warn("Skipping MSGID=0!!!");
+        continue;
+      }
+
       Comment comment = commentDao.getById(msgid);
 
       if (comment.isDeleted()) {

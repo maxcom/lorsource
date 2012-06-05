@@ -15,21 +15,21 @@
 
 package ru.org.linux.search;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.Session;
-
+import com.google.common.base.Preconditions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Component;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.Session;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class SearchQueueSender {
@@ -74,6 +74,8 @@ public class SearchQueueSender {
   }
 
   public void updateComment(final int msgid) {
+    Preconditions.checkArgument(msgid!=0, "msgid==0!?");
+
     jmsTemplate.send(queue, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
