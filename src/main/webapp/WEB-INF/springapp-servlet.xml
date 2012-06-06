@@ -33,6 +33,8 @@
 
     <context:annotation-config/>
 
+    <mvc:default-servlet-handler/>
+
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
