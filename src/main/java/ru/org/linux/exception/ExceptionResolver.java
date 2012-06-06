@@ -77,6 +77,11 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     Object handler,
     Exception ex
   ) {
+    // http://stackoverflow.com/questions/8271843/how-to-exclude-clientabortexception-from-simplemappingexceptionresolver
+    if (ex!=null && ex.getClass().getName().endsWith(".ClientAbortException") && response.isCommitted()) {
+      return null;
+    }
+
     ModelAndView modelAndView = super.doResolveException(request, response, handler, ex);
     if (modelAndView == null) {
       modelAndView = new ModelAndView("errors/common");
