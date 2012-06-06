@@ -53,7 +53,7 @@
       <li>Fedora 16</li>
       <li>СУБД PostgreSQL 9.1</li>
       <li>OpenJDK 1.6.0</li>
-      <li>Apache Tomcat 6</li>
+      <li>Apache Tomcat 7</li>
       <li>memcached 1.2</li>
       <li>ActiveMQ 5.3.2</li>
       <li>Spring 3.1</li>
