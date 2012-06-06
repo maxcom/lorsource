@@ -156,7 +156,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       mainUrl = tmpl.getMainUrl();
     }
 
-    text.append("Main URL: ").append(mainUrl).append(request.getPathInfo());
+    text.append("Main URL: ").append(mainUrl).append(request.getServletPath());
 
     if (request.getQueryString() != null) {
       text.append('?').append(request.getQueryString()).append('\n');

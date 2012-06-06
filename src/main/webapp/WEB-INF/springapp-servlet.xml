@@ -35,6 +35,10 @@
 
     <mvc:default-servlet-handler/>
 
+    <mvc:resources mapping="/gallery/*.jpg" location="/gallery/" cache-period="31556926"/>
+    <mvc:resources mapping="/gallery/*.png" location="/gallery/" cache-period="31556926"/>
+    <mvc:resources mapping="/gallery/*.gif" location="/gallery/" cache-period="31556926"/>
+
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
