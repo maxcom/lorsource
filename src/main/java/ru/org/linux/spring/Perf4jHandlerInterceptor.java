@@ -19,6 +19,8 @@ import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +35,10 @@ public class Perf4jHandlerInterceptor extends HandlerInterceptorAdapter {
           HttpServletResponse response,
           Object handler
   ) throws Exception {
+    if (handler instanceof ResourceHttpRequestHandler || handler instanceof DefaultServletHttpRequestHandler) {
+      return true;
+    }
+
     CommonsLogStopWatch watch = new CommonsLogStopWatch(handler.getClass().getSimpleName());
 
     watch.setTimeThreshold(TIME_THRESHOLD);
@@ -46,6 +52,8 @@ public class Perf4jHandlerInterceptor extends HandlerInterceptorAdapter {
   public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
     StopWatch stopWatch = (StopWatch) request.getAttribute(ATTRIBUTE);
 
-    stopWatch.stop();
+    if (stopWatch!=null) {
+      stopWatch.stop();
+    }
   }
 }
