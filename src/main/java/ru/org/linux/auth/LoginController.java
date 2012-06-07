@@ -179,6 +179,7 @@ public class LoginController {
     Cookie cookie = new Cookie("password", user.getMD5(configuration.getSecret()));
     cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
     cookie.setPath("/");
+    cookie.setHttpOnly(true);
     response.addCookie(cookie);
 
     Cookie prof = new Cookie("profile", user.getNick());

@@ -322,6 +322,7 @@ public class User implements Serializable {
     Cookie acegi = new Cookie(cookieName, tokenValueBase64);
     acegi.setMaxAge(Long.valueOf(expiryTime).intValue());
     acegi.setPath("/wiki");
+    acegi.setHttpOnly(true);
     response.addCookie(acegi);
 
     // Remove ACEGI_SECURITY_CONTEXT and session
