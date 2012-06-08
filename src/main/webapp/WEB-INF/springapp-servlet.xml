@@ -25,7 +25,9 @@
 
     <!-- the application context definition for the springapp DispatcherServlet -->
 
-    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="useSuffixPatternMatch" value="false"/>
+    </bean>
 
     <context:component-scan base-package="ru.org.linux" use-default-filters="false">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
@@ -107,7 +109,8 @@
 
     <bean id="jacksonMessageConverter"
           class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="messageConverters">
             <list>
                 <ref bean="jacksonMessageConverter"/>
