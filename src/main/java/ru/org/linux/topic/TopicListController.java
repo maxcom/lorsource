@@ -36,6 +36,7 @@ import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.*;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -87,7 +88,7 @@ public class TopicListController {
   ) throws Exception {
     topicListForm.setTag(tag);
 
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
     if (!rss) {
@@ -132,21 +133,20 @@ public class TopicListController {
   private ModelAndView mainTopicsFeedHandler(
     HttpServletRequest request,
     TopicListRequest topicListForm,
-    HttpServletResponse response
+    HttpServletResponse response,
+    @Nullable Group group
   ) throws Exception {
     Section section = null;
     if (topicListForm.getSection() != null && topicListForm.getSection()!=0) {
       section = sectionService.getSection(topicListForm.getSection());
     }
 
-    Group group = null;
-    if (topicListForm.getGroup() != null) {
-      group = groupDao.getGroup(topicListForm.getGroup());
-    }
     checkRequestConditions(section, group, topicListForm);
     Template tmpl = Template.getTemplate(request);
 
     ModelAndView modelAndView = new ModelAndView("view-news");
+
+    modelAndView.addObject("group", group);
 
     if(!Strings.isNullOrEmpty(topicListForm.getTag()) ||
         topicListForm.getSection() != null) {
@@ -216,8 +216,7 @@ public class TopicListController {
   ) throws Exception {
 
     topicListForm.setSection(Section.SECTION_GALLERY);
-    ModelAndView modelAndView =
-      mainTopicsFeedHandler(request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/gallery/");
     modelAndView.addObject("params", null);
@@ -240,8 +239,7 @@ public class TopicListController {
   ) throws Exception {
 
     topicListForm.setSection(Section.SECTION_FORUM);
-    ModelAndView modelAndView =
-      mainTopicsFeedHandler(request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/forum/lenta");
     modelAndView.addObject("params", null);
@@ -263,8 +261,7 @@ public class TopicListController {
     HttpServletResponse response
   ) throws Exception {
     topicListForm.setSection(Section.SECTION_POLLS);
-    ModelAndView modelAndView =
-      mainTopicsFeedHandler(request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/polls/");
     modelAndView.addObject("params", null);
@@ -286,8 +283,7 @@ public class TopicListController {
     HttpServletResponse response
   ) throws Exception {
     topicListForm.setSection(Section.SECTION_NEWS);
-    ModelAndView modelAndView =
-      mainTopicsFeedHandler(request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/news/");
     modelAndView.addObject("params", null);
@@ -374,7 +370,7 @@ public class TopicListController {
     topicListForm.setYear(year);
     topicListForm.setMonth(month);
 
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/gallery/archive/" + year + '/' + month + '/');
     modelAndView.addObject("params", null);
@@ -401,13 +397,8 @@ public class TopicListController {
     ModelAndView modelAndView = new ModelAndView();
 
     Section section = null;
-    Group group = null;
     if (topicListForm.getSection() != null && topicListForm.getSection() != 0) {
       section = sectionService.getSection(topicListForm.getSection());
-
-      if (topicListForm.getGroup() != null && topicListForm.getGroup() != 0) {
-        group = groupDao.getGroup(topicListForm.getGroup());
-      }
     }
 
     if (topicListForm.getTag() != null) {
@@ -435,7 +426,7 @@ public class TopicListController {
     List<Topic> messages = topicListService.getUserTopicsFeed(
       user,
       section,
-      group,
+      null,
       topicListForm.getOffset(),
       false,
       false
@@ -445,12 +436,6 @@ public class TopicListController {
     if (!rss) {
       if (section != null) {
         modelAndView.addObject("section", section);
-        modelAndView.addObject("group", group);
-        List<Group> groupList = groupDao.getGroups(section);
-        if (groupList.size() == 1) {
-          groupList = null;
-        }
-        modelAndView.addObject("groupList", groupList);
       }
       modelAndView.addObject("sectionList", sectionService.getSectionList());
     }
@@ -458,12 +443,8 @@ public class TopicListController {
     if (Integer.valueOf(0).equals(topicListForm.getSection())) {
       topicListForm.setSection(null);
     }
-    if (Integer.valueOf(0).equals(topicListForm.getGroup())) {
-      topicListForm.setGroup(null);
-    }
     URLUtil.QueryString queryString = new URLUtil.QueryString();
     queryString.add("section", topicListForm.getSection());
-    queryString.add("group", topicListForm.getGroup());
     queryString.add("tag", topicListForm.getTag());
     modelAndView.addObject("params", queryString.toString());
 
@@ -612,13 +593,9 @@ public class TopicListController {
   @Deprecated
   @RequestMapping(value = "/view-news.jsp", params = {"section", "!tag"})
   public View oldLink(
-    TopicListRequest topicListForm
+    TopicListRequest topicListForm,
+    @RequestParam(value="group", defaultValue = "0") int groupId
   ) throws Exception {
-
-    if (Integer.valueOf(0).equals(topicListForm.getGroup())) {
-      topicListForm.setGroup(null);
-    }
-
     StringBuilder redirectLink = new StringBuilder();
     redirectLink.append(Section.getNewsViewerLink(topicListForm.getSection()));
 
@@ -627,8 +604,8 @@ public class TopicListController {
         .append(topicListForm.getYear())
         .append('/')
         .append(topicListForm.getMonth());
-    } else if (topicListForm.getGroup() != null) {
-      Group group = groupDao.getGroup(topicListForm.getGroup());
+    } else if (groupId>0) {
+      Group group = groupDao.getGroup(groupId);
       redirectLink
         .append(group.getUrlName())
         .append('/');
@@ -650,7 +627,8 @@ public class TopicListController {
   @RequestMapping("/section-rss.jsp")
   public ModelAndView showRSS(
     HttpServletRequest request,
-    TopicListRequest topicListForm
+    TopicListRequest topicListForm,
+    @RequestParam(value="group", defaultValue = "0") int groupId
   ) throws Exception {
 
     final String[] filterValues = {"all", "notalks", "tech"};
@@ -667,15 +645,11 @@ public class TopicListController {
       topicListForm.setSection(1);
     }
 
-    if (topicListForm.getGroup() == null) {
-      topicListForm.setGroup(0);
-    }
-
     String userAgent = request.getHeader("User-Agent");
     final boolean feedBurner = userAgent != null && userAgent.contains("FeedBurner");
 
     if (topicListForm.getSection() == 1 &&
-            topicListForm.getGroup() == 0 && !notalks && !tech && !feedBurner
+            groupId == 0 && !notalks && !tech && !feedBurner
       && request.getParameter("noredirect") == null) {
       return new ModelAndView(new RedirectView("http://feeds.feedburner.com/org/LOR"));
     }
@@ -684,11 +658,10 @@ public class TopicListController {
     String ptitle = section.getName();
 
     Group group = null;
-    if (topicListForm.getGroup() != 0) {
-      group = groupDao.getGroup(topicListForm.getGroup());
+    if (groupId != 0) {
+      group = groupDao.getGroup(groupId);
       ptitle += " - " + group.getTitle();
     }
-
 
     checkRequestConditions(section, group, topicListForm);
 
@@ -760,14 +733,6 @@ public class TopicListController {
     return user;
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param groupName
-   * @param response
-   * @return
-   * @throws Exception
-   */
   private ModelAndView group(
     HttpServletRequest request,
     TopicListRequest topicListForm,
@@ -777,12 +742,12 @@ public class TopicListController {
     Section section = sectionService.getSection(topicListForm.getSection());
 
     Group group = groupDao.getGroup(section, groupName);
-    topicListForm.setGroup(group.getId());
 
     ModelAndView modelAndView = mainTopicsFeedHandler(
       request,
       topicListForm,
-      response
+      response,
+      group
     );
 
     modelAndView.addObject("url", group.getUrl());

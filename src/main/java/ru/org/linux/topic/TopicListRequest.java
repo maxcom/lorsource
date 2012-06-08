@@ -46,14 +46,6 @@ public class TopicListRequest {
     this.output = output;
   }
 
-  public Integer getGroup() {
-    return group;
-  }
-
-  public void setGroup(Integer group) {
-    this.group = group;
-  }
-
   public Integer getMonth() {
     return month;
   }

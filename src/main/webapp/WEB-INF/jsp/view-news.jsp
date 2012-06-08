@@ -85,12 +85,6 @@
             <form:option value="0" label="Все" />
             <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
           </form:select>
-          <c:if test="${groupList != null}">
-          <form:select path="group" onchange="$('#filterForm').submit();">
-            <form:option value="0" label="Все" />
-            <form:options items="${groupList}" itemLabel="title" itemValue="id" />
-          </form:select>
-          </c:if>
           <noscript><input type='submit' value='&gt;'></noscript>
         </form:form>
       </c:if>
