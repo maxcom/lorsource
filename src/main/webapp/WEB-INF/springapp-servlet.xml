@@ -42,7 +42,7 @@
     <mvc:resources mapping="/gallery/*.gif" location="/gallery/" cache-period="31556926"/>
     <mvc:resources mapping="/gallery/preview/*.jpg" location="/gallery/preview/" cache-period="31556926"/>
     <mvc:resources mapping="/gallery/preview/*.png" location="/gallery/preview/" cache-period="31556926"/>
-    <mvc:resources mapping="/gallery/preview/*.git" location="/gallery/preview/" cache-period="31556926"/>
+    <mvc:resources mapping="/gallery/preview/*.gif" location="/gallery/preview/" cache-period="31556926"/>
 
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.InternalResourceViewResolver">
