@@ -47,8 +47,8 @@ public class MsgbaseDao {
     namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
   
-  public String getMessageTextFromWiki(int topic_id) {
-    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topic_id);
+  public String getMessageTextFromWiki(int topicId) {
+    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topicId);
   }
 
   public MessageText getMessageText(int msgid) {
