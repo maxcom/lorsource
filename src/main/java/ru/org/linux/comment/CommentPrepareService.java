@@ -38,22 +38,18 @@ public class CommentPrepareService {
   @Autowired
   private MsgbaseDao msgbaseDao;
 
-  public PreparedComment prepareCommentRSS(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, true);
-  }
-
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, false);
-  }
-
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
+  private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
+
+    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+
     if(!rss) {
-      processedMessage = prepareCommentText(comment.getId(), secure);
+      processedMessage = prepareCommentText(messageText, secure);
     } else {
-      processedMessage = prepareCommentTextRSS(comment.getId(), secure);
+      processedMessage = prepareCommentTextRSS(messageText, secure);
     }
+
     User replyAuthor;
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -71,7 +67,7 @@ public class CommentPrepareService {
   }
 
   public PreparedComment prepareComment(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, (CommentList)null, secure);
+    return prepareComment(comment, null, secure, false);
   }
 
   public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
@@ -84,7 +80,7 @@ public class CommentPrepareService {
   public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareCommentRSS(comment, comments, secure));
+      commentsPrepared.add(prepareComment(comment, comments, secure, true));
     }
     return commentsPrepared;
   }
@@ -92,7 +88,7 @@ public class CommentPrepareService {
   public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure));
+      commentsPrepared.add(prepareComment(comment, comments, secure, false));
     }
     return commentsPrepared;
   }
@@ -100,13 +96,11 @@ public class CommentPrepareService {
   /**
    * Получить html представление текста комментария
    *
-   * @param id id комментария
+   * @param messageText текст комментария
    * @param secure https соединение?
    * @return строку html комментария
    */
-  public String prepareCommentText(int id, final boolean secure) {
-    MessageText messageText = msgbaseDao.getMessageText(id);
-
+  private String prepareCommentText(MessageText messageText, final boolean secure) {
     if (messageText.isLorcode()) {
       return lorCodeService.parseComment(messageText.getText(), secure);
     } else {
@@ -117,13 +111,11 @@ public class CommentPrepareService {
   /**
    * Получить RSS представление текста комментария
    *
-   * @param id id комментария
+   * @param messageText текст комментария
    * @param secure https соединение?
    * @return строку html комментария
    */
-  public String prepareCommentTextRSS(int id, final boolean secure) {
-    MessageText messageText = msgbaseDao.getMessageText(id);
-
+  private String prepareCommentTextRSS(MessageText messageText, final boolean secure) {
     return lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());
   }
 }
