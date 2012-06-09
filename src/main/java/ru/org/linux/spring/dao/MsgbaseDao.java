@@ -16,8 +16,10 @@
 package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -25,6 +27,9 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class MsgbaseDao {
@@ -62,7 +67,26 @@ public class MsgbaseDao {
       }
     }, msgid);
   }                  
-  
+
+  public Map<Integer, MessageText> getMessageText(Collection<Integer> msgids) {
+    final Map<Integer, MessageText> out = Maps.newHashMapWithExpectedSize(msgids.size());
+
+    namedJdbcTemplate.query(
+            "SELECT message, bbcode, id FROM msgbase WHERE id IN (:list)",
+            ImmutableMap.of("list", msgids),
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet resultSet) throws SQLException {
+                String text = resultSet.getString("message");
+                boolean lorcode = resultSet.getBoolean("bbcode");
+
+                out.put(resultSet.getInt("id"), new MessageText(text, lorcode));
+              }
+            });
+
+    return out;
+  }
+
   public void updateMessage(int msgid, String text) {
     namedJdbcTemplate.update(
       "UPDATE msgbase SET message=:message WHERE id=:msgid",

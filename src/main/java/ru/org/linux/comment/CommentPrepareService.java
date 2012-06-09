@@ -15,6 +15,10 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.dao.MessageText;
@@ -24,8 +28,11 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommentPrepareService {
@@ -39,10 +46,14 @@ public class CommentPrepareService {
   private MsgbaseDao msgbaseDao;
 
   private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
+    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+
+    return prepareComment(messageText, comment, comments, secure, rss);
+  }
+
+  private PreparedComment prepareComment(MessageText messageText, Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
-
-    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
 
     if(!rss) {
       processedMessage = prepareCommentText(messageText, secure);
@@ -86,9 +97,26 @@ public class CommentPrepareService {
   }
 
   public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+    if (list.isEmpty()) {
+      return ImmutableList.of();
+    }
+
+    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(
+            Lists.newArrayList(
+                    Iterables.transform(list, new Function<Comment, Integer>() {
+                      @Override
+                      public Integer apply(Comment comment) {
+                        return comment.getId();
+                      }
+                    })
+            )
+    );
+
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure, false));
+      MessageText text = texts.get(comment.getId());
+
+      commentsPrepared.add(prepareComment(text, comment, comments, secure, false));
     }
     return commentsPrepared;
   }
