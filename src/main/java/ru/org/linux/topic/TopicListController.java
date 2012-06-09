@@ -360,12 +360,13 @@ public class TopicListController {
   @RequestMapping("/{section}/archive/{year}/{month}")
   public ModelAndView galleryArchive(
     HttpServletRequest request,
-    TopicListRequest topicListForm,
     @PathVariable String section,
     @PathVariable int year,
     @PathVariable int month,
     HttpServletResponse response
   ) throws Exception {
+    TopicListRequest topicListForm = new TopicListRequest();
+
     topicListForm.setSection(Section.getSection(section));
     topicListForm.setYear(year);
     topicListForm.setMonth(month);
