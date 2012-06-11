@@ -77,15 +77,15 @@
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
+  <div class="fav-buttons">
+    <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
+    <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
+  </div>
+
   <div class="msg_body ${msgBodyStyle}">
   <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
     <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
-
-    <div class="fav-buttons">
-      <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
-      <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
-    </div>
 
   <c:if test="${preparedMessage.section.imagepost}">
     <lor:image enableSchema="true" preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
