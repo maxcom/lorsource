@@ -44,6 +44,7 @@ import java.util.*;
 @Controller
 public class TopicListController {
   private static final UriTemplate TAG_URI_TEMPLATE = new UriTemplate("/tag/{tag}");
+  private static final UriTemplate TAGS_URI_TEMPLATE = new UriTemplate("/tags/{tag}");
 
   @Autowired
   private SectionService sectionService;
@@ -77,6 +78,10 @@ public class TopicListController {
 
   public static String tagListUrl(String tag) {
     return TAG_URI_TEMPLATE.expand(tag).toString();
+  }
+
+  public static String tagsUrl(char letter) {
+    return TAGS_URI_TEMPLATE.expand(letter).toString();
   }
 
   @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
