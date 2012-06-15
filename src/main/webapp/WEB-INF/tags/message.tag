@@ -123,7 +123,7 @@
     </c:if>
 <footer>
 <c:if test="${not empty preparedMessage.tags}">
-  <lor:tags list="${preparedMessage.tags}"/>
+  <l:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
