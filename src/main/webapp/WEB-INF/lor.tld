@@ -71,4 +71,16 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <description>Tags</description>
+        <name>tags</name>
+        <tag-class>ru.org.linux.site.tags.TagsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>list</name>
+            <required>true</required>
+            <type>java.util.List</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

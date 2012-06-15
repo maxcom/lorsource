@@ -18,6 +18,7 @@
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <description><![CDATA[
   <c:if test="${preparedMessage.section.imagepost}">
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
@@ -38,7 +39,7 @@
   
   <c:if test="${not empty preparedMessage.tags}">
     <p>
-      <lor:tags list="${preparedMessage.tags}"/>
+      <l:tags list="${preparedMessage.tags}"/>
     </p>
   </c:if>  
 ]]>

@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TopicListController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -253,13 +254,8 @@ public class TagController {
    * @return объект web-модели
    */
   private ModelAndView redirectToListPage(String tagName) {
-    String firstLetter = String.valueOf(tagName.toLowerCase().charAt(0));
-    String redirectUrl;
-    try {
-      redirectUrl = "/tags/" + URLEncoder.encode(firstLetter, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      redirectUrl = "/tags";
-    }
+    char firstLetter = tagName.toLowerCase().charAt(0);
+    String redirectUrl = TopicListController.tagsUrl(firstLetter);
     ModelAndView modelAndView = new ModelAndView(new RedirectView(redirectUrl));
     return modelAndView;
   }

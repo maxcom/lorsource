@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
@@ -55,7 +56,7 @@
           <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? "#" : editHistory.url}">${editHistory.linktext==null ? "(текст ссылки не изменен)" : editHistory.linktext}</a>
         </c:if>
         <c:if test="${editHistory.tags != null}">
-          <lor:tags list="${editHistory.tags}"/>
+          <l:tags list="${editHistory.tags}"/>
         </c:if>
       </div>
     </div>
