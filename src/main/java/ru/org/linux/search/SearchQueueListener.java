@@ -47,28 +47,18 @@ import java.util.List;
 @Component
 public class SearchQueueListener {
   private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
-  
+
+  @Autowired
   private SolrServer solrServer;
-  private TopicDao messageDao;
+
+  @Autowired
+  private TopicDao topicDao;
+
+  @Autowired
   private CommentDao commentDao;
   
   @Autowired
   private MsgbaseDao msgbaseDao;
-
-  @Autowired
-  public void setSolrServer(SolrServer solrServer) {
-    this.solrServer = solrServer;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
-  }
 
   public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing "+msgUpdate.getMsgid());
@@ -78,7 +68,7 @@ public class SearchQueueListener {
   }
 
   private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
-    Topic msg = messageDao.getById(msgid);
+    Topic msg = topicDao.getById(msgid);
 
     if (!msg.isDeleted()) {
       updateMessage(msg);
@@ -132,7 +122,7 @@ public class SearchQueueListener {
         // комментарии могут быть из разного топика в функция массового удаления
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
-        Topic topic = messageDao.getById(comment.getTopicId());
+        Topic topic = topicDao.getById(comment.getTopicId());
         String message = msgbaseDao.getMessageText(comment.getId()).getText();
         rq.add(processComment(topic, comment, message));
       }
@@ -154,7 +144,7 @@ public class SearchQueueListener {
     logger.info("Indexing month "+ year + '/' + month);
     long startTime = System.nanoTime();
 
-    List<Integer> topicIds = messageDao.getMessageForMonth(year, month);
+    List<Integer> topicIds = topicDao.getMessageForMonth(year, month);
     for(int topicId : topicIds) {
       reindexMessage(topicId, true);
     }
