@@ -314,7 +314,7 @@ public class TopicPrepareService {
     List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, null);
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, user, null);
       TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
