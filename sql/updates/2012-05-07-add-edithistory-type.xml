@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012050701" author="Slava Zanko">
+        <sql>
+            CREATE TYPE edit_event_type AS ENUM ('TOPIC', 'COMMENT');
+        </sql>
+    </changeSet>
+
+    <changeSet id="2012050702" author="Slava Zanko">
+        <sql>
+            ALTER TABLE edit_info ADD COLUMN object_type edit_event_type DEFAULT 'TOPIC';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

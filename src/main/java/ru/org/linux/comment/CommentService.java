@@ -1,4 +1,5 @@
 /*
+/*
  * Copyright 1998-2012 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +19,6 @@ package ru.org.linux.comment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +29,14 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
+import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -53,7 +58,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,6 +108,9 @@ public class CommentService {
   @Autowired
   private IgnoreListDao ignoreListDao;
 
+  @Autowired
+  private EditHistoryService editHistoryService;
+
   /**
    * @param binder
    */
@@ -143,11 +154,13 @@ public class CommentService {
   }
 
   /**
-   * @param commentRequest
-   * @param user
-   * @param ipBlockInfo
-   * @param request
-   * @param errors
+   * Проверка валидности данных запроса.
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param user            пользователь, добавляющий или изменяющий комментарий
+   * @param ipBlockInfo     информация о банах
+   * @param request         данные запроса от web-клиента
+   * @param errors          обработчик ошибок ввода для формы
    * @throws UserNotFoundException
    * @throws UnknownHostException
    * @throws TextParseException
@@ -203,10 +216,12 @@ public class CommentService {
   }
 
   /**
-   * @param commentRequest
-   * @param user
-   * @param errors
-   * @return
+   * Получить текст комментария.
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param user            пользователь, добавляющий или изменяющий комментарий
+   * @param errors          обработчик ошибок ввода для формы
+   * @return текст комментария
    */
   public String getCommentBody(
     CommentRequest commentRequest,
@@ -227,10 +242,12 @@ public class CommentService {
   }
 
   /**
-   * @param commentRequest
-   * @param user
-   * @param request
-   * @return
+   * Получить объект комментария из WEB-запроса.
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param user            пользователь, добавляющий или изменяющий комментарий
+   * @param request         данные запроса от web-клиента
+   * @return объект комментария из WEB-запроса
    */
   public Comment getComment(
     CommentRequest commentRequest,
@@ -249,23 +266,31 @@ public class CommentService {
 
       Integer replyto = commentRequest.getReplyto() != null ? commentRequest.getReplyto().getId() : null;
 
+      int commentId = commentRequest.getOriginal() == null
+        ? 0
+        : commentRequest.getOriginal().getId();
+
       comment = new Comment(
         replyto,
         StringUtil.escapeHtml(title),
         commentRequest.getTopic().getId(),
+        commentId,
         user.getId(),
         request.getHeader("user-agent"),
-        request.getRemoteAddr()
+        request.getRemoteAddr(),
+        commentDao.getReplaysCount(commentId) > 0
       );
     }
     return comment;
   }
 
   /**
-   * @param commentRequest
-   * @param request
-   * @param errors
-   * @return
+   * Получить объект пользователя, добавляющего или изменяющего комментарий
+   *
+   * @param commentRequest  WEB-форма, содержащая данные
+   * @param request         данные запроса от web-клиента
+   * @param errors          обработчик ошибок ввода для формы
+   * @return объект пользователя
    */
   public User getCommentUser(
     CommentRequest commentRequest,
@@ -311,11 +336,11 @@ public class CommentService {
   /**
    * Создание нового комментария.
    *
-   * @param comment
-   * @param commentBody
-   * @param remoteAddress
-   * @param xForwardedFor
-   * @return
+   * @param comment        объект комментария
+   * @param commentBody    текст комментария
+   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+   * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -364,6 +389,58 @@ public class CommentService {
   }
 
   /**
+   * Редактирование комментария.
+   *
+   * @param oldComment     данные старого комментария
+   * @param newComment     данные нового комментария
+   * @param commentBody    текст нового комментария
+   * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
+   * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+   * @throws ServletParameterException
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void edit(
+    Comment oldComment,
+    Comment newComment,
+    String commentBody,
+    String remoteAddress,
+    String xForwardedFor
+  )
+    throws ServletParameterException {
+
+    commentDao.edit(oldComment, newComment, commentBody);
+
+    /* кастование пользователей */
+    Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
+
+    MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
+    Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
+    Set<User> userRefs = new HashSet<User>();
+    /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
+    for (User user : newUserRefs) {
+      if (!oldUserRefs.contains(user)) {
+        userRefs.add(user);
+      }
+    }
+
+    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), oldComment.getTopicId(), oldComment.getId());
+
+    String logMessage = makeLogString("Изменён комментарий " + oldComment.getId(), remoteAddress, xForwardedFor);
+    logger.info(logMessage);
+
+  }
+
+  /**
+   * Проверка, имеет ли указанный комментарий ответы.
+   *
+   * @param comment  объект комментария
+   * @return true если есть ответы, иначе false
+   */
+  public boolean isHaveAnswers(Comment comment) {
+    return commentDao.isHaveAnswers(comment.getId());
+  }
+
+  /**
    * Получить объект комментария по идентификационному номеру
    *
    * @param id идентификационный номер комментария
@@ -372,6 +449,196 @@ public class CommentService {
    */
   public Comment getById(int id) throws MessageNotFoundException {
     return commentDao.getById(id);
+  }
+
+  /**
+   * Добавить элемент истории для комментария.
+   *
+   * @param editor              пользователь, изменивший комментарий
+   * @param original            оригинал (старый комментарий)
+   * @param originalMessageText старое содержимое комментария
+   * @param comment             изменённый комментарий
+   * @param messageText         новое содержимое комментария
+   */
+  public void addEditHistoryItem(User editor, Comment original, String originalMessageText, Comment comment, String messageText) {
+
+    EditHistoryDto editHistoryDto = new EditHistoryDto();
+    editHistoryDto.setMsgid(original.getId());
+    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
+    editHistoryDto.setEditor(editor.getId());
+
+    boolean modified = false;
+    if (!original.getTitle().equals(comment.getTitle())) {
+      editHistoryDto.setOldtitle(original.getTitle());
+      modified = true;
+    }
+
+    if (!originalMessageText.equals(messageText)) {
+      editHistoryDto.setOldmessage(originalMessageText);
+      modified = true;
+    }
+
+    if (modified) {
+      editHistoryService.insert(editHistoryDto);
+    }
+
+  }
+
+  /**
+   * Обновление информации о последнем изменении коммента.
+   *
+   * @param editor   пользователь, изменивший комментарий
+   * @param original оригинал (старый комментарий)
+   * @param comment  изменённый комментарий
+   */
+  public void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
+    List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
+
+    int historySize = editHistoryDtoList.size();
+    if (historySize == 1) {
+      historySize = 0;
+    }
+
+    commentDao.updateLatestEditorInfo(
+      original.getId(),
+      editor.getId(),
+      comment.getPostdate(),
+      historySize + 1
+    );
+  }
+
+  /**
+   * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
+   *
+   * @param msgid      id удаляемого сообщения
+   * @param reason     причина удаления
+   * @param user       модератор который удаляет
+   * @param scoreBonus кол-во отрезаемого шкворца
+   * @throws ru.org.linux.site.ScriptErrorException генерируем исключение если на комментарий есть ответы
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
+
+    if (commentDao.getReplaysCount(msgid) != 0) {
+      throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
+    }
+
+    boolean deleted = commentDao.deleteComment(msgid, reason, user, scoreBonus);
+
+    if (deleted) {
+      commentDao.updateStatsAfterDelete(msgid, 1);
+    }
+
+    return deleted;
+  }
+
+  /**
+   * Список комментариев топика.
+   *
+   * @param topicId     id топика
+   * @param showDeleted вместе с удаленными
+   * @return список комментариев топика
+   */
+  public List<Comment> getCommentList(int topicId, boolean showDeleted) {
+    return commentDao.getCommentList(topicId, showDeleted);
+  }
+
+  /**
+   * Список комментариев топика.
+   *
+   * @param topic       топик
+   * @param showDeleted вместе с удаленными
+   * @return список комментариев топика
+   */
+  public CommentList getCommentList(Topic topic, boolean showDeleted) {
+    CacheProvider mcc = MemCachedSettings.getCache();
+
+    String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;
+
+    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
+
+    if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
+      commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      mcc.storeToCache(cacheId, commentList);
+    }
+
+    return commentList;
+  }
+
+  /**
+   * Удаление ответов на комментарии.
+   *
+   * @param msgid  идентификационнай номер комментария
+   * @param user   пользователь, удаляющий комментарий
+   * @param score  сколько снять скора у автора комментария
+   * @return список идентификационных номеров удалённых комментариев
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
+    return commentDao.doDeleteReplys(msgid, user, score);
+  }
+
+  /**
+   * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
+   *
+   * @param ip        ip для которых удаляем сообщения (не проверяется на корректность)
+   * @param timeDelta врменной промежуток удаления (не проверяется на корректность)
+   * @param moderator экзекутор-можератор
+   * @param reason    причина удаления, которая будет вписана для удаляемых топиков
+   * @return список id удаленных сообщений
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public DeleteCommentResult deleteCommentsByIPAddress(
+    String ip,
+    Timestamp timeDelta,
+    final User moderator,
+    final String reason) {
+    return commentDao.deleteCommentsByIPAddress(ip, timeDelta, moderator, reason);
+  }
+
+  /**
+   * Получить список комментариев пользователя.
+   *
+   * @param user    объект пользователя
+   * @param limit   сколько записей должно быть в ответе
+   * @param offset  начиная с какой позиции выдать ответ
+   * @return список комментариев пользователя
+   */
+  public List<CommentDao.CommentsListItem> getUserComments(User user, int limit, int offset) {
+    return commentDao.getUserComments(user.getId(), limit, offset);
+  }
+
+  /**
+   * Получить список последних удалённых комментариев пользователя.
+   *
+   * @param user  объект пользователя
+   * @return список удалённых комментариев пользователя
+   */
+  public List<CommentDao.DeletedListItem> getDeletedComments(User user) {
+    return commentDao.getDeletedComments(user.getId());
+  }
+
+  /**
+   * Блокировка и массивное удаление всех топиков и комментариев пользователя со всеми ответами на комментарии
+   *
+   * @param user      пользователь для экзекуции
+   * @param moderator экзекутор-модератор
+   * @param reason    прична блокировки
+   * @return список удаленных комментариев
+   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
+    List<Integer> deletedTopicIds = new ArrayList<Integer>();
+    List<Integer> deletedCommentIds = new ArrayList<Integer>();
+
+    userDao.blockWithoutTransaction(user, moderator, reason);
+
+    deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
+
+    deletedCommentIds = commentDao.deleteAllByUser(user, moderator);
+
+    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
   }
 
   /**
@@ -399,6 +666,13 @@ public class CommentService {
     return logMessage.toString();
   }
 
+  /**
+   * Обработать тект комментария посредством парсеров (LorCode или Tex).
+   *
+   * @param msg   текст комментария
+   * @param mode  режим обработки
+   * @return обработанная строка
+   */
   private String processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);

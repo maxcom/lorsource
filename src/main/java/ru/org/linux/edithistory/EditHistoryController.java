@@ -20,6 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.comment.Comment;
+import ru.org.linux.comment.CommentService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
@@ -35,6 +37,9 @@ public class EditHistoryController {
   @Autowired
   private EditHistoryService editHistoryService;
 
+  @Autowired
+  private CommentService commentService;
+
   @RequestMapping({
     "/news/{group}/{id}/history",
     "/forum/{group}/{id}/history",
@@ -48,6 +53,34 @@ public class EditHistoryController {
     Topic message = messageDao.getById(msgid);
 
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message, request.isSecure());
+
+    ModelAndView modelAndView = new ModelAndView("history");
+
+    List<String> javaScriptsForLayout = new ArrayList<String>();
+    javaScriptsForLayout.add("diff_match_patch.js");
+    javaScriptsForLayout.add("lor_view_diff_history.js");
+    modelAndView.addObject("javascriptsForLayout", javaScriptsForLayout);
+
+    modelAndView.getModel().put("message", message);
+    modelAndView.getModel().put("editHistories", editHistories);
+
+    return modelAndView;
+  }
+  @RequestMapping({
+    "/news/{group}/{id}/{commentid}/history",
+    "/forum/{group}/{id}/{commentid}/history",
+    "/gallery/{group}/{id}/{commentid}/history",
+    "/polls/{group}/{id}/{commentid}/history"
+  })
+  public ModelAndView showCommentEditInfo(
+    HttpServletRequest request,
+    @PathVariable("id") int msgid,
+    @PathVariable("commentid") int commentId
+  ) throws Exception {
+    Topic message = messageDao.getById(msgid);
+    Comment comment =  commentService.getById(commentId);
+
+    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(comment, request.isSecure());
 
     ModelAndView modelAndView = new ModelAndView("history");
 

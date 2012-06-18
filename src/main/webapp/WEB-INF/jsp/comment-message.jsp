@@ -2,6 +2,7 @@
 <%@ page buffer="200kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,11 +41,14 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
+<c:url var="form_action_url" value="/add_comment.jsp" />
+
 <lor:commentForm
         topic="${add.topic}"
         title=""
         mode="${add.mode}"
         ipBlockInfo="${ipBlockInfo}"
+        form_action_url="${form_action_url}"
         postscoreInfo="${preparedMessage.postscoreInfo}" />
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

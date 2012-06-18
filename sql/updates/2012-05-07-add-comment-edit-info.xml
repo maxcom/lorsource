@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012050703" author="Slava Zanko">
+        <addColumn tableName="comments">
+            <column name="editor_id" type="integer">
+                <constraints foreignKeyName="comments_editor_id_fkey" references="users(id)"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="comments">
+            <column name="edit_date" type="java.sql.Types.Timestamp"/>
+        </addColumn>
+        <addColumn tableName="comments">
+            <column name="edit_count" type="Integer" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

@@ -72,6 +72,39 @@
 //        logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
     }
   }
+
+  Boolean deletable = moderatorMode ||
+    (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()));
+
+  Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
+  if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
+    Integer minutesToEdit = tmpl.getConfig().getCommentExpireMinutesForEdit();
+
+    boolean isbyMinutesEnable = false;
+    if (minutesToEdit != null && !minutesToEdit.equals(0)) {
+      long commentTimestamp = comment.getComment().getPostdate().getTime();
+      long deltaTimestamp = minutesToEdit * 60 * 1000;
+      long nowTimestamp = new java.util.Date().getTime();
+
+      isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
+    } else {
+      isbyMinutesEnable = true;
+    }
+
+    boolean isbyAnswersEnable = true;
+    if (!tmpl.getConfig().isCommentEditingAllowedIfAnswersExists()
+      && comment.isHaveAnswers()) {
+      isbyAnswersEnable = false;
+    }
+
+    Integer scoreToEdit = tmpl.getConfig().getCommentScoreValueForEditing();
+    boolean isByScoreEnable = true;
+    if (scoreToEdit != null && scoreToEdit > tmpl.getCurrentUser().getScore()) {
+      isByScoreEnable = false;
+    }
+
+    editable = isbyMinutesEnable & isbyAnswersEnable & isByScoreEnable;
+  }
 %>
   <c:set var="reply" value="<%= reply %>"/>
   <c:set var="replyPage" value="<%= replyPage %>"/>
@@ -80,6 +113,8 @@
   <c:set var="replyDate" value="<%= replyDate %>"/>
   <c:set var="showLastMod" value="<%= showLastMod %>"/>
   <c:set var="replyAuthor" value="<%= replyAuthor %>"/>
+  <c:set var="deletable" value="<%= deletable %>"/>
+  <c:set var="editable" value="<%= editable %>"/>
 
   <c:choose>
     <c:when test="${not comment.comment.deleted}">
@@ -130,8 +165,20 @@
 
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
+
       <c:if test="${template.moderatorSession}">
         (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+      </c:if>
+
+      <c:if test="${comment.comment.editCount != 0}">
+        <span class="sign_more">
+        <br>
+        Последнее исправление: ${comment.comment.editNick} <lor:date date="${comment.comment.editDate}"/>
+        (всего <a href="${topic.link}/${comment.comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
+        </span>
+      </c:if>
+
+      <c:if test="${template.moderatorSession}">
         <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
@@ -142,17 +189,24 @@
   <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
 
-      <c:if test="${deletable or commentsAllowed}">
+      <c:if test="${deletable or editable or commentsAllowed}">
       <ul>
       <c:if test="${commentsAllowed}">
         <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
+      </c:if>
+
+      <c:if test="${editable}">
+        <c:url var="edit_url" value="/edit_comment">
+          <c:param name="original" value="${comment.comment.messageId}"/>
+          <c:param name="topic" value="${topic.id}"/>
+        </c:url>
+        <li><a href="${edit_url}">Править</a></li>
       </c:if>
 
       <c:if test="${deletable}">
         <c:url var="delete_url" value="/delete_comment.jsp">
           <c:param name="msgid" value="${comment.comment.messageId}"/>
         </c:url>
-
         <li><a href="${delete_url}">Удалить</a></li>
       </c:if>
       </ul>

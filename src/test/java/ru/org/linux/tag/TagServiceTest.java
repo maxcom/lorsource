@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
+package ru.org.linux.tag;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("test-TagService-context.xml")
+@ContextConfiguration("unit-tests-context.xml")
 public class TagServiceTest {
   @Autowired
   TagService tagService;

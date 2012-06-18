@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -179,7 +180,7 @@ public class EditTopicController {
     boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, currentUser);
     params.put("tagsEditable", tagsEditable);
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId());
+    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
@@ -299,7 +300,7 @@ public class EditTopicController {
       }
     }
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId());
+    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
 
     boolean preview = request.getParameter("preview") != null;
     if (preview) {

@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user;
+package ru.org.linux.test;
 
 import java.sql.ResultSet;
 

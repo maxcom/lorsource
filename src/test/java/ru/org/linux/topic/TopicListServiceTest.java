@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
@@ -36,13 +37,16 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("test-context.xml")
+@ContextConfiguration("unit-tests-context.xml")
 public class TopicListServiceTest {
   @Autowired
   TopicListService topicListService;
 
   @Autowired
   TopicListDto topicListDto;
+
+  @Autowired
+  TagService tagService;
 
   Section section1 = new Section("testSection", false, true, 11, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED);
   Section section2 = new Section("testSection 2", false, false, 12, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED);
@@ -53,6 +57,7 @@ public class TopicListServiceTest {
   @Test
   public void getTopicsFeedYear_commonTest()
     throws UserErrorException, TagNotFoundException {
+    when(tagService.getTagId("LOR")).thenReturn(123);
 
     List<Topic> topicList = topicListService.getTopicsFeed(
       section1, group, "LOR", null, 2000, 11

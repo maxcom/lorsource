@@ -23,6 +23,7 @@ public class CommentRequest {
   private String mode;
   private String msg;
   private Comment replyto;
+  private Comment original;
   private String title;
   private Topic topic;
 
@@ -95,5 +96,13 @@ public class CommentRequest {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public Comment getOriginal() {
+    return original;
+  }
+
+  public void setOriginal(Comment original) {
+    this.original = original;
   }
 }

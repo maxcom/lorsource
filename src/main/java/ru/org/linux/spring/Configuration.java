@@ -95,4 +95,52 @@ public class Configuration {
   public String getAdminEmailAddress() {
     return properties.getProperty("admin.emailAddress");
   }
+
+  /**
+   * Разрешено ли модераторам править чужие комментарии.
+   *
+   * @return true если разрешено, иначе false
+   */
+  public Boolean isModeratorAllowedToEditComments() {
+    String property = properties.getProperty("comment.isModeratorAllowedToEdit");
+    if (property == null)
+      return false;
+    return Boolean.valueOf(property);
+  }
+
+  /**
+   * По истечении какого времени с момента добавления комментарий нельзя будет изменять.
+   *
+   * @return время в минутах
+   */
+  public Integer getCommentExpireMinutesForEdit() {
+    String property = properties.getProperty("comment.expireMinutesForEdit");
+    if (property == null)
+      return null;
+    return Integer.valueOf(property);
+  }
+
+  /**
+   * Разрешено ли редактировать комментарии, если есть ответы.
+   *
+   * @return true если разрешено, иначе false
+   */
+  public Boolean isCommentEditingAllowedIfAnswersExists() {
+    String property = properties.getProperty("comment.isEditingAllowedIfAnswersExists");
+    if (property == null)
+      return false;
+    return Boolean.valueOf(property);
+  }
+
+  /**
+   * какое минимальное значение скора должно быть, чтобы пользователь мог редактировать комментарии.
+   *
+   * @return минимальное значение скора
+   */
+  public Integer getCommentScoreValueForEditing() {
+    String property = properties.getProperty("comment.scoreValueForEditing");
+    if (property == null)
+      return null;
+    return Integer.valueOf(property);
+  }
 }

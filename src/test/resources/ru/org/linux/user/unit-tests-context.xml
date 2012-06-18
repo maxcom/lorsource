@@ -19,15 +19,15 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
         >
 
-    <bean class="ru.org.linux.user.stub.BeansProvider" id="beansProvider"/>
+    <bean id="tagDao" name="mockTagDao"
+          class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="ru.org.linux.tag.TagDao"/>
+    </bean>
 
-    <bean id="userTagDao"
-          factory-bean="beansProvider"
-          factory-method="getUserTagDao"/>
-
-    <bean id="tagDao"
-          factory-bean="beansProvider"
-          factory-method="getTagDao"/>
+    <bean id="userTagDao" name="mockUserTagDao"
+          class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="ru.org.linux.user.UserTagDao"/>
+    </bean>
 
     <bean id="userTagService" class="ru.org.linux.user.UserTagService"/>
     <bean id="tagService" class="ru.org.linux.tag.TagService"/>

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:commonDAO-context.xml")
+@ContextConfiguration("integration-tests-context.xml")
 public class GroupDaoIntegrationTest {
   @Autowired
   GroupDao groupDao;
