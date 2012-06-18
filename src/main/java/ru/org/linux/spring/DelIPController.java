@@ -16,17 +16,16 @@
 package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
@@ -39,19 +38,12 @@ import java.util.Map;
 
 @Controller
 public class DelIPController {
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CommentDao commentDao;
 
-  @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
-  }
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
    * @param request http запрос (для получения текущего пользователя)
