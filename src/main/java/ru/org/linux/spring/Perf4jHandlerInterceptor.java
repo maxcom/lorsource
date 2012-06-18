@@ -17,6 +17,7 @@ package ru.org.linux.spring;
 
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler;
@@ -39,7 +40,15 @@ public class Perf4jHandlerInterceptor extends HandlerInterceptorAdapter {
       return true;
     }
 
-    CommonsLogStopWatch watch = new CommonsLogStopWatch(handler.getClass().getSimpleName());
+    String name;
+
+    if (handler instanceof HandlerMethod) {
+      name = ((HandlerMethod) handler).getBeanType().getSimpleName();
+    } else {
+      name = handler.getClass().getSimpleName();
+    }
+
+    CommonsLogStopWatch watch = new CommonsLogStopWatch(name);
 
     watch.setTimeThreshold(TIME_THRESHOLD);
 
