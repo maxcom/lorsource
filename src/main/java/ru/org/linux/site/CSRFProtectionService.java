@@ -33,7 +33,7 @@ public class CSRFProtectionService {
       byte[] value = new byte[16];
       random.nextBytes(value);
 
-      Cookie cookie = new Cookie(CSRF_COOKIE, Base64.encodeBase64String(value));
+      Cookie cookie = new Cookie(CSRF_COOKIE, new String(Base64.encodeBase64(value)));
       cookie.setMaxAge(TWO_YEARS);
       cookie.setPath("/");
       response.addCookie(cookie);

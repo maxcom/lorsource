@@ -315,7 +315,7 @@ public class User implements Serializable {
 
     String signatureValue = StringUtil.md5hash(username + ':' + expiryTime + ':' + password + ':' + key);
     String tokenValue = username + ':' + expiryTime + ':' + signatureValue;
-    String tokenValueBase64 = Base64.encodeBase64String(tokenValue.getBytes());
+    String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
 
     // Add remember me cookie
     Cookie acegi = new Cookie(cookieName, tokenValueBase64);
