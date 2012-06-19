@@ -28,15 +28,19 @@ public class CSRFProtectionService {
 
   public static void initCookie(Properties cookies, HttpServletResponse response) {
     if (cookies.get(CSRF_COOKIE)==null) {
-      SecureRandom random = new SecureRandom();
-
-      byte[] value = new byte[16];
-      random.nextBytes(value);
-
-      Cookie cookie = new Cookie(CSRF_COOKIE, new String(Base64.encodeBase64(value)));
-      cookie.setMaxAge(TWO_YEARS);
-      cookie.setPath("/");
-      response.addCookie(cookie);
+      generateCSRFCookie(response);
     }
+  }
+
+  public static void generateCSRFCookie(HttpServletResponse response) {
+    SecureRandom random = new SecureRandom();
+
+    byte[] value = new byte[16];
+    random.nextBytes(value);
+
+    Cookie cookie = new Cookie(CSRF_COOKIE, new String(Base64.encodeBase64(value)));
+    cookie.setMaxAge(TWO_YEARS);
+    cookie.setPath("/");
+    response.addCookie(cookie);
   }
 }

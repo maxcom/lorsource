@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.BadInputException;
+import ru.org.linux.site.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
@@ -188,6 +189,8 @@ public class LoginController {
     response.addCookie(prof);
 
     user.acegiSecurityHack(response, session);
+
+    CSRFProtectionService.generateCSRFCookie(response);
   }
 
   /**
