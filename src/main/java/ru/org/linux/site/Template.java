@@ -109,6 +109,8 @@ public final class Template {
 
     this.userProfile = userProfile;
 
+    CSRFProtectionService.initCookie(cookies, response);
+
     response.addHeader("Cache-Control", "private");
   }
 

@@ -30,7 +30,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -316,7 +315,7 @@ public class User implements Serializable {
 
     String signatureValue = StringUtil.md5hash(username + ':' + expiryTime + ':' + password + ':' + key);
     String tokenValue = username + ':' + expiryTime + ':' + signatureValue;
-    String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
+    String tokenValueBase64 = Base64.encodeBase64String(tokenValue.getBytes());
 
     // Add remember me cookie
     Cookie acegi = new Cookie(cookieName, tokenValueBase64);
