@@ -227,7 +227,7 @@ public class TopicModificationController {
 
     ModelAndView mv = new ModelAndView("uncommit");
     mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
+    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser()));
 
     return mv;
   }

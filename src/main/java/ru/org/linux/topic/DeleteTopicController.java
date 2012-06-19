@@ -139,7 +139,7 @@ public class DeleteTopicController {
 
     ModelAndView mv = new ModelAndView("undelete");
     mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
+    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser()));
 
     return mv;
   }

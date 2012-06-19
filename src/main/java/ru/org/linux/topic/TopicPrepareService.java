@@ -98,8 +98,8 @@ public class TopicPrepareService {
   @Autowired
   private EditHistoryService editHistoryService;
   
-  public PreparedTopic prepareTopic(Topic message, boolean minimizeCut, boolean secure, User user) {
-    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user, null);
+  public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
+    return prepareMessage(message, messageDao.getTags(message), false, null, secure, user, null);
   }
 
   public PreparedTopic prepareTopicPreview(

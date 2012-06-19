@@ -121,7 +121,7 @@ public class AddCommentController {
     ModelAndView modelAndView = new ModelAndView(
       "comment-message",
       "preparedMessage",
-      messagePrepareService.prepareTopic(add.getTopic(), false, request.isSecure(), tmpl.getCurrentUser())
+      messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser())
     );
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
