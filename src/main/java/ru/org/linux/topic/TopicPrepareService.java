@@ -15,6 +15,9 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TopicPrepareService {
@@ -115,11 +119,11 @@ public class TopicPrepareService {
             false,
             newPoll!=null?pollPrepareService.preparePollPreview(newPoll):null,
             secure,
-            text
+            new MessageText(text, true)
     );
   }
 
-  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, String text) {
+  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, MessageText text) {
     return prepareMessage(message, tags, minimizeCut, poll, secure, null, text);
   }
 
@@ -140,7 +144,7 @@ public class TopicPrepareService {
           PreparedPoll poll,
           boolean secure, 
           User user,
-          String text) {
+          MessageText text) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -198,42 +202,27 @@ public class TopicPrepareService {
 
       String processedMessage;
       String ogDescription;
-      boolean lorcode;
 
       if (text == null) {
-        MessageText messageText = msgbaseDao.getMessageText(message.getId());
-        lorcode = messageText.isLorcode();
+        text = msgbaseDao.getMessageText(message.getId());
+      }
 
-        if (messageText.isLorcode()) {
-          if (minimizeCut) {
-            String url = configuration.getMainUrl() + message.getLink();
-            processedMessage = lorCodeService.parseTopicWithMinimizedCut(
-                    messageText.getText(),
-                    url,
-                    secure
-            );
-          } else {
-            processedMessage = lorCodeService.parseTopic(messageText.getText(), secure);
-          }
-          ogDescription = lorCodeService.parseForOgDescription(messageText.getText());
-        } else {
-          processedMessage = "<p>" + messageText.getText();
-          ogDescription = "";
-        }
-      } else {
-        lorcode = true;
-
+      if (text.isLorcode()) {
         if (minimizeCut) {
           String url = configuration.getMainUrl() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
-                  text,
+                  text.getText(),
                   url,
                   secure
           );
         } else {
-          processedMessage = lorCodeService.parseTopic(text, secure);
+          processedMessage = lorCodeService.parseTopic(text.getText(), secure);
         }
-        ogDescription = lorCodeService.parseForOgDescription(text);
+
+        ogDescription = lorCodeService.parseForOgDescription(text.getText());
+      } else {
+        processedMessage = "<p>" + text.getText();
+        ogDescription = "";
       }
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
@@ -262,7 +251,7 @@ public class TopicPrepareService {
               lastEditor, 
               editCount,
               userAgent, 
-              lorcode, 
+              text.isLorcode(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(message.getPostScore())
       );
@@ -313,13 +302,28 @@ public class TopicPrepareService {
   public List<PersonalizedPreparedTopic> prepareMessagesForUser(List<Topic> messages, boolean secure, User user) {
     List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
 
+    Map<Integer,MessageText> textMap = loadTexts(messages);
+
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, user, null);
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, user, textMap.get(message.getId()));
       TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
 
     return pm;
+  }
+
+  private Map<Integer, MessageText> loadTexts(List<Topic> messages) {
+    return msgbaseDao.getMessageText(
+            Lists.newArrayList(
+                    Iterables.transform(messages, new Function<Topic, Integer>() {
+                      @Override
+                      public Integer apply(Topic comment) {
+                        return comment.getId();
+                      }
+                    })
+            )
+    );
   }
 
   /**
@@ -332,8 +336,10 @@ public class TopicPrepareService {
   public List<PreparedTopic> prepareMessages(List<Topic> messages, boolean secure) {
     List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
 
+    Map<Integer,MessageText> textMap = loadTexts(messages);
+
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, null);
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, textMap.get(message.getId()));
       pm.add(preparedMessage);
     }
 
