@@ -213,21 +213,21 @@ public class LorURL extends URI {
     String uriWithoutScheme = all.substring(scheme.length()+3);
     int trueMaxLength = maxLength - 3; // '...'
     if(_true_lor_url) {
-      if(uriWithoutScheme.length() < trueMaxLength + 1) {
+      if(uriWithoutScheme.length() < maxLength + 1) {
         return uriWithoutScheme;
       } else {
         String hostPort = getHost();
         if(getPort() != -1) {
           hostPort += ":" + getPort();
         }
-        if(hostPort.length() > trueMaxLength) {
+        if(hostPort.length() > maxLength) {
           return hostPort+"/...";
         } else {
           return uriWithoutScheme.substring(0, trueMaxLength) + "...";
         }
       }
     } else {
-      if(all.length() < trueMaxLength + 1) {
+      if(all.length() < maxLength + 1) {
         return all;
       } else {
         return all.substring(0, trueMaxLength) + "...";
