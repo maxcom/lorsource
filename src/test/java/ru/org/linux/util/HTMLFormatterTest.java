@@ -45,10 +45,10 @@ public class HTMLFormatterTest {
   private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
-  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/pro...</a>";
+  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/...</a>";
 
   private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
-  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/pro...</a>";
+  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/...</a>";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -57,7 +57,7 @@ public class HTMLFormatterTest {
   private static final String RESULT10 = "Twitter url: <a href=\"https://twitter.com/#!/l_o_r\">https://twitter.com/#!/l_o_r</a>";
 
   private static final String TEXT11 = "Long url: http://www.google.com.ua/search?client=opera&rls=en&q=InsireData&sourceid=opera&ie=utf-8&oe=utf-8&channel=suggest#sclient=psy-ab&hl=uk&client=opera&hs=kZt&rls=en&channel=suggest&source=hp&q=InsireData+lisp&pbx=1&oq=InsireData+lisp&aq=f&aqi=&aql=1&gs_sm=e&gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&bav=on.2,or.r_gc.r_pw.,cf.osb&fp=35c95703241399bd&biw=1271&bih=694";
-  private static final String RESULT11 = "Long url: <a href=\"http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sourceid=opera&amp;ie=utf-8&amp;oe=utf-8&amp;channel=suggest#sclient=psy-ab&amp;hl=uk&amp;client=opera&amp;hs=kZt&amp;rls=en&amp;channel=suggest&amp;source=hp&amp;q=InsireData+lisp&amp;pbx=1&amp;oq=InsireData+lisp&amp;aq=f&amp;aqi=&amp;aql=1&amp;gs_sm=e&amp;gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&amp;bav=on.2,or.r_gc.r_pw.,cf.osb&amp;fp=35c95703241399bd&amp;biw=1271&amp;bih=694\">http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sou...</a>";
+  private static final String RESULT11 = "Long url: <a href=\"http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sourceid=opera&amp;ie=utf-8&amp;oe=utf-8&amp;channel=suggest#sclient=psy-ab&amp;hl=uk&amp;client=opera&amp;hs=kZt&amp;rls=en&amp;channel=suggest&amp;source=hp&amp;q=InsireData+lisp&amp;pbx=1&amp;oq=InsireData+lisp&amp;aq=f&amp;aqi=&amp;aql=1&amp;gs_sm=e&amp;gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&amp;bav=on.2,or.r_gc.r_pw.,cf.osb&amp;fp=35c95703241399bd&amp;biw=1271&amp;bih=694\">http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;...</a>";
 
   private static final String TEXT12 = "with login: ftp://olo:olor@o.example.org/olo/2a-ep4ce22/2a-ep4ce22_introduction.pdf";
   private static final String RESULT12 = "with login: <a href=\"ftp://olo:olor@o.example.org/olo/2a-ep4ce22/2a-ep4ce22_introduction.pdf\">ftp://olo:olor@o.example.org/olo/2a-ep4ce22/2a-ep4ce22_introduction.pdf</a>";
@@ -81,7 +81,7 @@ public class HTMLFormatterTest {
   private static final String RESULT17_2 = "<a href=\"http://translate.google.com/?sl=en&amp;tl=ru#ru%7Cen%7C%D0%BE%D1%81%D1%91%D0%BB\">http://translate.google.com/?sl=en&amp;tl=ru#ru|en|осёл</a>";
   
   private static final String TEXT18 = "http://smartphonebenchmarks.com/index.php?filter_model[]=all&filter_cpu[]=Qualcomm+Snapdragon+MSM8255&filter_cpu[]=Texas+Instrument+OMAP+3610";
-  private static final String RESULT18 = "<a href=\"http://smartphonebenchmarks.com/index.php?filter_model%5B%5D=all&amp;filter_cpu%5B%5D=Qualcomm+Snapdragon+MSM8255&amp;filter_cpu%5B%5D=Texas+Instrument+OMAP+3610\">http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]=Qu...</a>";
+  private static final String RESULT18 = "<a href=\"http://smartphonebenchmarks.com/index.php?filter_model%5B%5D=all&amp;filter_cpu%5B%5D=Qualcomm+Snapdragon+MSM8255&amp;filter_cpu%5B%5D=Texas+Instrument+OMAP+3610\">http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]...</a>";
 
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
@@ -208,13 +208,13 @@ public class HTMLFormatterTest {
   @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68929...</a>",
+    assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
         toHtmlFormatter.format(url1,false));
     String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
         toHtmlFormatter.format(url3,false));
     String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-...</a>",
+    assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comme...</a>",
         toHtmlFormatter.format(url15, false));
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
@@ -592,6 +592,17 @@ public class HTMLFormatterTest {
         250+3,
         lorCodeService.parseForOgDescription(txt).length()
     );
+  }
+
+  @Test
+  public void testCropLinkBody() {
+    assertEquals(
+        "Ссылка: <a href=\"http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y\">http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;loca...</a>",
+        toHtmlFormatter.format("Ссылка: http://www.opera.com/browser/download/?os=linux-x86-64&ver=12.00&local=y", true)
+    );
+    assertEquals(
+        "<a href=\"https://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true\">www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=t...</a>",
+        toHtmlFormatter.format("http://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&option=true", true));
   }
 
 }
