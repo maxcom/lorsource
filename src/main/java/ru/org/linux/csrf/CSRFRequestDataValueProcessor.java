@@ -15,6 +15,8 @@
 package ru.org.linux.csrf;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
@@ -29,6 +31,8 @@ import static ru.org.linux.csrf.CSRFProtectionService.CSRF_INPUT_NAME;
 //
 @Component("requestDataValueProcessor")
 public class CSRFRequestDataValueProcessor implements RequestDataValueProcessor {
+  private static final Log logger = LogFactory.getLog(CSRFRequestDataValueProcessor.class);
+
   @Override
   public String processAction(HttpServletRequest request, String action) {
     return action;
@@ -41,7 +45,15 @@ public class CSRFRequestDataValueProcessor implements RequestDataValueProcessor 
 
   @Override
   public Map<String, String> getExtraHiddenFields(HttpServletRequest request) {
-    return ImmutableMap.of(CSRF_INPUT_NAME, (String) request.getAttribute(CSRF_ATTRIBUTE));
+    String csrfAttribute = (String) request.getAttribute(CSRF_ATTRIBUTE);
+
+    if (csrfAttribute!=null) {
+      return ImmutableMap.of(CSRF_INPUT_NAME, csrfAttribute);
+    } else {
+      logger.debug("missing CSRF attribute "+request.getRequestURI());
+
+      return null;
+    }
   }
 
   @Override
