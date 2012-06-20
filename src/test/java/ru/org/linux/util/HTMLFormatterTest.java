@@ -597,11 +597,11 @@ public class HTMLFormatterTest {
   @Test
   public void testCropLinkBody() {
     assertEquals(
-        "Ссылка: <a href=\"http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y\">http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;loca...</a>",
+        "Ссылка: <a href=\"http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y\">http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y</a>",
         toHtmlFormatter.format("Ссылка: http://www.opera.com/browser/download/?os=linux-x86-64&ver=12.00&local=y", true)
     );
     assertEquals(
-        "<a href=\"https://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true\">www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=t...</a>",
+        "<a href=\"https://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true\">www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true</a>",
         toHtmlFormatter.format("http://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&option=true", true));
   }
 
