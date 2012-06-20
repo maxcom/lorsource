@@ -122,7 +122,7 @@ public class LoginController {
       throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
     }
 
-    createCookies(response, session, user);
+    createCookies(response, request, user);
 
     tmpl.performLogin(response, user);
 
@@ -176,7 +176,7 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/"));
   }
 
-  private void createCookies(HttpServletResponse response, HttpSession session, User user) {
+  private void createCookies(HttpServletResponse response, HttpServletRequest request, User user) {
     Cookie cookie = new Cookie("password", user.getMD5(configuration.getSecret()));
     cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
     cookie.setPath("/");
@@ -188,9 +188,9 @@ public class LoginController {
     prof.setPath("/");
     response.addCookie(prof);
 
-    user.acegiSecurityHack(response, session);
+    user.acegiSecurityHack(response, request.getSession());
 
-    CSRFProtectionService.generateCSRFCookie(response);
+    CSRFProtectionService.generateCSRFCookie(request, response);
   }
 
   /**

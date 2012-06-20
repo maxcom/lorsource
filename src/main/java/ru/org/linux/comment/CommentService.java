@@ -18,7 +18,6 @@ package ru.org.linux.comment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,31 +28,22 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.site.CSRFProtectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.user.IgnoreListDao;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserEventService;
-import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.user.UserPropertyEditor;
+import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -159,7 +149,6 @@ public class CommentService {
     HttpServletRequest request,
     Errors errors
   ) throws
-    UserNotFoundException,
     UnknownHostException,
     TextParseException {
     if (commentRequest.getMsg() == null) {
@@ -173,22 +162,13 @@ public class CommentService {
       commentRequest.setMode(tmpl.getFormatMode());
     }
 
-    HttpSession session = request.getSession();
-
     if (!commentRequest.isPreviewMode() &&
       (!tmpl.isSessionAuthorized() || ipBlockInfo.isCaptchaRequired())) {
       captcha.checkCaptcha(request, errors);
     }
 
-    if (!commentRequest.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
-      logger.info(String.format(
-        "Flood protection (session variable differs: session=%s var=%s) ip=%s",
-        session.getId(),
-        request.getParameter("session"),
-        request.getRemoteAddr()
-      ));
-
-      errors.reject(null, "сбой добавления, попробуйте еще раз");
+    if (!commentRequest.isPreviewMode() && !errors.hasErrors()) {
+      CSRFProtectionService.checkCSRF(request, errors);
     }
 
     user.checkBlocked(errors);
@@ -382,7 +362,7 @@ public class CommentService {
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
    * @return строка, готовая для добавления в лог-файл
    */
-  private String makeLogString(String message, String remoteAddress, String xForwardedFor) {
+  private static String makeLogString(String message, String remoteAddress, String xForwardedFor) {
     StringBuilder logMessage = new StringBuilder();
 
     logMessage

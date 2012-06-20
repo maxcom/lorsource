@@ -15,32 +15,86 @@
 
 package ru.org.linux.site;
 
+import com.google.common.base.Strings;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.validation.Errors;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
-import java.util.Properties;
 
 public class CSRFProtectionService {
+  private static final Log logger = LogFactory.getLog(CSRFProtectionService.class);
+
   public static final String CSRF_COOKIE = "CSRF_TOKEN";
+  public static final String CSRF_ATTRIBUTE = "csrfToken";
   private static final int TWO_YEARS = 60 * 60 * 24 * 31 * 24;
+  private static final String CSRF_INPUT_NAME = "csrf";
 
-  public static void initCookie(Properties cookies, HttpServletResponse response) {
-    if (cookies.get(CSRF_COOKIE)==null) {
-      generateCSRFCookie(response);
-    }
-  }
-
-  public static void generateCSRFCookie(HttpServletResponse response) {
+  public static void generateCSRFCookie(HttpServletRequest request, HttpServletResponse response) {
     SecureRandom random = new SecureRandom();
 
     byte[] value = new byte[16];
     random.nextBytes(value);
 
-    Cookie cookie = new Cookie(CSRF_COOKIE, new String(Base64.encodeBase64(value)));
+    String token = new String(Base64.encodeBase64(value));
+
+    Cookie cookie = new Cookie(CSRF_COOKIE, token);
     cookie.setMaxAge(TWO_YEARS);
     cookie.setPath("/");
     response.addCookie(cookie);
+
+    request.setAttribute(CSRF_COOKIE, token);
+  }
+
+  /**
+   * Check if user is authorized for request
+   * @param request
+   * @return true when ok, false when not authorized
+   */
+  public static boolean checkCSRF(HttpServletRequest request) {
+    String cookieValue = null;
+
+    for (Cookie cookie : request.getCookies()) {
+      if (cookie.getName().equals(CSRF_COOKIE)) {
+        cookieValue = cookie.getValue();
+      }
+    }
+
+    if (Strings.isNullOrEmpty(cookieValue)) {
+      logger.info("Missing CSRF cookie");
+      return false;
+    }
+
+    String inputValue = request.getParameter(CSRF_INPUT_NAME);
+
+    if (Strings.isNullOrEmpty(inputValue)) {
+      logger.info("Missing CSRF input");
+      return false;
+    }
+
+    boolean r = inputValue.equals(cookieValue);
+
+    if (!r) {
+      logger.info(String.format(
+        "Flood protection (CSRF cookie differs: cookie=%s param=%s) ip=%s",
+        cookieValue,
+        inputValue,
+        request.getRemoteAddr()
+      ));
+    }
+
+    return r;
+  }
+
+  public static void checkCSRF(HttpServletRequest request, Errors errors) {
+    if (checkCSRF(request)) {
+      return;
+    }
+
+    errors.reject(null, "сбой добавления, попробуйте еще раз");
   }
 }

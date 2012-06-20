@@ -14,10 +14,12 @@
  */
 
 var element = '';
-var jsid = '';
+var csrf = '';
 
 function sh(type, id) {
-  $("input[name='session']").attr('value', jsid);
+  if (csrf.length>0) {
+    $("input[name='csrf']").attr('value', csrf);
+  }
 
   if (type == 1) {
     reply_to = $("input[name='replyto']", element);
@@ -55,9 +57,9 @@ function sh(type, id) {
 $(document).ready(function() {
   element = $("#commentForm").parent();
 
-  if (document.cookie.match(/JSESSIONID\=(\w+)\;?/)) {
-    jsid = document.cookie.match(/JSESSIONID\=(\w+)\;?/);
-    jsid = jsid[1];
+  if (document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/)) {
+    csrf = document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/);
+    csrf = csrf[1];
   }
 
   $('div.reply').each(function() {

@@ -109,7 +109,11 @@ public final class Template {
 
     this.userProfile = userProfile;
 
-    CSRFProtectionService.initCookie(cookies, response);
+    if (cookies.get(CSRFProtectionService.CSRF_COOKIE)==null) {
+      CSRFProtectionService.generateCSRFCookie(request, response);
+    } else {
+      request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, cookies.getProperty(CSRFProtectionService.CSRF_COOKIE));
+    }
 
     response.addHeader("Cache-Control", "private");
   }

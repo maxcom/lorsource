@@ -28,8 +28,7 @@
 <%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
 <%@ attribute name="postscoreInfo" required="true" type="java.lang.String" %>
 <form method="POST" action="add_comment.jsp" id="commentForm">
-  <input type="hidden" name="session"
-         value="<%= StringUtil.escapeHtml(session.getId()) %>">
+  <lor:csrf/>
   <c:if test="${!template.sessionAuthorized}">
     <label for="nick">Имя:</label>
     <input id="nick" type='text' name='nick' value="anonymous"><br>
