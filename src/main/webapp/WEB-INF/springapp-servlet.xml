@@ -105,6 +105,7 @@
 
     <mvc:interceptors>
         <bean class="ru.org.linux.spring.Perf4jHandlerInterceptor"/>
+        <bean class="ru.org.linux.csrf.CSRFHandlerInterceptor"/>
     </mvc:interceptors>
 
     <bean id="jacksonMessageConverter"

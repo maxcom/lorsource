@@ -32,7 +32,7 @@ public class CSRFProtectionService {
   public static final String CSRF_COOKIE = "CSRF_TOKEN";
   public static final String CSRF_ATTRIBUTE = "csrfToken";
   private static final int TWO_YEARS = 60 * 60 * 24 * 31 * 24;
-  private static final String CSRF_INPUT_NAME = "csrf";
+  public static final String CSRF_INPUT_NAME = "csrf";
 
   public static void generateCSRFCookie(HttpServletRequest request, HttpServletResponse response) {
     SecureRandom random = new SecureRandom();
@@ -56,13 +56,7 @@ public class CSRFProtectionService {
    * @return true when ok, false when not authorized
    */
   public static boolean checkCSRF(HttpServletRequest request) {
-    String cookieValue = null;
-
-    for (Cookie cookie : request.getCookies()) {
-      if (cookie.getName().equals(CSRF_COOKIE)) {
-        cookieValue = cookie.getValue();
-      }
-    }
+    String cookieValue = (String) request.getAttribute(CSRF_ATTRIBUTE);
 
     if (Strings.isNullOrEmpty(cookieValue)) {
       logger.info("Missing CSRF cookie");
