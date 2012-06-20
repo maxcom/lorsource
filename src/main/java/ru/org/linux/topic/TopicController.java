@@ -215,83 +215,13 @@ public class TopicController {
     int msgid) throws Exception {
     Topic message = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
+
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
-
-    return getMessage(webRequest, request, response, preparedMessage, group, page, filter);
-  }
-
-  /**
-   * Оставлено для старых ссылок /view-message.jsp
-   * @param msgid id топика
-   * @param page страница топика
-   * @param lastmod параметр для кэширования
-   * @param filter фильтр
-   * @param output ?
-   * @return вовзращает редирект на новый код
-   * @throws Exception если получится
-   */
-  @RequestMapping("/view-message.jsp")
-  public ModelAndView getMessageOld(
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page,
-    @RequestParam(value="lastmod", required=false) Long lastmod,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(required=false) String output
-  ) throws Exception {
-    Topic message = messageDao.getById(msgid);
-
-    StringBuilder link = new StringBuilder(message.getLink());
-
-    StringBuilder params = new StringBuilder();
-
-    if (page!=null) {
-      link.append("/page").append(page);
-    }
-
-    if (lastmod!=null && !message.isExpired()) {
-      params.append("?lastmod=").append(message.getLastModified().getTime());
-    }
-
-    if (filter!=null) {
-      if (params.length()==0) {
-        params.append('?');
-      } else {
-        params.append('&');
-      }
-      params.append("filter=").append(filter);
-    }
-
-    if (output!=null) {
-      if (params.length()==0) {
-        params.append('?');
-      } else {
-        params.append('&');
-      }
-      params.append("output=").append(output);
-    }
-
-    link.append(params);
-
-    return new ModelAndView(new RedirectView(link.toString()));
-  }
-
-  private ModelAndView getMessage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    PreparedTopic preparedMessage,
-    Group group,
-    int page,
-    String filter
-  ) throws Exception {
-    Topic message = preparedMessage.getMessage();
-
-    Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -460,6 +390,61 @@ public class TopicController {
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
+  /**
+   * Оставлено для старых ссылок /view-message.jsp
+   * @param msgid id топика
+   * @param page страница топика
+   * @param lastmod параметр для кэширования
+   * @param filter фильтр
+   * @param output ?
+   * @return вовзращает редирект на новый код
+   * @throws Exception если получится
+   */
+  @RequestMapping("/view-message.jsp")
+  public ModelAndView getMessageOld(
+    @RequestParam("msgid") int msgid,
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="lastmod", required=false) Long lastmod,
+    @RequestParam(value="filter", required=false) String filter,
+    @RequestParam(required=false) String output
+  ) throws Exception {
+    Topic message = messageDao.getById(msgid);
+
+    StringBuilder link = new StringBuilder(message.getLink());
+
+    StringBuilder params = new StringBuilder();
+
+    if (page!=null) {
+      link.append("/page").append(page);
+    }
+
+    if (lastmod!=null && !message.isExpired()) {
+      params.append("?lastmod=").append(message.getLastModified().getTime());
+    }
+
+    if (filter!=null) {
+      if (params.length()==0) {
+        params.append('?');
+      } else {
+        params.append('&');
+      }
+      params.append("filter=").append(filter);
+    }
+
+    if (output!=null) {
+      if (params.length()==0) {
+        params.append('?');
+      } else {
+        params.append('&');
+      }
+      params.append("output=").append(output);
+    }
+
+    link.append(params);
+
+    return new ModelAndView(new RedirectView(link.toString()));
+  }
+
   private static void checkView(Topic message, Template tmpl, User currentUser) throws MessageNotFoundException {
     if (tmpl.isModeratorSession()) {
       return;
@@ -558,7 +543,7 @@ public class TopicController {
     Topic topic = messageDao.getById(msgid);
 
     String redirectUrl = topic.getLink();
-    StringBuffer options = new StringBuffer();
+    StringBuilder options = new StringBuilder();
 
     if (page != null) {
       redirectUrl = topic.getLinkPage(page);

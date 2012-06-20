@@ -30,7 +30,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

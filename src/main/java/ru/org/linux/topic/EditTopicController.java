@@ -116,7 +116,7 @@ public class EditTopicController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -146,7 +146,7 @@ public class EditTopicController {
 
     User user = tmpl.getCurrentUser();
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -268,7 +268,7 @@ public class EditTopicController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     final Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     User user = tmpl.getCurrentUser();

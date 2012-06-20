@@ -15,9 +15,7 @@
 
 package ru.org.linux.edithistory;
 
-import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -78,15 +76,5 @@ public class EditHistoryDao {
    */
   public void insert(EditHistoryDto editHistoryDto) {
     editInsert.execute(new BeanPropertySqlParameterSource(editHistoryDto));
-  }
-
-  public List<EditHistoryDto> loadEditInfo(int msgid)  {
-    List<EditHistoryDto> list = jdbcTemplate.query(
-      queryEditInfo,
-      BeanPropertyRowMapper.newInstance(EditHistoryDto.class),
-      msgid
-    );
-
-    return ImmutableList.copyOf(list);
   }
 }

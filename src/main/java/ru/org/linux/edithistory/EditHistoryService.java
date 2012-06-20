@@ -52,7 +52,7 @@ public class EditHistoryService {
   private EditHistoryDao editHistoryDao;
 
   public List<PreparedEditHistory> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
-    List<EditHistoryDto> editInfoDTOs = editHistoryDao.loadEditInfo(message.getId());
+    List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId());
     List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
 
     String baseText = msgbaseDao.getMessageText(message.getId()).getText();

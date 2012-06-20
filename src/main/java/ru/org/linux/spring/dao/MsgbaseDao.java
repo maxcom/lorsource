@@ -68,6 +68,10 @@ public class MsgbaseDao {
   }                  
 
   public Map<Integer, MessageText> getMessageText(Collection<Integer> msgids) {
+    if (msgids.isEmpty()) {
+      return ImmutableMap.of();
+    }
+
     final Map<Integer, MessageText> out = Maps.newHashMapWithExpectedSize(msgids.size());
 
     namedJdbcTemplate.query(
