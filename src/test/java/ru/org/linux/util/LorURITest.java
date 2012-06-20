@@ -27,6 +27,7 @@ import ru.org.linux.user.User;
 import java.net.URLEncoder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

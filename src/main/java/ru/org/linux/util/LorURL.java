@@ -212,7 +212,7 @@ public class LorURL extends URI {
     String scheme = getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
     if(_true_lor_url) {
-      if(uriWithoutScheme.length() < maxLength) {
+      if(uriWithoutScheme.length() < maxLength + 1) {
         return uriWithoutScheme;
       } else {
         String hostPort = getHost();
@@ -226,7 +226,7 @@ public class LorURL extends URI {
         }
       }
     } else {
-      if(all.length() < maxLength) {
+      if(all.length() < maxLength + 1) {
         return all;
       } else {
         return all.substring(0, maxLength) + "...";
