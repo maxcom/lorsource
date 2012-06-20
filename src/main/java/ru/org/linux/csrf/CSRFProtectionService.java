@@ -47,7 +47,7 @@ public class CSRFProtectionService {
     cookie.setPath("/");
     response.addCookie(cookie);
 
-    request.setAttribute(CSRF_COOKIE, token);
+    request.setAttribute(CSRF_ATTRIBUTE, token);
   }
 
   /**
