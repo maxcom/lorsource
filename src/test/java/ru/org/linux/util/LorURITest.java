@@ -343,30 +343,41 @@ public class LorURITest {
     // url == mainURL и mainURL host:port
     LorURL uri1 = new LorURL(mainURI, "http://127.0.0.1:8080/forum/security/1948661?cid=1948668");
     assertEquals("127.0.0.1:8080/...", uri1.formatUrlBody(10));
-    assertEquals("127.0.0.1:8080/forum...", uri1.formatUrlBody(20));
+    assertEquals("127.0.0.1:8080/fo...", uri1.formatUrlBody(20));
+    assertEquals(20, uri1.formatUrlBody(20).length());
     assertEquals("127.0.0.1:8080/forum/security/1948661?cid=1948668", uri1.formatUrlBody(80));
     // url == mainURL и mainURL host
     LorURL uri2 = new LorURL(mainLORURI, "https://www.linux.org.ru/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
     assertEquals("www.linux.org.ru/...", uri2.formatUrlBody(10));
-    assertEquals("www.linux.org.ru/sea...", uri2.formatUrlBody(20));
-    assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=...", uri2.formatUrlBody(80));
+    assertEquals("www.linux.org.ru/...", uri2.formatUrlBody(20));
+    assertEquals(20, uri2.formatUrlBody(20).length());
+    assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri2.formatUrlBody(80));
+    assertEquals(80, uri2.formatUrlBody(80).length());
     // unescaped url == mainURL и mainURL host
     LorURL uri3 = new LorURL(mainLORURI, "https://www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
     assertEquals("www.linux.org.ru/...", uri3.formatUrlBody(10));
-    assertEquals("www.linux.org.ru/sea...", uri3.formatUrlBody(20));
-    assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=...", uri3.formatUrlBody(80));
+    assertEquals("www.linux.org.ru/...", uri3.formatUrlBody(20));
+    assertEquals(20, uri3.formatUrlBody(20).length());
+    assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri3.formatUrlBody(80));
+    assertEquals(80, uri3.formatUrlBody(80).length());
 
     // unescaped url != mainURL и mainURL host
     LorURL uri4 = new LorURL(mainLORURI, "https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
-    assertEquals("https://ex...", uri4.formatUrlBody(10));
-    assertEquals("https://example.com/...", uri4.formatUrlBody(20));
-    assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri4.formatUrlBody(80));
+    assertEquals("https:/...", uri4.formatUrlBody(10));
+    assertEquals(10, uri4.formatUrlBody(10).length());
+    assertEquals("https://example.c...", uri4.formatUrlBody(20));
+    assertEquals(20, uri4.formatUrlBody(20).length());
+    assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_user...", uri4.formatUrlBody(80));
+    assertEquals(80, uri4.formatUrlBody(80).length());
 
     // escaped url != mainURL и mainURL host
     LorURL uri5 = new LorURL(mainLORURI, "https://example.com/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
-    assertEquals("https://ex...", uri5.formatUrlBody(10));
-    assertEquals("https://example.com/...", uri5.formatUrlBody(20));
-    assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri5.formatUrlBody(80));
+    assertEquals("https:/...", uri5.formatUrlBody(10));
+    assertEquals(10, uri5.formatUrlBody(10).length());
+    assertEquals("https://example.c...", uri5.formatUrlBody(20));
+    assertEquals(20, uri5.formatUrlBody(20).length());
+    assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_user...", uri5.formatUrlBody(80));
+    assertEquals(80, uri5.formatUrlBody(80).length());
   }
   
   @Test
