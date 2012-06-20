@@ -28,7 +28,7 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.site.CSRFProtectionService;
+import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MsgbaseDao;

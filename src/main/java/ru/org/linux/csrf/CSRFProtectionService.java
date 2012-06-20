@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.csrf;
 
 import com.google.common.base.Strings;
 import org.apache.commons.codec.binary.Base64;

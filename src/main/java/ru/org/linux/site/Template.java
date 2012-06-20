@@ -18,6 +18,7 @@ package ru.org.linux.site;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.storage.FileStorage;
 import ru.org.linux.storage.Storage;
