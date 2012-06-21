@@ -494,16 +494,11 @@ public class CommentService {
   public void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
     List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
 
-    int historySize = editHistoryDtoList.size();
-    if (historySize == 1) {
-      historySize = 0;
-    }
-
     commentDao.updateLatestEditorInfo(
       original.getId(),
       editor.getId(),
       comment.getPostdate(),
-      historySize + 1
+      editHistoryDtoList.size()
     );
   }
 
