@@ -57,7 +57,6 @@ public class CommentList implements Serializable {
       } else {
         CommentNode parentNode = treeHash.get(comment.getReplyTo());
         if (parentNode!=null) {
-          parentNode.setHaveAnswers(true);
           parentNode.addChild(node);
         } else {
           root.addChild(node);
@@ -113,7 +112,7 @@ public class CommentList implements Serializable {
         comments.root.hideIgnored(hideSet, ignoreList);
       }
     }
-    
+
     return hideSet;
   }
 
