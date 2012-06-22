@@ -136,6 +136,10 @@ public class TopicDao {
 
   private static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
 
+  private static final String updateLastmodToCurrentTime = "UPDATE topics SET lastmod=now() WHERE id=?";
+
+
+
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
 
@@ -154,6 +158,18 @@ public class TopicDao {
    */
   public Timestamp getTimeFirstTopic() {
     return jdbcTemplate.queryForObject(queryTimeFirstTopic, Timestamp.class);
+  }
+
+  /**
+   * Обновление времени последнего изменения топика.
+   *
+   * @param topicId идентификационный номер топика
+   */
+  public void updateLastModifiedToCurrentTime(int topicId) {
+    jdbcTemplate.update(
+      updateLastmodToCurrentTime,
+      topicId
+    );
   }
 
   /**
