@@ -105,6 +105,9 @@ public class CommentService {
   @Autowired
   private EditHistoryService editHistoryService;
 
+  @Autowired
+  private TopicDao topicDao;
+
   /**
    * @param binder
    */
@@ -405,6 +408,9 @@ public class CommentService {
     }
 
     userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), oldComment.getTopicId(), oldComment.getId());
+
+    /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
+    topicDao.updateLastModifiedToCurrentTime(oldComment.getTopicId());
 
     String logMessage = makeLogString("Изменён комментарий " + oldComment.getId(), remoteAddress, xForwardedFor);
     logger.info(logMessage);
