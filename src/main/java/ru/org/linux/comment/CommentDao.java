@@ -15,98 +15,17 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.user.*;
+import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
-import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 
-/**
- * Операции над комментариями
- */
-
-@Repository
-public class CommentDao {
-  private static final Log logger = LogFactory.getLog(CommentDao.class);
-
-  private static final String queryCommentById = "SELECT " +
-          "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-          "deleted, replyto, user_agents.name AS useragent, comments.postip " +
-          "FROM comments " +
-          "INNER JOIN users ON (users.id=comments.userid) " +
-          "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-          "WHERE comments.id=?";
-
-  /**
-   * Запрос списка комментариев для топика ВКЛЮЧАЯ удаленные
-   */
-  private static final String queryCommentListByTopicId = "SELECT " +
-          "comments.title, topic, postdate, userid, comments.id as msgid, " +
-          "replyto, deleted, user_agents.name AS useragent, comments.postip " +
-          "FROM comments " +
-          "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-          "WHERE topic=? ORDER BY msgid ASC";
-
-  /**
-   * Запрос списка комментариев для топика ИСКЛЮЧАЯ удаленные
-   */
-  private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
-          "comments.title, topic, postdate, userid, comments.id as msgid, " +
-          "replyto, deleted, user_agents.name AS useragent, comments.postip " +
-          "FROM comments " +
-          "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-          "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
-
-  private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
-  private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
-  private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
-  private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
-
-  private JdbcTemplate jdbcTemplate;
-  private UserDao userDao;
-  private DeleteInfoDao deleteInfoDao;
-
-  private SimpleJdbcInsert insertMsgbase;
-
-  @Autowired
-  public void setDataSource(DataSource dataSource) {
-    jdbcTemplate = new JdbcTemplate(dataSource);
-
-    insertMsgbase = new SimpleJdbcInsert(dataSource);
-    insertMsgbase.setTableName("msgbase");
-    insertMsgbase.usingColumns("id", "message", "bbcode");
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
-    this.deleteInfoDao = deleteInfoDao;
-  }
+public interface CommentDao {
 
   /**
    * Получить комментарий по id
@@ -115,184 +34,68 @@ public class CommentDao {
    * @return нужный комментарий
    * @throws MessageNotFoundException при отсутствии сообщения
    */
-  public Comment getById(int id) throws MessageNotFoundException {
-    Comment comment;
-    try {
-      comment = jdbcTemplate.queryForObject(queryCommentById, new RowMapper<Comment>() {
-        @Override
-        public Comment mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Comment(resultSet, deleteInfoDao);
-        }
-      }, id);
-    } catch (EmptyResultDataAccessException exception) {
-      throw new MessageNotFoundException(id);
-    }
-    return comment;
-  }
+  Comment getById
+  (
+    int id
+  )
+    throws MessageNotFoundException;
 
   /**
-   * Список комментариев топикоа
+   * Список комментариев топика
    *
    * @param topicId     id топика
    * @param showDeleted вместе с удаленными
    * @return список комментариев топика
    */
-  public List<Comment> getCommentList(int topicId, boolean showDeleted) {
-    final List<Comment> comments = new ArrayList<Comment>();
-
-    if (showDeleted) {
-      jdbcTemplate.query(queryCommentListByTopicId, new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet, deleteInfoDao));
-        }
-      }, topicId);
-    } else {
-      jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet, deleteInfoDao));
-        }
-      }, topicId);
-    }
-
-    return comments;
-  }
+  List<Comment> getCommentList
+  (
+    int topicId,
+    boolean showDeleted
+  );
 
   /**
-   * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
+   * Удалить комментарий.
    *
-   * @param msgid      id удаляемого сообщения
+   * @param msgid      идентификационнай номер комментария
    * @param reason     причина удаления
-   * @param user       модератор который удаляет
-   * @param scoreBonus кол-во отрезаемого шкворца
-   * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
+   * @param user       пользователь, удаляющий комментарий
+   * @param scoreBonus сколько снять скора у автора комментария
+   * @return true если комментарий был удалён, иначе false
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
-    if (getReplaysCount(msgid) != 0) {
-      throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
-    }
-
-    boolean deleted = doDeleteComment(msgid, reason, user, scoreBonus);
-
-    if (deleted) {
-      updateStatsAfterDelete(msgid, 1);
-    }
-
-    return deleted;
-  }
-
-  private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) throws SQLException {
-    if (getReplaysCount(msgid) != 0) {
-      throw new SQLException("Нельзя удалить комментарий с ответами");
-    }
-
-    boolean deleted = doDeleteComment(msgid, reason, user, 0);
-
-    if (deleted) {
-      updateStatsAfterDelete(msgid, 1);
-    }
-
-    return deleted;
-  }
-
-  private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
-    int deleteCount = jdbcTemplate.update(deleteComment, msgid);
-
-    if (deleteCount > 0) {
-      deleteInfoDao.insert(msgid, user, reason, scoreBonus);
-
-      if (scoreBonus != 0) {
-        jdbcTemplate.update(updateScore, scoreBonus, msgid);
-      }
-
-      logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
-
-      return true;
-    } else {
-      logger.info("Пропускаем удаление уже удаленного " + msgid);
-      return false;
-    }
-  }
+  boolean deleteComment
+  (
+    int msgid,
+    String reason,
+    User user,
+    int scoreBonus
+  );
 
   /**
-   * Обновляет статистику после удаления комментариев в одном топике
-   * @param commentId идентификатор любого из удаленных комментариев (обычно корневой в цепочке)
-   * @param count количество удаленных комментариев
-   */
-  private void updateStatsAfterDelete(int commentId, int count) {
-    int topicId = jdbcTemplate.queryForInt("SELECT topic FROM comments WHERE id=?", commentId);
-
-    jdbcTemplate.update("UPDATE topics SET stat1=stat1-?, lastmod=CURRENT_TIMESTAMP WHERE id = ?", count, topicId);
-    jdbcTemplate.update("UPDATE topics SET stat2=stat1 WHERE id=? AND stat2 > stat1", topicId);
-    jdbcTemplate.update("UPDATE topics SET stat3=stat1 WHERE id=? AND stat3 > stat1", topicId);
-    jdbcTemplate.update("UPDATE topics SET stat4=stat1 WHERE id=? AND stat4 > stat1", topicId);
-
-    int groupId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id = ?", topicId);
-    jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
-  }
-
-  private List<Integer> doDeleteReplys(int msgid, User user, boolean score) {
-    List<Integer> deleted = deleteReplys(msgid, user, score, 0);
-
-    if (!deleted.isEmpty()) {
-      updateStatsAfterDelete(msgid, deleted.size());
-    }
-
-    return deleted;
-  }
-
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
-    return doDeleteReplys(msgid, user, score);
-  }
-
-  private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
-    List<Integer> replys = getReplysForUpdate(msgid);
-    List<Integer> deleted = new LinkedList<Integer>();
-    for (Integer r : replys) {
-      deleted.addAll(deleteReplys(r, user, score, depth + 1));
-
-      boolean del;
-
-      switch (depth) {
-        case 0:
-          if (score) {
-            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
-          } else {
-            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
-          }
-          break;
-        case 1:
-          if (score) {
-            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
-          } else {
-            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
-          }
-          break;
-        default:
-          del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
-          break;
-      }
-
-      if (del) {
-        deleted.add(r);
-      }
-    }
-
-    return deleted;
-  }
-
-  /**
-   * Какие ответы на комментарий
+   * Обновляет статистику после удаления комментариев в одном топике.
    *
-   * @param msgid id комментария
-   * @return список ответов на комментарий
+   * @param commentId идентификатор любого из удаленных комментариев (обычно корневой в цепочке)
+   * @param count     количество удаленных комментариев
    */
-  private List<Integer> getReplysForUpdate(int msgid) {
-    return jdbcTemplate.queryForList(replysForComment, Integer.class, msgid);
-  }
+  void updateStatsAfterDelete
+  (
+    int commentId,
+    int count
+  );
+
+  /**
+   * Удалить рекурсивно ответы на комментарий
+   *
+   * @param msgid идентификационнай номер комментария
+   * @param user  пользователь, удаляющий комментарий
+   * @param score сколько снять скора у автора комментария
+   * @return список идентификационных номеров удалённых комментариев
+   */
+  List<Integer> doDeleteReplys
+  (
+    int msgid,
+    User user,
+    boolean score
+  );
 
   /**
    * Сколько ответов на комментарий
@@ -300,55 +103,23 @@ public class CommentDao {
    * @param msgid id комментария
    * @return число ответов на комментарий
    */
-  public int getReplaysCount(int msgid) {
-    return jdbcTemplate.queryForInt(replysForCommentCount, msgid);
-  }
+  int getReplaysCount
+  (
+    int msgid
+  );
 
   /**
-   * Блокировка и массивное удаление всех топиков и комментариев пользователя со всеми ответами на комментарии
+   * Массовое удаление комментариев пользователя со всеми ответами на комментарии.
    *
    * @param user      пользователь для экзекуции
    * @param moderator экзекутор-модератор
-   * @param reason    прична блокировки
    * @return список удаленных комментариев
-   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
-    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
-    final List<Integer> deletedCommentIds = new ArrayList<Integer>();
-
-    userDao.blockWithoutTransaction(user, moderator, reason);
-
-    // Удаляем все топики
-    jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet rs) throws SQLException {
-                int mid = rs.getInt("id");
-                jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
-                deleteInfoDao.insert(mid, moderator, "Блокировка пользователя с удалением сообщений", 0);
-                deletedTopicIds.add(mid);
-              }
-            },
-            user.getId());
-
-    // Удаляем все комментарии
-    jdbcTemplate.query("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                int msgid = resultSet.getInt("id");
-                deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
-                if (deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
-                  deletedCommentIds.add(msgid);
-                }
-              }
-            },
-            user.getId());
-
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
-  }
+  List<Integer> deleteAllByUser
+  (
+    User user,
+    final User moderator
+  );
 
   /**
    * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
@@ -359,162 +130,98 @@ public class CommentDao {
    * @param reason    причина удаления, которая будет вписана для удаляемых топиков
    * @return список id удаленных сообщений
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
-
-    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
-    final List<Integer> deletedCommentIds = new ArrayList<Integer>();
-
-    final Map<Integer, String> deleteInfo = new HashMap<Integer, String>();
-    // Удаляем топики
-    jdbcTemplate.query("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                int msgid = resultSet.getInt("id");
-                deletedTopicIds.add(msgid);
-                deleteInfo.put(msgid, "Топик " + msgid + " удален");
-                jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", msgid);
-                deleteInfoDao.insert(msgid, moderator, reason, 0);
-              }
-            },
-            ip, timedelta);
-    // Удаляем комментарии если на них нет ответа
-    jdbcTemplate.query("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                int msgid = resultSet.getInt("id");
-                if (getReplaysCount(msgid) == 0) {
-                  if (deleteCommentWithoutTransaction(msgid, reason, moderator)) {
-                    deletedCommentIds.add(msgid);
-                    deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
-                  } else {
-                    deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
-                  }
-                } else {
-                  deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
-                }
-              }
-            },
-            ip, timedelta);
-
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
-  }
+  DeleteCommentResult deleteCommentsByIPAddress
+  (
+    String ip,
+    Timestamp timedelta,
+    final User moderator,
+    final String reason
+  );
 
   /**
+   * Добавить новый комментарий.
    *
-   * @param comment
-   * @param message
-   * @return
+   * @param comment данные комментария
+   * @param message текст комментария
+   * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
-  public int saveNewMessage(
-          final Comment comment,
-          String message
-  ) throws MessageNotFoundException {
-    final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
+  int saveNewMessage
+  (
+    final Comment comment,
+    String message
+  ) throws MessageNotFoundException;
 
-    jdbcTemplate.execute(
-            "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
-            new PreparedStatementCallback<Object>() {
-              @Override
-              public Object doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-                pst.setInt(1, msgid);
-                pst.setInt(2, comment.getUserid());
-                pst.setString(3, comment.getTitle());
-                pst.setInt(5, comment.getTopicId());
-                pst.setString(6, comment.getPostIP());
-                pst.setString(7, comment.getUserAgent());
+  /**
+   * Редактирование комментария.
+   *
+   * @param oldComment  данные старого комментария
+   * @param newComment  данные нового комментария
+   * @param commentBody текст нового комментария
+   */
+  void edit
+  (
+    final Comment oldComment,
+    final Comment newComment,
+    final String commentBody
+  );
 
-                if (comment.getReplyTo() != 0) {
-                  pst.setInt(4, comment.getReplyTo());
-                } else {
-                  pst.setNull(4, Types.INTEGER);
-                }
+  /**
+   * Обновить информацию о последнем редакторе комментария.
+   *
+   * @param id        идентификационный номер комментария
+   * @param editorId  идентификационный номер редактора комментария
+   * @param editDate  дата редактирования
+   * @param editCount количество исправлений
+   */
+  void updateLatestEditorInfo
+  (
+    int id,
+    int editorId,
+    Date editDate,
+    int editCount
+  );
 
-                pst.executeUpdate();
+  /**
+   * Получить список комментариев пользователя.
+   *
+   * @param userId идентификационный номер пользователя
+   * @param limit  сколько записей должно быть в ответе
+   * @param offset начиная с какой позиции выдать ответ
+   * @return список комментариев пользователя
+   */
+  List<CommentsListItem> getUserComments
+  (
+    int userId,
+    int limit,
+    int offset
+  );
 
-                return null;
-              }
-            }
-    );
+  /**
+   * Получить список последних удалённых комментариев пользователя.
+   *
+   * @param userId идентификационный номер пользователя
+   * @return список удалённых комментариев пользователя
+   */
+   List<DeletedListItem> getDeletedComments
+   (
+     int userId
+   );
 
-    insertMsgbase.execute(ImmutableMap.<String, Object>of(
-            "id", msgid,
-            "message", message,
-            "bbcode", true)
-    );
+  /**
+   * Проверить, имеет ли комментарий ответы.
+   *
+   * @param commentId идентификационный номер комментария
+   * @return true если у комментария есть ответы, иначе false
+   */
+  boolean isHaveAnswers
+  (
+    int commentId
+  );
 
-    return msgid;
-  }
-
-  public CommentList getCommentList(Topic topic, boolean showDeleted) {
-    CacheProvider mcc = MemCachedSettings.getCache();
-
-    String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;
-
-    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
-
-    if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
-      commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
-      mcc.storeToCache(cacheId, commentList);
-    }
-
-    return commentList;
-  }
-
-  public List<CommentsListItem> getUserComments(User user, int limit, int offset) {
-    return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
-            "topics.id as topicid, comments.id as msgid, comments.postdate " +
-            "FROM sections, groups, topics, comments " +
-            "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
-            "AND comments.topic=topics.id " +
-            "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT ? OFFSET ?",
-            new RowMapper<CommentsListItem>() {
-              @Override
-              public CommentsListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                CommentsListItem item = new CommentsListItem();
-
-                item.setSectionTitle(rs.getString("ptitle"));
-                item.setGroupTitle(rs.getString("gtitle"));
-                item.setTopicId(rs.getInt("topicid"));
-                item.setCommentId(rs.getInt("msgid"));
-                item.setTitle(StringUtil.makeTitle(rs.getString("title")));
-                item.setPostdate(rs.getTimestamp("postdate"));
-
-                return item;
-              }
-            },
-            user.getId(),
-            limit,
-            offset
-    );
-  }
-
-  public List<DeletedListItem> getDeletedComments(User user) {
-    return jdbcTemplate.query(
-            "SELECT " +
-                    "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate " +
-                    "FROM sections, groups, topics, comments, del_info " +
-                    "WHERE sections.id=groups.section " +
-                    "AND groups.id=topics.groupid " +
-                    "AND comments.topic=topics.id " +
-                    "AND del_info.msgid=comments.id " +
-                    "AND comments.userid=? " +
-                    "AND del_info.delby!=comments.userid " +
-                    "ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20",
-            new RowMapper<DeletedListItem>() {
-              @Override
-              public DeletedListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new DeletedListItem(rs);
-              }
-            },
-            user.getId()
-    );
-  }
-
+  /**
+   * DTO-класс, описывающий данные удалённого комментария
+   */
   public static class DeletedListItem {
     private final String ptitle;
     private final String gtitle;

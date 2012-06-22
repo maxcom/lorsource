@@ -49,6 +49,10 @@ public class CommentNode implements Serializable {
     return comment==null?0:comment.getMessageId();
   }
 
+  public boolean isHaveAnswers() {
+    return !childs.isEmpty();
+  }
+
   public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
     if (comment!=null) {
       User commentAuthor = userDao.getUserCached(comment.getUserid());

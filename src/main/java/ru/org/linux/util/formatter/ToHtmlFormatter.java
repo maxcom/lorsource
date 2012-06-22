@@ -19,13 +19,13 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.comment.CommentService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.comment.CommentDao;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.StringUtil;
 
@@ -55,7 +55,9 @@ public class ToHtmlFormatter {
 
   private Configuration configuration;
   private TopicDao messageDao;
-  private CommentDao commentDao;
+
+  @Autowired
+  private CommentService commentService;
 
   private int maxLength=80;
 
@@ -69,9 +71,9 @@ public class ToHtmlFormatter {
     this.messageDao = messageDao;
   }
 
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
+  // для тестирования (todo: заюзать SpringContext)
+  public void setCommentService(CommentService commentService) {
+    this.commentService = commentService;
   }
 
   // для тестирования
@@ -186,7 +188,7 @@ public class ToHtmlFormatter {
       boolean deleted = message.isDeleted();
 
       if (!deleted && url.isCommentUrl()) {
-        Comment comment = commentDao.getById(url.getCommentId());
+        Comment comment = commentService.getById(url.getCommentId());
 
         deleted = comment.isDeleted();
       }

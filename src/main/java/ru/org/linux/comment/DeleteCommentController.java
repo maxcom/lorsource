@@ -43,7 +43,7 @@ import java.util.Map;
 @Controller
 public class DeleteCommentController {
   private SearchQueueSender searchQueueSender;
-  private CommentDao commentDao;
+  private CommentService commentService;
   private TopicDao messageDao;
   private UserDao userDao;
   private CommentPrepareService prepareService;
@@ -62,8 +62,8 @@ public class DeleteCommentController {
   }
 
   @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
+  public void setCommentService(CommentService commentService) {
+    this.commentService = commentService;
   }
 
   @Autowired
@@ -92,7 +92,7 @@ public class DeleteCommentController {
 
     params.put("msgid", msgid);
 
-    Comment comment = commentDao.getById(msgid);
+    Comment comment = commentService.getById(msgid);
 
     if (comment.isDeleted()) {
       throw new UserErrorException("комментарий уже удален");
@@ -108,7 +108,7 @@ public class DeleteCommentController {
 
     params.put("topic", topic);
 
-    CommentList comments = commentDao.getCommentList(topic, tmpl.isModeratorSession());
+    CommentList comments = commentService.getCommentList(topic, tmpl.isModeratorSession());
 
     CommentFilter cv = new CommentFilter(comments);
 
@@ -144,7 +144,7 @@ public class DeleteCommentController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    Comment comment = commentDao.getById(msgid);
+    Comment comment = commentService.getById(msgid);
     Topic topic = messageDao.getById(comment.getTopicId());
 
     if (comment.isDeleted()) {
@@ -179,18 +179,18 @@ public class DeleteCommentController {
     deleted.add(msgid);
 
     if (!selfDel) {
-      List<Integer> deletedReplys = commentDao.deleteReplys(msgid, user, bonus > 2);
+      List<Integer> deletedReplys = commentService.deleteReplys(msgid, user, bonus > 2);
       if (!deletedReplys.isEmpty()) {
         out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");
       }
 
       deleted.addAll(deletedReplys);
 
-      if (commentDao.deleteComment(msgid, reason, user, -bonus)) {
+      if (commentService.deleteComment(msgid, reason, user, -bonus)) {
         out.append("Сообщение ").append(msgid).append(" удалено");
       }
     } else {
-      if (commentDao.deleteComment(msgid, reason, user, 0)) {
+      if (commentService.deleteComment(msgid, reason, user, 0)) {
         out.append("Сообщение ").append(msgid).append(" удалено");
       } else {
         out.append("Сообщение ").append(msgid).append(" уже было удалено");

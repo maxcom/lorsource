@@ -49,9 +49,6 @@ public class AddCommentController {
   private static final Log logger = LogFactory.getLog(AddCommentController.class);
 
   @Autowired
-  private CommentDao commentDao;
-
-  @Autowired
   private UserDao userDao;
 
   @Autowired
@@ -107,6 +104,14 @@ public class AddCommentController {
     return new ModelAndView("add_comment", params);
   }
 
+  /**
+   * Показ топика с формой добавления комментария.
+   *
+   * @param add      WEB-форма, содержащая данные
+   * @param request  данные запроса от web-клиента
+   * @return объект web-модели
+   * @throws Exception
+   */
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(
     @ModelAttribute("add") @Valid CommentRequest add,
@@ -129,6 +134,15 @@ public class AddCommentController {
     return modelAndView;
   }
 
+  /**
+   * Добавление комментария.
+   *
+   * @param add      WEB-форма, содержащая данные
+   * @param errors   обработчик ошибок ввода для формы
+   * @param request  данные запроса от web-клиента
+   * @return объект web-модели
+   * @throws Exception
+   */
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   public ModelAndView addComment(
     @ModelAttribute("add") @Valid CommentRequest add,

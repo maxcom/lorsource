@@ -328,6 +328,7 @@
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
+    <c:url var="form_action_url" value="/add_comment.jsp" />
     <lor:commentForm
             topic="${message}"
             title=""
@@ -335,6 +336,7 @@
             cancel="true"
             mode="${template.formatMode}"
             ipBlockInfo="${ipBlockInfo}"
+            form_action_url="${form_action_url}"
             postscoreInfo="${preparedMessage.postscoreInfo}" />
   </div>
 </c:if>

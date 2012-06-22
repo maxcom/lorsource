@@ -27,6 +27,7 @@ public class EditHistoryDto {
   private String oldtags;
   private String oldlinktext;
   private String oldurl;
+  private EditHistoryObjectTypeEnum objectType;
 
   public int getId() {
     return id;
@@ -98,5 +99,17 @@ public class EditHistoryDto {
 
   public void setOldurl(String oldurl) {
     this.oldurl = oldurl;
+  }
+
+  public EditHistoryObjectTypeEnum getObjectType() {
+    return objectType;
+  }
+
+  public void setObjectType(EditHistoryObjectTypeEnum objectType) {
+    this.objectType = objectType;
+  }
+
+  public void setObjectType(String objectType) {
+    this.objectType = EditHistoryObjectTypeEnum.valueOf(objectType);
   }
 }

@@ -27,8 +27,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentList;
+import ru.org.linux.comment.CommentService;
 import ru.org.linux.search.SearchQueueSender.UpdateComments;
 import ru.org.linux.search.SearchQueueSender.UpdateMessage;
 import ru.org.linux.search.SearchQueueSender.UpdateMonth;
@@ -47,18 +47,18 @@ import java.util.List;
 @Component
 public class SearchQueueListener {
   private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
+  
+  @Autowired
+  private CommentService commentService;
+  
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   @Autowired
   private SolrServer solrServer;
 
   @Autowired
   private TopicDao topicDao;
-
-  @Autowired
-  private CommentDao commentDao;
-  
-  @Autowired
-  private MsgbaseDao msgbaseDao;
 
   public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing "+msgUpdate.getMsgid());
@@ -78,7 +78,7 @@ public class SearchQueueListener {
     }
 
     if (withComments) {
-      CommentList commentList = commentDao.getCommentList(msg, true);
+      CommentList commentList = commentService.getCommentList(msg, true);
 
       if (!msg.isDeleted()) {
         reindexComments(msg, commentList);
@@ -112,7 +112,7 @@ public class SearchQueueListener {
         continue;
       }
 
-      Comment comment = commentDao.getById(msgid);
+      Comment comment = commentService.getById(msgid);
 
       if (comment.isDeleted()) {
         logger.info("Deleting comment "+comment.getId()+" from solr");

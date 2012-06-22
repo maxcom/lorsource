@@ -112,7 +112,7 @@ public class CommentList implements Serializable {
         comments.root.hideIgnored(hideSet, ignoreList);
       }
     }
-    
+
     return hideSet;
   }
 

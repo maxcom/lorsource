@@ -17,31 +17,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
-    >
+        >
 
+    <import resource="classpath:database.xml"/>
+    <import resource="classpath:common.xml"/>
 
-  <bean class="ru.org.linux.topic.stub.BeansProvider" id="beansProvider"/>
-
-  <bean class="ru.org.linux.topic.TopicListService" id="topicListService"/>
-
-  <bean class="ru.org.linux.topic.stub.TestTopicListDaoImpl" id="topicListDao"/>
-
-  <bean id="tagDao"
-        factory-bean="beansProvider"
-        factory-method="getTagDao"/>
-
-  <bean id="userTagDao"
-        factory-bean="beansProvider"
-        factory-method="getUserTagDao"/>
-
-  <bean id="tagService"
-      factory-bean="beansProvider"
-      factory-method="getTagService"/>
-
-  <bean id="cacheProvider"
-        factory-bean="beansProvider"
-        factory-method="getCacheProvider"/>
-
-  <bean class="ru.org.linux.topic.TopicListDto" id="topicListDto"/>
+    <bean class="ru.org.linux.section.SectionDaoImpl" id="sectionDao"/>
 
 </beans>

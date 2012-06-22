@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:commonDAO-context.xml")
+@ContextConfiguration("integration-tests-context.xml")
 public class PollDaoIntegrationTest {
   private static final Integer TEST_TOPIC_ID = 1937504;
 

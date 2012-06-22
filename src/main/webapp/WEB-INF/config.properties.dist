@@ -27,3 +27,20 @@ solr.port=8080
 solr.url=http://127.0.0.1:8080/solr
 # admin.emailAddress=bugz@linux.org.ru
 admin.emailAddress=specify_your_real_email_if_you_want_reicive_messages
+
+# разрешение модераторам на редактирование комментов пользователей
+comment.isModeratorAllowedToEdit=false
+
+# время (в минутах), в течении которого с момента создания коммента его
+# можно редактировать (не распространяется на модераторов).
+# если не установлено или равно 0, то редактировать можно будет всегда.
+comment.expireMinutesForEdit=0
+
+# разрешить редактировать комментарии, которые имеют ответы
+comment.isEditingAllowedIfAnswersExists=false
+
+# сколько скора должно быть у пользователя, чтобы он смог
+# редактировать комментарии если не установлено,
+# то редактировать могут все. Если установлено огромное
+# число, то комментарии будут фактически отключены
+comment.scoreValueForEditing=45

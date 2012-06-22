@@ -30,7 +30,7 @@ import java.util.List;
 
 @Repository
 public class EditHistoryDao {
-  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
+  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC";
 
   private JdbcTemplate jdbcTemplate;
   private SimpleJdbcInsert editInsert;
@@ -42,16 +42,18 @@ public class EditHistoryDao {
       editInsert =
       new SimpleJdbcInsert(dataSource)
         .withTableName("edit_info")
-        .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
+        .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl", "object_type");
 
   }
 
   /**
-   * Получить информации о редактировании топика
+   * Получить информации о редактировании топика.
+   *
    * @param id id топика
+   * @param objectTypeEnum
    * @return список изменений топика
    */
-  public List<EditHistoryDto> getEditInfo(int id) {
+  public List<EditHistoryDto> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     final List<EditHistoryDto> editInfoDTOs = new ArrayList<EditHistoryDto>();
     jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
       @Override
@@ -64,9 +66,13 @@ public class EditHistoryDao {
         editHistoryDto.setEditdate(resultSet.getTimestamp("editdate"));
         editHistoryDto.setOldtitle(resultSet.getString("oldtitle"));
         editHistoryDto.setOldtags(resultSet.getString("oldtags"));
+        editHistoryDto.setObjectType(resultSet.getString("object_type"));
         editInfoDTOs.add(editHistoryDto);
       }
-    }, id);
+    },
+      id,
+      objectTypeEnum.toString()
+    );
     return editInfoDTOs;
   }
 

@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.CommentDao;
+import ru.org.linux.comment.CommentService;
+import ru.org.linux.site.Template;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
@@ -40,6 +42,9 @@ import java.util.Map;
 public class DelIPController {
   @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  private CommentService commentService;
 
   @Autowired
   private CommentDao commentDao;
@@ -85,7 +90,7 @@ public class DelIPController {
 
     User moderator = tmpl.getCurrentUser();
 
-    DeleteCommentResult deleteResult = commentDao.deleteCommentsByIPAddress(ip, ts, moderator, reason);
+    DeleteCommentResult deleteResult = commentService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());

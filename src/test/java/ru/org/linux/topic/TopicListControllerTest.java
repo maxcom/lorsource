@@ -35,7 +35,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("test-context.xml")
+@ContextConfiguration("unit-tests-context.xml")
 public class TopicListControllerTest {
 
   @Autowired

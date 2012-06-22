@@ -15,9 +15,17 @@
 
 package ru.org.linux.topic;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import ru.org.linux.comment.CommentRequest;
+import ru.org.linux.comment.CommentService;
+import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 @Service
 public class TopicPermissionService {
@@ -25,7 +33,13 @@ public class TopicPermissionService {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
-  
+
+  @Autowired
+  private CommentService commentService;
+
+  @Autowired
+  private Configuration configuration;
+
   public static String getPostScoreInfo(int postscore) {
     switch (postscore) {
       case POSTSCORE_UNRESTRICTED:
@@ -109,5 +123,61 @@ public class TopicPermissionService {
     } else {
       return user.getScore() >= score;
     }
-  }  
+  }
+
+  /**
+   * Проверка на права редактирования комментария.
+   *
+   * @param commentRequest WEB-форма, содержащая данные
+   * @param request        данные запроса от web-клиента
+   * @param user           пользователь, добавивший комментарий.
+   * @param errors         обработчик ошибок ввода для формы
+   * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
+   */
+  public boolean isCommentsEditingAllowed(
+    CommentRequest commentRequest,
+    HttpServletRequest request,
+    User user,
+    Errors errors
+  ) {
+    Template tmpl = Template.getTemplate(request);
+
+    /* Проверка на то, что пользователь модератор */
+    Boolean editable = tmpl.isModeratorSession() && configuration.isModeratorAllowedToEditComments();
+
+    /* проверка на то, что пользователь владелец комментария */
+    if (!editable && commentRequest.getOriginal().getUserid() == user.getId()) {
+      /* проверка на то, что время редактирования не вышло */
+      Integer minutesToEdit = configuration.getCommentExpireMinutesForEdit();
+
+      boolean isByMinutesEnable = false;
+      if (minutesToEdit != null && !minutesToEdit.equals(0)) {
+        long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
+        long deltaTimestamp = minutesToEdit * 60 * 1000;
+        long nowTimestamp = new Date().getTime();
+
+        isByMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
+      } else {
+        isByMinutesEnable = true;
+      }
+
+      /* Проверка на то, что у комментария нет ответов */
+      boolean isByAnswersEnable = true;
+      if (!configuration.isCommentEditingAllowedIfAnswersExists()
+        && commentService.isHaveAnswers(commentRequest.getOriginal())) {
+        isByAnswersEnable = false;
+      }
+
+      /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
+      Integer scoreToEdit = configuration.getCommentScoreValueForEditing();
+      boolean isByScoreEnable = true;
+      if (scoreToEdit != null && scoreToEdit > tmpl.getCurrentUser().getScore()) {
+        isByScoreEnable = false;
+      }
+
+      editable = isByMinutesEnable & isByAnswersEnable & isByScoreEnable;
+    }
+    return editable;
+  }
+
 }

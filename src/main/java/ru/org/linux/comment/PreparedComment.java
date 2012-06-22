@@ -22,12 +22,14 @@ public class PreparedComment {
   private final User author;
   private final String processedMessage;
   private final User replyAuthor;
+  private final boolean haveAnswers;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor) {
+  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
+    this.haveAnswers = haveAnswers;
   }
 
   public Comment getComment() {
@@ -44,5 +46,9 @@ public class PreparedComment {
 
   public User getReplyAuthor() {
     return replyAuthor;
+  }
+
+  public boolean isHaveAnswers() {
+    return haveAnswers;
   }
 }

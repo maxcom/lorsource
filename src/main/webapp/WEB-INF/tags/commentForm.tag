@@ -22,12 +22,14 @@
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
 <%@ attribute name="replyto" required="false" type="java.lang.Integer" %>
+<%@ attribute name="original" required="false" type="java.lang.Integer" %>
 <%@ attribute name="msg" required="false" type="java.lang.String" %>
 <%@ attribute name="mode" required="true" type="java.lang.String" %>
+<%@ attribute name="form_action_url" required="true" type="java.lang.String" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
 <%@ attribute name="postscoreInfo" required="true" type="java.lang.String" %>
-<form method="POST" action="add_comment.jsp" id="commentForm">
+<form method="POST" action="${form_action_url}" id="commentForm">
   <lor:csrf/>
   <c:if test="${!template.sessionAuthorized}">
     <label for="nick">Имя:</label>
@@ -41,6 +43,9 @@
   <input type=hidden name=topic value="${topic.id}">
   <c:if test="${replyto != null}">
     <input type=hidden name=replyto value="<%= replyto %>">
+  </c:if>
+  <c:if test="${original != null}">
+    <input type="hidden" name="original" value="${original}">
   </c:if>
   <c:if test="${template.prof.formatMode == 'ntobr'}">
   <label for="mode">Разметка:*</label><br>

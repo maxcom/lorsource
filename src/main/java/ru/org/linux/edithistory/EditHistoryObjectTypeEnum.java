@@ -13,24 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user.stub;
+package ru.org.linux.edithistory;
 
-import ru.org.linux.tag.TagDao;
-import ru.org.linux.user.UserTagDao;
-
-import static org.mockito.Mockito.mock;
-
-public class BeansProvider {
-
-  public UserTagDao getUserTagDao()
-    throws Exception {
-    UserTagDao userTagDao = mock(UserTagDao.class);
-    return userTagDao;
-  }
-
-  public TagDao getTagDao()
-    throws Exception {
-    TagDao tagDao = mock(TagDao.class);
-    return tagDao;
-  }
+public enum EditHistoryObjectTypeEnum {
+  TOPIC,
+  COMMENT
 }

@@ -20,7 +20,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.comment.CommentDao;
+import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.Topic;
@@ -124,7 +124,7 @@ public class HTMLFormatterTest {
     Group group15 = mock(Group.class);
     Topic messageHistory = mock(Topic.class);
     Group groupHistory = mock(Group.class);
-    CommentDao commentDao = mock(CommentDao.class);
+    CommentService commentService = mock(CommentService.class);
 
     Comment comment = mock(Comment.class);
 
@@ -152,9 +152,9 @@ public class HTMLFormatterTest {
     when(messageDao.getById(1948661)).thenReturn(message12);
     when(messageDao.getById(6944260)).thenReturn(message15);
     when(messageDao.getById(6992532)).thenReturn(messageHistory);
-    when(commentDao.getById(6892917)).thenReturn(comment);
-    when(commentDao.getById(1948675)).thenReturn(comment);
-    when(commentDao.getById(6944831)).thenReturn(comment);
+    when(commentService.getById(6892917)).thenReturn(comment);
+    when(commentService.getById(1948675)).thenReturn(comment);
+    when(commentService.getById(6944831)).thenReturn(comment);
 
     Configuration configuration = mock(Configuration.class);
 
@@ -163,13 +163,13 @@ public class HTMLFormatterTest {
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setConfiguration(configuration);
     toHtmlFormatter.setMessageDao(messageDao);
-    toHtmlFormatter.setCommentDao(commentDao);
+    toHtmlFormatter.setCommentService(commentService);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
     toHtmlFormatter20.setConfiguration(configuration);
     toHtmlFormatter20.setMessageDao(messageDao);
     toHtmlFormatter20.setMaxLength(20);
-    toHtmlFormatter20.setCommentDao(commentDao);
+    toHtmlFormatter20.setCommentService(commentService);
 
     toLorCodeTexFormatter = new ToLorCodeTexFormatter();
     toLorCodeFormatter = new ToLorCodeFormatter();

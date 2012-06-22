@@ -64,7 +64,7 @@ public class TopicController {
   private TopicPrepareService messagePrepareService;
 
   @Autowired
-  private CommentDao commentDao;
+  private CommentService commentService;
 
   @Autowired
   private UserDao userDao;
@@ -289,7 +289,7 @@ public class TopicController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = commentDao.getCommentList(message, showDeleted);
+    CommentList comments = commentService.getCommentList(message, showDeleted);
 
     params.put("comments", comments);
 
@@ -500,7 +500,7 @@ public class TopicController {
 
     StringBuilder hash = new StringBuilder();
 
-    CommentList comments = commentDao.getCommentList(topic, false);
+    CommentList comments = commentService.getCommentList(topic, false);
     CommentNode node = comments.getNode(cid);
     if (node == null) {
       throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
@@ -557,7 +557,7 @@ public class TopicController {
     StringBuilder hash = new StringBuilder();
 
     if (cid != null) {
-      CommentList comments = commentDao.getCommentList(topic, false);
+      CommentList comments = commentService.getCommentList(topic, false);
       CommentNode node = comments.getNode(cid);
       if (node == null) {
         throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
