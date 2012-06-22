@@ -35,7 +35,6 @@
   Template tmpl = Template.getTemplate(request);
   boolean moderatorMode = tmpl.isModeratorSession();
 %>
-<c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
 
 <!-- ${comment.comment.messageId}  -->
 <article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
