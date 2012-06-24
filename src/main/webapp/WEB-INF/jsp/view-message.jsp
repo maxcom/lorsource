@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="org.apache.commons.lang.math.RandomUtils,ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -262,17 +261,9 @@
 <c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="${showAdsense}">
-<%
-  if (RandomUtils.nextInt(3)==0) {
-%>
-<jsp:include page="/WEB-INF/jsp/croco-adv.jsp"/>
-<%
-  } else {
-%>
   <div style="text-align: center; margin-top: 1em">
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
   </div>
-<% } %>
   <br>
 </c:if>
 
