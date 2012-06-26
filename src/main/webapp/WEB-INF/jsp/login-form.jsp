@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Login</title>
@@ -26,9 +27,10 @@
 </c:if>
 
 <form method=POST action="login.jsp">
-Имя:<br><input type=text name=nick size=40 placeholder="nick или email"><br>
-Пароль:<br><input type=password name=passwd size=40><br>
-<input type=submit value="Вход">
+  <lor:csrf/>
+  <label>Имя:<br><input type=text name=nick size=40 placeholder="nick или email"></label><br>
+  <label>Пароль:<br><input type=password name=passwd size=40></label><br>
+  <input type=submit value="Вход">
 </form>
 
 <div style="font-size: smaller">

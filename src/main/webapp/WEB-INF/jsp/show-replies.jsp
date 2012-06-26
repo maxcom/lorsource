@@ -93,6 +93,7 @@
 
     <c:if test="${enableReset}">
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
+        <lor:csrf/>
         <input type="hidden" name="forceReset" value="true">
         <input type="submit" value="Сбросить">
       </form>
