@@ -51,7 +51,7 @@ public class ToHtmlFormatter {
   Замена двойного минуса на тире
    */
   public static final String MDASH_REGEX = " -- ";
-  public static final String MDASH_REPLACE = " &mdash; ";
+  public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
 
   private Configuration configuration;
   private TopicDao messageDao;
@@ -88,7 +88,7 @@ public class ToHtmlFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean secure) {
-    String escapedText = StringUtil.escapeHtml(text.replaceAll(MDASH_REGEX, MDASH_REPLACE));
+    String escapedText = StringUtil.escapeHtml(text);
 
 
     StringTokenizer st = new StringTokenizer(escapedText, " \n", true);
@@ -97,7 +97,11 @@ public class ToHtmlFormatter {
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
       String formattedToken = formatURL(token, secure);
-      sb.append(formattedToken);
+      if("--".equals(token)) {
+        sb.append("&mdash;");
+      } else {
+        sb.append(formattedToken);
+      }
     }
 
     return sb.toString();
