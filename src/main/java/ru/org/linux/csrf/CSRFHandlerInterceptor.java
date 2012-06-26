@@ -17,7 +17,9 @@ package ru.org.linux.csrf;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import ru.org.linux.auth.AccessViolationException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,10 +36,19 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
       // This is a POST request - need to check the CSRF token
       //CSRFProtectionService.checkCSRF(request);
 
+      if ((handler instanceof HandlerMethod) && (((HandlerMethod) handler).getMethodAnnotation(CSRFNoAuto.class)!=null)) {
+        logger.debug("Auto CSRF disabled for "+((HandlerMethod) handler).getBeanType().getName());
+        return true;
+      }
+
       String csrfInput = request.getParameter(CSRFProtectionService.CSRF_INPUT_NAME);
 
       if (Strings.isNullOrEmpty(csrfInput)) {
         logger.debug("Missing CSRF field for " + request.getRequestURI());
+      } else {
+        if (!CSRFProtectionService.checkCSRF(request)) {
+          throw new AccessViolationException("Неправильный код защиты CSRF. Возможно сессия устарела");
+        }
       }
 
       return true;

@@ -29,6 +29,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -109,6 +110,7 @@ public class EditCommentController extends ApplicationObjectSupport {
    * @throws Exception
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.POST)
+  @CSRFNoAuto
   public ModelAndView editCommentPostHandler(
     @ModelAttribute("edit") @Valid CommentRequest commentRequest,
     Errors errors,

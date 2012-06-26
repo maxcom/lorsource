@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicPermissionService;
@@ -144,6 +145,7 @@ public class AddCommentController {
    * @throws Exception
    */
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
+  @CSRFNoAuto
   public ModelAndView addComment(
     @ModelAttribute("add") @Valid CommentRequest add,
     Errors errors,
