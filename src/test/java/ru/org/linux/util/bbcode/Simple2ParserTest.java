@@ -330,6 +330,8 @@ public class Simple2ParserTest {
         lorCodeService.parseComment("test -- test", false));
     assertEquals("<p>test<div class=\"code\"><pre class=\"no-highlight\"><code> -- </code></pre></div>test</p>",
         lorCodeService.parseComment("test[code] -- [/code]test", false));
+    assertEquals("<p><a href=\"http://www.linux.org.ru/\">http://www.linux.org.ru/</a>&nbsp;&mdash; русская информация об ос линукс</p>",
+        lorCodeService.parseComment("http://www.linux.org.ru/ -- русская информация об ос линукс", false));
   }
 
 }

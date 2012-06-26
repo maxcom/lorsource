@@ -88,7 +88,7 @@ public class ToHtmlFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean secure) {
-    String escapedText = StringUtil.escapeHtml(text.replaceAll(MDASH_REGEX, MDASH_REPLACE));
+    String escapedText = StringUtil.escapeHtml(text);
 
 
     StringTokenizer st = new StringTokenizer(escapedText, " \n", true);
@@ -100,7 +100,7 @@ public class ToHtmlFormatter {
       sb.append(formattedToken);
     }
 
-    return sb.toString();
+    return sb.toString().replaceAll(MDASH_REGEX, MDASH_REPLACE);
   }
 
   public String memberURL(User user, boolean secure) throws URIException {
