@@ -92,7 +92,6 @@
 <form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${group.imagePostAllowed?'multipart/form-data':'application/x-www-form-urlencoded'}" >
   <form:errors path="*" element="div" cssClass="error"/>
 
-  <input type="hidden" name="session" value="<%= StringUtil.escapeHtml(session.getId()) %>">
   <form:hidden path="noinfo"/>
 
   ${postscoreInfo}<br>

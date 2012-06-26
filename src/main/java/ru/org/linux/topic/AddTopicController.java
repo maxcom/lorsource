@@ -34,6 +34,8 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.csrf.CSRFNoAuto;
+import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -189,6 +191,7 @@ public class AddTopicController {
 
 
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
+  @CSRFNoAuto
   public ModelAndView doAdd(
           HttpServletRequest request,
           @Valid @ModelAttribute("form") AddTopicRequest form,
@@ -285,9 +288,8 @@ public class AddTopicController {
       params.put("message", prepareService.prepareTopicPreview(previewMsg, tagService.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
-      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-      errors.reject(null, "сбой добавления");
+    if (!form.isPreviewMode() && !errors.hasErrors()) {
+      CSRFProtectionService.checkCSRF(request, errors);
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !tmpl.isSessionAuthorized()
