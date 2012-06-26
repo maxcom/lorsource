@@ -324,12 +324,14 @@ public class Simple2ParserTest {
 
   @Test
   public void testMDash() {
-    assertEquals("test&nbsp;&mdash; test",
+    assertEquals("test &mdash; test",
         toHtmlFormatter.format("test -- test", false));
-    assertEquals("<p>test&nbsp;&mdash; test</p>",
+    assertEquals("<p>test &mdash; test</p>",
         lorCodeService.parseComment("test -- test", false));
     assertEquals("<p>test<div class=\"code\"><pre class=\"no-highlight\"><code> -- </code></pre></div>test</p>",
         lorCodeService.parseComment("test[code] -- [/code]test", false));
+    assertEquals("<p><a href=\"http://www.linux.org.ru/\">http://www.linux.org.ru/</a> &mdash; русская информация об ос линукс</p>",
+        lorCodeService.parseComment("http://www.linux.org.ru/ -- русская информация об ос линукс", true));
   }
 
 }
