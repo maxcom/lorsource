@@ -66,14 +66,7 @@
   <lor:message messageMenu="<%= null %>" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
-<h1>Добавить</h1>
-<%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
-<%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
-<%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
-<%--помещать новости на главную страницу,--%>
-<%--<a href="register.jsp">зарегистрируйтесь</a></font>.--%>
-<%--<p>--%>
-<%--<% } %>--%>
+<h1>Добавить в ${group}
 
 <% if (group!=null && group.isImagePostAllowed()) { %>
 <p>
