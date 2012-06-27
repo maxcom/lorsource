@@ -47,7 +47,6 @@
   int replyPage = 0;
   String topicPage = null;
   String replyTitle = null;
-  String replyDate = null;
   Boolean showLastMod = false;
   User replyAuthor = null;
 
@@ -64,9 +63,6 @@
         }
         showLastMod = (!expired && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1);
         replyAuthor = comment.getReplyAuthor();
-
-        DateFormat dateFormat = tmpl.dateFormat;
-        replyDate = dateFormat.format(reply.getPostdate());
     } else {
 //        logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
     }
@@ -109,7 +105,6 @@
   <c:set var="replyPage" value="<%= replyPage %>"/>
   <c:set var="topicPage" value="<%= topicPage %>"/>
   <c:set var="title" value="<%= replyTitle %>"/>
-  <c:set var="replyDate" value="<%= replyDate %>"/>
   <c:set var="showLastMod" value="<%= showLastMod %>"/>
   <c:set var="replyAuthor" value="<%= replyAuthor %>"/>
   <c:set var="deletable" value="<%= deletable %>"/>
@@ -143,7 +138,7 @@
     </c:url>
     Ответ на:
     <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${reply.messageId}')" ><l:title>${title}</l:title></a>
-    от ${replyAuthor.nick} ${replyDate}
+    от ${replyAuthor.nick} <lor:date date="${reply.postdate}"/>
   </c:if>
 </c:otherwise>
 </c:choose>
