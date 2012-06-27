@@ -143,7 +143,7 @@
     </c:url>
     Ответ на:
     <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${reply.messageId}')" ><l:title>${title}</l:title></a>
-    от ${replyAuthor.nick} ${replyDate}
+    от ${replyAuthor.nick} <lor:date date="${reply.postdate}"/>
   </c:if>
 </c:otherwise>
 </c:choose>
