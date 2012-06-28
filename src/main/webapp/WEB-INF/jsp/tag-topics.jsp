@@ -135,6 +135,7 @@
       url: url,
       type: "POST",
       dataType: "json",
+      csrf: "${fn:escapeXml(csrfToken)}",
       data: data
     }).done(function(t) {
       if (t.error) {
