@@ -55,6 +55,7 @@
   </div>
 <c:if test="${user.photo !=null && moderatorOrCurrentUser}">
   <p><form style="text-align: center" name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
+  <lor:csrf/>
   <input type='hidden' name='id' value='${user.id}'>
   <input type='submit' value='Удалить'>
   </form>
@@ -121,6 +122,7 @@
       <c:if test="${user.email!=null}">
         <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
         <form action="/lostpwd.jsp" method="POST" style="display: inline">
+          <lor:csrf/>
           <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
           <input type="submit" value="Получить забытый пароль">
         </form>
@@ -128,6 +130,7 @@
 
       <c:if test="${template.moderatorSession}">
         <form action="/usermod.jsp" method="POST" style="display: inline">
+          <lor:csrf/>
           <input type="hidden" name="id" value="${user.id}">
           <input type='hidden' name='action' value='reset-password'>
           <input type="submit" value="Сбросить пароль">
@@ -144,6 +147,7 @@
   <c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
     <c:if test="${ignored}">
       <form name='i_unblock' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
+        <lor:csrf/>
         <input type='hidden' name='id' value='${user.id}'>
         Вы игнорируете этого пользователя &nbsp;
         <input type='submit' name='del' value='не игнорировать'>
@@ -152,6 +156,7 @@
 
     <c:if test="${not ignored}">
       <form name='i_block' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
+        <lor:csrf/>
         <input type='hidden' name='nick' value='${user.nick}'>
         Вы не игнорируете этого пользователя &nbsp;
         <input type='submit' name='add' value='игнорировать'>
@@ -163,6 +168,7 @@
   <br>
     <div style="border: 1px dotted; padding: 1em;">
     <form method='post' action='usermod.jsp'>
+      <lor:csrf/>
       <input type='hidden' name='id' value='${user.id}'>
       <c:if test="${user.blocked}">
         <input type='submit' name='action' value='unblock'>
@@ -187,6 +193,7 @@
   <p>
 
   <form name='f_remove_userinfo' method='post' action='usermod.jsp'>
+    <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='remove_userinfo'>
     <input type='submit' value='Удалить текст'>
@@ -196,6 +203,7 @@
 
     <c:if test="<%= user.isCorrector() || user.getScore() > User.CORRECTOR_SCORE %>">
   <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
+    <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='toggle_corrector'>
     <%
