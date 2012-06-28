@@ -75,7 +75,7 @@
   if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
     Integer minutesToEdit = tmpl.getConfig().getCommentExpireMinutesForEdit();
 
-    boolean isbyMinutesEnable = false;
+    boolean isbyMinutesEnable;
     if (minutesToEdit != null && !minutesToEdit.equals(0)) {
       long commentTimestamp = comment.getComment().getPostdate().getTime();
       long deltaTimestamp = minutesToEdit * 60 * 1000;
