@@ -68,7 +68,6 @@ public class RegisterController {
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
   public ModelAndView register(
     @ModelAttribute("form") RegisterRequest form,
-    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
       response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
