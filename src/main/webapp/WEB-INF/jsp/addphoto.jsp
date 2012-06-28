@@ -15,6 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
