@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic,ru.org.linux.util.StringUtil"   buffer="200kb"%>
+<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -311,6 +311,7 @@
 <% if (tmpl.isSessionAuthorized() && (!message.isExpired() || tmpl.isModeratorSession()) && !(Boolean) request.getAttribute("showDeleted")) { %>
 <hr>
 <form action="${message.link}" method=POST>
+<lor:csrf/>
 <input type=hidden name=deleted value=1>
 <input type=submit value="Показать удаленные комментарии">
 </form>
