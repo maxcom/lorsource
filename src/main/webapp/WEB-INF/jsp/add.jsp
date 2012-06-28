@@ -136,7 +136,7 @@
 <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
 <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
-<c:if test="${group!=null and group.pollPostAllowed}">
+<c:if test="${group!=null and group.linksAllowed}">
 <label>
 Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
 </label><br>
