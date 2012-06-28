@@ -49,10 +49,10 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
         } else {
           logger.warn("Missing CSRF field for " + request.getRequestURI());
         }
-      } else {
-        if (!CSRFProtectionService.checkCSRF(request)) {
-          throw new AccessViolationException("Неправильный код защиты CSRF. Возможно сессия устарела");
-        }
+      }
+
+      if (!CSRFProtectionService.checkCSRF(request)) {
+        throw new AccessViolationException("Неправильный код защиты CSRF. Возможно сессия устарела");
       }
 
       return true;
