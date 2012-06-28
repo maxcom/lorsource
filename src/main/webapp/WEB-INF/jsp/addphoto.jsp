@@ -49,6 +49,7 @@
 </p>
 
 <form action="addphoto.jsp" method="POST" enctype="multipart/form-data">
+<lor:csrf/>
 <c:if test="${error!=null}">
   <div class="error">
     Ошибка! ${error}
