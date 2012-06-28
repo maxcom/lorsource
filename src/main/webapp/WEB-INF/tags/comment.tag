@@ -130,7 +130,7 @@
     </c:otherwise>
   </c:choose>
 
-  <c:if test="${comment.comment.replyTo != 0}">
+  <c:if test="${reply != null}">
     <c:url var="reply_url" value="${topicPage}">
       <c:if test="${showLastMod}">
         <c:param name="lastmod" value="${comments.lastModified}" />
