@@ -62,7 +62,7 @@
   <lor:message messageMenu="<%= null %>" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
-<h1>Добавить для раздела ${group.title}</h1>
+<h1>Добавить в раздел ${group.title}</h1>
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
 <%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
