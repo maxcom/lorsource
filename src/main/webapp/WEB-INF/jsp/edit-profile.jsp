@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.user.ProfileProperties" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -62,6 +63,7 @@ $(document).ready(function() {
 <h2>Параметры профиля</h2>
 <% ProfileProperties profHash=tmpl.getProf(); %>
 <form method=POST id="profileForm" action="/people/${nick}/settings">
+<lor:csrf/>
 <table>
 <tr><td colspan=2><hr></td></tr>
 <tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
