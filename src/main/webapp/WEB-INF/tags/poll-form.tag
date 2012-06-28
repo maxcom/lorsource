@@ -1,5 +1,3 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -15,10 +13,14 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.Poll" %>
 <%@ attribute name="enabled" required="true" type="java.lang.Boolean" %>
 
 <form action="/vote.jsp" method="POST">
+  <lor:csrf/>
   <input type="hidden" name="voteid" value="${poll.id}">
 
   <c:forEach var="variant" items="${poll.variants}">
