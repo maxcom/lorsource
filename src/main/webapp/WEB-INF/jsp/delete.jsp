@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="bonus" type="java.lang.Boolean"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
@@ -35,6 +36,7 @@ function change(dest,source)
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
 <form method=POST action="delete.jsp">
+<lor:csrf/>
 <table>
 <tr>
 <td>Причина удаления

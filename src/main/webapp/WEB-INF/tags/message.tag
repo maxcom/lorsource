@@ -4,6 +4,7 @@
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
+<%@ tag import="ru.org.linux.csrf.CSRFProtectionService" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -227,7 +228,7 @@
     $.ajax({
       url: "/memories.jsp",
       type: "POST",
-      data: { msgid : ${message.id}, add: "add", watch: event.data.watch }
+      data: { msgid : ${message.id}, add: "add", watch: event.data.watch, csrf: "${fn:escapeXml(csrfToken)}" }
     }).done(function(t) {
        memories_form_setup(t['id'], event.data.watch);
        if (event.data.watch) {
@@ -244,7 +245,7 @@
     $.ajax({
       url: "/memories.jsp",
       type: "POST",
-      data: { id : event.data.id, remove: "remove" }
+      data: { id : event.data.id, remove: "remove", csrf: "${fn:escapeXml(csrfToken)}" }
     }).done(function(t) {
       memories_form_setup(0, event.data.watch);
       if (t>=0) {

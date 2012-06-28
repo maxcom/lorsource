@@ -46,7 +46,7 @@ public class WhoisController {
   @Autowired
   UserTagService userTagService;
 
-  @RequestMapping("/people/{nick}/profile")
+  @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 

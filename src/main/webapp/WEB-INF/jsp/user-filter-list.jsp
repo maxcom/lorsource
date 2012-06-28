@@ -40,6 +40,7 @@
 <fieldset>
 <legend>Список игнорирования пользователей</legend>
 <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
+  <lor:csrf/>
 
   Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
 </form>
@@ -49,6 +50,7 @@
     <c:forEach var="item" items="${ignoreList}">
       <li>
         <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
+          <lor:csrf/>
           <input type="hidden" name="id" value="${item.key}">
           <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" decorate="true" link="true"/> </span>
           <input type="submit" name="del" value="Удалить">
@@ -68,6 +70,7 @@
 <fieldset>
 <legend>Список избранных тегов</legend>
 <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
+  <lor:csrf/>
   <label>Тег: <input type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${favoriteTagAddError != null}"><div class="error">
@@ -82,6 +85,7 @@
     <c:forEach var="tagName" items="${favoriteTags}">
       <li>
         <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
+          <lor:csrf/>
           <input type="hidden" name="tagName" value="${tagName}">
           <span style="white-space: nowrap">${tagName}</span>
           <input type="submit" name="del" value="Удалить">
@@ -106,6 +110,7 @@
 </c:when>
 <c:otherwise>
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
+  <lor:csrf/>
   <label>Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${ignoreTagAddError != null}"><div class="error">
@@ -120,6 +125,7 @@
     <c:forEach var="tagName" items="${ignoreTags}">
       <li>
         <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
+          <lor:csrf/>
           <input type="hidden" name="tagName" value="${tagName}">
           <span style="white-space: nowrap">${tagName}</span>
           <input type="submit" name="del" value="Удалить">

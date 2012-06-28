@@ -1,7 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +37,7 @@
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
 <form method=POST action="delete_comment.jsp">
+  <lor:csrf/>
   <table>
     <tr>
       <td>Причина удаления
