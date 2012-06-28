@@ -44,7 +44,7 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
       String csrfInput = request.getParameter(CSRFProtectionService.CSRF_INPUT_NAME);
 
       if (Strings.isNullOrEmpty(csrfInput)) {
-        logger.debug("Missing CSRF field for " + request.getRequestURI());
+        logger.warn("Missing CSRF field for " + request.getRequestURI());
       } else {
         if (!CSRFProtectionService.checkCSRF(request)) {
           throw new AccessViolationException("Неправильный код защиты CSRF. Возможно сессия устарела");
