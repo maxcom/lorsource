@@ -16,6 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 
@@ -35,6 +36,7 @@
 Данная форма предназначена для администраторов сайта и пользователей,
 имеющих права подтверждения сообщений.
 <form method=POST action="setpostscore.jsp">
+  <lor:csrf/>
   <input type=hidden name=msgid value="${message.id}">
   <br>
   <label>
