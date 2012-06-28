@@ -28,10 +28,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<%
-    Group group = (Group) request.getAttribute("group");
-%>
-
 <title>Добавить сообщение</title>
 <script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
 <script src="/js/tagsAutocomplete.js" type="text/javascript"></script>
@@ -75,7 +71,7 @@
 <%--<p>--%>
 <%--<% } %>--%>
 
-<% if (group!=null && group.isImagePostAllowed()) { %>
+<c:if test="${group!=null and group.imagePostAllowed}">
 <p>
   Технические требования к изображению:
   <ul>
@@ -87,7 +83,8 @@
     <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
   </ul>
 </p>
-<%   } %>
+</c:if>
+
 
 <form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${group.imagePostAllowed?'multipart/form-data':'application/x-www-form-urlencoded'}" >
   <form:errors path="*" element="div" cssClass="error"/>
@@ -139,14 +136,14 @@
 <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
 <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
-<% if (group!=null && group.isLinksAllowed()) { %>
+<c:if test="${group!=null and group.pollPostAllowed}">
 <label>
 Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
 </label><br>
 <label>
 Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
 </label><br>
-<% } %>
+</c:if>
 
 <label>
 <c:if test="${not group.moderated}">
