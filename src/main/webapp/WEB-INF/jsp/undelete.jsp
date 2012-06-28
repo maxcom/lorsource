@@ -1,6 +1,5 @@
 <%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +25,7 @@
 <h1>Восстановление сообщения</h1>
 Вы можете восстановить удалённое сообщение.
 <form method=POST action="undelete.jsp">
+<lor:csrf/>
 <input type=hidden name=msgid value="${message.id}">
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>

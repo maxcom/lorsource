@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -22,8 +23,9 @@
 
 <H1>Получить забытый пароль</H1>
 <form method=POST action="/reset-password">
-<label>Логин: <input type=text name=nick size=40><br></label>
-<label>Код: <input type=text name=code size=40><br></label>
+  <lor:csrf/>
+  <label>Логин: <input type=text name=nick size=40><br></label>
+  <label>Код: <input type=text name=code size=40><br></label>
 <input type=submit value="Сбросить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
