@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page buffer="64kb"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +13,19 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-        <title>Получить забытый пароль</title>
+<title>Получить забытый пароль</title>
+
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Получить забытый пароль</H1>
 <form method=POST action="/lostpwd.jsp">
-Email:
-<input type=text name=email size=40><br>
+<lor:csrf/>
+<label>Email:
+<input type=email name=email size=40></label><br>
 <input type=submit value="Получить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
