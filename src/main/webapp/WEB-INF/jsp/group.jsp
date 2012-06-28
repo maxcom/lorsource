@@ -255,8 +255,9 @@
 <c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
   <hr>
   <form action="${url}" method=POST>
-  <input type=hidden name=deleted value=1>
-  <input type=submit value="Показать удаленные сообщения">
+    <lor:csrf/>
+    <input type=hidden name=deleted value=1>
+    <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>
 </c:if>
