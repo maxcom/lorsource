@@ -45,6 +45,7 @@
 
 <c:if test="${template.sessionAuthorized}">
   <form method=POST action="activate.jsp" id="activateForm">
+    <lor:csrf/>
     <dl>
       <dt><label>Код активациии:</label></dt>
       <dd><input type="text" name="activation" /></dd>
