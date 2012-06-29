@@ -131,11 +131,12 @@
       data['del'] = 'del';
     }
 
+    data['csrf'] = "${fn:escapeXml(csrfToken)}";
+
     $.ajax({
       url: url,
       type: "POST",
       dataType: "json",
-      csrf: "${fn:escapeXml(csrfToken)}",
       data: data
     }).done(function(t) {
       if (t.error) {
