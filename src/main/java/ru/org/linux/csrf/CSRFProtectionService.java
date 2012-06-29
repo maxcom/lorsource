@@ -70,7 +70,7 @@ public class CSRFProtectionService {
       return false;
     }
 
-    boolean r = inputValue.equals(cookieValue);
+    boolean r = inputValue.trim().equals(cookieValue.trim());
 
     if (!r) {
       logger.info(String.format(
