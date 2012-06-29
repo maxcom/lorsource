@@ -16,6 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -25,6 +26,7 @@
 
 <c:if test="${not template.sessionAuthorized}">
   <form method=POST action="login.jsp" id="activateForm">
+    <lor:csrf/>
     <dl>
       <dt><label>Login:</label></dt>
       <dd><input type="text" name="nick" /></dd>
