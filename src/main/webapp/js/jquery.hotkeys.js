@@ -1,106 +1,180 @@
-/*
+/**
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Based upon the plugin by Tzury Bar Yochay:
- * http://github.com/tzuryby/hotkeys
- *
- * Original idea by:
- * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
-*/
+ * Based upon the plugin by:
+ * https://github.com/styx/jquery.hotkeys
+ * and https://github.com/harleyttd/jquery.hotkeys
+ */
 
 (function(jQuery){
-
 	jQuery.hotkeys = {
-		version: "0.8+",
+		version: "0.1",
 
 		specialKeys: {
 			8: "backspace", 9: "tab", 13: "return", 16: "shift", 17: "ctrl", 18: "alt", 19: "pause",
 			20: "capslock", 27: "esc", 32: "space", 33: "pageup", 34: "pagedown", 35: "end", 36: "home",
-			37: "left", 38: "up", 39: "right", 40: "down", 45: "insert", 46: "del",
-			96: "0", 97: "1", 98: "2", 99: "3", 100: "4", 101: "5", 102: "6", 103: "7",
-			104: "8", 105: "9", 106: "*", 107: "+", 109: "-", 110: ".", 111 : "/",
-			112: "f1", 113: "f2", 114: "f3", 115: "f4", 116: "f5", 117: "f6", 118: "f7", 119: "f8",
-			120: "f9", 121: "f10", 122: "f11", 123: "f12", 144: "numlock", 145: "scroll", 188: ",", 190: ".",
-			191: "/", 224: "meta"
+			37: "left", 38: "up", 39: "right", 40: "down", 45: "insert", 46: "del", 
+			91: "command", 93: "command", 96: "0", 97: "1", 98: "2", 99: "3", 100: "4", 101: "5", 102: "6", 103: "7",
+			104: "8", 105: "9", 106: "*", 107: "+", 109: "-", 110: ".", 111 : "/", 
+			112: "f1", 113: "f2", 114: "f3", 115: "f4", 116: "f5", 117: "f6", 118: "f7", 119: "f8", 
+			120: "f9", 121: "f10", 122: "f11", 123: "f12", 144: "numlock", 145: "scroll", 191: "/", 224: "meta"
 		},
-
+	
 		shiftNums: {
-			"`": "~", "1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^", "7": "&",
-			"8": "*", "9": "(", "0": ")", "-": "_", "=": "+", ";": ": ", "'": "\"", ",": "<",
+			"`": "~", "1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^", "7": "&", 
+			"8": "*", "9": "(", "0": ")", "-": "_", "=": "+", ";": ": ", "'": "\"", ",": "<", 
 			".": ">",  "/": "?",  "\\": "|"
 		}
 	};
 
+	var sequenceTimeout, sequenceKeys = [];
+
 	function keyHandler( handleObj ) {
+		if (typeof handleObj.data === "string") {
+			handleObj.data = {
+				combi: handleObj.data,
+				disableInInput: true
+			};
+		}
 
-		var origHandler = handleObj.handler,
-			//use namespace as keys so it works with event delegation as well
-			//will also allow removing listeners of a specific key combination
-			//and support data objects
-			keys = (handleObj.namespace || "").toLowerCase().split(" ");
-			keys = jQuery.map(keys, function(key) { return key.split("."); });
-
-		//no need to modify handler if no keys specified
-		if (keys.length === 1 && (keys[0] === "" || keys[0] === "autocomplete")) {
+		// Only care when a possible input has been specified
+		if (typeof handleObj.data !== "object" ||
+				handleObj.data === null ||
+				typeof handleObj.data.combi !== "string") {
 			return;
 		}
+		
+		var origHandler = handleObj.handler,
+				keys = handleObj.data.combi.toLowerCase().split(" "),
+				disableInInput = handleObj.data.disableInInput;
+	
+    var isCommandPressed = false, sequences = [];
+
+    jQuery.each(keys, function() {
+    	if (/;/.test(this)) {
+    		sequences.push(this.split(";"));
+    	}
+    });
 
 		handleObj.handler = function( event ) {
 			// Don't fire in text-accepting inputs that we didn't directly bind to
-			// important to note that $.fn.prop is only available on jquery 1.6+
-			if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
-				event.target.type === "text" || $(event.target).prop('contenteditable') == 'true' )) {
+			if (disableInInput && this !== event.target && (/textarea|select/i.test(event.target.nodeName) ||
+				 /text|password|search|tel|url|email|number/.test(event.target.type))) {
 				return;
 			}
 
 			// Keypress represents characters, not special keys
-			var special = event.type !== "keypress" && jQuery.hotkeys.specialKeys[ event.which ],
-				character = String.fromCharCode( event.which ).toLowerCase(),
-				key, modif = "", possible = {};
+			var special = event.type !== "keypress" && jQuery.hotkeys.specialKeys[event.which],
+					character = String.fromCharCode( event.which ).toLowerCase(),
+					key, modif = "", possible = {};
 
 			// check combinations (alt|ctrl|shift+anything)
-			if ( event.altKey && special !== "alt" ) {
-				modif += "alt_";
+			if (event.altKey && special !== "alt") {
+				modif += "alt+";
 			}
 
-			if ( event.ctrlKey && special !== "ctrl" ) {
-				modif += "ctrl_";
+			if (event.ctrlKey && special !== "ctrl") {
+				modif += "ctrl+";
 			}
 
-			// TODO: Need to make sure this works consistently across platforms
-			if ( event.metaKey && !event.ctrlKey && special !== "meta" ) {
-				modif += "meta_";
+			var isMac = navigator.platform.toLowerCase().indexOf("mac") > -1;
+
+			if (special === "meta" && isMac) {
+				special = "command";
+			}
+      
+      if (jQuery.hotkeys.specialKeys[event.which] === "command" ||
+      	 (jQuery.hotkeys.specialKeys[event.which] === "meta" && isMac)) {
+        isCommandPressed = true;
+      }
+
+			// TODO: Need to make sure this works consistently across platforms.
+			// - Command doesn't work properly in firefox.
+			if (event.metaKey && !event.ctrlKey && special !== "meta" && special !== "command" ) {
+        if (isCommandPressed) {
+          modif += "command+";
+        } else {
+          modif += "meta+";
+        }
 			}
 
-			if ( event.shiftKey && special !== "shift" ) {
-				modif += "shift_";
+			if (event.shiftKey && special !== "shift") {
+				modif += "shift+";
 			}
-
-			if ( special ) {
-				possible[ modif + special ] = true;
-
+      
+			if (special) {
+				possible[modif + special] = true;
 			} else {
-				possible[ modif + character ] = true;
-				possible[ modif + jQuery.hotkeys.shiftNums[ character ] ] = true;
+				possible[modif + character] = true;
+				possible[modif + jQuery.hotkeys.shiftNums[character]] = true;
 
 				// "$" can be triggered as "Shift+4" or "Shift+$" or just "$"
-				if ( modif === "shift_" ) {
-					possible[ jQuery.hotkeys.shiftNums[ character ] ] = true;
+				if (modif === "shift+") {
+					possible[jQuery.hotkeys.shiftNums[character]] = true;
 				}
 			}
 
 			for ( var i = 0, l = keys.length; i < l; i++ ) {
-				if ( possible[ keys[i] ] ) {
-					return origHandler.apply( this, arguments );
+				// Check for sequence based shortcut.
+				for (var c = 0; c < sequences.length; c++) {
+					if (sequences[c][sequenceKeys.length] && possible[sequences[c][sequenceKeys.length]] && (sequenceKeys.length == 0 || IsPartialSequence(sequenceKeys, sequences[c]))) {
+						sequenceKeys.push(sequences[c][sequenceKeys.length]);
+
+						clearTimeout(sequenceTimeout);
+						sequenceTimeout = window.setTimeout(function() {
+							ClearSequence();
+						}, 1000);
+					}
+
+					isCommandPressed = false;
+
+					if (sequenceKeys && SequencesEqual(sequenceKeys, sequences[c])) {
+						ClearSequence();
+						return origHandler.apply(this, arguments);
+					}
 				}
+
+					if (sequenceTimeout == null && possible[keys[i]]) {
+						return origHandler.apply(this, arguments);
+					}
 			}
 		};
 	}
+
+	    function ClearSequence() {
+        window.setTimeout(function() {
+            clearTimeout(sequenceTimeout);
+            sequenceTimeout = null;
+            sequenceKeys = [];
+        }, 50);
+    }
+
+    function IsPartialSequence(partialSequence, sequence) {
+        for (var i = 0, l = partialSequence.length; i < l; i++) {
+            if (partialSequence[i] !== sequence[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function SequencesEqual(first, second) {
+        if (! first || ! second || first.length != second.length) {
+            return false;
+        }
+
+        for (var i = 0, l = second.length; i < l; i++) {
+            if (first[i] !== second[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 	jQuery.each([ "keydown", "keyup", "keypress" ], function() {
 		jQuery.event.special[ this ] = { add: keyHandler };
 	});
 
-})( jQuery );
+})(jQuery);
