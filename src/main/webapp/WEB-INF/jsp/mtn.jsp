@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page buffer="60kb" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="groups" type="java.util.List<Group>"--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -24,6 +23,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 перенос <strong>${message.id}</strong> в группу:
 <form method="post" action="/mt.jsp">
+<lor:csrf/>
 <input type=hidden name="msgid" value="${message.id}">
 <select name="moveto">
   <c:forEach var="group" items="${groups}">
