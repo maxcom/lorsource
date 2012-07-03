@@ -43,7 +43,7 @@
 <p>
   Технические требования к изображению:
   <ul>
-    <li>Ширина x Высота: от <%= Userpic.MIN_IMAGESIZE %>x<%= Userpic.MIN_IMAGESIZE %> до <%= Userpic.MAX_IMAGESIZE %>x<%= Userpic.MAX_IMAGESIZE %> пискелей</li>
+    <li>Ширина x Высота: от <%= Userpic.MIN_IMAGESIZE %>x<%= Userpic.MIN_IMAGESIZE %> до <%= Userpic.MAX_IMAGESIZE %>x<%= Userpic.MAX_IMAGESIZE %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
     <li>Размер не более <%= Userpic.MAX_USERPIC_FILESIZE / 1024 %> Kb</li>
   </ul>
