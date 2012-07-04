@@ -88,6 +88,7 @@
 <fieldset>
 <legend>забанить/разбанить IP</legend>
 <form method="post" action="banip.jsp">
+<lor:csrf/>
 <input type="hidden" name="ip" value="<%= ip %>">
  по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
@@ -152,6 +153,7 @@ function checkCustomBan(idx) {
 <fieldset>
 <legend>Удалить темы и сообщения с IP</legend>
 <form method="post" action="delip.jsp">
+<lor:csrf/>
 <input type="hidden" name="ip" value="<%= ip %>">
 по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
