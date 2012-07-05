@@ -32,22 +32,6 @@
     </div>
     <div class="nav-buttons">
       <ul>
-        <c:if test="${isShowFavoriteTagButton}">
-          <li>
-            <c:url var="tagFavUrl" value="/user-filter">
-              <c:param name="newFavoriteTagName" value="${topicListRequest.tag}"/>
-            </c:url>
-
-            <a id="tagFavAdd" href="${tagFavUrl}">В избранные теги</a>
-          </li>
-        </c:if>
-        <c:if test="${isShowUnFavoriteTagButton}">
-          <li>
-            <c:url var="tagFavUrl" value="/user-filter"/>
-
-            <a id="tagFavAdd" href="${tagFavUrl}">Удалить из избранного</a>
-          </li>
-        </c:if>
         <c:if test="${isShowIgnoreTagButton}">
           <li>
           <c:url var="tagIgnUrl" value="/user-filter">
@@ -82,8 +66,24 @@
 </div>
 <H1 class="optional">${ptitle}</H1>
 
-<div class="infoblock">
+<div class="infoblock" style="font-size: medium">
+  <div class="fav-buttons">
+  <c:if test="${isShowFavoriteTagButton}">
+      <c:url var="tagFavUrl" value="/user-filter">
+        <c:param name="newFavoriteTagName" value="${topicListRequest.tag}"/>
+      </c:url>
+
+      <a id="tagFavAdd" href="${tagFavUrl}" title="В избранное"><i class="icon-eye"></i></a>
+  </c:if>
+  <c:if test="${isShowUnFavoriteTagButton}">
+      <c:url var="tagFavUrl" value="/user-filter"/>
+
+      <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-eye"></i></a>
+  </c:if>
+  </div>
+
   Всего сообщений: ${counter}
+  <br><br>
 </div>
 
 <c:forEach var="msg" items="${messages}">
@@ -120,10 +120,13 @@
 </table>
 
 <script type="text/javascript">
-  function tag_filter(url, event, newText, add) {
+  function tag_filter(event) {
     event.preventDefault();
 
     var data = { tagName: "${topicListRequest.tag}"};
+
+    var el = $('#tagFavAdd');
+    var add = !el.hasClass("selected");
 
     if (add) {
       data['add'] = 'add';
@@ -134,7 +137,7 @@
     data['csrf'] = "${fn:escapeXml(csrfToken)}";
 
     $.ajax({
-      url: url,
+      url: "/user-filter/favorite-tag",
       type: "POST",
       dataType: "json",
       data: data
@@ -142,37 +145,19 @@
       if (t.error) {
         alert(t.error);
       } else {
-        $(event.target).unbind("click");
-        text = $(event.target).text();
-        $(event.target).text(newText);
-        $(event.target).bind("click", function(event) {
-          tag_filter(url, event, text, !add);
-        });
+        el.attr('title', add?"Удалить из избранного":"В избранное");
+
+        if (add) {
+          el.addClass("selected");
+        } else {
+          el.removeClass("selected");
+        }
       }
     });
   }
 
   $(document).ready(function() {
-    addFav = function(event) {
-      <c:if test="${isShowFavoriteTagButton}">
-        tag_filter("/user-filter/favorite-tag", event, "Удалить из избранного", true );
-      </c:if>
-      <c:if test="${not isShowFavoriteTagButton}">
-        tag_filter("/user-filter/favorite-tag", event, "В избранные теги", false );
-      </c:if>
-    };
-
-    addIgn = function(event) {
-      <c:if test="${isShowIgnoreTagButton}">
-        tag_filter("/user-filter/ignore-tag", event, "Не игнорировать тег", true);
-      </c:if>
-      <c:if test="${isShowUnIgnoreTagButton}">
-        tag_filter("/user-filter/ignore-tag", event, "Игнорировать тег", false);
-      </c:if>
-    };
-
-    $("#tagFavAdd").bind("click", addFav);
-    $("#tagIgnAdd").bind("click", addIgn);
+    $("#tagFavAdd").bind("click", tag_filter);
   });
 </script>
 
