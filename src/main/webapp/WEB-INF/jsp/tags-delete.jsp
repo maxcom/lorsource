@@ -69,7 +69,7 @@
   <form:hidden path="oldTagName" />
   Удаляемое название: ${tagRequestDelete.oldTagName}<br />
   Метка. которой нужно заменить удаляемую (пусто - удалить без замены):<br />
-  <form:input id="tagName" path="tagName" required="required" style="width: 40em" /><br />
+  <form:input id="tagName" path="tagName" style="width: 40em" /><br />
   <input type="submit" value="Удалить" />
   <c:url var="list_url" value="/tags/${firstLetter}" />
   <input type="button" value="Отменить" onClick="window.location='${list_url}';" />
