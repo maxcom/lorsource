@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,7 +145,7 @@ public class EditRegisterController {
     User user = userDao.getUser(nick);
 
     if (Strings.isNullOrEmpty(form.getOldpass())) {
-      errors.rejectValue("oldpass", null, "Для изменения регстрации нужен ваш пароль");
+      errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль");
     } else if (!user.matchPassword(form.getOldpass())) {
       errors.rejectValue("oldpass", null, "Неверный пароль");
     }
