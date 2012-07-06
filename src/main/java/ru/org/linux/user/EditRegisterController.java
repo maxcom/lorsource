@@ -146,7 +146,7 @@ public class EditRegisterController {
     User user = userDao.getUser(nick);
 
     if (Strings.isNullOrEmpty(form.getOldpass())) {
-      errors.rejectValue("oldpass", null, "Для изменения регстрации нужен ваш пароль");
+      errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль");
     } else if (!user.matchPassword(form.getOldpass())) {
       errors.rejectValue("oldpass", null, "Неверный пароль");
     }
