@@ -19,7 +19,7 @@
 <footer id="ft">
 
 <p id="ft-info">
-  <a href="/about">О Сервере</a> -
+  <a href="/about">О Сервере</a> — 
   <a href="/rules.jsp">Правила форума</a><br>
   <c:if test="${not pageContext.request.secure}">
     <a href="${template.mainUrl}">${template.mainUrl}</a>
@@ -27,7 +27,6 @@
   <c:if test="${pageContext.request.secure}">
     <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
   </c:if>
-
 </p>
 
 <div id="ft-buttons">
@@ -64,4 +63,4 @@ pageTracker._trackPageview();
 
 </footer>
 
-</body></html>
+</body></html>  
