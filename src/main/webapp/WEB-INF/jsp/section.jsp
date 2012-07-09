@@ -20,10 +20,8 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
-
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
-
 %>
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
@@ -49,19 +47,18 @@
       </div>
   </div>
 
-<h1 class="optional">${section.name}</h1>
+<h1 class="optional">${section.name} — Группы</h1>
 
-Группы:
 <ul>
 
-  <c:forEach var="group" items="${groups}">
+<c:forEach var="group" items="${groups}">
     <li>
       <a class="navLink" href="${group.url}">${group.title}</a>
 
       (всего ${group.stat1}, сегодня ${group.stat3})
 
       <c:if test="${group.info != null}">
-        - <em><c:out value="${group.info}" escapeXml="false"/></em>
+        — <em><c:out value="${group.info}" escapeXml="false"/></em>
       </c:if>
 
     </li>
