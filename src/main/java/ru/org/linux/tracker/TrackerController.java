@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.tracker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +25,6 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.TrackerDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
