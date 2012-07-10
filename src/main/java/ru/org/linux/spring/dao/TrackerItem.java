@@ -18,6 +18,7 @@ package ru.org.linux.spring.dao;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
+import ru.org.linux.util.URLUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -76,11 +77,7 @@ public class TrackerItem {
         return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
       }
     } else {
-      try {
-        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        return "/wiki/en/";
-      }
+      return String.format("/wiki/en/%s", URLUtil.encodeAndEscapeTopicName(title));
     }
   }
 
@@ -88,11 +85,7 @@ public class TrackerItem {
     if(section != 0) {
       return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
     } else {
-      try {
-        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        return "/wiki/en/";
-      }
+      return String.format("/wiki/en/%s", URLUtil.encodeAndEscapeTopicName(title));
     }
   }
 
