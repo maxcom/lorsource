@@ -76,11 +76,13 @@ public class UserTagService {
    *
    * @param user    объект пользователя
    * @param tagName название тега
+   * @return идентификатор избранного тега
    */
-  public void favoriteAdd(User user, String tagName)
+  public int favoriteAdd(User user, String tagName)
     throws TagNotFoundException {
     int tagId = tagDao.getTagId(tagName);
     userTagDao.addTag(user.getId(), tagId, true);
+    return tagId;
   }
 
   /**
@@ -88,11 +90,13 @@ public class UserTagService {
    *
    * @param user    объект пользователя
    * @param tagName название тега
+   * @return идентификатор тега
    */
-  public void favoriteDel(User user, String tagName)
+  public int favoriteDel(User user, String tagName)
     throws TagNotFoundException {
     int tagId = tagDao.getTagId(tagName);
     userTagDao.deleteTag(user.getId(), tagId, true);
+    return tagId;
   }
 
   /**
@@ -253,5 +257,9 @@ public class UserTagService {
       }
     }
     return strErrors;
+  }
+
+  public int countFavs(int id) {
+    return userTagDao.countFavs(id);
   }
 }

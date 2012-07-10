@@ -164,9 +164,18 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    List<String> r = favoriteTagAdd(request, tagName);
+    Template tmpl = Template.getTemplate(request);
 
-    if (r.size() != 0) {
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    List<String> r = userTagService.addMultiplyTags(user, tagName, true);
+
+    if (!r.isEmpty()) {
       ModelAndView modelAndView = showList(request, tagName, null);
       modelAndView.addObject("favoriteTagAddError", r);
       return modelAndView;
@@ -185,22 +194,7 @@ public class UserFilterController {
    */
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   @ResponseBody
-  public Map<String, String> favoriteTagAddJSON(
-    HttpServletRequest request,
-    @RequestParam String tagName
-  ) throws AccessViolationException {
-    List<String> r = favoriteTagAdd(request, tagName);
-    if (r.size() != 0) {
-      return ImmutableMap.of("error", StringUtils.join(r, "; "));
-    }
-
-    return ImmutableMap.of();
-  }
-
-  /**
-   * @return null if ok, error otherwise
-   */
-  private List<String> favoriteTagAdd(
+  public Map<String, Object> favoriteTagAddJSON(
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
@@ -213,7 +207,13 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    return userTagService.addMultiplyTags(user, tagName, true);
+    try {
+      int id = userTagService.favoriteAdd(user, tagName);
+
+      return ImmutableMap.<String, Object>of("count", userTagService.countFavs(id));
+    } catch (TagNotFoundException e) {
+      return ImmutableMap.<String, Object>of("error", e.getMessage());
+    }
   }
 
   /**
@@ -256,7 +256,7 @@ public class UserFilterController {
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
   @ResponseBody
-  Map<String, String> favoriteTagDelJSON(
+  Map<String, Object> favoriteTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
@@ -269,9 +269,9 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    userTagService.favoriteDel(user, tagName);
+    int tagId = userTagService.favoriteDel(user, tagName);
 
-    return ImmutableMap.of();
+    return ImmutableMap.<String, Object>of("count", userTagService.countFavs(tagId));
   }
 
   /**
@@ -301,7 +301,7 @@ public class UserFilterController {
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
 
-    if (errorMessage.size() != 0) {
+    if (!errorMessage.isEmpty()) {
       ModelAndView modelAndView = showList(request, null, tagName);
       modelAndView.addObject("ignoreTagAddError", errorMessage);
       return modelAndView;
@@ -338,7 +338,7 @@ public class UserFilterController {
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
-    if (errorMessage.size() != 0) {
+    if (!errorMessage.isEmpty()) {
       return ImmutableMap.of("error", StringUtils.join(errorMessage,"; "));
     }
 

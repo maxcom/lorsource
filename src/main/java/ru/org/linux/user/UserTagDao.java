@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -29,7 +30,6 @@ import java.util.List;
 
 @Repository
 public class UserTagDao {
-
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -155,4 +155,16 @@ public class UserTagDao {
     );
   }
 
+  /**
+   * Показывает количество пользователей у которых тег в избранном
+   *
+   * @param tagId
+   * @return
+   */
+  public int countFavs(int tagId) {
+    return jdbcTemplate.queryForInt(
+            "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND is_favorite",
+            ImmutableMap.of("tagId", tagId)
+    );
+  }
 }

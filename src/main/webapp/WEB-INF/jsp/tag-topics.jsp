@@ -18,6 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="counter" type="java.lang.Integer"--%>
+<%--@elvariable id="favsCount" type="java.lang.Integer"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
@@ -80,6 +81,7 @@
 
       <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-eye"></i></a>
   </c:if>
+    <br><span id="favsCount">${favsCount}</span>
   </div>
 
   Всего сообщений: ${counter}
@@ -146,6 +148,8 @@
         alert(t.error);
       } else {
         el.attr('title', add?"Удалить из избранного":"В избранное");
+
+        $('#favsCount').text(t['count']);
 
         if (add) {
           el.addClass("selected");

@@ -129,6 +129,7 @@ public class TopicListController {
 
     modelAndView.addObject("url", tagListUrl(tag));
     modelAndView.addObject("params", null);
+    modelAndView.addObject("favsCount", userTagService.countFavs(tagService.getTagId(tag)));
 
     modelAndView.setViewName("tag-topics");
 
