@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.tracker;
 
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
