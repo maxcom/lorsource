@@ -40,7 +40,7 @@ import java.util.Set;
 public class UserTagService {
   private static final Log logger = LogFactory.getLog(UserTagService.class);
 
-  private ITagActionHandler actionHandler = new ITagActionHandler() {
+  private final ITagActionHandler actionHandler = new ITagActionHandler() {
     @Override
     public void replaceTag(int oldTagId, String oldTagName, int newTagId, String newTagName) {
       userTagDao.replaceTag(oldTagId, newTagId);
@@ -58,13 +58,13 @@ public class UserTagService {
   };
 
   @Autowired
-  UserTagDao userTagDao;
+  private UserTagDao userTagDao;
 
   @Autowired
-  TagDao tagDao;
+  private TagDao tagDao;
 
   @Autowired
-  TagService tagService;
+  private TagService tagService;
 
   @PostConstruct
   private void addToReplaceHandlerList() {
@@ -175,13 +175,14 @@ public class UserTagService {
       }
 
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (!tagService.isGoodTag(tag)) {
+      if (!TagService.isGoodTag(tag)) {
         errors.reject("Некорректный тег: '" + tag + '\'');
         continue;
       }
 
       tagSet.add(tag);
     }
+
     return ImmutableList.copyOf(tagSet);
   }
 
@@ -253,5 +254,4 @@ public class UserTagService {
     }
     return strErrors;
   }
-
 }
