@@ -12,7 +12,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.spring;
+package ru.org.linux.tracker;
 
 public enum TrackerFilterEnum {
   ALL("all", "все сообщения", true),
