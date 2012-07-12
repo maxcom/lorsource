@@ -54,7 +54,7 @@ public class PreparedPoll {
           variant.getLabel(),
           variant.getVotes(),
           variant.getUserVoted(),
-          (int)Math.round(100 * (double)variant.getVotes() / totalOfVotesPerson),
+          (int)Math.round(100 * (double)variant.getVotes() / totalVotes),
           variantWidth*16,  // пингвин 16px
           StringUtil.repeat("*", variantWidth)
           ));
