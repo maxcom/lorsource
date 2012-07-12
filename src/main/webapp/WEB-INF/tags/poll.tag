@@ -20,19 +20,11 @@
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
 <table class="poll-result">
 <c:forEach var="variant" items="${poll.variants}">
-    <%
-        PollVariantResult variant = (PollVariantResult)jspContext.getAttribute("variant");
-        int percentage = (int)Math.round(100 * (double)variant.getVotes() / poll.getTotalVotes());
-        int variantWidth = 20*variant.getVotes()/poll.getMaximumValue();
-        request.setAttribute("percentage", percentage);
-        request.setAttribute("width", variantWidth*16); // пингвин 16px вширь!
-        request.setAttribute("alt", StringUtil.repeat("*", variantWidth));
-    %>
     <tr>
         <td><c:if test="${variant.userVoted}"><b></c:if>${fn:escapeXml(variant.label)}<c:if test="${variant.userVoted}"></b></c:if></td>
         <td><c:if test="${variant.userVoted}"><b></c:if>${variant.votes}<c:if test="${variant.userVoted}"></b></c:if></td>
-        <td><c:if test="${variant.userVoted}"><b></c:if>(${percentage}%)<c:if test="${variant.userVoted}"></b></c:if></td>
-        <td width="380"><div class="penguin" style="width:${width}px;">&nbsp;<span class="none">${alt}</span></div></td>
+        <td><c:if test="${variant.userVoted}"><b></c:if>(${variant.percentage}%)<c:if test="${variant.userVoted}"></b></c:if></td>
+        <td width="380"><div class="penguin" style="width:${variant.width}px;">&nbsp;<span class="none">${variant.alt}</span></div></td>
     </tr>
 </c:forEach>
     <tr><td colspan=2>Всего голосов: ${poll.totalVotes}</td></tr>

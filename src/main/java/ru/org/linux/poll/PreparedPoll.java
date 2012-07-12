@@ -28,25 +28,38 @@ public class PreparedPoll {
   private final int maximumValue;
   private final int totalOfVotesPerson;
   private final int totalVotes;
-  private final ImmutableList<PollVariantResult> variants;
+  private final ImmutableList<PreparedPollVariantResult> variants;
 
   /**
    * Конструктор
    * @param poll опрос
    * @param maximumValue вариант опроса с самым большим кол-вом голосов(?)
    * @param totalOfVotesPerson кол-во проголосовавших пользователей
-   * @param variants варианты опроса
+   * @param variants1 варианты опроса
    */
-  public PreparedPoll(Poll poll, int maximumValue, int totalOfVotesPerson, List<PollVariantResult> variants) {
+  public PreparedPoll(Poll poll, int maximumValue, int totalOfVotesPerson, List<PollVariantResult> variants1) {
     this.poll = poll;
     this.maximumValue = maximumValue;
     this.totalOfVotesPerson = totalOfVotesPerson;
-    this.variants = ImmutableList.copyOf(variants);
+    ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<PreparedPollVariantResult>();
     int total=0;
-    for(PollVariantResult variant : variants) {
+    for(PollVariantResult variant : variants1) {
       total += variant.getVotes();
     }
     totalVotes = total;
+    for(PollVariantResult variant : variants1) {
+      int variantWidth = 20*variant.getVotes()/maximumValue;
+      variantsBuilder.add(new PreparedPollVariantResult(
+          variant.getId(),
+          variant.getLabel(),
+          variant.getVotes(),
+          variant.getUserVoted(),
+          (int)Math.round(100 * (double)variant.getVotes() / totalVotes),
+          variantWidth*16,  // пингвин 16px
+          StringUtil.repeat("*", variantWidth)
+          ));
+    }
+    this.variants = variantsBuilder.build();
   }
 
   public Poll getPoll() {
@@ -57,7 +70,7 @@ public class PreparedPoll {
     return maximumValue;
   }
 
-  public ImmutableList<PollVariantResult> getVariants() {
+  public ImmutableList<PreparedPollVariantResult> getVariants() {
     return variants;
   }
 
