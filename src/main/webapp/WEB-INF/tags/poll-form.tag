@@ -27,10 +27,10 @@
     <label>
       <c:choose>
         <c:when test="${poll.multiSelect}">
-          <input type="checkbox" <%= enabled?"":"disabled" %> name="vote" value="${variant.id}">
+          <input type="checkbox" <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
         </c:when>
         <c:otherwise>
-          <input type="radio" <%= enabled?"":"disabled" %> name="vote" value="${variant.id}">
+          <input type="radio" <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
         </c:otherwise>
       </c:choose>
         ${fn:escapeXml(variant.label)}
