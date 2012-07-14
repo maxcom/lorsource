@@ -27,7 +27,7 @@
   ${user.stars}
 
   <c:if test="${template.moderatorSession}">
-    (${user.score} • ${user.maxScore})
+    (Score: ${user.score} MaxScore: ${user.maxScore})
   </c:if>
 </c:if>
 
