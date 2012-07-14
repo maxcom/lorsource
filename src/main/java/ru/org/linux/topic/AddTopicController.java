@@ -102,8 +102,8 @@ public class AddTopicController {
   @Autowired
   private AddTopicRequestValidator addTopicRequestValidator;
 
-  public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
-  public static final int MAX_MESSAGE_LENGTH = 16384;
+  public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
+  public static final int MAX_MESSAGE_LENGTH = 32768;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
