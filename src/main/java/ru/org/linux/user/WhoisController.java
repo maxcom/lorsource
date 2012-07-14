@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -86,6 +87,31 @@ public class WhoisController {
     if (currentUser || tmpl.isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
+    return mv;
+  }
+
+  @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
+  public ModelAndView wipe(@PathVariable String nick, ServletRequest request) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("not moderator");
+    }
+
+    User user = userDao.getUser(nick);
+
+    user.checkAnonymous();
+    user.checkBlocked();
+
+    if (!user.isBlockable()) {
+      throw new AccessViolationException("Пользователя нельзя заблокировать");
+    }
+
+    ModelAndView mv = new ModelAndView("wipe-user");
+    mv.getModel().put("user", user);
+
+    mv.getModel().put("userStat", userDao.getUserStatisticsClass(user));
+
     return mv;
   }
 
