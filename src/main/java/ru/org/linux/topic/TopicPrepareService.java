@@ -232,7 +232,7 @@ public class TopicPrepareService {
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
       
-      PreparedImage preparedImage;
+      PreparedImage preparedImage = null;
 
       if (group.isImagePostAllowed()) {
         if (message.getId()!=0) {
