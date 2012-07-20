@@ -28,7 +28,7 @@
         </createTable>
 
         <sql>
-            INSERT INTO images (topic, icon, original) SELECT topics.id, topics.linktext, url FROM topics JOIN groups ON topics.groupid=groups.id JOIN sections ON sections.id=groups.section WHERE imagepost;
+            INSERT INTO images (topic, icon, original) SELECT topics.id, topics.linktext, url FROM topics JOIN groups ON topics.groupid=groups.id JOIN sections ON sections.id=groups.section WHERE imagepost AND url IS NOT NULL;
             UPDATE topics SET url=NULL, linktext=NULL WHERE id IN (SELECT topic FROM images);
         </sql>
     </changeSet>
