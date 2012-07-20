@@ -506,4 +506,8 @@ div.quote {
     html {
         -webkit-text-size-adjust: none; /* Prevent font scaling in landscape */
     }
+
+    div[itemprop="articleBody"] {
+        margin-right: 0;
+    }
 }
