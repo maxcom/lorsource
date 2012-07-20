@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -33,9 +34,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public class GalleryDao {
-
-  private static final Log log = LogFactory.getLog(GalleryDao.class);
+public class ImageDao {
+  private static final Log log = LogFactory.getLog(ImageDao.class);
 
   private JdbcTemplate jdbcTemplate;
 
@@ -54,8 +54,9 @@ public class GalleryDao {
    */
   public List<GalleryItem> getGalleryItems(int countItems) {
     String sql = "SELECT topics.id as msgid, " +
-      " topics.stat1, topics.title, topics.url, topics.linktext, nick, urlname FROM topics " +
+      " topics.stat1, topics.title, images.icon, images.original, nick, urlname FROM topics " +
       " JOIN groups ON topics.groupid = groups.id " +
+      " JOIN images ON topics.id = images.topic "+
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section= " + Section.SECTION_GALLERY +
       " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
     return jdbcTemplate.query(sql,
@@ -66,14 +67,15 @@ public class GalleryDao {
           item.setMsgid(rs.getInt("msgid"));
           item.setStat(rs.getInt("stat1"));
           item.setTitle(rs.getString("title"));
-          item.setUrl(rs.getString("url"));
-          item.setIcon(rs.getString("linktext"));
+          item.setUrl(rs.getString("original"));
+          item.setIcon(rs.getString("icon"));
           item.setNick(rs.getString("nick"));
           item.setStat(rs.getInt("stat1"));
           item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
           String htmlPath = configuration.getHTMLPathPrefix();
           item.setHtmlPath(htmlPath);
+
           try {
             item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
             item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
@@ -87,5 +89,27 @@ public class GalleryDao {
       },
       countItems
     );
+  }
+
+  public Image imageForTopic(Topic topic) {
+    return jdbcTemplate.queryForObject(
+            "SELECT id, topic, original, icon FROM images WHERE topic=?",
+            new RowMapper<Image>() {
+              @Override
+              public Image mapRow(ResultSet rs, int i) throws SQLException {
+                return new Image(
+                        rs.getInt("id"),
+                        rs.getInt("topic"),
+                        rs.getString("original"),
+                        rs.getString("icon")
+                );
+              }
+            },
+            topic.getId()
+    );
+  }
+
+  public void saveImage(int topicId, String original, String icon) {
+    jdbcTemplate.update("INSERT INTO images (topic, original, icon) VALUES (?,?,?)", topicId, original, icon);
   }
 }

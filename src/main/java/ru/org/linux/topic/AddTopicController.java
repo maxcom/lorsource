@@ -36,6 +36,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
+import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -263,15 +264,8 @@ public class AddTopicController {
     if (group!=null && group.isImagePostAllowed()) {
       scrn = processUpload(session, image, errors);
 
-      if (scrn!=null) {
-        form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
-        form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
-      } else {
-        form.setLinktext(null);
-        form.setUrl(null);
-        if (!errors.hasErrors()) {
-          errors.reject(null, "Изображение отсутствует");
-        }
+      if (scrn == null && !errors.hasErrors()) {
+        errors.reject(null, "Изображение отсутствует");
       }
     }
 
@@ -285,7 +279,26 @@ public class AddTopicController {
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareTopicPreview(previewMsg, tagService.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
+
+      Image imageObject = null;
+
+      if (scrn!=null) {
+        imageObject = new Image(
+                0,
+                0,
+                "gallery/preview/" + scrn.getMainFile().getName(),
+                "gallery/preview/" + scrn.getIconFile().getName()
+        );
+      }
+
+      params.put("message", prepareService.prepareTopicPreview(
+              previewMsg,
+              tagService.parseSanitizeTags(form.getTags()),
+              poll,
+              request.isSecure(),
+              message,
+              imageObject
+      ));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors()) {

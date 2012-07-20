@@ -28,7 +28,7 @@ import java.util.List;
 public class GalleryDaoIntegrationTest {
 
   @Autowired
-  GalleryDao galleryDao;
+  ImageDao imageDao;
 
   /**
    * Проверка galleryDao.getGalleryItems().
@@ -36,7 +36,7 @@ public class GalleryDaoIntegrationTest {
    */
   @Test
   public void getGalleryItemsTest() {
-    List<GalleryItem> galleryDtoList = galleryDao.getGalleryItems(3);
+    List<GalleryItem> galleryDtoList = imageDao.getGalleryItems(3);
     Assert.assertEquals(3, galleryDtoList.size());
   }
 }

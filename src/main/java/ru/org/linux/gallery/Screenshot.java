@@ -23,8 +23,6 @@ import ru.org.linux.util.UtilException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Screenshot {
   public static final int MAX_SCREENSHOT_FILESIZE = 1500000;
@@ -36,7 +34,6 @@ public class Screenshot {
   private final File iconFile;
   private final String extension;
 
-  private static final Pattern GALLERY_NAME = Pattern.compile("(gallery/[^.]+)(\\.\\w+)");
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
 
@@ -151,19 +148,5 @@ public class Screenshot {
 
   public File getIconFile() {
     return iconFile;
-  }
-
-  public File getMediumFile() {
-    return mediumFile;
-  }
-
-  public static String getMediumName(String name) {
-    Matcher m = GALLERY_NAME.matcher(name);
-
-    if (!m.matches()) {
-      throw new IllegalArgumentException("Not gallery path: "+name);
-    }
-
-    return m.group(1)+"-med.jpg";
   }
 }

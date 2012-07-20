@@ -1,0 +1,53 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012072001" author="Maxim Valyanskiy">
+        <createTable tableName="images">
+            <column name="id" type="serial">
+                 <constraints primaryKey="true" nullable="false"/>
+             </column>
+
+            <column name="topic" type="integer">
+                <constraints
+                        foreignKeyName="images_topic_fkey"
+                        references="topics(id)"
+                        nullable="false"
+                        unique="true"/>
+            </column>
+
+            <column name="original" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="icon" type="java.sql.Types.VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>
+            INSERT INTO images (topic, icon, original) SELECT topics.id, topics.linktext, url FROM topics JOIN groups ON topics.groupid=groups.id JOIN sections ON sections.id=groups.section WHERE imagepost;
+            UPDATE topics SET url=NULL, linktext=NULL WHERE id IN (SELECT topic FROM images);
+        </sql>
+    </changeSet>
+
+    <changeSet id="2012072002" author="Maxim Valynskiy">
+        <sql>
+            GRANT INSERT,SELECT ON TABLE images TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE ALL ON TABLE images FROM linuxweb;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2012072003" author="Maxim Valynskiy">
+        <sql>
+            GRANT UPDATE ON SEQUENCE images_id_seq TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE ALL ON SEQUENCE images_id_seq FROM linuxweb;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

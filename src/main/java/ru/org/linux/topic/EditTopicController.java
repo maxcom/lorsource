@@ -478,7 +478,8 @@ public class EditTopicController {
                     newTags,
                     newPoll,
                     request.isSecure(),
-                    newText
+                    newText,
+                    null
             )
     );
 

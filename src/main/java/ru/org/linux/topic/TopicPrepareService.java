@@ -25,7 +25,8 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
-import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.Image;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -102,9 +103,12 @@ public class TopicPrepareService {
 
   @Autowired
   private EditHistoryService editHistoryService;
+
+  @Autowired
+  private ImageDao imageDao;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
-    return prepareMessage(message, messageDao.getTags(message), false, null, secure, user, null);
+    return prepareMessage(message, messageDao.getTags(message), false, null, secure, user, null, null);
   }
 
   public PreparedTopic prepareTopicPreview(
@@ -112,7 +116,8 @@ public class TopicPrepareService {
           List<String> tags,
           Poll newPoll,
           boolean secure,
-          String text
+          String text,
+          Image image
   ) {
     return prepareMessage(
             message,
@@ -120,12 +125,10 @@ public class TopicPrepareService {
             false,
             newPoll!=null?pollPrepareService.preparePollPreview(newPoll):null,
             secure,
-            new MessageText(text, true)
+            null,
+            new MessageText(text, true),
+            image
     );
-  }
-
-  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, MessageText text) {
-    return prepareMessage(message, tags, minimizeCut, poll, secure, null, text);
   }
 
   /**
@@ -145,7 +148,8 @@ public class TopicPrepareService {
           PreparedPoll poll,
           boolean secure, 
           User user,
-          MessageText text) {
+          MessageText text,
+          Image image) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -230,10 +234,10 @@ public class TopicPrepareService {
       
       PreparedImage preparedImage;
 
-      if (group.isImagePostAllowed() && message.getUrl()!=null) {
-        preparedImage = prepareImage(message, secure);
+      if (group.isImagePostAllowed() && message.getId()!=0) {
+        preparedImage = prepareImage(imageDao.imageForTopic(message), secure);
       } else {
-        preparedImage = null;
+        preparedImage = prepareImage(image, secure);
       }
 
       return new PreparedTopic(
@@ -265,23 +269,23 @@ public class TopicPrepareService {
     }
   }
   
-  private PreparedImage prepareImage(Topic topic, boolean secure) {
-    String mediumName = Screenshot.getMediumName(topic.getUrl());
+  private PreparedImage prepareImage(Image image, boolean secure) {
+    String mediumName = image.getMedium();
 
     String htmlPath = configuration.getHTMLPathPrefix();
     if (!new File(htmlPath, mediumName).exists()) {
-      mediumName = topic.getLinktext();
+      mediumName = image.getIcon();
     }
 
     try {
       ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
-      String fullName = htmlPath + topic.getUrl();
+      String fullName = htmlPath + image.getOriginal();
       ImageInfo fullInfo = new ImageInfo(
               fullName,
               ImageInfo.detectImageType(new File(fullName))
       );
       LorURL medURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+mediumName);
-      LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+topic.getUrl());
+      LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+image.getOriginal());
 
       return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo);
     } catch (BadImageException e) {
@@ -306,7 +310,16 @@ public class TopicPrepareService {
     Map<Integer,MessageText> textMap = loadTexts(messages);
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, user, textMap.get(message.getId()));
+      PreparedTopic preparedMessage = prepareMessage(
+              message,
+              messageDao.getTags(message),
+              true,
+              null,
+              secure,
+              user,
+              textMap.get(message.getId()),
+              null
+      );
       TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
@@ -340,7 +353,7 @@ public class TopicPrepareService {
     Map<Integer,MessageText> textMap = loadTexts(messages);
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, textMap.get(message.getId()));
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, null, textMap.get(message.getId()), null);
       pm.add(preparedMessage);
     }
 

@@ -22,6 +22,6 @@
     <import resource="classpath:database.xml"/>
     <import resource="classpath:common.xml"/>
 
-    <bean class="ru.org.linux.gallery.GalleryDao" id="galleryDao"/>
+    <bean class="ru.org.linux.gallery.ImageDao" id="galleryDao"/>
 
 </beans>

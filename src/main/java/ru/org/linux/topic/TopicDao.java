@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -104,7 +105,10 @@ public class TopicDao {
   private UserTagService userTagService;
 
   @Autowired
-  EditHistoryService editHistoryService;
+  private EditHistoryService editHistoryService;
+
+  @Autowired
+  private ImageDao imageDao;
 
   /**
    * Запрос получения полной информации о топике
@@ -129,8 +133,6 @@ public class TopicDao {
 
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
   private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
-
-  private static final String queryOnlyMessage = "SELECT message FROM msgbase WHERE id=?";
 
   private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
 
@@ -170,15 +172,6 @@ public class TopicDao {
       updateLastmodToCurrentTime,
       topicId
     );
-  }
-
-  /**
-   * Получить содержимое топика
-   * @param message топик
-   * @return содержимое
-   */
-  public String getMessage(Topic message) {
-    return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, message.getId());
   }
 
   /**
@@ -291,9 +284,9 @@ public class TopicDao {
   /**
    * Сохраняем новое сообщение
    *
+   *
    * @param msg
    * @param request
-   * @param scrn
    * @param user
    * @return
    * @throws IOException
@@ -303,27 +296,15 @@ public class TopicDao {
   private int saveNewMessage(
           final Topic msg,
           final HttpServletRequest request,
-          Screenshot scrn,
           final User user,
           String text
-  ) throws  IOException,  ScriptErrorException {
+  ) throws ScriptErrorException {
     final Group group = groupDao.getGroup(msg.getGroupId());
 
     final int msgid = allocateMsgid();
 
     String url = msg.getUrl();
     String linktext = msg.getLinktext();
-
-    if (group.isImagePostAllowed()) {
-      if (scrn == null) {
-        throw new ScriptErrorException("scrn==null!?");
-      }
-
-      Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
-
-      url = "gallery/" + screenShot.getMainFile().getName();
-      linktext = "gallery/" + screenShot.getIconFile().getName();
-    }
 
     final String finalUrl = url;
     final String finalLinktext = linktext;
@@ -373,10 +354,23 @@ public class TopicDao {
     final int msgid = saveNewMessage(
             previewMsg,
             request,
-            scrn,
             user,
             message
     );
+
+    if (group.isImagePostAllowed()) {
+      if (scrn == null) {
+        throw new ScriptErrorException("scrn==null!?");
+      }
+
+      Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
+
+      imageDao.saveImage(
+              msgid,
+              "gallery/" + screenShot.getMainFile().getName(),
+              "gallery/" + screenShot.getIconFile().getName()
+      );
+    }
 
     if (group.isPollPostAllowed()) {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);

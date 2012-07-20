@@ -28,5 +28,6 @@
     <include file="sql/updates/2012-05-11-memories-type.xml"/>
     <include file="sql/updates/2012-05-12-memories-topic-index.xml"/>
     <include file="sql/updates/2012-06-05-remove-groups-stat2.xml"/>
+    <include file="sql/updates/2012-07-20-images-table.xml"/>
 
 </databaseChangeLog>
