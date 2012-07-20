@@ -234,10 +234,12 @@ public class TopicPrepareService {
       
       PreparedImage preparedImage;
 
-      if (group.isImagePostAllowed() && message.getId()!=0) {
-        preparedImage = prepareImage(imageDao.imageForTopic(message), secure);
-      } else {
-        preparedImage = prepareImage(image, secure);
+      if (group.isImagePostAllowed()) {
+        if (message.getId()!=0) {
+          preparedImage = prepareImage(imageDao.imageForTopic(message), secure);
+        } else {
+          preparedImage = prepareImage(image, secure);
+        }
       }
 
       return new PreparedTopic(
