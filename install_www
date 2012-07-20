@@ -6,7 +6,7 @@ mvn clean package
 
 echo Copying files...
 
-sudo rm /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
+sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
 mvn -P production liquibase:update
 sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/*.jar
 sudo rm -rf /var/lib/tomcat6/webapps/ROOT/WEB-INF/classes
