@@ -15,6 +15,8 @@
 
 package ru.org.linux.auth;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -39,6 +41,8 @@ import java.util.Collections;
 
 @Controller
 public class LoginController {
+  private static final Log logger = LogFactory.getLog(LoginController.class);
+
   public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
 
   @Autowired
@@ -115,6 +119,8 @@ public class LoginController {
 
     String password = request.getParameter("passwd");
     if (password == null || !user.matchPassword(password)) {
+      logger.info("Invalid password for user "+user.getNick());
+
       return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
     }
 
