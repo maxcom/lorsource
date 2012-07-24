@@ -23,6 +23,8 @@ import java.util.Set;
 import ru.org.linux.site.*;
 
 public class CommentFilter {
+  public static final int LIMIT_CLEARANCE = 3;
+
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
 
   public static final int FILTER_NONE = 0;
@@ -43,7 +45,9 @@ public class CommentFilter {
 
       Comment comment = reverse?i.previous():i.next();
 
-      if (index<offset || (limit!=0 && index>=offset+limit)) {
+      boolean lastPage = (index > comments.size() - limit);
+
+      if (index<offset || (limit!=0 && index>=offset+limit+(lastPage?LIMIT_CLEARANCE:0))) {
         continue;
       }
 
