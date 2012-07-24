@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +21,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>Reindex</h1>
 <form action="/admin/search-reindex" method="POST">
+  <lor:csrf/>
   <select name="action">
     <option value="all">all</option>
     <option value="current">current</option>
