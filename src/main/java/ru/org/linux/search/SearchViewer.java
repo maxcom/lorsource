@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import ru.org.linux.user.User;
 
 public class SearchViewer {
@@ -101,7 +102,7 @@ public class SearchViewer {
   public QueryResponse performSearch(SolrServer search) throws SolrServerException {
     SolrQuery params = new SolrQuery();
     // set search query params
-    params.set("q", query.getQ());
+    params.set("q", ClientUtils.escapeQueryChars(query.getQ()));
     params.set("rows", SEARCH_ROWS);
     params.set("start", query.getOffset());
 
