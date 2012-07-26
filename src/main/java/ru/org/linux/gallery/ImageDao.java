@@ -27,6 +27,8 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -91,7 +93,8 @@ public class ImageDao {
     );
   }
 
-  public Image imageForTopic(Topic topic) {
+  @Nullable
+  public Image imageForTopic(@Nonnull Topic topic) {
     return jdbcTemplate.queryForObject(
             "SELECT id, topic, original, icon FROM images WHERE topic=?",
             new RowMapper<Image>() {
