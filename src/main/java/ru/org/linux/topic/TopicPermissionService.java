@@ -128,17 +128,16 @@ public class TopicPermissionService {
   /**
    * Проверка на права редактирования комментария.
    *
+   *
    * @param commentRequest WEB-форма, содержащая данные
    * @param request        данные запроса от web-клиента
    * @param user           пользователь, добавивший комментарий.
-   * @param errors         обработчик ошибок ввода для формы
    * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
   public boolean isCommentsEditingAllowed(
-    CommentRequest commentRequest,
-    HttpServletRequest request,
-    User user,
-    Errors errors
+          CommentRequest commentRequest,
+          HttpServletRequest request,
+          User user
   ) {
     Template tmpl = Template.getTemplate(request);
 
@@ -175,9 +174,8 @@ public class TopicPermissionService {
         isByScoreEnable = false;
       }
 
-      editable = isByMinutesEnable & isByAnswersEnable & isByScoreEnable;
+      editable = isByMinutesEnable && isByAnswersEnable && isByScoreEnable;
     }
     return editable;
   }
-
 }
