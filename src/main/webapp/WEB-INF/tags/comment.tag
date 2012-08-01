@@ -68,8 +68,10 @@
     }
   }
 
+  CommentNode commentNode = comments.getNode(comment.getComment().getId());
+
   Boolean deletable = moderatorMode ||
-    (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()));
+    (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()) && !commentNode.isHaveAnswers());
 
   Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
   if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
