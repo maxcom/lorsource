@@ -70,8 +70,14 @@
 
   CommentNode commentNode = comments.getNode(comment.getComment().getId());
 
+  long commentTimestamp = comment.getComment().getPostdate().getTime();
+  long nowTimestamp = new java.util.Date().getTime();
+
   Boolean deletable = moderatorMode ||
-    (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()) && !commentNode.isHaveAnswers());
+    (!topic.isExpired() &&
+     comment.getAuthor().getNick().equals(tmpl.getNick()) &&
+      !commentNode.isHaveAnswers() &&
+      nowTimestamp - commentTimestamp < 60 * 60 * 1000); /* DeleteCommentController.DELETE_PERIOD */
 
   Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
   if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
@@ -79,9 +85,7 @@
 
     boolean isbyMinutesEnable;
     if (minutesToEdit != null && !minutesToEdit.equals(0)) {
-      long commentTimestamp = comment.getComment().getPostdate().getTime();
       long deltaTimestamp = minutesToEdit * 60 * 1000;
-      long nowTimestamp = new java.util.Date().getTime();
 
       isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
     } else {
