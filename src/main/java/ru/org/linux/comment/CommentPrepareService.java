@@ -56,6 +56,19 @@ public class CommentPrepareService {
     return prepareComment(messageText, comment, comments, secure, rss, tmpl, topic);
   }
 
+  /**
+   * Проверяем можно ли редактировать комментарий на текущий момент
+   * @param moderatorMode текущий пользователь можератор
+   * @param moderatorAllowEditComments модертор может редактировать?
+   * @param commentEditingAllowedIfAnswersExists можно ли редактировать если есть ответы?
+   * @param commentScoreValueForEditing кол-во шкворца необходимое для редактирования
+   * @param userScore кол-во шгкворца у текущего пользователя
+   * @param authored является текущий пользователь автором комментария
+   * @param haveAnswers есть у комменатрия ответы
+   * @param commentExpireMinutesForEdit после скольки минут редактировать невкоем случае нельзя
+   * @param commentTimestamp время создания комментария
+   * @return результат
+   */
   private boolean isEditableNow(boolean moderatorMode, boolean moderatorAllowEditComments, boolean commentEditingAllowedIfAnswersExists,
                                 int commentScoreValueForEditing, int userScore,
                                 boolean authored, boolean haveAnswers, int commentExpireMinutesForEdit, long commentTimestamp) {
@@ -88,6 +101,15 @@ public class CommentPrepareService {
     return editable;
   }
 
+  /**
+   * Проверяем можно ли удалять комментарий на текущий момент
+   * @param moderatorMode текущий пользователь модератор?
+   * @param expired топик устарел(архивный)?
+   * @param authored текущий пользьователь автор комментария?
+   * @param haveAnswers у комментрия есть ответы?
+   * @param commentTimestamp время создания комментария
+   * @return резултат
+   */
   private boolean isDeletableNow(boolean moderatorMode, boolean expired, boolean authored, boolean haveAnswers, long commentTimestamp ) {
     long nowTimestamp = new java.util.Date().getTime();
     return moderatorMode ||
