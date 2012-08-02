@@ -23,13 +23,30 @@ public class PreparedComment {
   private final String processedMessage;
   private final User replyAuthor;
   private final boolean haveAnswers;
+  private final Comment reply;
+  private final int replyPage;
+  private final String topicPage;
+  private final String replyTitle;
+  private final boolean showLastMod;
+  private final boolean deletable;
+  private final boolean editable;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers) {
+
+  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
+                         Comment reply, int replyPage, String topicPage, String replyTitle, boolean showLastMod,
+                         boolean deletable, boolean editable) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
     this.haveAnswers = haveAnswers;
+    this.reply = reply;
+    this.replyPage = replyPage;
+    this.topicPage = topicPage;
+    this.replyTitle = replyTitle;
+    this.showLastMod = showLastMod;
+    this.deletable = deletable;
+    this.editable = editable;
   }
 
   public Comment getComment() {
@@ -50,5 +67,33 @@ public class PreparedComment {
 
   public boolean isHaveAnswers() {
     return haveAnswers;
+  }
+
+  public Comment getReply() {
+    return reply;
+  }
+
+  public int getReplyPage() {
+    return replyPage;
+  }
+
+  public String getTopicPage() {
+    return topicPage;
+  }
+
+  public String getReplyTitle() {
+    return replyTitle;
+  }
+
+  public boolean isShowLastMod() {
+    return showLastMod;
+  }
+
+  public boolean isDeletable() {
+    return deletable;
+  }
+
+  public boolean isEditable() {
+    return editable;
   }
 }

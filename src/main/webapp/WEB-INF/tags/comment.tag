@@ -29,12 +29,6 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%
-
-  Template tmpl = Template.getTemplate(request);
-  boolean moderatorMode = tmpl.isModeratorSession();
-%>
 
 <!-- ${comment.comment.messageId}  -->
 <article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
@@ -42,78 +36,6 @@
 <c:choose>
 <c:when test="${not showMenu}">[#]</c:when>
 <c:otherwise>
-<%
-  Comment reply = null;
-  int replyPage = 0;
-  String topicPage = null;
-  String replyTitle = null;
-  Boolean showLastMod = false;
-  User replyAuthor = null;
-
-  if (comment.getComment().getReplyTo() != 0) {
-    CommentNode replyNode = comments.getNode(comment.getComment().getReplyTo());
-    if (replyNode != null) {
-        reply = replyNode.getComment();
-        replyPage = comments.getCommentPage(reply, tmpl);
-        topicPage = topic.getLinkPage(replyPage);
-
-        replyTitle = reply.getTitle();
-        if (replyTitle.trim().isEmpty()) {
-          replyTitle = "комментарий";
-        }
-        showLastMod = (!expired && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1);
-        replyAuthor = comment.getReplyAuthor();
-    } else {
-//        logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
-    }
-  }
-
-  long commentTimestamp = comment.getComment().getPostdate().getTime();
-  long nowTimestamp = new java.util.Date().getTime();
-
-  Boolean deletable = moderatorMode ||
-    (!topic.isExpired() &&
-     comment.getAuthor().getNick().equals(tmpl.getNick()) &&
-      !comment.isHaveAnswers() &&
-      nowTimestamp - commentTimestamp < 60 * 60 * 1000); /* DeleteCommentController.DELETE_PERIOD */
-
-  Boolean editable = moderatorMode && tmpl.getConfig().isModeratorAllowedToEditComments();
-  if (!editable && comment.getAuthor().getNick().equals(tmpl.getNick())) {
-    Integer minutesToEdit = tmpl.getConfig().getCommentExpireMinutesForEdit();
-
-    boolean isbyMinutesEnable;
-    if (minutesToEdit != null && !minutesToEdit.equals(0)) {
-      long deltaTimestamp = minutesToEdit * 60 * 1000;
-
-      isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
-    } else {
-      isbyMinutesEnable = true;
-    }
-
-    boolean isbyAnswersEnable = true;
-    if (!tmpl.getConfig().isCommentEditingAllowedIfAnswersExists()
-      && comment.isHaveAnswers()) {
-      isbyAnswersEnable = false;
-    }
-
-    Integer scoreToEdit = tmpl.getConfig().getCommentScoreValueForEditing();
-    boolean isByScoreEnable = true;
-    if (scoreToEdit != null && scoreToEdit > tmpl.getCurrentUser().getScore()) {
-      isByScoreEnable = false;
-    }
-
-    editable = isbyMinutesEnable & isbyAnswersEnable & isByScoreEnable;
-  }
-%>
-  <c:set var="reply" value="<%= reply %>"/>
-  <c:set var="replyPage" value="<%= replyPage %>"/>
-  <c:set var="topicPage" value="<%= topicPage %>"/>
-  <c:set var="title" value="<%= replyTitle %>"/>
-  <c:set var="showLastMod" value="<%= showLastMod %>"/>
-  <c:set var="replyAuthor" value="<%= replyAuthor %>"/>
-  <c:set var="deletable" value="<%= deletable %>"/>
-  <c:set var="editable" value="<%= editable %>"/>
-
   <c:choose>
     <c:when test="${not comment.comment.deleted}">
       <c:url var="self_link" value="${topic.link}">
@@ -134,15 +56,15 @@
     </c:otherwise>
   </c:choose>
 
-  <c:if test="${reply != null}">
-    <c:url var="reply_url" value="${topicPage}">
-      <c:if test="${showLastMod}">
+  <c:if test="${comment.reply != null}">
+    <c:url var="reply_url" value="${comment.topicPage}">
+      <c:if test="${comment.showLastMod}">
         <c:param name="lastmod" value="${comments.lastModified}" />
       </c:if>
     </c:url>
     Ответ на:
-    <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${reply.messageId}')" ><l:title>${title}</l:title></a>
-    от ${replyAuthor.nick} <lor:date date="${reply.postdate}"/>
+    <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${comment.reply.messageId}')" ><l:title>${comment.replyTitle}</l:title></a>
+    от ${comment.replyAuthor.nick} <lor:date date="${comment.reply.postdate}"/>
   </c:if>
 </c:otherwise>
 </c:choose>
@@ -185,15 +107,15 @@
     </div>
 
   <c:if test="${not comment.comment.deleted and showMenu}">
-    <div class=reply>
+    <div class="reply">
 
-      <c:if test="${deletable or editable or commentsAllowed}">
+      <c:if test="${comment.deletable or comment.editable or commentsAllowed}">
       <ul>
       <c:if test="${commentsAllowed}">
         <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
       </c:if>
 
-      <c:if test="${editable}">
+      <c:if test="${comment.editable}">
         <c:url var="edit_url" value="/edit_comment">
           <c:param name="original" value="${comment.comment.messageId}"/>
           <c:param name="topic" value="${topic.id}"/>
@@ -201,7 +123,7 @@
         <li><a href="${edit_url}">Править</a></li>
       </c:if>
 
-      <c:if test="${deletable}">
+      <c:if test="${comment.deletable}">
         <c:url var="delete_url" value="/delete_comment.jsp">
           <c:param name="msgid" value="${comment.comment.messageId}"/>
         </c:url>

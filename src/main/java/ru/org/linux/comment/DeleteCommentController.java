@@ -48,7 +48,7 @@ public class DeleteCommentController {
   private UserDao userDao;
   private CommentPrepareService prepareService;
 
-  private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
+  public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
   @Autowired
   @Required
@@ -114,7 +114,7 @@ public class DeleteCommentController {
 
     List<Comment> list = cv.getCommentsSubtree(msgid);
 
-    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure()));
+    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure(), tmpl, topic));
     params.put("comments", comments);
 
     return new ModelAndView("delete_comment", params);

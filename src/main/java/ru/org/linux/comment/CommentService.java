@@ -316,7 +316,7 @@ public class CommentService {
     HttpServletRequest request
   ) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      formParams.put("onComment", commentPrepareService.prepareComment(add.getReplyto(), request.isSecure()));
+      formParams.put("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
     }
   }
 
