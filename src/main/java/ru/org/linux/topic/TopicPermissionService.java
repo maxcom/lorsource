@@ -197,7 +197,7 @@ public class TopicPermissionService {
                                 int commentScoreValueForEditing, int userScore,
                                 boolean authored, boolean haveAnswers, int commentExpireMinutesForEdit, long commentTimestamp) {
     Boolean editable = moderatorMode && moderatorAllowEditComments;
-    long nowTimestamp = new java.util.Date().getTime();
+    long nowTimestamp = System.currentTimeMillis();
     if (!editable && authored) {
 
       boolean isbyMinutesEnable;
@@ -235,7 +235,7 @@ public class TopicPermissionService {
    * @return резултат
    */
   public boolean isCommentDeletableNow(boolean moderatorMode, boolean expired, boolean authored, boolean haveAnswers, long commentTimestamp ) {
-    long nowTimestamp = new java.util.Date().getTime();
+    long nowTimestamp = System.currentTimeMillis();
     return moderatorMode ||
         (!expired &&
          authored &&
