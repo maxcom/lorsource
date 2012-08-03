@@ -142,42 +142,27 @@ public class TopicPermissionService {
   ) {
     Template tmpl = Template.getTemplate(request);
 
-    /* Проверка на то, что пользователь модератор */
-    Boolean editable = tmpl.isModeratorSession() && configuration.isModeratorAllowedToEditComments();
-
+    final boolean moderatorMode = tmpl.isModeratorSession();
+    final boolean moderatorAllowEditComments = configuration.isModeratorAllowedToEditComments();
+    final boolean commentEditingAllowedIfAnswersExists = configuration.isCommentEditingAllowedIfAnswersExists();
+    final int commentScoreValueForEditing = configuration.getCommentScoreValueForEditing();
+    final int userScore = tmpl.getCurrentUser().getScore();
     /* проверка на то, что пользователь владелец комментария */
-    if (!editable && commentRequest.getOriginal().getUserid() == user.getId()) {
-      /* проверка на то, что время редактирования не вышло */
-      Integer minutesToEdit = configuration.getCommentExpireMinutesForEdit();
-
-      boolean isByMinutesEnable = false;
-      if (minutesToEdit != null && !minutesToEdit.equals(0)) {
-        long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
-        long deltaTimestamp = minutesToEdit * 60 * 1000;
-        long nowTimestamp = new Date().getTime();
-
-        isByMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
-      } else {
-        isByMinutesEnable = true;
-      }
-
-      /* Проверка на то, что у комментария нет ответов */
-      boolean isByAnswersEnable = true;
-      if (!configuration.isCommentEditingAllowedIfAnswersExists()
-        && commentService.isHaveAnswers(commentRequest.getOriginal())) {
-        isByAnswersEnable = false;
-      }
-
-      /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
-      Integer scoreToEdit = configuration.getCommentScoreValueForEditing();
-      boolean isByScoreEnable = true;
-      if (scoreToEdit != null && scoreToEdit > tmpl.getCurrentUser().getScore()) {
-        isByScoreEnable = false;
-      }
-
-      editable = isByMinutesEnable && isByAnswersEnable && isByScoreEnable;
-    }
-    return editable;
+    final boolean authored = (commentRequest.getOriginal().getUserid() == user.getId());
+    final boolean haveAnswers = commentService.isHaveAnswers(commentRequest.getOriginal());
+    final int commentExpireMinutesForEdit = configuration.getCommentExpireMinutesForEdit();
+    final long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
+    return isCommentEditableNow(
+        moderatorMode,
+        moderatorAllowEditComments,
+        commentEditingAllowedIfAnswersExists,
+        commentScoreValueForEditing,
+        userScore,
+        authored,
+        haveAnswers,
+        commentExpireMinutesForEdit,
+        commentTimestamp
+    );
   }
 
   /**
@@ -196,10 +181,12 @@ public class TopicPermissionService {
   public boolean isCommentEditableNow(boolean moderatorMode, boolean moderatorAllowEditComments, boolean commentEditingAllowedIfAnswersExists,
                                 int commentScoreValueForEditing, int userScore,
                                 boolean authored, boolean haveAnswers, int commentExpireMinutesForEdit, long commentTimestamp) {
+    /* Проверка на то, что пользователь модератор */
     Boolean editable = moderatorMode && moderatorAllowEditComments;
     long nowTimestamp = System.currentTimeMillis();
     if (!editable && authored) {
 
+      /* проверка на то, что время редактирования не вышло */
       boolean isbyMinutesEnable;
       if (commentExpireMinutesForEdit != 0) {
         long deltaTimestamp = commentExpireMinutesForEdit * 60 * 1000;
@@ -209,12 +196,14 @@ public class TopicPermissionService {
         isbyMinutesEnable = true;
       }
 
+      /* Проверка на то, что у комментария нет ответов */
       boolean isbyAnswersEnable = true;
       if (!commentEditingAllowedIfAnswersExists
         && haveAnswers) {
         isbyAnswersEnable = false;
       }
 
+      /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
       boolean isByScoreEnable = true;
       if (commentScoreValueForEditing > userScore) {
         isByScoreEnable = false;
