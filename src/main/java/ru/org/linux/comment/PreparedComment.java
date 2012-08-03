@@ -26,14 +26,13 @@ public class PreparedComment {
   private final Comment reply;
   private final int replyPage;
   private final String topicPage;
-  private final String replyTitle;
   private final boolean showLastMod;
   private final boolean deletable;
   private final boolean editable;
 
 
   public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
-                         Comment reply, int replyPage, String topicPage, String replyTitle, boolean showLastMod,
+                         Comment reply, int replyPage, String topicPage, boolean showLastMod,
                          boolean deletable, boolean editable) {
     this.comment = comment;
     this.author = author;
@@ -43,7 +42,6 @@ public class PreparedComment {
     this.reply = reply;
     this.replyPage = replyPage;
     this.topicPage = topicPage;
-    this.replyTitle = replyTitle;
     this.showLastMod = showLastMod;
     this.deletable = deletable;
     this.editable = editable;
@@ -82,7 +80,15 @@ public class PreparedComment {
   }
 
   public String getReplyTitle() {
-    return replyTitle;
+    if(reply != null) {
+      String replyTitle = reply.getTitle();
+      if (replyTitle.trim().isEmpty()) {
+        return  "комментарий";
+      }
+      return replyTitle;
+    } else {
+      return "";
+    }
   }
 
   public boolean isShowLastMod() {

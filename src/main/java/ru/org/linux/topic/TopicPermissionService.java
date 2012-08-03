@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import ru.org.linux.comment.CommentRequest;
 import ru.org.linux.comment.CommentService;
+import ru.org.linux.comment.DeleteCommentController;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
@@ -178,4 +179,68 @@ public class TopicPermissionService {
     }
     return editable;
   }
+
+  /**
+   * Проверяем можно ли редактировать комментарий на текущий момент
+   * @param moderatorMode текущий пользователь можератор
+   * @param moderatorAllowEditComments модертор может редактировать?
+   * @param commentEditingAllowedIfAnswersExists можно ли редактировать если есть ответы?
+   * @param commentScoreValueForEditing кол-во шкворца необходимое для редактирования
+   * @param userScore кол-во шгкворца у текущего пользователя
+   * @param authored является текущий пользователь автором комментария
+   * @param haveAnswers есть у комменатрия ответы
+   * @param commentExpireMinutesForEdit после скольки минут редактировать невкоем случае нельзя
+   * @param commentTimestamp время создания комментария
+   * @return результат
+   */
+  public boolean isCommentEditableNow(boolean moderatorMode, boolean moderatorAllowEditComments, boolean commentEditingAllowedIfAnswersExists,
+                                int commentScoreValueForEditing, int userScore,
+                                boolean authored, boolean haveAnswers, int commentExpireMinutesForEdit, long commentTimestamp) {
+    Boolean editable = moderatorMode && moderatorAllowEditComments;
+    long nowTimestamp = new java.util.Date().getTime();
+    if (!editable && authored) {
+
+      boolean isbyMinutesEnable;
+      if (commentExpireMinutesForEdit != 0) {
+        long deltaTimestamp = commentExpireMinutesForEdit * 60 * 1000;
+
+        isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
+      } else {
+        isbyMinutesEnable = true;
+      }
+
+      boolean isbyAnswersEnable = true;
+      if (!commentEditingAllowedIfAnswersExists
+        && haveAnswers) {
+        isbyAnswersEnable = false;
+      }
+
+      boolean isByScoreEnable = true;
+      if (commentScoreValueForEditing > userScore) {
+        isByScoreEnable = false;
+      }
+
+      editable = isbyMinutesEnable & isbyAnswersEnable & isByScoreEnable;
+    }
+    return editable;
+  }
+
+  /**
+   * Проверяем можно ли удалять комментарий на текущий момент
+   * @param moderatorMode текущий пользователь модератор?
+   * @param expired топик устарел(архивный)?
+   * @param authored текущий пользьователь автор комментария?
+   * @param haveAnswers у комментрия есть ответы?
+   * @param commentTimestamp время создания комментария
+   * @return резултат
+   */
+  public boolean isCommentDeletableNow(boolean moderatorMode, boolean expired, boolean authored, boolean haveAnswers, long commentTimestamp ) {
+    long nowTimestamp = new java.util.Date().getTime();
+    return moderatorMode ||
+        (!expired &&
+         authored &&
+         !haveAnswers &&
+          nowTimestamp - commentTimestamp < DeleteCommentController.DELETE_PERIOD);
+  }
+
 }
