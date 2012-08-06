@@ -167,7 +167,7 @@ public class AddCommentController {
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
 
       topicPermissionService.checkCommentsAllowed(add.getTopic(), user, errors);
-      formParams.put("comment", commentPrepareService.prepareComment(comment, msg, request.isSecure()));
+      formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
     }
 
     if (add.isPreviewMode() || errors.hasErrors() || comment == null) {
