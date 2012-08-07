@@ -213,14 +213,14 @@ public class TopicController {
     String filter,
     String groupName,
     int msgid) throws Exception {
-    Topic message = messageDao.getById(msgid);
+    Topic topic = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -237,11 +237,11 @@ public class TopicController {
     boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
     if (page == -1 && !tmpl.isSessionAuthorized()) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
     if (showDeleted) {
@@ -254,11 +254,11 @@ public class TopicController {
 
     User currentUser = tmpl.getCurrentUser();
 
-    if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+    if (topic.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
+      throw new MessageNotFoundException(topic.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    checkView(message, tmpl, currentUser);
+    checkView(topic, tmpl, currentUser);
 
     params.put("group", group);
 
@@ -267,7 +267,7 @@ public class TopicController {
     }
 
     if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-      String etag = getEtag(message, tmpl);
+      String etag = getEtag(topic, tmpl);
       response.setHeader("Etag", etag);
 
       if (request.getHeader("If-None-Match") != null) {
@@ -275,21 +275,21 @@ public class TopicController {
           response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           return null;
         }
-      } else if (checkLastModified(webRequest, message)) {
+      } else if (checkLastModified(webRequest, topic)) {
         return null;
       }
     }
 
-    params.put("message", message);
+    params.put("message", topic);
     params.put("preparedMessage", preparedMessage);
 
     params.put("messageMenu", messagePrepareService.getMessageMenu(preparedMessage, currentUser));
 
-    if (message.isExpired()) {
+    if (topic.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = commentService.getCommentList(message, showDeleted);
+    CommentList comments = commentService.getCommentList(topic, showDeleted);
 
     params.put("comments", comments);
 
@@ -326,18 +326,18 @@ public class TopicController {
       Topic nextMessage;
 
       if (ignoreList==null || ignoreList.isEmpty()) {
-        prevMessage = messageDao.getPreviousMessage(message, null);
-        nextMessage = messageDao.getNextMessage(message, null);
+        prevMessage = messageDao.getPreviousMessage(topic, null);
+        nextMessage = messageDao.getNextMessage(topic, null);
       } else {
-        prevMessage = messageDao.getPreviousMessage(message, currentUser);
-        nextMessage = messageDao.getNextMessage(message, currentUser);
+        prevMessage = messageDao.getPreviousMessage(topic, currentUser);
+        nextMessage = messageDao.getNextMessage(topic, currentUser);
       }
 
       params.put("prevMessage", prevMessage);
       params.put("nextMessage", nextMessage);
 
       Boolean topScroller;
-      SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(message.getSectionId());
+      SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(topic.getSectionId());
 
       if (prevMessage == null && nextMessage == null) {
         topScroller = false;
@@ -368,7 +368,7 @@ public class TopicController {
 
       params.put("unfilteredCount", commentsFull.size());
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure(), tmpl, topic);
 
       params.put("commentsPrepared", commentsPrepared);
 
@@ -408,9 +408,9 @@ public class TopicController {
     @RequestParam(value="filter", required=false) String filter,
     @RequestParam(required=false) String output
   ) throws Exception {
-    Topic message = messageDao.getById(msgid);
+    Topic topic = messageDao.getById(msgid);
 
-    StringBuilder link = new StringBuilder(message.getLink());
+    StringBuilder link = new StringBuilder(topic.getLink());
 
     StringBuilder params = new StringBuilder();
 
@@ -418,8 +418,8 @@ public class TopicController {
       link.append("/page").append(page);
     }
 
-    if (lastmod!=null && !message.isExpired()) {
-      params.append("?lastmod=").append(message.getLastModified().getTime());
+    if (lastmod!=null && !topic.isExpired()) {
+      params.append("?lastmod=").append(topic.getLastModified().getTime());
     }
 
     if (filter!=null) {
