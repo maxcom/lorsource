@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -100,9 +101,13 @@ public class CommentPrepareService {
 
 
       haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
+
       if(tmpl != null && topic != null) {
-        boolean authored = author.getNick().equals(tmpl.getNick());
-        long currentTimestamp = comment.getPostdate().getTime();
+        final boolean authored = author.getNick().equals(tmpl.getNick());
+        final long currentTimestamp = comment.getPostdate().getTime();
+
+        final User currentUser = tmpl.getCurrentUser();
+        final Configuration config = tmpl.getConfig();
         deletable = topicPermissionService.isCommentDeletableNow(
             tmpl.isModeratorSession(),
             topic.isExpired(),
@@ -110,17 +115,20 @@ public class CommentPrepareService {
             haveAnswers,
             currentTimestamp
         );
-        editable = topicPermissionService.isCommentEditableNow(
-            tmpl.isModeratorSession(),
-            tmpl.getConfig().isModeratorAllowedToEditComments(),
-            tmpl.getConfig().isCommentEditingAllowedIfAnswersExists(),
-            tmpl.getConfig().getCommentScoreValueForEditing(),
-            tmpl.getCurrentUser().getScore(),
-            authored,
-            haveAnswers,
-            tmpl.getConfig().getCommentExpireMinutesForEdit(),
-            currentTimestamp
-            );
+
+        if(currentUser != null) {
+          editable = topicPermissionService.isCommentEditableNow(
+              tmpl.isModeratorSession(),
+              config.isModeratorAllowedToEditComments(),
+              config.isCommentEditingAllowedIfAnswersExists(),
+              config.getCommentScoreValueForEditing(),
+              currentUser.getScore(),
+              authored,
+              haveAnswers,
+              tmpl.getConfig().getCommentExpireMinutesForEdit(),
+              currentTimestamp
+              );
+        }
       }
     }
 
