@@ -50,7 +50,7 @@ public class TopicListServiceTest {
 
   Section section1 = new Section("testSection", false, true, 11, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED);
   Section section2 = new Section("testSection 2", false, false, 12, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED);
-  Group group = new Group(false, false, false, false, 11,
+  Group group = new Group(false, false, false, 11,
     "", "", "", 1, 1,
     111, 1, 1, false);
 

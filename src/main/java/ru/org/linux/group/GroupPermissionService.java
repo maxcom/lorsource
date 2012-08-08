@@ -9,6 +9,8 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,13 +27,13 @@ public class GroupPermissionService {
     this.sectionService = sectionService;
   }
 
-  private int getEffectivePostscore(Group group) {
+  private int getEffectivePostscore(@Nonnull Group group) {
     Section section = sectionService.getSection(group.getSectionId());
 
     return Math.max(group.getTopicRestriction(), section.getTopicsRestriction());
   }
 
-  public boolean isTopicPostingAllowed(Group group, User currentUser) {
+  public boolean isTopicPostingAllowed(@Nonnull Group group, @Nullable User currentUser) {
     int restriction = getEffectivePostscore(group);
 
     if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {

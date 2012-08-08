@@ -64,17 +64,17 @@ public class SectionService {
   /**
    * Получить объект секции по идентификатору секции.
    *
-   * @param SectionId идентификатор секции
+   * @param sectionId идентификатор секции
    * @return объект секции
    * @throws SectionNotFoundException если секция не найдена
    */
-  public Section getSection(int SectionId) throws SectionNotFoundException {
+  public Section getSection(int sectionId) throws SectionNotFoundException {
     for (Section section : sectionList) {
-      if (section.getId() == SectionId) {
+      if (section.getId() == sectionId) {
         return section;
       }
     }
-    throw new SectionNotFoundException(SectionId);
+    throw new SectionNotFoundException(sectionId);
   }
 
   /**

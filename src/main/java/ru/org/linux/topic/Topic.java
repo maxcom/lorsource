@@ -179,7 +179,8 @@ public class Topic implements Serializable {
       title = null;
     }
 
-    havelink = form.getUrl() != null && form.getLinktext() != null && !form.getUrl().isEmpty() && !form.getLinktext().isEmpty() && !group.isImagePostAllowed();
+    havelink = !Strings.isNullOrEmpty(form.getUrl()) && !Strings.isNullOrEmpty(form.getLinktext());
+
     sectionid = group.getSectionId();
     // Defaults
     msgid = 0;

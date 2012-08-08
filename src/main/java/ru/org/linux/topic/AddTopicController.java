@@ -169,6 +169,7 @@ public class AddTopicController {
     params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
 
     params.put("group", group);
+    params.put("section", sectionService.getSection(group.getSectionId()));
 
     params.put("topTags", tagService.getTopTags());
 
@@ -208,16 +209,16 @@ public class AddTopicController {
     Group group = form.getGroup();
     params.put("group", group);
 
+    Section section = null;
+
     if (group!=null) {
       params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
-    }
-
-    if (group!=null) {
       params.put("topTags", tagService.getTopTags());
-    }
-
-    if (group!=null) {
       params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+
+      section = sectionService.getSection(group.getSectionId());
+
+      params.put("section", section);
     }
 
     User user;
@@ -261,7 +262,7 @@ public class AddTopicController {
 
     Screenshot scrn = null;
 
-    if (group!=null && group.isImagePostAllowed()) {
+    if (section!=null && section.isImagepost()) {
       scrn = processUpload(session, image, errors);
 
       if (scrn == null && !errors.hasErrors()) {

@@ -26,7 +26,6 @@ public class Group implements Serializable {
   private static final long serialVersionUID = 6173447416543763434L;
 
   private final boolean moderate;
-  private final boolean imagepost;
   private final boolean votepoll;
   private final boolean havelink;
   private final int section;
@@ -46,11 +45,10 @@ public class Group implements Serializable {
 
   private final boolean resolvable;
 
-  public Group(boolean moderate, boolean imagepost, boolean votepoll, boolean havelink, int section,
+  public Group(boolean moderate, boolean votepoll, boolean havelink, int section,
                String linktext, String urlName, String image, int restrictTopics, int restrictComments,
                int id, int stat1, int stat3, boolean resolvable) {
     this.moderate = moderate;
-    this.imagepost = imagepost;
     this.votepoll = votepoll;
     this.havelink = havelink;
     this.section = section;
@@ -73,8 +71,7 @@ public class Group implements Serializable {
 
     Group group = new Group(
       rs.getBoolean("moderate"),
-      rs.getBoolean("imagepost"),
-      rs.getBoolean("vote"),
+            rs.getBoolean("vote"),
       rs.getBoolean("havelink"),
       rs.getInt("section"),
       rs.getString("linktext"),
@@ -93,10 +90,6 @@ public class Group implements Serializable {
     group.setLongInfo(rs.getString("longinfo"));
 
     return group;
-  }
-
-  public boolean isImagePostAllowed() {
-    return imagepost;
   }
 
   public boolean isPollPostAllowed() {

@@ -44,6 +44,7 @@ import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
+import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -358,7 +359,9 @@ public class TopicDao {
             message
     );
 
-    if (group.isImagePostAllowed()) {
+    Section section = sectionService.getSection(group.getSectionId());
+
+    if (section.isImagepost()) {
       if (scrn == null) {
         throw new ScriptErrorException("scrn==null!?");
       }
@@ -761,7 +764,7 @@ public class TopicDao {
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
 
-    if (!newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
+    if (!newGrp.isLinksAllowed()) {
       jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
 
       String title = msg.getGroupUrl();
