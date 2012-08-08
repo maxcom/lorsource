@@ -41,15 +41,7 @@
 </tr>
 </table>
   <br>
-  <%--
-  <div>
-    <div style="border: 1px solid #777; padding: 25px; background-color: #000040; margin: 10px 0px 10px 0px">DEVCONF 17 мая : <a href="http://devconf.ru/phpconf/page/programm/" target=_blank>PHP</a> | <a href="http://devconf.ru/python/page/programm/" target=_blank>Python</a> | <a href="http://devconf.ru/perl/page/programm/" target=_blank>Perl</a> | <a href="http://devconf.ru/ruby/page/programm/" target=_blank>Ruby</a> | <a href="http://devconf.ru/asp.net/page/programm/" target=_blank>.NET</a> | <a href="http://devconf.ru/richclient/page/programm/" target=_blank>RichClient</a> и многое другое...</div>
-  </div>
-
-  <a href="http://devconf.ru/register/">
-    <img src="/adv/devconf2010.gif" alt="DevConf 2010" width="468" height="60">
-  </a>
---%>
+<%--
   <div class="infoblock" style="margin:0; text-align: justify">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
@@ -64,6 +56,7 @@
     <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
+--%>
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
