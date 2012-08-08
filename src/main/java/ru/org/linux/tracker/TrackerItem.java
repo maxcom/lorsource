@@ -20,8 +20,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
 import ru.org.linux.util.URLUtil;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Timestamp;
 
 /**

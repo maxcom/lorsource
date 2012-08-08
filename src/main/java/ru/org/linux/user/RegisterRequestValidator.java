@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableSet;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.URLUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;

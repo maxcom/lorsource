@@ -26,7 +26,6 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 
 @Service
 public class TopicPermissionService {

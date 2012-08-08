@@ -31,7 +31,6 @@ import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;

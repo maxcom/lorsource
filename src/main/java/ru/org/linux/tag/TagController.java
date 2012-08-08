@@ -32,8 +32,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicListController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;

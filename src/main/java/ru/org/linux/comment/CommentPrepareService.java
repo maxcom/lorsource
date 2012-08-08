@@ -32,8 +32,6 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
