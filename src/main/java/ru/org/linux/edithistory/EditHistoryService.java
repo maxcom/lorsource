@@ -65,7 +65,7 @@ public class EditHistoryService {
   public List<PreparedEditHistory> prepareEditInfo(
     Topic message,
     boolean secure
-  ) throws UserNotFoundException, UserErrorException {
+  ) throws UserNotFoundException {
     List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
 
@@ -133,7 +133,7 @@ public class EditHistoryService {
   public List<PreparedEditHistory> prepareEditInfo(
     Comment comment,
     boolean secure
-  ) throws UserNotFoundException, UserErrorException {
+  ) throws UserNotFoundException {
     List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
 
@@ -218,7 +218,7 @@ public class EditHistoryService {
    * @param text
    * @return
    */
-  private EditHistoryDto getEditInfoDto(TopicTagService topicTagService, Topic message, String text) {
+  private static EditHistoryDto getEditInfoDto(TopicTagService topicTagService, Topic message, String text) {
     EditHistoryDto editInfoDto = new EditHistoryDto();
 
     editInfoDto.setOldmessage(text);

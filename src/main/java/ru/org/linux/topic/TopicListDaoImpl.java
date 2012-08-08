@@ -101,7 +101,7 @@ public class TopicListDaoImpl implements TopicListDao {
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
       .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
       .append("AND delDate is not null ");
-    if (sectionId != null && sectionId.intValue() != 0) {
+    if (sectionId != null && sectionId != 0) {
       query.append(" AND section=? ");
       queryParameters.add(sectionId);
     }
@@ -133,7 +133,7 @@ public class TopicListDaoImpl implements TopicListDao {
    * @param topicListDto объект, содержащий условия выборки
    * @return строка, содержащая условия выборки SQL-запроса
    */
-  private String makeConditions(TopicListDto topicListDto) {
+  private static String makeConditions(TopicListDto topicListDto) {
     StringBuilder where = new StringBuilder(
       "NOT deleted"
     );
@@ -143,7 +143,7 @@ public class TopicListDaoImpl implements TopicListDao {
       StringBuilder whereSections = new StringBuilder();
 
       for (Integer section : topicListDto.getSections()) {
-        if (section == null || section.intValue() == 0) {
+        if (section == null || section == 0) {
           continue;
         }
         if (whereSections.length() != 0) {
@@ -227,7 +227,7 @@ public class TopicListDaoImpl implements TopicListDao {
    * @param topicListDto объект, содержащий условия выборки
    * @return строка, содержащая условия сортировки
    */
-  private String makeSortOrder(TopicListDto topicListDto) {
+  private static String makeSortOrder(TopicListDto topicListDto) {
     if (topicListDto.isUserFavs()) {
       return "ORDER BY memories.id DESC";
     }
@@ -250,7 +250,7 @@ public class TopicListDaoImpl implements TopicListDao {
    * @param topicListDto объект, содержащий условия выборки
    * @return строка, содержащая смещение и количество записей
    */
-  private String makeLimitAndOffset(TopicListDto topicListDto) {
+  private static String makeLimitAndOffset(TopicListDto topicListDto) {
     String limitStr = "";
     if (topicListDto.getLimit() != null) {
       limitStr += " LIMIT " + topicListDto.getLimit().toString();

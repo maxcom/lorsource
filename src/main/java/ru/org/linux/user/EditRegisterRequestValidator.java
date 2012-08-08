@@ -17,15 +17,13 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-public class EditRegisterRequestValidator extends RegisterRequestValidator implements Validator {
-
+public class EditRegisterRequestValidator extends RegisterRequestValidator {
   @Override
   public boolean supports(Class aClass) {
     return EditRegisterRequest.class.equals(aClass);

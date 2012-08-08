@@ -18,7 +18,7 @@ package ru.org.linux.topic;
 import java.util.List;
 
 public interface TopicListDao {
-  public static enum CommitMode {
+  enum CommitMode {
     COMMITED_ONLY(" AND sections.moderate AND commitdate is not null "),
     UNCOMMITED_ONLY(" AND (NOT topics.moderate) AND sections.moderate "),
     POSTMODERATED_ONLY(" AND NOT sections.moderate"),

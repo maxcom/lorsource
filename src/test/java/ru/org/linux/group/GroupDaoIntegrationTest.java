@@ -14,7 +14,6 @@
  */
 package ru.org.linux.group;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import ru.org.linux.section.Section;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,9 +40,9 @@ public class GroupDaoIntegrationTest {
     when(sectionDto.getId()).thenReturn(Section.SECTION_FORUM);
 
     List<Group> groupDtoList = groupDao.getGroups(sectionDto);
-    Assert.assertEquals(16, groupDtoList.size());
+    assertEquals(16, groupDtoList.size());
 
     Group groupDto = groupDao.getGroup(sectionDto, "general");
-    Assert.assertTrue("General".equals(groupDto.getTitle()));
+    assertEquals("General", groupDto.getTitle());
   }
 }

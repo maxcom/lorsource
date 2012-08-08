@@ -128,7 +128,7 @@ public class Node {
     StringBuilder stringBuilder = new StringBuilder();
     for(Node child : children) {
       stringBuilder.append(child.renderOg());
-      stringBuilder.append(" ");
+      stringBuilder.append(' ');
     }
     return stringBuilder.toString().trim();
   }

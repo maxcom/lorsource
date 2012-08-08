@@ -49,8 +49,7 @@ public class TopicListControllerTest {
   }
 
   @Test
-  public void mainTopicsFeedHandler()
-  throws Exception{
+  public void mainTopicsFeedHandler() {
 /*
     ModelAndView modelAndView = topicListController.mainTopicsFeedHandler(
       null, null, null, null, null, null, request, response

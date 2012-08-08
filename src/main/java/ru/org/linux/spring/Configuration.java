@@ -103,8 +103,9 @@ public class Configuration {
    */
   public Boolean isModeratorAllowedToEditComments() {
     String property = properties.getProperty("comment.isModeratorAllowedToEdit");
-    if (property == null)
+    if (property == null) {
       return false;
+    }
     return Boolean.valueOf(property);
   }
 
@@ -115,8 +116,9 @@ public class Configuration {
    */
   public Integer getCommentExpireMinutesForEdit() {
     String property = properties.getProperty("comment.expireMinutesForEdit");
-    if (property == null)
+    if (property == null) {
       return null;
+    }
     return Integer.valueOf(property);
   }
 
@@ -127,8 +129,9 @@ public class Configuration {
    */
   public Boolean isCommentEditingAllowedIfAnswersExists() {
     String property = properties.getProperty("comment.isEditingAllowedIfAnswersExists");
-    if (property == null)
+    if (property == null) {
       return false;
+    }
     return Boolean.valueOf(property);
   }
 
@@ -139,8 +142,9 @@ public class Configuration {
    */
   public Integer getCommentScoreValueForEditing() {
     String property = properties.getProperty("comment.scoreValueForEditing");
-    if (property == null)
+    if (property == null) {
       return null;
+    }
     return Integer.valueOf(property);
   }
 }

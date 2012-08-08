@@ -156,7 +156,7 @@ public class TopicListDto {
   public String toString() {
     return new StringBuilder()
       .append(TopicListDto.class.toString())
-      .append("[")
+      .append('[')
       .append("commitMode=").append(commitMode)
       .append("; userId=").append(userId)
       .append("; sections=").append(sections.toString())
@@ -170,7 +170,7 @@ public class TopicListDto {
       .append("; toDate=").append((toDate != null) ? toDate.toString() : "")
       .append("; notalks=").append(notalks)
       .append("; tech=").append(tech)
-      .append("]")
+      .append(']')
       .toString();
   }
 

@@ -85,27 +85,27 @@ public class Simple2ParserTest {
 
   @Test
   public void brTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[BR]", false), "<p><br></p>");
+    Assert.assertEquals("<p><br></p>", lorCodeService.parseComment("[BR]", false));
   }
 
   @Test
   public void boldTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[B]hello world[/b]", false), "<p><b>hello world</b></p>");
+    Assert.assertEquals("<p><b>hello world</b></p>", lorCodeService.parseComment("[B]hello world[/b]", false));
   }
 
   @Test
   public void italicTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[I]hello world[/i]", false), "<p><i>hello world</i></p>");
+    Assert.assertEquals("<p><i>hello world</i></p>", lorCodeService.parseComment("[I]hello world[/i]", false));
   }
 
   @Test
   public void strikeoutTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[S]hello world[/s]", false), "<p><s>hello world</s></p>");
+    Assert.assertEquals("<p><s>hello world</s></p>", lorCodeService.parseComment("[S]hello world[/s]", false));
   }
 
   @Test
   public void emphasisTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[STRONG]hello world[/strong]", false), "<p><strong>hello world</strong></p>");
+    Assert.assertEquals("<p><strong>hello world</strong></p>", lorCodeService.parseComment("[STRONG]hello world[/strong]", false));
   }
 
   @Test
@@ -122,33 +122,33 @@ public class Simple2ParserTest {
 
   @Test
   public void quoteCleanTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[quote][/QUOTE]", false), "");
+    Assert.assertEquals("", lorCodeService.parseComment("[quote][/QUOTE]", false));
   }
 
 
   @Test
   public void urlTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[URL]http://linux.org.ru[/url]", false), "<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>");
+    Assert.assertEquals("<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>", lorCodeService.parseComment("[URL]http://linux.org.ru[/url]", false));
   }
 
   @Test
   public void urlParamTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[url=http://linux.org.ru]linux[/URL]", false), "<p><a href=\"http://linux.org.ru\">linux</a></p>");
+    Assert.assertEquals("<p><a href=\"http://linux.org.ru\">linux</a></p>", lorCodeService.parseComment("[url=http://linux.org.ru]linux[/URL]", false));
   }
 
   @Test
   public void urlParamWithTagTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[URL=http://linux.org.ru][b]l[/b]inux[/url]", false), "<p><a href=\"http://linux.org.ru\"><b>l</b>inux</a></p>");
+    Assert.assertEquals("<p><a href=\"http://linux.org.ru\"><b>l</b>inux</a></p>", lorCodeService.parseComment("[URL=http://linux.org.ru][b]l[/b]inux[/url]", false));
   }
 
   @Test
   public void urlParamWithTagTest2() {
-    Assert.assertEquals(lorCodeService.parseComment("[URL=http://linux.org.ru][b]linux[/b][/url]", false), "<p><a href=\"http://linux.org.ru\"><b>linux</b></a></p>");
+    Assert.assertEquals("<p><a href=\"http://linux.org.ru\"><b>linux</b></a></p>", lorCodeService.parseComment("[URL=http://linux.org.ru][b]linux[/b][/url]", false));
   }
 
   @Test
   public void listTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[LIST][*]one[*]two[*]three[/list]", false), "<ul><li>one</li><li>two</li><li>three</li></ul>");
+    Assert.assertEquals("<ul><li>one</li><li>two</li><li>three</li></ul>", lorCodeService.parseComment("[LIST][*]one[*]two[*]three[/list]", false));
     assertEquals(
         "<ul><li>one\n" +
             "</li><li>two\n" +

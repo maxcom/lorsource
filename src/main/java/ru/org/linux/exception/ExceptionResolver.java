@@ -48,8 +48,8 @@ import java.util.Properties;
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
   private static final Log logger = LogFactory.getLog(ExceptionResolver.class);
 
-  private final static String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";
-  private final static String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";
+  private static final String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";
+  private static final String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";
 
   @Autowired
   private Configuration configuration;

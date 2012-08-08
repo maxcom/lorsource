@@ -38,7 +38,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();
@@ -91,7 +91,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertFalse(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();
@@ -143,7 +143,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();
@@ -199,7 +199,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();
@@ -258,7 +258,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();
@@ -313,7 +313,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();
@@ -368,7 +368,7 @@ public class UserTest {
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
-    Assert.assertEquals(resultSet.getString("style"), "tango");
+    Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
       user.checkAnonymous();

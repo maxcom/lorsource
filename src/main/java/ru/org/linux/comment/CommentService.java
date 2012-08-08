@@ -264,8 +264,7 @@ public class CommentService {
         commentId,
         user.getId(),
         request.getHeader("user-agent"),
-        request.getRemoteAddr(),
-        commentDao.getReplaysCount(commentId) > 0
+        request.getRemoteAddr()
       );
     }
     return comment;
@@ -496,7 +495,7 @@ public class CommentService {
    * @param reason     причина удаления
    * @param user       модератор который удаляет
    * @param scoreBonus кол-во отрезаемого шкворца
-   * @throws ru.org.linux.site.ScriptErrorException генерируем исключение если на комментарий есть ответы
+   * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {

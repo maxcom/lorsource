@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TagCountersUpdater {
-  private final static int HOUR = 60*60*1000;
+  private static final int HOUR = 60*60*1000;
 
   @Autowired
   private TagService tagService;

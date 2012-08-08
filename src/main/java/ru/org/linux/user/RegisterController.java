@@ -69,7 +69,7 @@ public class RegisterController {
   public ModelAndView register(
     @ModelAttribute("form") RegisterRequest form,
     HttpServletResponse response
-  ) throws Exception {
+  ) {
       response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
       return new ModelAndView("register");
   }

@@ -27,6 +27,7 @@ import static ru.org.linux.util.StringUtil.makeTitle;
 /**
  */
 public class MakeTitleTag extends BodyTagSupport {
+  @Override
   public int doAfterBody() throws JspException {
     try {
       BodyContent bc = getBodyContent();

@@ -43,7 +43,7 @@ public class DeleteInfo implements Serializable {
 
   public String getReason() {
     if (bonus!=null) {
-      return reason + " ("+bonus+")";
+      return reason + " ("+bonus+ ')';
     } else {
       return reason;
     }

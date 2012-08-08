@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import org.junit.Test;
-import junit.framework.Assert;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -27,6 +26,9 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 /**
@@ -70,11 +72,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    Assert.assertEquals(false, user.isModerator());
-    Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
-    Assert.assertTrue(user.getId() == message.getUid());
+    assertFalse(user.isModerator());
+    assertEquals(user.getId(), resultSet.getInt("userid"));
+    assertEquals(user.getId(), message.getUid());
 
-    Assert.assertTrue(permissionService.isDeletable(message, user));
+    assertTrue(permissionService.isDeletable(message, user));
   }
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
@@ -108,11 +110,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    Assert.assertEquals(false, user.isModerator());
-    Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
-    Assert.assertTrue(user.getId() == message.getUid());
+    assertFalse(user.isModerator());
+    assertEquals(user.getId(), resultSet.getInt("userid"));
+    assertEquals(user.getId(), message.getUid());
 
-    Assert.assertFalse(permissionService.isDeletable(message, user));
+    assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -147,11 +149,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    Assert.assertEquals(false, user.isModerator());
-    Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
-    Assert.assertFalse(user.getId() == message.getUid());
+    assertFalse(user.isModerator());
+    assertFalse(user.getId() == resultSet.getInt("userid"));
+    assertFalse(user.getId() == message.getUid());
 
-    Assert.assertFalse(permissionService.isDeletable(message, user));
+    assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -186,11 +188,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    Assert.assertEquals(false, user.isModerator());
-    Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
-    Assert.assertFalse(user.getId() == message.getUid());
+    assertFalse(user.isModerator());
+    assertFalse(user.getId() == resultSet.getInt("userid"));
+    assertFalse(user.getId() == message.getUid());
 
-    Assert.assertFalse(permissionService.isDeletable(message, user));
+    assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -276,7 +278,7 @@ public class GroupPermissionServiceTest {
     when(user.getId()).thenReturn(13);
 
     // проверка что данные в mock user верные
-    Assert.assertEquals(true, user.isModerator());
+    assertTrue(user.isModerator());
 
     Section sectionModerate = mock(Section.class);
     when(sectionModerate.isPremoderated()).thenReturn(true);
@@ -290,15 +292,15 @@ public class GroupPermissionServiceTest {
     permissionService.setSectionService(sectionService);
 
     // проверка что данные в mock resultSet верные
-    Assert.assertEquals(true, resultSetModerateNew.getBoolean("moderate"));
-    Assert.assertEquals(true, resultSetModerateOld.getBoolean("moderate"));
-    Assert.assertEquals(false, resultSetNotModerateNew.getBoolean("moderate"));
-    Assert.assertEquals(false, resultSetNotModerateOld.getBoolean("moderate"));
+    assertTrue(resultSetModerateNew.getBoolean("moderate"));
+    assertTrue(resultSetModerateOld.getBoolean("moderate"));
+    assertFalse(resultSetNotModerateNew.getBoolean("moderate"));
+    assertFalse(resultSetNotModerateOld.getBoolean("moderate"));
 
-    Assert.assertTrue((new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postdate")) == 0);
-    Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postdate")) == 0);
-    Assert.assertTrue((new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postdate")) == 0);
-    Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")) == 0);
+    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postdate")));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postdate")));
+    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postdate")));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")));
 
 
     Topic messageModerateOld = new Topic(resultSetModerateOld);
@@ -307,31 +309,31 @@ public class GroupPermissionServiceTest {
     Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
 
     // проверка что данные в mock message верные
-    Assert.assertEquals(true, messageModerateNew.isCommited());
-    Assert.assertEquals(true, messageModerateOld.isCommited());
-    Assert.assertEquals(false, messageNotModerateNew.isCommited());
-    Assert.assertEquals(false, messageNotModerateOld.isCommited());
+    assertTrue(messageModerateNew.isCommited());
+    assertTrue(messageModerateOld.isCommited());
+    assertFalse(messageNotModerateNew.isCommited());
+    assertFalse(messageNotModerateOld.isCommited());
 
-    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()) == 0);
-    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()) == 0);
-    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()) == 0);
-    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()) == 0);
+    assertEquals(0, (new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()));
+    assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()));
     
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
-    Assert.assertFalse(permissionService.isDeletable(messageModerateOld, user));
+    assertFalse(permissionService.isDeletable(messageModerateOld, user));
     // можно удалять старые подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateOld, user));
     // можно удалять старые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
+    assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
     // можно удалять старые не подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user));
 
     // можно удалять новые подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletable(messageModerateNew, user));
+    assertTrue(permissionService.isDeletable(messageModerateNew, user));
     // можно удалять новые подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user));
     // можно удалять новые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
+    assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
     // можно удалять новые не подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user));
   }

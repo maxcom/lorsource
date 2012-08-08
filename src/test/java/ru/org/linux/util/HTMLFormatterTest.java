@@ -568,7 +568,7 @@ public class HTMLFormatterTest {
         "one crap two three",
         lorCodeService.parseForOgDescription("[list]\n" +
             "[*]one\n" +
-            "\n" +
+                '\n' +
             "crap\n" +
             "[*]two\n" +
             "[*]three\n" +

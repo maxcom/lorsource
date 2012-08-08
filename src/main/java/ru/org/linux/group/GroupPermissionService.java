@@ -97,7 +97,7 @@ public class GroupPermissionService {
    * @param user пользователь удаляющий сообщение
    * @return признак возможности удаления
    */
-  private boolean isDeletableByUser(Topic topic, User user) {
+  private static boolean isDeletableByUser(Topic topic, User user) {
     Calendar calendar = Calendar.getInstance();
 
     calendar.setTime(new Date());

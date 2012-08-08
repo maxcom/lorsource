@@ -263,7 +263,7 @@ public class LorURL extends URI {
    * @param messageDao доступ к базе сообщений
    * @param secure https ли текуший клиент
    * @return url для редиректа или пустая строка
-   * @throws ru.org.linux.site.MessageNotFoundException если нет сообещния
+   * @throws MessageNotFoundException если нет сообещния
    * @throws URIException если url неправильный
    */
   public String formatJump(TopicDao messageDao, boolean secure) throws MessageNotFoundException, URIException {

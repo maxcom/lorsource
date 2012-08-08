@@ -23,6 +23,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
 public class SectionServiceTest {
@@ -31,40 +33,38 @@ public class SectionServiceTest {
   SectionService sectionService;
 
   @Test
-  public void getSectionIdByNameTest()
-    throws Exception {
+  public void getSectionIdByNameTest() {
 
-    Assert.assertEquals(1, sectionService.getSectionIdByName("Section 1"));
-    Assert.assertEquals(2, sectionService.getSectionIdByName("Section 2"));
-    Assert.assertEquals(3, sectionService.getSectionIdByName("Section 3"));
-    Assert.assertEquals(4, sectionService.getSectionIdByName("Section 4"));
+    assertEquals(1, sectionService.getSectionIdByName("Section 1"));
+    assertEquals(2, sectionService.getSectionIdByName("Section 2"));
+    assertEquals(3, sectionService.getSectionIdByName("Section 3"));
+    assertEquals(4, sectionService.getSectionIdByName("Section 4"));
 
     try {
       sectionService.getSectionIdByName("Section XXX");
-      Assert.assertTrue(false);
+      fail();
     } catch (SectionNotFoundException ignored) {
     }
   }
   @Test
-  public void getSectionTest()
-    throws Exception {
+  public void getSectionTest() {
     Section section = sectionService.getSection(3);
-    Assert.assertNotNull(section);
-    Assert.assertEquals("Section 3", section.getName());
-    Assert.assertTrue(section.isPremoderated());
-    Assert.assertFalse(section.isVotePoll());
-    Assert.assertTrue(section.isImagepost());
+    assertNotNull(section);
+    assertEquals("Section 3", section.getName());
+    assertTrue(section.isPremoderated());
+    assertFalse(section.isVotePoll());
+    assertTrue(section.isImagepost());
 
     section = sectionService.getSection(2);
-    Assert.assertNotNull(section);
-    Assert.assertEquals("Section 2", section.getName());
-    Assert.assertTrue(section.isPremoderated());
-    Assert.assertFalse(section.isVotePoll());
-    Assert.assertFalse(section.isImagepost());
+    assertNotNull(section);
+    assertEquals("Section 2", section.getName());
+    assertTrue(section.isPremoderated());
+    assertFalse(section.isVotePoll());
+    assertFalse(section.isImagepost());
 
     try {
       section = sectionService.getSection(-1);
-      Assert.assertTrue(false);
+      fail();
     } catch (SectionNotFoundException ignored) {
     }
   }
@@ -72,37 +72,34 @@ public class SectionServiceTest {
   @Test
   public void getSectionListTest() {
     List<Section> sectionList = sectionService.getSectionList();
-    Assert.assertEquals(5, sectionList.size());
+    assertEquals(5, sectionList.size());
   }
 
   @Test
   public void getAddInfoTest() {
     String additionalInfo = sectionService.getAddInfo(1);
-    Assert.assertEquals("Extended info for Section 1", additionalInfo);
+    assertEquals("Extended info for Section 1", additionalInfo);
 
     additionalInfo = sectionService.getAddInfo(3);
-    Assert.assertEquals("Extended info for Section 3", additionalInfo);
+    assertEquals("Extended info for Section 3", additionalInfo);
   }
 
   @Test
-  public void getScrollModeTest()
-    throws Exception {
+  public void getScrollModeTest() {
 
     Section section = sectionService.getSection(1);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
 
     section = sectionService.getSection(2);
-    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
+    assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
 
     section = sectionService.getSection(3);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
 
     section = sectionService.getSection(4);
-    Assert.assertEquals(SectionScrollModeEnum.NO_SCROLL, section.getScrollMode());
+    assertEquals(SectionScrollModeEnum.NO_SCROLL, section.getScrollMode());
 
     section = sectionService.getSection(5);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
+    assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
   }
-
 }

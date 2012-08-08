@@ -376,7 +376,7 @@ public class TopicDao {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
-    if (userRefs.size() != 0) {
+    if (!userRefs.isEmpty()) {
       userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
     }
 

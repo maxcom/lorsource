@@ -87,27 +87,27 @@ public class Topic implements Serializable {
                int sectionCommentsRestriction,
                boolean minor
   ) {
-    this.msgid = msgId;
-    this.postscore = postScore;
+    msgid = msgId;
+    postscore = postScore;
 
     this.sticky= sticky;
-    this.linktext = linkText;
+    linktext = linkText;
     this.url = url;
     this.title = title;
-    this.userid = userId;
-    this.guid = groupId;
+    userid = userId;
+    guid = groupId;
     this.deleted = deleted;
     this.expired = expired;
-    this.commitby = commitBy;
-    this.havelink = haveLink;
+    commitby = commitBy;
+    havelink = haveLink;
     this.postdate = postdate;
     this.commitDate = commitDate;
     this.groupUrl = groupUrl;
     this.lastModified = lastModified;
-    this.sectionid = sectionId;
+    sectionid = sectionId;
     this.commentCount = commentCount;
     this.moderate = moderate;
-    this.notop = noTop;
+    notop = noTop;
     this.userAgent = userAgent;
     this.postIP = postIP;
     this.resolved = resolved;

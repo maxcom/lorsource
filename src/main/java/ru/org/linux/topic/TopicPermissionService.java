@@ -208,7 +208,7 @@ public class TopicPermissionService {
         isByScoreEnable = false;
       }
 
-      editable = isbyMinutesEnable & isbyAnswersEnable & isByScoreEnable;
+      editable = isbyMinutesEnable && isbyAnswersEnable && isByScoreEnable;
     }
     return editable;
   }

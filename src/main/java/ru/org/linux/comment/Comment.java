@@ -72,8 +72,7 @@ public class Comment implements Serializable {
           int msgid,
           int userid,
           String userAgent,
-          String postIP,
-          boolean haveAnswers
+          String postIP
   ) {
     this.msgid = msgid;
     this.title=title;
@@ -85,9 +84,9 @@ public class Comment implements Serializable {
       this.replyto=0;
     }
 
-    this.editCount = 0;
-    this.editDate = null;
-    this.editNick = null;
+    editCount = 0;
+    editDate = null;
+    editNick = null;
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;

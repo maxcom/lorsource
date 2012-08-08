@@ -150,7 +150,7 @@ public interface CommentDao {
   (
     final Comment comment,
     String message
-  ) throws MessageNotFoundException;
+  );
 
   /**
    * Редактирование комментария.

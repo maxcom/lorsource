@@ -346,7 +346,7 @@ class CommentDaoImpl implements CommentDao {
   public int saveNewMessage(
     final Comment comment,
     String message
-  ) throws MessageNotFoundException {
+  ) {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
     jdbcTemplate.execute(

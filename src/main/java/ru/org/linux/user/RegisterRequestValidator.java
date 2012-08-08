@@ -128,9 +128,7 @@ public class RegisterRequestValidator implements Validator {
     Rules validate
      */
 
-    if(Strings.isNullOrEmpty(form.getRules())) {
-      errors.reject("rules", null, "Вы не согласились с правилами");
-    } else if(!"okay".equals(form.getRules())) {
+    if(Strings.isNullOrEmpty(form.getRules()) || !"okay".equals(form.getRules())) {
       errors.reject("rules", null, "Вы не согласились с правилами");
     }
   }
