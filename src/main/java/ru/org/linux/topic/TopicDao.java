@@ -191,6 +191,7 @@ public class TopicDao {
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {
+      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new MessageNotFoundException(id);
     }
     return message;
@@ -375,7 +376,7 @@ public class TopicDao {
       );
     }
 
-    if (group.isPollPostAllowed()) {
+    if (section.isPollPostAllowed()) {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 

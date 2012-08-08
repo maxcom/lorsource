@@ -272,7 +272,7 @@ public class AddTopicController {
 
     Poll poll = null;
     
-    if (group!=null && group.isPollPostAllowed()) {
+    if (section!=null && section.isPollPostAllowed()) {
       poll = preparePollPreview(form);
     }
 
@@ -315,7 +315,7 @@ public class AddTopicController {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null && section!=null) {
       session.removeAttribute("image");
 
       Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
@@ -337,11 +337,11 @@ public class AddTopicController {
 
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
-      if (!group.isModerated()) {
+      if (!section.isPremoderated()) {
         return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
       }
 
-      params.put("moderated", group.isModerated());
+      params.put("moderated", section.isPremoderated());
       params.put("url", messageUrl);
 
       return new ModelAndView("add-done-moderated", params);

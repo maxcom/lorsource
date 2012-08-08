@@ -14,7 +14,6 @@
  */
 package ru.org.linux.section;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,8 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
 public class SectionServiceTest {
-
   @Autowired
-  SectionService sectionService;
+  private SectionService sectionService;
 
   @Test
   public void getSectionIdByNameTest() {
@@ -52,14 +50,14 @@ public class SectionServiceTest {
     assertNotNull(section);
     assertEquals("Section 3", section.getName());
     assertTrue(section.isPremoderated());
-    assertFalse(section.isVotePoll());
+    assertFalse(section.isPollPostAllowed());
     assertTrue(section.isImagepost());
 
     section = sectionService.getSection(2);
     assertNotNull(section);
     assertEquals("Section 2", section.getName());
     assertTrue(section.isPremoderated());
-    assertFalse(section.isVotePoll());
+    assertFalse(section.isPollPostAllowed());
     assertFalse(section.isImagepost());
 
     try {

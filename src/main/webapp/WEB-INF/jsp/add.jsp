@@ -112,7 +112,7 @@
     <label>Изображение: <input type="file" name="image"></label><br>
   </c:if>
 
-  <c:if test="${group!=null and group.pollPostAllowed}">
+  <c:if test="${section.pollPostAllowed}">
       Внимание! Вопрос должен быть задан в поле «заглавие». В поле «сообщение» можно написать
       дополнительное описание опроса, которое будет видно только на странице опроса (и не будет
       видно в форме голосования на главной странице)<br>
@@ -145,11 +145,11 @@
 </c:if>
 
 <label>
-<c:if test="${not group.moderated}">
+<c:if test="${not section.premoderated}">
   Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
 </c:if>
 
-<c:if test="${group.moderated}">
+<c:if test="${section.premoderated}">
   Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
 </c:if>
 

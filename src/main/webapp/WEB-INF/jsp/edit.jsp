@@ -109,7 +109,7 @@
     </p>
   </c:if>
 
-  <c:if test="${group.moderated and template.moderatorSession}">
+  <c:if test="${group.premoderated and template.moderatorSession}">
     <label>Мини-новость: <form:checkbox path="minor"/></label><br>
   </c:if>
 

@@ -83,7 +83,7 @@ public class Section implements Serializable {
     return imagepost;
   }
 
-  public boolean isVotePoll() {
+  public boolean isPollPostAllowed() {
     return votepoll;
   }
 

@@ -100,7 +100,7 @@ public class Group implements Serializable {
     return section;
   }
 
-  public boolean isModerated() {
+  public boolean isPremoderated() {
     return moderate;
   }
 

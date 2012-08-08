@@ -4,7 +4,6 @@
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.csrf.CSRFProtectionService" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -100,7 +99,7 @@
       <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
     </c:if>
 
-    <c:if test="${preparedMessage.section.votePoll}">
+    <c:if test="${preparedMessage.section.pollPostAllowed}">
       <c:choose>
           <c:when test="${not message.commited}">
               <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>

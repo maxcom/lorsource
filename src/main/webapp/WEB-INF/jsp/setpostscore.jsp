@@ -56,11 +56,11 @@
   </select>
     </label>
     <br>
-  <c:if test="${not group.moderated}">
+  <c:if test="${not group.premoderated}">
     <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
   </c:if>
   <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label><br>
-  <c:if test="${group.moderated}">
+  <c:if test="${group.premoderated}">
     <label>Мини-новость <input type=checkbox name="minor" <%= minor?"checked":"" %>></label><br>
   </c:if>
   <input type=submit value="Изменить">

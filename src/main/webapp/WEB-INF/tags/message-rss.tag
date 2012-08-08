@@ -1,5 +1,4 @@
 <%@ tag import="ru.org.linux.poll.PreparedPoll" %>
-<%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -30,7 +29,7 @@
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
   </c:if>
 
-  <c:if test="${preparedMessage.section.votePoll}">
+  <c:if test="${preparedMessage.section.pollPostAllowed}">
     <%
       PreparedPoll poll = preparedMessage.getPoll();
       out.append(poll.renderPoll());

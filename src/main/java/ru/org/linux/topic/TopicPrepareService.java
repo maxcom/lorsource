@@ -175,7 +175,7 @@ public class TopicPrepareService {
 
       PreparedPoll preparedPoll;
 
-      if (section.isVotePoll()) {
+      if (section.isPollPostAllowed()) {
         if (poll==null) {
           preparedPoll = pollPrepareService.preparePoll(message, user);
         } else {
