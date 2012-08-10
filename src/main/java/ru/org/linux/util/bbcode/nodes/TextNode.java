@@ -61,12 +61,14 @@ public class TextNode extends Node {
 
   @Override
   public String renderXHtml() {
-    if (TagNode.class.isInstance(parent)) {
-      TagNode tagNode = (TagNode) parent;
-      if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
-        ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
-        if(toHtmlFormatter != null) {
+    ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
+    if(toHtmlFormatter != null) {
+      if (TagNode.class.isInstance(parent)) {
+        TagNode tagNode = (TagNode) parent;
+        if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
           return toHtmlFormatter.format(text, rootNode.isSecure());
+        } else {
+          return toHtmlFormatter.simpleFormat(text);
         }
       }
     }
