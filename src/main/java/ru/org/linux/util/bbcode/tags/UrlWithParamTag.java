@@ -82,11 +82,6 @@ public class UrlWithParamTag extends Tag {
 
     TextNode textChild = null;
 
-    TagNode tagNode = (TagNode)node;
-    RootNode rootNode = tagNode.getRootNode();
-    ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
-
-
     if(node.lengthChildren() == 1){
       Node child = node.getChildren().iterator().next();
       if(TextNode.class.isInstance(child)){
