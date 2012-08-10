@@ -103,6 +103,15 @@ public class ToHtmlFormatter {
     return sb.toString().replaceAll(MDASH_REGEX, MDASH_REPLACE);
   }
 
+  /**
+   * Только escape и замены
+   * @param text текст
+   * @return форматированый текст
+   */
+  public String simpleFormat(String text) {
+    return StringUtil.escapeHtml(text).replaceAll(MDASH_REGEX, MDASH_REPLACE);
+  }
+
   public String memberURL(User user, boolean secure) throws URIException {
     URI mainUri = configuration.getMainURI();
     String scheme;
@@ -179,7 +188,6 @@ public class ToHtmlFormatter {
    * @param out сюда будет записана ссылка
    * @param url исходный url
    * @throws URIException если uri не корректный
-   * @throws MessageNotFoundException если uri не корректный
    */
   private void processMessageUrl(boolean secure, StringBuilder out, LorURL url) throws URIException {
     try {
