@@ -43,7 +43,10 @@ import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.RootNode;
+import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
@@ -78,6 +81,11 @@ public class UrlWithParamTag extends Tag {
     }
 
     TextNode textChild = null;
+
+    TagNode tagNode = (TagNode)node;
+    RootNode rootNode = tagNode.getRootNode();
+    ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
+
 
     if(node.lengthChildren() == 1){
       Node child = node.getChildren().iterator().next();

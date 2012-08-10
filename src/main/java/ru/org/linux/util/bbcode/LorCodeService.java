@@ -33,17 +33,24 @@ import java.util.Set;
 public class LorCodeService {
   private static final Parser defaultParser = new Parser(new DefaultParserParameters());
 
-  @Autowired
-  UserDao userDao;
+  private UserDao userDao;
+  private Configuration configuration;
+  private ToHtmlFormatter toHtmlFormatter;
 
   @Autowired
-  Configuration configuration;
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
+  }
 
   @Autowired
-  TopicDao messageDao;
+  public void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+  }
 
   @Autowired
-  ToHtmlFormatter toHtmlFormatter;
+  public void setToHtmlFormatter(ToHtmlFormatter toHtmlFormatter) {
+    this.toHtmlFormatter = toHtmlFormatter;
+  }
 
   /**
    * Преобразует LORCODE в HTML для комментариев

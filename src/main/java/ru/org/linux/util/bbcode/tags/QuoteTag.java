@@ -41,8 +41,10 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
@@ -93,7 +95,11 @@ public class QuoteTag extends Tag {
       node.setParameter(node.getParameter().trim());
     }
 
-    boolean rss = ((TagNode)node).getRootNode().isRss();
+    TagNode tagNode = (TagNode)node;
+    RootNode rootNode = tagNode.getRootNode();
+
+    boolean rss = rootNode.isRss();
+    ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
 
     if (!node.getParameter().isEmpty()) {
       if(rss) {
@@ -102,7 +108,11 @@ public class QuoteTag extends Tag {
         ret.append(citeHeader);
       }
       ret.append("<p><cite>");
-      ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
+      if(formatter != null) {
+        ret.append(formatter.simpleFormat(node.getParameter().replaceAll("\"", "")));
+      } else {
+        ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
+      }
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
       if(rss) {

@@ -42,7 +42,10 @@ import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.RootNode;
+import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
@@ -77,11 +80,21 @@ public class UrlTag extends Tag {
       linkText = url;
     }
     String escapedUrl = URLUtil.fixURL(url);
+    TagNode tagNode = (TagNode)node;
+    RootNode rootNode = tagNode.getRootNode();
+    ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
+    String formattedText;
+    if(formatter != null) {
+      formattedText = formatter.simpleFormat(linkText);
+    } else {
+      formattedText = Parser.escape(linkText);
+    }
+
     if(URLUtil.isUrl(escapedUrl)) {
       ret.append("<a href=\"");
       ret.append(escapedUrl);
       ret.append("\">");
-      ret.append(Parser.escape(linkText));
+      ret.append(formattedText);
       ret.append("</a>");
     } else {
       ret.append("<s>");

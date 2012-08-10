@@ -76,9 +76,9 @@ public class SimpleParserTest {
 
 
     lorCodeService = new LorCodeService();
-    lorCodeService.userDao = userDao;
-    lorCodeService.configuration = configuration;
-    lorCodeService.toHtmlFormatter = toHtmlFormatter;
+    lorCodeService.setUserDao(userDao);
+    lorCodeService.setConfiguration(configuration);
+    lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
     url = "http://127.0.0.1:8080/forum/talks/22464";
   }
