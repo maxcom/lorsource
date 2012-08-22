@@ -42,8 +42,6 @@
   int npage = (Integer) request.getAttribute("page");
 
   Topic message = (Topic) request.getAttribute("message");
-  Topic prevMessage = (Topic) request.getAttribute("prevMessage");
-  Topic nextMessage = (Topic) request.getAttribute("nextMessage");
 %>
 
 <title><l:title>${message.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
