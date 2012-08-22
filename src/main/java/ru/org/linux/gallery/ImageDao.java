@@ -95,7 +95,7 @@ public class ImageDao {
 
   @Nullable
   public Image imageForTopic(@Nonnull Topic topic) {
-    return jdbcTemplate.queryForObject(
+    List<Image> found = jdbcTemplate.query(
             "SELECT id, topic, original, icon FROM images WHERE topic=?",
             new RowMapper<Image>() {
               @Override
@@ -110,6 +110,14 @@ public class ImageDao {
             },
             topic.getId()
     );
+
+    if (found.size() == 0) {
+      return null;
+    } else if (found.size() == 1) {
+      return found.get(0);
+    } else {
+      throw new RuntimeException("Too many images for topic="+topic.getId());
+    }
   }
 
   public void saveImage(int topicId, String original, String icon) {
