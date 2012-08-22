@@ -14,13 +14,22 @@
   --%>
 
 <script type="text/javascript"><!--
-google_ad_client = "pub-6069094673001350";
-/* 728x90, messages tango */
-google_ad_slot = "3897862809";
-google_ad_width = 728;
-google_ad_height = 90;
+google_ad_client = "ca-pub-6069094673001350";
+
+if ($(window).width()<728){
+  /* tango-mobile */
+  google_ad_slot = "2983802085";
+  google_ad_width = 320;
+  google_ad_height = 50;
+} else {
+  /* 728x90, messages tango */
+  google_ad_slot = "3897862809";
+  google_ad_width = 728;
+  google_ad_height = 90;
+}
 //-->
 </script>
+
 <script type="text/javascript"
 src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
