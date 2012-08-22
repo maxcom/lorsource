@@ -414,6 +414,9 @@ public class TopicListController {
 
     User user = getUserByNickname(modelAndView, nick);
 
+    UserInfo userInfo = userDao.getUserInfoClass(user);
+    modelAndView.addObject("meLink", userInfo.getUrl());
+
     modelAndView.addObject("url", "/people/" + nick + '/');
     modelAndView.addObject("whoisLink", "/people/" + nick + '/' + "profile");
     // TODO: modelAndView.addObject("archiveLink", "/people/"+nick+"/archive/");
@@ -456,6 +459,9 @@ public class TopicListController {
     modelAndView.addObject("params", queryString.toString());
 
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+
+    modelAndView.setViewName("user-topics");
+
     return modelAndView;
   }
 
@@ -494,17 +500,12 @@ public class TopicListController {
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, false);
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+
+    modelAndView.setViewName("user-topics");
+
     return modelAndView;
   }
 
-  /**
-   * @param nick
-   * @param topicListForm
-   * @param request
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/people/{nick}/tracked")
   public ModelAndView showUserWatches(
     HttpServletRequest request,
@@ -532,6 +533,9 @@ public class TopicListController {
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, true);
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+
+    modelAndView.setViewName("user-topics");
+
     return modelAndView;
   }
 
@@ -718,7 +722,6 @@ public class TopicListController {
 
       modelAndView.setViewName("view-news");
     }
-
   }
 
   /**
@@ -734,8 +737,6 @@ public class TopicListController {
     if (user.getId() == User.ANONYMOUS_ID) {
       throw new UserErrorException("Лента для пользователя anonymous не доступна");
     }
-    UserInfo userInfo = userDao.getUserInfoClass(user);
-    modelAndView.addObject("meLink", userInfo.getUrl());
     modelAndView.addObject("user", user);
     return user;
   }

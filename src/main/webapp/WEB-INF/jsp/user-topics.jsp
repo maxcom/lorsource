@@ -25,6 +25,10 @@
   <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
 </c:if>
 
+<c:if test="${meLink != null}">
+  <LINK REL="me" HREF="${fn:escapeXml(meLink)}">
+</c:if>
+
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
   <div class=nav>
     <div id="navPath">
@@ -33,38 +37,8 @@
     <div class="nav-buttons">
       <ul>
 
-      <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
-        <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
-      </c:if>
-      <c:if test="${sectionList == null and section != null}">
-        <c:if test="${section.premoderated}">
-          <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
-        </c:if>
-        <c:choose>
-          <c:when test="${section.pollPostAllowed}">
-            <li><a href="add.jsp?group=19387">Добавить</a></li>
-          </c:when>
-          <c:when test="${group == null}">
-            <li><a href="add-section.jsp?section=${section.id}">Добавить</a></li>
-          </c:when>
-          <c:otherwise>
-            <li><a href="add.jsp?group=${group.id}">Добавить</a></li>
-          </c:otherwise>
-        </c:choose>
-        <c:if test="${section.id == Section.SECTION_FORUM}">
-          <c:choose>
-            <c:when test="${group == null}">
-              <li><a href="/forum/">Таблица</a></li>
-            </c:when>
-            <c:otherwise>
-              <li><a href="/forum/${group.urlName}">Таблица</a></li>
-            </c:otherwise>
-          </c:choose>
-        </c:if>
-      </c:if>
-
-      <c:if test="${archiveLink != null}">
-        <li><a href="${archiveLink}">Архив</a></li>
+      <c:if test="${whoisLink != null}">
+        <li><a href="${whoisLink}">Профиль</a></li>
       </c:if>
 
       <c:if test="${rssLink != null}">
