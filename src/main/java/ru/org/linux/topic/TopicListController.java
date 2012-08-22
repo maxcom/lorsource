@@ -460,7 +460,9 @@ public class TopicListController {
 
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
 
-    modelAndView.setViewName("user-topics");
+    if (!rss) {
+      modelAndView.setViewName("user-topics");
+    }
 
     return modelAndView;
   }
