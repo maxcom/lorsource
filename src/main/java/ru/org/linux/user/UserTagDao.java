@@ -17,7 +17,10 @@ package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -30,6 +33,7 @@ import java.util.List;
 
 @Repository
 public class UserTagDao {
+  private static final Log logger = LogFactory.getLog(UserTagDao.class);
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -49,10 +53,15 @@ public class UserTagDao {
     parameters.addValue("user_id", userId);
     parameters.addValue("tag_id", tagId);
     parameters.addValue("is_favorite", isFavorite);
-    jdbcTemplate.update(
-      "INSERT INTO user_tags (user_id, tag_id, is_favorite) VALUES(:user_id, :tag_id, :is_favorite)",
-      parameters
-    );
+
+    try {
+      jdbcTemplate.update(
+              "INSERT INTO user_tags (user_id, tag_id, is_favorite) VALUES(:user_id, :tag_id, :is_favorite)",
+              parameters
+      );
+    } catch (DuplicateKeyException ex) {
+      logger.debug("Tag already added to favs", ex);
+    }
   }
 
   /**
