@@ -156,6 +156,8 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
+    prepareModel(form, params);
+
     Group group = form.getGroup();
 
     if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
@@ -166,14 +168,6 @@ public class AddTopicController {
       return errorView;
     }
 
-    params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
-
-    params.put("group", group);
-    params.put("section", sectionService.getSection(group.getSectionId()));
-
-    params.put("topTags", tagService.getTopTags());
-
-    params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
     return new ModelAndView("add", params);
@@ -191,6 +185,18 @@ public class AddTopicController {
     }
   }
 
+  private void prepareModel(AddTopicRequest form, Map<String, Object> params) {
+    Group group = form.getGroup();
+
+    if (group!=null) {
+      params.put("group", group);
+      params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+      params.put("section", sectionService.getSection(group.getSectionId()));
+      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+    }
+
+    params.put("topTags", tagService.getTopTags());
+  }
 
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
   @CSRFNoAuto
@@ -207,18 +213,13 @@ public class AddTopicController {
     String image = processUploadImage(request);
 
     Group group = form.getGroup();
-    params.put("group", group);
+
+    prepareModel(form, params);
 
     Section section = null;
 
     if (group!=null) {
-      params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
-      params.put("topTags", tagService.getTopTags());
-      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
-
       section = sectionService.getSection(group.getSectionId());
-
-      params.put("section", section);
     }
 
     User user;
