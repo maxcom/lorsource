@@ -156,7 +156,7 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    prepareModel(form, params);
+    prepareModel(form, params, tmpl.getCurrentUser());
 
     Group group = form.getGroup();
 
@@ -185,14 +185,18 @@ public class AddTopicController {
     }
   }
 
-  private void prepareModel(AddTopicRequest form, Map<String, Object> params) {
+  private void prepareModel(AddTopicRequest form, Map<String, Object> params, User currentUser) {
     Group group = form.getGroup();
 
     if (group!=null) {
       params.put("group", group);
       params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
-      params.put("section", sectionService.getSection(group.getSectionId()));
+      Section section = sectionService.getSection(group.getSectionId());
+
+      params.put("section", section);
+
       params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+      params.put("imagepost", groupPermissionService.isImagePostingAllowed(section, currentUser));
     }
 
     params.put("topTags", tagService.getTopTags());
@@ -214,7 +218,7 @@ public class AddTopicController {
 
     Group group = form.getGroup();
 
-    prepareModel(form, params);
+    prepareModel(form, params, tmpl.getCurrentUser());
 
     Section section = null;
 
@@ -263,10 +267,10 @@ public class AddTopicController {
 
     Screenshot scrn = null;
 
-    if (section!=null && section.isImagepost()) {
+    if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
       scrn = processUpload(session, image, errors);
 
-      if (scrn == null && !errors.hasErrors()) {
+      if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
         errors.reject(null, "Изображение отсутствует");
       }
     }

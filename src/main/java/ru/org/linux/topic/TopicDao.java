@@ -362,11 +362,11 @@ public class TopicDao {
 
     Section section = sectionService.getSection(group.getSectionId());
 
-    if (section.isImagepost()) {
-      if (scrn == null) {
-        throw new ScriptErrorException("scrn==null!?");
-      }
+    if (section.isImagepost() && scrn == null) {
+      throw new ScriptErrorException("scrn==null!?");
+    }
 
+    if (scrn!=null) {
       Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
 
       imageDao.saveImage(
@@ -399,10 +399,10 @@ public class TopicDao {
       }
 
       // не оповещать пользователей. которые ранее были оповещены через упоминание
-      Iterator userTagIterator = userIdListByTags.iterator();
+      Iterator<Integer> userTagIterator = userIdListByTags.iterator();
 
       while (userTagIterator.hasNext()) {
-        Integer userId = (Integer) userTagIterator.next();
+        Integer userId = userTagIterator.next();
         if (userRefIds.contains(userId)) {
           userTagIterator.remove();
         }

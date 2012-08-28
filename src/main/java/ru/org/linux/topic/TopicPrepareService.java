@@ -237,7 +237,7 @@ public class TopicPrepareService {
       
       PreparedImage preparedImage = null;
 
-      if (section.isImagepost()) {
+      if (section.isImagepost() || section.isImageAllowed()) {
         if (message.getId()!=0) {
           image = imageDao.imageForTopic(message);
         }

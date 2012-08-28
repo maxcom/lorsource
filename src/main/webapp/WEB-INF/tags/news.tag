@@ -95,7 +95,6 @@
 <article class=news id="topic-${message.id}">
 <%
   String url = message.getUrl();
-  boolean imagepost = preparedMessage.getSection().isImagepost();
   boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
 
   String image = preparedMessage.getGroup().getImage();
@@ -133,23 +132,25 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="${preparedMessage.section.imagepost}">
+  <c:if test="${preparedMessage.image != null}">
     <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
 <%
-  if (url != null && !imagepost && !votepoll) {
+  if (url != null) {
     if (url.isEmpty()) {
       url = message.getLink();
     }
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
-  } else if (imagepost) {
+  }
 %>
+<c:if test="${preparedMessage.image != null}">
   <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+</c:if>
 <%
-  } else if (votepoll) {
+  if (votepoll) {
       %>
         <c:choose>
             <c:when test="${not message.commited || preparedMessage.poll.poll.current}">

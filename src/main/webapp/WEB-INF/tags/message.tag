@@ -87,7 +87,7 @@
     <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
 
-  <c:if test="${preparedMessage.section.imagepost}">
+  <c:if test="${preparedMessage.image != null}">
     <lor:image enableSchema="true" preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
 
@@ -95,9 +95,9 @@
     ${preparedMessage.processedMessage}
   </div>
 
-    <c:if test="${preparedMessage.section.imagepost}">
-      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
-    </c:if>
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+  </c:if>
 
     <c:if test="${preparedMessage.section.pollPostAllowed}">
       <c:choose>

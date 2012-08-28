@@ -55,6 +55,18 @@ public class GroupPermissionService {
     }
   }
 
+  public boolean isImagePostingAllowed(@Nonnull Section section, @Nullable User currentUser) {
+    if (section.isImagepost()) {
+      return true;
+    }
+
+    if (currentUser!=null && currentUser.isAdministrator()) {
+      return section.isImageAllowed();
+    }
+
+    return false;
+  }
+
   public String getPostScoreInfo(Group group) {
     int postscore = getEffectivePostscore(group);
 

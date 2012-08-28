@@ -22,6 +22,7 @@
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
 <%--@elvariable id="postscoreInfo" type="java.lang.String"--%>
+<%--@elvariable id="imagepost" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -70,7 +71,7 @@
 <%--<p>--%>
 <%--<% } %>--%>
 
-<c:if test="${section.imagepost}">
+<c:if test="${imagepost}">
 <p>
   Технические требования к изображению:
   <ul>
@@ -85,7 +86,7 @@
 </c:if>
 
 
-<form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${section.imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}" >
+<form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}" >
   <form:errors path="*" element="div" cssClass="error"/>
 
   <form:hidden path="noinfo"/>
@@ -108,7 +109,7 @@
     <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
    </label>
 
-  <c:if test="${section.imagepost}">
+  <c:if test="${imagepost}">
     <label>Изображение: <input type="file" name="image"></label><br>
   </c:if>
 
