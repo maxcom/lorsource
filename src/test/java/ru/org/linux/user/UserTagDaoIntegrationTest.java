@@ -125,17 +125,7 @@ public class UserTagDaoIntegrationTest {
   public void addTest() {
     prepareUserTags();
 
-    try {
-      userTagDao.addTag(user1Id, tag1Id, true);
-      Assert.fail("Duplicate key check fail!");
-    } catch (DuplicateKeyException ignored) {
-    }
     userTagDao.addTag(user1Id, tag1Id, false);
-    try {
-      userTagDao.addTag(user1Id, tag1Id, false);
-      Assert.fail("Duplicate key check fail!");
-    } catch (DuplicateKeyException ignored) {
-    }
 
     int result;
 
