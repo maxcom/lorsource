@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -131,7 +130,7 @@ public class Comment implements Serializable {
     return title;
   }
 
-  public Date getPostdate() {
+  public Timestamp getPostdate() {
     return postdate;
   }
 

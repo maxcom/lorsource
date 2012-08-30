@@ -28,6 +28,7 @@ public class EditHistoryDto {
   private String oldlinktext;
   private String oldurl;
   private EditHistoryObjectTypeEnum objectType;
+  private Boolean oldminor;
 
   public int getId() {
     return id;
@@ -111,5 +112,13 @@ public class EditHistoryDto {
 
   public void setObjectType(String objectType) {
     this.objectType = EditHistoryObjectTypeEnum.valueOf(objectType);
+  }
+
+  public Boolean getOldminor() {
+    return oldminor;
+  }
+
+  public void setOldminor(Boolean oldminor) {
+    this.oldminor = oldminor;
   }
 }

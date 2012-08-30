@@ -476,6 +476,9 @@ public class TopicDao {
     if (oldMsg.isMinor() != msg.isMinor()) {
       namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
+
+      editHistoryDto.setOldminor(oldMsg.isMinor());
+
       modified = true;
     }
 
@@ -746,13 +749,12 @@ public class TopicDao {
     );
   }
 
-  public void setTopicOptions(Topic msg, int postscore, boolean sticky, boolean notop, boolean minor) {
+  public void setTopicOptions(Topic msg, int postscore, boolean sticky, boolean notop) {
     jdbcTemplate.update(
-            "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?",
+            "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP WHERE id=?",
             postscore,
             sticky,
             notop,
-            minor,
             msg.getId()
     );
   }

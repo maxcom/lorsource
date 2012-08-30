@@ -42,7 +42,17 @@ public class EditHistoryDao {
       editInsert =
       new SimpleJdbcInsert(dataSource)
         .withTableName("edit_info")
-        .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl", "object_type");
+        .usingColumns(
+                "msgid",
+                "editor",
+                "oldmessage",
+                "oldtitle",
+                "oldtags",
+                "oldlinktext",
+                "oldurl",
+                "object_type",
+                "oldminor"
+        );
 
   }
 
@@ -67,6 +77,12 @@ public class EditHistoryDao {
         editHistoryDto.setOldtitle(resultSet.getString("oldtitle"));
         editHistoryDto.setOldtags(resultSet.getString("oldtags"));
         editHistoryDto.setObjectType(resultSet.getString("object_type"));
+
+        editHistoryDto.setOldminor(resultSet.getBoolean("oldminor"));
+        if (resultSet.wasNull()) {
+          editHistoryDto.setOldminor(null);
+        }
+
         editInfoDTOs.add(editHistoryDto);
       }
     },
