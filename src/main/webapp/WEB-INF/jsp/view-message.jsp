@@ -260,7 +260,10 @@
 
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 1em">
+<%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
+--%>
+    <a rel="nofollow" href="http://selectel.ru/about/promo/core2quad-sale/?utm_source=lor&utm_medium=banner&utm_content=quad50&utm_campaign=sale"><img src="/adv/selectel.png" width="728" height="90" border="0"></a>
   </div>
   <br>
 </c:if>
