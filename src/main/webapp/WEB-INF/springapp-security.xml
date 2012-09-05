@@ -24,14 +24,40 @@ http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/security
 http://www.springframework.org/schema/security/spring-security-3.1.xsd">
-    <http auto-config="true">
-        <intercept-url pattern="/*" access="ROLE_USER"/>
+
+    <http pattern="/css/**" security="none"/>
+    <http pattern="/img/**" security="none"/>
+    <http pattern="/js/**" security="none"/>
+    <http pattern="/photos/**" security="none"/>
+    <http pattern="/tango/**" security="none"/>
+    <http pattern="/white/**" security="none"/>
+    <http pattern="/white2/**" security="none"/>
+    <http pattern="/black/**" security="none"/>
+    <http pattern="/adv/**" security="none"/>
+    <http pattern="/gallery/**" security="none"/>
+    <http pattern="/fontello/**" security="none"/>
+    <http pattern="/*.css" security="none"/>
+    <http pattern="/*.ico" security="none"/>
+    <http pattern="/login.jsp" security="none"/>
+
+    <http use-expressions="true">
+        <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
+        <form-login login-page="/login.jsp" username-parameter="nick" password-parameter="password"
+                    login-processing-url="/login_process"/>
+        <remember-me key="VERY_SECURE_CODE" services-ref="rememberMeServices"/>
+        <logout/>
     </http>
     <authentication-manager alias="authenticationManager">
-        <authentication-provider>
-            <user-service>
-                <user authorities="ROLE_USER" name="guest" password="guest"/>
-            </user-service>
+        <authentication-provider user-service-ref="userDetailsServiceImpl">
+            <password-encoder ref="passwordEncoderImpl"/>
         </authentication-provider>
     </authentication-manager>
+
+    <beans:bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+        <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
+        <beans:property name="key" value="VERY_SECURE_CODE"/>
+        <beans:property name="cookieName" value="remember_me"/>
+        <!-- 365 days -->
+        <beans:property name="tokenValiditySeconds" value="31536000"/>
+    </beans:bean>
 </beans:beans>

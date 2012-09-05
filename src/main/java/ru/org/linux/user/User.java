@@ -89,6 +89,10 @@ public class User implements Serializable {
     style = rs.getString("style");
   }
 
+  public String getPassword() {
+    return password;
+  }
+
   public int getId() {
     return id;
   }
