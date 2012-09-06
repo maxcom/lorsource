@@ -36,7 +36,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http pattern="/adv/**" security="none"/>
     <http pattern="/gallery/**" security="none"/>
     <http pattern="/fontello/**" security="none"/>
-    <http pattern="/*.css" security="none"/>
+    <http pattern="*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
     <http pattern="/login.jsp" security="none"/>
 

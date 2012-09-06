@@ -80,5 +80,7 @@ public class UserDetailsImpl implements UserDetails {
     return !user.isBlocked() && user.isActivated();
   }
 
-
+  public String getStyle() {
+    return user.getStyle();
+  }
 }

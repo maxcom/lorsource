@@ -38,7 +38,9 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Properties;
 
+@Deprecated
 public final class Template {
+
   private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;
