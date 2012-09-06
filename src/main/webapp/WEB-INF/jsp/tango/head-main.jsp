@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +16,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <LINK REL="stylesheet" TYPE="text/css" ID="theme" HREF="/tango/tango-dark.css">
-<c:if test="${template.style == 'tango'}">
+<sec:authentication property="principal" var="principal"/>
+<c:if test="${principal.style == 'tango'}">
   <script type="text/javascript">
 	function readCookie(name) {
 		var nameEQ = name + "=";
@@ -45,16 +46,17 @@
 
         <ul class="menu">
           <li id="loginGreating">
-            <c:if test="${template.sessionAuthorized}">
-              <c:url var="userUrl" value="/people/${template.nick}/profile"/>
+
+            <sec:authorize access="isAuthenticated()">
+              <c:url var="userUrl" value="/people/${principal.username}/profile"/>
               <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-              <a href="logout?sessionId=<%= session.getId() %>" title="Выйти">
+              <a href="/logout" title="Выйти">
                 <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16"
                      alt="[x]">
               </a>
-            </c:if>
+            </sec:authorize
 
-            <c:if test="${not template.sessionAuthorized}">
+            <sec:authorize access="isAnonymous()">
               <div id="regmenu" class="head">
                 <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
                 <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
@@ -67,7 +69,7 @@
                 <input type=submit value="Вход">
                 <input id="hide_loginbutton" type="button" value="Отмена">
               </form>
-            </c:if>
+            </sec:authorize
           </li>
 
           <li><a href="/news/">Новости</a></li>
