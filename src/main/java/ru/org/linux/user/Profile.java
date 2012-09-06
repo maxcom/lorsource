@@ -57,6 +57,11 @@ public class Profile {
     }
   }
 
+  public static Profile getDefaultProfile() {
+    ProfileProperties properties1 = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
+    return new Profile(properties1, true);
+  }
+
   public Profile() {
     properties = new ProfileProperties(new ProfileHashtable(getDefaults(), new HashMap<String, Object>()));
 

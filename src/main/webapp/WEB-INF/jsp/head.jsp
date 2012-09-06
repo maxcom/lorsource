@@ -15,28 +15,16 @@
   ~    limitations under the License.
   --%>
 
-<sec:authorize access="isAuthenticated()" var="auth" />
-
-<c:if test="${auth}">
-<sec:authentication property="principal" var="principal"/>
-<c:set var="style" value="${principal.style}" />
-</c:if>
-
-<c:if test="${!auth}">
-<c:set var="style" value="tango" />
-</c:if>
-
-
 <!DOCTYPE html>
 <html lang=ru>
 <head>
 <LINK REL="STYLESHEET" TYPE="text/css" HREF="/common.css">
 <LINK REL="STYLESHEET" TYPE="text/css" HREF="/fontello/fontello-2dc47ee2.css">
-<LINK REL="stylesheet" TYPE="text/css" HREF="/${style}/combined.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/${currentStyle}/combined.css">
 
 
 <sec:authorize access="isAuthenticated()">
-  <c:if test="${principal.style=='black' and principal.useHover}">
+  <c:if test="${currentStyle == 'black' and principal.useHover}">
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
   </c:if>
 </sec:authorize>

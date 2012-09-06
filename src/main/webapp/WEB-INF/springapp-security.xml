@@ -38,15 +38,16 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http pattern="/fontello/**" security="none"/>
     <http pattern="*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
-    <http pattern="/login.jsp" security="none"/>
 
     <http use-expressions="true">
-        <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/**" access="permitAll"/>
         <form-login login-page="/login.jsp" username-parameter="nick" password-parameter="password"
                     login-processing-url="/login_process"
                     authentication-success-handler-ref="authenticationSuccessHandlerImpl"/>
         <remember-me key="VERY_SECURE_CODE" services-ref="rememberMeServices"/>
         <logout logout-url="/logout" logout-success-url="/"/>
+        <anonymous username="anonymous" granted-authority="ROLE_ANONYMOUS" />
+        <custom-filter after="ANONYMOUS_FILTER" ref="configurationFilter" />
     </http>
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
@@ -63,4 +64,6 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
         <!-- 365 days -->
         <beans:property name="tokenValiditySeconds" value="31536000"/>
     </beans:bean>
+
+    <beans:bean id="configurationFilter" class="ru.org.linux.auth.ConfigurationFilter"/>
 </beans:beans>

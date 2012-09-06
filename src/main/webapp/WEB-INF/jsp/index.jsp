@@ -47,35 +47,32 @@
 
 <c:set var="multiPortal" value="false" />
 <c:set var="columns3" value="false" />
+
 <c:if test="${auth}">
 <c:set var="multiPortal" value="${principal.user.showGalleryOnMain}" />
 <c:set var="columns3" value="${principal.user.threeColumnsOnMain}" />
+
+<c:set var="newsblogClass" value="newsblog" />
+<c:set var="newsblogClassIn" value="newsblog-in" />
+<c:set var="boxletsObject" value="main2" />
+
+<c:if test="${columns3}">
+<c:set var="newsblogClass" value="newsblog2" />
+<c:set var="newsblogClassIn" value="newsblog-in2" />
+<c:set var="boxletsObject" value="main3-1" />
+</c:if>
+
 </c:if>
 
 
 <div style="clear: both"></div>
 
-<c:choose>
-<c:when test="${columns3}">
-<div class="newsblog2">
-</c:when>
-<c:otherwise>
-<div class="newsblog">
-</c:otherwise>
-</c:choose>
-
-<c:choose>
-<c:when test="${columns3}">
-<div class="newsblog-in2">
-</c:when>
-<c:otherwise>
-<div class="newsblog-in">
-</c:otherwise>
-</c:choose>
+<div class="${newsblogClass}">
+<div class="${newsblogClassIn}">
 
 
 <%--
-<c:if test="${style != 'black'}">
+<c:if test="${currentStyle != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
     <a rel="nofollow" href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0; padding-right: 5px"></a>
     <div id="samsung_text">
@@ -123,6 +120,7 @@
 <aside class=column>
 
   <sec:authorize access="isAuthenticated()">
+    <sec:authentication property="principal" var="principal"/>
     <div class=boxlet>
       <h2>Добро пожаловать!</h2>
 
@@ -145,26 +143,13 @@
     </div>
   </sec:authorize>
 
-    <c:choose>
-    <c:when test="${columns3}">
-    <lor:boxlets object="main3-1" var="boxes">
+    <lor:boxlets object="${boxletsObject}" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
             <c:import url="/${boxlet}.boxlet"/>
         </div>
       </c:forEach>
     </lor:boxlets>
-    </c:when>
-    <c:otherwise>
-    <lor:boxlets object="main2" var="boxes">
-      <c:forEach var="boxlet" items="${boxes}">
-        <div class="boxlet">
-            <c:import url="/${boxlet}.boxlet"/>
-        </div>
-      </c:forEach>
-    </lor:boxlets>
-    </c:otherwise>
-    </c:choose>
 
 </aside>
 <c:if test="${columns3}">

@@ -15,6 +15,8 @@
 
 package ru.org.linux.auth;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +30,7 @@ public class AuthUtil {
 
   public static boolean isSessionAuthorized() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    return authentication.isAuthenticated();
+    return authentication.isAuthenticated() && !hasAuthority("ROLE_ANONYMOUS");
   }
 
   public static boolean isModeratorSession() {
@@ -63,14 +65,19 @@ public class AuthUtil {
   public static User getCurrentUser() {
     if (!isSessionAuthorized()) {
       return null;
+    }
+
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    if (principal instanceof UserDetailsImpl) {
+      return ((UserDetailsImpl) principal).getUser();
     } else {
-      return ((UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+      return null;
     }
   }
 
   public static Profile getCurrentProfile() {
     if (!isSessionAuthorized()) {
-      return null;
+      return Profile.getDefaultProfile();
     } else {
       return ((UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getProfile();
     }

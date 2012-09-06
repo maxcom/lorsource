@@ -18,7 +18,7 @@
   --%>
 <LINK REL="stylesheet" TYPE="text/css" ID="theme" HREF="/tango/tango-dark.css">
 
-<c:if test="${style == 'tango'}">
+<c:if test="${currentStyle == 'tango'}">
   <script type="text/javascript">
 	function readCookie(name) {
 		var nameEQ = name + "=";

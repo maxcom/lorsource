@@ -17,18 +17,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<sec:authorize access="isAuthenticated()" var="auth" />
-
-<c:if test="${auth}">
-<sec:authentication property="principal" var="principal"/>
-<c:set var="style" value="${principal.style}" />
-</c:if>
-
-<c:if test="${!auth}">
-<c:set var="style" value="tango" />
-</c:if>
-
-
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 <script src="/js/lor.js" type="text/javascript"></script>
 
@@ -47,7 +35,7 @@
   <base href="${fn:escapeXml(configuration.mainUrl)}">
 </c:if>
 
-<jsp:include page="${style}/head.jsp"/>
+<jsp:include page="${currentStyle}/head.jsp"/>
 
 <c:if test="${not pageContext.request.secure}">
     <!-- Rating@Mail.ru counter -->
