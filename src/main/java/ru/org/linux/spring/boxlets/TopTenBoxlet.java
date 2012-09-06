@@ -28,6 +28,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopTenDao.TopTenMessageDTO;
 import ru.org.linux.user.ProfileProperties;
@@ -49,9 +50,8 @@ public class TopTenBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/top10.boxlet")
   protected ModelAndView getData(HttpServletRequest request) {
-    ProfileProperties profile = Template.getTemplate(request).getProf();
-    final int itemsPerPage = profile.getMessages();
-    String style = profile.getStyle();
+    final int itemsPerPage = AuthUtil.getProf().getMessages();
+    String style = AuthUtil.getProf().getStyle();
 
     List<TopTenMessageDTO> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {

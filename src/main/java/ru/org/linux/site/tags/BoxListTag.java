@@ -23,6 +23,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.DefaultProfile;
 
@@ -49,12 +50,11 @@ public class BoxListTag extends BodyTagSupport {
 
   @Override
   public int doStartTag() throws JspException {
-    Template t = Template.getTemplate(pageContext.getRequest());
     String s = object;
     if (StringUtils.isEmpty(s)){
       s = "main2";
     }
-    List<String> boxnames = t.getProf().getList(s);
+    List<String> boxnames = AuthUtil.getProf().getList(s);
     CollectionUtils.filter(boxnames, new Predicate() {
       @Override
       public boolean evaluate(Object o) {

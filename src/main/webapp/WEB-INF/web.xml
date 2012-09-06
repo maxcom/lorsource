@@ -44,14 +44,14 @@
         <filter-name>UrlRewriteFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <!-- <filter>
-        <filter-name>Template</filter-name>
-        <filter-class>ru.org.linux.site.TemplateFilter</filter-class>
+    <filter>
+        <filter-name>Configuration</filter-name>
+        <filter-class>ru.org.linux.spring.ConfigurationFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>Template</filter-name>
+        <filter-name>Configuration</filter-name>
         <url-pattern>/*</url-pattern>
-    </filter-mapping> -->
+    </filter-mapping>
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>

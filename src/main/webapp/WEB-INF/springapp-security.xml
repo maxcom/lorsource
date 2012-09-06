@@ -48,6 +48,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
         <remember-me key="VERY_SECURE_CODE" services-ref="rememberMeServices"/>
         <logout logout-url="/logout" logout-success-url="/"/>
     </http>
+    <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
         <authentication-provider user-service-ref="userDetailsServiceImpl">
             <password-encoder ref="passwordEncoderImpl"/>

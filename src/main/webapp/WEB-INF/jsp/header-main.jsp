@@ -15,20 +15,32 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+<sec:authorize access="isAuthenticated()" var="auth" />
+
+<c:if test="${auth}">
+<sec:authentication property="principal" var="principal"/>
+<c:set var="style" value="${principal.style}" />
+</c:if>
+
+<c:if test="${!auth}">
+<c:set var="style" value="tango" />
+</c:if>
+
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 <script src="/js/lor.js" type="text/javascript">;</script>
 
 <c:if test="${pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.secureMainUrl)}">
+  <base href="${fn:escapeXml(configuration.secureMainUrl)}">
 </c:if>
 
 <c:if test="${not pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.mainUrl)}">
+  <base href="${fn:escapeXml(configuration.mainUrl)}">
 </c:if>
 
-<jsp:include page="${template.style}/head-main.jsp"/>
+<jsp:include page="${style}/head-main.jsp"/>
 
 <c:if test="${not pageContext.request.secure}">
     <!-- Rating@Mail.ru counter -->

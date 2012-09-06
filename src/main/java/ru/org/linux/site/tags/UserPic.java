@@ -15,7 +15,12 @@
 
 package ru.org.linux.site.tags;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -28,7 +33,12 @@ import java.io.IOException;
 /**
  * userpic tag
  */
+@Configurable
 public class UserPic extends TagSupport {
+
+  @Autowired
+  private Configuration configuration;
+
   private User author;
 
   public void setAuthor(User author) {
@@ -37,11 +47,11 @@ public class UserPic extends TagSupport {
 
   @Override
   public int doStartTag() throws JspException {
-    Template tmpl = Template.getTemplate(pageContext.getRequest());
+    ProfileProperties properties = AuthUtil.getProf();
     JspWriter out = pageContext.getOut();
     if (author.getPhoto() != null) {
       try {
-        ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
+        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "/photos/" + author.getPhoto());
 
         out
             .append("<div class=\"userpic\">")
@@ -60,7 +70,7 @@ public class UserPic extends TagSupport {
       }
     } else {
       if (author.hasGravatar()) {
-        String avatarStyle = tmpl.getProf().getAvatarMode();
+        String avatarStyle = properties.getAvatarMode();
 
         try {
           out

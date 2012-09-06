@@ -17,8 +17,8 @@
   ~    limitations under the License.
   --%>
 <LINK REL="stylesheet" TYPE="text/css" ID="theme" HREF="/tango/tango-dark.css">
-<sec:authentication property="principal" var="principal"/>
-<c:if test="${principal.style == 'tango'}">
+
+<c:if test="${style == 'tango'}">
   <script type="text/javascript">
 	function readCookie(name) {
 		var nameEQ = name + "=";
@@ -48,18 +48,19 @@
           <li id="loginGreating">
 
             <sec:authorize access="isAuthenticated()">
+            <sec:authentication property="principal" var="principal"/>
               <c:url var="userUrl" value="/people/${principal.username}/profile"/>
-              <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+              <a style="text-decoration: none" href="${userUrl}">${principal.username}</a>
               <a href="/logout" title="Выйти">
                 <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16"
                      alt="[x]">
               </a>
-            </sec:authorize
+            </sec:authorize>
 
             <sec:authorize access="isAnonymous()">
               <div id="regmenu" class="head">
-                <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
-                <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
+                <a href="${configuration.secureUrl}register.jsp">Регистрация</a> -
+                <a id="loginbutton" href="${configuration.secureUrl}login.jsp">Вход</a>
               </div>
 
               <form method=POST action="login.jsp" style="display: none" id="regform">
@@ -69,7 +70,7 @@
                 <input type=submit value="Вход">
                 <input id="hide_loginbutton" type="button" value="Отмена">
               </form>
-            </sec:authorize
+            </sec:authorize>
           </li>
 
           <li><a href="/news/">Новости</a></li>
@@ -78,11 +79,11 @@
           <li><a href="/forum/">Форум</a></li>
           <li><a href="/tracker/">Трекер</a></li>
           <li><a href="/wiki/">Wiki</a></li>
-          <c:if test="${template.sessionAuthorized}">
+          <sec:authorize access="isAuthenticated()">
             <li>
               <lor:events/>
             </li>
-          </c:if>
+          </sec:authorize>
 
           <li><a href="/search.jsp">Поиск</a></li>
 
