@@ -57,26 +57,26 @@ public class FileProfileReader implements ProfileReader {
         dof.close();
         df.close();
       } catch (IOException e) {
-        logger.info("Bad profile for user "+username, e);
+        logger.info("Bad profile for user "+username);
       } finally {
         if (dof!=null) {
           try {
             dof.close();
           } catch (IOException e) {
-            logger.info("Bad profile for user "+username, e);
+            logger.info("Bad profile for user "+username);
           }
         }
       }
     } catch (StorageException e) {
-      logger.info("Bad profile for user "+username, e);
+      logger.info("Bad profile for user "+username);
     } catch (ClassNotFoundException e) {
-      logger.info("Bad profile for user "+username, e);
+      logger.info("Bad profile for user "+username);
     } finally {
       if (df!=null) {
         try {
           df.close();
         } catch (IOException e) {
-          logger.info("Bad profile for user "+username, e);
+          logger.info("Bad profile for user "+username);
         }
       }
     }

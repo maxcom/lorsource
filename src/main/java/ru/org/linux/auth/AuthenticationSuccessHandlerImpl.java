@@ -15,6 +15,8 @@
 
 package ru.org.linux.auth;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ import java.util.Properties;
  */
 @Component
 public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuccessHandler {
+  private final Log logger = LogFactory.getLog(this.getClass());
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -42,9 +45,8 @@ public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuc
   }
 
   private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-    User user = ((UserDetailsImpl) authentication.getCredentials()).getUser();
     HttpSession session = request.getSession();
-    user.acegiSecurityHack(response, session);
+    AuthUtil.getCurrentUser().acegiSecurityHack(response, session);
   }
 
   private void CSRFManipulation(HttpServletRequest request, HttpServletResponse response) {
