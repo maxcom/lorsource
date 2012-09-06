@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -40,10 +41,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   @Autowired
   private UserDao userDao;
 
+  @Autowired
+  private Configuration configuration;
+
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
     User user;
-
-    logger.info(username);
 
     if(username.contains("@")) {
       user = userDao.getByEmail(username, true);
@@ -58,15 +60,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       }
     }
 
-    UserDetailsImpl userDetails = new UserDetailsImpl(user, retrieveUserAuthorities(user));
+    UserDetailsImpl userDetails = new UserDetailsImpl(user, retrieveUserAuthorities(user), configuration);
 
-    logger.info(userDetails.getUsername());
-    logger.info(userDetails.getPassword());
-    logger.info(userDetails.isAccountNonExpired());
-    logger.info(userDetails.isAccountNonLocked());
-    logger.info(userDetails.isCredentialsNonExpired());
-    logger.info(userDetails.isEnabled());
-
+    logger.debug(userDetails.getUsername());
+    logger.debug(userDetails.getPassword());
+    logger.debug(userDetails.isAccountNonExpired());
+    logger.debug(userDetails.isAccountNonLocked());
+    logger.debug(userDetails.isCredentialsNonExpired());
+    logger.debug(userDetails.isEnabled());
 
     return userDetails;
   }

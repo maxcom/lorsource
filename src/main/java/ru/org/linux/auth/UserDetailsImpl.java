@@ -17,6 +17,8 @@ package ru.org.linux.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
 import java.util.ArrayList;
@@ -28,11 +30,26 @@ public class UserDetailsImpl implements UserDetails {
 
   private final User user;
   private final Collection<GrantedAuthority> authorities;
+  private final Configuration configuration;
+  private final Profile profile;
 
-  public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1) {
+  public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1, Configuration configuration) {
     this.user = user1;
     this.authorities = new ArrayList<GrantedAuthority>(authorities1);
+    this.configuration = configuration;
+    this.profile = (new FileProfileReader(configuration)).readProfile(user.getNick());
+  }
 
+  public User getUser() {
+    return user;
+  }
+
+  public Configuration getConfiguration() {
+    return configuration;
+  }
+
+  public Profile getProfile() {
+    return profile;
   }
 
   public Collection<? extends GrantedAuthority> getAuthorities() {

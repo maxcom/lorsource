@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.org.linux.auth.ProfileReader;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.util.ProfileHashtable;
 
@@ -28,6 +29,11 @@ public class Profile {
   private final ProfileProperties properties;
 
   private final boolean isdefault;
+
+  public Profile(ProfileProperties profileProperties, boolean isdefault) {
+    this.properties = profileProperties;
+    this.isdefault = isdefault;
+  }
 
   public Profile(InputStream df) throws IOException, ClassNotFoundException {
     if (df==null) {

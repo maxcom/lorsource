@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PasswordEncoderImpl implements PasswordEncoder {
-  private static final Log logger = LogFactory.getLog(PasswordEncoderImpl.class);
-
   static PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
   public String encodePassword(String rawPass, Object salt) {
@@ -20,7 +18,6 @@ public class PasswordEncoderImpl implements PasswordEncoder {
   }
 
   public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-    logger.info(rawPass);
     return encryptor.checkPassword(rawPass, encPass);
   }
 
