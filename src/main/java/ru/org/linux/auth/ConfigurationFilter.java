@@ -18,6 +18,7 @@ package ru.org.linux.auth;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -29,6 +30,7 @@ import ru.org.linux.util.LorHttpUtils;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -46,12 +48,12 @@ public class ConfigurationFilter extends GenericFilterBean implements Initializi
     if(AuthUtil.isSessionAuthorized()) {
       request.getSession().setAttribute("currentStyle", AuthUtil.getCurrentUser().getStyle());
       request.getSession().setAttribute("currentProfile", AuthUtil.getCurrentProfile());
+      forWikiManipulation(request, (HttpServletResponse)res, AuthUtil.getAuthentication());
     } else {
       request.getSession().setAttribute("currentStyle", "tango");
       request.getSession().setAttribute("currentProfile", Profile.getDefaultProfile());
     }
     CSRFManipulation(request, (HttpServletResponse)res);
-
     chain.doFilter(req, res);
   }
 
@@ -63,6 +65,11 @@ public class ConfigurationFilter extends GenericFilterBean implements Initializi
       request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, cookies.getProperty(CSRFProtectionService.CSRF_COOKIE).trim());
     }
     response.addHeader("Cache-Control", "private");
+  }
+
+  private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    HttpSession session = request.getSession();
+    AuthUtil.getCurrentUser().acegiSecurityHack(response, session);
   }
 
 }

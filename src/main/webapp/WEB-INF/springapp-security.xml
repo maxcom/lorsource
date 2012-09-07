@@ -42,8 +42,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http use-expressions="true">
         <intercept-url pattern="/**" access="permitAll"/>
         <form-login login-page="/login.jsp" username-parameter="nick" password-parameter="password"
-                    login-processing-url="/login_process"
-                    authentication-success-handler-ref="authenticationSuccessHandlerImpl"/>
+                    login-processing-url="/login_process"/>
         <remember-me key="VERY_SECURE_CODE" services-ref="rememberMeServices"/>
         <!-- TODO: LoginController.ACEGI_COOKIE_NAME -->
         <logout logout-url="/logout" logout-success-url="/"

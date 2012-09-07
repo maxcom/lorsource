@@ -33,6 +33,14 @@ public class AuthUtil {
     return authentication.isAuthenticated() && !hasAuthority("ROLE_ANONYMOUS");
   }
 
+  public static Authentication getAuthentication() {
+    if(isSessionAuthorized()) {
+      return SecurityContextHolder.getContext().getAuthentication();
+    } else {
+      return null;
+    }
+  }
+
   public static boolean isModeratorSession() {
     return !isSessionAuthorized() && hasAuthority("ROLE_MODERATOR");
   }

@@ -36,7 +36,6 @@ import java.util.Collection;
  */
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
-  private static final Log logger = LogFactory.getLog(UserDetailsServiceImpl.class);
 
   @Autowired
   private UserDao userDao;
@@ -59,17 +58,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         throw new UsernameNotFoundException(username);
       }
     }
-
-    UserDetailsImpl userDetails = new UserDetailsImpl(user, retrieveUserAuthorities(user), configuration);
-
-    logger.debug(userDetails.getUsername());
-    logger.debug(userDetails.getPassword());
-    logger.debug(userDetails.isAccountNonExpired());
-    logger.debug(userDetails.isAccountNonLocked());
-    logger.debug(userDetails.isCredentialsNonExpired());
-    logger.debug(userDetails.isEnabled());
-
-    return userDetails;
+    return new UserDetailsImpl(user, retrieveUserAuthorities(user), configuration);
   }
 
   private Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
