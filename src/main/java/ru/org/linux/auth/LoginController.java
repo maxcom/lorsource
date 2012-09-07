@@ -18,7 +18,14 @@ package ru.org.linux.auth;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -51,92 +58,51 @@ public class LoginController {
   @Autowired
   private Configuration configuration;
 
-  private static boolean isAjax(HttpServletRequest request) {
-    String header = request.getHeader("X-Requested-With");
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
 
-    return header != null && "XMLHttpRequest".equals(header);
+  @Autowired
+  @Qualifier("authenticationManager")
+  private AuthenticationManager authenticationManager;
+
+  @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
+  @ResponseBody
+  public LoginStatus loginAjax(@RequestParam("nick") final String username, @RequestParam("passwd") final String password) {
+    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+    try {
+      UserDetailsImpl details = (UserDetailsImpl)userDetailsService.loadUserByUsername(username);
+      token.setDetails(details);
+      Authentication auth = authenticationManager.authenticate(token);
+      SecurityContextHolder.getContext().setAuthentication(auth);
+      return new LoginStatus(auth.isAuthenticated(), auth.getName());
+    } catch (UsernameNotFoundException e) {
+      return new LoginStatus(false, "Bad credentials");
+    } catch (BadCredentialsException e) {
+      return new LoginStatus(false, e.getMessage());
+    }
+  }
+
+  public class LoginStatus {
+    private final boolean success;
+    private final String username;
+
+    public LoginStatus(boolean success, String username) {
+      this.success = success;
+      this.username = username;
+    }
+
+    public boolean isLoggedIn() {
+      return success;
+    }
+
+    public String getUsername() {
+      return username;
+    }
   }
 
   @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
     return new ModelAndView("login-form");
-  }
-
-  @RequestMapping(value = "/login.jsp", method = RequestMethod.POST)
-  public ModelAndView doLogin(
-          HttpServletRequest request,
-          HttpServletResponse response,
-          @RequestParam(required = false) String activation
-  ) throws Exception {
-    final Template tmpl = Template.getTemplate(request);
-    HttpSession session = request.getSession();
-
-    boolean ajax = isAjax(request);
-
-    String nick = request.getParameter("nick");
-
-    if (nick == null || nick.isEmpty()) {
-      return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Не указан nick"));
-    }
-
-    User user;
-
-    if (nick.contains("@")) {
-      user = userDao.getByEmail(nick, true);
-      if (user==null) {
-        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
-      }
-    } else {
-      if (!StringUtil.checkLoginName(nick)) {
-        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Некорректный nick"));
-      }
-
-      user = userDao.getUser(nick);
-    }
-
-    if(user.isBlocked()) {
-      throw new UserBanedException(user, userDao.getBanInfoClass(user));
-    }
-
-    user.checkAnonymous();
-
-    if (!user.isActivated()) {
-      if (activation == null) {
-        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Требуется активация"));
-      }
-
-      String regcode = user.getActivationCode(configuration.getSecret());
-
-      if (regcode.equals(activation)) {
-        userDao.activateUser(user);
-
-        tmpl.getProf().setHideAdsense(false);
-        tmpl.writeProfile(user.getNick());
-      } else {
-        throw new AccessViolationException("Bad activation code");
-      }
-    }
-
-    String password = request.getParameter("passwd");
-    if (password == null || !user.matchPassword(password)) {
-      logger.info("Invalid password for user "+user.getNick());
-
-      return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
-    }
-
-    if (session == null) {
-      throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
-    }
-
-    createCookies(response, request, user);
-
-    tmpl.performLogin(response, user);
-
-    if (ajax) {
-      return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
-    } else {
-      return new ModelAndView(new RedirectView("/"));
-    }
   }
 
   @RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
@@ -206,15 +172,5 @@ public class LoginController {
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ModelAndView handleUserBanedException(UserBanedException ex) {
     return new ModelAndView("errors/user-banned", "exception", ex);
-  }
-
-  /**
-   * Обрабатываем исключительную ситуацию для отсутствующего пользователя
-   */
-  @ExceptionHandler(UserNotFoundException.class)
-  @ResponseStatus(HttpStatus.OK)
-  public ModelAndView handleUserNotFoundException(HttpServletRequest request) {
-    boolean ajax = isAjax(request);
-    return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
   }
 }

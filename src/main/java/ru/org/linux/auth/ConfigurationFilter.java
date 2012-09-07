@@ -21,12 +21,16 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.Profile;
+import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  */
@@ -46,7 +50,19 @@ public class ConfigurationFilter extends GenericFilterBean implements Initializi
       request.getSession().setAttribute("currentStyle", "tango");
       request.getSession().setAttribute("currentProfile", Profile.getDefaultProfile());
     }
+    CSRFManipulation(request, (HttpServletResponse)res);
 
     chain.doFilter(req, res);
   }
+
+  private void CSRFManipulation(HttpServletRequest request, HttpServletResponse response) {
+    Properties cookies = LorHttpUtils.getCookies(request.getCookies());
+    if (cookies.get(CSRFProtectionService.CSRF_COOKIE) == null) {
+      CSRFProtectionService.generateCSRFCookie(request, response);
+    } else {
+      request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, cookies.getProperty(CSRFProtectionService.CSRF_COOKIE).trim());
+    }
+    response.addHeader("Cache-Control", "private");
+  }
+
 }

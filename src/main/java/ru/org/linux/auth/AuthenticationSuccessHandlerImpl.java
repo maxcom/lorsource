@@ -40,7 +40,6 @@ public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuc
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
     forWikiManipulation(request, response, authentication);
-    CSRFManipulation(request, response);
     super.onAuthenticationSuccess(request, response, authentication);
   }
 
@@ -49,15 +48,6 @@ public class AuthenticationSuccessHandlerImpl extends SimpleUrlAuthenticationSuc
     AuthUtil.getCurrentUser().acegiSecurityHack(response, session);
   }
 
-  private void CSRFManipulation(HttpServletRequest request, HttpServletResponse response) {
-    Properties cookies = LorHttpUtils.getCookies(request.getCookies());
-    if (cookies.get(CSRFProtectionService.CSRF_COOKIE) == null) {
-      CSRFProtectionService.generateCSRFCookie(request, response);
-    } else {
-      request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, cookies.getProperty(CSRFProtectionService.CSRF_COOKIE).trim());
-    }
-    response.addHeader("Cache-Control", "private");
-  }
 
 
 }
