@@ -31,10 +31,11 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.*;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -100,27 +101,26 @@ public class TopicListController {
       modelAndView.addObject("sectionList", sectionService.getSectionList());
     }
 
-    Template tmpl = Template.getTemplate(request);
 
-    if (tmpl.isSessionAuthorized()) {
+    if (isSessionAuthorized()) {
       modelAndView.addObject(
               "isShowFavoriteTagButton",
-              !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+              !userTagService.hasFavoriteTag(getCurrentUser(), topicListForm.getTag())
       );
 
       modelAndView.addObject(
               "isShowUnFavoriteTagButton",
-              userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+              userTagService.hasFavoriteTag(getCurrentUser(), topicListForm.getTag())
       );
 
-      if (!tmpl.isModeratorSession()) {
+      if (!isModeratorSession()) {
         modelAndView.addObject(
                 "isShowIgnoreTagButton",
-                !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+                !userTagService.hasIgnoreTag(getCurrentUser(), topicListForm.getTag())
         );
         modelAndView.addObject(
                 "isShowUnIgnoreTagButton",
-                userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+                userTagService.hasIgnoreTag(getCurrentUser(), topicListForm.getTag())
         );
       }
     }
@@ -148,8 +148,6 @@ public class TopicListController {
     }
 
     checkRequestConditions(section, group, topicListForm);
-    Template tmpl = Template.getTemplate(request);
-
     ModelAndView modelAndView = new ModelAndView("view-news");
 
     modelAndView.addObject("group", group);
@@ -190,7 +188,7 @@ public class TopicListController {
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+      prepareService.prepareMessagesForUser(messages, request.isSecure(), getCurrentUser())
     );
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth() == null);
@@ -569,8 +567,6 @@ public class TopicListController {
     @RequestParam(value = "section", required = false, defaultValue = "0") int sectionId,
     HttpServletRequest request
   ) {
-    Template tmpl = Template.getTemplate(request);
-
     ModelAndView modelAndView = new ModelAndView("view-all");
 
     Section section = null;
@@ -586,7 +582,7 @@ public class TopicListController {
     List<Topic> messages = topicListService.getAllTopicsFeed(section, calendar.getTime());
     modelAndView.addObject(
       "messages",
-      prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+      prepareService.prepareMessagesForUser(messages, request.isSecure(), getCurrentUser())
     );
 
     List<TopicListDto.DeletedTopic> deleted = topicListService.getDeletedTopicsFeed(sectionId);
@@ -716,10 +712,9 @@ public class TopicListController {
       );
       modelAndView.setViewName("section-rss");
     } else {
-      Template tmpl = Template.getTemplate(request);
       modelAndView.addObject(
         "messages",
-        prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+        prepareService.prepareMessagesForUser(messages, request.isSecure(), getCurrentUser())
       );
 
       modelAndView.setViewName("view-news");

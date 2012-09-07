@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
@@ -110,6 +111,4 @@ public class AuthUtil {
       return "tango";
     }
   }
-
-
 }

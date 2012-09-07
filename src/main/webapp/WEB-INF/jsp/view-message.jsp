@@ -33,7 +33,6 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -183,7 +182,7 @@
 </c:if>
 
 <%
-  int messages = tmpl.getProf().getMessages();
+  int messages = currentProfile.getMessages();
   int pages = message.getPageCount(messages);
 
   String pageInfo = null;
@@ -309,7 +308,9 @@
 </c:if>
 </div>
 
-<% if (tmpl.isSessionAuthorized() && (!message.isExpired() || tmpl.isModeratorSession()) && !(Boolean) request.getAttribute("showDeleted")) { %>
+<sec:authorize access="isAuthenticated()">
+<sec:authorize access="hasRole('ROLE_MODERATOR')" var="moderator" />
+<c:if test="${!message.expired || moderator}">
 <hr>
 <form action="${message.link}" method=POST>
 <lor:csrf/>
@@ -317,7 +318,8 @@
 <input type=submit value="Показать удаленные комментарии">
 </form>
 <hr>
-<% } %>
+</c:if>
+</sec:authorize>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">

@@ -87,13 +87,6 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(Comment comment, Template tmpl) {
-    int messages = tmpl.getProf().getMessages();
-    boolean reverse = tmpl.getProf().isShowNewFirst();
-
-    return getCommentPage(comment, messages, reverse);
-  }
-
   public static Set<Integer> makeHideSet(UserDao userDao, CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {
     if (filterChain == CommentFilter.FILTER_NONE) {
       return null;

@@ -33,12 +33,13 @@ import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -214,9 +215,8 @@ public class TopicController {
     String groupName,
     int msgid) throws Exception {
     Topic topic = messageDao.getById(msgid);
-    Template tmpl = Template.getTemplate(request);
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
@@ -225,7 +225,7 @@ public class TopicController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
+    params.put("showAdsense", !isSessionAuthorized() || !getProf().isHideAdsense());
 
     params.put("page", page);
 
@@ -240,34 +240,34 @@ public class TopicController {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
-    if (page == -1 && !tmpl.isSessionAuthorized()) {
+    if (page == -1 && !isSessionAuthorized()) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
     if (showDeleted) {
-      if (!tmpl.isSessionAuthorized()) {
+      if (!isSessionAuthorized()) {
         throw new BadInputException("Вы уже вышли из системы");
       }
     }
 
     params.put("showDeleted", showDeleted);
 
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = getCurrentUser();
 
-    if (topic.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
+    if (topic.isExpired() && showDeleted && !isModeratorSession()) {
       throw new MessageNotFoundException(topic.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    checkView(topic, tmpl, currentUser);
+    checkView(topic, currentUser);
 
     params.put("group", group);
 
-    if (group.getCommentsRestriction() == -1 && !tmpl.isSessionAuthorized()) {
+    if (group.getCommentsRestriction() == -1 && !isSessionAuthorized()) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
 
-    if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-      String etag = getEtag(topic, tmpl);
+    if (!isSessionAuthorized()) { // because users have IgnoreList and memories
+      String etag = getEtag(topic);
       response.setHeader("Etag", etag);
 
       if (request.getHeader("If-None-Match") != null) {
@@ -301,7 +301,7 @@ public class TopicController {
 
     int filterMode = CommentFilter.FILTER_IGNORED;
 
-    if (!tmpl.getProf().isShowAnonymous()) {
+    if (!getProf().isShowAnonymous()) {
       filterMode += CommentFilter.FILTER_ANONYMOUS;
     }
 
@@ -353,10 +353,10 @@ public class TopicController {
 
       CommentFilter cv = new CommentFilter(comments);
 
-      boolean reverse = tmpl.getProf().isShowNewFirst();
+      boolean reverse = getProf().isShowNewFirst();
       int offset = 0;
       int limit = 0;
-      int messages = tmpl.getProf().getMessages();
+      int messages = getProf().getMessages();
 
       if (page != -1) {
         limit = messages;
@@ -368,7 +368,7 @@ public class TopicController {
 
       params.put("unfilteredCount", commentsFull.size());
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure(), tmpl, topic);
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure(), topic);
 
       params.put("commentsPrepared", commentsPrepared);
 
@@ -445,8 +445,8 @@ public class TopicController {
     return new ModelAndView(new RedirectView(link.toString()));
   }
 
-  private static void checkView(Topic message, Template tmpl, User currentUser) throws MessageNotFoundException {
-    if (tmpl.isModeratorSession()) {
+  private static void checkView(Topic message, User currentUser) throws MessageNotFoundException {
+    if (isModeratorSession()) {
       return;
     }
 
@@ -455,7 +455,7 @@ public class TopicController {
         throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
       }
 
-      if (!tmpl.isSessionAuthorized()) {
+      if (!isSessionAuthorized()) {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
 
@@ -477,13 +477,13 @@ public class TopicController {
     }
   }
 
-  private static String getEtag(Topic message, Template tmpl) {
-    String nick = tmpl.getNick();
+  private static String getEtag(Topic message) {
+    String nick = getNick();
 
     String userAddon = nick!=null?('-' +nick):"";
 
-    if (!tmpl.isUsingDefaultProfile()) {
-      userAddon+=tmpl.getProf().getTimestamp();
+    if (!isUsingDefaultProfile()) {
+      userAddon+=getProf().getTimestamp();
     }
 
     return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
@@ -493,7 +493,6 @@ public class TopicController {
           HttpServletRequest request,
           int msgid,
           int cid) throws Exception {
-    Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
     StringBuilder options = new StringBuilder();
@@ -506,13 +505,13 @@ public class TopicController {
       throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
     }
 
-    int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+    int pagenum = comments.getCommentPage(node.getComment(), getProf().getMessages(), getProf().isShowNewFirst());
 
     if (pagenum > 0) {
       redirectUrl = topic.getLinkPage(pagenum);
     }
 
-    if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
+    if (!topic.isExpired() && topic.getPageCount(getProf().getMessages()) - 1 == pagenum) {
       if (options.length() > 0) {
         options.append('&');
       }
@@ -538,8 +537,6 @@ public class TopicController {
           @RequestParam(required = false) String nocache,
           @RequestParam(required = false) Integer cid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
     Topic topic = messageDao.getById(msgid);
 
     String redirectUrl = topic.getLink();
@@ -563,13 +560,13 @@ public class TopicController {
         throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
       }
 
-      int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+      int pagenum = comments.getCommentPage(node.getComment(), getProf().getMessages(), getProf().isShowNewFirst());
 
       if (pagenum > 0) {
         redirectUrl = topic.getLinkPage(pagenum);
       }
 
-      if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
+      if (!topic.isExpired() && topic.getPageCount(getProf().getMessages()) - 1 == pagenum) {
         if (options.length() > 0) {
           options.append('&');
         }

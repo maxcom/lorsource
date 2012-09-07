@@ -113,7 +113,7 @@ public class DeleteCommentController {
 
     List<Comment> list = cv.getCommentsSubtree(msgid);
 
-    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure(), tmpl, topic));
+    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure(), topic));
     params.put("comments", comments);
 
     return new ModelAndView("delete_comment", params);
