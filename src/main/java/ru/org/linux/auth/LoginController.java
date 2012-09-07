@@ -148,23 +148,6 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/"));
   }
 
-  private void createCookies(HttpServletResponse response, HttpServletRequest request, User user) {
-    Cookie cookie = new Cookie("password", user.getMD5(configuration.getSecret()));
-    cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
-    cookie.setPath("/");
-    cookie.setHttpOnly(true);
-    response.addCookie(cookie);
-
-    Cookie prof = new Cookie("profile", user.getNick());
-    prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-    prof.setPath("/");
-    response.addCookie(prof);
-
-    user.acegiSecurityHack(response, request.getSession());
-
-    CSRFProtectionService.generateCSRFCookie(request, response);
-  }
-
   /**
    * Обрабатываем исключительную ситуацию для забаненого пользователя
    */

@@ -45,9 +45,11 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
                     login-processing-url="/login_process"
                     authentication-success-handler-ref="authenticationSuccessHandlerImpl"/>
         <remember-me key="VERY_SECURE_CODE" services-ref="rememberMeServices"/>
-        <logout logout-url="/logout" logout-success-url="/"/>
-        <anonymous username="anonymous" granted-authority="ROLE_ANONYMOUS" />
-        <custom-filter after="ANONYMOUS_FILTER" ref="configurationFilter" />
+        <!-- TODO: LoginController.ACEGI_COOKIE_NAME -->
+        <logout logout-url="/logout" logout-success-url="/"
+                delete-cookies="password,profile,JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"/>
+        <anonymous username="anonymous" granted-authority="ROLE_ANONYMOUS"/>
+        <custom-filter after="ANONYMOUS_FILTER" ref="configurationFilter"/>
     </http>
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
