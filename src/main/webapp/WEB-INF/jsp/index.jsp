@@ -53,24 +53,23 @@
 <div class="<%= columns3?"newsblog2":"newsblog"%>">
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
-<%--
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
     <a rel="nofollow" href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0; padding-right: 5px"></a>
     <div id="samsung_text">
-    SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
-    телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash;
-    объявляет о&nbsp;приеме на&nbsp;работу инженеров-программистов,
-    разработчиков в&nbsp;исследовательские центры компании в&nbsp;Южной Корее:
-    Cloud Computing, Cryptography&nbsp;/ Encryption, Security Software, Multimedia
-    (TV, BD, PVR, HTS), Linux Kernel, Android, C/C++ Programming, Widget,
-    DRM, Network Software, LTE eNB Software Design, Modem ASIC, FPGA, SoC.
-    Дополнительная информация:
-    <a href="http://job.samsung.ru/" rel="nofollow" style="color: white">http://job.samsung.ru</a>
+      Samsung Electronics Co., Ltd. приглашает инженеров-программистов
+      (System- and Platform-Level Security, Cryptography, Encryption,
+      Application&nbsp;/ Embedded&nbsp;/ System Software,
+      Cloud Computing, Android, Linux Kernel, C/C++, Java), а&nbsp;также
+      профессоров и&nbsp;доцентов (д.ф.-м.н., д.т.н., к.ф.-м.н., к.т.н.)
+      в&nbsp;области разработки программного обеспечения
+      (Open OS: Linux, Android; Software Algorithms, Multimedia, and Graphics)
+      на&nbsp;работу в&nbsp;Samsung R&amp;D Center и&nbsp;Samsung SW&nbsp;University (Республика Корея).
+      Дополнительная информация:
+      <a href="http://job.samsung.ru/" rel="nofollow" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
 </c:if>
---%>
 
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
