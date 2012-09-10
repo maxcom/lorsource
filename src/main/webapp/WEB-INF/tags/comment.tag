@@ -72,7 +72,7 @@
   &nbsp;</div>
 
   <c:if test="${template.prof.showPhotos}">
-    <l:userpic author="${comment.author}"/>
+    <l:userpic author="${comment.author}" htmlPath="${configuration.HTMLPathPrefix}" />
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 

@@ -18,7 +18,6 @@ package ru.org.linux.site.tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
@@ -36,13 +35,15 @@ import java.io.IOException;
 @Configurable
 public class UserPic extends TagSupport {
 
-  @Autowired
-  private Configuration configuration;
-
   private User author;
+  private String htmlPath;
 
   public void setAuthor(User author) {
     this.author = author;
+  }
+
+  public void setHtmlPath(String htmlPath) {
+    this.htmlPath = htmlPath;
   }
 
   @Override
@@ -51,7 +52,7 @@ public class UserPic extends TagSupport {
     JspWriter out = pageContext.getOut();
     if (author.getPhoto() != null) {
       try {
-        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "/photos/" + author.getPhoto());
+        ImageInfo info = new ImageInfo( htmlPath + "/photos/" + author.getPhoto());
 
         out
             .append("<div class=\"userpic\">")

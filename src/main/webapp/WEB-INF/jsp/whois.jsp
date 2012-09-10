@@ -5,6 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,20 +23,13 @@
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
 <%--@elvariable id="userStat" type="ru.org.linux.user.UserStatistics"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="ignored" type="java.lang.Boolean"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 
-<%
-  response.setDateHeader("Expires", System.currentTimeMillis()+120000);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<%
-  User user = (User) request.getAttribute("user");
-%>
 <title>Информация о пользователе ${user.nick}</title>
 <c:if test="${userInfo.url != null}">
   <c:if test="${user.score >= 100 && not user.blocked && user.activated}">
@@ -47,10 +41,8 @@
 <jsp:include page="header.jsp"/>
 
 <h1>Информация о пользователе ${user.nick}</h1>
-<%
-%>
 <div id="whois_userpic">
-  <l:userpic author="${user}"/>
+  <l:userpic author="${user}" htmlPath="${configuration.HTMLPathPrefix}"/>
     <div style="clear: both">
   </div>
 <c:if test="${user.photo !=null && moderatorOrCurrentUser}">
@@ -71,7 +63,12 @@
   <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
 </c:if>
 
-<c:if test="${userInfo.url != null and (template.sessionAuthorized or user.maxScore>=50)}">
+<sec:authorize access="hasRole('ROLE_ANON_USER')" var="auth" />
+<sec:authorize access="hasRole('ROLE_MODERATOR')" var="moderator" />
+<sec:authorize access="hasRole('ROLE_ADMIN')" var="administrator" />
+
+
+<c:if test="${userInfo.url != null and (auth && user.maxScore >= 50)}">
   <b>URL:</b>
 
   <c:choose>
@@ -94,23 +91,19 @@
     <b>Последнее посещение:</b> <lor:date date="${userInfo.lastLogin}"/><br>
   </c:if>
 
-<b>Статус:</b> <%= user.getStatus() %><%
-  if (user.isModerator()) {
-    out.print(" (модератор)");
-  }
-
-  if (user.isAdministrator()) {
-    out.print(" (администратор)");
-  }
-
-  if (user.isCorrector()) {
-    out.print(" (корректор)");
-  }
-
-  if (user.isBlocked()) {
-    out.println(" (заблокирован)\n");
-  }
-%>
+<b>Статус:</b> ${user.status}
+<c:if test="${user.moderator}">
+ (модератор)
+</c:if>
+<c:if test="${user.administrator}">
+ (администратор)
+</c:if>
+<c:if test="${user.corrector}">
+ (корректор)
+</c:if>
+<c:if test="${user.blocked}">
+ (заблокирован)
+</c:if>
   <br>
   <c:if test="${banInfo != null}">
     Блокирован <lor:date date="${banInfo.date}"/>, модератором <lor:user link="true" decorate="true" user="${banInfo.moderator}"/> по причине:
@@ -127,24 +120,26 @@
           <input type="submit" value="Получить забытый пароль">
         </form>
       </c:if>
-
-      <c:if test="${template.moderatorSession}">
+      <sec:authorize access="hasRole('ROLE_MODERATOR')">
         <form action="/usermod.jsp" method="POST" style="display: inline">
           <lor:csrf/>
           <input type="hidden" name="id" value="${user.id}">
           <input type='hidden' name='action' value='reset-password'>
           <input type="submit" value="Сбросить пароль">
         </form>
-      </c:if>
+      </sec:authorize>
       <br>
       <b>Score:</b> ${user.score}<br>
-      <c:if test="${not currentUser && template.moderatorSession}">
+
+      <sec:authorize access="hasRole('ROLE_MODERATOR')">
+      <c:if test="${not currentUser}">
         <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
       </c:if>
+      </sec:authorize>
     </div>
   </c:if>
 
-  <c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
+  <c:if test="${auth and !currentUser and not user.moderator}">
     <c:if test="${ignored}">
       <form name='i_unblock' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
         <lor:csrf/>
@@ -164,7 +159,8 @@
     </c:if>
   </c:if>
 
-  <c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
+
+  <c:if test="${(moderator and user.blockable) or administrator}">
   <br>
     <div style="border: 1px dotted; padding: 1em;">
     <form method='post' action='usermod.jsp'>
@@ -183,13 +179,13 @@
     </div>
   </c:if>
 <p>
-<c:if test="${template.sessionAuthorized or user.maxScore>=50}">
+<c:if test="${auth or user.maxScore>=50}">
 <cite>
   ${userInfoText}
 </cite>
 </c:if>
 
-  <c:if test="${template.moderatorSession}">
+  <sec:authorize access="hasRole('ROLE_MODERATOR')">
 
   <p>
 
@@ -202,27 +198,26 @@
 
   <p>
 
-    <c:if test="<%= user.isCorrector() || user.getScore() > User.CORRECTOR_SCORE %>">
+    <c:if test="${user.corrector or user.score > user.correctorScore}">
   <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
     <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='toggle_corrector'>
-    <%
-      out.print("<input type='submit' value='" + (user.isCorrector() ? "Убрать права корректора" : "Сделать корректором") + "'>\n");
-    %>
+    <c:if test="${user.corrector}">
+    <input type='submit' value='Убрать права корректора'>
+    </c:if>
+    <c:if test="${not user.corrector}">
+    <input type='submit' value='Сделать корректором'>
+    </c:if>
   </form>
   </c:if>
-  </c:if>
+  </sec:authorize>
   <c:if test="${fn:length(favoriteTags)>0}">
     <fieldset>
     <legend>Избранные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${favoriteTags}">
-          <%
-            String tagName = (String) pageContext.getAttribute("tagName");
-          %>
-          <c:url var="tagLink" value="<%= TopicListController.tagListUrl(tagName) %>"/>
-
+          <c:url var="tagLink" value="${l:tagListUrl(tagName)}"/>
           <li><a class="tag" href="${tagLink}">${tagName}</a></li>
         </c:forEach>
       </ul>
@@ -233,11 +228,7 @@
     <legend>Игнорированные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${ignoreTags}">
-          <%
-            String tagName = (String) pageContext.getAttribute("tagName");
-          %>
-          <c:url var="tagLink" value="<%= TopicListController.tagListUrl(tagName) %>"/>
-
+          <c:url var="tagLink" value="${l:tagListUrl(tagName)}"/>
           <li><a class="tag" href="${tagLink}">${tagName}</a></li>
         </c:forEach>
       </ul>

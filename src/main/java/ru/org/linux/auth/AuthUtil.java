@@ -28,7 +28,7 @@ public class AuthUtil {
 
   public static boolean isSessionAuthorized() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    return authentication.isAuthenticated() && !hasAuthority("ROLE_ANONYMOUS");
+    return authentication != null && (authentication.isAuthenticated() && !hasAuthority("ROLE_ANONYMOUS"));
   }
 
   public static Authentication getAuthentication() {

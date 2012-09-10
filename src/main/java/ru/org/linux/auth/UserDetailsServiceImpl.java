@@ -63,7 +63,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   private Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
     Collection<GrantedAuthority> results = new ArrayList<GrantedAuthority>();
-    results.add(new SimpleGrantedAuthority("ROLE_USER"));
+    results.add(new SimpleGrantedAuthority("ROLE_ANON_USER"));
+    if(user.getScore() >= 50) {
+      results.add(new SimpleGrantedAuthority("ROLE_USER"));
+    }
     if(user.isCorrector()) {
       results.add(new SimpleGrantedAuthority("ROLE_CORRECTOR"));
     }

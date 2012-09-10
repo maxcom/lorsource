@@ -20,7 +20,6 @@
   --%>
 <%--@elvariable id="result" type="java.util.List<ru.org.linux.search.SearchItem>"--%>
 <%--@elvariable id="query" type="ru.org.linux.search.SearchRequest"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
@@ -151,7 +150,7 @@
 
 <c:if test="${query.initial}">
   <h2>Поиск через Google</h2>
-  <jsp:include page="/WEB-INF/jsp/${template.style}/google-search.jsp"/>
+  <jsp:include page="/WEB-INF/jsp/${currentStyle}/google-search.jsp"/>
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -28,6 +28,11 @@
         <function-class>ru.org.linux.util.StringUtil</function-class>
         <function-signature>java.lang.String escapeHtml(java.lang.String)</function-signature>
     </function>
+    <function>
+        <name>tagListUrl</name>
+        <function-class>ru.org.linux.topic.TopicListController</function-class>
+        <function-signature>java.lang.String tagListUrl(java.lang.String)</function-signature>
+    </function>
 
     <tag>
         <description>Boxlet container</description>
@@ -74,6 +79,12 @@
             <name>author</name>
             <required>true</required>
             <type>ru.org.linux.user.User</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>htmlPath</name>
+            <required>true</required>
+            <type>String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
