@@ -24,7 +24,6 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.site.Template;
 import ru.org.linux.site.DefaultProfile;
 
 

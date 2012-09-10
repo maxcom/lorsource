@@ -21,9 +21,10 @@ import org.springframework.validation.Errors;
 import ru.org.linux.comment.CommentRequest;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.comment.DeleteCommentController;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -139,13 +140,12 @@ public class TopicPermissionService {
           HttpServletRequest request,
           User user
   ) {
-    Template tmpl = Template.getTemplate(request);
 
-    final boolean moderatorMode = tmpl.isModeratorSession();
+    final boolean moderatorMode = isModeratorSession();
     final boolean moderatorAllowEditComments = configuration.isModeratorAllowedToEditComments();
     final boolean commentEditingAllowedIfAnswersExists = configuration.isCommentEditingAllowedIfAnswersExists();
     final int commentScoreValueForEditing = configuration.getCommentScoreValueForEditing();
-    final int userScore = tmpl.getCurrentUser().getScore();
+    final int userScore = getCurrentUser().getScore();
     /* проверка на то, что пользователь владелец комментария */
     final boolean authored = (commentRequest.getOriginal().getUserid() == user.getId());
     final boolean haveAnswers = commentService.isHaveAnswers(commentRequest.getOriginal());

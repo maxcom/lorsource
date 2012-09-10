@@ -23,9 +23,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
@@ -51,9 +52,8 @@ public class BanIPController {
     @RequestParam(value="allow_posting", required = false, defaultValue="false") Boolean allow_posting,
     @RequestParam(value="captcha_required", required = false, defaultValue="false") Boolean captcha_required
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new IllegalAccessException("Not authorized");
     }
 
@@ -88,7 +88,7 @@ public class BanIPController {
       ts = new Timestamp(calendar.getTimeInMillis());
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
 
     user.checkCommit();
 

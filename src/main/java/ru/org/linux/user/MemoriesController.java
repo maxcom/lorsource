@@ -23,9 +23,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import java.util.Map;
@@ -45,13 +46,12 @@ public class MemoriesController {
           @RequestParam("msgid") int msgid,
           @RequestParam("watch") boolean watch
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
@@ -73,13 +73,12 @@ public class MemoriesController {
           ServletRequest request,
           @RequestParam("id") int id
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 

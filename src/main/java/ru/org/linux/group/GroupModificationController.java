@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import java.util.HashMap;
@@ -38,9 +39,8 @@ public class GroupModificationController {
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(@RequestParam("group") int id, ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 
@@ -64,9 +64,8 @@ public class GroupModificationController {
     @RequestParam(value = "resolvable", required = false) String resolvable,
     ServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 

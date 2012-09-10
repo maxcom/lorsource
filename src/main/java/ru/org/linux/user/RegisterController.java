@@ -28,9 +28,10 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.*;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
@@ -81,7 +82,6 @@ public class RegisterController {
     Errors errors
   ) throws Exception {
     HttpSession session = request.getSession();
-    Template tmpl = Template.getTemplate(request);
 
     if (!errors.hasErrors()) {
       captcha.checkCaptcha(request, errors);
@@ -92,7 +92,7 @@ public class RegisterController {
       }
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
+      ipBlockDao.checkBlockIP(ipBlockInfo, errors, getCurrentUser());
 
       if (userDao.isUserExists(form.getNick())) {
         errors.rejectValue("nick", null, "пользователь " + form.getNick() + " уже существует");
@@ -131,13 +131,12 @@ public class RegisterController {
     HttpServletRequest request,
     @RequestParam String activation
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized!");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
 
     String newEmail = userDao.getNewEmail(user);
 

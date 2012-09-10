@@ -22,10 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.user.User;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,20 +44,19 @@ public class ResolveController  {
     @RequestParam("msgid") int msgid,
     @RequestParam("resolve") String resolved
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
     Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = getCurrentUser();
     if (!group.isResolvable()) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
     }
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
+    if (!isModeratorSession() && currentUser.getId() != message.getUid()) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы");
     }
     messageDao.resolveMessage(message.getId(), (resolved != null) && "yes".equals(resolved));

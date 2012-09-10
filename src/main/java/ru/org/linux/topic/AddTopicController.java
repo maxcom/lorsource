@@ -48,7 +48,6 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
@@ -59,6 +58,8 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -150,17 +151,16 @@ public class AddTopicController {
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Template tmpl = Template.getTemplate(request);
 
     if (form.getMode()==null) {
-      form.setMode(tmpl.getFormatMode());
+      form.setMode(getFormatMode());
     }
 
-    prepareModel(form, params, tmpl.getCurrentUser());
+    prepareModel(form, params, getCurrentUser());
 
     Group group = form.getGroup();
 
-    if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
+    if (isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, getCurrentUser())) {
       ModelAndView errorView = new ModelAndView("errors/good-penguin");
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу");
       errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group));
@@ -211,14 +211,13 @@ public class AddTopicController {
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
     String image = processUploadImage(request);
 
     Group group = form.getGroup();
 
-    prepareModel(form, params, tmpl.getCurrentUser());
+    prepareModel(form, params, getCurrentUser());
 
     Section section = null;
 
@@ -228,7 +227,7 @@ public class AddTopicController {
 
     User user;
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       if (form.getNick() != null) {
         user = form.getNick();
       } else {
@@ -239,7 +238,7 @@ public class AddTopicController {
         errors.rejectValue("password", null, "Требуется авторизация");
       }
     } else {
-      user = tmpl.getCurrentUser();
+      user = getCurrentUser();
     }
 
     user.checkBlocked(errors);
@@ -267,7 +266,7 @@ public class AddTopicController {
 
     Screenshot scrn = null;
 
-    if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
+    if (section!=null && groupPermissionService.isImagePostingAllowed(section, getCurrentUser())) {
       scrn = processUpload(session, image, errors);
 
       if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
@@ -311,7 +310,7 @@ public class AddTopicController {
       CSRFProtectionService.checkCSRF(request, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && !tmpl.isSessionAuthorized()
+    if (!form.isPreviewMode() && !errors.hasErrors() && !isSessionAuthorized()
       || ipBlockInfo.isCaptchaRequired()) {
       captcha.checkCaptcha(request, errors);
     }

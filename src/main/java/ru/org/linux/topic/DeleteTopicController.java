@@ -28,10 +28,11 @@ import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -58,9 +59,8 @@ public class DeleteTopicController {
     @RequestParam("msgid") int msgid,
     HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -70,7 +70,7 @@ public class DeleteTopicController {
       throw new UserErrorException("Сообщение уже удалено");
     }
 
-    if (!permissionService.isDeletable(msg, tmpl.getCurrentUser())) {
+    if (!permissionService.isDeletable(msg, getCurrentUser())) {
       throw new AccessViolationException("Вы не можете удалить это сообщение");
     }
 
@@ -91,15 +91,14 @@ public class DeleteTopicController {
     @RequestParam(value="bonus", defaultValue = "0") int bonus,
     HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.updateCurrentUser(userDao);
+    // TODO update current user ?
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
 
     user.checkAnonymous();
 
@@ -127,9 +126,8 @@ public class DeleteTopicController {
     HttpServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -139,7 +137,7 @@ public class DeleteTopicController {
 
     ModelAndView mv = new ModelAndView("undelete");
     mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser()));
+    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, request.isSecure(), getCurrentUser()));
 
     return mv;
   }
@@ -149,13 +147,12 @@ public class DeleteTopicController {
     HttpServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.updateCurrentUser(userDao);
+    // TODO tmpl.updateCurrentUser(userDao);
 
     Topic message = messageDao.getById(msgid);
 
@@ -165,7 +162,7 @@ public class DeleteTopicController {
       messageDao.undelete(message);
     }
 
-    logger.info("Восстановлено сообщение " + msgid + " пользователем " + tmpl.getNick());
+    logger.info("Восстановлено сообщение " + msgid + " пользователем " + getNick());
 
     // Undelete msgs from search index
     searchQueueSender.updateMessage(msgid, true);

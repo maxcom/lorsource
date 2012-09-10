@@ -29,9 +29,10 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -57,9 +58,8 @@ public class TopicModificationController {
     ServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 
@@ -79,9 +79,8 @@ public class TopicModificationController {
     @RequestParam(defaultValue="false") boolean sticky,
     @RequestParam(defaultValue="false") boolean notop
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 
@@ -97,7 +96,7 @@ public class TopicModificationController {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkCommit();
 
     Topic msg = messageDao.getById(msgid);
@@ -134,9 +133,8 @@ public class TopicModificationController {
     ServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -158,9 +156,8 @@ public class TopicModificationController {
     @RequestParam int msgid,
     @RequestParam("moveto") int newgr
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 
@@ -172,10 +169,10 @@ public class TopicModificationController {
 
     Group newGrp = groupDao.getGroup(newgr);
 
-    messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
+    messageDao.moveTopic(msg, newGrp, getCurrentUser());
 
     logger.info("topic " + msgid + " moved" +
-            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
+            " by " + getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
 
     return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
   }
@@ -185,9 +182,8 @@ public class TopicModificationController {
     ServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -209,9 +205,8 @@ public class TopicModificationController {
     HttpServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -221,7 +216,7 @@ public class TopicModificationController {
 
     ModelAndView mv = new ModelAndView("uncommit");
     mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser()));
+    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, request.isSecure(), getCurrentUser()));
 
     return mv;
   }
@@ -231,9 +226,8 @@ public class TopicModificationController {
     HttpServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -243,7 +237,7 @@ public class TopicModificationController {
 
     messageDao.uncommit(message);
 
-    logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick());
+    logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + getNick());
 
     return new ModelAndView("action-done", "message", "Подтверждение отменено");
   }

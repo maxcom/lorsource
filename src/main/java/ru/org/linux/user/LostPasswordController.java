@@ -24,9 +24,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.StringUtil;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -60,7 +61,6 @@ public class LostPasswordController {
 
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.POST)
   public ModelAndView sendPassword(@RequestParam("email") String email, HttpServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
     if (Strings.isNullOrEmpty(email)) {
       throw new BadInputException("email не задан");
@@ -74,11 +74,11 @@ public class LostPasswordController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    if (user.isModerator() && !tmpl.isModeratorSession()) {
+    if (user.isModerator() && !isModeratorSession()) {
       throw new AccessViolationException("этот пароль могут сбросить только модераторы");
     }
 
-    if (!tmpl.isModeratorSession() && !userDao.canResetPassword(user)) {
+    if (!isModeratorSession() && !userDao.canResetPassword(user)) {
       throw new AccessViolationException("нельзя запрашивать пароль чаще одного раза в неделю");
     }
 

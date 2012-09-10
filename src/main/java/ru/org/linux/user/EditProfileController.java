@@ -21,19 +21,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
+import ru.org.linux.auth.FileProfileReader;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.DefaultProfile;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.spring.Configuration;
 
 @Controller
 @RequestMapping("/people/{nick}/settings")
 public class EditProfileController {
+
+  @Autowired
+  private Configuration configuration;
+
   private UserDao userDao;
 
   @Autowired
@@ -44,13 +51,12 @@ public class EditProfileController {
   
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    if(!tmpl.getNick().equals(nick)) {
+    if(!getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -66,13 +72,12 @@ public class EditProfileController {
           @RequestParam("messages") int messages,
           @PathVariable String nick
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    if(!tmpl.getNick().equals(nick)) {
+    if(!getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -92,18 +97,18 @@ public class EditProfileController {
       throw new BadInputException("неправльное название темы");
     }
 
-    tmpl.getProf().setTopics(topics);
-    tmpl.getProf().setMessages(messages);
-    tmpl.getProf().setTags(tags);
-    tmpl.getProf().setShowNewFirst("on".equals(request.getParameter("newfirst")));
-    tmpl.getProf().setShowPhotos("on".equals(request.getParameter("photos")));
-    tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hideAdsense")));
-    tmpl.getProf().setShowGalleryOnMain("on".equals(request.getParameter("mainGallery")));
-    tmpl.getProf().setFormatMode(request.getParameter("format_mode"));
-    tmpl.getProf().setStyle(request.getParameter("style")); // TODO убрать как только
-    userDao.setStyle(tmpl.getCurrentUser(), request.getParameter("style"));
+    getProf().setTopics(topics);
+    getProf().setMessages(messages);
+    getProf().setTags(tags);
+    getProf().setShowNewFirst("on".equals(request.getParameter("newfirst")));
+    getProf().setShowPhotos("on".equals(request.getParameter("photos")));
+    getProf().setHideAdsense("on".equals(request.getParameter("hideAdsense")));
+    getProf().setShowGalleryOnMain("on".equals(request.getParameter("mainGallery")));
+    getProf().setFormatMode(request.getParameter("format_mode"));
+    getProf().setStyle(request.getParameter("style")); // TODO убрать как только
+    userDao.setStyle(getCurrentUser(), request.getParameter("style"));
     
-    tmpl.getProf().setShowSocial("on".equals(request.getParameter("showSocial")));
+    getProf().setShowSocial("on".equals(request.getParameter("showSocial")));
 
     String avatar = request.getParameter("avatar");
 
@@ -111,14 +116,16 @@ public class EditProfileController {
       throw new BadInputException("invalid avatar value");
     }
 
-    tmpl.getProf().setAvatarMode(avatar);
+    getProf().setAvatarMode(avatar);
 
-    tmpl.getProf().setThreeColumnsOnMain("on".equals(request.getParameter("3column")));
+    getProf().setThreeColumnsOnMain("on".equals(request.getParameter("3column")));
 
-    tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
-    tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
+    getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
+    getProf().setUseHover("on".equals(request.getParameter("hover")));
 
-    tmpl.writeProfile(nick);
+    new FileProfileReader(configuration).writeProfile(nick, getCurrentProfile());
+
+    // TODO writeProfile(nick);
 
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }

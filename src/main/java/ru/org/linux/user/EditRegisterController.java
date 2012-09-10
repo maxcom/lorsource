@@ -28,11 +28,12 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.site.Template;
 import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -61,14 +62,13 @@ public class EditRegisterController {
       HttpServletRequest request,
       HttpServletResponse response
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-    if(!tmpl.getNick().equals(nick)) {
+    if(!getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     UserInfo userInfo = userDao.getUserInfoClass(user);
 
     ModelAndView mv = new ModelAndView("edit-reg");
@@ -90,13 +90,12 @@ public class EditRegisterController {
       @Valid @ModelAttribute("form") EditRegisterRequest form,
       Errors errors
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    String nick = tmpl.getNick();
+    String nick = getNick();
     String password = Strings.emptyToNull(form.getPassword());
 
     if (password!=null && password.equalsIgnoreCase(nick)) {
@@ -138,7 +137,7 @@ public class EditRegisterController {
     }
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
+    ipBlockDao.checkBlockIP(ipBlockInfo, errors, getCurrentUser());
 
     boolean emailChanged = false;
 

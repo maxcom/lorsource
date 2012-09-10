@@ -31,7 +31,8 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.site.Template;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -68,11 +69,10 @@ public class UserModificationController {
    * @throws Exception если модератора нет
    */
   private static User getModerator(HttpServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
-    return tmpl.getCurrentUser();
+    return getCurrentUser();
   }
 
   /**
@@ -244,13 +244,12 @@ public class UserModificationController {
     ServletRequest request,
     @RequestParam("id") User user
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not autorized");
     }
 
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = getCurrentUser();
 
     if (!currentUser.isModerator() && currentUser.getId()!=user.getId()) {
       throw new AccessViolationException("Not permitted");

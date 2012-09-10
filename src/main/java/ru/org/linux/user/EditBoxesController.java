@@ -21,7 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.Template;
+import static ru.org.linux.auth.AuthUtil.*;
 
 @Controller
 public class EditBoxesController {
@@ -34,6 +34,6 @@ public class EditBoxesController {
   }
 
   protected static boolean getThreeColumns(HttpServletRequest request) {
-    return Template.getTemplate(request).getProf().isThreeColumnsOnMain();
+    return getProf().isThreeColumnsOnMain();
   }
 }

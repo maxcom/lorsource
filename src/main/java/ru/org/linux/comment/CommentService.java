@@ -36,7 +36,6 @@ import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -48,6 +47,8 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
@@ -176,14 +177,12 @@ public class CommentService {
       commentRequest.setMsg("");
     }
 
-    Template tmpl = Template.getTemplate(request);
-
     if (commentRequest.getMode() == null) {
-      commentRequest.setMode(tmpl.getFormatMode());
+      commentRequest.setMode(getFormatMode());
     }
 
     if (!commentRequest.isPreviewMode() &&
-      (!tmpl.isSessionAuthorized() || ipBlockInfo.isCaptchaRequired())) {
+      (!isSessionAuthorized() || ipBlockInfo.isCaptchaRequired())) {
       captcha.checkCaptcha(request, errors);
     }
 
@@ -285,9 +284,7 @@ public class CommentService {
   ) {
     User user;
 
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       if (commentRequest.getNick() != null) {
         user = commentRequest.getNick();
       } else {
@@ -298,7 +295,7 @@ public class CommentService {
         errors.reject(null, "Требуется авторизация");
       }
     } else {
-      user = tmpl.getCurrentUser();
+      user = getCurrentUser();
     }
     return user;
   }

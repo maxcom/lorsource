@@ -29,9 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopTenDao.TopTenMessageDTO;
-import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.topic.TopTenDao;
 
 @Controller

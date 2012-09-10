@@ -20,10 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagCloudDao;
 import ru.org.linux.tag.TagCloudDao.TagDTO;
-import ru.org.linux.user.ProfileProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

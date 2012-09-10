@@ -24,12 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.comment.CommentDao.CommentsListItem;
-import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.ServletParameterException;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,8 +51,6 @@ public class ShowCommentsController {
     HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
     ModelAndView mv = new ModelAndView("show-comments");
 
     int topics = 50;
@@ -89,7 +88,7 @@ public class ShowCommentsController {
 
     mv.getModel().put("list", out);
 
-    if (tmpl.isModeratorSession()) {
+    if (isModeratorSession()) {
       mv.getModel().put("deletedList", commentService.getDeletedComments(user));
     }
 

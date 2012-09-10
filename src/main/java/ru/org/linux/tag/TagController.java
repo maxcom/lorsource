@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicListController;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -129,8 +130,7 @@ public class TagController {
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @RequestParam("tagName") String oldTagName
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
-    if (!template.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
     TagRequest.Change tagRequestChange = new TagRequest.Change();
@@ -158,8 +158,7 @@ public class TagController {
     @ModelAttribute("tagRequestChange") TagRequest.Change tagRequestChange,
     Errors errors
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
-    if (!template.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
 
@@ -170,7 +169,7 @@ public class TagController {
         .append("Тег '")
         .append(tagRequestChange.getOldTagName())
         .append("'изменён пользователем ")
-        .append(template.getNick());
+        .append(getNick());
       logger.info(logStr);
       return redirectToListPage(tagRequestChange.getTagName());
     }
@@ -194,8 +193,7 @@ public class TagController {
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @RequestParam("tagName") String oldTagName
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
-    if (!template.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
     TagRequest.Delete tagRequestDelete = new TagRequest.Delete();
@@ -223,8 +221,7 @@ public class TagController {
     @ModelAttribute("tagRequestDelete") TagRequest.Delete tagRequestDelete,
     Errors errors
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
-    if (!template.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
 
@@ -235,7 +232,7 @@ public class TagController {
         .append("Тег '")
         .append(tagRequestDelete.getOldTagName())
         .append("'удалён пользователем ")
-        .append(template.getNick());
+        .append(getNick());
       logger.info(logStr);
       return redirectToListPage(firstLetter);
     }
@@ -254,7 +251,6 @@ public class TagController {
   private ModelAndView redirectToListPage(String tagName) {
     char firstLetter = tagName.toLowerCase().charAt(0);
     String redirectUrl = TopicListController.tagsUrl(firstLetter);
-    ModelAndView modelAndView = new ModelAndView(new RedirectView(redirectUrl));
-    return modelAndView;
+    return new ModelAndView(new RedirectView(redirectUrl));
   }
 }
