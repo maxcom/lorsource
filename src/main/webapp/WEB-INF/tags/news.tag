@@ -32,78 +32,15 @@
   --%>
 
 <c:set var="topic" value="${preparedMessage.message}"/>
-<c:set var="pages" value="${currentProfile.properties.messages}"/>
-<c:set var="style" value="${currentStyle}" />
-<c:set var="config" value="${configuration}" />
-
-<%
-  Topic topic = (Topic)request.getAttribute("topic");
-  int pages = (Integer)request.getAttribute("pages");
-%>
 
 <c:set var="commentsLinks">
   <c:if test="${topic.commentCount > 0}">
-  <%
-      out.append(" [<a href=\"");
-      out.append(topic.getLink());
-      out.append("\">");
-
-      int stat1 = topic.getCommentCount();
-      out.append(Integer.toString(stat1));
-
-      if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-        out.append("&nbsp;комментариев</a>");
-      } else {
-        switch (stat1 % 10) {
-          case 1:
-            out.append("&nbsp;комментарий</a>");
-            break;
-          case 2:
-          case 3:
-          case 4:
-            out.append("&nbsp;комментария</a>");
-            break;
-          default:
-            out.append("&nbsp;комментариев</a>");
-            break;
-        }
-      }
-
-      if (pages != 1) {
-        int PG_COUNT=3;
-
-        out.append("&nbsp;(стр.");
-        boolean dots = false;
-
-        for (int i = 1; i < pages; i++) {
-          if (pages>PG_COUNT*3 && (i>PG_COUNT && i<pages-PG_COUNT)) {
-            if (!dots) {
-              out.append(" ...");
-              dots = true;
-            }
-
-            continue;
-          }
-
-          out.append(" <a href=\"").append(topic.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
-        }
-
-        out.append(')');
-      }
-      out.append(']');
-  %>
+  [<a href="${topic.link}">${topic.commentCount}&nbsp;<l:commentsWithSuffix stat="${topic.commentCount}" /></a><l:topicPaginator topic="${topic}" topicsPerPage="${currentProfile.properties.messages}" />]
   </c:if>
 </c:set>
 
 <c:if test="${not topic.minor}">
 <article class=news id="topic-${topic.id}">
-<%
-  String url = topic.getUrl();
-  boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
-
-  String image = preparedMessage.getGroup().getImage();
-  Group group = preparedMessage.getGroup();
-%>
 <h2>
   <a href="${fn:escapeXml(topic.link)}"><l:title>${topic.title}</l:title></a>
 </h2>
@@ -120,18 +57,7 @@
 <c:if test="${group.image != null}">
 <div class="entry-userpic">
   <a href="${group.url}">
-  <%
-    Configuration configuration = (Configuration)request.getAttribute("config");
-    String currentStyle = (String)request.getAttribute("style");
-    try {
-      ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + currentStyle + image);
-      out.append("<img src=\"/").append(currentStyle).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (IOException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append(currentStyle).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (BadImageException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append(currentStyle).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-    }
-%>
+  <l:groupImage group="${group}" htmlPath="${configuration.HTMLPathPrefix}" style="${currentStyle}" />
     </a>
 </div>
 </c:if>
@@ -139,25 +65,17 @@
 <div class="entry-body">
 <div class=msg>
   <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+    <lor:image preparedImage="${preparedMessage.image}" topic="${topic}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
-<%
-  if (url != null) {
-    if (url.isEmpty()) {
-      url = topic.getLink();
-    }
-
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(topic.getLinktext()).append("</a>");
-  }
-%>
+  <c:if test="${not empty topic.url}">
+    <p>&gt;&gt;&gt; <a href="${l:escapeHtml(topic.url)}"/>${topic.linktext}</a>
+  </c:if>
 <c:if test="${preparedMessage.image != null}">
-  <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+  <lor:image preparedImage="${preparedMessage.image}" topic="${topic}" showInfo="true"/>
 </c:if>
-<%
-  if (votepoll) {
-      %>
+<c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
             <c:when test="${not topic.commited || preparedMessage.poll.poll.current}">
                 <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${preparedMessage.poll.poll.current}"/>
@@ -170,9 +88,7 @@
         <c:if test="${topic.commited}">
           <p>&gt;&gt;&gt; <a href="${topic.linkLastmod}">Результаты</a>
         </c:if>
-  <%
-  }
-%>
+  </c:if>
   </div>
 <c:if test="${not empty preparedMessage.tags}">
   <l:tags list="${preparedMessage.tags}"/>
@@ -181,10 +97,10 @@
   <div class=sign>
   <c:choose>
     <c:when test="${preparedMessage.section.premoderated and topic.commited}">
-      <lor:sign shortMode="true" postdate="${message.commitDate}" user="${preparedMessage.author}"/>
+      <lor:sign shortMode="true" postdate="${topic.commitDate}" user="${preparedMessage.author}"/>
     </c:when>
     <c:otherwise>
-      <lor:sign shortMode="true" postdate="${message.postdate}" user="${preparedMessage.author}"/>
+      <lor:sign shortMode="true" postdate="${topic.postdate}" user="${preparedMessage.author}"/>
     </c:otherwise>
   </c:choose>
 </div>
