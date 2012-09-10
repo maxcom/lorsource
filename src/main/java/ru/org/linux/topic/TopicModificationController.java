@@ -172,10 +172,9 @@ public class TopicModificationController {
 
     Group newGrp = groupDao.getGroup(newgr);
 
-    messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
-
-    logger.info("topic " + msgid + " moved" +
-            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
+    if (msg.getGroupId()!=newGrp.getId()) {
+      messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
+   }
 
     return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
   }
