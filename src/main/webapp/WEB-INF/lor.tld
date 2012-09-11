@@ -33,6 +33,11 @@
         <function-class>ru.org.linux.topic.TopicListController</function-class>
         <function-signature>java.lang.String tagListUrl(java.lang.String)</function-signature>
     </function>
+    <function>
+        <name>getMonthName</name>
+        <function-class>ru.org.linux.util.DateUtil</function-class>
+        <function-signature>java.lang.String getMonth(int)</function-signature>
+    </function>
 
     <tag>
         <description>Boxlet container</description>

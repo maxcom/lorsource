@@ -48,10 +48,12 @@ public class ConfigurationFilter extends GenericFilterBean implements Initializi
     if(AuthUtil.isSessionAuthorized()) {
       request.getSession().setAttribute("currentStyle", AuthUtil.getCurrentUser().getStyle());
       request.getSession().setAttribute("currentProfile", AuthUtil.getCurrentProfile());
+      request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
       forWikiManipulation(request, (HttpServletResponse)res, AuthUtil.getAuthentication());
     } else {
       request.getSession().setAttribute("currentStyle", "tango");
       request.getSession().setAttribute("currentProfile", Profile.getDefaultProfile());
+      request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
     }
     CSRFManipulation(request, (HttpServletResponse)res);
     chain.doFilter(req, res);

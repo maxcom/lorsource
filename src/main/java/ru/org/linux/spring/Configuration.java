@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.org.linux.group.GroupController;
 import ru.org.linux.site.MemCachedSettings;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +40,8 @@ public class Configuration {
 
   private URI mainURI;
   private URI secureURI;
+
+  private int maxOffset;
 
   /**
    * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
@@ -70,6 +73,7 @@ public class Configuration {
     }
 
     MemCachedSettings.setMainUrl(getMainUrl());
+    maxOffset = GroupController.MAX_OFFSET;
   }
 
   public String getMainUrl() {
@@ -149,5 +153,9 @@ public class Configuration {
       return null;
     }
     return Integer.valueOf(property);
+  }
+
+  public int getMaxOffset() {
+    return maxOffset;
   }
 }

@@ -5,6 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +35,6 @@
 <%--@elvariable id="month" type="java.lang.Integer"--%>
 <%--@elvariable id="url" type="java.lang.String"--%>
 <%--@elvariable id="groupInfo" type="ru.org.linux.group.PreparedGroupInfo"--%>
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <script type="text/javascript">
   <!--
@@ -44,22 +44,9 @@
   -->
 </script>
 
-<%
-    boolean showIgnored = (Boolean) request.getAttribute("showIgnored");
-
-    boolean firstPage = (Boolean) request.getAttribute("firstPage");
-    int offset = (Integer) request.getAttribute("offset");
-
-    Group group = (Group) request.getAttribute("group");
-
-    int topics = tmpl.getProf().getTopics();
-    String url = (String) request.getAttribute("url");
-
-    response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
-%>
 <title>${section.name} - ${group.title}
   <c:if test="${year != null}">
-    - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
+    - Архив ${year}, ${l:getMonthName(month)}
   </c:if>
 </title>
     <LINK REL="alternate" HREF="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
@@ -69,7 +56,7 @@
     <div id="navPath">
       <a href="${group.sectionLink}">${section.name}</a> - ${group.title}
       <c:if test="${year != null}">
-        - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
+        - Архив ${year}, ${l:getMonthName(month)}
       </c:if>
     </div>
 
@@ -112,18 +99,11 @@
 </form>
 
 <h1 class="optional">${section.name}: ${group.title}</h1>
-<%
-  if (group.getImage() != null) {
-    out.print("<div align=center>");
-    try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
-      out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
-    } catch (BadImageException ex) {
-      out.print("[bad image]");
-    }
-    out.print("</div>");
-  }
-%>
+<c:if test="group.image != null">
+<div align=center>
+<l:groupImage group="${group}" htmlPath="${configuration.HTMLPathPrefix}" style="${currentStyle}" />
+</div>
+</c:if>
 <c:if test="${year == null && offset==0}">
   <lor:groupinfo group="${groupInfo}"/>
 </c:if>
@@ -135,14 +115,14 @@
     <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
       фильтр:
       <c:if test="${lastmod}">
-        <input type=hidden name=lastmod value=true>
+        <input type="hidden"" name=lastmod value=true>
       </c:if>
-      <% if (!firstPage) { %>
-        <input type=hidden name=offset value="${offset}">
-      <% } %>
+      <c:if test="firstPage">
+        <input type="hidden" name=offset value="${offset}">
+      </c:if>
         <select name="showignored" onchange="submit();">
-          <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
-          <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
+          <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
+          <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
           </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
     </form>
   </th>
@@ -219,40 +199,40 @@
 <tfoot>
 <tr><td colspan=3><p>
 <div style="float: left">
-<%
-  String urlAdd = showIgnored ?("&amp;showignored=t"):"";
+<c:set var="urlAdd" value="${showIgnored ? '&amp;showignored=t' : ''}" />
 
-  boolean lastmod = (Boolean) request.getAttribute("lastmod");
-  if (lastmod) {
-    urlAdd+="&amp;lastmod=true";
-  }
+<c:if test="${lastmod}">
+<c:set var="urlAdd" value="${urlAdd}&amp;lastmod=true" />
+</c:if>
 
-  if (offset - topics > 0) {
-    out.print("<a rel=prev href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
-  } else if (offset - topics == 0) {
-    out.print("<a rel=prev href=\"" + url + (!urlAdd.isEmpty() ? ('?' + urlAdd.substring(5)) : "") + "\">← назад</a>");
-  }
-%>
+<c:if test="${offset - currentProperties.topics > 0}">
+<c:set var="prevDelta" value="${offset} - ${currentProperties.topics}" />
+<a rel="prev" href="${url}?offset=${prevDelta}${urlAdd}">← назад</a>
+</c:if>
+
+<c:if test="${offset - currentProperties.topics == 0}">
+<a rel="prev" href="${url}${urlAdd}">← назад</a>
+</c:if>
+
 </div>
 <div style="float: right">
-  <c:if test="${count==null && fn:length(topicsList)==template.prof.topics}">
-  <%
-    if ((offset + topics) < GroupController.MAX_OFFSET) {
-      out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
-    }
-  %>
+  <c:set var="nextDelta" value="${offset} + ${currentProperties.topics}" />
+
+  <c:if test="${count==null && fn:length(topicsList) == currentProperties.topics}">
+  <c:if test="${offset + currentProperties.topics < configuration.maxOffset}">
+    <a rel="next" href="${url}?offset=${nextDelta}${urlAdd}">вперед →</a>
+  </c:if>
   </c:if>
 
-  <c:if test="${count!=null && offset+template.prof.topics<count}">
-  <%
-    out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
-  %>
+  <c:if test="${count!=null && offset+currentProperties.topics < count}">
+    <a rel="next" href="${url}?offset=${nextDelta}${urlAdd}">вперед →</a>
   </c:if>
 </div>
 </tfoot>
 </table>
 </div>
-<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
+<sec:authorize access="hasRole('ROLE_ANON_USER')">
+<c:if test="${not lastmod and not showDeleted and year==null}">
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
@@ -261,4 +241,5 @@
   </form>
   <hr>
 </c:if>
+</sec:authorize>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -13,11 +13,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
@@ -31,27 +31,27 @@
 <%@ attribute name="postscoreInfo" required="true" type="java.lang.String" %>
 <form method="POST" action="${form_action_url}" id="commentForm">
   <lor:csrf/>
-  <c:if test="${!template.sessionAuthorized}">
+  <sec:authorize access="not hasRole('ROLE_ANON_USER')">
     <label for="nick">Имя:</label>
     <input id="nick" type='text' name='nick' value="anonymous"><br>
     <label for="password">Пароль:</label>
     <input id="password" type=password name=password><br>
     ${postscoreInfo}
     <br>
-  </c:if>
+  </sec:authorize>
 
   <input type=hidden name=topic value="${topic.id}">
   <c:if test="${replyto != null}">
-    <input type=hidden name=replyto value="<%= replyto %>">
+    <input type=hidden name=replyto value="${replyto}">
   </c:if>
   <c:if test="${original != null}">
     <input type="hidden" name="original" value="${original}">
   </c:if>
-  <c:if test="${template.prof.formatMode == 'ntobr'}">
+  <c:if test="${currentProperties.formatMode == 'ntobr'}">
   <label for="mode">Разметка:*</label><br>
   <select id="mode" name="mode">
-  <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
-  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
+  <option value="quot" <c:if test="${mode == 'quot'}">selected</c:if> >TeX paragraphs w/quoting
+  <option value="ntobr" <c:if test="${mode == 'ntobr'}">selected</c:if> >User line breaks w/quoting
   </select>  <br>
   </c:if>
 
@@ -60,7 +60,7 @@
 
   <label for="msg">Сообщение:</label><br>
 
-  <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
+  <textarea id="msg" required name="msg">${l:escapeHtml(msg)}</textarea><br>
   <font size="2">Пустая строка (два раза Enter) начинает новый абзац.<br>
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
