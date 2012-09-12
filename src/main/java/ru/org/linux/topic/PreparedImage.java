@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import ru.org.linux.gallery.Image;
 import ru.org.linux.util.ImageInfo;
 
 public class PreparedImage {
@@ -24,11 +25,14 @@ public class PreparedImage {
   private final ImageInfo mediumInfo;
   private final ImageInfo fullInfo;
 
-  public PreparedImage(String mediumName, ImageInfo mediumInfo, String fullName, ImageInfo fullInfo) {
+  private final Image image;
+
+  public PreparedImage(String mediumName, ImageInfo mediumInfo, String fullName, ImageInfo fullInfo, Image image) {
     this.mediumName = mediumName;
     this.mediumInfo = mediumInfo;
     this.fullName = fullName;
     this.fullInfo = fullInfo;
+    this.image = image;
   }
 
   public String getMediumName() {
@@ -45,5 +49,9 @@ public class PreparedImage {
 
   public ImageInfo getFullInfo() {
     return fullInfo;
+  }
+
+  public Image getImage() {
+    return image;
   }
 }

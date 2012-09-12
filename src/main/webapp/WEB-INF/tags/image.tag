@@ -15,30 +15,35 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="preparedImage" required="true" type="ru.org.linux.topic.PreparedImage" %>
-<%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="showImage" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="showInfo" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
-<c:if test="${showImage!=null and showImage and preparedImage!=null}">
-  <p <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
-    <a href="${preparedImage.fullName}"itemprop="contentURL">
-      <img itemprop="thumbnail" class="medium-image" src="${preparedImage.mediumName}" alt="<l:title>${topic.title}</l:title>" ${preparedImage.mediumInfo.code}>
-      <meta itemprop="caption" content="${topic.title}">
+<c:if test="${showImage!=null and showImage and preparedMessage.image!=null}">
+  <figure <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
+    <a href="${preparedMessage.image.fullName}"itemprop="contentURL">
+      <img itemprop="thumbnail" class="medium-image" src="${preparedMessage.image.mediumName}" alt="<l:title>${preparedMessage.message.title}</l:title>" ${preparedMessage.image.mediumInfo.code}>
+      <meta itemprop="caption" content="${preparedMessage.message.title}">
+
+      <c:if test="${enableEdit && not preparedMessage.section.imagepost}">
+        <div>
+          <a href="/delete_image?id=${preparedMessage.image.image.id}">удалить изображение</a>
+        </div>
+      </c:if>
     </a>
-  </p>
+  </figure>
 </c:if>
 
 <c:if test="${showInfo!=null and showInfo}">
-  <c:if test="${preparedImage != null}">
+  <c:if test="${preparedMessage.image != null}">
     <p>
-      &gt;&gt;&gt; <a href="${preparedImage.fullName}">Просмотр</a>
-      (<i>${preparedImage.fullInfo.width}x${preparedImage.fullInfo.height},
-        ${preparedImage.fullInfo.sizeString}</i>)
+      &gt;&gt;&gt; <a href="${preparedMessage.image.fullName}">Просмотр</a>
+      (<i>${preparedMessage.image.fullInfo.width}x${preparedMessage.image.fullInfo.height},
+        ${preparedMessage.image.fullInfo.sizeString}</i>)
     </p>
   </c:if>
-  <c:if test="${preparedImage == null}">
+  <c:if test="${preparedMessage.image == null}">
     (BAD IMAGE)
   </c:if>
 </c:if>
-

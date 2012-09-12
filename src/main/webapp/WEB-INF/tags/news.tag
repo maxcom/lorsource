@@ -133,7 +133,7 @@
 <div class="entry-body">
 <div class=msg>
   <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+    <lor:image preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
@@ -147,7 +147,7 @@
   }
 %>
 <c:if test="${preparedMessage.image != null}">
-  <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+  <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
 <%
   if (votepoll) {
