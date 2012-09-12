@@ -15,7 +15,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <meta name = "viewport" content = "initial-scale=1.0">
 </head>
@@ -27,14 +26,15 @@
         <a id="sitetitle" href="/">LINUX.ORG.RU</a>
         <ul class="menu">
           <li id="loginGreating">
-            <c:if test="${template.sessionAuthorized}">
+            <sec:authorize access="hasRole('ROLE_ANON_USER')">
               добро пожаловать,&nbsp;
               <c:url var="userUrl" value="/people/${template.nick}/profile"/>
               <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-              [<a href="logout?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
-            </c:if>
+              [<a href="/logout" title="Выйти">x</a>]
+            </sec:authorize>
 
-            <c:if test="${not template.sessionAuthorized}">
+
+            <sec:authorize access="not hasRole('ROLE_ANON_USER')">
               <div id="regmenu" class="head">
                 <a href="/register.jsp">Регистрация</a> -
                 <a id="loginbutton" href="/login.jsp">Вход</a>
@@ -46,7 +46,7 @@
                 <input type=submit value="Вход">
                 <input id="hide_loginbutton" type="button" value="Отмена">
               </form>
-            </c:if>
+            </sec:authorize>
           </li>
 
           <li><a href="/news/">Новости</a></li>
@@ -55,11 +55,12 @@
           <li><a href="/forum/">Форум</a></li>
           <li><a href="/tracker/">Трекер</a></li>
           <li><a href="/wiki/">Wiki</a></li>
+          <sec:authorize access="hasRole('ROLE_ANON_USER')">
           <c:if test="${template.sessionAuthorized}">
             <li>
               <lor:events/>
             </li>
-          </c:if>
+          </sec:authorize>
 
           <li><a href="/search.jsp">Поиск</a></li>
         </ul>
