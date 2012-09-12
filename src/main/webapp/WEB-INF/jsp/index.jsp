@@ -49,8 +49,8 @@
 <c:set var="columns3" value="false" />
 
 <c:if test="${auth}">
-<c:set var="multiPortal" value="${principal.user.showGalleryOnMain}" />
-<c:set var="columns3" value="${principal.user.threeColumnsOnMain}" />
+<c:set var="multiPortal" value="${currentProfile.showGalleryOnMain}" />
+<c:set var="columns3" value="${currentProfile.threeColumnsOnMain}" />
 
 <c:set var="newsblogClass" value="newsblog" />
 <c:set var="newsblogClassIn" value="newsblog-in" />
