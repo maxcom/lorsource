@@ -16,12 +16,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Конструктор страницы</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Конструктор страницы</h1>
-[<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/people/${template.nick}/settings"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
+<sec:authorize access="hasRole('ROLE_ANON_USER')">
+[<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/people/<sec:authentication property="principal.username" />/settings"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
 <br/>
 <s:form method="post" modelAttribute="form" action="/add-box.jsp">
   <s:errors path="*" cssClass="error"/><br/>
@@ -33,5 +35,6 @@
   <br/>
   <input type=submit value="Добавить">
 </s:form>
+</sec:authorize>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

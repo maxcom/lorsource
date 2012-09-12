@@ -21,7 +21,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Конструктор страницы</h1>
-<sec:authorize access="not hasRole('ROLE_ANON_USER')">
+<sec:authorize access="hasRole('ROLE_ANON_USER')">
 <sec:authentication property="principal" var="principal"/>
 [<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/people/${principal.username}/settings"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
 <br/>
