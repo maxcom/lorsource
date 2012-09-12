@@ -60,8 +60,11 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
+    ModelAndView result = new ModelAndView("edit-profile");
+    result.addObject("styleList", DefaultProfile.getStyleList());
+    result.addObject("avatarList", DefaultProfile.getAvatars());
 
-    return new ModelAndView("edit-profile");
+    return result;
   }
 
   @RequestMapping(method=RequestMethod.POST)
@@ -124,8 +127,6 @@ public class EditProfileController {
     getProf().setUseHover("on".equals(request.getParameter("hover")));
 
     new FileProfileReader(configuration).writeProfile(nick, getCurrentProfile());
-
-    // TODO writeProfile(nick);
 
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
