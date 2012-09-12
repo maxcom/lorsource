@@ -15,10 +15,7 @@
 
 package ru.org.linux.site.tags;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.BadImageException;
@@ -32,7 +29,6 @@ import java.io.IOException;
 /**
  * userpic tag
  */
-@Configurable
 public class UserPic extends TagSupport {
 
   private User author;

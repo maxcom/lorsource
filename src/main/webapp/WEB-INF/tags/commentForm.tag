@@ -66,7 +66,7 @@
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
   <br>
-  <lor:captcha ipBlockInfo="${ipBlockInfo}" />
+  <l:captcha ipBlockInfo="${ipBlockInfo}" />
 
   <input type=submit value="Поместить">
   <input type=submit name=preview value="Предпросмотр">

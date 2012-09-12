@@ -200,7 +200,7 @@ public final class Template {
   }
 
   public String getMainUrlNoSlash() {
-    return configuration.getMainUrl().replaceFirst("/$", "");
+    return configuration.getMainUrlNoSlash();
   }
 
   public String getSecureMainUrl() {

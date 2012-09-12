@@ -38,6 +38,17 @@
         <function-class>ru.org.linux.util.DateUtil</function-class>
         <function-signature>java.lang.String getMonth(int)</function-signature>
     </function>
+    <function>
+        <name>getLinkPage</name>
+        <function-class>ru.org.linux.topic.Topic</function-class>
+        <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic, int)</function-signature>
+    </function>
+    <function>
+        <name>getLink</name>
+        <function-class>ru.org.linux.topic.Topic</function-class>
+        <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic)</function-signature>
+    </function>
+
 
     <tag>
         <description>Boxlet container</description>
@@ -156,6 +167,18 @@
             <name>style</name>
             <required>true</required>
             <type>String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <description>Captcha</description>
+        <name>captcha</name>
+        <tag-class>ru.org.linux.site.tags.Captcha</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>ipBlockInfo</name>
+            <required>false</required>
+            <type>ru.org.linux.auth.IPBlockInfo</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

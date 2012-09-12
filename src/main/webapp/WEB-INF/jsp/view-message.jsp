@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,13 +36,6 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<%
-  int filterMode = (Integer) request.getAttribute("filterMode");
-
-  int npage = (Integer) request.getAttribute("page");
-
-  Topic message = (Topic) request.getAttribute("message");
-%>
 
 <title><l:title>${message.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
 <meta property="og:title" content="<l:title>${message.title}</l:title>" >
@@ -50,15 +44,15 @@
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
 </c:if>
 <c:if test="${not preparedMessage.section.imagepost}">
-  <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.jpg">
+  <meta property="og:image" content="${configuration.mainUrlNoSlash}/img/good-penguin.jpg">
 </c:if>
 <c:if test="${not empty preparedMessage.ogDescription}">
   <meta property="og:description" content="${preparedMessage.ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
+<meta property="og:url" content="${configuration.mainUrlNoSlash}${message.link}">
 
-<link rel="canonical" href="${template.mainUrlNoSlash}<%= message.getLinkPage(npage) %>">
+<link rel="canonical" href="${configuration.mainUrlNoSlash}${l:getLinkPage(message, npage)}">
 
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
@@ -78,9 +72,11 @@
   $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
   -->
 </script>
-<c:if test="${not message.expired and template.sessionAuthorized}">
+<sec:authorize access="not hasRole('ROLE_ANON_USER')">
+<c:if test="${not message.expired}">
 <script src="/js/addComments.js" type="text/javascript"></script>
 </c:if>
+</sec:authorize>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class=messages itemscope itemtype="http://schema.org/Article">
@@ -181,73 +177,67 @@
   <h1 class="optional">Режим показа удаленных комментариев</h1>
 </c:if>
 
-<%
-  int messages = currentProfile.getMessages();
-  int pages = message.getPageCount(messages);
+<c:if test="${pages > 1}">
+    <c:set var="urlAdd" value='' />
+    <c:set var="bufInfo" value='' />
+    <c:set var="filterAdd" value='' />
 
-  String pageInfo = null;
-  if (pages > 1) {
-    StringBuilder bufInfo = new StringBuilder();
+    <c:if test="${not message.expired}">
+        <c:set var="urlAdd" value="?lastmod=${message.lastModified.time}" />
+    </c:if>
 
-    StringBuilder urlAdd = new StringBuilder();
-    if (!message.isExpired()) {
-      urlAdd.append("?lastmod=").append(message.getLastModified().getTime());
-    }
+    <c:if test="${filterMode != defaultFilterMode}">
+        <c:choose>
+            <c:when test="${empty urlAdd}">
+                <c:set var="urlAdd" value="${urlAdd}&" />
+            </c:when>
+            <c:otherwise>
+                <c:set var="urlAdd" value="${urlAdd}?" />
+            </c:otherwise>
+        </c:choose>
+        <c:set var="filterAdd" value="?filter=${filterMode}" />
+        <c:set var="urlAdd" value="${urlAdd}filter=${filterMode}" />
+    </c:if>
+    <c:if test="${npage != -1 and npage != 0}">
+        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${l:getLinkPage(message, npage-1)}${filterAdd}'>←</a>" />
+    </c:if>
+    <c:if test="${npage == -1 or npage == 0}">
+        <c:set var="bufInfo" value="&emsp;<span class='page-number'>←</a>" />
+    </c:if>
 
-    String filterAdd="";
+    <c:forEach var="i" begin="0" end="${pages-1}">
+        <c:set var="bufInfo" value="${bufInfo} " />
+        <c:if test="${i != npage}">
+            <c:if test="${i > 0}">
+                <c:if test="${i == pages-1}">
+                    <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${l:getLinkPage(message, i)}${urlAdd}'" />
+                </c:if>
+                <c:if test="${i != pages-1}">
+                    <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${l:getLinkPage(message, i)}${filterAdd}'" />
+                </c:if>
+            </c:if>
+            <c:if test="${i == 0}">
+                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${l:getLink(message)}${filterAdd}'" />
+            </c:if>
+            <c:set var="bufInfo" value="${bufInfo}>${i + 1}</a>" />
+        </c:if>
+        <c:if test="${i == npage}">
+            <c:set var="bufInfo" value="${bufInfo}<strong class='page-number'>${i + 1}</strong>" />
+        </c:if>
+    </c:forEach>
 
-    if (filterMode!= (Integer) request.getAttribute("defaultFilterMode")) {
-      if (urlAdd.length()>0) {
-        urlAdd.append('&');
-      } else {
-        urlAdd.append('?');
-      }
-
-      filterAdd="?filter="+CommentFilter.toString(filterMode);
-      urlAdd.append("filter=").append(CommentFilter.toString(filterMode));
-    }
-
-    if (npage!=-1 && npage!=0) {
-      bufInfo.append("&emsp;<a class=\"page-number\" href=\"").append(message.getLinkPage(npage-1)).append(filterAdd).append("\">");
-      bufInfo.append('←');
-      bufInfo.append("</a>");
-    } else {
-      bufInfo.append("&emsp;<span  class=\"page-number\">←</span>");
-    }
-
-    for (int i = 0; i < pages; i++) {
-      bufInfo.append(' ');
-
-      if (i != npage) {
-        if (i>0) {
-          if (i==pages-1) {
-            bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLinkPage(i)).append(urlAdd);
-          } else {
-            bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLinkPage(i)).append(filterAdd);
-          }
-        } else {
-          bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLink()).append(filterAdd);
-        }
-
-        bufInfo.append("\">").append(i + 1).append("</a>");
-      } else {
-        bufInfo.append("<strong class=\"page-number\">").append(i + 1).append("</strong>");
-      }
-    }
-
-    if (npage!=-1 && npage+1!=pages) {
-      if (npage+1==pages-1) {
-        bufInfo.append(" <a class=\"page-number\" href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
-      } else {
-        bufInfo.append(" <a class=\"page-number\" href=\"").append(message.getLinkPage(npage+1)).append(filterAdd).append("\">→</a>");
-      }
-    } else {
-      bufInfo.append(" <span class=\"page-number\">→</span>");
-    }
-
-    pageInfo = bufInfo.toString();
-  }
-%>
+    <c:if test="${npage != -1 and npage + 1 != pages}">
+        <c:if test="${npage + 1 == pages - 1}">
+            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${l:getLinkPage(message, npage+1)}${urlAdd}}'>→</a>" />
+        </c:if>
+        <c:if test="${npage + 1 != pages - 1}">
+            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${l:getLinkPage(message, npage+1)}${filterAdd}}'>→</a>" />
+        </c:if>
+    </c:if>
+    <c:if test="${npage == -1 or npage + 1 == pages}">
+        <c:set var="bufInfo" value=" <span class='page-number'>→</a>" />
+    </c:if>
+</c:if>
 
 <lor:message
         messageMenu="${messageMenu}"
@@ -260,14 +250,14 @@
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 1em">
 <%--
-    <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
+    <jsp:include page="/WEB-INF/jsp/${currentStyle}/adsense.jsp"/>
 --%>
     <a rel="nofollow" href="http://selectel.ru/about/promo/core2quad-sale/?utm_source=lor&utm_medium=banner&utm_content=quad50&utm_campaign=sale"><img src="/adv/selectel.png" width="728" height="90" border="0"></a>
   </div>
   <br>
 </c:if>
 
-<c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
+<c:if test="${fn:length(commentsPrepared)>0 and currentProperties.showNewFirst}">
   <div class=nav>
     сообщения отсортированы в порядке убывания даты их написания
   </div>
@@ -275,20 +265,20 @@
 
 <c:if test="${fn:length(commentsPrepared)!=unfilteredCount}">
   <div class=nav>
-    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="<%= message.getLinkPage(npage) %>?filter=show">все</a>.
+    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="${l:getLinkPage(message, npage)}?filter=show">все</a>.
   </div>
 </c:if>
 
 <c:if test="${filterMode!=defaultFilterMode}">
   <div class=nav>
-    Показаны все комментарии. <a href="<%= message.getLinkPage(npage) %>">Скрыть</a> игнорируемые.
+    Показаны все комментарии. <a href="${l:getLinkPage(message, npage)}">Скрыть</a> игнорируемые.
   </div>
 </c:if>
 
-<c:if test="<%= pageInfo!=null %>">
+<c:if test="${not empty bufInfo}">
     <c:if test="${not showDeleted}">
         <div class="nav">
-            <%= pageInfo %>
+            ${bufInfo}
         </div>
     </c:if>
 </c:if>
@@ -298,9 +288,9 @@
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">
-  <c:if test="<%= pageInfo!=null %>">
+  <c:if test="${ not empty bufInfo }">
     <div class="nav">
-      <%= pageInfo %>
+      ${bufInfo}
     </div>
   </c:if>
 
@@ -312,16 +302,17 @@
 <sec:authorize access="hasRole('ROLE_MODERATOR')" var="moderator" />
 <c:if test="${!message.expired || moderator}">
 <hr>
-<form action="${message.link}" method=POST>
+<form action="${message.link}" method="POST">
 <lor:csrf/>
-<input type=hidden name=deleted value=1>
-<input type=submit value="Показать удаленные комментарии">
+<input type="hidden" name="deleted" value="1">
+<input type="submit" value="Показать удаленные комментарии">
 </form>
 <hr>
 </c:if>
 </sec:authorize>
 
-<c:if test="${not message.expired and template.sessionAuthorized}">
+<sec:authorize access="not hasRole('ROLE_ANON_USER')">
+<c:if test="${not message.expired}">
   <div style="display: none">
     <c:url var="form_action_url" value="/add_comment.jsp" />
     <lor:commentForm
@@ -329,11 +320,12 @@
             title=""
             replyto="0"
             cancel="true"
-            mode="${template.formatMode}"
+            mode="${currentProperties.formatMode}"
             ipBlockInfo="${ipBlockInfo}"
             form_action_url="${form_action_url}"
             postscoreInfo="${preparedMessage.postscoreInfo}" />
   </div>
 </c:if>
+</sec:authorize>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

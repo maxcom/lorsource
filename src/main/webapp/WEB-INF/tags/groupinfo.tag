@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +23,7 @@
 <c:if test="${group.longInfo != null}">
   <div class="infoblock">
   ${group.longInfo}
-    <sec:authorize access="hasRole('ROLE_AMODERATOR')">
+    <sec:authorize access="hasRole('ROLE_MODERATOR')">
     <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
     </sec:authorize>
   </div>

@@ -161,7 +161,7 @@
 ${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
      </c:forEach>
 
-  <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
+  <l:captcha ipBlockInfo="${ipBlockInfo}"/>
 <br>
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">

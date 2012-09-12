@@ -56,7 +56,7 @@
         <dd><form:password path="password2" size="40" required="required" cssErrorClass="error"/><form:errors path="password2" element="label" cssClass="error" for="password"/></dd>
 
         <dt><label>Защита от роботов</label></dt>
-        <dd><lor:captcha/></dd>
+        <dd><l:captcha/></dd>
 
         <dt class="button"><label for="rules">С <a href="/rules.jsp" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required" cssErrorClass="error"/><form:errors path="rules" element="label" cssClass="error" for="rules"/></dd></dt>
         <dd class="button"><input type=submit value="Зарегистрироваться"></dd>
