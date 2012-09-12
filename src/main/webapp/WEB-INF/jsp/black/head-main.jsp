@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,15 +61,16 @@
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
-<c:if test="${template.sessionAuthorized}">
-  <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-  добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-  [<a href="logout?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
+<sec:authorize access="hasRole('ROLE_ANON_USER')">
+  <sec:authentication property="principal" var="principal"/>
+  <c:url var="userUrl" value="/people/${principal.username}/profile"/>
+  добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${principal.username}</a>
+  [<a href="/logout" title="Выйти">x</a>]
   <%--<br>--%>
   <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
-</c:if>
+</sec:authorize>
 
-<c:if test="${not template.sessionAuthorized}">
+<sec:authorize access="not hasRole('ROLE_ANON_USER')">
   <div id="regmenu" class="head">
     <a href="/register.jsp">Регистрация</a> -
     <a id="loginbutton" href="/login.jsp">Вход</a>
@@ -82,7 +84,7 @@
     <input type=submit value="Вход">
     <input id="hide_loginbutton" type="button" value="Отмена">
   </form>
-</c:if>
+</sec:authorize>
 </div>
 
 
