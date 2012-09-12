@@ -25,8 +25,8 @@
         <td align="right">
           <sec:authorize access="hasRole('ROLE_ANON_USER')">
             <sec:authentication property="principal" var="principal"/>
-            <c:url var="userUrl" value="/people/${rincipal.username}/profile"/>
-            добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${rincipal.username}</a>
+            <c:url var="userUrl" value="/people/${principal.username}/profile"/>
+            добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${principal.username}</a>
             [<a href="/logout" title="Выйти">x</a>]
           </sec:authorize>
 
