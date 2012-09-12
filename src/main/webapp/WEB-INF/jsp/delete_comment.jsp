@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +18,6 @@
   --%>
 <%--@elvariable id="topic" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
 
@@ -42,7 +42,7 @@
     <tr>
       <td>Причина удаления
       <td>
-        <c:if test="${template.moderatorSession}">
+        <sec:authorize access="hasRole('ROLE_MODERATOR')">
         <select name=reason_select onChange="change(reason,reason_select);">
           <option value="">
           <option value="3.1 Дубль">3.1 Дубль
@@ -67,7 +67,7 @@
           <option value="6.2 Warez">6.2 Warez
           <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
         </select>
-        </c:if>
+        </sec:authorize>
       </td>
     </tr>
     <tr>
@@ -75,12 +75,12 @@
       <td><input type=text name=reason size=40></td>
     </tr>
 
-    <c:if test="${template.moderatorSession}">
+    <sec:authorize access="hasRole('ROLE_MODERATOR')">
     <tr>
       <td>Штраф score (от 0 до 20)</td>
       <td><input type=text name=bonus size=40 value="7"></td>
     </tr>
-    </c:if>
+    </sec:authorize>
   </table>
   <input type=hidden name=msgid value="${msgid}">
   <input type=submit value="Delete/Удалить">

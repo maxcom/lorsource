@@ -1,7 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template"  %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +15,13 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<sec:authorize access="isAuthenticated()" var="auth" />
-
-<c:if test="${auth}">
-<sec:authentication property="principal" var="principal"/>
-<c:set var="style" value="${principal.style}" />
-</c:if>
-
-<c:if test="${!auth}">
-<c:set var="style" value="tango" />
-</c:if>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <html lang=ru>
 <head>
 
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/${style}/style.css" TITLE="Normal">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/${style}/dw-main.css">
+<LINK REL="STYLESHEET" TYPE="text/css" HREF="/${currentStyle}/style.css" TITLE="Normal">
+<LINK REL="STYLESHEET" TYPE="text/css" HREF="/${currentStyle}/dw-main.css">
 <base target="_top">
 </head>
 <body>
