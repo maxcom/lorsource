@@ -372,7 +372,7 @@ div.quote {
     text-decoration: underline !important;
 }
 
-figure[itemprop="associatedMedia"] {
+figure.medium-image {
     float: right;
     margin-left: 1em;
     text-align: center;

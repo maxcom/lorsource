@@ -21,7 +21,7 @@
 <%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:if test="${showImage!=null and showImage and preparedMessage.image!=null}">
-  <figure <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
+  <figure class="medium-image" <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <a href="${preparedMessage.image.fullName}"itemprop="contentURL">
       <img itemprop="thumbnail" class="medium-image" src="${preparedMessage.image.mediumName}" alt="<l:title>${preparedMessage.message.title}</l:title>" ${preparedMessage.image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
