@@ -14,7 +14,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 </div>
 <div id="ft">
@@ -39,7 +38,7 @@
     border="0" height="31" width="88" alt="Рейтинг@Mail.ru"></a>
     <!-- //Rating@Mail.ru logo -->
 </c:if>
-  <c:if test="${template.style == 'tango'}"><br>
+  <c:if test="${currentStyle == 'tango'}"><br>
   <div id="styleswitch">
            Стиль: <a href="javascript: void(0)" id="tango-dark">Dark</a> -
             <a href="javascript: void(0)" id="tango-swamp">Swamp</a>
@@ -55,7 +54,7 @@
   </script>
   </c:if>
 </div>
-
+<sec:authorize access="hasRole('ROLE_ANON_USER')" var="auth" />
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -63,8 +62,8 @@ document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.
 <script type="text/javascript">
 try {
 var pageTracker = _gat._getTracker("UA-2184304-1");
-pageTracker._setCustomVar(1, "Authorized", "${template.sessionAuthorized}");
-pageTracker._setCustomVar(2, "Style", "${template.style}");
+pageTracker._setCustomVar(1, "Authorized", "${auth}");
+pageTracker._setCustomVar(2, "Style", "${currentStyle}");
 
 pageTracker._setSiteSpeedSampleRate(10);
 pageTracker._trackPageview();

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
 <%@ page import="ru.org.linux.topic.TopicTagService"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +18,6 @@
 <%--@elvariable id="message" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
@@ -93,14 +93,14 @@
 
   ${postscoreInfo}<br>
 
-  <c:if test="${not template.sessionAuthorized}">
+  <sec:authorize access="not hasRole('ROLE_ANON_USER')">
     <label>
         Имя:<br> <input type=text required value="anonymous" name="nick" style="width: 40em">
     </label><br>
     <label>
         Пароль:<br> <input type=password name=password style="width: 40em">
     </label><br>
-  </c:if>
+  </sec:authorize>
 
   <form:hidden path="group"/>
   <p>
@@ -127,7 +127,7 @@
       </p>
   </c:if>
 
-<c:if test="${template.prof.formatMode == 'ntobr'}">
+<c:if test="${currentProperties.formatMode == 'ntobr'}">
 <label>Разметка:*<br>
 <form:select path="mode" items="${modes}"/></label><br>
 </c:if>
