@@ -763,6 +763,12 @@ public class TopicDao {
   public void moveTopic(Topic msg, Group newGrp, User moveBy) {
     String url = msg.getUrl();
 
+    int oldId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id=? FOR UPDATE", msg.getId());
+
+    if (oldId==newGrp.getId()) {
+      return;
+    }
+
     boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
@@ -796,6 +802,9 @@ public class TopicDao {
 
       msgbaseDao.appendMessage(msg.getId(), add);
     }
+
+    logger.info("topic " + msg.getId() + " moved" +
+          " by " + moveBy.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
   }
   /**
    * Массовое удаление всех топиков пользователя.

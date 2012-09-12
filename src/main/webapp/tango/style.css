@@ -372,9 +372,10 @@ div.quote {
     text-decoration: underline !important;
 }
 
-img.medium-image {
+figure.medium-image {
     float: right;
     margin-left: 1em;
+    text-align: center;
 }
 
 @media screen and (max-width: 800px) {

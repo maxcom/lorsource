@@ -66,7 +66,7 @@
 <div class="entry-body">
 <div class=msg>
   <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedImage="${preparedMessage.image}" topic="${topic}" showImage="true"/>
+    <lor:image preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
@@ -74,7 +74,7 @@
     <p>&gt;&gt;&gt; <a href="${l:escapeHtml(topic.url)}"/>${topic.linktext}</a>
   </c:if>
 <c:if test="${preparedMessage.image != null}">
-  <lor:image preparedImage="${preparedMessage.image}" topic="${topic}" showInfo="true"/>
+  <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
 <c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
