@@ -50,7 +50,7 @@ document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.
 <script type="text/javascript">
 try {
 var pageTracker = _gat._getTracker("UA-2184304-1");
-<sec:authorize access="not hasRole('ROLE_ANON_USER')" var="auth">
+<sec:authorize access="not hasRole('ROLE_ANON_USER')" var="auth" />
 pageTracker._setCustomVar(1, "Authorized", "${auth}");
 pageTracker._setCustomVar(2, "Style", "${currentStyle}");
 pageTracker._setSiteSpeedSampleRate(10);
