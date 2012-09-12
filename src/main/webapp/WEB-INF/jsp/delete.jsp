@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -15,7 +16,6 @@
   ~    limitations under the License.
   --%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="bonus" type="java.lang.Boolean"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
 
@@ -35,13 +35,13 @@ function change(dest,source)
 <h1>Удаление сообщения</h1>
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
-<form method=POST action="delete.jsp">
+<form method="POST" action="delete.jsp">
 <lor:csrf/>
 <table>
 <tr>
 <td>Причина удаления
 <td>
-<c:if test="${template.moderatorSession}">
+<sec:authorize access="hasRole('ROLE_MODERATOR')">
 <select name=reason_select onChange="change(reason,reason_select);">
 <option value="">
 <option value="3.1 Дубль">3.1 Дубль
@@ -64,17 +64,19 @@ function change(dest,source)
 <option value="6.2 Warez">6.2 Warez
 <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
 </select>
-</c:if>
+</sec:authorize>
 </td>
 <tr><td></td>
 <td><input type=text name=reason size=40></td>
 </tr>
-  <c:if test="${template.moderatorSession and bonus}">
+  <sec:authorize access="hasRole('ROLE_MODERATOR')">
+  <c:if test="${bonus}">
   <tr>
     <td>Штраф score (от 0 до 20)</td>
     <td><input type=text name=bonus size=40 value="7"></td>
   </tr>
-</c:if>
+  </c:if>
+  </sec:authorize>
 
 </table>
 <input type=hidden name=msgid value="${msgid}">

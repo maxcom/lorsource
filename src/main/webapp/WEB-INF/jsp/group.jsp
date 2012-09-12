@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.group.Group,ru.org.linux.group.GroupController,ru.org.linux.site.Template,ru.org.linux.util.BadImageException,ru.org.linux.util.DateUtil"   buffer="200kb"%>
+<%@ page import="ru.org.linux.group.Group,ru.org.linux.group.GroupController,ru.org.linux.util.BadImageException,ru.org.linux.util.DateUtil"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -30,7 +30,6 @@
 <%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="year" type="java.lang.Integer"--%>
 <%--@elvariable id="month" type="java.lang.Integer"--%>
 <%--@elvariable id="url" type="java.lang.String"--%>
@@ -64,9 +63,9 @@
       <ul>
       <li><a href="${group.url}archive/">Архив</a></li>
       <c:if test="${year==null}">
-        <c:if test="${template.moderatorSession}">
+        <sec:authorize access="hasRole('ROLE_MODERATOR')">
           <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
-        </c:if>
+        </sec:authorize>
         <c:if test="${addable}">
           <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
         </c:if>
@@ -146,14 +145,12 @@
 <tr>
   <td>
     <c:if test="${topic.deleted}">
-      <c:choose>
-        <c:when test="${template.moderatorSession}">
+        <sec:authorize access="hasRole('ROLE_MODERATOR')">
           <a href="/undelete.jsp?msgid=${topic.msgid}"><img src="/img/del.png" border="0" alt="[X]" width="15" height="15"></a>
-        </c:when>
-        <c:otherwise>
+        </sec:authorize>
+        <sec:authorize access="not hasRole('ROLE_MODERATOR')">
           <img src="/img/del.png" border="0" alt="[X]" width="15" height="15">
-        </c:otherwise>
-      </c:choose>
+        </sec:authorize>
     </c:if>
     <c:if test="${topic.sticky and not topic.deleted}">
       <img src="/img/paper_clip.gif" width="15" height="15" alt="Прикреплено" title="Прикреплено">
