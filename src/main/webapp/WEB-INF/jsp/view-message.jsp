@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -26,7 +25,6 @@
 <%--@elvariable id="messageMenu" type="ru.org.linux.topic.TopicMenu"--%>
 <%--@elvariable id="prevMessage" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="nextMessage" type="ru.org.linux.topic.Topic"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>

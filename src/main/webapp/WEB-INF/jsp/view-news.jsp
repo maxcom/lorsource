@@ -3,6 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,10 +33,11 @@
     </div>
     <div class="nav-buttons">
       <ul>
-
-      <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
+      <sec:authorize access="hasRole('ROLE_MODERATOR')">
+      <c:if test="${sectionList == null and group!=null}">
         <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
       </c:if>
+      </sec:authorize>
       <c:if test="${sectionList == null and section != null}">
         <c:if test="${section.premoderated}">
           <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
