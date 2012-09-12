@@ -3,6 +3,7 @@
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.Map" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +18,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
@@ -50,7 +50,8 @@ ${status.first ? '' : ', '}
 <ul>
 
   <c:forEach var="tag" items="${tags}">
-    <c:if test="${tag.value != 0 || template.moderatorSession}">
+    <sec:authorize access="hasRole('ROLE_MODERATOR')" var="moderator"> />
+    <c:if test="${tag.value != 0 || moderator}">
       <li>
         <%
           Map.Entry<String, Integer> tag = (Map.Entry<String, Integer>) pageContext.getAttribute("tag");
@@ -67,7 +68,7 @@ ${status.first ? '' : ', '}
         </c:choose>
 
         (${tag.value})
-        <c:if test="${template.moderatorSession}">
+        <sec:authorize access="hasRole('ROLE_MODERATOR')">
           <span class="action-buttons">
               <c:url var="edit_url" value="/tags/change">
                 <c:param name="firstLetter" value="${currentLetter}"/>
@@ -81,7 +82,7 @@ ${status.first ? '' : ', '}
               </c:url>
               [<a href="${delete_url}">Удалить</a>]
           </span>
-        </c:if>
+        </sec:authorize>
       </li>
     </c:if>
   </c:forEach>
