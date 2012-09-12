@@ -28,8 +28,8 @@
           <li id="loginGreating">
             <sec:authorize access="hasRole('ROLE_ANON_USER')">
               добро пожаловать,&nbsp;
-              <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-              <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+              <c:url var="userUrl" value="/people/<sec:authentication property="principal.username" />/profile"/>
+              <a style="text-decoration: none" href="${userUrl}"><sec:authentication property="principal.username" /></a>
               [<a href="/logout" title="Выйти">x</a>]
             </sec:authorize>
 
@@ -56,7 +56,6 @@
           <li><a href="/tracker/">Трекер</a></li>
           <li><a href="/wiki/">Wiki</a></li>
           <sec:authorize access="hasRole('ROLE_ANON_USER')">
-          <c:if test="${template.sessionAuthorized}">
             <li>
               <lor:events/>
             </li>

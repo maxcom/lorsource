@@ -16,6 +16,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +36,7 @@
 
 <c:set var="commentsLinks">
   <c:if test="${topic.commentCount > 0}">
-  [<a href="${topic.link}">${topic.commentCount}&nbsp;<l:commentsWithSuffix stat="${topic.commentCount}" /></a><l:topicPaginator topic="${topic}" topicsPerPage="${currentProfile.properties.messages}" />]
+  [<a href="${topic.link}">${topic.commentCount}&nbsp;<l:commentsWithSuffix stat="${topic.commentCount}" /></a><l:topicPaginator topic="${topic}" topicsPerPage="${currentProperties.messages}" />]
   </c:if>
 </c:set>
 
@@ -108,10 +109,11 @@
 <c:if test="${not moderateMode and messageMenu.commentsAllowed}">
   [<a href="comment-message.jsp?topic=${topic.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
-  <c:if test="${moderateMode and template.sessionAuthorized}">
-    <c:if test="${template.moderatorSession}">
+  <sec:authorize access="hasRole('ROLE_ANON_USER')">
+  <c:if test="${moderateMode}">
+    <sec:authorize access="hasRole('ROLE_MODERATOR')">
       [<a href="commit.jsp?msgid=${topic.id}">Подтвердить</a>]
-    </c:if>
+    </sec:authorize>
 
     <c:if test="${messageMenu.deletable}">
        [<a href="delete.jsp?msgid=${topic.id}">Удалить</a>]
@@ -121,6 +123,7 @@
        [<a href="edit.jsp?msgid=${topic.id}">Править</a>]
     </c:if>
   </c:if>
+  </sec:authorize>
   <c:out value="${commentsLinks}" escapeXml="false"/>
   </div>
   </div>

@@ -41,7 +41,7 @@ public class Captcha extends TagSupport {
       WebApplicationContext ctx =
           WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext());
       ReCaptcha captcha = (ReCaptcha) ctx.getBean("reCaptcha");
-      if(AuthUtil.isSessionAuthorized() || ipBlockInfo != null && ipBlockInfo.isCaptchaRequired()) {
+      if(captcha != null && (!AuthUtil.isSessionAuthorized() || ipBlockInfo != null && ipBlockInfo.isCaptchaRequired())) {
         out
             .append("<p>")
             .append(captcha.createRecaptchaHtml(null, null));

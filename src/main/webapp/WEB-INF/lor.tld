@@ -48,6 +48,11 @@
         <function-class>ru.org.linux.topic.Topic</function-class>
         <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic)</function-signature>
     </function>
+    <function>
+        <name>urlEncode</name>
+        <function-class>java.net.URLEncoder</function-class>
+        <function-signature>java.lang.String encode(java.lang.String, java.lang.String)</function-signature>
+    </function>
 
 
     <tag>
