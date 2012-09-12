@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +19,11 @@
 </head>
 <body bgcolor="#ffffff" text="#000000" link="#0000ee" vlink="#551a8b" ALINK="#ff0000">
 
-<c:if test="${template.sessionAuthorized}">
+<sec:authorize access="hasRole('ROLE_ANON_USER')">
 <div style="float: right">
   [<a href="/logout?sessionId=<%= session.getId() %>">выйти</a>]
 </div>
-</c:if>
+</sec:authorize>
 
 <div align="center">
 <img src="/white/linux_main.gif" border=0 width=469 height=81 alt="Русская Информация об ОС Linux">
