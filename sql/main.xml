@@ -33,5 +33,6 @@
     <include file="sql/updates/2012-08-28-add-imageallowed.xml"/>
     <include file="sql/updates/2012-08-30-add-editminor.xml"/>
     <include file="sql/updates/2012-09-13-add-image-delete.xml"/>
+    <include file="sql/updates/2012-09-13-add-editimage.xml"/>
 
 </databaseChangeLog>
