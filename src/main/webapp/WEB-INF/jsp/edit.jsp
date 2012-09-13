@@ -28,8 +28,7 @@
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="tagsEditable" type="java.lang.Boolean"--%>
-<%--@elvariable id="editable" type="java.lang.Boolean"--%>
+<%--@elvariable id="topicMenu" type="ru.org.linux.topic.TopicMenu"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -49,19 +48,22 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <c:if test="${info!=null}">
   <h1>${info}</h1>
-  <h2>Текущая версия сообщения</h2>
-  <div class=messages>
-    <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
-  </div>
-  <h2>Ваше сообщение</h2>
 </c:if>
 <c:if test="${info==null}">
   <h1>Редактирование</h1>
 </c:if>
 
+<h2>Текущая версия сообщения</h2>
+<div class=messages>
+  <lor:message messageMenu="${topicMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
+</div>
+
+<c:if test="${newPreparedMessage!=null}">
+  <h2>Ваше сообщение</h2>
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
+</c:if>
 
 <form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm">
   <form:errors cssClass="error" path="*" element="div"/>
@@ -71,7 +73,7 @@
     <input type="hidden" name="lastEdit" value="${editInfo.editdate.time}">
   </c:if>
 
-  <c:if test="${editable}">
+  <c:if test="${topicMenu.topicEditable}">
   <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br><br>
 
   <c:if test="${group.pollPostAllowed and template.moderatorSession}">
@@ -97,7 +99,7 @@
     </c:if>
   </c:if>
 
-  <c:if test="${tagsEditable}">
+  <c:if test="${topicMenu.tagsEditable}">
     <label>Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
       <form:input id="tags" path="tags" style="width: 40em"/>
     </label>

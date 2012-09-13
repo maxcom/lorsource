@@ -88,7 +88,7 @@
   </h1>
 
   <c:if test="${preparedMessage.image != null}">
-    <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.editable}"/>
+    <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
 
   <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>

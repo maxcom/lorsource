@@ -283,7 +283,7 @@ public class TopicController {
     params.put("message", topic);
     params.put("preparedMessage", preparedMessage);
 
-    params.put("messageMenu", messagePrepareService.getMessageMenu(preparedMessage, currentUser));
+    params.put("messageMenu", messagePrepareService.getTopicMenu(preparedMessage, currentUser));
 
     if (topic.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);

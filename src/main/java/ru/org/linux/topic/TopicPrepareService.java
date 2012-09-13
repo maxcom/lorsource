@@ -329,7 +329,7 @@ public class TopicPrepareService {
               textMap.get(message.getId()),
               null
       );
-      TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
+      TopicMenu topicMenu = getTopicMenu(preparedMessage, user);
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
 
@@ -369,8 +369,10 @@ public class TopicPrepareService {
     return pm;
   }
 
-  public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
-    boolean editable = currentUser!=null && (groupPermissionService.isEditable(message, currentUser) || groupPermissionService.isTagsEditable(message, currentUser)) ;
+  @Nonnull
+  public TopicMenu getTopicMenu(@Nonnull PreparedTopic message, @Nullable User currentUser) {
+    boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
+    boolean tagsEditable = groupPermissionService.isTagsEditable(message, currentUser);
     boolean resolvable;
     int memoriesId;
     int favsId;
@@ -393,7 +395,8 @@ public class TopicPrepareService {
     }
 
     return new TopicMenu(
-            editable, 
+            topicEditable,
+            tagsEditable,
             resolvable, 
             memoriesId,
             favsId,
