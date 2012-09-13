@@ -40,6 +40,9 @@ public class DeleteImageController {
   private ImageDao imageDao;
 
   @Autowired
+  private ImageService imageService;
+
+  @Autowired
   private TopicDao topicDao;
 
   @Autowired
@@ -92,7 +95,7 @@ public class DeleteImageController {
 
     checkDelete(preparedTopic, tmpl.getCurrentUser());
 
-    imageDao.deleteImage(image);
+    imageService.deleteImage(tmpl.getCurrentUser(), image);
 
     return new RedirectView(topic.getLinkLastmod());
   }
