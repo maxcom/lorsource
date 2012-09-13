@@ -28,6 +28,7 @@ import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -269,6 +270,7 @@ public final class Template {
     }
   }
 
+  @Nullable
   public User getCurrentUser()  {
     if (!isSessionAuthorized()) {
       return null;

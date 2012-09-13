@@ -166,7 +166,7 @@ public class GroupPermissionService {
    * @param by редактор
    * @return true если можно, false если нет
    */
-  public boolean isEditable(PreparedTopic topic, User by) {
+  public boolean isEditable(@Nonnull PreparedTopic topic, @Nullable User by) {
     Topic message = topic.getMessage();
     Section section = topic.getSection();
     User author = topic.getAuthor();
@@ -175,7 +175,7 @@ public class GroupPermissionService {
       return false;
     }
 
-    if (by.isAnonymous() || by.isBlocked()) {
+    if (by==null || by.isAnonymous() || by.isBlocked()) {
       return false;
     }
 
