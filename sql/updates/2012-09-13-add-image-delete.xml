@@ -26,4 +26,13 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="2012091302" author="Maxim Valyanskiy">
+        <sql>
+            GRANT UPDATE ON TABLE images TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE UPDATE ON TABLE images FROM linuxweb;
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>

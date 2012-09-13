@@ -25,7 +25,8 @@
 
 <lor:image preparedMessage="${preparedTopic}" showImage="true" showInfo="false"/>
 
-<form method="POST">
+<form method="POST" action="/delete_image">
+  <lor:csrf/>
   <input type="hidden" name="id" value="${image.id}">
 
   <input type="submit" value="Удалить">

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.site.Template;
@@ -28,6 +29,7 @@ import ru.org.linux.topic.PreparedTopic;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPrepareService;
+import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,6 +48,16 @@ public class DeleteImageController {
   @Autowired
   private GroupPermissionService permissionService;
 
+  private void checkDelete(PreparedTopic topic, User user) throws AccessViolationException {
+    if (!permissionService.isEditable(topic, user)) {
+      throw new AccessViolationException("Вы не можете редактировать эту тему");
+    }
+
+    if (topic.getSection().isImagepost()) {
+      throw new AccessViolationException("В этой теме нельзя удалять изображения");
+    }
+  }
+
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView deleteForm(
           @RequestParam(required = true) int id,
@@ -54,14 +66,10 @@ public class DeleteImageController {
     Template tmpl = Template.getTemplate(request);
 
     Image image = imageDao.getImage(id);
-
     Topic topic = topicDao.getById(image.getTopicId());
-
     PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
 
-    if (!permissionService.isEditable(preparedTopic, tmpl.getCurrentUser())) {
-      throw new AccessViolationException("Вы не можете редактировать эту тему");
-    }
+    checkDelete(preparedTopic, tmpl.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("delete_image");
 
@@ -69,5 +77,23 @@ public class DeleteImageController {
     mv.addObject("preparedTopic", preparedTopic);
 
     return mv;
+  }
+
+  @RequestMapping(method = RequestMethod.POST)
+  public RedirectView deleteImage(
+          @RequestParam(required = true) int id,
+          HttpServletRequest request
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    Image image = imageDao.getImage(id);
+    Topic topic = topicDao.getById(image.getTopicId());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+
+    checkDelete(preparedTopic, tmpl.getCurrentUser());
+
+    imageDao.deleteImage(image);
+
+    return new RedirectView(topic.getLinkLastmod());
   }
 }

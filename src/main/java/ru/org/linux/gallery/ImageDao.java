@@ -96,7 +96,7 @@ public class ImageDao {
   @Nullable
   public Image imageForTopic(@Nonnull Topic topic) {
     List<Image> found = jdbcTemplate.query(
-            "SELECT id, topic, original, icon FROM images WHERE topic=?",
+            "SELECT id, topic, original, icon FROM images WHERE topic=? AND NOT deleted",
             new ImageRowMapper(),
             topic.getId()
     );
@@ -133,5 +133,9 @@ public class ImageDao {
               rs.getString("icon")
       );
     }
+  }
+
+  public void deleteImage(Image image) {
+    jdbcTemplate.update("UPDATE images SET deleted='true' WHERE id=?", image.getId());
   }
 }
