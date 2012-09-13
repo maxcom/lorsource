@@ -60,7 +60,7 @@ public class ImageDao {
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN images ON topics.id = images.topic "+
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section= " + Section.SECTION_GALLERY +
-      " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
+      " AND NOT topics.deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
     return jdbcTemplate.query(sql,
       new RowMapper<GalleryItem>() {
         @Override
