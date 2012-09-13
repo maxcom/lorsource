@@ -34,5 +34,6 @@
     <include file="sql/updates/2012-08-30-add-editminor.xml"/>
     <include file="sql/updates/2012-09-13-add-image-delete.xml"/>
     <include file="sql/updates/2012-09-13-add-editimage.xml"/>
+    <include file="sql/updates/2012-09-13-editinfo-type-notnull.xml"/>
 
 </databaseChangeLog>
