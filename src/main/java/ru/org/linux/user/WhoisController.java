@@ -76,6 +76,8 @@ public class WhoisController {
       Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
+
+      mv.getModel().put("remark", userDao.getRemarkClass(tmpl.getCurrentUser() , user) );
     }
 
     String userinfo = userDao.getUserInfo(user);

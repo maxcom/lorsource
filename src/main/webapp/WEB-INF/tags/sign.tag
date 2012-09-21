@@ -1,3 +1,4 @@
+<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag
         pageEncoding="UTF-8"
 %><%--
@@ -32,3 +33,11 @@
 </c:if>
 
 (<lor:date date="${postdate}"/>)
+<c:if test="${not user.anonymous}">
+  <% 
+  Template tmpl = Template.getTemplate(request);
+  String str = tmpl.getRemark(user.getNick());
+  if(str!=null)out.print("<i>"+str+"</i>");
+  %>
+</c:if>
+

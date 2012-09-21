@@ -27,6 +27,7 @@
 <%--@elvariable id="ignored" type="java.lang.Boolean"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
+<%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
 
 <%
   response.setDateHeader("Expires", System.currentTimeMillis()+120000);
@@ -47,8 +48,10 @@
 <jsp:include page="header.jsp"/>
 
 <h1>Информация о пользователе ${user.nick}</h1>
-<%
-%>
+<c:if test="${template.sessionAuthorized and !currentUser}">
+  <i>Коментарий:${remark.text}</i><br>
+  <a href="/people/${user.nick}/remark/">Изменить</a>
+</c:if>
 <div id="whois_userpic">
   <l:userpic author="${user}"/>
     <div style="clear: both">

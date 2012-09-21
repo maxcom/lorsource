@@ -245,6 +245,20 @@ public final class Template {
       return currentUser.getNick();
     }
   }
+  
+  public String getRemark(String otherUser) {
+    if (!isSessionAuthorized()) {
+      return null;
+    } else {
+      try{
+        Remark rm = userDao.getRemarkClass(currentUser,userDao.getUser(otherUser));
+        if(rm!=null) return rm.getText();
+      } catch (UserNotFoundException ex) {
+        return null;
+      }
+    }
+    return null;
+  }
 
   public static Template getTemplate(ServletRequest request) {
     return (Template) request.getAttribute("template");

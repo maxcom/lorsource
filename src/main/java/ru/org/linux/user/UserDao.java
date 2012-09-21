@@ -569,4 +569,49 @@ public class UserDao {
   public void updateLastlogin(User user) {
     jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
   }
+
+  /**
+   * Получить комментарий пользователя user о ref
+   * @param user logged user
+   * @param ref  user 
+   * @throws SQLException on database failure
+   */
+  public Remark getRemarkClass(User user,User ref) {
+    List<Remark> remarkList = jdbcTemplate.query("SELECT * FROM user_remarks WHERE user_id=? AND ref_user_id=?", new RowMapper<Remark>() {
+      @Override
+      public Remark mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new Remark(resultSet);
+      }
+    }, user.getId(),ref.getId());
+
+    if (remarkList.isEmpty()) {
+      return null;
+    } else {
+      return remarkList.get(0);
+    }
+    //return jdbcTemplate.queryForObject("SELECT * FROM user_remarks WHERE user_id=? AND ref_user_id=?", Remark.class, user.getId(),ref.getId());
+  }
+
+  /**
+   * Сохранить комментарий пользователя user о ref
+   * @param user logged user
+   * @param ref  user 
+   * @param text текст комментария
+   * @throws SQLException on database failure
+   */
+  public void setRemark(User user,User ref,String text) {
+    int rid = jdbcTemplate.queryForInt("select nextval('r_id') as rid");
+    jdbcTemplate.update("INSERT INTO user_remarks (id,user_id,ref_user_id,remark_text) VALUES (?,?,?,?)",rid, user.getId(),ref.getId(),text);
+  }
+  
+  /**
+   * Обновить комментарий пользователя user о ref
+   * @param id id of remark
+   * @param text - комментарий
+   * @throws SQLException on database failure
+   */
+  public void updateRemark(int id,String text) {
+    jdbcTemplate.update("UPDATE user_remarks SET remark_text=? WHERE id=?",text,id);
+  }
+
 }
