@@ -36,7 +36,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.util.Properties;
 
 public final class Template {
@@ -50,8 +49,6 @@ public final class Template {
   private final UserDao userDao;
 
   private User currentUser = null;
-
-  public final DateFormat dateFormat = DateFormats.createDefault();
 
   private final Storage storage;
 
