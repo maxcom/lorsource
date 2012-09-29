@@ -29,12 +29,10 @@
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1 class="optional">Комментарий ${user.nick} ${remark.id} о пользователе ${nick}</h1>
+<h1>Комментарий ${user.nick} ${remark.id} о пользователе ${nick}</h1>
 
 <form method=POST id="remarkForm" action="/people/${nick}/remark">
 <input type=hidden id="rid" name="rid" value="${remark.id}" >
-<input type=hidden id="user" name="user" value="${user.nick}" >
-<input type=hidden id="refuser" name="refuser" value="${nick}" >
 <lor:csrf/>
 <textarea id="text" name="text" cols="60" rows="4">${remark.text}</textarea>
 <br>

@@ -243,16 +243,12 @@ public final class Template {
     }
   }
   
-  public String getRemark(String otherUser) {
+  public String getRemark(User otherUser) {
     if (!isSessionAuthorized()) {
       return null;
     } else {
-      try{
-        Remark rm = userDao.getRemarkClass(currentUser,userDao.getUser(otherUser));
-        if(rm!=null) return rm.getText();
-      } catch (UserNotFoundException ex) {
-        return null;
-      }
+      Remark rm = userDao.getRemark(currentUser,otherUser);
+      if(rm!=null) return rm.getText();
     }
     return null;
   }

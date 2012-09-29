@@ -6,24 +6,22 @@
 
     <changeSet id="2012091801" author="Yury Fedorchenko">
         <createTable tableName="user_remarks">
-            <column name="id" type="integer">
+            <column name="id" type="serial">
 		<constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="integer">
-                <constraints foreignKeyName="user_remarks_userid_fkey" references="users(id)"/>
+                <constraints foreignKeyName="user_remarks_userid_fkey" references="users(id)" nullable="false"/>
             </column>
             <column name="ref_user_id" type="integer">
-                <constraints foreignKeyName="refuser_remarks_userid_fkey" references="users(id)"/>
+                <constraints foreignKeyName="refuser_remarks_userid_fkey" references="users(id)" nullable="false"/>
             </column>
-            <column name="remark_text" type="character varying(255)"/>
+            <column name="remark_text" type="character varying(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
     <changeSet id="2012091802" author="Yury Fedorchenko">
-        <createIndex tableName="user_remarks" indexName="user_remarks_uniq_idx" unique="true">
-            <column name="id"/>
-        </createIndex>
-
         <createIndex tableName="user_remarks" indexName="user_remarks_userid_idx">
             <column name="user_id"/>
         </createIndex>
@@ -43,21 +41,12 @@
     </changeSet>
     <changeSet id="2012091804" author="Yury Fedorchenko">
         <sql>
-           CREATE SEQUENCE r_id 
-           START WITH 1
-           INCREMENT BY 1
-           NO MAXVALUE
-           NO MINVALUE
-           CACHE 1;
-        </sql>
-    </changeSet>
-    <changeSet id="2012091805" author="Yury Fedorchenko">
-        <sql>
-            GRANT ALL ON TABLE public.r_id TO linuxweb;
+            GRANT ALL ON SEQUENCE user_remarks_id_seq TO maxcom;
+            GRANT UPDATE ON SEQUENCE user_remarks_id_seq TO linuxweb;
         </sql>
         <rollback>
-            REVOKE ALL ON TABLE public.r_id FROM linuxweb;
+            REVOKE ALL ON SEQUENCE user_remarks_id_seq FROM maxcom;
+            REVOKE UPDATE ON SEQUENCE user_remarks_id_seq FROM linuxweb;
         </rollback>
     </changeSet>
-
 </databaseChangeLog>

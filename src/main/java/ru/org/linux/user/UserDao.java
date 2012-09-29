@@ -576,7 +576,7 @@ public class UserDao {
    * @param ref  user 
    * @throws SQLException on database failure
    */
-  public Remark getRemarkClass(User user,User ref) {
+  public Remark getRemark(User user,User ref) {
     List<Remark> remarkList = jdbcTemplate.query("SELECT * FROM user_remarks WHERE user_id=? AND ref_user_id=?", new RowMapper<Remark>() {
       @Override
       public Remark mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -600,8 +600,8 @@ public class UserDao {
    * @throws SQLException on database failure
    */
   public void setRemark(User user,User ref,String text) {
-    int rid = jdbcTemplate.queryForInt("select nextval('r_id') as rid");
-    jdbcTemplate.update("INSERT INTO user_remarks (id,user_id,ref_user_id,remark_text) VALUES (?,?,?,?)",rid, user.getId(),ref.getId(),text);
+    jdbcTemplate.update("INSERT INTO user_remarks (user_id,ref_user_id,remark_text) VALUES (?,?,?)", 
+                        user.getId(),ref.getId(),text);
   }
   
   /**

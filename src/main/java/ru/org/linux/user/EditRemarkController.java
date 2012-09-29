@@ -52,9 +52,8 @@ public class EditRemarkController {
     ModelAndView mv = new ModelAndView("edit-remark");
 
     User user = userDao.getUser(nick);
-    mv.getModel().put("user",tmpl.getCurrentUser());
     if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
-      mv.getModel().put("remark", userDao.getRemarkClass(tmpl.getCurrentUser() , user) );
+      mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
     }else{
       throw new AccessViolationException("Not Authorized");
     }
@@ -65,8 +64,6 @@ public class EditRemarkController {
   public ModelAndView editProfile(
           ServletRequest request,
           @RequestParam("rid") String rid,
-          @RequestParam("user") String user_name,
-          @RequestParam("refuser") String ref_user_name,
           @RequestParam("text") String text,
           @PathVariable String nick
   ) throws Exception {
@@ -76,21 +73,16 @@ public class EditRemarkController {
       throw new AccessViolationException("Not authorized");
     }
 
-    if(!tmpl.getNick().equals(user_name)) {
-      throw new AccessViolationException("Not authorized");
-    }
-
     if(text.length()>255){
-      //throw new AccessViolationException("No message to change"+rid);
       text=text.substring(0,255);
     }
     User user = tmpl.getCurrentUser();
-    User ref_user = userDao.getUser(ref_user_name);
-    Remark rm = userDao.getRemarkClass(user,ref_user);
+    User refUser = userDao.getUser(nick);
+    Remark rm = userDao.getRemark(user,refUser);
     if(rm!=null){
       userDao.updateRemark(rm.getId(),text);
     } else {
-      userDao.setRemark(user,ref_user,text);
+      userDao.setRemark(user,refUser,text);
     }
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
