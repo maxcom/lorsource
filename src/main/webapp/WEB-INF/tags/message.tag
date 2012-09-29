@@ -138,23 +138,15 @@
       <c:out value="${preparedMessage.userAgent}" escapeXml="true"/>
     </c:if>
   </c:if>
-  <%
-  if (preparedMessage.getSection().isPremoderated() && message.getCommitby() != 0) {
-    User commiter = preparedMessage.getCommiter();
+  <c:if test="${preparedMessage.section.premoderated and message.commited}">
+    <c:if test="${preparedMessage.commiter != preparedMessage.author}">
+      <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>
 
-    if (commiter.getId()!=message.getUid()) {
-      Timestamp commitDate = message.getCommitDate();
-      DateFormat dateFormat = tmpl.dateFormat;
-      out.append("<br>");
-
-      out.append("Проверено: <a href=\"/people/").append(URLEncoder.encode(commiter.getNick())).append("/profile\">").append(commiter.getNick()).append("</a>");
-
-      if (commitDate !=null && !commitDate.equals(message.getPostdate())) {
-        out.append(" (").append(dateFormat.format(commitDate)).append(")");
-      }
-    }
-  }
-%>
+      <c:if test="${message.commitDate!=null && message.commitDate != message.postdate}">
+        (<lor:date date="${message.commitDate}"/>)
+      </c:if>
+    </c:if>
+  </c:if>
   <c:if test="${template.sessionAuthorized}">
   <%
   if (preparedMessage.getEditCount()>0) {
