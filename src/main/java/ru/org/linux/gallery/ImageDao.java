@@ -60,7 +60,7 @@ public class ImageDao {
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN images ON topics.id = images.topic "+
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section= " + Section.SECTION_GALLERY +
-      " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
+      " AND NOT topics.deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
     return jdbcTemplate.query(sql,
       new RowMapper<GalleryItem>() {
         @Override
@@ -96,22 +96,12 @@ public class ImageDao {
   @Nullable
   public Image imageForTopic(@Nonnull Topic topic) {
     List<Image> found = jdbcTemplate.query(
-            "SELECT id, topic, original, icon FROM images WHERE topic=?",
-            new RowMapper<Image>() {
-              @Override
-              public Image mapRow(ResultSet rs, int i) throws SQLException {
-                return new Image(
-                        rs.getInt("id"),
-                        rs.getInt("topic"),
-                        rs.getString("original"),
-                        rs.getString("icon")
-                );
-              }
-            },
+            "SELECT id, topic, original, icon FROM images WHERE topic=? AND NOT deleted",
+            new ImageRowMapper(),
             topic.getId()
     );
 
-    if (found.size() == 0) {
+    if (found.isEmpty()) {
       return null;
     } else if (found.size() == 1) {
       return found.get(0);
@@ -120,7 +110,32 @@ public class ImageDao {
     }
   }
 
+  @Nonnull
+  public Image getImage(int id) {
+    return jdbcTemplate.queryForObject(
+            "SELECT id, topic, original, icon FROM images WHERE id=?",
+            new ImageRowMapper(),
+            id
+    );
+  }
+
   public void saveImage(int topicId, String original, String icon) {
     jdbcTemplate.update("INSERT INTO images (topic, original, icon) VALUES (?,?,?)", topicId, original, icon);
+  }
+
+  private static class ImageRowMapper implements RowMapper<Image> {
+    @Override
+    public Image mapRow(ResultSet rs, int i) throws SQLException {
+      return new Image(
+              rs.getInt("id"),
+              rs.getInt("topic"),
+              rs.getString("original"),
+              rs.getString("icon")
+      );
+    }
+  }
+
+  public void deleteImage(Image image) {
+    jdbcTemplate.update("UPDATE images SET deleted='true' WHERE id=?", image.getId());
   }
 }

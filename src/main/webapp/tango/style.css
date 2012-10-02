@@ -255,6 +255,7 @@ pre {
     background-color: #2e3436;
     border-radius: 3px;
     border: 1px dashed #777;
+    overflow: auto;
 }
 
 .boxlet {

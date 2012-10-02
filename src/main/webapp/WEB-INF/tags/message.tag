@@ -88,7 +88,7 @@
   </h1>
 
   <c:if test="${preparedMessage.image != null}">
-    <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.editable}"/>
+    <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
 
   <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
@@ -137,15 +137,13 @@
       <c:out value="${preparedMessage.userAgent}" escapeXml="true"/>
     </c:if>
   </sec:authorize>
-  <c:if test="${preparedMessage.section.premoderated and message.commitedby != 0}">
-    <c:set var="commiter" value="${preparedMessage.commiter}" />
-    <c:if test="${commiter.id != message.uid}">
-        <c:set var="commitDate" value="${message.commitDate}" />
-        <br>
-        Проверено: <a href='<c:url value="/people/${l:urlEncode(commiter.nick, 'UTF-8')}/profile" />'>${commiter.nick}</a>
-        <c:if test="${commitDate != null and not commitDate == message.postDate}">
-            ( <fmt:formatDate value="${commitDate}"  type="both" pattern="dd.MM.yyyy hh:mm:ss" /> )
-        </c:if>
+  <c:if test="${preparedMessage.section.premoderated and message.commited}">
+    <c:if test="${preparedMessage.commiter != preparedMessage.author}">
+      <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>
+
+      <c:if test="${message.commitDate!=null && message.commitDate != message.postdate}">
+        (<lor:date date="${message.commitDate}"/>)
+      </c:if>
     </c:if>
   </c:if>
   <sec:authorize access="hasRole('ROLE_ANON_USER')">

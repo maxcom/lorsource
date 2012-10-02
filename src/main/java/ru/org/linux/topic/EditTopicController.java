@@ -74,7 +74,7 @@ public class EditTopicController {
   private TopicDao messageDao;
 
   @Autowired
-  private TopicPrepareService messagePrepareService;
+  private TopicPrepareService prepareService;
 
   @Autowired
   private GroupDao groupDao;
@@ -117,7 +117,7 @@ public class EditTopicController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -145,7 +145,7 @@ public class EditTopicController {
 
     User user = getCurrentUser();
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -155,28 +155,26 @@ public class EditTopicController {
   }
 
   private ModelAndView prepareModel(
-    PreparedTopic preparedMessage,
+    PreparedTopic preparedTopic,
     EditTopicRequest form,
     User currentUser
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    final Topic message = preparedMessage.getMessage();
+    final Topic message = preparedTopic.getMessage();
 
     params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
+    params.put("preparedMessage", preparedTopic);
 
-    Group group = preparedMessage.getGroup();
+    Group group = preparedTopic.getGroup();
     params.put("group", group);
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedTopic.getSection()));
 
     params.put("newMsg", message);
-    params.put("newPreparedMessage", preparedMessage);
 
-    params.put("editable", permissionService.isEditable(preparedMessage, currentUser));
-    boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, currentUser);
-    params.put("tagsEditable", tagsEditable);
+    TopicMenu topicMenu = prepareService.getTopicMenu(preparedTopic, currentUser);
+    params.put("topicMenu", topicMenu);
 
     List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     if (!editInfoList.isEmpty()) {
@@ -196,7 +194,7 @@ public class EditTopicController {
 
     params.put("commit", false);
 
-    if (tagsEditable) {
+    if (topicMenu.isTagsEditable()) {
       params.put("topTags", tagService.getTopTags());
     }
 
@@ -212,11 +210,11 @@ public class EditTopicController {
       form.setMinor(message.isMinor());
     }
 
-    if (!preparedMessage.getTags().isEmpty()) {
-      form.setTags(TagService.toString(preparedMessage.getTags()));
+    if (!preparedTopic.getTags().isEmpty()) {
+      form.setTags(TagService.toString(preparedTopic.getTags()));
     }
 
-    if (preparedMessage.getSection().isPollPostAllowed()) {
+    if (preparedTopic.getSection().isPollPostAllowed()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       form.setPoll(PollVariant.toMap(poll.getVariants()));
@@ -266,29 +264,28 @@ public class EditTopicController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     final Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
-    Group group = preparedMessage.getGroup();
+    PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
+    Group group = preparedTopic.getGroup();
 
     User user = getCurrentUser();
 
-    boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, user);
-    boolean editable = permissionService.isEditable(preparedMessage, user);
+    boolean tagsEditable = permissionService.isTagsEditable(preparedTopic, user);
+    boolean editable = permissionService.isEditable(preparedTopic, user);
 
     if (!editable && !tagsEditable) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
     params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
+    params.put("preparedMessage", preparedTopic);
     params.put("group", group);
-    params.put("tagsEditable", tagsEditable);
-    params.put("editable", editable);
+    params.put("topicMenu", prepareService.getTopicMenu(preparedTopic, getCurrentUser()));
 
     if (tagsEditable) {
       params.put("topTags", tagService.getTopTags());
     }
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedTopic.getSection()));
 
     if (editable) {
       String title = request.getParameter("title");
@@ -322,7 +319,7 @@ public class EditTopicController {
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
+    params.put("commit", !message.isCommited() && preparedTopic.getSection().isPremoderated() && user.isModerator());
 
     Topic newMsg = new Topic(group, message, form);
 
@@ -386,7 +383,7 @@ public class EditTopicController {
 
     Poll newPoll = null;
 
-    if (preparedMessage.getSection().isPollPostAllowed() && form.getPoll() != null && isModeratorSession()) {
+    if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       List<PollVariant> newVariants = new ArrayList<PollVariant>();
@@ -470,7 +467,7 @@ public class EditTopicController {
 
     params.put(
             "newPreparedMessage",
-            messagePrepareService.prepareTopicPreview(
+            prepareService.prepareTopicPreview(
                     newMsg,
                     newTags,
                     newPoll,
