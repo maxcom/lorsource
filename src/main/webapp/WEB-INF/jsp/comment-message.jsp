@@ -18,7 +18,6 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="add" type="ru.org.linux.comment.AddCommentRequest"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

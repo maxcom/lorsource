@@ -24,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.GroupPermissionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.PreparedTopic;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
@@ -32,6 +31,8 @@ import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 @Controller
 @RequestMapping("/delete_image")
@@ -66,13 +67,12 @@ public class DeleteImageController {
           @RequestParam(required = true) int id,
           HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), getCurrentUser());
 
-    checkDelete(preparedTopic, tmpl.getCurrentUser());
+    checkDelete(preparedTopic, getCurrentUser());
 
     ModelAndView mv = new ModelAndView("delete_image");
 
@@ -87,15 +87,14 @@ public class DeleteImageController {
           @RequestParam(required = true) int id,
           HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), getCurrentUser());
 
-    checkDelete(preparedTopic, tmpl.getCurrentUser());
+    checkDelete(preparedTopic, getCurrentUser());
 
-    imageService.deleteImage(tmpl.getCurrentUser(), image);
+    imageService.deleteImage(getCurrentUser(), image);
 
     return new RedirectView(topic.getLinkLastmod());
   }
