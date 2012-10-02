@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import ru.org.linux.user.User;
+import ru.org.linux.user.Remark;
 
 public class PreparedComment {
   private final Comment comment;
@@ -29,11 +30,12 @@ public class PreparedComment {
   private final boolean showLastMod;
   private final boolean deletable;
   private final boolean editable;
+  private final Remark remark;
 
 
   public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
                          Comment reply, int replyPage, String topicPage, boolean showLastMod,
-                         boolean deletable, boolean editable) {
+                         boolean deletable, boolean editable, Remark remark) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
@@ -45,6 +47,7 @@ public class PreparedComment {
     this.showLastMod = showLastMod;
     this.deletable = deletable;
     this.editable = editable;
+    this.remark = remark;
   }
 
   public Comment getComment() {
@@ -101,5 +104,9 @@ public class PreparedComment {
 
   public boolean isEditable() {
     return editable;
+  }
+
+  public Remark getRemark() {
+    return remark;
   }
 }

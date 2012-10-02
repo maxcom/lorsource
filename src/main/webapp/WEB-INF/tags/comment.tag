@@ -2,6 +2,7 @@
 <%@ tag import="ru.org.linux.comment.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.user.User" %>
+<%@ tag import="ru.org.linux.user.Remark" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
@@ -85,6 +86,10 @@
 
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
+
+      <c:if test="${comment.remark != null}">
+        <i>${comment.remark.text}</i>
+      </c:if>
 
       <c:if test="${template.moderatorSession}">
         (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)

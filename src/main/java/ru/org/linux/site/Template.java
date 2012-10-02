@@ -242,16 +242,6 @@ public final class Template {
       return currentUser.getNick();
     }
   }
-  
-  public String getRemark(User otherUser) {
-    if (!isSessionAuthorized()) {
-      return null;
-    } else {
-      Remark rm = userDao.getRemark(currentUser,otherUser);
-      if(rm!=null) return rm.getText();
-    }
-    return null;
-  }
 
   public static Template getTemplate(ServletRequest request) {
     return (Template) request.getAttribute("template");

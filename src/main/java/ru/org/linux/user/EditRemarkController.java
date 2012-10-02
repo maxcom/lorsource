@@ -63,7 +63,6 @@ public class EditRemarkController {
   @RequestMapping(method=RequestMethod.POST)
   public ModelAndView editProfile(
           ServletRequest request,
-          @RequestParam("rid") String rid,
           @RequestParam("text") String text,
           @PathVariable String nick
   ) throws Exception {

@@ -33,11 +33,4 @@
 </c:if>
 
 (<lor:date date="${postdate}"/>)
-<c:if test="${not user.anonymous}">
-  <% 
-  Template tmpl = Template.getTemplate(request);
-  String str = tmpl.getRemark(user);
-  if(str!=null)out.print("<i>"+str+"</i>");
-  %>
-</c:if>
 
