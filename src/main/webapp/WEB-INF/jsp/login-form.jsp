@@ -30,7 +30,6 @@
   <lor:csrf/>
   <label>Имя:<br><input type="text" name="nick" size=40 placeholder="nick или email"></label><br>
   <label>Пароль:<br><input type="password" name="password" size=40></label><br>
-  <input type="checkbox" name="_spring_security_remember_me" style="display:none;" checked>
   <input type="submit" value="Вход">
 </form>
 

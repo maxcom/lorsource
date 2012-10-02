@@ -50,7 +50,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
         <anonymous username="anonymous" granted-authority="ROLE_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="configurationFilter"/>
     </http>
-    <debug/>
+    <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
         <authentication-provider user-service-ref="userDetailsServiceImpl">
             <password-encoder ref="passwordEncoderImpl"/>

@@ -27,12 +27,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
@@ -49,18 +53,25 @@ public class LoginController {
   private UserDetailsServiceImpl userDetailsService;
 
   @Autowired
+  RememberMeServices rememberMeServices;
+
+  @Autowired
   @Qualifier("authenticationManager")
   private AuthenticationManager authenticationManager;
 
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
   @ResponseBody
-  public LoginStatus loginAjax(@RequestParam("nick") final String username, @RequestParam("passwd") final String password) {
+  public LoginStatus loginAjax(
+      @RequestParam("nick") final String username,
+      @RequestParam("passwd") final String password,
+      HttpServletRequest request, HttpServletResponse response) {
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
     try {
       UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
       token.setDetails(details);
       Authentication auth = authenticationManager.authenticate(token);
       SecurityContextHolder.getContext().setAuthentication(auth);
+      rememberMeServices.loginSuccess(request, response, auth);
       return new LoginStatus(auth.isAuthenticated(), auth.getName());
     } catch (LockedException e) {
       return new LoginStatus(false, "User locked");

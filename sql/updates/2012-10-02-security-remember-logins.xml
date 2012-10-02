@@ -35,4 +35,11 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="2012100202" author="hizel">
+        <sql>
+            GRANT ALL ON TABLE persistent_logins TO linuxweb;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

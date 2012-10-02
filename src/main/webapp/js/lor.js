@@ -81,6 +81,7 @@ function jump(link) {
 setInterval(parseHash, 1000);
 
 $(document).ready(function() {
+
   var options = {
     type: "post",
     dataType: "json",
@@ -102,9 +103,6 @@ $(document).ready(function() {
     error: function(response, status) {
         $("#statusMessage").empty();
         $("#statusMessage").append("Ошибка");
-    },
-    beforeSubmit: function(formData, jqForm, options) {
-      formData.push({name:'_spring_security_remember_me', value: 'true'});
     }
   }
 
