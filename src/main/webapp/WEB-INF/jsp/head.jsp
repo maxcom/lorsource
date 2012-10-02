@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +14,20 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+
 <!DOCTYPE html>
 <html lang=ru>
 <head>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/fontello/fontello-2dc47ee2.css">
-<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
+<LINK REL="STYLESHEET" TYPE="text/css" HREF="/common.css">
+<LINK REL="STYLESHEET" TYPE="text/css" HREF="/fontello/fontello-2dc47ee2.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/${currentStyle}/combined.css">
 
-  <c:if test="${template.style=='black' and template.prof.useHover}">
+
+<sec:authorize access="isAuthenticated()">
+  <c:if test="${currentStyle == 'black' and principal.useHover}">
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
   </c:if>
+</sec:authorize>
 
 <!--[if lt IE 9]>
 <script src="/js/html5.js" type="text/javascript"></script>

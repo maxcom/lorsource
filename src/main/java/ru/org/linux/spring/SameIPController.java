@@ -26,8 +26,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.site.Template;
-import ru.org.linux.site.*;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
@@ -38,6 +38,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+
+import static ru.org.linux.auth.AuthUtil.isModeratorSession;
 
 @Controller
 public class SameIPController {
@@ -62,12 +64,11 @@ public class SameIPController {
 
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
-    HttpServletRequest request,
-    @RequestParam(required = false) Integer msgid
+      HttpServletRequest request,
+      @RequestParam(required = false) Integer msgid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 
@@ -79,8 +80,8 @@ public class SameIPController {
 
     if (msgid != null) {
       SqlRowSet rs = jdbcTemplate.queryForRowSet(
-              "SELECT postip, ua_id FROM topics WHERE id=?",
-              msgid
+          "SELECT postip, ua_id FROM topics WHERE id=?",
+          msgid
       );
 
       if (!rs.next()) {
@@ -127,58 +128,58 @@ public class SameIPController {
 
   private List<TopicItem> getTopics(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
-                    "FROM topics, groups, sections, users " +
-                    "WHERE topics.groupid=groups.id " +
-                    "AND sections.id=groups.section " +
-                    "AND users.id=topics.userid " +
-                    "AND topics.postip=?::inet " +
-                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
-            new RowMapper<TopicItem>() {
-              @Override
-              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new TopicItem(rs, false);
-              }
-            },
-            ip
+        "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
+            "FROM topics, groups, sections, users " +
+            "WHERE topics.groupid=groups.id " +
+            "AND sections.id=groups.section " +
+            "AND users.id=topics.userid " +
+            "AND topics.postip=?::inet " +
+            "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
+        new RowMapper<TopicItem>() {
+          @Override
+          public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new TopicItem(rs, false);
+          }
+        },
+        ip
     );
   }
 
   private List<TopicItem> getComments(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
-                    "FROM sections, groups, topics, comments " +
-                    "WHERE sections.id=groups.section " +
-                    "AND groups.id=topics.groupid " +
-                    "AND comments.topic=topics.id " +
-                    "AND comments.postip=?::inet " +
-                    "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
-                    "ORDER BY postdate DESC",
-            new RowMapper<TopicItem>() {
-              @Override
-              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new TopicItem(rs, true);
-              }
-            },
-            ip
+        "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
+            "FROM sections, groups, topics, comments " +
+            "WHERE sections.id=groups.section " +
+            "AND groups.id=topics.groupid " +
+            "AND comments.topic=topics.id " +
+            "AND comments.postip=?::inet " +
+            "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
+            "ORDER BY postdate DESC",
+        new RowMapper<TopicItem>() {
+          @Override
+          public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new TopicItem(rs, true);
+          }
+        },
+        ip
     );
   }
 
   private List<UserItem> getUsers(String ip, final int uaId) {
     return jdbcTemplate.query(
-            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
-                    "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
-                    "JOIN users u ON c.userid = u.id " +
-                    "WHERE c.postip=?::inet " +
-                    "GROUP BY u.nick, c.ua_id, ua.name " +
-                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
-            new RowMapper<UserItem>() {
-              @Override
-              public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new UserItem(rs, uaId);
-              }
-            },
-            ip
+        "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
+            "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
+            "JOIN users u ON c.userid = u.id " +
+            "WHERE c.postip=?::inet " +
+            "GROUP BY u.nick, c.ua_id, ua.name " +
+            "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
+        new RowMapper<UserItem>() {
+          @Override
+          public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new UserItem(rs, uaId);
+          }
+        },
+        ip
     );
   }
 

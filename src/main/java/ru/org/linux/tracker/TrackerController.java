@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -34,6 +33,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.*;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 @Controller
 public class TrackerController {
@@ -57,8 +58,7 @@ public class TrackerController {
 
   @ModelAttribute("filters")
   public static List<TrackerFilterEnum> getFilter(HttpServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
-    if(tmpl.isSessionAuthorized()) {
+    if(isSessionAuthorized()) {
       return Arrays.asList(TrackerFilterEnum.values());
     } else {
       List<TrackerFilterEnum> trackerFilters = new ArrayList<TrackerFilterEnum>();
@@ -131,16 +131,15 @@ public class TrackerController {
     }
     Timestamp dateLimit = new Timestamp(calendar.getTimeInMillis());
 
-    Template tmpl = Template.getTemplate(request);
-    int messages = tmpl.getProf().getMessages();
-    int topics = tmpl.getProf().getTopics();
+    int messages = getProf().getMessages();
+    int topics = getProf().getTopics();
 
     params.put("topics", topics);
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
 
     if (trackerFilter == TrackerFilterEnum.MINE) {
-      if (!tmpl.isSessionAuthorized()) {
+      if (!isSessionAuthorized()) {
         throw new UserErrorException("Not authorized");
       }
       params.put("title", "Последние сообщения (мои темы)");
@@ -149,7 +148,7 @@ public class TrackerController {
     }
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
 
-    if (tmpl.isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
+    if (isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
       params.put("newUsers", userDao.getNewUsers());
       params.put("deleteStats", deleteInfoDao.getRecentStats());
     }

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +16,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <LINK REL="stylesheet" TYPE="text/css" ID="theme" HREF="/tango/tango-dark.css">
-<c:if test="${template.style == 'tango'}">
+
+<c:if test="${currentStyle == 'tango'}">
   <script type="text/javascript">
 	function readCookie(name) {
 		var nameEQ = name + "=";
@@ -45,29 +46,32 @@
 
         <ul class="menu">
           <li id="loginGreating">
-            <c:if test="${template.sessionAuthorized}">
-              <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-              <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-              <a href="logout?sessionId=<%= session.getId() %>" title="Выйти">
+
+            <sec:authorize access="isAuthenticated()">
+            <sec:authentication property="principal" var="principal"/>
+              <c:url var="userUrl" value="/people/${principal.username}/profile"/>
+              <a style="text-decoration: none" href="${userUrl}">${principal.username}</a>
+              <a href="/logout" title="Выйти">
                 <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16"
                      alt="[x]">
               </a>
-            </c:if>
+            </sec:authorize>
 
-            <c:if test="${not template.sessionAuthorized}">
+            <sec:authorize access="isAnonymous()">
               <div id="regmenu" class="head">
-                <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
-                <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
+                <a href="${configuration.secureUrl}register.jsp">Регистрация</a> -
+                <a id="loginbutton" href="${configuration.secureUrl}login.jsp">Вход</a>
               </div>
 
-              <form method=POST action="login.jsp" style="display: none" id="regform">
+              <form method="POST" action="/ajax_login_process" style="display: none" id="regform">
                 <lor:csrf/>
-                <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label><br>
-                <label>Пароль: <input type=password name=passwd size=15></label><br>
-                <input type=submit value="Вход">
-                <input id="hide_loginbutton" type="button" value="Отмена">
+                <span id="statusMessage"></span><br>
+                <label>Имя: <input type="text" name="nick" size="15" placeholder="nick или email"></label><br>
+                <label>Пароль: <input type="password" name="passwd" size=15></label><br>
+                <button type="submit">Вход</button>
+                <button id="hide_loginbutton" type="button">Отмена</button>
               </form>
-            </c:if>
+            </sec:authorize>
           </li>
 
           <li><a href="/news/">Новости</a></li>
@@ -76,11 +80,11 @@
           <li><a href="/forum/">Форум</a></li>
           <li><a href="/tracker/">Трекер</a></li>
           <li><a href="/wiki/">Wiki</a></li>
-          <c:if test="${template.sessionAuthorized}">
+          <sec:authorize access="isAuthenticated()">
             <li>
               <lor:events/>
             </li>
-          </c:if>
+          </sec:authorize>
 
           <li><a href="/search.jsp">Поиск</a></li>
 

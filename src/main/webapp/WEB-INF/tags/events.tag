@@ -12,13 +12,17 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="disable_event_header" type="java.lang.Boolean"--%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ tag pageEncoding="utf-8" %>
-<c:if test="${template.currentUser.unreadEvents > 0 and not disable_event_header}">
-  <a href="notifications">Уведомления (${template.currentUser.unreadEvents})</a>
+
+<sec:authorize access="isAuthenticated()">
+<sec:authentication property="principal" var="principal"/>
+<c:if test="${principal.user.unreadEvents > 0 and not disable_event_header}">
+  <a href="notifications">Уведомления (${principal.user.unreadEvents})</a>
 </c:if>
-<c:if test="${template.currentUser.unreadEvents == 0 || disable_event_header}">
+<c:if test="${principal.user.unreadEvents == 0 || disable_event_header}">
   <a href="notifications">Уведомления</a>
 </c:if>
+</sec:authorize>

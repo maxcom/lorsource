@@ -3,6 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +28,6 @@
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="topicMenu" type="ru.org.linux.topic.TopicMenu"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -76,7 +76,8 @@
   <c:if test="${topicMenu.topicEditable}">
   <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br><br>
 
-  <c:if test="${group.pollPostAllowed and template.moderatorSession}">
+  <sec:authorize access="hasRole('ROLE_MODERATOR')">
+  <c:if test="${group.pollPostAllowed}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
                 <form:input path="poll[${v.key}]" size="40"/></label><br>
@@ -90,6 +91,7 @@
       <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
       <br>
   </c:if>
+  </sec:authorize>
 
   <form:textarea path="msg" style="width: 40em" rows="20"/>
   <br><br>
@@ -111,9 +113,10 @@
     </p>
   </c:if>
 
-  <c:if test="${group.premoderated and template.moderatorSession}">
+  <sec:authorize access="hasRole('ROLE_MODERATOR')">
+  <c:if test="${group.premoderated}">
     <label>Мини-новость: <form:checkbox path="minor"/></label><br>
-  </c:if>
+  </sec:authorize>
 
   <br>
     

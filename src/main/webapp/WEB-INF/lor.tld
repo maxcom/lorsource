@@ -22,6 +22,38 @@
     <tlib-version>1.0</tlib-version>
     <short-name>lor</short-name>
     <uri>http://www.linux.org.ru</uri>
+    
+    <function>
+        <name>escapeHtml</name>
+        <function-class>ru.org.linux.util.StringUtil</function-class>
+        <function-signature>java.lang.String escapeHtml(java.lang.String)</function-signature>
+    </function>
+    <function>
+        <name>tagListUrl</name>
+        <function-class>ru.org.linux.topic.TopicListController</function-class>
+        <function-signature>java.lang.String tagListUrl(java.lang.String)</function-signature>
+    </function>
+    <function>
+        <name>getMonthName</name>
+        <function-class>ru.org.linux.util.DateUtil</function-class>
+        <function-signature>java.lang.String getMonth(int)</function-signature>
+    </function>
+    <function>
+        <name>getLinkPage</name>
+        <function-class>ru.org.linux.topic.Topic</function-class>
+        <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic, int)</function-signature>
+    </function>
+    <function>
+        <name>getLink</name>
+        <function-class>ru.org.linux.topic.Topic</function-class>
+        <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic)</function-signature>
+    </function>
+    <function>
+        <name>urlEncode</name>
+        <function-class>java.net.URLEncoder</function-class>
+        <function-signature>java.lang.String encode(java.lang.String, java.lang.String)</function-signature>
+    </function>
+
 
     <tag>
         <description>Boxlet container</description>
@@ -70,6 +102,12 @@
             <type>ru.org.linux.user.User</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>htmlPath</name>
+            <required>true</required>
+            <type>String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
     <tag>
         <description>Tags</description>
@@ -83,4 +121,71 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <description>Comments with suffix</description>
+        <name>commentsWithSuffix</name>
+        <tag-class>ru.org.linux.site.tags.CommentsWithSuffix</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>stat</name>
+            <required>true</required>
+            <type>int</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <description>Topic paginator</description>
+        <name>topicPaginator</name>
+        <tag-class>ru.org.linux.site.tags.TopicPaginator</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>topic</name>
+            <required>true</required>
+            <type>ru.org.linux.topic.Topic</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>topicsPerPage</name>
+            <required>true</required>
+            <type>int</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <description>Group image</description>
+        <name>groupImage</name>
+        <tag-class>ru.org.linux.site.tags.GroupImage</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>group</name>
+            <required>true</required>
+            <type>ru.org.linux.group.Group</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>htmlPath</name>
+            <required>true</required>
+            <type>String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>style</name>
+            <required>true</required>
+            <type>String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <description>Captcha</description>
+        <name>captcha</name>
+        <tag-class>ru.org.linux.site.tags.Captcha</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>ipBlockInfo</name>
+            <required>false</required>
+            <type>ru.org.linux.auth.IPBlockInfo</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
 </taglib>

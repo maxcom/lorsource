@@ -27,9 +27,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -55,13 +56,12 @@ public class UserFilterController {
     @RequestParam(value = "newFavoriteTagName", required = false) String newFavoriteTagName,
     @RequestParam(value = "newIgnoredTagName", required = false) String newIgnoredTagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     ModelAndView modelAndView = new ModelAndView("user-filter-list");
@@ -69,7 +69,7 @@ public class UserFilterController {
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
     modelAndView.addObject("ignoreList", ignoreMap);
     modelAndView.addObject("favoriteTags", userTagService.favoritesGet(user));
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       modelAndView.addObject("ignoreTags", userTagService.ignoresGet(user));
     } else {
       modelAndView.addObject("isModerator", true);
@@ -105,13 +105,12 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String nick
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     User addUser = userDao.getUser(nick);
@@ -135,13 +134,12 @@ public class UserFilterController {
     ServletRequest request,
     @RequestParam int id
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     User delUser = userDao.getUser(id);
@@ -164,13 +162,12 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     List<String> r = userTagService.addMultiplyTags(user, tagName, true);
@@ -198,13 +195,12 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     try {
@@ -230,13 +226,12 @@ public class UserFilterController {
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     userTagService.favoriteDel(user, tagName);
@@ -260,13 +255,11 @@ public class UserFilterController {
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     int tagId = userTagService.favoriteDel(user, tagName);
@@ -287,16 +280,14 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-    if (tmpl.isModeratorSession()) {
+    if (isModeratorSession()) {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
@@ -325,16 +316,14 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-    if (tmpl.isModeratorSession()) {
+    if (isModeratorSession()) {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
@@ -359,17 +348,16 @@ public class UserFilterController {
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (tmpl.isModeratorSession()) {
+    if (isModeratorSession()) {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     userTagService.ignoreDel(user, tagName);
@@ -393,17 +381,15 @@ public class UserFilterController {
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (tmpl.isModeratorSession()) {
+    if (isModeratorSession()) {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
     user.checkAnonymous();
 
     userTagService.ignoreDel(user, tagName);

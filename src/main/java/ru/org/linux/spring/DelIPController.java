@@ -24,11 +24,12 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentService;
-import ru.org.linux.site.Template;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
@@ -65,9 +66,7 @@ public class DelIPController {
                             ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
 
@@ -87,7 +86,7 @@ public class DelIPController {
     Timestamp ts = new Timestamp(calendar.getTimeInMillis());
     params.put("message", "Удаляем темы и сообщения после "+ts.toString()+" с IP "+ip+"<br>");
 
-    User moderator = tmpl.getCurrentUser();
+    User moderator = getCurrentUser();
 
     DeleteCommentResult deleteResult = commentService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 

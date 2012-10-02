@@ -21,16 +21,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.*;
 import ru.org.linux.util.bbcode.LorCodeService;
+import static ru.org.linux.auth.AuthUtil.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,15 +51,18 @@ public class CommentPrepareService {
   @Autowired
   private TopicPermissionService topicPermissionService;
 
+  @Autowired
+  private Configuration configuration;
+
   private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss,
-                                         Template tmpl, Topic topic) throws UserNotFoundException {
+                                         Topic topic) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-    return prepareComment(messageText, comment, comments, secure, rss, tmpl, topic);
+    return prepareComment(messageText, comment, comments, secure, rss, topic);
   }
 
 
   private PreparedComment prepareComment(MessageText messageText, Comment comment, CommentList comments,
-                                         boolean secure, boolean rss, Template tmpl, Topic topic) throws UserNotFoundException {
+                                         boolean secure, boolean rss, Topic topic) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
 
@@ -86,12 +87,12 @@ public class CommentPrepareService {
 
         if (replyNode!=null) {
           reply = replyNode.getComment();
-          if(tmpl != null) {
-            replyPage = comments.getCommentPage(reply, tmpl);
+          if(getProf() != null) {
+            replyPage = comments.getCommentPage(reply, getProf().getMessages(), getProf().isShowNewFirst());
           }
           replyAuthor = userDao.getUserCached(reply.getUserid());
           if(topic != null) {
-            showLastMod = (tmpl != null && !topic.isExpired() && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1);
+            showLastMod = (getProf() != null && !topic.isExpired() && replyPage==topic.getPageCount(getProf().getMessages())-1);
             topicPage = topic.getLinkPage(replyPage);
           }
         }
@@ -100,14 +101,14 @@ public class CommentPrepareService {
 
       haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
 
-      if(tmpl != null && topic != null) {
-        final boolean authored = author.getNick().equals(tmpl.getNick());
+      if(getProf() != null && topic != null) {
+        final boolean authored = author.getNick().equals(getNick());
         final long currentTimestamp = comment.getPostdate().getTime();
 
-        final User currentUser = tmpl.getCurrentUser();
-        final Configuration config = tmpl.getConfig();
+        final User currentUser = getCurrentUser();
+
         deletable = topicPermissionService.isCommentDeletableNow(
-            tmpl.isModeratorSession(),
+            isModeratorSession(),
             topic.isExpired(),
             authored,
             haveAnswers,
@@ -116,14 +117,14 @@ public class CommentPrepareService {
 
         if(currentUser != null) {
           editable = topicPermissionService.isCommentEditableNow(
-              tmpl.isModeratorSession(),
-              config.isModeratorAllowedToEditComments(),
-              config.isCommentEditingAllowedIfAnswersExists(),
-              config.getCommentScoreValueForEditing(),
+              isModeratorSession(),
+              configuration.isModeratorAllowedToEditComments(),
+              configuration.isCommentEditingAllowedIfAnswersExists(),
+              configuration.getCommentScoreValueForEditing(),
               currentUser.getScore(),
               authored,
               haveAnswers,
-              tmpl.getConfig().getCommentExpireMinutesForEdit(),
+              configuration.getCommentExpireMinutesForEdit(),
               currentTimestamp
               );
         }
@@ -135,7 +136,7 @@ public class CommentPrepareService {
   }
 
   public PreparedComment prepareCommentForReplayto(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, null, secure, false, null, null);
+    return prepareComment(comment, null, secure, false, null);
   }
 
   /**
@@ -169,13 +170,13 @@ public class CommentPrepareService {
   public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure, true, null, null));
+      commentsPrepared.add(prepareComment(comment, comments, secure, true, null));
     }
     return commentsPrepared;
   }
 
   public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure,
-                                                  Template tmpl, Topic topic) throws UserNotFoundException {
+                                                  Topic topic) throws UserNotFoundException {
     if (list.isEmpty()) {
       return ImmutableList.of();
     }
@@ -195,7 +196,7 @@ public class CommentPrepareService {
     for (Comment comment : list) {
       MessageText text = texts.get(comment.getId());
 
-      commentsPrepared.add(prepareComment(text, comment, comments, secure, false, tmpl, topic));
+      commentsPrepared.add(prepareComment(text, comment, comments, secure, false, topic));
     }
     return commentsPrepared;
   }

@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -25,10 +26,13 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.FileProfileReader;
 import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.validators.EditBoxesRequestValidator;
 import ru.org.linux.storage.StorageException;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -40,14 +44,17 @@ import java.util.Set;
 @Controller
 @SessionAttributes("allboxes")
 public class AddRemoveBoxesController {
+  @Autowired
+  private Configuration configuration;
+
+
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
   public ModelMap showRemove(@RequestParam String tag,
                              @RequestParam(required = false) Integer pos,
                              ServletRequest request)
     throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -63,9 +70,8 @@ public class AddRemoveBoxesController {
   public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                          SessionStatus status, HttpServletRequest request)
     throws Exception {
-    Template t = Template.getTemplate(request);
 
-    if (!t.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -80,13 +86,13 @@ public class AddRemoveBoxesController {
     }
 
     String objectName = getObjectName(form, request);
-    List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
+    List<String> boxlets = new ArrayList<String>(getProf().getList(objectName));
 
     if (!boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
         boxlets.remove(form.position.intValue());
-        t.getProf().setList(objectName, boxlets);
-        t.writeProfile(t.getProfileName());
+        getProf().setList(objectName, boxlets);
+        new FileProfileReader(configuration).writeProfile(getNick(), getCurrentProfile());
       }
     }
     
@@ -113,8 +119,6 @@ public class AddRemoveBoxesController {
     if (result.hasErrors()) {
       return "add-box";
     }
-    Template t = Template.getTemplate(request);
-
     if (result.hasErrors()) {
       return "add-box";
     }
@@ -124,7 +128,7 @@ public class AddRemoveBoxesController {
     }
 
     String objectName = getObjectName(form, request);
-    List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
+    List<String> boxlets = new ArrayList<String>(getProf().getList(objectName));
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
 
@@ -134,9 +138,8 @@ public class AddRemoveBoxesController {
       boxlets.add(form.boxName);
     }
     
-    t.getProf().setList(objectName, boxlets);
-    t.writeProfile(t.getProfileName());
-
+    getProf().setList(objectName, boxlets);
+    new FileProfileReader(configuration).writeProfile(getNick(), getCurrentProfile());
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
   }

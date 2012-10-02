@@ -19,10 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Template;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.tag.TagCloudDao;
 import ru.org.linux.tag.TagCloudDao.TagDTO;
-import ru.org.linux.user.ProfileProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -35,8 +34,7 @@ public class TagCloudBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    ProfileProperties profile = Template.getTemplate(request).getProf();
-    final int i = profile.getTags();
+    final int i = AuthUtil.getProf().getTags();
 
     List<TagDTO> list = tagDao.getTags(i);
     ModelAndView mav = new ModelAndView("boxlets/tagcloud", "tags", list);

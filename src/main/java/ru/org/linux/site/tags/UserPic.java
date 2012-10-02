@@ -15,7 +15,8 @@
 
 package ru.org.linux.site.tags;
 
-import ru.org.linux.site.Template;
+import ru.org.linux.auth.AuthUtil;
+import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -29,19 +30,25 @@ import java.io.IOException;
  * userpic tag
  */
 public class UserPic extends TagSupport {
+
   private User author;
+  private String htmlPath;
 
   public void setAuthor(User author) {
     this.author = author;
   }
 
+  public void setHtmlPath(String htmlPath) {
+    this.htmlPath = htmlPath;
+  }
+
   @Override
   public int doStartTag() throws JspException {
-    Template tmpl = Template.getTemplate(pageContext.getRequest());
+    ProfileProperties properties = AuthUtil.getProf();
     JspWriter out = pageContext.getOut();
     if (author.getPhoto() != null) {
       try {
-        ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
+        ImageInfo info = new ImageInfo( htmlPath + "/photos/" + author.getPhoto());
 
         out
             .append("<div class=\"userpic\">")
@@ -60,7 +67,7 @@ public class UserPic extends TagSupport {
       }
     } else {
       if (author.hasGravatar()) {
-        String avatarStyle = tmpl.getProf().getAvatarMode();
+        String avatarStyle = properties.getAvatarMode();
 
         try {
           out

@@ -35,9 +35,9 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
         <context:exclude-filter type="regex" expression=".*Test.*"/>
     </context:component-scan>
-    
+
     <context:annotation-config/>
-    <cache:annotation-driven />
+    <cache:annotation-driven/>
 
     <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
           name="properties">
@@ -152,14 +152,15 @@
 
     <task:annotation-driven/>
 
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache"/>
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+          p:cache-manager-ref="ehcache"/>
 
     <!-- Ehcache library setup -->
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
 
-     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-         <property name="locateExistingServerIfPossible" value="true"/>
-     </bean>
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+        <property name="locateExistingServerIfPossible" value="true"/>
+    </bean>
 
     <bean class="net.sf.ehcache.management.ManagementService" init-method="init">
         <constructor-arg ref="ehcache"/>

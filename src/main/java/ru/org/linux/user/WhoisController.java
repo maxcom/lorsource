@@ -23,10 +23,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.util.bbcode.LorCodeService;
 
-import javax.servlet.ServletRequest;
+import static ru.org.linux.auth.AuthUtil.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Set;
@@ -46,12 +48,11 @@ public class WhoisController {
   UserTagService userTagService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     User user = userDao.getUser(nick);
 
-    if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
+    if (user.isBlocked() && !isSessionAuthorized()) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user));
     }
 
@@ -67,13 +68,13 @@ public class WhoisController {
       mv.getModel().put("userStat", userDao.getUserStatisticsClass(user));
     }
 
-    boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
+    boolean currentUser = isSessionAuthorized() && getNick().equals(nick);
 
-    mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
+    mv.getModel().put("moderatorOrCurrentUser", currentUser || isModeratorSession());
     mv.getModel().put("currentUser", currentUser);
 
-    if (tmpl.isSessionAuthorized() && !currentUser) {
-      Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
+    if (isSessionAuthorized() && !currentUser) {
+      Set<Integer> ignoreList = ignoreListDao.get(getCurrentUser());
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
     }
@@ -82,17 +83,16 @@ public class WhoisController {
     mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure()));
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user));
-    if (currentUser || tmpl.isModeratorSession()) {
+    if (currentUser || isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
+    response.setDateHeader("Expires", System.currentTimeMillis()+120000);
     return mv;
   }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
-  public ModelAndView wipe(@PathVariable String nick, ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isModeratorSession()) {
+  public ModelAndView wipe(@PathVariable String nick) throws Exception {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("not moderator");
     }
 

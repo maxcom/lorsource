@@ -81,19 +81,28 @@ function jump(link) {
 setInterval(parseHash, 1000);
 
 $(document).ready(function() {
+
   var options = {
-    success: function(xml) {
-      if ($(xml).find("error").length) {
-        alert($(xml).find("error").text());
-        window.location="/login.jsp";
-      } else if ($(xml).find("ok").length) {
+    type: "post",
+    dataType: "json",
+    success: function(response, status) {
+      if(response.loggedIn) {
         window.location.reload();
+      } else {
+        $("#statusMessage").empty();
+        $("#statusMessage").append("Ошибка:" + response.username);
+        $('#regform :text').each(function() {
+          $(this).addClass("error");
+        });
+        $('#regform :password').each(function() {
+          $(this).addClass("error");
+        });
       }
+
     },
-    dataType: "xml",
-    error: function (xhr) {
-      alert('Error!  Status = ' + xhr.status);
-      window.location="/login.jsp";
+    error: function(response, status) {
+        $("#statusMessage").empty();
+        $("#statusMessage").append("Ошибка");
     }
   }
 

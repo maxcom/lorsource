@@ -89,6 +89,18 @@ public class User implements Serializable {
     style = rs.getString("style");
   }
 
+  /**
+   * для jsp
+   * @return CORRECTOR_SCORE
+   */
+  public int getCorrectorScore() {
+    return CORRECTOR_SCORE;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
   public int getId() {
     return id;
   }

@@ -4,6 +4,8 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
+<%@ tag import="ru.org.linux.user.ProfileProperties" %>
+<%@ tag import="ru.org.linux.spring.Configuration" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -14,6 +16,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,85 +31,24 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<c:set var="message" value="${preparedMessage.message}"/>
 
-<%
-  Template tmpl = Template.getTemplate(request);
-  Topic message = preparedMessage.getMessage();
-  int pages = message.getPageCount(tmpl.getProf().getMessages());
-%>
+<c:set var="topic" value="${preparedMessage.message}"/>
 
 <c:set var="commentsLinks">
-  <c:if test="${message.commentCount > 0}">
-  <%
-      out.append(" [<a href=\"");
-      out.append(message.getLink());
-      out.append("\">");
-
-      int stat1 = message.getCommentCount();
-      out.append(Integer.toString(stat1));
-
-      if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-        out.append("&nbsp;комментариев</a>");
-      } else {
-        switch (stat1 % 10) {
-          case 1:
-            out.append("&nbsp;комментарий</a>");
-            break;
-          case 2:
-          case 3:
-          case 4:
-            out.append("&nbsp;комментария</a>");
-            break;
-          default:
-            out.append("&nbsp;комментариев</a>");
-            break;
-        }
-      }
-
-      if (pages != 1) {
-        int PG_COUNT=3;
-
-        out.append("&nbsp;(стр.");
-        boolean dots = false;
-
-        for (int i = 1; i < pages; i++) {
-          if (pages>PG_COUNT*3 && (i>PG_COUNT && i<pages-PG_COUNT)) {
-            if (!dots) {
-              out.append(" ...");
-              dots = true;
-            }
-
-            continue;
-          }
-
-          out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
-        }
-
-        out.append(')');
-      }
-      out.append(']');
-  %>
+  <c:if test="${topic.commentCount > 0}">
+  [<a href="${topic.link}">${topic.commentCount}&nbsp;<l:commentsWithSuffix stat="${topic.commentCount}" /></a><l:topicPaginator topic="${topic}" topicsPerPage="${currentProperties.messages}" />]
   </c:if>
 </c:set>
 
-<c:if test="${not message.minor}">
-<article class=news id="topic-${message.id}">
-<%
-  String url = message.getUrl();
-  boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
-
-  String image = preparedMessage.getGroup().getImage();
-  Group group = preparedMessage.getGroup();
-%>
+<c:if test="${not topic.minor}">
+<article class=news id="topic-${topic.id}">
 <h2>
-  <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
+  <a href="${fn:escapeXml(topic.link)}"><l:title>${topic.title}</l:title></a>
 </h2>
 <c:if test="${multiPortal}">
   <div class="group">
     ${preparedMessage.section.title} - ${preparedMessage.group.title}
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    <c:if test="${not topic.commited and preparedMessage.section.premoderated}">
       (не подтверждено)
     </c:if>
   </div>
@@ -116,16 +58,7 @@
 <c:if test="${group.image != null}">
 <div class="entry-userpic">
   <a href="${group.url}">
-  <%
-    try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + image);
-      out.append("<img src=\"/").append(tmpl.getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (IOException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (BadImageException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-    }
-%>
+  <l:groupImage group="${group}" htmlPath="${configuration.HTMLPathPrefix}" style="${currentStyle}" />
     </a>
 </div>
 </c:if>
@@ -137,23 +70,15 @@
   </c:if>
   
   ${preparedMessage.processedMessage}
-<%
-  if (url != null) {
-    if (url.isEmpty()) {
-      url = message.getLink();
-    }
-
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
-  }
-%>
+  <c:if test="${not empty topic.url}">
+    <p>&gt;&gt;&gt; <a href="${l:escapeHtml(topic.url)}"/>${topic.linktext}</a>
+  </c:if>
 <c:if test="${preparedMessage.image != null}">
   <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
-<%
-  if (votepoll) {
-      %>
+<c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
-            <c:when test="${not message.commited || preparedMessage.poll.poll.current}">
+            <c:when test="${not topic.commited || preparedMessage.poll.poll.current}">
                 <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${preparedMessage.poll.poll.current}"/>
             </c:when>
             <c:otherwise>
@@ -161,12 +86,10 @@
             </c:otherwise>
         </c:choose>
 
-        <c:if test="${message.commited}">
-          <p>&gt;&gt;&gt; <a href="${message.linkLastmod}">Результаты</a>
+        <c:if test="${topic.commited}">
+          <p>&gt;&gt;&gt; <a href="${topic.linkLastmod}">Результаты</a>
         </c:if>
-  <%
-  }
-%>
+  </c:if>
   </div>
 <c:if test="${not empty preparedMessage.tags}">
   <l:tags list="${preparedMessage.tags}"/>
@@ -174,44 +97,46 @@
 
   <div class=sign>
   <c:choose>
-    <c:when test="${preparedMessage.section.premoderated and message.commited}">
-      <lor:sign shortMode="true" postdate="${message.commitDate}" user="${preparedMessage.author}"/>
+    <c:when test="${preparedMessage.section.premoderated and topic.commited}">
+      <lor:sign shortMode="true" postdate="${topic.commitDate}" user="${preparedMessage.author}"/>
     </c:when>
     <c:otherwise>
-      <lor:sign shortMode="true" postdate="${message.postdate}" user="${preparedMessage.author}"/>
+      <lor:sign shortMode="true" postdate="${topic.postdate}" user="${preparedMessage.author}"/>
     </c:otherwise>
   </c:choose>
 </div>
 <div class="nav">
 <c:if test="${not moderateMode and messageMenu.commentsAllowed}">
-  [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
+  [<a href="comment-message.jsp?topic=${topic.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
-  <c:if test="${moderateMode and template.sessionAuthorized}">
-    <c:if test="${template.moderatorSession}">
-      [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
-    </c:if>
+  <sec:authorize access="hasRole('ROLE_ANON_USER')">
+  <c:if test="${moderateMode}">
+    <sec:authorize access="hasRole('ROLE_MODERATOR')">
+      [<a href="commit.jsp?msgid=${topic.id}">Подтвердить</a>]
+    </sec:authorize>
 
     <c:if test="${messageMenu.deletable}">
-       [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
+       [<a href="delete.jsp?msgid=${topic.id}">Удалить</a>]
     </c:if>
 
     <c:if test="${messageMenu.editable}">
-       [<a href="edit.jsp?msgid=${message.id}">Править</a>]
+       [<a href="edit.jsp?msgid=${topic.id}">Править</a>]
     </c:if>
   </c:if>
+  </sec:authorize>
   <c:out value="${commentsLinks}" escapeXml="false"/>
   </div>
   </div>
 </article>
 </c:if>
 
-<c:if test="${message.minor}">
-<article class="infoblock mini-news" id="topic-${message.id}">
+<c:if test="${topic.minor}">
+<article class="infoblock mini-news" id="topic-${topic.id}">
 Мини-новость:
-  <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
+  <a href="${fn:escapeXml(topic.link)}"><l:title>${topic.title}</l:title></a>
 
 <c:if test="${multiPortal}">
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    <c:if test="${not topic.commited and preparedMessage.section.premoderated}">
       (не подтверждено)
     </c:if>
 </c:if>

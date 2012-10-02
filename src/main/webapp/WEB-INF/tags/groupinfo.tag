@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ tag import="ru.org.linux.site.Template" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
   --%>
 <%@ tag pageEncoding="utf-8" %>
 <%@ attribute name="group" required="true" type="ru.org.linux.group.PreparedGroupInfo" %>
-<% Template tmpl = Template.getTemplate(request); %>
 <c:if test="${group.info != null}">
   <p style="margin-top: 0"><em>${group.info}</em></p>
 </c:if>
@@ -24,9 +23,9 @@
 <c:if test="${group.longInfo != null}">
   <div class="infoblock">
   ${group.longInfo}
-    <% if (tmpl.isModeratorSession()) { %>
+    <sec:authorize access="hasRole('ROLE_MODERATOR')">
     <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
-    <% } %>
+    </sec:authorize>
   </div>
 </c:if>
 

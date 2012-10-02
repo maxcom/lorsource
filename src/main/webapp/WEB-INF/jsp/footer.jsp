@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +15,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 </div>
 <footer id="ft">
 
@@ -22,10 +22,10 @@
   <a href="/about">О Сервере</a> -
   <a href="/rules.jsp">Правила форума</a><br>
   <c:if test="${not pageContext.request.secure}">
-    <a href="${template.mainUrl}">${template.mainUrl}</a>
+    <a href="${configuration.mainUrl}">${configuration.mainUrl}</a>
   </c:if>
   <c:if test="${pageContext.request.secure}">
-    <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
+    <a href="${configuration.secureUrl}">${configuration.secureUrl}</a>
   </c:if>
 
 </p>
@@ -50,8 +50,9 @@ document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.
 <script type="text/javascript">
 try {
 var pageTracker = _gat._getTracker("UA-2184304-1");
-pageTracker._setCustomVar(1, "Authorized", "${template.sessionAuthorized}");
-pageTracker._setCustomVar(2, "Style", "${template.style}");
+<sec:authorize access="not hasRole('ROLE_ANON_USER')" var="auth" />
+pageTracker._setCustomVar(1, "Authorized", "${auth}");
+pageTracker._setCustomVar(2, "Style", "${currentStyle}");
 pageTracker._setSiteSpeedSampleRate(10);
 pageTracker._trackPageview();
 } catch(err) {}</script>

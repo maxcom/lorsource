@@ -27,10 +27,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import java.io.File;
@@ -50,9 +51,8 @@ public class AddPhotoController {
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -61,9 +61,8 @@ public class AddPhotoController {
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
   public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -79,7 +78,7 @@ public class AddPhotoController {
       Userpic.checkUserpic(uploadedFile);
       String extension = ImageInfo.detectImageType(uploadedFile);
 
-      User user = tmpl.getCurrentUser();
+      User user = getCurrentUser();
       user.checkAnonymous();
 
       Random random = new Random();

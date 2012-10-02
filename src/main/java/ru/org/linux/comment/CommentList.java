@@ -17,7 +17,6 @@ package ru.org.linux.comment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.org.linux.site.Template;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 
@@ -85,13 +84,6 @@ public class CommentList implements Serializable {
     } else {
       return index/messages;
     }
-  }
-
-  public int getCommentPage(Comment comment, Template tmpl) {
-    int messages = tmpl.getProf().getMessages();
-    boolean reverse = tmpl.getProf().isShowNewFirst();
-
-    return getCommentPage(comment, messages, reverse);
   }
 
   public static Set<Integer> makeHideSet(UserDao userDao, CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {

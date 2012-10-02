@@ -400,6 +400,14 @@ public class Topic implements Serializable {
     }
   }
 
+  public static String getLinkPage(Topic topic, int page) {
+    return topic.getLinkPage(page);
+  }
+
+  public static String getLinkPage(Topic topic) {
+    return topic.getLink();
+  }
+
   public String getLinkPage(int page) {
     if (page == 0) {
       return getLink();

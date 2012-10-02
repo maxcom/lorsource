@@ -1,6 +1,5 @@
 <%@ tag import="ru.org.linux.comment.Comment" %>
 <%@ tag import="ru.org.linux.comment.CommentNode" %>
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
@@ -29,6 +28,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!-- ${comment.comment.messageId}  -->
 <article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
@@ -71,8 +71,8 @@
 
   &nbsp;</div>
 
-  <c:if test="${template.prof.showPhotos}">
-    <l:userpic author="${comment.author}"/>
+  <c:if test="${currentProperties.showPhotos}">
+    <l:userpic author="${comment.author}" htmlPath="${configuration.HTMLPathPrefix}" />
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
@@ -86,9 +86,9 @@
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
 
-      <c:if test="${template.moderatorSession}">
+      <sec:authorize access="hasRole('ROLE_MODERATOR')">
         (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
-      </c:if>
+      </sec:authorize>
 
       <c:if test="${comment.comment.editCount != 0}">
         <span class="sign_more">
@@ -98,12 +98,12 @@
         </span>
       </c:if>
 
-      <c:if test="${template.moderatorSession}">
+      <sec:authorize access="hasRole('ROLE_MODERATOR')">
         <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
         </c:if>
-      </c:if>
+      </sec:authorize>
     </div>
 
   <c:if test="${not comment.comment.deleted and showMenu}">

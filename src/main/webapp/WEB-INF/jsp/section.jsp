@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +18,6 @@
   --%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
@@ -67,17 +67,17 @@
 
 </ul>
 
-<c:if test="${not template.sessionAuthorized}">
+<sec:authorize access="not hasRole('ROLE_ANON_USER')">
 <p>Если вы еще не зарегистрировались - вам <a href="/register.jsp">сюда</a>.</p>
-</c:if>
-<c:if test="${template.sessionAuthorized}">
+</sec:authorize>
+<sec:authorize access="hasRole('ROLE_ANON_USER')">
 <h1>Настройки</h1>
 <ul>
 <li><a href="addphoto.jsp">Добавить фотографию</a>
-<li><a href="/people/${template.nick}/edit">Изменение регистрации</a>
+<li><a href="/people/<sec:authentication property="principal.username" />/edit">Изменение регистрации</a>
 <li><a href="lostpwd.jsp">Получить забытый пароль</a>
-<li><a href="/people/${template.nick}/settings">Персональные настройки сайта</a>
+<li><a href="/people/<sec:authentication property="principal.username" />/settings">Персональные настройки сайта</a>
 </ul>
-</c:if>
+</sec:authorize>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

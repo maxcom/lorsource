@@ -31,7 +31,6 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.User;
@@ -39,6 +38,8 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -90,12 +91,10 @@ public class AddCommentController {
       throw new ServletParameterException("тема на задана");
     }
 
-    Template tmpl = Template.getTemplate(request);
-
     Map<String, Object> params = new HashMap<String, Object>();
 
     if (add.getMode() == null) {
-      add.setMode(tmpl.getFormatMode());
+      add.setMode(getFormatMode());
     }
 
     commentService.prepareReplyto(add, params, request);
@@ -118,16 +117,15 @@ public class AddCommentController {
     @ModelAttribute("add") @Valid CommentRequest add,
     HttpServletRequest request
   ) {
-    Template tmpl = Template.getTemplate(request);
 
     if (add.getMode() == null) {
-      add.setMode(tmpl.getFormatMode());
+      add.setMode(getFormatMode());
     }
 
     ModelAndView modelAndView = new ModelAndView(
       "comment-message",
       "preparedMessage",
-      messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser())
+      messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), getCurrentUser())
     );
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());

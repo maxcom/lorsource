@@ -1,6 +1,5 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page import="ru.org.linux.site.Template" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,16 +16,14 @@
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.tracker.TrackerItem>"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="ftm" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
 <title>${title}</title>
@@ -83,11 +80,12 @@
           <c:if test="${msg.resolved}">
             <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15/>
           </c:if>
-          <% if (tmpl.getProf().isShowNewFirst()) { %>
+          <c:if test="${currentProperties.showNewFirst}">
           <a href="${msg.urlReverse}">
-                <% } else { %>
-            <a href="${msg.url}">
-              <% } %>
+          </c:if>
+          <c:if test="${not currentProperties.showNewFirst}">
+          <a href="${msg.url}">
+          </c:if>
               <c:forEach var="tag" items="${msg.tags}">
                 <span class="tag">${tag}</span>
               </c:forEach>
@@ -180,7 +178,7 @@
               <td><c:out escapeXml="true" value="${stat.reason}"/></td>
               <td>${stat.count}</td>
               <td>${stat.sum}</td>
-              <td><ftm:formatNumber value="${stat.avg}" maxFractionDigits="2"/></td>
+              <td><fmt:formatNumber value="${stat.avg}" maxFractionDigits="2"/></td>
           </tr>
       </c:forEach>
   </table>

@@ -27,7 +27,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -95,8 +96,7 @@ public class UserEventController {
     @RequestParam(value = "offset", defaultValue = "0") int offset,
     @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("not authorized");
     }
 
@@ -108,7 +108,7 @@ public class UserEventController {
       eventFilter = UserEventFilterEnum.ALL;
     }
 
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = getCurrentUser();
     String nick = currentUser.getNick();
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -125,7 +125,7 @@ public class UserEventController {
     }
 
     boolean firstPage = offset == 0;
-    int topics = tmpl.getProf().getTopics();
+    int topics = getProf().getTopics();
 
     if (topics > 200) {
       topics = 200;
@@ -150,7 +150,7 @@ public class UserEventController {
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userEventService.resetUnreadReplies(currentUser);
-      tmpl.updateCurrentUser(userDao);
+      // TODO tmpl.updateCurrentUser(userDao);
     } else {
       params.put("enableReset", true);
     }
@@ -169,23 +169,22 @@ public class UserEventController {
     @RequestParam(value = "offset", defaultValue = "0") int offset,
     @ModelAttribute("notifications") Action action
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
     boolean feedRequested = request.getParameterMap().containsKey("output");
 
     if (nick == null) {
-      if (tmpl.isSessionAuthorized()) {
+      if (isSessionAuthorized()) {
         return new ModelAndView(new RedirectView("/notifications"));
       }
       throw new AccessViolationException("not authorized");
     } else {
       User.checkNick(nick);
-      if (!tmpl.isSessionAuthorized() && !feedRequested) {
+      if (!isSessionAuthorized() && !feedRequested) {
         throw new AccessViolationException("not authorized");
       }
-      if (tmpl.isSessionAuthorized() && nick.equals(tmpl.getCurrentUser().getNick()) && !feedRequested) {
+      if (isSessionAuthorized() && nick.equals(getCurrentUser().getNick()) && !feedRequested) {
         return new ModelAndView(new RedirectView("/notifications"));
       }
-      if (!feedRequested && !tmpl.isModeratorSession()) {
+      if (!feedRequested && !isModeratorSession()) {
         throw new AccessViolationException("нельзя смотреть чужие уведомления");
       }
     }
@@ -198,7 +197,7 @@ public class UserEventController {
     }
 
     boolean firstPage = offset == 0;
-    int topics = tmpl.getProf().getTopics();
+    int topics = getProf().getTopics();
     if (feedRequested) {
       topics = 50;
     }
@@ -218,9 +217,9 @@ public class UserEventController {
 
     User user = userDao.getUser(nick);
 
-    boolean showPrivate = tmpl.isModeratorSession();
+    boolean showPrivate = isModeratorSession();
 
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = getCurrentUser();
     params.put("currentUser", currentUser);
 
     if (currentUser != null && currentUser.getId() == user.getId()) {

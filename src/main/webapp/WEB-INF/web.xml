@@ -13,12 +13,15 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   -->
-<web-app
-        version="2.5"
-        xmlns="http://java.sun.com/xml/ns/javaee"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
+<!DOCTYPE web-app PUBLIC
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app version="2.5"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
     <display-name>linux.org.ru</display-name>
     <resource-ref>
         <description>Primary JDBC source</description>
@@ -26,6 +29,13 @@
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            /WEB-INF/springapp-security.xml
+            /WEB-INF/applicationContext.xml
+        </param-value>
+    </context-param>
     <filter>
         <filter-name>UrlRewriteFilter</filter-name>
         <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
@@ -35,13 +45,16 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <filter>
-        <filter-name>Template</filter-name>
-        <filter-class>ru.org.linux.site.TemplateFilter</filter-class>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>
+            org.springframework.web.filter.DelegatingFilterProxy
+        </filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>Template</filter-name>
+        <filter-name>springSecurityFilterChain</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
     <error-page>
         <error-code>404</error-code>
         <location>/WEB-INF/jsp/errors/code404.jsp</location>
@@ -70,16 +83,16 @@
     </servlet>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/ExceptionResolver</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/ExceptionResolver</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-     <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/view-section.jsp</url-pattern>
     </servlet-mapping>
@@ -120,7 +133,7 @@
         <url-pattern>*.boxlet</url-pattern>
     </servlet-mapping>
 
-        <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/whois.jsp</url-pattern>
     </servlet-mapping>
@@ -164,7 +177,7 @@
         <servlet-name>springapp</servlet-name>
         <url-pattern>/delete.jsp</url-pattern>
     </servlet-mapping>
-     <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/addphoto.jsp</url-pattern>
     </servlet-mapping>
@@ -230,56 +243,56 @@
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/view-all.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/view-all.jsp</url-pattern>
     </servlet-mapping>
-     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/undelete.jsp</url-pattern>
+    <servlet-mapping>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/undelete.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/view-vote.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/view-vote.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/jump-message.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/jump-message.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/setpostscore.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/setpostscore.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/show-comments.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/show-comments.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/sameip.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/sameip.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/view-news-archive.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/view-news-archive.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/mtn.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/mtn.jsp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/mt.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/mt.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/memories.jsp</url-pattern>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/memories.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

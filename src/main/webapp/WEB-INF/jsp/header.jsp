@@ -15,7 +15,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 <script src="/js/lor.js" type="text/javascript"></script>
@@ -28,16 +28,14 @@
 </c:if>
 
 <c:if test="${pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.secureMainUrl)}">
+  <base href="${fn:escapeXml(configuration.secureUrl)}">
 </c:if>
 
 <c:if test="${not pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.mainUrl)}">
+  <base href="${fn:escapeXml(configuration.mainUrl)}">
 </c:if>
 
-<c:if test="${template != null}">
-<jsp:include page="${template.style}/head.jsp"/>
-</c:if>
+<jsp:include page="${currentStyle}/head.jsp"/>
 
 <c:if test="${not pageContext.request.secure}">
     <!-- Rating@Mail.ru counter -->

@@ -21,7 +21,8 @@ import java.util.Calendar;
 import javax.servlet.ServletRequest;
 
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -49,13 +50,12 @@ public class SearchControlController {
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=all")
   public ModelAndView reindexAll(ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.getCurrentUser().checkDelete();
+    getCurrentUser().checkDelete();
 
     Timestamp startDate = messageDao.getTimeFirstTopic();
 
@@ -77,13 +77,11 @@ public class SearchControlController {
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=current")
   public ModelAndView reindexCurrentMonth(ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.getCurrentUser().checkDelete();
+    getCurrentUser().checkDelete();
 
     Calendar current = Calendar.getInstance();
 

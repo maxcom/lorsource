@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template"  %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +15,19 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<%
-  Template tmpl = Template.getTemplate(request);
-%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <html lang=ru>
 <head>
 
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
+<LINK REL="STYLESHEET" TYPE="text/css" HREF="/${currentStyle}/style.css" TITLE="Normal">
+<LINK REL="STYLESHEET" TYPE="text/css" HREF="/${currentStyle}/dw-main.css">
 <base target="_top">
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td><marquee behavior="scroll" direction="up" height="<%= 400 %>" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
+        <td><marquee behavior="scroll" direction="up" height="400" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
           <script type="text/javascript" language="Javascript">
 
       var site_id = 40;

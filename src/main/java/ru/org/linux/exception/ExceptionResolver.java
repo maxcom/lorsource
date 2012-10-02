@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.StringUtil;
@@ -153,13 +152,10 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     }
     text.append("\n\n");
 
-    Template tmpl = Template.getTemplate(request);
 //    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
     String mainUrl = "<unknown>";
 
-    if (tmpl!=null) {
-      mainUrl = tmpl.getMainUrl();
-    }
+    mainUrl = configuration.getMainUrl();
 
     text.append("Main URL: ").append(mainUrl).append(request.getServletPath());
 
@@ -168,7 +164,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     }
     text.append('\n');
 
-    text.append("IP: " + request.getRemoteAddr() + '\n');
+    text.append("IP: ").append(request.getRemoteAddr()).append('\n');
 
     text.append(" Headers: ");
     Enumeration enu = request.getHeaderNames();

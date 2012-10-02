@@ -22,15 +22,15 @@
 
 <h1>Вход</h1>
 
-<c:if test="${error!=null}">
-    <div class=error>Ошибка: ${error}</div>
+<c:if test="${not empty param.login_error}">
+    <div class=error>Ошибка: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/></div>
 </c:if>
 
-<form method=POST action="login.jsp">
+<form method="POST" action="<c:url value='/login_process'/>">
   <lor:csrf/>
-  <label>Имя:<br><input type=text name=nick size=40 placeholder="nick или email"></label><br>
-  <label>Пароль:<br><input type=password name=passwd size=40></label><br>
-  <input type=submit value="Вход">
+  <label>Имя:<br><input type="text" name="nick" size=40 placeholder="nick или email"></label><br>
+  <label>Пароль:<br><input type="password" name="password" size=40></label><br>
+  <input type="submit" value="Вход">
 </form>
 
 <div style="font-size: smaller">

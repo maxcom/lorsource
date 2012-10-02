@@ -43,7 +43,6 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
@@ -52,6 +51,8 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+
+import static ru.org.linux.auth.AuthUtil.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -105,9 +106,8 @@ public class EditTopicController {
     @RequestParam("msgid") int msgid,
     @ModelAttribute("form") EditTopicRequest form
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -117,13 +117,13 @@ public class EditTopicController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
-    ModelAndView mv = prepareModel(preparedMessage, form, tmpl.getCurrentUser());
+    ModelAndView mv = prepareModel(preparedMessage, form, getCurrentUser());
 
     mv.getModel().put("commit", true);
 
@@ -137,23 +137,21 @@ public class EditTopicController {
     @ModelAttribute("form") EditTopicRequest form
   ) throws Exception {
 
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
     Topic message = messageDao.getById(msgid);
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    return prepareModel(preparedMessage, form, tmpl.getCurrentUser());
+    return prepareModel(preparedMessage, form, getCurrentUser());
   }
 
   private ModelAndView prepareModel(
@@ -258,19 +256,18 @@ public class EditTopicController {
     @Valid @ModelAttribute("form") EditTopicRequest form,
     Errors errors
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
+    if (!isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
 
     final Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), getCurrentUser());
     Group group = preparedTopic.getGroup();
 
-    User user = tmpl.getCurrentUser();
+    User user = getCurrentUser();
 
     boolean tagsEditable = permissionService.isTagsEditable(preparedTopic, user);
     boolean editable = permissionService.isEditable(preparedTopic, user);
@@ -282,7 +279,7 @@ public class EditTopicController {
     params.put("message", message);
     params.put("preparedMessage", preparedTopic);
     params.put("group", group);
-    params.put("topicMenu", prepareService.getTopicMenu(preparedTopic, tmpl.getCurrentUser()));
+    params.put("topicMenu", prepareService.getTopicMenu(preparedTopic, getCurrentUser()));
 
     if (tagsEditable) {
       params.put("topTags", tagService.getTopTags());
@@ -362,7 +359,7 @@ public class EditTopicController {
       throw new AccessViolationException("нельзя править это сообщение, только теги");
     }
 
-    if (form.getMinor()!=null && !tmpl.isModeratorSession()) {
+    if (form.getMinor()!=null && !isModeratorSession()) {
       throw new AccessViolationException("вы не можете менять статус новости");
     }
 
@@ -386,7 +383,7 @@ public class EditTopicController {
 
     Poll newPoll = null;
 
-    if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
+    if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       List<PollVariant> newVariants = new ArrayList<PollVariant>();

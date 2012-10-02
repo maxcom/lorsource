@@ -28,7 +28,6 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
@@ -37,7 +36,10 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.ServletParameterBadValueException;
 
+import static ru.org.linux.auth.AuthUtil.*;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.util.*;
 
@@ -110,9 +112,10 @@ public class GroupController {
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @PathVariable int year,
     @PathVariable int month,
-    HttpServletRequest request
+    HttpServletRequest request,
+    HttpServletResponse response
   ) throws Exception {
-    return forum(groupName, offset, false, request, year, month);
+    return forum(groupName, offset, false, request, response, year, month);
   }
 
   @RequestMapping("/forum/{group}")
@@ -120,9 +123,10 @@ public class GroupController {
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
-    HttpServletRequest request
+    HttpServletRequest request,
+    HttpServletResponse response
   ) throws Exception {
-    return forum(groupName, offset, lastmod, request, null, null);
+    return forum(groupName, offset, lastmod, request, response, null, null);
   }
 
   private ModelAndView forum(
@@ -130,11 +134,11 @@ public class GroupController {
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
     HttpServletRequest request,
+    HttpServletResponse response,
     Integer year,
     Integer month
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
-    Template tmpl = Template.getTemplate(request);
 
     boolean showDeleted = request.getParameter("deleted") != null;
     params.put("showDeleted", showDeleted);
@@ -148,7 +152,7 @@ public class GroupController {
       return new ModelAndView(new RedirectView(group.getUrl()));
     }
 
-    if (showDeleted && !tmpl.isSessionAuthorized()) {
+    if (showDeleted && !isSessionAuthorized()) {
       throw new AccessViolationException("Вы не авторизованы");
     }
 
@@ -185,8 +189,8 @@ public class GroupController {
 
     Set<Integer> ignoreList;
 
-    if (tmpl.getCurrentUser()!=null) {
-      ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
+    if (getCurrentUser()!=null) {
+      ignoreList = ignoreListDao.get(getCurrentUser());
     } else {
       ignoreList = Collections.emptySet();
     }
@@ -195,20 +199,20 @@ public class GroupController {
 
     String ignq = "";
 
-    if (!showIgnored && tmpl.isSessionAuthorized()) {
-      int currentUserId = tmpl.getCurrentUser().getId();
+    if (!showIgnored && isSessionAuthorized()) {
+      int currentUserId = getCurrentUser().getId();
       if (firstPage && !ignoreList.isEmpty()) {
         ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
       }
 
-      if (!tmpl.isModeratorSession()) {
+      if (!isModeratorSession()) {
         ignq += " AND topics.id NOT IN (select distinct tags.msgid from tags, user_tags "
           + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=" + currentUserId + ") ";
       }
     }
 
     String delq = showDeleted ? "" : " AND NOT deleted ";
-    int topics = tmpl.getProf().getTopics();
+    int topics = getProf().getTopics();
 
     String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics WHERE topics.groupid=" + group.getId() + delq;
 
@@ -250,7 +254,7 @@ public class GroupController {
     }
 
     List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
-    int messages = tmpl.getProf().getMessages();
+    int messages = getProf().getMessages();
 
     while (rs.next()) {
       User author;
@@ -278,7 +282,8 @@ public class GroupController {
       params.put("count", getArchiveCount(group.getId(), year, month));
     }
 
-    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
+    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, getCurrentUser()));
+    response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
     return new ModelAndView("group", params);
   }

@@ -20,6 +20,8 @@ import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.org.linux.group.GroupController;
+import ru.org.linux.site.MemCachedSettings;
 
 import javax.annotation.PostConstruct;
 import java.util.Properties;
@@ -39,13 +41,15 @@ public class Configuration {
   private URI mainURI;
   private URI secureURI;
 
+  private int maxOffset;
+
   /**
    * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
    */
   @PostConstruct
   public void init() {
     try {
-      mainURI = new URI(properties.getProperty("MainUrl"), true, "UTF-8");
+      mainURI = new URI(properties.getProperty(PROPERTY_MAIN_URL), true, "UTF-8");
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
@@ -67,11 +71,19 @@ public class Configuration {
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
+
+    MemCachedSettings.setMainUrl(getMainUrl());
+    maxOffset = GroupController.MAX_OFFSET;
   }
 
   public String getMainUrl() {
     return mainURI.toString();
   }
+
+  public String getMainUrlNoSlash() {
+    return getMainUrl().replaceFirst("/$", "");
+  }
+
 
   public String getSecureUrl() {
     return secureURI.toString();
@@ -146,5 +158,9 @@ public class Configuration {
       return null;
     }
     return Integer.valueOf(property);
+  }
+
+  public int getMaxOffset() {
+    return maxOffset;
   }
 }
