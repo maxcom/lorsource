@@ -39,7 +39,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http pattern="*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
 
-    <http use-expressions="true">
+    <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager">
         <intercept-url pattern="/**" access="permitAll"/>
         <form-login login-page="/login.jsp" username-parameter="nick" password-parameter="password"
                     login-processing-url="/login_process"/>
@@ -50,20 +50,26 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
         <anonymous username="anonymous" granted-authority="ROLE_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="configurationFilter"/>
     </http>
-    <!-- <debug/> -->
+    <debug/>
     <authentication-manager alias="authenticationManager">
         <authentication-provider user-service-ref="userDetailsServiceImpl">
             <password-encoder ref="passwordEncoderImpl"/>
         </authentication-provider>
     </authentication-manager>
 
+    <beans:bean id="tokenRepository" class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
+        <beans:property name="dataSource" ref="datasource"/>
+    </beans:bean>
+
     <beans:bean id="rememberMeServices"
-                class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+                class="org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices">
         <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
         <beans:property name="key" value="${Secret}"/>
         <beans:property name="cookieName" value="remember_me"/>
         <!-- 365 days -->
         <beans:property name="tokenValiditySeconds" value="31536000"/>
+        <beans:property name="alwaysRemember" value="true" />
+        <beans:property name="tokenRepository" ref="tokenRepository"/>
     </beans:bean>
 
     <beans:bean id="configurationFilter" class="ru.org.linux.auth.ConfigurationFilter"/>
