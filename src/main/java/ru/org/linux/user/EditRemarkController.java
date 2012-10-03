@@ -24,6 +24,8 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.util.StringUtil;
+
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,6 +74,7 @@ public class EditRemarkController {
       throw new AccessViolationException("Not authorized");
     }
 
+    text=StringUtil.escapeHtml(text);
     if(text.length()>255){
       text=text.substring(0,255);
     }
