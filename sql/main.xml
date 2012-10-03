@@ -35,5 +35,6 @@
     <include file="sql/updates/2012-09-13-add-image-delete.xml"/>
     <include file="sql/updates/2012-09-13-add-editimage.xml"/>
     <include file="sql/updates/2012-09-13-editinfo-type-notnull.xml"/>
+    <include file="sql/updates/2012-09-18-user-of-usercomments-table.xml"/>
 
 </databaseChangeLog>

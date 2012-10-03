@@ -45,6 +45,7 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -246,7 +247,10 @@ public class TopicPrepareService {
           preparedImage = prepareImage(image, secure);
         }
       }
-
+      Remark remark = null;
+      if (user != null ){
+        remark = userDao.getRemark(user, author);
+      }
       return new PreparedTopic(
               message, 
               author, 
@@ -265,7 +269,8 @@ public class TopicPrepareService {
               userAgent, 
               text.isLorcode(),
               preparedImage, 
-              TopicPermissionService.getPostScoreInfo(message.getPostScore())
+              TopicPermissionService.getPostScoreInfo(message.getPostScore()),
+              remark
       );
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
