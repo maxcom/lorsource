@@ -48,10 +48,6 @@
 <jsp:include page="header.jsp"/>
 
 <h1>Информация о пользователе ${user.nick}</h1>
-<c:if test="${template.sessionAuthorized and !currentUser}">
-  <i>Коментарий: <c:out value="${remark.text}" escapeXml="true"/></i><br>
-  <a href="/people/${user.nick}/remark/">Изменить</a>
-</c:if>
 <div id="whois_userpic">
   <l:userpic author="${user}"/>
     <div style="clear: both">
@@ -69,7 +65,12 @@
 <h2>Регистрация</h2>
 <div class="vcard">
 <b>ID:</b> ${user.id}<br>
-<b>Nick:</b> <span class="nickname">${user.nick}</span><br>
+<b>Nick:</b> <span class="nickname">${user.nick}</span>
+  <c:if test="${template.sessionAuthorized and !currentUser}">
+    <br><b>Коментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
+    [<a href="/people/${user.nick}/remark/">Изменить</a>]
+  </c:if>
+  <br>
 <c:if test="${user.name!=null and not empty user.name}">
   <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
 </c:if>
