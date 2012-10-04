@@ -49,6 +49,11 @@ public class EditRemarkController {
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     ModelAndView mv = new ModelAndView("edit-remark");
 
     User user = userDao.getUser(nick);

@@ -66,10 +66,12 @@
 <div class="vcard">
 <b>ID:</b> ${user.id}<br>
 <b>Nick:</b> <span class="nickname">${user.nick}</span>
+<c:if test="${template.moderatorSession}">
   <c:if test="${template.sessionAuthorized and !currentUser}">
     <br><b>Коментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
     [<a href="/people/${user.nick}/remark/">Изменить</a>]
   </c:if>
+</c:if>
   <br>
 <c:if test="${user.name!=null and not empty user.name}">
   <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
