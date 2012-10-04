@@ -68,7 +68,7 @@
 <b>Nick:</b> <span class="nickname">${user.nick}</span>
 <c:if test="${template.moderatorSession}">
   <c:if test="${template.sessionAuthorized and !currentUser}">
-    <br><b>Коментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
+    <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
     [<a href="/people/${user.nick}/remark/">Изменить</a>]
   </c:if>
 </c:if>
