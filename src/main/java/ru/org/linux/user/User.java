@@ -97,6 +97,10 @@ public class User implements Serializable {
     return nick;
   }
 
+  public String getPassword() {
+    return password;
+  }
+
   public void checkPassword(String password) throws BadPasswordException {
     if (blocked) {
       throw new BadPasswordException(nick);

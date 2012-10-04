@@ -17,7 +17,11 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.storage.FileStorage;
@@ -29,6 +33,7 @@ import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,90 +44,26 @@ import java.io.OutputStream;
 import java.util.Properties;
 
 public final class Template {
-  private static final Log logger = LogFactory.getLog(Template.class);
 
-  private final Properties cookies;
   private final Profile userProfile;
   private final Configuration configuration;
-  private final HttpSession session;
-
-  private final UserDao userDao;
-
   private User currentUser = null;
 
   private final Storage storage;
 
-  public Template(
-          HttpServletRequest request,
-          HttpServletResponse response,
-          UserDao userDao,
-          Configuration configuration
-  )
-      throws IOException, StorageException {
-    request.setCharacterEncoding("utf-8"); // блядский tomcat
-
-    this.userDao = userDao;
-
-    this.configuration = configuration;
-
+  public Template(WebApplicationContext ctx) {
+    configuration = (Configuration)ctx.getBean("configuration");
     storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
+    userProfile = AuthUtil.getCurrentProfile();
 
-    // read profiles
-    cookies = LorHttpUtils.getCookies(request.getCookies());
-
-    /* restore password */
-    session = request.getSession();
-
-    if (isSessionAuthorized(session)) {
-      initCurrentUser(userDao, false);
-    } else if (session != null) {
-      String profileCookie = getCookie("profile");
-
-      if (profileCookie != null && !profileCookie.isEmpty() &&
-          !"anonymous".equals(profileCookie) && getCookie("password") != null) {
-
-        try {
-          User user = userDao.getUser(profileCookie);
-
-          if (user.getMD5(configuration.getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
-            performLogin(response, user);
-          }
-        } catch (UserNotFoundException ex) {
-          logger.warn("Can't restore password for user: " + profileCookie, ex);
-        }
-      }
+    if(AuthUtil.isSessionAuthorized()) {
+      currentUser = AuthUtil.getCurrentUser();
     }
-
-    Profile userProfile = new Profile();
-
-    if (getNick() != null) {
-      try {
-        userProfile = readProfile();
-      } catch (IOException e) {
-        logger.info("Bad profile for user "+getNick(), e);
-      } catch (StorageNotFoundException e) {
-      } catch (ClassNotFoundException e) {
-        logger.info("Bad profile for user "+getNick(), e);
-      }
-    }
-
-    this.userProfile = userProfile;
-
-    if (cookies.get(CSRFProtectionService.CSRF_COOKIE)==null) {
-      CSRFProtectionService.generateCSRFCookie(request, response);
-    } else {
-      request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, cookies.getProperty(CSRFProtectionService.CSRF_COOKIE).trim());
-    }
-
-    response.addHeader("Cache-Control", "private");
   }
 
-  public void performLogin(HttpServletResponse response, User user) {
-    session.setAttribute("login", Boolean.TRUE);
-    session.setAttribute("nick", user.getNick());
-    userDao.updateLastlogin(user);
-    user.acegiSecurityHack(response, session);
-    currentUser = user;
+
+  public Template(ServletRequest request) {
+    this(WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()));
   }
 
   public String getProfileName() {
@@ -166,10 +107,6 @@ public final class Template {
     }
   }
 
-  private String getCookie(String key) {
-    return cookies.getProperty(key);
-  }
-
   public String getStyle() {
     User user = getCurrentUser();
     if(user == null) {
@@ -208,27 +145,15 @@ public final class Template {
   }
 
   public boolean isSessionAuthorized() {
-    return isSessionAuthorized(session) && currentUser!=null;
-  }
-
-  private static boolean isSessionAuthorized(HttpSession session) {
-    return session != null && session.getAttribute("login") != null && (Boolean) session.getAttribute("login");
+    return AuthUtil.isSessionAuthorized();
   }
 
   public boolean isModeratorSession() {
-    if (!isSessionAuthorized()) {
-      return false;
-    }
-
-    return currentUser.isModerator();
+    return AuthUtil.isModeratorSession();
   }
 
   public boolean isCorrectorSession() {
-    if (!isSessionAuthorized()) {
-      return false;
-    }
-
-    return currentUser.isCorrector();
+    return AuthUtil.isCorrectorSession();
   }
 
   /**
@@ -244,39 +169,25 @@ public final class Template {
   }
 
   public static Template getTemplate(ServletRequest request) {
-    return (Template) request.getAttribute("template");
+    return new Template(request);
   }
 
   public void updateCurrentUser(UserDao userDao) {
-    initCurrentUser(userDao, true);
+    initCurrentUser(true);
   }
 
-  private void initCurrentUser(UserDao userDao, boolean forceUpdate) {
-    if (!isSessionAuthorized(session)) {
+  private void initCurrentUser(boolean forceUpdate) {
+    if (!isSessionAuthorized()) {
       return;
     }
-
     if (currentUser != null && !forceUpdate) {
       return;
     }
-
-    try {
-      currentUser = userDao.getUser((String) session.getAttribute("nick"));
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException("Can't find currentUser!?", e);
-    }
+    currentUser = AuthUtil.getCurrentUser();
   }
 
   @Nullable
   public User getCurrentUser()  {
-    if (!isSessionAuthorized()) {
-      return null;
-    }
-
-    if (currentUser == null) {
-      throw new IllegalStateException("currentUser==null!? Please call initCurrentUser() first");
-    }
-
-    return currentUser;
+    return AuthUtil.getCurrentUser();
   }
 }
