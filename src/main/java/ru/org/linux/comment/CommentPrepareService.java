@@ -28,6 +28,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
+import ru.org.linux.user.Remark;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -79,6 +80,7 @@ public class CommentPrepareService {
     boolean haveAnswers = false;
     boolean deletable = false;
     boolean editable = false;
+    Remark remark = null;
 
     if (comments != null) {
       if (comment.getReplyTo() != 0) {
@@ -129,9 +131,11 @@ public class CommentPrepareService {
         }
       }
     }
-
+    if(tmpl != null && tmpl.getCurrentUser() != null ){
+      remark = userDao.getRemark(tmpl.getCurrentUser(), author);
+    }
     return new PreparedComment(comment, author, processedMessage, replyAuthor, haveAnswers,
-        reply, replyPage, topicPage, showLastMod, deletable, editable);
+        reply, replyPage, topicPage, showLastMod, deletable, editable, remark);
   }
 
   public PreparedComment prepareCommentForReplayto(Comment comment, boolean secure) throws UserNotFoundException {
@@ -162,7 +166,8 @@ public class CommentPrepareService {
         null,  // topicPage
         false, // showLastMode
         false, // deletable
-        false  // editable
+        false, // editable
+        null   // Remark
     );
   }
 

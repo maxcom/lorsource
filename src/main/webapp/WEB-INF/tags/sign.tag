@@ -1,3 +1,4 @@
+<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag
         pageEncoding="UTF-8"
 %><%--
@@ -32,3 +33,4 @@
 </c:if>
 
 (<lor:date date="${postdate}"/>)
+
