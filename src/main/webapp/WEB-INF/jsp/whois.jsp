@@ -49,7 +49,7 @@
 
 <h1>Информация о пользователе ${user.nick}</h1>
 <c:if test="${template.sessionAuthorized and !currentUser}">
-  <i>Коментарий:${remark.text}</i><br>
+  <i>Коментарий: <c:out value="${remark.text}" escapeXml="true"/></i><br>
   <a href="/people/${user.nick}/remark/">Изменить</a>
 </c:if>
 <div id="whois_userpic">
