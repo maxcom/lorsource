@@ -88,7 +88,7 @@
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
 
       <c:if test="${comment.remark != null}">
-        <i><c:out value="${comment.remark.text}" escapeXml="true"/></i>
+        <span class="user-remark"><c:out value="${comment.remark.text}" escapeXml="true"/></span>
       </c:if>
 
       <c:if test="${template.moderatorSession}">

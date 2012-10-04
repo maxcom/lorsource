@@ -130,7 +130,7 @@
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
 
   <c:if test="${preparedMessage.remark != null}">
-    (<i>${preparedMessage.remark.text}</i>)
+    <span class="user-remark">${preparedMessage.remark.text}</span>
   </c:if>
  
   <c:if test="${template.moderatorSession}">
