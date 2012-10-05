@@ -66,11 +66,9 @@
 <div class="vcard">
 <b>ID:</b> ${user.id}<br>
 <b>Nick:</b> <span class="nickname">${user.nick}</span>
-<c:if test="${template.moderatorSession}">
-  <c:if test="${template.sessionAuthorized and !currentUser}">
-    <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
-    [<a href="/people/${user.nick}/remark/">Изменить</a>]
-  </c:if>
+<c:if test="${template.sessionAuthorized and !currentUser and template.currentUser.score>=200}">
+  <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
+  [<a href="/people/${user.nick}/remark/">Изменить</a>]
 </c:if>
   <br>
 <c:if test="${user.name!=null and not empty user.name}">
