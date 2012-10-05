@@ -4,6 +4,7 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
+<%@ tag import="ru.org.linux.user.Remark" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -181,6 +182,10 @@
       <lor:sign shortMode="true" postdate="${message.postdate}" user="${preparedMessage.author}"/>
     </c:otherwise>
   </c:choose>
+  <c:if test="${preparedMessage.remark != null}">
+    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/></span>
+  </c:if>
+  
 </div>
 <div class="nav">
 <c:if test="${not moderateMode and messageMenu.commentsAllowed}">

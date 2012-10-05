@@ -1,0 +1,52 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012091801" author="Yury Fedorchenko">
+        <createTable tableName="user_remarks">
+            <column name="id" type="serial">
+		<constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="integer">
+                <constraints foreignKeyName="user_remarks_userid_fkey" references="users(id)" nullable="false"/>
+            </column>
+            <column name="ref_user_id" type="integer">
+                <constraints foreignKeyName="refuser_remarks_userid_fkey" references="users(id)" nullable="false"/>
+            </column>
+            <column name="remark_text" type="character varying(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2012091802" author="Yury Fedorchenko">
+        <createIndex tableName="user_remarks" indexName="user_remarks_userid_idx">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="user_remarks" indexName="refuser_remarks_tagid_idx">
+            <column name="ref_user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2012091803" author="Yury Fedorchenko">
+        <sql>
+            GRANT ALL ON TABLE user_remarks TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE ALL ON TABLE user_remarks FROM linuxweb;
+        </rollback>
+    </changeSet>
+    <changeSet id="2012091804" author="Yury Fedorchenko">
+        <sql>
+            GRANT ALL ON SEQUENCE user_remarks_id_seq TO maxcom;
+            GRANT UPDATE ON SEQUENCE user_remarks_id_seq TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE ALL ON SEQUENCE user_remarks_id_seq FROM maxcom;
+            REVOKE UPDATE ON SEQUENCE user_remarks_id_seq FROM linuxweb;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
