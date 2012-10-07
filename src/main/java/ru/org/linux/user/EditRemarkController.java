@@ -15,23 +15,18 @@
 
 package ru.org.linux.user;
 
-import javax.servlet.ServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
-import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.util.StringUtil;
-
-
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.site.Template;
+
+import javax.servlet.ServletRequest;
 
 @Controller
 @RequestMapping("/people/{nick}/remark")
@@ -51,6 +46,11 @@ public class EditRemarkController {
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
+
+    if (tmpl.getCurrentUser().getScore() < 200) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     ModelAndView mv = new ModelAndView("edit-remark");
 
     User user = userDao.getUser(nick);

@@ -260,10 +260,7 @@
 
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 1em">
-<%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
---%>
-    <jsp:include page="/WEB-INF/jsp/selectel-adv.jsp"/>
   </div>
   <br>
 </c:if>

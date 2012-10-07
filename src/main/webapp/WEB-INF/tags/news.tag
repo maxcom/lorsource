@@ -183,7 +183,7 @@
     </c:otherwise>
   </c:choose>
   <c:if test="${preparedMessage.remark != null}">
-    (<i>${preparedMessage.remark.text}</i>)
+    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/></span>
   </c:if>
   
 </div>

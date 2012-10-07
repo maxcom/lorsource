@@ -1,10 +1,6 @@
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.user.User" %>
-<%@ tag import="ru.org.linux.user.Remark" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
-<%@ tag import="java.sql.Timestamp" %>
-<%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -130,7 +126,7 @@
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
 
   <c:if test="${preparedMessage.remark != null}">
-    (<i>${preparedMessage.remark.text}</i>)
+    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
   </c:if>
  
   <c:if test="${template.moderatorSession}">

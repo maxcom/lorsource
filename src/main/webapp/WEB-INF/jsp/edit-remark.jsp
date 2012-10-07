@@ -32,7 +32,7 @@
 <form method=POST id="remarkForm" action="/people/${nick}/remark">
 <lor:csrf/>
 
-<textarea id="text" name="text" cols="60" rows="4">${remark.text}</textarea>
+<textarea id="text" name="text" cols="60" rows="4"><c:out value="${remark.text}" escapeXml="true"/></textarea>
 <br>
 <input type=submit value="Установить">
 </form>
