@@ -3,3 +3,8 @@ jdk:
   - oraclejdk7
   - openjdk7
   - openjdk6
+before_script:
+  - createuser -U postgres -d -S -R maxcom
+  - createuser -U postgres -D -S -R linuxweb
+  - createdb -U maxcom lor
+  - psql -f sql/demo.db -U maxcom lor
