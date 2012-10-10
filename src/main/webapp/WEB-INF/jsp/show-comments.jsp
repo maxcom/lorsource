@@ -90,6 +90,7 @@
         <th>Группа</th>
         <th>Заглавие темы</th>
         <th>Причина удаления</th>
+        <th>Бонус</th>
         <th>Дата</th>
       </tr>
       <tbody>
@@ -102,6 +103,7 @@
           <a href="view-message.jsp?msgid=${item.msgid}" rev=contents><l:title>${item.title}</l:title></a>
         </td>
         <td><c:out value="${item.reason}" escapeXml="true"/></td>
+        <td>${item.bonus}</td>
         <td>
           <c:if test="${item.delDate != null}">
             <lor:dateinterval date="${item.delDate}"/>

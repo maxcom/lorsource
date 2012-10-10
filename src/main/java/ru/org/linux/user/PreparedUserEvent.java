@@ -19,11 +19,13 @@ public class PreparedUserEvent {
   private final UserEvent event;
   private final String messageText;
   private final User commentAuthor;
+  private final int bonus;
 
-  public PreparedUserEvent(UserEvent event, String messageText, User commentAuthor) {
+  public PreparedUserEvent(UserEvent event, String messageText, User commentAuthor, int bonus) {
     this.event = event;
     this.messageText = messageText;
     this.commentAuthor = commentAuthor;
+    this.bonus = bonus;
   }
 
   public UserEvent getEvent() {
@@ -36,5 +38,9 @@ public class PreparedUserEvent {
 
   public User getCommentAuthor() {
     return commentAuthor;
+  }
+
+  public int getBonus() {
+    return bonus;
   }
 }
