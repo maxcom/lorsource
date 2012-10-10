@@ -79,7 +79,9 @@ public class UserEventService {
       if (event.isComment()) {
         if("DEL".equals(event.getType().getType())) {
           DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(event.getCid());
-          bonus = deleteInfo.getBonus();
+          if(deleteInfo != null) {
+            bonus = deleteInfo.getBonus();
+          }
         }
         try {
           commentAuthor = userDao.getUserCached(event.getCommentAuthor());
@@ -89,8 +91,11 @@ public class UserEventService {
       } else {
         commentAuthor = null;
         if("DEL".equals(event.getType().getType())) {
+
           DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(event.getMsgid());
-          bonus = deleteInfo.getBonus();
+          if(deleteInfo != null) {
+            bonus = deleteInfo.getBonus();
+          }
         }
       }
 
