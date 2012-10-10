@@ -442,42 +442,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.solr</groupId>
-                                    <artifactId>solr</artifactId>
-                                    <version>3.5.0</version>
-                                    <type>war</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                    <destFileName>solr.war</destFileName>
-                                </artifactItem>
-
-                                <artifactItem>
-                                    <groupId>postgresql</groupId>
-                                    <artifactId>postgresql</artifactId>
-                                    <version>8.4-702.jdbc4</version>
-                                    <type>jar</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                    <destFileName>postgresql.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <!-- Separates the unit tests from the integration tests. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -574,7 +538,7 @@
         </profile>
 
         <profile>
-            <id>test with jamwiki</id>
+            <id>test with jamwiki and solr</id>
             <activation>
                 <property>
                     <name>!env.TRAVIS</name>
@@ -602,6 +566,24 @@
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
                                             <destFileName>wiki.war</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.apache.solr</groupId>
+                                            <artifactId>solr</artifactId>
+                                            <version>3.5.0</version>
+                                            <type>war</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                            <destFileName>solr.war</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>postgresql</groupId>
+                                            <artifactId>postgresql</artifactId>
+                                            <version>8.4-702.jdbc4</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                            <destFileName>postgresql.jar</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
