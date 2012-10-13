@@ -73,7 +73,10 @@ public class AddTopicController {
   private static final Log logger = LogFactory.getLog(AddTopicController.class);
 
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CaptchaService captcha;
+
   private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
@@ -109,11 +112,6 @@ public class AddTopicController {
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
   }
 
   @Autowired

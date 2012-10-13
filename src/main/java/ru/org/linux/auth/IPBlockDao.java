@@ -83,7 +83,7 @@ public class IPBlockDao {
   }
 
   public void blockIP(String ip, User moderator, String reason, Timestamp ts,
-                      Boolean allow_posting, Boolean captcha_required) {
+                      boolean allow_posting, boolean captcha_required) {
     IPBlockInfo blockInfo = getBlockInfo(ip);
 
     if (!blockInfo.isInitialized()) {
