@@ -115,8 +115,10 @@
     <label>Мини-новость: <form:checkbox path="minor"/></label><br>
   </c:if>
 
+  <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
+
   <br>
-    
+
   <input type="submit" value="Отредактировать">
   &nbsp;
   <input type=submit name=preview value="Предпросмотр">

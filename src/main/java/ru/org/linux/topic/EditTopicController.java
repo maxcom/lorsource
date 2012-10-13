@@ -30,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.CaptchaService;
+import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
@@ -99,6 +102,12 @@ public class EditTopicController {
   @Autowired
   private EditTopicRequestValidator editTopicRequestValidator;
 
+  @Autowired
+  private IPBlockDao ipBlockDao;
+
+  @Autowired
+  private CaptchaService captcha;
+
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
     HttpServletRequest request,
@@ -136,7 +145,6 @@ public class EditTopicController {
     @RequestParam("msgid") int msgid,
     @ModelAttribute("form") EditTopicRequest form
   ) throws Exception {
-
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -249,6 +257,11 @@ public class EditTopicController {
     );
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.POST)
   public ModelAndView edit(
     HttpServletRequest request,
@@ -256,7 +269,8 @@ public class EditTopicController {
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId,
     @Valid @ModelAttribute("form") EditTopicRequest form,
-    Errors errors
+    Errors errors,
+    @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -271,6 +285,8 @@ public class EditTopicController {
     Group group = preparedTopic.getGroup();
 
     User user = tmpl.getCurrentUser();
+
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     boolean tagsEditable = permissionService.isTagsEditable(preparedTopic, user);
     boolean editable = permissionService.isEditable(preparedTopic, user);
@@ -436,6 +452,10 @@ public class EditTopicController {
           errors.reject("editorBonus", "некорректный корректор?!");
         }
       }
+    }
+
+    if (!preview && !errors.hasErrors() && ipBlockInfo.isCaptchaRequired()) {
+      captcha.checkCaptcha(request, errors);
     }
 
     if (!preview && !errors.hasErrors()) {
