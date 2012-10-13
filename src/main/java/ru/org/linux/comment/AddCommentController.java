@@ -61,6 +61,11 @@ public class AddCommentController {
   @Autowired
   private SearchQueueSender searchQueueSender;
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   /**
    * Показ формы добавления комментария.
    *
@@ -118,8 +123,6 @@ public class AddCommentController {
       messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser())
     );
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    modelAndView.addObject("ipBlockInfo", ipBlockInfo);
     return modelAndView;
   }
 
@@ -137,13 +140,13 @@ public class AddCommentController {
   public ModelAndView addComment(
     @ModelAttribute("add") @Valid CommentRequest add,
     Errors errors,
-    HttpServletRequest request
+    HttpServletRequest request,
+    @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
 
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     User user = commentService.getCommentUser(add, request, errors);
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors);
     commentService.prepareReplyto(add, formParams, request);
@@ -160,7 +163,6 @@ public class AddCommentController {
 
     if (add.isPreviewMode() || errors.hasErrors() || comment == null) {
       ModelAndView modelAndView = new ModelAndView("add_comment", formParams);
-      modelAndView.addObject("ipBlockInfo", ipBlockInfo);
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg()));
       return modelAndView;
     }

@@ -144,6 +144,11 @@ public class AddTopicController {
     this.toLorCodeFormatter = toLorCodeFormatter;
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -166,8 +171,6 @@ public class AddTopicController {
       return errorView;
     }
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    params.put("ipBlockInfo", ipBlockInfo);
     return new ModelAndView("add", params);
   }
 
@@ -205,7 +208,8 @@ public class AddTopicController {
   public ModelAndView doAdd(
           HttpServletRequest request,
           @Valid @ModelAttribute("form") AddTopicRequest form,
-          BindingResult errors
+          BindingResult errors,
+          @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -242,7 +246,6 @@ public class AddTopicController {
 
     user.checkBlocked(errors);
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (group!=null && !groupPermissionService.isTopicPostingAllowed(group, user)) {
@@ -347,7 +350,6 @@ public class AddTopicController {
 
       return new ModelAndView("add-done-moderated", params);
     } else {
-      params.put("ipBlockInfo", ipBlockInfo);
       return new ModelAndView("add", params);
     }
   }

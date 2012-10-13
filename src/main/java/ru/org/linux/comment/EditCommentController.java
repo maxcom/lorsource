@@ -73,6 +73,11 @@ public class EditCommentController extends ApplicationObjectSupport {
     commentService.initBinder(binder);
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   /**
    * Показ формы изменения комментария.
    *
@@ -114,12 +119,12 @@ public class EditCommentController extends ApplicationObjectSupport {
   public ModelAndView editCommentPostHandler(
     @ModelAttribute("edit") @Valid CommentRequest commentRequest,
     Errors errors,
-    HttpServletRequest request
+    HttpServletRequest request,
+    @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     User user = commentService.getCommentUser(commentRequest, request, errors);
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
 
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors);
     commentService.prepareReplyto(commentRequest, formParams, request);
