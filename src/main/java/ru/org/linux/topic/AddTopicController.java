@@ -245,9 +245,7 @@ public class AddTopicController {
     user.checkBlocked(errors);
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
-    }
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (group!=null && !groupPermissionService.isTopicPostingAllowed(group, user)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу");
