@@ -48,8 +48,8 @@ public class BanIPController {
     @RequestParam("ip") String ip,
     @RequestParam("reason") String reason,
     @RequestParam("time") String time,
-    @RequestParam(value="allow_posting", required = false, defaultValue="false") Boolean allow_posting,
-    @RequestParam(value="captcha_required", required = false, defaultValue="false") Boolean captcha_required
+    @RequestParam(value="allow_posting", required = false, defaultValue="false") boolean allowPosting,
+    @RequestParam(value="captcha_required", required = false, defaultValue="false") boolean captchaRequired
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -92,7 +92,7 @@ public class BanIPController {
 
     user.checkCommit();
 
-    ipBlockDao.blockIP(ip, user, reason, ts, allow_posting, captcha_required);
+    ipBlockDao.blockIP(ip, user, reason, ts, allowPosting, captchaRequired);
 
     return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, "UTF-8")));
   }

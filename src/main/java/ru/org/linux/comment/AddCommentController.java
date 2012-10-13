@@ -15,8 +15,6 @@
 
 package ru.org.linux.comment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -35,10 +33,8 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -47,19 +43,11 @@ import java.util.Map;
 
 @Controller
 public class AddCommentController {
-  private static final Log logger = LogFactory.getLog(AddCommentController.class);
-
-  @Autowired
-  private UserDao userDao;
-
   @Autowired
   private IPBlockDao ipBlockDao;
 
   @Autowired
   private CommentPrepareService commentPrepareService;
-
-  @Autowired
-  private LorCodeService lorCodeService;
 
   @Autowired
   private CommentService commentService;
@@ -72,6 +60,11 @@ public class AddCommentController {
 
   @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
 
   /**
    * Показ формы добавления комментария.
@@ -130,8 +123,6 @@ public class AddCommentController {
       messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser())
     );
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    modelAndView.addObject("ipBlockInfo", ipBlockInfo);
     return modelAndView;
   }
 
@@ -149,13 +140,13 @@ public class AddCommentController {
   public ModelAndView addComment(
     @ModelAttribute("add") @Valid CommentRequest add,
     Errors errors,
-    HttpServletRequest request
+    HttpServletRequest request,
+    @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
 
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     User user = commentService.getCommentUser(add, request, errors);
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors);
     commentService.prepareReplyto(add, formParams, request);
@@ -172,7 +163,6 @@ public class AddCommentController {
 
     if (add.isPreviewMode() || errors.hasErrors() || comment == null) {
       ModelAndView modelAndView = new ModelAndView("add_comment", formParams);
-      modelAndView.addObject("ipBlockInfo", ipBlockInfo);
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg()));
       return modelAndView;
     }

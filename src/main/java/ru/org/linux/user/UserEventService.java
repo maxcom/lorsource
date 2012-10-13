@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -41,6 +43,9 @@ public class UserEventService {
 
   @Autowired
   private UserEventDao userEventDao;
+
+  @Autowired
+  private DeleteInfoDao deleteInfoDao;
 
 
   /**
@@ -69,8 +74,15 @@ public class UserEventService {
       }
 
       User commentAuthor;
+      int bonus = 0;
 
       if (event.isComment()) {
+        if("DEL".equals(event.getType().getType())) {
+          DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(event.getCid());
+          if(deleteInfo != null) {
+            bonus = deleteInfo.getBonus();
+          }
+        }
         try {
           commentAuthor = userDao.getUserCached(event.getCommentAuthor());
         } catch (UserNotFoundException e) {
@@ -78,9 +90,16 @@ public class UserEventService {
         }
       } else {
         commentAuthor = null;
+        if("DEL".equals(event.getType().getType())) {
+
+          DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(event.getMsgid());
+          if(deleteInfo != null) {
+            bonus = deleteInfo.getBonus();
+          }
+        }
       }
 
-      prepared.add(new PreparedUserEvent(event, text, commentAuthor));
+      prepared.add(new PreparedUserEvent(event, text, commentAuthor, bonus));
     }
 
     return prepared;
