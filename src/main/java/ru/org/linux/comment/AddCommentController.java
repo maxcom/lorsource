@@ -15,8 +15,6 @@
 
 package ru.org.linux.comment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -35,10 +33,8 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -47,19 +43,11 @@ import java.util.Map;
 
 @Controller
 public class AddCommentController {
-  private static final Log logger = LogFactory.getLog(AddCommentController.class);
-
-  @Autowired
-  private UserDao userDao;
-
   @Autowired
   private IPBlockDao ipBlockDao;
 
   @Autowired
   private CommentPrepareService commentPrepareService;
-
-  @Autowired
-  private LorCodeService lorCodeService;
 
   @Autowired
   private CommentService commentService;
