@@ -96,6 +96,10 @@
   </div>
 </div>
 
+<c:if test="${page==0}">
+    <lor:groupinfo group="${groupInfo}"/>
+</c:if>
+
 <c:set var="scroller"><c:if test="${topScroller}">
   <div class="nav grid-row">
     <div class="grid-3-1">

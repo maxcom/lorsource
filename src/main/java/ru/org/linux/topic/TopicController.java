@@ -28,6 +28,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupInfoPrepareService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -77,6 +78,10 @@ public class TopicController {
 
   @Autowired
   private IPBlockDao ipBlockDao;
+
+  @Autowired
+  private GroupInfoPrepareService prepareGroupInfoService;
+
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
@@ -374,6 +379,7 @@ public class TopicController {
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
       params.put("ipBlockInfo", ipBlockInfo);
+      params.put("groupInfo", prepareGroupInfoService.prepareGroupInfo(group, request.isSecure()));
 
     } else {
       CommentFilter cv = new CommentFilter(comments);
