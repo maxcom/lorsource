@@ -54,6 +54,7 @@ public class ShowRemarkController {
     if( offset >= count ){
       throw new AccessViolationException("Not authorized");
     }
+    if( offset < 0 ) offset=0;
 
     ModelAndView mv = new ModelAndView("view-remarks");
 
