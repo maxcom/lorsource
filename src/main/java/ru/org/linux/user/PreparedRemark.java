@@ -15,35 +15,19 @@
 
 package ru.org.linux.user;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+public class PreparedRemark {
+  private final Remark remark;
+  private final User refUser;
 
-public class Remark {
-  private final int id;
-  private final int userId;
-  private final int refUserId;
-  private final String text;
-
-  public Remark(ResultSet resultSet) throws SQLException {
-    id = resultSet.getInt("id");
-    userId = resultSet.getInt("user_id");
-    refUserId = resultSet.getInt("ref_user_id");
-    text = resultSet.getString("remark_text");
+  public PreparedRemark(Remark remark,User refUser) {
+    this.remark = remark;
+    this.refUser = refUser;
   }
 
-  public int getId() {
-    return id;
+  public Remark getRemark() {
+    return remark;
   }
-
-  public int getRefUserId() {
-    return refUserId;
-  }
-
-  public int getUserId() {
-    return userId;
-  }
-
-  public String getText() {
-    return text;
+  public User getRefUser() {
+    return refUser;
   }
 }

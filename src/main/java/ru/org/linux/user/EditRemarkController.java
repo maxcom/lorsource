@@ -70,7 +70,6 @@ public class EditRemarkController {
       throw new AccessViolationException("Not authorized");
     }
 
-    text=StringUtil.escapeHtml(text);
     if(text.length()>255){
       text=text.substring(0,255);
     }

@@ -589,7 +589,40 @@ public class UserDao {
     } else {
       return remarkList.get(0);
     }
-    //return jdbcTemplate.queryForObject("SELECT * FROM user_remarks WHERE user_id=? AND ref_user_id=?", Remark.class, user.getId(),ref.getId());
+  }
+
+  public int getRemarkCount(User user) {
+    int count = jdbcTemplate.queryForInt(
+      "SELECT count(*) as c FROM user_remarks WHERE user_id=?", user.getId() );
+    return count;
+  }
+  /**
+   * Получить комментарии пользователя user
+   * @param user logged user
+   * @throws SQLException on database failure
+   */
+   
+  
+  public List<Remark> getRemarkList(User user, int offset, int sortorder, int limit) {
+    final String queryRByTe = "SELECT * FROM user_remarks WHERE user_id=? ORDER BY remark_text ASC LIMIT ? OFFSET ?";
+    final String queryRByNi = "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text " +
+                                     "FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?";
+
+    String qs;
+    if(sortorder==1) qs = queryRByTe;
+    else qs = queryRByNi;
+
+    List<Remark> remarkList = jdbcTemplate.query(qs, new RowMapper<Remark>() {
+      @Override
+      public Remark mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new Remark(resultSet);
+      }
+    }, user.getId(), limit, offset);
+
+    if (remarkList.isEmpty()) {
+      return null;
+    }
+    return remarkList;
   }
 
   /**

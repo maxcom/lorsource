@@ -312,6 +312,11 @@
   <li>
     <a href="/people/${user.nick}/favs">Избранные темы</a>
   </li>
+<c:if test="${currentUser}">
+  <li>
+    <a href="/people/${nick}/remarks">Просмотр заметок о пользователях</a>
+  </li>
+</c:if>
 </ul>
 </c:if>
 

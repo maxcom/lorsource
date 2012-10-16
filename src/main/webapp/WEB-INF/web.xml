@@ -79,7 +79,7 @@
       <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-     <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/view-section.jsp</url-pattern>
     </servlet-mapping>
@@ -127,6 +127,10 @@
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/edit-remark.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/view-remarks.jsp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
