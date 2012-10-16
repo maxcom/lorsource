@@ -47,10 +47,6 @@ public class EditRemarkController {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (tmpl.getCurrentUser().getScore() < 200) {
-      throw new AccessViolationException("Not authorized");
-    }
-
     ModelAndView mv = new ModelAndView("edit-remark");
 
     User user = userDao.getUser(nick);
