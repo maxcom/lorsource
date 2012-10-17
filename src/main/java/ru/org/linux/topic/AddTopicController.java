@@ -73,7 +73,10 @@ public class AddTopicController {
   private static final Log logger = LogFactory.getLog(AddTopicController.class);
 
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CaptchaService captcha;
+
   private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
@@ -112,11 +115,6 @@ public class AddTopicController {
   }
 
   @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
-  }
-
-  @Autowired
   public void setDupeProtector(FloodProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
   }
@@ -146,6 +144,11 @@ public class AddTopicController {
     this.toLorCodeFormatter = toLorCodeFormatter;
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -168,8 +171,6 @@ public class AddTopicController {
       return errorView;
     }
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    params.put("ipBlockInfo", ipBlockInfo);
     return new ModelAndView("add", params);
   }
 
@@ -207,7 +208,8 @@ public class AddTopicController {
   public ModelAndView doAdd(
           HttpServletRequest request,
           @Valid @ModelAttribute("form") AddTopicRequest form,
-          BindingResult errors
+          BindingResult errors,
+          @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -244,10 +246,7 @@ public class AddTopicController {
 
     user.checkBlocked(errors);
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
-    }
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (group!=null && !groupPermissionService.isTopicPostingAllowed(group, user)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу");
@@ -351,7 +350,6 @@ public class AddTopicController {
 
       return new ModelAndView("add-done-moderated", params);
     } else {
-      params.put("ipBlockInfo", ipBlockInfo);
       return new ModelAndView("add", params);
     }
   }

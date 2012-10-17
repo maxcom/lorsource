@@ -88,9 +88,6 @@ public class CommentService {
   private FloodProtector floodProtector;
 
   @Autowired
-  private IPBlockDao ipBlockDao;
-
-  @Autowired
   private LorCodeService lorCodeService;
 
   @Autowired
@@ -193,9 +190,7 @@ public class CommentService {
 
     user.checkBlocked(errors);
 
-    if (ipBlockInfo.isBlocked()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
-    }
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (!commentRequest.isPreviewMode() && !errors.hasErrors()) {
       floodProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);

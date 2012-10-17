@@ -27,10 +27,11 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.util.*;
+import ru.org.linux.util.EmailService;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import ru.org.linux.util.LorHttpUtils;
 
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
@@ -91,8 +92,7 @@ public class RegisterController {
         errors.reject(null, "Временная ошибка, попробуйте еще раз");
       }
 
-      IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
+      ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors, tmpl.getCurrentUser());
 
       if (userDao.isUserExists(form.getNick())) {
         errors.rejectValue("nick", null, "пользователь " + form.getNick() + " уже существует");
