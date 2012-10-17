@@ -223,7 +223,7 @@ class CommentDaoImpl implements CommentDao {
    *
    * @param msgid  идентификационнай номер комментария
    * @param user   пользователь, удаляющий комментарий
-   * @param score  сколько снять скора у автора комментария
+   * @param score  снимать ли скор у автора комментария
    * @param depth  текущий уровень ответов
    * @return список идентификационных номеров удалённых комментариев
    */
@@ -346,7 +346,7 @@ class CommentDaoImpl implements CommentDao {
   public int saveNewMessage(
     final Comment comment,
     String message
-  ) throws MessageNotFoundException {
+  ) {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
     jdbcTemplate.execute(
@@ -443,7 +443,7 @@ class CommentDaoImpl implements CommentDao {
   public List<DeletedListItem> getDeletedComments(int userId) {
     return jdbcTemplate.query(
       "SELECT " +
-        "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate " +
+        "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate, bonus " +
         "FROM sections, groups, topics, comments, del_info " +
         "WHERE sections.id=groups.section " +
         "AND groups.id=topics.groupid " +

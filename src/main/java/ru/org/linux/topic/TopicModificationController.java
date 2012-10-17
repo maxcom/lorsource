@@ -77,8 +77,7 @@ public class TopicModificationController {
     @RequestParam int msgid,
     @RequestParam int postscore,
     @RequestParam(defaultValue="false") boolean sticky,
-    @RequestParam(defaultValue="false") boolean notop,
-    @RequestParam(defaultValue="false") boolean minor
+    @RequestParam(defaultValue="false") boolean notop
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -103,7 +102,7 @@ public class TopicModificationController {
 
     Topic msg = messageDao.getById(msgid);
 
-    messageDao.setTopicOptions(msg, postscore, sticky, notop, minor);
+    messageDao.setTopicOptions(msg, postscore, sticky, notop);
 
     StringBuilder out = new StringBuilder();
 
@@ -120,11 +119,6 @@ public class TopicModificationController {
     if (msg.isNotop() != notop) {
       out.append("Новое значение notop: ").append(notop).append("<br>");
       logger.info("Новое значение notop: " + notop);
-    }
-
-    if (msg.isMinor() != minor) {
-      out.append("Новое значение minor: ").append(minor).append("<br>");
-      logger.info("Новое значение minor: " + minor);
     }
 
     ModelAndView mv = new ModelAndView("action-done");
@@ -178,10 +172,9 @@ public class TopicModificationController {
 
     Group newGrp = groupDao.getGroup(newgr);
 
-    messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
-
-    logger.info("topic " + msgid + " moved" +
-            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
+    if (msg.getGroupId()!=newGrp.getId()) {
+      messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
+   }
 
     return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
   }

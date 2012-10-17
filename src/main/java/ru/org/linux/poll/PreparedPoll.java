@@ -59,7 +59,7 @@ public class PreparedPoll {
           StringUtil.repeat("*", variantWidth)
           ));
     }
-    this.variants = variantsBuilder.build();
+    variants = variantsBuilder.build();
   }
 
   public Poll getPoll() {

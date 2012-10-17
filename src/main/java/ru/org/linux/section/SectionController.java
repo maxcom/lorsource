@@ -36,7 +36,7 @@ public class SectionController {
   private GroupDao groupDao;
 
   @RequestMapping("/view-section.jsp")
-  public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
+  public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) {
     Section section = sectionService.getSection(sectionid);
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -48,7 +48,7 @@ public class SectionController {
   }
 
   @RequestMapping("/forum")
-  public ModelAndView forum() throws Exception {
+  public ModelAndView forum() {
     return handleRequestInternal(Section.SECTION_FORUM);
   }
 

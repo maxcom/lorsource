@@ -28,6 +28,7 @@ import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +36,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.util.Properties;
 
 public final class Template {
@@ -49,8 +49,6 @@ public final class Template {
   private final UserDao userDao;
 
   private User currentUser = null;
-
-  public final DateFormat dateFormat = DateFormats.createDefault();
 
   private final Storage storage;
 
@@ -269,6 +267,7 @@ public final class Template {
     }
   }
 
+  @Nullable
   public User getCurrentUser()  {
     if (!isSessionAuthorized()) {
       return null;

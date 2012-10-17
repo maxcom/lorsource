@@ -73,7 +73,10 @@ public class AddTopicController {
   private static final Log logger = LogFactory.getLog(AddTopicController.class);
 
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CaptchaService captcha;
+
   private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
@@ -112,11 +115,6 @@ public class AddTopicController {
   }
 
   @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
-  }
-
-  @Autowired
   public void setDupeProtector(FloodProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
   }
@@ -146,6 +144,11 @@ public class AddTopicController {
     this.toLorCodeFormatter = toLorCodeFormatter;
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -155,6 +158,8 @@ public class AddTopicController {
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
     }
+
+    prepareModel(form, params, tmpl.getCurrentUser());
 
     Group group = form.getGroup();
 
@@ -166,15 +171,6 @@ public class AddTopicController {
       return errorView;
     }
 
-    params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
-
-    params.put("group", group);
-
-    params.put("topTags", tagService.getTopTags());
-
-    params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    params.put("ipBlockInfo", ipBlockInfo);
     return new ModelAndView("add", params);
   }
 
@@ -190,13 +186,30 @@ public class AddTopicController {
     }
   }
 
+  private void prepareModel(AddTopicRequest form, Map<String, Object> params, User currentUser) {
+    Group group = form.getGroup();
+
+    if (group!=null) {
+      params.put("group", group);
+      params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+      Section section = sectionService.getSection(group.getSectionId());
+
+      params.put("section", section);
+
+      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+      params.put("imagepost", groupPermissionService.isImagePostingAllowed(section, currentUser));
+    }
+
+    params.put("topTags", tagService.getTopTags());
+  }
 
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
   @CSRFNoAuto
   public ModelAndView doAdd(
           HttpServletRequest request,
           @Valid @ModelAttribute("form") AddTopicRequest form,
-          BindingResult errors
+          BindingResult errors,
+          @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -206,18 +219,13 @@ public class AddTopicController {
     String image = processUploadImage(request);
 
     Group group = form.getGroup();
-    params.put("group", group);
+
+    prepareModel(form, params, tmpl.getCurrentUser());
+
+    Section section = null;
 
     if (group!=null) {
-      params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
-    }
-
-    if (group!=null) {
-      params.put("topTags", tagService.getTopTags());
-    }
-
-    if (group!=null) {
-      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+      section = sectionService.getSection(group.getSectionId());
     }
 
     User user;
@@ -238,10 +246,7 @@ public class AddTopicController {
 
     user.checkBlocked(errors);
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
-    }
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (group!=null && !groupPermissionService.isTopicPostingAllowed(group, user)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу");
@@ -261,17 +266,17 @@ public class AddTopicController {
 
     Screenshot scrn = null;
 
-    if (group!=null && group.isImagePostAllowed()) {
+    if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
       scrn = processUpload(session, image, errors);
 
-      if (scrn == null && !errors.hasErrors()) {
+      if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
         errors.reject(null, "Изображение отсутствует");
       }
     }
 
     Poll poll = null;
     
-    if (group!=null && group.isPollPostAllowed()) {
+    if (section!=null && section.isPollPostAllowed()) {
       poll = preparePollPreview(form);
     }
 
@@ -314,7 +319,7 @@ public class AddTopicController {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null && section!=null) {
       session.removeAttribute("image");
 
       Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
@@ -336,16 +341,15 @@ public class AddTopicController {
 
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
-      if (!group.isModerated()) {
+      if (!section.isPremoderated()) {
         return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
       }
 
-      params.put("moderated", group.isModerated());
+      params.put("moderated", section.isPremoderated());
       params.put("url", messageUrl);
 
       return new ModelAndView("add-done-moderated", params);
     } else {
-      params.put("ipBlockInfo", ipBlockInfo);
       return new ModelAndView("add", params);
     }
   }

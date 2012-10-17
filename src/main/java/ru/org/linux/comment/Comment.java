@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -72,8 +71,7 @@ public class Comment implements Serializable {
           int msgid,
           int userid,
           String userAgent,
-          String postIP,
-          boolean haveAnswers
+          String postIP
   ) {
     this.msgid = msgid;
     this.title=title;
@@ -85,9 +83,9 @@ public class Comment implements Serializable {
       this.replyto=0;
     }
 
-    this.editCount = 0;
-    this.editDate = null;
-    this.editNick = null;
+    editCount = 0;
+    editDate = null;
+    editNick = null;
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;
@@ -132,7 +130,7 @@ public class Comment implements Serializable {
     return title;
   }
 
-  public Date getPostdate() {
+  public Timestamp getPostdate() {
     return postdate;
   }
 

@@ -31,7 +31,6 @@ import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
@@ -107,7 +106,6 @@ public class HTMLFormatterTest {
 
   @Before
   public void init() throws Exception {
-    lorCodeService = new LorCodeService();
 
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
@@ -173,6 +171,10 @@ public class HTMLFormatterTest {
 
     toLorCodeTexFormatter = new ToLorCodeTexFormatter();
     toLorCodeFormatter = new ToLorCodeFormatter();
+
+    lorCodeService = new LorCodeService();
+    lorCodeService.setConfiguration(configuration);
+    lorCodeService.setToHtmlFormatter(toHtmlFormatter);
   }
 
   @Test
@@ -569,7 +571,7 @@ public class HTMLFormatterTest {
         "one crap two three",
         lorCodeService.parseForOgDescription("[list]\n" +
             "[*]one\n" +
-            "\n" +
+                '\n' +
             "crap\n" +
             "[*]two\n" +
             "[*]three\n" +
@@ -603,6 +605,14 @@ public class HTMLFormatterTest {
     assertEquals(
         "<a href=\"https://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true\">www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true</a>",
         toHtmlFormatter.format("http://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&option=true", true));
+  }
+
+  @Test
+  public void testMDash() {
+    assertEquals(
+        "<ul><li><a href=\"http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html\">PMake&nbsp;&mdash; A Tutorial</a></li></ul>",
+        lorCodeService.parseComment("[list][*][url=http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html]PMake -- A Tutorial[/url][/list]", true)
+    );
   }
 
 }

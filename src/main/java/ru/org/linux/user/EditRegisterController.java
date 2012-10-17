@@ -20,7 +20,6 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -138,8 +136,7 @@ public class EditRegisterController {
       info = StringUtil.escapeHtml(form.getInfo());
     }
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    ipBlockDao.checkBlockIP(ipBlockInfo, errors, tmpl.getCurrentUser());
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors, tmpl.getCurrentUser());
 
     boolean emailChanged = false;
 

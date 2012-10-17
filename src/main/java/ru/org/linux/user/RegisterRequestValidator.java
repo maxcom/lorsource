@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableSet;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.URLUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -129,9 +128,7 @@ public class RegisterRequestValidator implements Validator {
     Rules validate
      */
 
-    if(Strings.isNullOrEmpty(form.getRules())) {
-      errors.reject("rules", null, "Вы не согласились с правилами");
-    } else if(!"okay".equals(form.getRules())) {
+    if(Strings.isNullOrEmpty(form.getRules()) || !"okay".equals(form.getRules())) {
       errors.reject("rules", null, "Вы не согласились с правилами");
     }
   }

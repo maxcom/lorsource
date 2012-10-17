@@ -56,7 +56,12 @@ public class TemplateFilter implements Filter {
     HttpServletRequest hsr = (HttpServletRequest) servletRequest;
 
     String path = hsr.getServletPath();
-    if (!path.endsWith(".css") && !path.endsWith(".png") && !path.endsWith(".jpg") && !path.endsWith("jpg")) {
+
+    if (
+            !path.endsWith(".css") &&
+            !path.endsWith(".png") &&
+            !path.endsWith(".jpg")
+    ) {
       try {
         Template tmpl = new Template(
                 (HttpServletRequest) servletRequest,

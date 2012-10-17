@@ -45,6 +45,7 @@ import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
@@ -95,7 +96,13 @@ public class CutTag extends HtmlEquivTag {
       try {
         uri.setFragment("cut"+Integer.toString(rootNode.getCutCount()));
         if (!node.getParameter().isEmpty()) {
-          String parameter = Parser.escape(node.getParameter().replaceAll("\"", ""));
+          ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
+          String parameter;
+          if(formatter != null) {
+            parameter = rootNode.getToHtmlFormatter().simpleFormat(node.getParameter().replaceAll("\"", ""));
+          } else {
+             parameter = Parser.escape(node.getParameter().replaceAll("\"", ""));
+          }
           return String.format("<p>( <a href=\"%s\">%s</a> )</p>", uri.getEscapedURIReference(), parameter);
         } else {
           return String.format("<p>( <a href=\"%s\">читать дальше...</a> )</p>", uri.getEscapedURIReference());

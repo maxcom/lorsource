@@ -29,5 +29,12 @@
     <include file="sql/updates/2012-05-12-memories-topic-index.xml"/>
     <include file="sql/updates/2012-06-05-remove-groups-stat2.xml"/>
     <include file="sql/updates/2012-07-20-images-table.xml"/>
+    <include file="sql/updates/2012-07-27-drop-check-replyto.xml"/>
+    <include file="sql/updates/2012-08-28-add-imageallowed.xml"/>
+    <include file="sql/updates/2012-08-30-add-editminor.xml"/>
+    <include file="sql/updates/2012-09-13-add-image-delete.xml"/>
+    <include file="sql/updates/2012-09-13-add-editimage.xml"/>
+    <include file="sql/updates/2012-09-13-editinfo-type-notnull.xml"/>
+    <include file="sql/updates/2012-09-18-user-of-usercomments-table.xml"/>
 
 </databaseChangeLog>

@@ -44,6 +44,7 @@ import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
+import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -190,6 +191,7 @@ public class TopicDao {
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {
+      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new MessageNotFoundException(id);
     }
     return message;
@@ -358,11 +360,13 @@ public class TopicDao {
             message
     );
 
-    if (group.isImagePostAllowed()) {
-      if (scrn == null) {
-        throw new ScriptErrorException("scrn==null!?");
-      }
+    Section section = sectionService.getSection(group.getSectionId());
 
+    if (section.isImagepost() && scrn == null) {
+      throw new ScriptErrorException("scrn==null!?");
+    }
+
+    if (scrn!=null) {
       Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
 
       imageDao.saveImage(
@@ -372,11 +376,11 @@ public class TopicDao {
       );
     }
 
-    if (group.isPollPostAllowed()) {
+    if (section.isPollPostAllowed()) {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
-    if (userRefs.size() != 0) {
+    if (!userRefs.isEmpty()) {
       userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
     }
 
@@ -395,10 +399,10 @@ public class TopicDao {
       }
 
       // не оповещать пользователей. которые ранее были оповещены через упоминание
-      Iterator userTagIterator = userIdListByTags.iterator();
+      Iterator<Integer> userTagIterator = userIdListByTags.iterator();
 
       while (userTagIterator.hasNext()) {
-        Integer userId = (Integer) userTagIterator.next();
+        Integer userId = userTagIterator.next();
         if (userRefIds.contains(userId)) {
           userTagIterator.remove();
         }
@@ -472,6 +476,9 @@ public class TopicDao {
     if (oldMsg.isMinor() != msg.isMinor()) {
       namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
+
+      editHistoryDto.setOldminor(oldMsg.isMinor());
+
       modified = true;
     }
 
@@ -742,13 +749,12 @@ public class TopicDao {
     );
   }
 
-  public void setTopicOptions(Topic msg, int postscore, boolean sticky, boolean notop, boolean minor) {
+  public void setTopicOptions(Topic msg, int postscore, boolean sticky, boolean notop) {
     jdbcTemplate.update(
-            "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?",
+            "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP WHERE id=?",
             postscore,
             sticky,
             notop,
-            minor,
             msg.getId()
     );
   }
@@ -757,11 +763,17 @@ public class TopicDao {
   public void moveTopic(Topic msg, Group newGrp, User moveBy) {
     String url = msg.getUrl();
 
+    int oldId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id=? FOR UPDATE", msg.getId());
+
+    if (oldId==newGrp.getId()) {
+      return;
+    }
+
     boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
 
-    if (!newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
+    if (!newGrp.isLinksAllowed()) {
       jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
 
       String title = msg.getGroupUrl();
@@ -790,6 +802,9 @@ public class TopicDao {
 
       msgbaseDao.appendMessage(msg.getId(), add);
     }
+
+    logger.info("topic " + msg.getId() + " moved" +
+          " by " + moveBy.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
   }
   /**
    * Массовое удаление всех топиков пользователя.

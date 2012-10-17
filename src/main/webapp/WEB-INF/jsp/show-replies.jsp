@@ -168,7 +168,7 @@
       <a href="view-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
       (<a class="secondary" href="${topic.event.groupUrl}">${topic.event.groupTitle}</a>)
       <br>
-      <c:out value="${topic.event.eventMessage}" escapeXml="true"/>
+      <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
     </c:if>
 
     <c:if test="${topic.event.unread}">&bull;</c:if>

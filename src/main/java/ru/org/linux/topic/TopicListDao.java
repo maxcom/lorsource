@@ -15,23 +15,10 @@
 
 package ru.org.linux.topic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TopicListDao {
-  public static enum CommitMode {
+  enum CommitMode {
     COMMITED_ONLY(" AND sections.moderate AND commitdate is not null "),
     UNCOMMITED_ONLY(" AND (NOT topics.moderate) AND sections.moderate "),
     POSTMODERATED_ONLY(" AND NOT sections.moderate"),

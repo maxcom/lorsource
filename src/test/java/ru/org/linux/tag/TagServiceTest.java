@@ -22,10 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.WebDataBinder;
-import ru.org.linux.tag.TagDao;
-import ru.org.linux.tag.TagNotFoundException;
-import ru.org.linux.tag.TagRequest;
-import ru.org.linux.tag.TagService;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

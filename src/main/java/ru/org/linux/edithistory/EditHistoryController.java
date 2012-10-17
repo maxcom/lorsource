@@ -66,6 +66,7 @@ public class EditHistoryController {
 
     return modelAndView;
   }
+
   @RequestMapping({
     "/news/{group}/{id}/{commentid}/history",
     "/forum/{group}/{id}/{commentid}/history",

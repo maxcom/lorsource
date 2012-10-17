@@ -1,10 +1,6 @@
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
-<%@ tag import="java.sql.Timestamp" %>
-<%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.csrf.CSRFProtectionService" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -88,19 +84,19 @@
     <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
 
-  <c:if test="${preparedMessage.section.imagepost}">
-    <lor:image enableSchema="true" preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
 
   <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
     ${preparedMessage.processedMessage}
   </div>
 
-    <c:if test="${preparedMessage.section.imagepost}">
-      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
-    </c:if>
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+  </c:if>
 
-    <c:if test="${preparedMessage.section.votePoll}">
+    <c:if test="${preparedMessage.section.pollPostAllowed}">
       <c:choose>
           <c:when test="${not message.commited}">
               <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
@@ -128,6 +124,11 @@
 </c:if>
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
+
+  <c:if test="${preparedMessage.remark != null}">
+    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
+  </c:if>
+ 
   <c:if test="${template.moderatorSession}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
@@ -139,23 +140,15 @@
       <c:out value="${preparedMessage.userAgent}" escapeXml="true"/>
     </c:if>
   </c:if>
-  <%
-  if (preparedMessage.getSection().isPremoderated() && message.getCommitby() != 0) {
-    User commiter = preparedMessage.getCommiter();
+  <c:if test="${preparedMessage.section.premoderated and message.commited}">
+    <c:if test="${preparedMessage.commiter != preparedMessage.author}">
+      <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>
 
-    if (commiter.getId()!=message.getUid()) {
-      Timestamp commitDate = message.getCommitDate();
-      DateFormat dateFormat = tmpl.dateFormat;
-      out.append("<br>");
-
-      out.append("Проверено: <a href=\"/people/").append(URLEncoder.encode(commiter.getNick())).append("/profile\">").append(commiter.getNick()).append("</a>");
-
-      if (commitDate !=null && !commitDate.equals(message.getPostdate())) {
-        out.append(" (").append(dateFormat.format(commitDate)).append(")");
-      }
-    }
-  }
-%>
+      <c:if test="${message.commitDate!=null && message.commitDate != message.postdate}">
+        (<lor:date date="${message.commitDate}"/>)
+      </c:if>
+    </c:if>
+  </c:if>
   <c:if test="${template.sessionAuthorized}">
   <%
   if (preparedMessage.getEditCount()>0) {

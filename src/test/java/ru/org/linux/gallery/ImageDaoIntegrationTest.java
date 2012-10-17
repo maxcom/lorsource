@@ -25,10 +25,10 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("integration-tests-context.xml")
-public class GalleryDaoIntegrationTest {
+public class ImageDaoIntegrationTest {
 
   @Autowired
-  ImageDao imageDao;
+  private ImageDao imageDao;
 
   /**
    * Проверка galleryDao.getGalleryItems().

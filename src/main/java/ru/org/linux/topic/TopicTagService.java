@@ -163,9 +163,9 @@ public class TopicTagService {
       }
 
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (tag.length() > tagService.MAX_TAG_LENGTH) {
-        errors.rejectValue("tags", null, "Слишком длиный тег: '" + tag + "\' (максимум " + tagService.MAX_TAG_LENGTH + " символов)");
-      } else if (!tagService.isGoodTag(tag)) {
+      if (tag.length() > TagService.MAX_TAG_LENGTH) {
+        errors.rejectValue("tags", null, "Слишком длиный тег: '" + tag + "\' (максимум " + TagService.MAX_TAG_LENGTH + " символов)");
+      } else if (!TagService.isGoodTag(tag)) {
         errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'');
       }
 
@@ -173,7 +173,7 @@ public class TopicTagService {
     }
 
     if (tagSet.size() > MAX_TAGS_PER_TOPIC) {
-      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + MAX_TAGS_PER_TOPIC + ")");
+      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + MAX_TAGS_PER_TOPIC + ')');
     }
 
     return ImmutableList.copyOf(tagSet);

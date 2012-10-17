@@ -34,8 +34,8 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("integration-tests-context.xml")
 public class UserTagDaoIntegrationTest {
-  private final static String QUERY_COUNT_FAVORITE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?";
-  private final static String QUERY_COUNT_IGNORE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?";
+  private static final String QUERY_COUNT_FAVORITE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?";
+  private static final String QUERY_COUNT_IGNORE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?";
   @Autowired
   UserTagDao userTagDao;
 
@@ -93,7 +93,7 @@ public class UserTagDaoIntegrationTest {
   @After
   public void cleanupTestData() {
     jdbcTemplate.update(
-      "DELETE FROM user_TAGS WHERE user_id in (" + user1Id + ", " + user2Id + ")"
+      "DELETE FROM user_TAGS WHERE user_id in (" + user1Id + ", " + user2Id + ')'
     );
 
     jdbcTemplate.update(
@@ -125,17 +125,7 @@ public class UserTagDaoIntegrationTest {
   public void addTest() {
     prepareUserTags();
 
-    try {
-      userTagDao.addTag(user1Id, tag1Id, true);
-      Assert.fail("Duplicate key check fail!");
-    } catch (DuplicateKeyException ignored) {
-    }
     userTagDao.addTag(user1Id, tag1Id, false);
-    try {
-      userTagDao.addTag(user1Id, tag1Id, false);
-      Assert.fail("Duplicate key check fail!");
-    } catch (DuplicateKeyException ignored) {
-    }
 
     int result;
 

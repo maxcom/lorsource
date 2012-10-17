@@ -137,7 +137,7 @@ public class TagService {
       .append(oldTags.toString())
       .append("]; новые теги [")
       .append(newTags.toString())
-      .append("]");
+      .append(']');
     logger.debug(logStr);
 
     for (String tag : newTags) {
@@ -228,7 +228,7 @@ public class TagService {
           .append(oldTagName)
           .append("'; новое значение: '")
           .append(tagName)
-          .append("'");
+          .append('\'');
         logger.info(logStr);
       }
     } catch (UserErrorException e) {
@@ -268,7 +268,7 @@ public class TagService {
             .append(tagName)
             .append("' заменён тегом '")
             .append(newTagName)
-            .append("'");
+            .append('\'');
           logger.debug(logStr);
         }
       }

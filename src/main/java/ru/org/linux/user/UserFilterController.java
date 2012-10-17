@@ -253,9 +253,9 @@ public class UserFilterController {
    * @throws TagNotFoundException     тег не найден
    * @throws AccessViolationException нарушение прав доступа
    */
+  @ResponseBody
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
-  @ResponseBody
   Map<String, Object> favoriteTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName
@@ -318,9 +318,9 @@ public class UserFilterController {
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
    */
+  @ResponseBody
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   public
-  @ResponseBody
   Map<String, String> ignoreTagAddJSON(
     HttpServletRequest request,
     @RequestParam String tagName
@@ -386,9 +386,9 @@ public class UserFilterController {
    * @throws TagNotFoundException     тег не найден
    * @throws AccessViolationException нарушение прав доступа
    */
+  @ResponseBody
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
-  @ResponseBody
   Map<String, String> ignoreTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName

@@ -32,6 +32,7 @@ public class Section implements Serializable {
   private final int id;
   private final boolean votepoll;
   private final int topicsRestriction;
+  private final boolean imageAllowed;
   
   private SectionScrollModeEnum scrollMode;
 
@@ -54,6 +55,7 @@ public class Section implements Serializable {
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
     id = rs.getInt("id");
+    imageAllowed = rs.getBoolean("imageallowed");
 
     int restrictTopicsValue = rs.getInt("restrict_topics");
     if (!rs.wasNull()) {
@@ -73,6 +75,7 @@ public class Section implements Serializable {
     this.votepoll = votepoll;
     scrollMode = SectionScrollModeEnum.valueOf(scrollModeStr);
     this.topicsRestriction = topicsRestriction;
+    imageAllowed = false;
   }
 
   public String getName() {
@@ -83,7 +86,7 @@ public class Section implements Serializable {
     return imagepost;
   }
 
-  public boolean isVotePoll() {
+  public boolean isPollPostAllowed() {
     return votepoll;
   }
 
@@ -179,5 +182,9 @@ public class Section implements Serializable {
 
   public int getTopicsRestriction() {
     return topicsRestriction;
+  }
+
+  public boolean isImageAllowed() {
+    return imageAllowed;
   }
 }

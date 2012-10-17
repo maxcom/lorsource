@@ -250,7 +250,7 @@ public class UserEventController {
 
   @ExceptionHandler(UserNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+  public ModelAndView handleUserNotFound() {
     ModelAndView mav = new ModelAndView("errors/good-penguin");
     mav.addObject("msgTitle", "Ошибка: пользователя не существует");
     mav.addObject("msgHeader", "Пользователя не существует");

@@ -137,13 +137,13 @@ public final class URLUtil {
 
     public QueryString(HashMap<Object, Object> map)
       throws UnsupportedEncodingException {
-      Iterator it = map.entrySet().iterator();
+      Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
       while (it.hasNext()) {
-        Map.Entry pairs = (Map.Entry) it.next();
+        Map.Entry<Object, Object> pairs = it.next();
         if (pairs.getValue() == null) {
           continue;
         }
-        query += URLEncoder.encode(pairs.getKey().toString(), "UTF-8") + "=" +
+        query += URLEncoder.encode(pairs.getKey().toString(), "UTF-8") + '=' +
           URLEncoder.encode(pairs.getValue().toString(), "UTF-8");
         if (it.hasNext()) {
           query += "&";
@@ -156,7 +156,7 @@ public final class URLUtil {
       if (value == null) {
         return;
       }
-      query = URLEncoder.encode(name.toString(), "UTF-8") + "=" +
+      query = URLEncoder.encode(name.toString(), "UTF-8") + '=' +
         URLEncoder.encode(value.toString(), "UTF-8");
     }
 
@@ -169,8 +169,10 @@ public final class URLUtil {
       if (value == null) {
         return;
       }
-      if (!query.trim().equals("")) query += "&";
-      query += URLEncoder.encode(name.toString(), "UTF-8") + "=" +
+      if (!query.trim().isEmpty()) {
+        query += "&";
+      }
+      query += URLEncoder.encode(name.toString(), "UTF-8") + '=' +
         URLEncoder.encode(value.toString(), "UTF-8");
     }
 

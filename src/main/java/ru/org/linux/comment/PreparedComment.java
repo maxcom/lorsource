@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import ru.org.linux.user.User;
+import ru.org.linux.user.Remark;
 
 public class PreparedComment {
   private final Comment comment;
@@ -23,13 +24,30 @@ public class PreparedComment {
   private final String processedMessage;
   private final User replyAuthor;
   private final boolean haveAnswers;
+  private final Comment reply;
+  private final int replyPage;
+  private final String topicPage;
+  private final boolean showLastMod;
+  private final boolean deletable;
+  private final boolean editable;
+  private final Remark remark;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers) {
+
+  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
+                         Comment reply, int replyPage, String topicPage, boolean showLastMod,
+                         boolean deletable, boolean editable, Remark remark) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
     this.haveAnswers = haveAnswers;
+    this.reply = reply;
+    this.replyPage = replyPage;
+    this.topicPage = topicPage;
+    this.showLastMod = showLastMod;
+    this.deletable = deletable;
+    this.editable = editable;
+    this.remark = remark;
   }
 
   public Comment getComment() {
@@ -50,5 +68,45 @@ public class PreparedComment {
 
   public boolean isHaveAnswers() {
     return haveAnswers;
+  }
+
+  public Comment getReply() {
+    return reply;
+  }
+
+  public int getReplyPage() {
+    return replyPage;
+  }
+
+  public String getTopicPage() {
+    return topicPage;
+  }
+
+  public String getReplyTitle() {
+    if(reply != null) {
+      String replyTitle = reply.getTitle();
+      if (replyTitle.trim().isEmpty()) {
+        return  "комментарий";
+      }
+      return replyTitle;
+    } else {
+      return "";
+    }
+  }
+
+  public boolean isShowLastMod() {
+    return showLastMod;
+  }
+
+  public boolean isDeletable() {
+    return deletable;
+  }
+
+  public boolean isEditable() {
+    return editable;
+  }
+
+  public Remark getRemark() {
+    return remark;
   }
 }

@@ -30,7 +30,6 @@
   int postscore = msg.getPostScore();
   boolean sticky = msg.isSticky();
   boolean notop = msg.isNotop();
-  boolean minor = msg.isMinor();
 %>
 <h1>Смена режима параметров сообщения</h1>
 Данная форма предназначена для администраторов сайта и пользователей,
@@ -56,13 +55,10 @@
   </select>
     </label>
     <br>
-  <c:if test="${not group.moderated}">
+  <c:if test="${not group.premoderated}">
     <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
   </c:if>
   <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label><br>
-  <c:if test="${group.moderated}">
-    <label>Мини-новость <input type=checkbox name="minor" <%= minor?"checked":"" %>></label><br>
-  </c:if>
   <input type=submit value="Изменить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

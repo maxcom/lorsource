@@ -22,6 +22,7 @@ import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.user.User;
+import ru.org.linux.user.Remark;
 
 import java.util.List;
 
@@ -49,6 +50,8 @@ public final class PreparedTopic {
   
   private final String postscoreInfo;
 
+  private final Remark remark;
+
   public PreparedTopic(
           Topic message,
           User author,
@@ -67,7 +70,8 @@ public final class PreparedTopic {
           String userAgent,
           boolean lorcode,
           PreparedImage image,
-          String postscoreInfo) {
+          String postscoreInfo,
+          Remark remark) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -90,6 +94,7 @@ public final class PreparedTopic {
     editCount = editorCount;
     this.userAgent = userAgent;
     this.image = image;
+    this.remark = remark;
   }
 
   public Topic getMessage() {
@@ -166,5 +171,9 @@ public final class PreparedTopic {
 
   public String getPostscoreInfo() {
     return postscoreInfo;
+  }
+
+  public Remark getRemark() {
+    return remark;
   }
 }

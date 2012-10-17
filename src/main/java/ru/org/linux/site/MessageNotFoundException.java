@@ -24,12 +24,12 @@ public class MessageNotFoundException extends ScriptErrorException {
 
   public MessageNotFoundException(Topic topic, int commentId, String info) {
     this.topic = topic;
-    this.id=commentId;
+    id =commentId;
   }
   
   public MessageNotFoundException(int topicId, String info) {
     super(info);
-    this.id = topicId;
+    id = topicId;
     topic = null;
   }
 

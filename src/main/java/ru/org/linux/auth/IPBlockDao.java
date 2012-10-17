@@ -24,6 +24,8 @@ import org.xbill.DNS.TextParseException;
 import ru.org.linux.user.User;
 import ru.org.linux.util.DNSBLClient;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
@@ -64,7 +66,12 @@ public class IPBlockDao {
     return (dnsbl.checkIP(addr));
   }
 
-  public void checkBlockIP(IPBlockInfo block, Errors errors, User user)
+  public void checkBlockIP(@Nonnull String addr, @Nonnull Errors errors, @Nullable User user)
+          throws UnknownHostException, TextParseException {
+    checkBlockIP(getBlockInfo(addr), errors, user);
+  }
+
+  public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user)
     throws UnknownHostException, TextParseException {
     if (getTor(block.getIp())) {
       errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
@@ -76,7 +83,7 @@ public class IPBlockDao {
   }
 
   public void blockIP(String ip, User moderator, String reason, Timestamp ts,
-                      Boolean allow_posting, Boolean captcha_required) {
+                      boolean allow_posting, boolean captcha_required) {
     IPBlockInfo blockInfo = getBlockInfo(ip);
 
     if (!blockInfo.isInitialized()) {

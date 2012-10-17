@@ -73,6 +73,11 @@ public class EditCommentController extends ApplicationObjectSupport {
     commentService.initBinder(binder);
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   /**
    * Показ формы изменения комментария.
    *
@@ -114,12 +119,12 @@ public class EditCommentController extends ApplicationObjectSupport {
   public ModelAndView editCommentPostHandler(
     @ModelAttribute("edit") @Valid CommentRequest commentRequest,
     Errors errors,
-    HttpServletRequest request
+    HttpServletRequest request,
+    @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     User user = commentService.getCommentUser(commentRequest, request, errors);
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
 
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors);
     commentService.prepareReplyto(commentRequest, formParams, request);
@@ -130,10 +135,10 @@ public class EditCommentController extends ApplicationObjectSupport {
     if (commentRequest.getTopic() != null) {
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(commentRequest.getTopic().getPostScore()));
       topicPermissionService.checkCommentsAllowed(commentRequest.getTopic(), user, errors);
-      formParams.put("comment", commentPrepareService.prepareComment(comment, msg, request.isSecure()));
+      formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
     }
 
-    boolean editable = topicPermissionService.isCommentsEditingAllowed(commentRequest,request, user, errors);
+    boolean editable = topicPermissionService.isCommentsEditingAllowed(commentRequest,request, user);
     if (!editable) {
       throw new AccessViolationException("у Вас нет прав на редактирование этого сообщения");
     }

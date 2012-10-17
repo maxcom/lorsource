@@ -17,16 +17,12 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
 <c:if test="${rssLink != null}">
   <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
-</c:if>
-
-<c:if test="${meLink != null}">
-  <LINK REL="me" HREF="${fn:escapeXml(meLink)}">
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -45,7 +41,7 @@
           <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
         </c:if>
         <c:choose>
-          <c:when test="${section.votePoll}">
+          <c:when test="${section.pollPostAllowed}">
             <li><a href="add.jsp?group=19387">Добавить</a></li>
           </c:when>
           <c:when test="${group == null}">
@@ -69,10 +65,6 @@
 
       <c:if test="${archiveLink != null}">
         <li><a href="${archiveLink}">Архив</a></li>
-      </c:if>
-
-      <c:if test="${whoisLink != null}">
-        <li><a href="${whoisLink}">Профиль</a></li>
       </c:if>
 
       <c:if test="${rssLink != null}">

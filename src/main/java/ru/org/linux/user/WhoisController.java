@@ -27,8 +27,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Set;
@@ -78,6 +76,8 @@ public class WhoisController {
       Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
+
+      mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
     }
 
     String userinfo = userDao.getUserInfo(user);
@@ -125,13 +125,13 @@ public class WhoisController {
    */
   @ExceptionHandler(UserBanedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
+  public ModelAndView handleUserBanedException(UserBanedException ex) {
     return new ModelAndView("errors/user-banned", "exception", ex);
   }
 
   @ExceptionHandler(UserNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+  public ModelAndView handleUserNotFound() {
     ModelAndView mav = new ModelAndView("errors/good-penguin");
     mav.addObject("msgTitle", "Ошибка: пользователя не существует");
     mav.addObject("msgHeader", "Пользователя не существует");

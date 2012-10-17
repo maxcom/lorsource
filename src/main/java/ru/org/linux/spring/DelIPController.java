@@ -27,7 +27,6 @@ import ru.org.linux.comment.CommentService;
 import ru.org.linux.site.Template;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 

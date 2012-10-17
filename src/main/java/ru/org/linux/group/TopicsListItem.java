@@ -35,7 +35,7 @@ public class TopicsListItem implements Serializable {
   private final boolean sticky;
   private final int pages;
   private final User author;
-  private ImmutableList<String> tags;
+  private final ImmutableList<String> tags;
   private final boolean resolved;
   
   private static final long serialVersionUID = 5344250574674257995L;

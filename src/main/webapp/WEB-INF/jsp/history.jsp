@@ -17,7 +17,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
-<%--@elvariable id="editInfos" type="java.util.List<ru.org.linux.edithistory.PreparedEditHistory>"--%>
+<%--@elvariable id="editHistories" type="java.util.List<ru.org.linux.edithistory.PreparedEditHistory>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>История изменений</title>
@@ -36,7 +36,7 @@
       </c:if>
 
       <lor:user link="true" decorate="true" user="${editHistory.editor}"/>,
-      <lor:dateinterval date="${editHistory.editHistoryDto.editdate}"/>
+      <lor:dateinterval date="${editHistory.editDate}"/>
 
       <c:if test="${editHistory.current}">
         (текущая версия)
@@ -57,6 +57,9 @@
         </c:if>
         <c:if test="${editHistory.tags != null}">
           <l:tags list="${editHistory.tags}"/>
+        </c:if>
+        <c:if test="${editHistory.minor != null}">
+            <em>Мини-новость: ${editHistory.minor}</em>
         </c:if>
       </div>
     </div>

@@ -30,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.CaptchaService;
+import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
@@ -73,7 +76,7 @@ public class EditTopicController {
   private TopicDao messageDao;
 
   @Autowired
-  private TopicPrepareService messagePrepareService;
+  private TopicPrepareService prepareService;
 
   @Autowired
   private GroupDao groupDao;
@@ -99,6 +102,12 @@ public class EditTopicController {
   @Autowired
   private EditTopicRequestValidator editTopicRequestValidator;
 
+  @Autowired
+  private IPBlockDao ipBlockDao;
+
+  @Autowired
+  private CaptchaService captcha;
+
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
     HttpServletRequest request,
@@ -117,7 +126,7 @@ public class EditTopicController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -136,7 +145,6 @@ public class EditTopicController {
     @RequestParam("msgid") int msgid,
     @ModelAttribute("form") EditTopicRequest form
   ) throws Exception {
-
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -147,7 +155,7 @@ public class EditTopicController {
 
     User user = tmpl.getCurrentUser();
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -157,28 +165,26 @@ public class EditTopicController {
   }
 
   private ModelAndView prepareModel(
-    PreparedTopic preparedMessage,
+    PreparedTopic preparedTopic,
     EditTopicRequest form,
     User currentUser
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    final Topic message = preparedMessage.getMessage();
+    final Topic message = preparedTopic.getMessage();
 
     params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
+    params.put("preparedMessage", preparedTopic);
 
-    Group group = preparedMessage.getGroup();
+    Group group = preparedTopic.getGroup();
     params.put("group", group);
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedTopic.getSection()));
 
     params.put("newMsg", message);
-    params.put("newPreparedMessage", preparedMessage);
 
-    params.put("editable", permissionService.isEditable(preparedMessage, currentUser));
-    boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, currentUser);
-    params.put("tagsEditable", tagsEditable);
+    TopicMenu topicMenu = prepareService.getTopicMenu(preparedTopic, currentUser);
+    params.put("topicMenu", topicMenu);
 
     List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     if (!editInfoList.isEmpty()) {
@@ -198,7 +204,7 @@ public class EditTopicController {
 
     params.put("commit", false);
 
-    if (tagsEditable) {
+    if (topicMenu.isTagsEditable()) {
       params.put("topTags", tagService.getTopTags());
     }
 
@@ -214,11 +220,11 @@ public class EditTopicController {
       form.setMinor(message.isMinor());
     }
 
-    if (!preparedMessage.getTags().isEmpty()) {
-      form.setTags(TagService.toString(preparedMessage.getTags()));
+    if (!preparedTopic.getTags().isEmpty()) {
+      form.setTags(TagService.toString(preparedTopic.getTags()));
     }
 
-    if (group.isPollPostAllowed()) {
+    if (preparedTopic.getSection().isPollPostAllowed()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       form.setPoll(PollVariant.toMap(poll.getVariants()));
@@ -251,6 +257,11 @@ public class EditTopicController {
     );
   }
 
+  @ModelAttribute("ipBlockInfo")
+  private IPBlockInfo loadIPBlock(HttpServletRequest request) {
+    return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.POST)
   public ModelAndView edit(
     HttpServletRequest request,
@@ -258,7 +269,8 @@ public class EditTopicController {
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId,
     @Valid @ModelAttribute("form") EditTopicRequest form,
-    Errors errors
+    Errors errors,
+    @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -269,29 +281,30 @@ public class EditTopicController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     final Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
-    Group group = preparedMessage.getGroup();
+    PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    Group group = preparedTopic.getGroup();
 
     User user = tmpl.getCurrentUser();
 
-    boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, user);
-    boolean editable = permissionService.isEditable(preparedMessage, user);
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
+
+    boolean tagsEditable = permissionService.isTagsEditable(preparedTopic, user);
+    boolean editable = permissionService.isEditable(preparedTopic, user);
 
     if (!editable && !tagsEditable) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
     params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
+    params.put("preparedMessage", preparedTopic);
     params.put("group", group);
-    params.put("tagsEditable", tagsEditable);
-    params.put("editable", editable);
+    params.put("topicMenu", prepareService.getTopicMenu(preparedTopic, tmpl.getCurrentUser()));
 
     if (tagsEditable) {
       params.put("topTags", tagService.getTopTags());
     }
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedTopic.getSection()));
 
     if (editable) {
       String title = request.getParameter("title");
@@ -325,7 +338,7 @@ public class EditTopicController {
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
+    params.put("commit", !message.isCommited() && preparedTopic.getSection().isPremoderated() && user.isModerator());
 
     Topic newMsg = new Topic(group, message, form);
 
@@ -389,7 +402,7 @@ public class EditTopicController {
 
     Poll newPoll = null;
 
-    if (group.isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
+    if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       List<PollVariant> newVariants = new ArrayList<PollVariant>();
@@ -441,6 +454,10 @@ public class EditTopicController {
       }
     }
 
+    if (!preview && !errors.hasErrors() && ipBlockInfo.isCaptchaRequired()) {
+      captcha.checkCaptcha(request, errors);
+    }
+
     if (!preview && !errors.hasErrors()) {
       boolean changed = messageDao.updateAndCommit(
               newMsg,
@@ -473,7 +490,7 @@ public class EditTopicController {
 
     params.put(
             "newPreparedMessage",
-            messagePrepareService.prepareTopicPreview(
+            prepareService.prepareTopicPreview(
                     newMsg,
                     newTags,
                     newPoll,

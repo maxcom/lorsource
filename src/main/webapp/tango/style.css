@@ -255,6 +255,7 @@ pre {
     background-color: #2e3436;
     border-radius: 3px;
     border: 1px dashed #777;
+    overflow: auto;
 }
 
 .boxlet {
@@ -372,7 +373,18 @@ div.quote {
     text-decoration: underline !important;
 }
 
+figure.medium-image {
+    float: right;
+    margin-left: 1em;
+    text-align: center;
+}
+
 @media screen and (max-width: 800px) {
+    img.medium-image {
+        float: none;
+        margin-left: inherit;
+    }
+
     .hideon-tablet {
         display: none;
     }

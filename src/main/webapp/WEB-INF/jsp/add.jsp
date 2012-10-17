@@ -1,7 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
-<%@ page import="ru.org.linux.group.Group"%>
 <%@ page import="ru.org.linux.topic.TopicTagService"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +16,13 @@
   --%>
 <%--@elvariable id="message" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
+<%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
 <%--@elvariable id="postscoreInfo" type="java.lang.String"--%>
+<%--@elvariable id="imagepost" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -71,7 +71,7 @@
 <%--<p>--%>
 <%--<% } %>--%>
 
-<c:if test="${group!=null and group.imagePostAllowed}">
+<c:if test="${imagepost}">
 <p>
   Технические требования к изображению:
   <ul>
@@ -86,7 +86,7 @@
 </c:if>
 
 
-<form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${group.imagePostAllowed?'multipart/form-data':'application/x-www-form-urlencoded'}" >
+<form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}" >
   <form:errors path="*" element="div" cssClass="error"/>
 
   <form:hidden path="noinfo"/>
@@ -109,11 +109,11 @@
     <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
    </label>
 
-  <c:if test="${group!=null and group.imagePostAllowed}">
+  <c:if test="${imagepost}">
     <label>Изображение: <input type="file" name="image"></label><br>
   </c:if>
 
-  <c:if test="${group!=null and group.pollPostAllowed}">
+  <c:if test="${section.pollPostAllowed}">
       Внимание! Вопрос должен быть задан в поле «заглавие». В поле «сообщение» можно написать
       дополнительное описание опроса, которое будет видно только на странице опроса (и не будет
       видно в форме голосования на главной странице)<br>
@@ -146,11 +146,11 @@
 </c:if>
 
 <label>
-<c:if test="${not group.moderated}">
+<c:if test="${not section.premoderated}">
   Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
 </c:if>
 
-<c:if test="${group.moderated}">
+<c:if test="${section.premoderated}">
   Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
 </c:if>
 

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
-  private final static Log logger = LogFactory.getLog(CSRFHandlerInterceptor.class);
+  private static final Log logger = LogFactory.getLog(CSRFHandlerInterceptor.class);
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -45,7 +45,7 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
 
       if (Strings.isNullOrEmpty(csrfInput)) {
         if ((handler instanceof HandlerMethod)) {
-          logger.warn("Missing CSRF field for " + request.getRequestURI()+" "+((HandlerMethod) handler).getBeanType().getName()+"."+((HandlerMethod) handler).getMethod().getName());
+          logger.warn("Missing CSRF field for " + request.getRequestURI()+ ' ' +((HandlerMethod) handler).getBeanType().getName()+ '.' +((HandlerMethod) handler).getMethod().getName());
         } else {
           logger.warn("Missing CSRF field for " + request.getRequestURI());
         }

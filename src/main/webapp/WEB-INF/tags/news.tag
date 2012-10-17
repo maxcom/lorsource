@@ -4,6 +4,7 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
+<%@ tag import="ru.org.linux.user.Remark" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -95,8 +96,7 @@
 <article class=news id="topic-${message.id}">
 <%
   String url = message.getUrl();
-  boolean imagepost = preparedMessage.getSection().isImagepost();
-  boolean votepoll = preparedMessage.getSection().isVotePoll();
+  boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
 
   String image = preparedMessage.getGroup().getImage();
   Group group = preparedMessage.getGroup();
@@ -133,23 +133,25 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="${preparedMessage.section.imagepost}">
-    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
 <%
-  if (url != null && !imagepost && !votepoll) {
+  if (url != null) {
     if (url.isEmpty()) {
       url = message.getLink();
     }
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
-  } else if (imagepost) {
+  }
 %>
-  <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+<c:if test="${preparedMessage.image != null}">
+  <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+</c:if>
 <%
-  } else if (votepoll) {
+  if (votepoll) {
       %>
         <c:choose>
             <c:when test="${not message.commited || preparedMessage.poll.poll.current}">
@@ -180,6 +182,10 @@
       <lor:sign shortMode="true" postdate="${message.postdate}" user="${preparedMessage.author}"/>
     </c:otherwise>
   </c:choose>
+  <c:if test="${preparedMessage.remark != null}">
+    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/></span>
+  </c:if>
+  
 </div>
 <div class="nav">
 <c:if test="${not moderateMode and messageMenu.commentsAllowed}">

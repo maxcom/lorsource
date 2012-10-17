@@ -88,9 +88,6 @@ public class CommentService {
   private FloodProtector floodProtector;
 
   @Autowired
-  private IPBlockDao ipBlockDao;
-
-  @Autowired
   private LorCodeService lorCodeService;
 
   @Autowired
@@ -193,9 +190,7 @@ public class CommentService {
 
     user.checkBlocked(errors);
 
-    if (ipBlockInfo.isBlocked()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
-    }
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (!commentRequest.isPreviewMode() && !errors.hasErrors()) {
       floodProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
@@ -264,8 +259,7 @@ public class CommentService {
         commentId,
         user.getId(),
         request.getHeader("user-agent"),
-        request.getRemoteAddr(),
-        commentDao.getReplaysCount(commentId) > 0
+        request.getRemoteAddr()
       );
     }
     return comment;
@@ -316,7 +310,7 @@ public class CommentService {
     HttpServletRequest request
   ) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      formParams.put("onComment", commentPrepareService.prepareComment(add.getReplyto(), request.isSecure()));
+      formParams.put("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
     }
   }
 
@@ -496,7 +490,7 @@ public class CommentService {
    * @param reason     причина удаления
    * @param user       модератор который удаляет
    * @param scoreBonus кол-во отрезаемого шкворца
-   * @throws ru.org.linux.site.ScriptErrorException генерируем исключение если на комментарий есть ответы
+   * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {

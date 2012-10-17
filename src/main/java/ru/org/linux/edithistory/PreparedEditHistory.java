@@ -16,14 +16,14 @@
 package ru.org.linux.edithistory;
 
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class PreparedEditHistory {
-  private final EditHistoryDto editHistoryDto;
   private final boolean original;
   private final User editor;
   private final String message;
@@ -32,24 +32,26 @@ public class PreparedEditHistory {
   private final List<String> tags;
   private final String url;
   private final String linktext;
+  private final Boolean minor;
+  private final Timestamp editdate;
 
   public PreparedEditHistory(
     LorCodeService lorCodeService,
     boolean secure,
-    UserDao userDao,
-    EditHistoryDto editHistoryDto,
+    @Nonnull User editor,
+    Timestamp editdate,
     String message,
     String title,
     String url,
     String linktext,
     List<String> tags,
     boolean current,
-    boolean original
-  ) throws UserNotFoundException {
-    this.editHistoryDto = editHistoryDto;
+    boolean original,
+    @Nullable Boolean minor
+  ) {
     this.original = original;
 
-    editor = userDao.getUserCached(editHistoryDto.getEditor());
+    this.editor = editor;
 
     if (message!=null) {
       this.message = lorCodeService.parseComment(message, secure);
@@ -60,16 +62,17 @@ public class PreparedEditHistory {
     this.title = title;
     this.url = url;
     this.linktext = linktext;
-
     this.current = current;
-
     this.tags = tags;
+    this.minor = minor;
+    this.editdate = editdate;
   }
 
-  public EditHistoryDto getEditHistoryDto() {
-    return editHistoryDto;
+  public Timestamp getEditDate() {
+    return editdate;
   }
 
+  @Nonnull
   public User getEditor() {
     return editor;
   }
@@ -100,5 +103,9 @@ public class PreparedEditHistory {
 
   public List<String> getTags() {
     return tags;
+  }
+
+  public Boolean getMinor() {
+    return minor;
   }
 }

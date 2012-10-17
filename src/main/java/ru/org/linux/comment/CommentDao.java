@@ -150,7 +150,7 @@ public interface CommentDao {
   (
     final Comment comment,
     String message
-  ) throws MessageNotFoundException;
+  );
 
   /**
    * Редактирование комментария.
@@ -229,6 +229,7 @@ public interface CommentDao {
     private final String title;
     private final String reason;
     private final Timestamp delDate;
+    private final int bonus;
 
     public DeletedListItem(ResultSet rs) throws SQLException {
       ptitle = rs.getString("ptitle");
@@ -237,6 +238,7 @@ public interface CommentDao {
       title = StringUtil.makeTitle(rs.getString("title"));
       reason = rs.getString("reason");
       delDate = rs.getTimestamp("deldate");
+      bonus = rs.getInt("bonus");
     }
 
     public String getPtitle() {
@@ -261,6 +263,10 @@ public interface CommentDao {
 
     public Timestamp getDelDate() {
       return delDate;
+    }
+
+    public int getBonus() {
+      return bonus;
     }
   }
 
@@ -319,5 +325,7 @@ public interface CommentDao {
     public void setPostdate(Timestamp postdate) {
       this.postdate = postdate;
     }
+
+
   }
 }

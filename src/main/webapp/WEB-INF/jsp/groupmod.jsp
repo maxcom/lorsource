@@ -34,6 +34,7 @@
 <lor:groupinfo group="${groupInfo}"/>
 
 <form action="groupmod.jsp" method="POST">
+  <lor:csrf/>
   <input type="hidden" name="group" value="${group.id}">
   <label>Заголовок: <input type="text" name="title" size="70" value="${fn:escapeXml(group.title)}"></label><br>
   <label>Строка описания: <input type="text" name="info" size="70" value="${fn:escapeXml(group.info)}"></label><br>

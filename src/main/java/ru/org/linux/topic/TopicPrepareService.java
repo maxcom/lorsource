@@ -16,6 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
@@ -25,8 +26,8 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
-import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -44,6 +45,7 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -52,6 +54,8 @@ import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -149,7 +153,7 @@ public class TopicPrepareService {
           boolean secure, 
           User user,
           MessageText text,
-          Image image) {
+          @Nullable Image image) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -172,7 +176,7 @@ public class TopicPrepareService {
 
       PreparedPoll preparedPoll;
 
-      if (section.isVotePoll()) {
+      if (section.isPollPostAllowed()) {
         if (poll==null) {
           preparedPoll = pollPrepareService.preparePoll(message, user);
         } else {
@@ -205,12 +209,12 @@ public class TopicPrepareService {
         editCount = 0;
       }
 
-      String processedMessage;
-      String ogDescription;
-
       if (text == null) {
         text = msgbaseDao.getMessageText(message.getId());
       }
+
+      String processedMessage;
+      String ogDescription;
 
       if (text.isLorcode()) {
         if (minimizeCut) {
@@ -234,14 +238,19 @@ public class TopicPrepareService {
       
       PreparedImage preparedImage = null;
 
-      if (group.isImagePostAllowed()) {
+      if (section.isImagepost() || section.isImageAllowed()) {
         if (message.getId()!=0) {
-          preparedImage = prepareImage(imageDao.imageForTopic(message), secure);
-        } else {
+          image = imageDao.imageForTopic(message);
+        }
+
+        if (image != null) {
           preparedImage = prepareImage(image, secure);
         }
       }
-
+      Remark remark = null;
+      if (user != null ){
+        remark = userDao.getRemark(user, author);
+      }
       return new PreparedTopic(
               message, 
               author, 
@@ -260,7 +269,8 @@ public class TopicPrepareService {
               userAgent, 
               text.isLorcode(),
               preparedImage, 
-              TopicPermissionService.getPostScoreInfo(message.getPostScore())
+              TopicPermissionService.getPostScoreInfo(message.getPostScore()),
+              remark
       );
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
@@ -271,7 +281,9 @@ public class TopicPrepareService {
     }
   }
   
-  private PreparedImage prepareImage(Image image, boolean secure) {
+  private PreparedImage prepareImage(@Nonnull Image image, boolean secure) {
+    Preconditions.checkNotNull(image);
+
     String mediumName = image.getMedium();
 
     String htmlPath = configuration.getHTMLPathPrefix();
@@ -289,7 +301,7 @@ public class TopicPrepareService {
       LorURL medURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+mediumName);
       LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+image.getOriginal());
 
-      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo);
+      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image);
     } catch (BadImageException e) {
       logger.warn(e);
       return null;
@@ -322,7 +334,7 @@ public class TopicPrepareService {
               textMap.get(message.getId()),
               null
       );
-      TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
+      TopicMenu topicMenu = getTopicMenu(preparedMessage, user);
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
 
@@ -362,8 +374,10 @@ public class TopicPrepareService {
     return pm;
   }
 
-  public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
-    boolean editable = currentUser!=null && (groupPermissionService.isEditable(message, currentUser) || groupPermissionService.isTagsEditable(message, currentUser)) ;
+  @Nonnull
+  public TopicMenu getTopicMenu(@Nonnull PreparedTopic message, @Nullable User currentUser) {
+    boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
+    boolean tagsEditable = groupPermissionService.isTagsEditable(message, currentUser);
     boolean resolvable;
     int memoriesId;
     int favsId;
@@ -386,7 +400,8 @@ public class TopicPrepareService {
     }
 
     return new TopicMenu(
-            editable, 
+            topicEditable,
+            tagsEditable,
             resolvable, 
             memoriesId,
             favsId,

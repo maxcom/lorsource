@@ -9,6 +9,8 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,13 +27,13 @@ public class GroupPermissionService {
     this.sectionService = sectionService;
   }
 
-  private int getEffectivePostscore(Group group) {
+  private int getEffectivePostscore(@Nonnull Group group) {
     Section section = sectionService.getSection(group.getSectionId());
 
     return Math.max(group.getTopicRestriction(), section.getTopicsRestriction());
   }
 
-  public boolean isTopicPostingAllowed(Group group, User currentUser) {
+  public boolean isTopicPostingAllowed(@Nonnull Group group, @Nullable User currentUser) {
     int restriction = getEffectivePostscore(group);
 
     if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
@@ -51,6 +53,18 @@ public class GroupPermissionService {
     } else {
       return currentUser.getScore() >= restriction;
     }
+  }
+
+  public boolean isImagePostingAllowed(@Nonnull Section section, @Nullable User currentUser) {
+    if (section.isImagepost()) {
+      return true;
+    }
+
+    if (currentUser!=null && currentUser.isAdministrator()) {
+      return section.isImageAllowed();
+    }
+
+    return false;
   }
 
   public String getPostScoreInfo(Group group) {
@@ -97,7 +111,7 @@ public class GroupPermissionService {
    * @param user пользователь удаляющий сообщение
    * @return признак возможности удаления
    */
-  private boolean isDeletableByUser(Topic topic, User user) {
+  private static boolean isDeletableByUser(Topic topic, User user) {
     Calendar calendar = Calendar.getInstance();
 
     calendar.setTime(new Date());
@@ -152,7 +166,7 @@ public class GroupPermissionService {
    * @param by редактор
    * @return true если можно, false если нет
    */
-  public boolean isEditable(PreparedTopic topic, User by) {
+  public boolean isEditable(@Nonnull PreparedTopic topic, @Nullable User by) {
     Topic message = topic.getMessage();
     Section section = topic.getSection();
     User author = topic.getAuthor();
@@ -161,7 +175,7 @@ public class GroupPermissionService {
       return false;
     }
 
-    if (by.isAnonymous() || by.isBlocked()) {
+    if (by==null || by.isAnonymous() || by.isBlocked()) {
       return false;
     }
 
@@ -211,7 +225,7 @@ public class GroupPermissionService {
    * @param by редактор
    * @return true если можно, false если нет
    */
-  public boolean isTagsEditable(PreparedTopic topic, User by) {
+  public boolean isTagsEditable(@Nonnull PreparedTopic topic, @Nullable User by) {
     Topic message = topic.getMessage();
     Section section = topic.getSection();
     User author = topic.getAuthor();
@@ -220,7 +234,7 @@ public class GroupPermissionService {
       return false;
     }
 
-    if (by.isAnonymous() || by.isBlocked()) {
+    if (by==null || by.isAnonymous() || by.isBlocked()) {
       return false;
     }
 

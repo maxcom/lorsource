@@ -155,8 +155,8 @@
         </dependency>
         <dependency>
             <groupId>spy</groupId>
-            <artifactId>memcached</artifactId>
-            <version>2.5</version>
+            <artifactId>spymemcached</artifactId>
+            <version>2.8.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -212,7 +212,7 @@
         <dependency>
             <groupId>org.tuckey</groupId>
             <artifactId>urlrewritefilter</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.4</version>
         </dependency>
 
         <dependency>
@@ -442,52 +442,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.solr</groupId>
-                                    <artifactId>solr</artifactId>
-                                    <version>3.5.0</version>
-                                    <type>war</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                    <destFileName>solr.war</destFileName>
-                                </artifactItem>
-
-                                <artifactItem>
-                                    <groupId>org.jamwiki</groupId>
-                                    <artifactId>jamwiki-war</artifactId>
-                                    <version>1.1.5</version>
-                                    <type>war</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                    <destFileName>wiki.war</destFileName>
-                                </artifactItem>
-
-                                <artifactItem>
-                                    <groupId>postgresql</groupId>
-                                    <artifactId>postgresql</artifactId>
-                                    <version>8.4-702.jdbc4</version>
-                                    <type>jar</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                    <destFileName>postgresql.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <!-- Separates the unit tests from the integration tests. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -534,28 +488,39 @@
                     </execution>
                 </executions>
             </plugin>
-
-          <plugin>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-maven-plugin</artifactId>
-            <version>2.0.1</version>
-
-            <configuration>
-              <propertyFile>sql/liquibase.config</propertyFile>
-              <verbose>true</verbose>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>update</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>Liquibase</id>
+            <activation>
+                <property>
+                    <name>!skipTests</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>2.0.1</version>
+
+                        <configuration>
+                            <propertyFile>sql/liquibase.config</propertyFile>
+                            <verbose>true</verbose>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>update</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>production</id>
             <build>
@@ -567,6 +532,63 @@
                             <propertyFile>sql/production-liquibase.config</propertyFile>
                             <verbose>false</verbose>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>test with jamwiki and solr</id>
+            <activation>
+                <property>
+                    <name>!env.TRAVIS</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.jamwiki</groupId>
+                                            <artifactId>jamwiki-war</artifactId>
+                                            <version>1.1.5</version>
+                                            <type>war</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                            <destFileName>wiki.war</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.apache.solr</groupId>
+                                            <artifactId>solr</artifactId>
+                                            <version>3.5.0</version>
+                                            <type>war</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                            <destFileName>solr.war</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>postgresql</groupId>
+                                            <artifactId>postgresql</artifactId>
+                                            <version>8.4-702.jdbc4</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                            <destFileName>postgresql.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

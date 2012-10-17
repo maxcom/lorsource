@@ -33,7 +33,6 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -48,7 +47,7 @@ public class DeleteCommentController {
   private UserDao userDao;
   private CommentPrepareService prepareService;
 
-  private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
+  public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
   @Autowired
   @Required
@@ -114,7 +113,7 @@ public class DeleteCommentController {
 
     List<Comment> list = cv.getCommentsSubtree(msgid);
 
-    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure()));
+    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure(), tmpl, topic));
     params.put("comments", comments);
 
     return new ModelAndView("delete_comment", params);
@@ -210,7 +209,7 @@ public class DeleteCommentController {
 
   @ExceptionHandler({ScriptErrorException.class, UserErrorException.class, AccessViolationException.class})
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+  public ModelAndView handleUserNotFound(Exception ex) {
     ModelAndView mav = new ModelAndView("errors/good-penguin");
     mav.addObject("msgTitle", "Ошибка: " + ex.getMessage());
     mav.addObject("msgHeader", ex.getMessage());

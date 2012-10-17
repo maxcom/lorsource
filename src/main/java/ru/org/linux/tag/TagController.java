@@ -32,8 +32,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicListController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -81,7 +79,7 @@ public class TagController {
 
     Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter);
 
-    if (tags.size() == 0) {
+    if (tags.isEmpty()) {
       throw new TagNotFoundException("Tag list is empty");
     }
     modelAndView.addObject("tags", tags);
@@ -101,9 +99,9 @@ public class TagController {
    * @param term часть тега
    * @return Список тегов
    */
+  @ResponseBody
   @RequestMapping(value = "/tags", params = {"term"})
   public
-  @ResponseBody
   List<String> showTagListHandlerJSON(
     @RequestParam("term") final String term
   ) {
@@ -129,7 +127,7 @@ public class TagController {
   public ModelAndView changeTagShowFormHandler(
     HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
-    @RequestParam(value = "tagName") String oldTagName
+    @RequestParam("tagName") String oldTagName
   ) throws AccessViolationException {
     Template template = Template.getTemplate(request);
     if (!template.isModeratorSession()) {
@@ -194,7 +192,7 @@ public class TagController {
   public ModelAndView deleteTagShowFormHandler(
     HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
-    @RequestParam(value = "tagName") String oldTagName
+    @RequestParam("tagName") String oldTagName
   ) throws AccessViolationException {
     Template template = Template.getTemplate(request);
     if (!template.isModeratorSession()) {
