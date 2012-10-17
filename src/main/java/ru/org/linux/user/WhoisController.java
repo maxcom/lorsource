@@ -27,6 +27,9 @@ import ru.org.linux.site.Template;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Set;
@@ -46,7 +49,7 @@ public class WhoisController {
   UserTagService userTagService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
+  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     User user = userDao.getUser(nick);
@@ -87,6 +90,7 @@ public class WhoisController {
     if (currentUser || tmpl.isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
+    response.setDateHeader("Expires", System.currentTimeMillis()+120000);
     return mv;
   }
 
