@@ -41,13 +41,15 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager">
         <intercept-url pattern="/**" access="permitAll"/>
         <form-login login-page="/login.jsp" username-parameter="nick" password-parameter="passwd"
-                    login-processing-url="/login_process"/>
+                    login-processing-url="/login_process" authentication-success-handler-ref="authenticationSuccessHandler"/>
         <remember-me key="${Secret}" services-ref="rememberMeServices"/>
         <!-- TODO: LoginController.ACEGI_COOKIE_NAME -->
         <logout logout-url="/logout" logout-success-url="/"
                 delete-cookies="password,profile,JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"/>
         <anonymous username="anonymous" granted-authority="ROLE_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
+
+        <session-management session-authentication-strategy-ref="sas" />
     </http>
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
@@ -72,4 +74,6 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     </beans:bean>
 
     <beans:bean id="securityFilter" class="ru.org.linux.auth.SecurityFilter"/>
+    <beans:bean id="sas" class="ru.org.linux.auth.SessionFixationProtectionStrategyImpl" />
+    <beans:bean id="authenticationSuccessHandler" class="ru.org.linux.auth.AuthenticationSuccessHandlerImpl" />
 </beans:beans>

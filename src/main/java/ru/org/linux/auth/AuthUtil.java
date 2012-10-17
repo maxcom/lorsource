@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 
 import java.util.Collection;
 
@@ -31,6 +32,17 @@ import java.util.Collection;
 public class AuthUtil {
 
   private static final Log logger = LogFactory.getLog(AuthUtil.class);
+
+  public static void updateLastLogin(Authentication authentication, UserDao userDao) {
+    if(authentication != null && (authentication.isAuthenticated())) {
+      Object principal = authentication.getPrincipal();
+      if (principal instanceof UserDetailsImpl) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+        User user = userDetails.getUser();
+        userDao.updateLastlogin(user);
+      }
+    }
+  }
 
   public static boolean isSessionAuthorized() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -72,6 +72,7 @@ public class LoginController {
       Authentication auth = authenticationManager.authenticate(token);
       SecurityContextHolder.getContext().setAuthentication(auth);
       rememberMeServices.loginSuccess(request, response, auth);
+      AuthUtil.updateLastLogin(auth, userDao);
       return new LoginStatus(auth.isAuthenticated(), auth.getName());
     } catch (LockedException e) {
       return new LoginStatus(false, "User locked");
