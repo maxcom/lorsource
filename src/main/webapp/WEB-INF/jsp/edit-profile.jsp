@@ -1,6 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.user.ProfileProperties" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +16,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
         <title>Настройки профиля</title>
@@ -61,42 +58,41 @@ $(document).ready(function() {
 <h1 class="optional">Настройки профиля</h1>
 
 <h2>Параметры профиля</h2>
-<% ProfileProperties profHash=tmpl.getProf(); %>
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>
 <tr><td colspan=2><hr></td></tr>
 <tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
-<td><input type=checkbox name=showSocial <%= profHash.isShowSocial()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
 <tr><td>Новые комментарии в начале</td>
-<td><input type=checkbox name=newfirst <%= profHash.isShowNewFirst()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
 <tr><td>Показывать фотографии</td>
-<td><input type=checkbox name=photos <%= profHash.isShowPhotos()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="topics">Число тем форума на странице</label> </td>
-<td><input type=text size="5" id="topics" name=topics value=<%= profHash.getTopics()%>></td></tr>
+<td><input type=text size="5" id="topics" name="topics" value="${template.prof.topics}" ></td></tr>
 <tr><td><label for="messages">Число комментариев на странице</label></td>
-<td><input type=text size="5" id="messages" name=messages value=<%= profHash.getMessages()%>></td></tr>
+<td><input type=text size="5" id="messages" name="messages" value="${template.prof.messages}" ></td></tr>
 <tr><td><label for="tags">Число меток в облаке</label></td>
-<td><input type=text size="5" id="tags" name=tags value=<%= profHash.getTags()%>></td></tr>
+<td><input type=text size="5" id="tags" name="tags" value="${template.prof.tags}" ></td></tr>
 <%--
 <tr><td>Верстка главной страницы в 3 колонки</td>
-<td><input type=checkbox name=3column <%= profHash.isThreeColumnsOnMain()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="3column" <c:if test="${template.prof.threeColumnsOnMain}">checked</c:if> ></td></tr>
 --%>
 <tr><td>Показывать анонимные комментарии</td>
-<td><input type=checkbox name=showanonymous <%= profHash.isShowAnonymous()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>
-<td><input type=checkbox name=hover <%= profHash.isUseHover()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="hover" <c:if test="${template.prof.useHover}">checked</c:if> ></td></tr>
 <tr><td>Показывать меньше рекламы</td>
-<td><input type=checkbox name=hideAdsense <%= profHash.isHideAdsense()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
-<td><input type=checkbox name=mainGallery <%= profHash.isShowGalleryOnMain()?"checked":"" %>></td></tr>
+<td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
   <tr><td colspan=2><hr></td></tr>
 <tr>
   <td valign=top>Тема</td>
   <td>
-    <c:set value="<%= tmpl.getStyle() %>" var="style"/>
+    <c:set value="${template.style}" var="style"/>
 
-    <c:forEach var="s" items="<%= DefaultProfile.getStyleList() %>">
+    <c:forEach var="s" items="${stylesList}">
       <c:if test="${s == style}">
         <input type=radio name=style value="${s}" id="style-${s}" checked><label for="style-${s}">${s}</label><br>
       </c:if>
@@ -106,13 +102,13 @@ $(document).ready(function() {
     </c:forEach>
   </td>
 </tr>
-  <tr><td colspan=2><hr></td></tr>
+  <tr><td colspan="2"><hr></td></tr>
   <tr>
-    <td valign=top>При отсутствии аватара показывать</td>
+    <td valign="top">При отсутствии аватара показывать</td>
     <td>
-      <c:set value="<%= profHash.getAvatarMode() %>" var="avatar"/>
+      <c:set value="${template.prof.avatarMode}" var="avatar"/>
 
-      <c:forEach var="s" items="<%= DefaultProfile.getAvatars() %>">
+      <c:forEach var="s" items="${avatarsList}">
         <c:if test="${s == avatar}">
           <input type=radio name=avatar value="${s}" checked id="avatar-${s}"><label for="avatar-${s}">${s}</label><br>
         </c:if>
@@ -127,9 +123,8 @@ $(document).ready(function() {
 <tr>
   <td valign=top>Форматирование по умолчанию</td>
   <td>
-    <% String formatMode=tmpl.getFormatMode(); %>
-    <input type=radio name=format_mode id="format-quot"  value=quot   <%= "quot".equals(formatMode)?"checked":"" %>><label for="format-quot">TeX paragraphs (default)</label><br>
-    <input type=radio name=format_mode id="format-ntobr" value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>><label for="format-ntobr">User line break</label><br>
+    <input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> ><label for="format-quot">TeX paragraphs (default)</label><br>
+    <input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> ><label for="format-ntobr">User line break</label><br>
 <%--
     <input type=radio name=format_mode id="format-lorcode" value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>><label for="format-lorcode">LORCODE</label><br>
 --%>
