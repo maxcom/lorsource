@@ -281,6 +281,7 @@ public class TopicController {
     }
 
     params.put("message", topic);
+    params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
     params.put("preparedMessage", preparedMessage);
 
     params.put("messageMenu", messagePrepareService.getTopicMenu(preparedMessage, currentUser));

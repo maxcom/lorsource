@@ -392,6 +392,14 @@ public class Topic implements Serializable {
     return resolved;
   }
 
+  public static String getLinkPage(Topic topic, int page) {
+    return topic.getLinkPage(page);
+  }
+
+  public static String getLinkPage(Topic topic) {
+    return topic.getLink();
+  }
+
   public String getLink() {
     try {
       return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;

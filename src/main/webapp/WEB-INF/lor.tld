@@ -23,6 +23,19 @@
     <short-name>lor</short-name>
     <uri>http://www.linux.org.ru</uri>
 
+
+    <function>
+        <name>getLinkPage</name>
+        <function-class>ru.org.linux.topic.Topic</function-class>
+        <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic, int)</function-signature>
+    </function>
+    <function>
+        <name>getLink</name>
+        <function-class>ru.org.linux.topic.Topic</function-class>
+        <function-signature>java.lang.String getLinkPage(ru.org.linux.topic.Topic)</function-signature>
+    </function>
+
+
     <tag>
         <description>Boxlet container</description>
         <display-name>boxlets</display-name>
