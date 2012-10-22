@@ -27,21 +27,17 @@ public class PreparedRemarkService {
   @Autowired
   private UserDao userDao;
 
-  public List<PreparedRemark> prepareRemarkList(List<Remark> list) {
+  public List<PreparedRemark> prepareRemarkList(List<Remark> list) throws Exception {
     if (list.isEmpty()) {
       return ImmutableList.of();
     }
 
     List<PreparedRemark> remarksPrepared = new ArrayList<PreparedRemark>(list.size());
     for (Remark remark : list) {
-      try{
-        User refUser = userDao.getUserCached(remark.getRefUserId());
-
-        remarksPrepared.add(new PreparedRemark(remark,refUser));
-      
-      }catch(UserNotFoundException e){
-      }
+      User refUser = userDao.getUserCached(remark.getRefUserId());
+      remarksPrepared.add(new PreparedRemark(remark,refUser));
     }
+
     return remarksPrepared;
   }
 

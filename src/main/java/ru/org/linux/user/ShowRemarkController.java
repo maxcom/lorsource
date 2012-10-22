@@ -52,7 +52,7 @@ public class ShowRemarkController {
     int count = userDao.getRemarkCount(tmpl.getCurrentUser());
 
     if( offset >= count ){
-      throw new AccessViolationException("Not authorized");
+      throw new AccessViolationException("Offset is too long");
     }
     if( offset < 0 ) offset=0;
 

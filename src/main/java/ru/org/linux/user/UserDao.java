@@ -619,9 +619,6 @@ public class UserDao {
       }
     }, user.getId(), limit, offset);
 
-    if (remarkList.isEmpty()) {
-      return null;
-    }
     return remarkList;
   }
 
