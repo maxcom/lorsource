@@ -185,10 +185,10 @@
     <c:if test="${filterMode != defaultFilterMode}">
         <c:choose>
             <c:when test="${empty urlAdd}">
-                <c:set var="urlAdd" value="&" />
+                <c:set var="urlAdd" value="?" />
             </c:when>
             <c:otherwise>
-                <c:set var="urlAdd" value="${urlAdd}?" />
+                <c:set var="urlAdd" value="${urlAdd}&" />
             </c:otherwise>
         </c:choose>
         <c:set var="filterAdd" value="?filter=${filterMode}" />
