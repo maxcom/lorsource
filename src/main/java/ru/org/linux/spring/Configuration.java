@@ -73,6 +73,10 @@ public class Configuration {
     return mainURI.toString();
   }
 
+  public String getMainUrlWithoutSlash() {
+    return getMainUrl().replaceFirst("/$", "");
+  }
+
   public String getSecureUrl() {
     return secureURI.toString();
   }
