@@ -195,6 +195,10 @@ public class User implements Serializable {
     return corrector && score>= CORRECTOR_SCORE;
   }
 
+  public int getCorrectorScore() {
+    return CORRECTOR_SCORE;
+  }
+
   public boolean isAnonymous() {
     return anonymous;
   }
