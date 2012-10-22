@@ -33,16 +33,7 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-
-<%
-  int filterMode = (Integer) request.getAttribute("filterMode");
-
-  int npage = (Integer) request.getAttribute("page");
-
-  Topic message = (Topic) request.getAttribute("message");
-%>
 
 <title><l:title>${message.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
 <meta property="og:title" content="<l:title>${message.title}</l:title>" >
@@ -59,7 +50,7 @@
 
 <meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
 
-<link rel="canonical" href="${template.mainUrlNoSlash}<%= message.getLinkPage(npage) %>">
+<link rel="canonical" href="${template.mainUrlNoSlash}${message.getLinkPage(page)}">
 
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
@@ -182,73 +173,62 @@
   <h1 class="optional">Режим показа удаленных комментариев</h1>
 </c:if>
 
-<%
-  int messages = tmpl.getProf().getMessages();
-  int pages = message.getPageCount(messages);
+<c:if test="${pages > 1}">
+    <c:set var="urlAdd" value='' />
+    <c:set var="bufInfo" value='' />
+    <c:set var="filterAdd" value='' />
 
-  String pageInfo = null;
-  if (pages > 1) {
-    StringBuilder bufInfo = new StringBuilder();
+    <c:if test="${not message.expired}">
+        <c:set var="urlAdd" value="?lastmod=${message.lastModified.time}" />
+    </c:if>
 
-    StringBuilder urlAdd = new StringBuilder();
-    if (!message.isExpired()) {
-      urlAdd.append("?lastmod=").append(message.getLastModified().getTime());
-    }
+    <c:if test="${filterMode != defaultFilterMode}">
+        <c:choose>
+            <c:when test="${empty urlAdd}">
+                <c:set var="urlAdd" value="&" />
+            </c:when>
+            <c:otherwise>
+                <c:set var="urlAdd" value="${urlAdd}?" />
+            </c:otherwise>
+        </c:choose>
+        <c:set var="filterAdd" value="?filter=${filterMode}" />
+        <c:set var="urlAdd" value="${urlAdd}filter=${filterMode}" />
+    </c:if>
+    <c:if test="${page != -1 and page != 0}">
+        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${message.getLinkPage(page-1)}${filterAdd}'>←</a>" />
+    </c:if>
+    <c:if test="${page == -1 or page == 0}">
+        <c:set var="bufInfo" value="&emsp;<span class='page-number'>←</span>" />
+    </c:if>
 
-    String filterAdd="";
+    <c:forEach var="i" begin="0" end="${pages-1}">
+        <c:set var="bufInfo" value="${bufInfo} " />
+        <c:if test="${i != page}">
+            <c:if test="${i == pages-1}">
+                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${urlAdd}'" />
+            </c:if>
+            <c:if test="${i != pages-1}">
+                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${filterAdd}'" />
+            </c:if>
+            <c:set var="bufInfo" value="${bufInfo}>${i + 1}</a>" />
+        </c:if>
+        <c:if test="${i == page}">
+            <c:set var="bufInfo" value="${bufInfo}<strong class='page-number'>${i + 1}</strong>" />
+        </c:if>
+    </c:forEach>
 
-    if (filterMode!= (Integer) request.getAttribute("defaultFilterMode")) {
-      if (urlAdd.length()>0) {
-        urlAdd.append('&');
-      } else {
-        urlAdd.append('?');
-      }
-
-      filterAdd="?filter="+CommentFilter.toString(filterMode);
-      urlAdd.append("filter=").append(CommentFilter.toString(filterMode));
-    }
-
-    if (npage!=-1 && npage!=0) {
-      bufInfo.append("&emsp;<a class=\"page-number\" href=\"").append(message.getLinkPage(npage-1)).append(filterAdd).append("\">");
-      bufInfo.append('←');
-      bufInfo.append("</a>");
-    } else {
-      bufInfo.append("&emsp;<span  class=\"page-number\">←</span>");
-    }
-
-    for (int i = 0; i < pages; i++) {
-      bufInfo.append(' ');
-
-      if (i != npage) {
-        if (i>0) {
-          if (i==pages-1) {
-            bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLinkPage(i)).append(urlAdd);
-          } else {
-            bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLinkPage(i)).append(filterAdd);
-          }
-        } else {
-          bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLink()).append(filterAdd);
-        }
-
-        bufInfo.append("\">").append(i + 1).append("</a>");
-      } else {
-        bufInfo.append("<strong class=\"page-number\">").append(i + 1).append("</strong>");
-      }
-    }
-
-    if (npage!=-1 && npage+1!=pages) {
-      if (npage+1==pages-1) {
-        bufInfo.append(" <a class=\"page-number\" href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
-      } else {
-        bufInfo.append(" <a class=\"page-number\" href=\"").append(message.getLinkPage(npage+1)).append(filterAdd).append("\">→</a>");
-      }
-    } else {
-      bufInfo.append(" <span class=\"page-number\">→</span>");
-    }
-
-    pageInfo = bufInfo.toString();
-  }
-%>
+    <c:if test="${page != -1 and page + 1 != pages}">
+        <c:if test="${page + 1 == pages - 1}">
+            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${urlAdd}'>→</a>" />
+        </c:if>
+        <c:if test="${page + 1 != pages - 1}">
+            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${filterAdd}'>→</a>" />
+        </c:if>
+    </c:if>
+    <c:if test="${page == -1 or page + 1 == pages}">
+        <c:set var="bufInfo" value="${bufInfo} <span class='page-number'>→</span>" />
+    </c:if>
+</c:if>
 
 <lor:message
         messageMenu="${messageMenu}"
@@ -273,20 +253,20 @@
 
 <c:if test="${fn:length(commentsPrepared)!=unfilteredCount}">
   <div class=nav>
-    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="<%= message.getLinkPage(npage) %>?filter=show">все</a>.
+    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="${message.getLinkPage(page)}?filter=show">все</a>.
   </div>
 </c:if>
 
 <c:if test="${filterMode!=defaultFilterMode}">
   <div class=nav>
-    Показаны все комментарии. <a href="<%= message.getLinkPage(npage) %>">Скрыть</a> игнорируемые.
+    Показаны все комментарии. <a href="${message.getLinkPage(page)}">Скрыть</a> игнорируемые.
   </div>
 </c:if>
 
-<c:if test="<%= pageInfo!=null %>">
+<c:if test="${not empty bufInfo}">
     <c:if test="${not showDeleted}">
         <div class="nav">
-            <%= pageInfo %>
+            ${bufInfo}
         </div>
     </c:if>
 </c:if>
@@ -296,9 +276,9 @@
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">
-  <c:if test="<%= pageInfo!=null %>">
+  <c:if test="${ not empty bufInfo }">
     <div class="nav">
-      <%= pageInfo %>
+      ${bufInfo}
     </div>
   </c:if>
 
@@ -306,15 +286,15 @@
 </c:if>
 </div>
 
-<% if (tmpl.isSessionAuthorized() && (!message.isExpired() || tmpl.isModeratorSession()) && !(Boolean) request.getAttribute("showDeleted")) { %>
-<hr>
-<form action="${message.link}" method=POST>
-<lor:csrf/>
-<input type=hidden name=deleted value=1>
-<input type=submit value="Показать удаленные комментарии">
-</form>
-<hr>
-<% } %>
+<c:if test="${template.sessionAuthorized && (!message.expired || template.moderatorSession) && !showDeleted}">
+    <hr>
+    <form action="${message.link}" method=POST>
+    <lor:csrf/>
+    <input type=hidden name=deleted value=1>
+    <input type=submit value="Показать удаленные комментарии">
+    </form>
+    <hr>
+</c:if>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
