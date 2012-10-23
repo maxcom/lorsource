@@ -83,6 +83,10 @@ public class WhoisController {
       mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
     }
 
+    if (tmpl.isSessionAuthorized() && currentUser) {
+      mv.getModel().put("hasRemarks", ( userDao.getRemarkCount(tmpl.getCurrentUser()) > 0 ) );
+    }
+
     String userinfo = userDao.getUserInfo(user);
     mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure()));
 
