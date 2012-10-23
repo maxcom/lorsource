@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 @RequestMapping("/people/{nick}/settings")
 public class EditProfileController {
@@ -54,8 +57,12 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("stylesList", DefaultProfile.getStyleList());
+    params.put("avatarsList", DefaultProfile.getAvatars());
 
-    return new ModelAndView("edit-profile");
+
+    return new ModelAndView("edit-profile", params);
   }
 
   @RequestMapping(method=RequestMethod.POST)
