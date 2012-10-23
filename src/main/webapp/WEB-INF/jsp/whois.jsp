@@ -93,7 +93,7 @@
     <b>Последнее посещение:</b> <lor:date date="${userInfo.lastLogin}"/><br>
   </c:if>
 
-<b>Статус:</b>${user.status}
+<b>Статус:</b> ${user.status}
  <c:if test="${user.moderator}"> (модератор)</c:if>
  <c:if test="${user.administrator}"> (администратор)</c:if>
  <c:if test="${user.corrector}"> (корректор)</c:if>
