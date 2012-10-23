@@ -319,8 +319,8 @@ public class TopicController {
       }
     }
 
-    params.put("filterMode", filterMode);
-    params.put("defaultFilterMode", defaultFilterMode);
+    params.put("filterMode", CommentFilter.toString(filterMode));
+    params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
     if (!rss) {
       Topic prevMessage;
