@@ -25,12 +25,12 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Просмотр комметариев о пользователях</title>
+<title>Просмотр комментариев о пользователях</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <div class=nav>
     <div id="navPath">
-      Просмотр комметариев о пользователях
+      Просмотр комментариев о пользователях
     </div>
 
   </div>
