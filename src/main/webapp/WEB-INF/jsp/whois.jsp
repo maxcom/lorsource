@@ -29,6 +29,7 @@
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
+<%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -297,7 +298,7 @@
   <li>
     <a href="/people/${user.nick}/favs">Избранные темы</a>
   </li>
-<c:if test="${currentUser}">
+<c:if test="${currentUser && hasRemarks}">
   <li>
     <a href="/people/${nick}/remarks">Просмотр заметок о пользователях</a>
   </li>

@@ -36,38 +36,47 @@
   </div>
 
 <h2>Комментарии пользователя ${template.currentUser.nick}</h2>
-<div class=forum>
-<table class="message-table" width="100%">
-<thead>
-  <tr>
+<c:choose>
+  <c:when test="${not empty remarks}">
+    <div class=forum>
+    <table class="message-table" width="100%">
+    <thead>
+    <tr>
     <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=0">Ник</a></th>
     <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=1">Комментарий</th>
-  </tr>
-<tbody>
+    </tr>
+    <tbody>
 
-<c:forEach items="${remarks}" var="remark">
-  <tr>
-    <td><lor:user link="true" user="${remark.refUser}"/>${remark.refUser.stars}</td>
-    <td><a href="/people/${remark.refUser.nick}/remark/">
-      <c:out value="${remark.remark.text}" escapeXml="true"/></td>
-  </tr>
-</c:forEach>
-</table>
+    <c:forEach items="${remarks}" var="remark">
+      <tr>
+      <td><lor:user link="true" user="${remark.refUser}"/> ${remark.refUser.stars}</td>
+      <td><a href="/people/${remark.refUser.nick}/remark/">
+        <c:out value="${remark.remark.text}" escapeXml="true"/></td>
+      </tr>
+    </c:forEach>
+    </table>
 
-</div>
-<div class="nav">
-  <div style="display: table; width: 100%">
-    <c:if test="${offset !=0}">
-      <div style="display: table-cell; text-align: left">
-        <a href="/people/${template.currentUser.nick}/remarks/?offset=${offset-limit}${sortorder}">← предыдущие</a>
-      </div>
-    </c:if>
-    <c:if test="${hasMore}">
-      <div style="display: table-cell; text-align: right">
-        <a href="/people/${template.currentUser.nick}/remarks/?offset=${offset+limit}${sortorder}">следующие →</a>
-      </div>
-    </c:if>
-  </div>
-</div>
+    </div>
+
+    <div class="nav">
+    <div style="display: table; width: 100%">
+      <c:if test="${offset !=0}">
+        <div style="display: table-cell; text-align: left">
+          <a href="/people/${template.currentUser.nick}/remarks/?offset=${offset-limit}${sortorder}">← предыдущие</a>
+        </div>
+      </c:if>
+      <c:if test="${hasMore}">
+        <div style="display: table-cell; text-align: right">
+          <a href="/people/${template.currentUser.nick}/remarks/?offset=${offset+limit}${sortorder}">следующие →</a>
+        </div>
+      </c:if>
+    </div>
+    </div>
+  </c:when>
+  <c:otherwise>
+    <p>Заметок нет.</p>
+  </c:otherwise>
+</c:choose>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
 

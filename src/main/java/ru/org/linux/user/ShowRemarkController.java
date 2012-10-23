@@ -28,6 +28,7 @@ import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 @Controller
@@ -51,26 +52,31 @@ public class ShowRemarkController {
 
     int count = userDao.getRemarkCount(tmpl.getCurrentUser());
 
-    if( offset >= count ){
-      throw new AccessViolationException("Offset is too long");
-    }
-    if( offset < 0 ) offset=0;
-
     ModelAndView mv = new ModelAndView("view-remarks");
-
-    if( sortorder != 1 ){
-      sortorder = 0;
-      mv.getModel().put("sortorder","");
-    }  else {
-      mv.getModel().put("sortorder","&amp;sort=1");
-    }
 
     int limit = tmpl.getProf().getMessages();
 
-    List<Remark> remarks = userDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
-    List<PreparedRemark> preparedRemarks = prepareService.prepareRemarkList(remarks);
+    if(count > 0 ){
+      if( offset >= count ){
+        throw new UserErrorException("Offset is too long");
+      }
+      if( offset < 0 ) offset=0;
 
-    mv.getModel().put("remarks", preparedRemarks);
+      if( sortorder != 1 ){
+        sortorder = 0;
+        mv.getModel().put("sortorder","");
+      }  else {
+        mv.getModel().put("sortorder","&amp;sort=1");
+      }
+
+
+      List<Remark> remarks = userDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
+      List<PreparedRemark> preparedRemarks = prepareService.prepareRemarkList(remarks);
+
+      mv.getModel().put("remarks", preparedRemarks);
+    } else {
+      mv.getModel().put("remarks", ImmutableList.of() );
+    }
     mv.getModel().put("offset",offset);
     mv.getModel().put("limit",limit);
     mv.getModel().put("hasMore",(count > (offset+limit)) );
