@@ -22,6 +22,12 @@
     <tlib-version>1.0</tlib-version>
     <short-name>lor</short-name>
     <uri>http://www.linux.org.ru</uri>
+    
+    <function>
+        <name>getMonthName</name>
+        <function-class>ru.org.linux.util.DateUtil</function-class>
+        <function-signature>java.lang.String getMonth(int)</function-signature>
+    </function>
 
     <tag>
         <description>Boxlet container</description>
@@ -80,6 +86,29 @@
             <name>list</name>
             <required>true</required>
             <type>java.util.List</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>groupImage</name>
+        <tag-class>ru.org.linux.site.tags.GroupImage</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>group</name>
+            <required>true</required>
+            <type>ru.org.linux.group.Group</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>htmlPath</name>
+            <required>true</required>
+            <type>String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>style</name>
+            <required>true</required>
+            <type>String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

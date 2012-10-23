@@ -38,6 +38,7 @@ import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.util.*;
 
@@ -110,9 +111,10 @@ public class GroupController {
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @PathVariable int year,
     @PathVariable int month,
-    HttpServletRequest request
+    HttpServletRequest request,
+    HttpServletResponse response
   ) throws Exception {
-    return forum(groupName, offset, false, request, year, month);
+    return forum(groupName, offset, false, request, response, year, month);
   }
 
   @RequestMapping("/forum/{group}")
@@ -120,9 +122,10 @@ public class GroupController {
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
-    HttpServletRequest request
+    HttpServletRequest request,
+    HttpServletResponse response
   ) throws Exception {
-    return forum(groupName, offset, lastmod, request, null, null);
+    return forum(groupName, offset, lastmod, request, response, null, null);
   }
 
   private ModelAndView forum(
@@ -130,6 +133,7 @@ public class GroupController {
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
     HttpServletRequest request,
+    HttpServletResponse response,
     Integer year,
     Integer month
   ) throws Exception {
@@ -279,6 +283,10 @@ public class GroupController {
     }
 
     params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
+
+    params.put("maxOffset", GroupController.MAX_OFFSET);
+
+    response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
     return new ModelAndView("group", params);
   }
