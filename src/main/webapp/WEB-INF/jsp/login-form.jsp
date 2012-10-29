@@ -22,8 +22,8 @@
 
 <h1>Вход</h1>
 
-<c:if test="${error!=null}">
-    <div class=error>Ошибка: ${error}</div>
+<c:if test="${param.error == 'true'}">
+    <div class="error">Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.</div>
 </c:if>
 
 <form method=POST action="/login_process">
