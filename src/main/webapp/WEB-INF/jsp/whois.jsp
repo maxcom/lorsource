@@ -5,6 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,15 +29,10 @@
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
+<%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
 
-<%
-  response.setDateHeader("Expires", System.currentTimeMillis()+120000);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<%
-  User user = (User) request.getAttribute("user");
-%>
 <title>Информация о пользователе ${user.nick}</title>
 <c:if test="${userInfo.url != null}">
   <c:if test="${user.score >= 100 && not user.blocked && user.activated}">
@@ -71,11 +67,11 @@
   [<a href="/people/${user.nick}/remark/">Изменить</a>]
 </c:if>
   <br>
-<c:if test="${user.name!=null and not empty user.name}">
+<c:if test="${not empty user.name}">
   <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
 </c:if>
 
-<c:if test="${userInfo.url != null and (template.sessionAuthorized or user.maxScore>=50)}">
+<c:if test="${not empty userInfo.url and (template.sessionAuthorized or user.maxScore>=50)}">
   <b>URL:</b>
 
   <c:choose>
@@ -88,33 +84,22 @@
   </c:choose>
 </c:if>
 
-  <c:if test="${userInfo.town != null}">
+  <c:if test="${not empty userInfo.town}">
     <b>Город:</b> <c:out value="${userInfo.town}" escapeXml="true"/><br>
   </c:if>
-  <c:if test="${userInfo.registrationDate != null}">
+  <c:if test="${not empty userInfo.registrationDate}">
     <b>Дата регистрации:</b> <lor:date date="${userInfo.registrationDate}"/><br>
   </c:if>
   <c:if test="${userInfo.lastLogin != null}">
     <b>Последнее посещение:</b> <lor:date date="${userInfo.lastLogin}"/><br>
   </c:if>
 
-<b>Статус:</b> <%= user.getStatus() %><%
-  if (user.isModerator()) {
-    out.print(" (модератор)");
-  }
+<b>Статус:</b> ${user.status}
+ <c:if test="${user.moderator}"> (модератор)</c:if>
+ <c:if test="${user.administrator}"> (администратор)</c:if>
+ <c:if test="${user.corrector}"> (корректор)</c:if>
+ <c:if test="${user.blocked}"> (заблокирован)</c:if>
 
-  if (user.isAdministrator()) {
-    out.print(" (администратор)");
-  }
-
-  if (user.isCorrector()) {
-    out.print(" (корректор)");
-  }
-
-  if (user.isBlocked()) {
-    out.println(" (заблокирован)\n");
-  }
-%>
   <br>
   <c:if test="${banInfo != null}">
     Блокирован <lor:date date="${banInfo.date}"/>, модератором <lor:user link="true" decorate="true" user="${banInfo.moderator}"/> по причине:
@@ -123,7 +108,7 @@
 </div>
   <c:if test="${moderatorOrCurrentUser}">
     <div>
-      <c:if test="${user.email!=null}">
+      <c:if test="${not empty user.email}">
         <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
         <form action="/lostpwd.jsp" method="POST" style="display: inline">
           <lor:csrf/>
@@ -195,38 +180,41 @@
 
   <c:if test="${template.moderatorSession}">
 
-  <p>
+      <p>
 
-  <form name='f_remove_userinfo' method='post' action='usermod.jsp'>
-    <lor:csrf/>
-    <input type='hidden' name='id' value='${user.id}'>
-    <input type='hidden' name='action' value='remove_userinfo'>
-    <input type='submit' value='Удалить текст'>
-  </form>
+      <form name='f_remove_userinfo' method='post' action='usermod.jsp'>
+        <lor:csrf/>
+        <input type='hidden' name='id' value='${user.id}'>
+        <input type='hidden' name='action' value='remove_userinfo'>
+        <input type='submit' value='Удалить текст'>
+      </form>
 
-  <p>
+      <p>
 
-    <c:if test="<%= user.isCorrector() || user.getScore() > User.CORRECTOR_SCORE %>">
-  <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
-    <lor:csrf/>
-    <input type='hidden' name='id' value='${user.id}'>
-    <input type='hidden' name='action' value='toggle_corrector'>
-    <%
-      out.print("<input type='submit' value='" + (user.isCorrector() ? "Убрать права корректора" : "Сделать корректором") + "'>\n");
-    %>
-  </form>
-  </c:if>
+      <c:if test="${user.corrector or user.score > user.correctorScore}">
+        <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
+          <lor:csrf/>
+          <input type='hidden' name='id' value='${user.id}'>
+          <input type='hidden' name='action' value='toggle_corrector'>
+          <c:choose>
+            <c:when test="${user.corrector}">
+                <input type='submit' value='Убрать права корректора'>
+            </c:when>
+            <c:otherwise>
+                <input type='submit' value='Сделать корректором'>
+            </c:otherwise>
+          </c:choose>
+        </form>
+      </c:if>
   </c:if>
   <c:if test="${fn:length(favoriteTags)>0}">
     <fieldset>
     <legend>Избранные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${favoriteTags}">
-          <%
-            String tagName = (String) pageContext.getAttribute("tagName");
-          %>
-          <c:url var="tagLink" value="<%= TopicListController.tagListUrl(tagName) %>"/>
-
+          <spring:url value="/tag/{tag}" var="tagLink">
+            <spring:param name="tag" value="${tagName}" />
+          </spring:url>
           <li><a class="tag" href="${tagLink}">${tagName}</a></li>
         </c:forEach>
       </ul>
@@ -237,11 +225,9 @@
     <legend>Игнорированные теги</legend>
       <ul>
         <c:forEach var="tagName" items="${ignoreTags}">
-          <%
-            String tagName = (String) pageContext.getAttribute("tagName");
-          %>
-          <c:url var="tagLink" value="<%= TopicListController.tagListUrl(tagName) %>"/>
-
+          <spring:url value="/tag/{tag}" var="tagLink">
+            <spring:param name="tag" value="${tagName}" />
+          </spring:url>
           <li><a class="tag" href="${tagLink}">${tagName}</a></li>
         </c:forEach>
       </ul>
@@ -312,6 +298,11 @@
   <li>
     <a href="/people/${user.nick}/favs">Избранные темы</a>
   </li>
+<c:if test="${currentUser && hasRemarks}">
+  <li>
+    <a href="/people/${nick}/remarks">Просмотр заметок о пользователях</a>
+  </li>
+</c:if>
 </ul>
 </c:if>
 

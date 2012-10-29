@@ -133,7 +133,7 @@ public final class Template {
   }
 
   public String getMainUrlNoSlash() {
-    return configuration.getMainUrl().replaceFirst("/$", "");
+    return configuration.getMainUrlWithoutSlash();
   }
 
   public String getSecureMainUrl() {

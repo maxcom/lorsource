@@ -49,6 +49,11 @@ public class ScoreUpdater {
             "groupid!=8404 and groupid!=4068 and groupid!=19390 and " +
             "not comments.deleted and not topics.deleted)");
 
+    updateMaxScore();
+  }
+
+  @Scheduled(cron="1 15 * * * *")
+  public void updateMaxScore() {
     jdbcTemplate.update("update users set max_score=score where score>max_score");
   }
 
