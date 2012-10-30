@@ -4,37 +4,6 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-    <include file="sql/updates/2011-12-23-poll.xml"/>
-    <include file="sql/updates/2011-12-23-themed-wiki.xml"/>
-    <include file="sql/updates/2011-12-25-ban.xml"/>
-    <include file="sql/updates/2011-12-29-section-scrollMode.xml"/>
-    <include file="sql/updates/2012-01-24-delscore.xml"/>
-    <include file="sql/updates/2012-02-02-grant-wiki.xml"/>
-    <include file="sql/updates/2012-02-16-topic-perm-fix.xml"/>
-    <include file="sql/updates/2012-02-17-section-score.xml"/>
-    <include file="sql/updates/2012-02-28-tags-first-letter-index.xml"/>
-    <include file="sql/updates/2012-03-19-tags_values-grant-delete.xml"/>
-    <include file="sql/updates/2012-03-20-grant-move-wiki-moder.xml"/>
-    <include file="sql/updates/2012-03-23-user-tags-table.xml"/>
-    <include file="sql/updates/2012-03-26-drop-sections-preformat.xml"/>
-    <include file="sql/updates/2012-03-27-add-value-to-event_type.xml"/>
-    <include file="sql/updates/2012-03-30-add-value-to-event_type-9.1.xml"/>
-    <include file="sql/updates/2012-04-25-sticky-index.xml"/>
-    <include file="sql/updates/2012-05-04-comdel-to-java.xml"/>
-    <include file="sql/updates/2012-05-06-remove-groups-stat4.xml"/>
-    <include file="sql/updates/2012-05-06-optimize-statupdate2.xml"/>
-    <include file="sql/updates/2012-05-07-add-edithistory-type.xml"/>
-    <include file="sql/updates/2012-05-07-add-comment-edit-info.xml"/>
-    <include file="sql/updates/2012-05-11-memories-type.xml"/>
-    <include file="sql/updates/2012-05-12-memories-topic-index.xml"/>
-    <include file="sql/updates/2012-06-05-remove-groups-stat2.xml"/>
-    <include file="sql/updates/2012-07-20-images-table.xml"/>
-    <include file="sql/updates/2012-07-27-drop-check-replyto.xml"/>
-    <include file="sql/updates/2012-08-28-add-imageallowed.xml"/>
-    <include file="sql/updates/2012-08-30-add-editminor.xml"/>
-    <include file="sql/updates/2012-09-13-add-image-delete.xml"/>
-    <include file="sql/updates/2012-09-13-add-editimage.xml"/>
-    <include file="sql/updates/2012-09-13-editinfo-type-notnull.xml"/>
-    <include file="sql/updates/2012-09-18-user-of-usercomments-table.xml"/>
+    <includeAll path="sql/updates/" />
 
 </databaseChangeLog>
