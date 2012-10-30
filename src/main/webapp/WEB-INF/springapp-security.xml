@@ -73,6 +73,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
         <beans:property name="tokenValiditySeconds" value="31536000"/>
         <beans:property name="alwaysRemember" value="true" />
         <beans:property name="tokenRepository" ref="tokenRepository"/>
+        <beans:property name="useSecureCookie" value="false"/>
     </beans:bean>
 
     <beans:bean id="securityFilter" class="ru.org.linux.auth.SecurityFilter"/>
