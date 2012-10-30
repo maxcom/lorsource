@@ -57,6 +57,7 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
       request.getSession().setAttribute("currentProfile", Profile.getDefaultProfile());
       request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
     }
+    request.setCharacterEncoding("utf-8"); // блядский tomcat
     CSRFManipulation(request, (HttpServletResponse) res);
     chain.doFilter(req, res);
   }
