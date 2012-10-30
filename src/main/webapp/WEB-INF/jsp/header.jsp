@@ -18,7 +18,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
-<script src="/js/lor.js" type="text/javascript"></script>
+<script src="/js/lor.js?1" type="text/javascript"></script>
 
 <c:if test="${javascriptsForLayout != null}">
   <c:forEach items="${javascriptsForLayout}" var="javascriptForLayout">
