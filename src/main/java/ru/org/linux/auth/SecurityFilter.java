@@ -23,7 +23,6 @@ import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.user.Profile;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.FilterChain;
@@ -45,18 +44,8 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
 
     WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
     HttpServletRequest request = (HttpServletRequest) req;
-    request.getSession().setAttribute("configuration", ctx.getBean(Configuration.class));
-    request.getSession().setAttribute("template", new Template(ctx));
-    if (AuthUtil.isSessionAuthorized()) {
-      request.getSession().setAttribute("currentStyle", AuthUtil.getCurrentUser().getStyle());
-      request.getSession().setAttribute("currentProfile", AuthUtil.getCurrentProfile());
-      request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
-      forWikiManipulation(request, (HttpServletResponse) res, AuthUtil.getAuthentication());
-    } else {
-      request.getSession().setAttribute("currentStyle", "tango");
-      request.getSession().setAttribute("currentProfile", Profile.getDefaultProfile());
-      request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
-    }
+    request.setAttribute("configuration", ctx.getBean(Configuration.class));
+    request.setAttribute("template", new Template(ctx));
     request.setCharacterEncoding("utf-8"); // блядский tomcat
     CSRFManipulation(request, (HttpServletResponse) res);
     chain.doFilter(req, res);
