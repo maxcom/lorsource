@@ -20,12 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.org.linux.user.Profile;
-import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-
-import java.util.Collection;
 
 /**
  */
@@ -34,13 +30,17 @@ public class AuthUtil {
   private static final Log logger = LogFactory.getLog(AuthUtil.class);
 
   public static void updateLastLogin(Authentication authentication, UserDao userDao) {
-    if(authentication != null && (authentication.isAuthenticated())) {
-      Object principal = authentication.getPrincipal();
-      if (principal instanceof UserDetailsImpl) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-        User user = userDetails.getUser();
-        userDao.updateLastlogin(user);
+    try {
+      if(authentication != null && (authentication.isAuthenticated())) {
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetailsImpl) {
+          UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+          User user = userDao.getUser(userDetails.getId());
+          userDao.updateLastlogin(user);
+        }
       }
+    } catch (Exception ex) {
+      logger.error("fail update last login");
     }
   }
 
@@ -89,51 +89,11 @@ public class AuthUtil {
     if (!isSessionAuthorized()) {
       return null;
     }
-    return getCurrentUser().getNick();
-  }
-
-  public static User getCurrentUser() {
-    if (!isSessionAuthorized()) {
-      return null;
-    }
-
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principal instanceof UserDetailsImpl) {
-      return ((UserDetailsImpl) principal).getUser();
+      return ((UserDetailsImpl) principal).getUsername();
     } else {
       return null;
-    }
-  }
-
-  public static Profile getCurrentProfile() {
-    if (!isSessionAuthorized()) {
-      return Profile.getDefaultProfile();
-    }
-    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    if (principal instanceof UserDetailsImpl) {
-      return ((UserDetailsImpl) principal).getProfile();
-    } else {
-      return Profile.getDefaultProfile();
-    }
-  }
-
-  public static boolean isUsingDefaultProfile() {
-    return getCurrentProfile().isDefault();
-  }
-
-  public static ProfileProperties getProf() {
-    return getCurrentProfile().getProperties();
-  }
-
-  public static String getFormatMode() {
-    return getProf().getFormatMode();
-  }
-
-  public static String getStyle() {
-    if (isSessionAuthorized()) {
-      return getCurrentUser().getStyle();
-    } else {
-      return "tango";
     }
   }
 }

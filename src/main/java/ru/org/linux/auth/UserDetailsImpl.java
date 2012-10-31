@@ -17,8 +17,6 @@ package ru.org.linux.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.org.linux.spring.Configuration;
-import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
 import java.util.ArrayList;
@@ -28,24 +26,19 @@ import java.util.Collection;
  */
 public class UserDetailsImpl implements UserDetails {
 
-  private final User user;
+  private final String username;
+  private final int id;
+  private final String password;
+  private final boolean nonLocked;
+
   private final Collection<GrantedAuthority> authorities;
-  private final Profile profile;
-  private final Configuration configuration;
 
-  public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1, Profile profile, Configuration configuration) {
-    this.user = user1;
+  public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1) {
+    this.username = user1.getNick();
+    this.id = user1.getId();
+    this.password = user1.getPassword();
+    this.nonLocked = !user1.isBlocked() && user1.isActivated();
     this.authorities = new ArrayList<GrantedAuthority>(authorities1);
-    this.profile = profile;
-    this.configuration = configuration;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public Profile getProfile() {
-    return profile;
   }
 
   public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -53,11 +46,11 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   public String getPassword() {
-    return user.getPassword();
+    return password;
   }
 
   public String getUsername() {
-    return user.getNick();
+    return username;
   }
 
   public boolean isAccountNonExpired() {
@@ -65,7 +58,7 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   public boolean isAccountNonLocked() {
-    return !user.isBlocked() && user.isActivated();
+    return nonLocked;
   }
 
   public boolean isCredentialsNonExpired() {
@@ -73,14 +66,10 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   public boolean isEnabled() {
-    return !user.isBlocked() && user.isActivated();
+    return nonLocked;
   }
 
-  public String getStyle() {
-    return user.getStyle();
-  }
-
-  public Configuration getConfiguration() {
-    return configuration;
+  public int getId() {
+    return id;
   }
 }

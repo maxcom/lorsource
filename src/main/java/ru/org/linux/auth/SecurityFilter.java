@@ -16,14 +16,13 @@
 package ru.org.linux.auth;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.user.Profile;
+import ru.org.linux.user.User;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.FilterChain;
@@ -45,17 +44,16 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
 
     WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
     HttpServletRequest request = (HttpServletRequest) req;
+    Template template = new Template(ctx);
     request.getSession().setAttribute("configuration", ctx.getBean(Configuration.class));
-    request.getSession().setAttribute("template", new Template(ctx));
+    request.getSession().setAttribute("template", template);
     if (AuthUtil.isSessionAuthorized()) {
-      request.getSession().setAttribute("currentStyle", AuthUtil.getCurrentUser().getStyle());
-      request.getSession().setAttribute("currentProfile", AuthUtil.getCurrentProfile());
-      request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
-      forWikiManipulation(request, (HttpServletResponse) res, AuthUtil.getAuthentication());
+      request.getSession().setAttribute("style", template.getStyle());
+      request.getSession().setAttribute("profileProperties", template.getProf());
+      forWikiManipulation(request, (HttpServletResponse) res, template);
     } else {
-      request.getSession().setAttribute("currentStyle", "tango");
-      request.getSession().setAttribute("currentProfile", Profile.getDefaultProfile());
-      request.getSession().setAttribute("currentProperties", AuthUtil.getProf());
+      request.getSession().setAttribute("style", "tango");
+      request.getSession().setAttribute("profileProperties", template.getProf());
     }
     request.setCharacterEncoding("utf-8"); // блядский tomcat
     CSRFManipulation(request, (HttpServletResponse) res);
@@ -72,9 +70,12 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     response.addHeader("Cache-Control", "private");
   }
 
-  private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+  private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response, Template template) {
     HttpSession session = request.getSession();
-    AuthUtil.getCurrentUser().acegiSecurityHack(response, session);
+    User user = template.getCurrentUser();
+    if(user != null) {
+      user.acegiSecurityHack(response, session);
+    }
   }
 
 }
