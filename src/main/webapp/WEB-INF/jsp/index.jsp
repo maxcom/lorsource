@@ -135,10 +135,6 @@
         </div>
       </c:forEach>
   </lor:boxlets>
-
-  <div class="adv">
-    <a href="http://www.linuxcenter.ru/linuxformat-2013"><img src="/adv/linuxformat_240x400.gif" width="240" height="400"></a>
-  </div>
 </aside>
 <% if (columns3) { %>
 <aside class=column2>
