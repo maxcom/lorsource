@@ -88,11 +88,11 @@ $(document).ready(function() {
       if(response.loggedIn) {
         window.location.reload();
       } else {
-        alert("Ошибка:" + response.username);
+        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
       }
     },
     error: function(response, status) {
-          alert("Ошибка");
+        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
     }
   }
 
