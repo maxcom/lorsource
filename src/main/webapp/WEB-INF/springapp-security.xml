@@ -65,14 +65,13 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     </beans:bean>
 
     <beans:bean id="rememberMeServices"
-                class="org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices">
+                class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
         <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
         <beans:property name="key" value="${Secret}"/>
         <beans:property name="cookieName" value="remember_me"/>
         <!-- 365 days -->
         <beans:property name="tokenValiditySeconds" value="31536000"/>
         <beans:property name="alwaysRemember" value="true" />
-        <beans:property name="tokenRepository" ref="tokenRepository"/>
         <beans:property name="useSecureCookie" value="false"/>
     </beans:bean>
 
