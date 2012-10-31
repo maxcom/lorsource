@@ -82,18 +82,17 @@ setInterval(parseHash, 1000);
 
 $(document).ready(function() {
   var options = {
-    success: function(xml) {
-      if ($(xml).find("error").length) {
-        alert($(xml).find("error").text());
-        window.location="/login.jsp";
-      } else if ($(xml).find("ok").length) {
+    type: "post",
+    dataType: "json",
+    success: function(response, status) {
+      if(response.loggedIn) {
         window.location.reload();
+      } else {
+        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
       }
     },
-    dataType: "xml",
-    error: function (xhr) {
-      alert('Error!  Status = ' + xhr.status);
-      window.location="/login.jsp";
+    error: function(response, status) {
+        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
     }
   }
 

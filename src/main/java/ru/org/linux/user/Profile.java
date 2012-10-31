@@ -29,6 +29,11 @@ public class Profile {
 
   private final boolean isdefault;
 
+  public Profile(ProfileProperties profileProperties, boolean isdefault) {
+    this.properties = profileProperties;
+    this.isdefault = isdefault;
+  }
+
   public Profile(InputStream df) throws IOException, ClassNotFoundException {
     if (df==null) {
       throw new NullPointerException();
@@ -49,6 +54,11 @@ public class Profile {
         dof.close();
       }
     }
+  }
+
+  public static Profile getDefaultProfile() {
+    ProfileProperties properties1 = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
+    return new Profile(properties1, true);
   }
 
   public Profile() {
