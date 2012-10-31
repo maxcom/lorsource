@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright 1998-2012 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+    <http pattern="/css/**" security="none"/>
+    <http pattern="/img/**" security="none"/>
+    <http pattern="/js/**" security="none"/>
+    <http pattern="/photos/**" security="none"/>
+    <http pattern="/tango/**" security="none"/>
+    <http pattern="/white/**" security="none"/>
+    <http pattern="/white2/**" security="none"/>
+    <http pattern="/black/**" security="none"/>
+    <http pattern="/adv/**" security="none"/>
+    <http pattern="/fontello/**" security="none"/>
+    <http pattern="*.css" security="none"/>
+    <http pattern="/*.ico" security="none"/>
+
+    <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager" create-session="stateless">
+        <intercept-url pattern="/**" access="permitAll"/>
+        <form-login login-page="/login.jsp" username-parameter="nick" password-parameter="passwd"
+                    login-processing-url="/login_process" authentication-success-handler-ref="authenticationSuccessHandler"
+                    authentication-failure-url="/login.jsp?error=true"
+                />
+        <remember-me key="${Secret}" services-ref="rememberMeServices"/>
+        <!-- TODO: LoginController.ACEGI_COOKIE_NAME -->
+        <logout logout-url="/logout" logout-success-url="/"
+                delete-cookies="password,profile,JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"/>
+        <anonymous username="anonymous" granted-authority="ROLE_SYSTEM_ANONYMOUS"/>
+        <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
+    </http>
+    <!-- <debug/> -->
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider user-service-ref="userDetailsServiceImpl">
+            <password-encoder ref="passwordEncoderImpl"/>
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id="rememberMeServices"
+                class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+        <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
+        <beans:property name="key" value="${Secret}"/>
+        <beans:property name="cookieName" value="remember_me"/>
+        <!-- 365 days -->
+        <beans:property name="tokenValiditySeconds" value="31536000"/>
+        <beans:property name="alwaysRemember" value="true" />
+        <beans:property name="useSecureCookie" value="false"/>
+    </beans:bean>
+
+    <beans:bean id="securityFilter" class="ru.org.linux.auth.SecurityFilter"/>
+    <beans:bean id="authenticationSuccessHandler" class="ru.org.linux.auth.AuthenticationSuccessHandlerImpl" />
+</beans:beans>
