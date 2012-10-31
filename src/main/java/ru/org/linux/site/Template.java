@@ -19,51 +19,46 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
+import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.storage.FileStorage;
 import ru.org.linux.storage.Storage;
 import ru.org.linux.storage.StorageException;
+import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.user.*;
-import ru.org.linux.util.ProfileHashtable;
+import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 public final class Template {
 
-  private static final Log logger = LogFactory.getLog(Template.class);
-
   private final Profile userProfile;
   private final Configuration configuration;
-  private final UserDao userDao;
   private User currentUser = null;
 
   private final Storage storage;
 
   public Template(WebApplicationContext ctx) {
     configuration = (Configuration)ctx.getBean("configuration");
-    userDao = (UserDao)ctx.getBean("userDao");
-
     storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
-    Profile profile = Profile.getDefaultProfile();
+    userProfile = AuthUtil.getCurrentProfile();
+
     if(AuthUtil.isSessionAuthorized()) {
-      try {
-        profile = readProfile(AuthUtil.getNick());
-        currentUser = userDao.getUser(AuthUtil.getNick());
-      } catch (UserNotFoundException ex) {
-        logger.error("user not found:" + AuthUtil.getNick());
-      }
+      currentUser = AuthUtil.getCurrentUser();
     }
-    userProfile = profile;
   }
 
 
@@ -73,6 +68,19 @@ public final class Template {
 
   public String getProfileName() {
     return getNick();
+  }
+
+  private Profile readProfile() throws ClassNotFoundException, IOException, StorageException {
+    InputStream df = null;
+    try {
+      df = storage.getReadStream("profile", getNick());
+
+      return new Profile(df);
+    } finally {
+      if (df!=null) {
+        df.close();
+      }
+    }
   }
 
   public void writeProfile(String name) throws IOException, AccessViolationException, StorageException {
@@ -175,68 +183,11 @@ public final class Template {
     if (currentUser != null && !forceUpdate) {
       return;
     }
-    try {
-      currentUser = userDao.getUser(AuthUtil.getNick());
-    } catch (UserNotFoundException e) {
-      logger.error("User not found:" + AuthUtil.getNick());
-    }
+    currentUser = AuthUtil.getCurrentUser();
   }
 
   @Nullable
   public User getCurrentUser()  {
-    if(!AuthUtil.isSessionAuthorized()) {
-      return null;
-    }
-    try {
-      return userDao.getUser(AuthUtil.getNick());
-    } catch (UserNotFoundException e) {
-      return null;
-    }
+    return AuthUtil.getCurrentUser();
   }
-
-  private Profile readProfile(String username) {
-    Storage storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
-    InputStream df = null;
-    Map<String, Object> userProfile = null;
-    try {
-      df = storage.getReadStream("profile", username);
-      ObjectInputStream dof = null;
-      try {
-        dof = new ObjectInputStream(df);
-        userProfile = (Map<String, Object>) dof.readObject();
-        dof.close();
-        df.close();
-      } catch (IOException e) {
-        logger.info("Bad profile for user " + username);
-      } finally {
-        if (dof != null) {
-          try {
-            dof.close();
-          } catch (IOException e) {
-            logger.info("Bad profile for user " + username);
-          }
-        }
-      }
-    } catch (StorageException e) {
-      logger.info("Bad profile for user " + username);
-    } catch (ClassNotFoundException e) {
-      logger.info("Bad profile for user " + username);
-    } finally {
-      if (df != null) {
-        try {
-          df.close();
-        } catch (IOException e) {
-          logger.info("Bad profile for user " + username);
-        }
-      }
-    }
-    ProfileProperties properties;
-    if (userProfile != null) {
-      properties = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), userProfile));
-    } else {
-      properties = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
-    }
-    return new Profile(properties, false);
-  }
-
 }

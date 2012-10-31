@@ -24,12 +24,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.storage.FileStorage;
+import ru.org.linux.storage.Storage;
+import ru.org.linux.storage.StorageException;
+import ru.org.linux.user.*;
+import ru.org.linux.util.ProfileHashtable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  */
@@ -40,6 +49,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private Configuration configuration;
 
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
     User user;
@@ -56,7 +68,52 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         throw new UsernameNotFoundException(username);
       }
     }
-    return new UserDetailsImpl(user, retrieveUserAuthorities(user));
+    return new UserDetailsImpl(user, retrieveUserAuthorities(user), readProfile(user.getNick()), configuration);
+  }
+
+  private Profile readProfile(String username) {
+    Storage storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
+    InputStream df = null;
+    Map<String, Object> userProfile = null;
+    try {
+      df = storage.getReadStream("profile", username);
+      ObjectInputStream dof = null;
+      try {
+        dof = new ObjectInputStream(df);
+        userProfile = (Map<String, Object>) dof.readObject();
+        dof.close();
+        df.close();
+      } catch (IOException e) {
+        logger.info("Bad profile for user " + username);
+      } finally {
+        if (dof != null) {
+          try {
+            dof.close();
+          } catch (IOException e) {
+            logger.info("Bad profile for user " + username);
+          }
+        }
+      }
+    } catch (StorageException e) {
+      logger.info("Bad profile for user " + username);
+    } catch (ClassNotFoundException e) {
+      logger.info("Bad profile for user " + username);
+    } finally {
+      if (df != null) {
+        try {
+          df.close();
+        } catch (IOException e) {
+          logger.info("Bad profile for user " + username);
+        }
+      }
+    }
+    ProfileProperties properties;
+    if (userProfile != null) {
+      properties = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), userProfile));
+    } else {
+      properties = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
+    }
+    return new Profile(properties, false);
   }
 
   private Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
