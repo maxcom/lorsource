@@ -240,6 +240,11 @@
       <li><a href="/people/${user.nick}/edit">Изменить регистрацию</a></li>
       <li><a href="/people/${nick}/settings">Изменить настройки</a></li>
       <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>
+      <c:if test="${hasRemarks}">
+        <li>
+          <a href="/people/${nick}/remarks">Просмотр заметок о пользователях</a>
+        </li>
+      </c:if>
     </ul>
   </c:if>
 
@@ -257,8 +262,7 @@
 </c:if>
 <p>
 
-  <c:if test="${user.id!=2}">
-
+<c:if test="${user.id!=2}">
 <c:if test="${not empty userStat.topicsBySection}">
   <div class="forum">
     <table class="message-table" style="width: auto">
@@ -298,11 +302,6 @@
   <li>
     <a href="/people/${user.nick}/favs">Избранные темы</a>
   </li>
-<c:if test="${currentUser && hasRemarks}">
-  <li>
-    <a href="/people/${nick}/remarks">Просмотр заметок о пользователях</a>
-  </li>
-</c:if>
 </ul>
 </c:if>
 
