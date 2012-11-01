@@ -566,8 +566,12 @@ public class UserDao {
    * @param user logged user
    * @throws SQLException on database failure
    */
-  public void updateLastlogin(User user) {
-    jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
+  public void updateLastlogin(User user, boolean force) {
+    if (force) {
+      jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
+    } else {
+      jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=? AND CURRENT_TIMESTAMP-lastlogin > '1 hour'::interval", user.getId());
+    }
   }
 
   /**

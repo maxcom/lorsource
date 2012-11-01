@@ -61,15 +61,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     } else {
       try {
         user = userDao.getUser(username);
-        UserInfo userInfo = userDao.getUserInfoClass(user);
-        Calendar then = Calendar.getInstance();
-        then.setTime(userInfo.getLastLogin());
-        Calendar now = Calendar.getInstance();
-        now.add(Calendar.MINUTE, -60);
-        int diff = now.compareTo(then);
-        if(diff > 0) {
-          userDao.updateLastlogin(user);
-        }
+        userDao.updateLastlogin(user, false);
       } catch (UserNotFoundException e) {
         throw new UsernameNotFoundException(username);
       }
