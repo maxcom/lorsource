@@ -22,8 +22,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.ServletRequest;
