@@ -89,10 +89,12 @@ $(document).ready(function() {
         window.location.reload();
       } else {
         alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
+        window.location="/login.jsp";
       }
     },
     error: function(response, status) {
         alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
+        window.location="/login.jsp";
     }
   }
 

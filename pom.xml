@@ -14,6 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dependency.spring.version>3.1.2.RELEASE</dependency.spring.version>
         <spring.security.version>3.1.3.RELEASE</spring.security.version>
+        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
@@ -465,6 +466,32 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+               <groupId>com.google.code.maven-replacer-plugin</groupId>
+               <artifactId>replacer</artifactId>
+               <version>1.5.1</version>
+               <executions>
+                   <execution>
+                       <phase>package</phase>
+                       <goals>
+                           <goal>replace</goal>
+                       </goals>
+                   </execution>
+               </executions>
+               <configuration>
+                   <includes>
+                       <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/header.jsp</include>
+                       <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/header-main.jsp</include>
+                   </includes>
+                   <replacements>
+                       <replacement>
+                           <token>MAVEN_BUILD_TIMESTAMP</token>
+                           <value>${maven.build.timestamp}</value>
+                       </replacement>
+                   </replacements>
+               </configuration>
             </plugin>
 
             <plugin>

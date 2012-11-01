@@ -22,6 +22,7 @@ import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.user.User;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.FilterChain;
@@ -63,7 +64,10 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
 
   private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
-    AuthUtil.getCurrentUser().acegiSecurityHack(response, session);
+    User user = AuthUtil.getCurrentUser();
+    if(user!=null){
+      user.acegiSecurityHack(response, session);
+    }
   }
 
 }
