@@ -596,9 +596,8 @@ public class UserDao {
   }
 
   public int getRemarkCount(User user) {
-    int count = jdbcTemplate.queryForInt(
+    return jdbcTemplate.queryForInt(
       "SELECT count(*) as c FROM user_remarks WHERE user_id=?", user.getId() );
-    return count;
   }
   /**
    * Получить комментарии пользователя user
@@ -613,17 +612,18 @@ public class UserDao {
                                      "FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?";
 
     String qs;
-    if(sortorder==1) qs = queryRByTe;
-    else qs = queryRByNi;
+    if(sortorder==1) {
+      qs = queryRByTe;
+    } else {
+      qs = queryRByNi;
+    }
 
-    List<Remark> remarkList = jdbcTemplate.query(qs, new RowMapper<Remark>() {
+    return jdbcTemplate.query(qs, new RowMapper<Remark>() {
       @Override
       public Remark mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Remark(resultSet);
       }
     }, user.getId(), limit, offset);
-
-    return remarkList;
   }
 
   /**

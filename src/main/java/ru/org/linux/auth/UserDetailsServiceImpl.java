@@ -50,6 +50,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   @Autowired
   private Configuration configuration;
 
+  @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
     User user;
 
@@ -114,7 +115,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     return new Profile(properties, false);
   }
 
-  private Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
+  private static Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
     logger.debug("retrive auth for:" + user.getNick()) ;
     Collection<GrantedAuthority> results = new ArrayList<GrantedAuthority>();
     results.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
