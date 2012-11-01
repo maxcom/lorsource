@@ -35,10 +35,7 @@ import ru.org.linux.util.ProfileHashtable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  */
@@ -64,6 +61,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     } else {
       try {
         user = userDao.getUser(username);
+        UserInfo userInfo = userDao.getUserInfoClass(user);
+        Calendar then = Calendar.getInstance();
+        then.setTime(userInfo.getLastLogin());
+        Calendar now = Calendar.getInstance();
+        now.add(Calendar.MINUTE, -60);
+        int diff = now.compareTo(then);
+        if(diff > 0) {
+          userDao.updateLastlogin(user);
+        }
       } catch (UserNotFoundException e) {
         throw new UsernameNotFoundException(username);
       }
