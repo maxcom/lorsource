@@ -47,14 +47,8 @@ public class SearchControlController {
   }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=all")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ModelAndView reindexAll(ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("Not authorized");
-    }
-
-    tmpl.getCurrentUser().checkDelete();
 
     Timestamp startDate = messageDao.getTimeFirstTopic();
 
@@ -75,15 +69,8 @@ public class SearchControlController {
   }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=current")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ModelAndView reindexCurrentMonth(ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("Not authorized");
-    }
-
-    tmpl.getCurrentUser().checkDelete();
-
     Calendar current = Calendar.getInstance();
 
     for (int i=0; i<3; i++) {
