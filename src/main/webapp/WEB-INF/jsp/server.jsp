@@ -44,7 +44,9 @@
 ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;.
 <p>
 	Статистику сервера можно посмотреть тут: <a href="http://linuxhacker.ru/stats">статистика</a>.
-
+  <a href="http://www.pingdom.com" style="float: right">
+    <img src="https://share.pingdom.com/banners/94fe3af1" alt="Uptime Report for LOR Main Page: Last 30 days" title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
+  </a>
 <h1>Софт</h1>
   <p>
 Мы работаем на
