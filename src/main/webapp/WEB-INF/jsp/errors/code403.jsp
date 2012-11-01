@@ -23,12 +23,14 @@
 <title>Error 403</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Error 403</h1>
-
-Доступ запрещен.
-
-<c:if test="${exception != null}">
-  Причина: ${exception.message}
-</c:if>
+<div id="warning-body">
+    <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
+    <div id="warning-text">
+        <h1>403</h1>
+        <p>Доступ запрещен.</p>
+        <p>Access denied.</p>
+    </div>
+</div>
+<div id="warning-footer"></div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
