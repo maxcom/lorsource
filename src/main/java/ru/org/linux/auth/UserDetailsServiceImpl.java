@@ -64,6 +64,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     } else {
       try {
         user = userDao.getUser(username);
+        userDao.updateLastlogin(user);
       } catch (UserNotFoundException e) {
         throw new UsernameNotFoundException(username);
       }
