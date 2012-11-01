@@ -65,6 +65,7 @@
                 <prop key="ru.org.linux.section.SectionNotFoundException">errors/code404</prop>
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">errors/code404</prop>
                 <prop key="ru.org.linux.auth.AccessViolationException">errors/code403</prop>
+                <prop key="org.springframework.security.access.AccessDeniedException">errors/code403</prop>
                 <prop key="ru.org.linux.tag.TagNotFoundException">errors/code404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">errors/bad-parameter</prop>
                 <prop key="org.springframework.beans.TypeMismatchException">errors/bad-parameter</prop>
