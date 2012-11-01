@@ -16,13 +16,13 @@
 package ru.org.linux.auth;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.user.User;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.FilterChain;
@@ -48,6 +48,7 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     request.setAttribute("template", new Template(ctx));
     request.setCharacterEncoding("utf-8"); // блядский tomcat
     CSRFManipulation(request, (HttpServletResponse) res);
+    forWikiManipulation(request, (HttpServletResponse) res);
     chain.doFilter(req, res);
   }
 
@@ -61,9 +62,12 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     response.addHeader("Cache-Control", "private");
   }
 
-  private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+  private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
-    AuthUtil.getCurrentUser().acegiSecurityHack(response, session);
+    User user = AuthUtil.getCurrentUser();
+    if(user!=null){
+      user.acegiSecurityHack(response, session);
+    }
   }
 
 }
