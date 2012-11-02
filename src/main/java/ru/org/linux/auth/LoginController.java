@@ -29,6 +29,7 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 
@@ -53,6 +54,29 @@ public class LoginController {
   @Qualifier("authenticationManager")
   private AuthenticationManager authenticationManager;
 
+  @RequestMapping(value = "/login_process", method = RequestMethod.POST)
+  public ModelAndView loginProcess(
+      @RequestParam("nick") final String username,
+      @RequestParam("passwd") final String password,
+      HttpServletRequest request, HttpServletResponse response) throws Exception {
+    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+    try {
+      UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
+      token.setDetails(details);
+      Authentication auth = authenticationManager.authenticate(token);
+      UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
+      if(!userDetails.getUser().isActivated()) {
+        throw new AccessViolationException("User not activated");
+      }
+      SecurityContextHolder.getContext().setAuthentication(auth);
+      rememberMeServices.loginSuccess(request, response, auth);
+      AuthUtil.updateLastLogin(auth, userDao);
+    } catch (Exception e) {
+      return new ModelAndView(new RedirectView("/login.jsp?error=true"));
+    }
+    return new ModelAndView(new RedirectView("/"));
+  }
+
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
   @ResponseBody
   public LoginStatus loginAjax(
@@ -64,6 +88,10 @@ public class LoginController {
       UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
       token.setDetails(details);
       Authentication auth = authenticationManager.authenticate(token);
+      UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
+      if(!userDetails.getUser().isActivated()) {
+        return new LoginStatus(false, "User not activated");
+      }
       SecurityContextHolder.getContext().setAuthentication(auth);
       rememberMeServices.loginSuccess(request, response, auth);
       AuthUtil.updateLastLogin(auth, userDao);
