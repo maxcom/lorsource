@@ -103,11 +103,9 @@
         </span>
       </c:if>
 
-      <c:if test="${template.moderatorSession}">
-        <c:if test="${comment.comment.userAgent!=null}">
+     <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
-        </c:if>
       </c:if>
     </div>
 
