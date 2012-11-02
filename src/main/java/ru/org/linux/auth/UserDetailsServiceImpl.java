@@ -118,18 +118,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   private static Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
     logger.debug("retrive auth for:" + user.getNick()) ;
     Collection<GrantedAuthority> results = new ArrayList<GrantedAuthority>();
-    results.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
-    if (user.getScore() >= 50) {
-      results.add(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-    if (user.isCorrector()) {
-      results.add(new SimpleGrantedAuthority("ROLE_CORRECTOR"));
-    }
-    if (user.isModerator()) {
-      results.add(new SimpleGrantedAuthority("ROLE_MODERATOR"));
-    }
-    if (user.isAdministrator()) {
-      results.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    if(user.isActivated()) {
+      results.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
+      if (user.getScore() >= 50) {
+        results.add(new SimpleGrantedAuthority("ROLE_USER"));
+      }
+      if (user.isCorrector()) {
+        results.add(new SimpleGrantedAuthority("ROLE_CORRECTOR"));
+      }
+      if (user.isModerator()) {
+        results.add(new SimpleGrantedAuthority("ROLE_MODERATOR"));
+      }
+      if (user.isAdministrator()) {
+        results.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+      }
     }
     return results;
   }

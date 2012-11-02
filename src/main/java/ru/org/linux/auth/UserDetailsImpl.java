@@ -65,7 +65,7 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   public boolean isAccountNonLocked() {
-    return !user.isBlocked() && user.isActivated();
+    return !user.isBlocked();
   }
 
   public boolean isCredentialsNonExpired() {
@@ -73,7 +73,7 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   public boolean isEnabled() {
-    return !user.isBlocked() && user.isActivated();
+    return !user.isBlocked();
   }
 
   public String getStyle() {

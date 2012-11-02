@@ -25,7 +25,7 @@
 <h1>Активация</h1>
 
 <c:if test="${not template.sessionAuthorized}">
-  <form method=POST action="login.jsp" id="activateForm">
+  <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
     <dl>
       <dt><label>Login:</label></dt>
@@ -40,11 +40,12 @@
       <dd><input type="text" name="activation" /></dd>
     </dl>
     <input type=submit value="Активировать">
+    <input type="hidden" name="action" value="new" />
   </form>
 </c:if>
 
 <c:if test="${template.sessionAuthorized}">
-  <form method=POST action="activate.jsp" id="activateForm">
+  <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
     <dl>
       <dt><label>Код активациии:</label></dt>

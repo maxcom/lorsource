@@ -43,6 +43,28 @@ public class Users {
     when(resultSet.getInt("unread_events")).thenReturn(0);
     return resultSet;
   }
+
+  public static ResultSet getHizel() throws Exception {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(34590);
+    when(resultSet.getString("nick")).thenReturn("hizel");
+    when(resultSet.getString("style")).thenReturn("tango");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(false);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(45);
+    when(resultSet.getInt("max_score")).thenReturn(45);
+    when(resultSet.getString("name")).thenReturn("");
+    when(resultSet.getString("passwd")).thenReturn("DffBkILVpGCDTC8ykceJzvcj5dJbhF38");
+    when(resultSet.getString("photo")).thenReturn("");
+    when(resultSet.getString("email")).thenReturn("hz@vyborg.ru");
+    when(resultSet.getInt("unread_events")).thenReturn(0);
+    return resultSet;
+  }
+
+
   public static ResultSet getAnonymous() throws Exception {
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(2);
