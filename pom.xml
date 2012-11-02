@@ -273,6 +273,20 @@
             <version>${spring.security.version}</version>
         </dependency>
 
+        <dependency>
+        	<groupId>com.sun.jersey</groupId>
+        	<artifactId>jersey-client</artifactId>
+        	<version>1.14</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+          <!-- jsoup HTML parser library @ http://jsoup.org/ -->
+          <groupId>org.jsoup</groupId>
+          <artifactId>jsoup</artifactId>
+          <version>1.7.1</version>
+          <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -370,6 +384,26 @@
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>8.1.3.v20120416</version>
+                <executions>
+                     <execution>
+                         <id>start-jetty</id>
+                         <phase>pre-integration-test</phase>
+                         <goals>
+                             <goal>run</goal>
+                         </goals>
+                         <configuration>
+                             <scanIntervalSeconds>0</scanIntervalSeconds>
+                             <daemon>true</daemon>
+                         </configuration>
+                     </execution>
+                     <execution>
+                         <id>stop-jetty</id>
+                         <phase>post-integration-test</phase>
+                         <goals>
+                             <goal>stop</goal>
+                         </goals>
+                     </execution>
+                </executions>
                 <configuration>
                     <stopKey>foo</stopKey>
                     <stopPort>9999</stopPort>
@@ -503,6 +537,7 @@
                     <skip>true</skip>
                     <!-- Show 100% of the lines from the stack trace (doesn't work) -->
                     <trimStackTrace>false</trimStackTrace>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -521,6 +556,7 @@
                             <excludes>
                                 <!-- Exclude integration tests within (unit) test phase. -->
                                 <exclude>**/*IntegrationTest.java</exclude>
+                                <exclude>**/*WebTest.java</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -536,6 +572,7 @@
                             <includes>
                                 <!-- Include integration tests within integration-test phase. -->
                                 <include>**/*IntegrationTest.java</include>
+                                <include>**/*WebTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
