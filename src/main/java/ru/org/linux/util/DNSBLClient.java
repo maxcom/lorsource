@@ -15,12 +15,12 @@
 
 package ru.org.linux.util;
 
-import java.net.UnknownHostException;
-import java.util.StringTokenizer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xbill.DNS.*;
+
+import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 
 public class DNSBLClient {
   public static final int DNSBL_TIMEOUT_SEC = 10;
@@ -37,6 +37,10 @@ public class DNSBLClient {
   }
 
   public boolean checkIP(String addr) throws TextParseException {
+    if (addr.equals("127.0.0.1")) {
+      return false;
+    }
+
     String query = invertIPAddress(addr)+ '.' +zone;
 
     logger.debug("Looking for "+query);
