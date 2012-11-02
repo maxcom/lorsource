@@ -410,5 +410,16 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("name"), user.getName());
   }
 
+  /**
+   * проверка активации
+   * @throws Exception хм
+   */
+  @Test
+  public void hizelTest() throws Exception {
+    ResultSet resultSet = Users.getHizel();
+    User user = new User(resultSet);
+    Assert.assertEquals("0428dfed932b07ea582efd94038b1076", user.getActivationCode("secret"));
+  }
+
 
 }
