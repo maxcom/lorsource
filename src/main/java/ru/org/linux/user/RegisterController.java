@@ -153,7 +153,7 @@ public class RegisterController {
     try {
       UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(nick);
       if(details.getUser().isActivated()) {
-        throw new AccessViolationException("User already activated");
+        return new ModelAndView(new RedirectView("/"));
       }
       token.setDetails(details);
       Authentication auth = authenticationManager.authenticate(token);
