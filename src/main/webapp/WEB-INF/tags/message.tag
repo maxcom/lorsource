@@ -134,11 +134,9 @@
   </c:if>
 
   <span class="sign_more">
-  <c:if test="${template.moderatorSession}">
-    <c:if test="${preparedMessage.userAgent!=null}">
+  <c:if test="${preparedMessage.userAgent!=null}">
       <br>
       <c:out value="${preparedMessage.userAgent}" escapeXml="true"/>
-    </c:if>
   </c:if>
   <c:if test="${preparedMessage.section.premoderated and message.commited}">
     <c:if test="${preparedMessage.commiter != preparedMessage.author}">
