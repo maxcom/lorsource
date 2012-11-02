@@ -18,15 +18,19 @@ package ru.org.linux.user;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.CaptchaService;
-import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.*;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.EmailService;
@@ -46,6 +50,17 @@ public class RegisterController {
 
   private CaptchaService captcha;
   private IPBlockDao ipBlockDao;
+
+  @Autowired
+  RememberMeServices rememberMeServices;
+
+  @Autowired
+  @Qualifier("authenticationManager")
+  private AuthenticationManager authenticationManager;
+
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
+
 
   @Autowired
   private UserDao userDao;
@@ -126,7 +141,43 @@ public class RegisterController {
     return new ModelAndView("activate");
   }
 
-  @RequestMapping(value = "/activate.jsp", method = RequestMethod.POST)
+  @RequestMapping(value = "/activate.jsp", method = RequestMethod.POST, params = "action")
+  public ModelAndView activateNew(
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam String activation,
+    @RequestParam String nick,
+    @RequestParam String passwd
+  ) throws Exception {
+    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(nick, passwd);
+    try {
+      UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(nick);
+      if(details.getUser().isActivated()) {
+        return new ModelAndView(new RedirectView("/"));
+      }
+      token.setDetails(details);
+      Authentication auth = authenticationManager.authenticate(token);
+      UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
+      String regcode = userDetails.getUser().getActivationCode(configuration.getSecret());
+      if(regcode.equals(activation)) {
+        userDao.activateUser(userDetails.getUser());
+        details = (UserDetailsImpl) userDetailsService.loadUserByUsername(nick);
+        token.setDetails(details);
+        auth = authenticationManager.authenticate(token);
+      } else {
+        throw new AccessViolationException("Bad activation code");
+      }
+      SecurityContextHolder.getContext().setAuthentication(auth);
+      rememberMeServices.loginSuccess(request, response, auth);
+      AuthUtil.updateLastLogin(auth, userDao);
+    } catch (Exception e) {
+      throw new AccessViolationException(e.getMessage());
+    }
+    return new ModelAndView(new RedirectView("/"));
+  }
+
+
+  @RequestMapping(value = "/activate.jsp", method = RequestMethod.POST, params = "!action")
   public ModelAndView activate(
     HttpServletRequest request,
     @RequestParam String activation
