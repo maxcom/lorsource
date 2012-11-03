@@ -7,17 +7,15 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.apache.commons.httpclient.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.section.Section;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 public class AddTopicControllerWebTest {
   private static final String LOCAL_SERVER = "http://127.0.0.1:8080";
@@ -29,7 +27,7 @@ public class AddTopicControllerWebTest {
 
   private WebResource resource;
 
-  @Before
+  @BeforeMethod
   public void initResource() {
     Client client = new Client();
 
@@ -45,11 +43,11 @@ public class AddTopicControllerWebTest {
             .queryParam("section", Integer.toString(Section.SECTION_NEWS))
             .get(ClientResponse.class);
 
-    assertEquals(HttpStatus.SC_OK, cr.getStatus());
+    Assert.assertEquals(HttpStatus.SC_OK, cr.getStatus());
 
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
-    assertFalse("missing csrf", doc.select("input[name=csrf]").isEmpty());
+    Assert.assertFalse(doc.select("input[name=csrf]").isEmpty(), "missing csrf");
   }
 
   @Test
@@ -63,15 +61,15 @@ public class AddTopicControllerWebTest {
             .path("add.jsp")
             .post(ClientResponse.class, formData);
 
-    assertEquals(HttpStatus.SC_OK, cr.getStatus());
+    Assert.assertEquals(HttpStatus.SC_OK, cr.getStatus());
 
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
     // System.out.println(doc.html());
 
-    assertFalse("not message form", doc.select("#messageForm").isEmpty());
-    assertFalse("missing error test", doc.select(".error").isEmpty());
-    assertFalse("missing csrf", doc.select("input[name=csrf]").isEmpty());
+    Assert.assertFalse(doc.select("#messageForm").isEmpty(), "not message form");
+    Assert.assertFalse(doc.select(".error").isEmpty(), "missing error test");
+    Assert.assertFalse(doc.select("input[name=csrf]").isEmpty(), "missing csrf");
   }
 
   @Test
@@ -93,25 +91,25 @@ public class AddTopicControllerWebTest {
 
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
-    assertTrue(doc.select(".error").text(), doc.select("#messageForm").isEmpty());
+    Assert.assertTrue(doc.select("#messageForm").isEmpty(), doc.select(".error").text());
 
-    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
+    Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
 
     ClientResponse tempPage = resource      // TODO remove temp redirect from Controller
             .uri(cr.getLocation())
             .get(ClientResponse.class);
 
-    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, tempPage.getStatus());
+    Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, tempPage.getStatus());
 
     ClientResponse page = resource
             .uri(tempPage.getLocation())
             .get(ClientResponse.class);
 
-    assertEquals(HttpStatus.SC_OK, page.getStatus());
+    Assert.assertEquals(HttpStatus.SC_OK, page.getStatus());
 
     Document finalDoc = Jsoup.parse(page.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
-    assertEquals(TEST_TITLE, finalDoc.select("h1[itemprop=headline] a").text());
+    Assert.assertEquals(TEST_TITLE, finalDoc.select("h1[itemprop=headline] a").text());
   }
 
   /**
@@ -133,7 +131,7 @@ public class AddTopicControllerWebTest {
 
     //System.out.print(Jsoup.parse(cr.getEntityInputStream(), "utf-8", LOCAL_SERVER).html());
 
-    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
+    Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
 
     for (Cookie cookie : cr.getCookies()) {
       if (cookie.getName().equals(AUTH_COOKIE)) {

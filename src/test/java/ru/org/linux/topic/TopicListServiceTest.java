@@ -15,11 +15,11 @@
 
 package ru.org.linux.topic;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.tag.TagNotFoundException;
@@ -31,14 +31,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
-public class TopicListServiceTest {
+public class TopicListServiceTest extends AbstractTestNGSpringContextTests {
   @Autowired
   TopicListService topicListService;
 
@@ -63,15 +61,15 @@ public class TopicListServiceTest {
       section1, group, "LOR", null, 2000, 11
     );
 
-    assertEquals(1, topicListDto.getSections().size());
+    Assert.assertEquals(1, topicListDto.getSections().size());
     Integer sectionId = topicListDto.getSections().iterator().next();
-    assertEquals(Integer.valueOf(11), sectionId);
+    Assert.assertEquals(Integer.valueOf(11), sectionId);
 
-    assertEquals(111, topicListDto.getGroup());
-    assertEquals(123, topicListDto.getTag());
+    Assert.assertEquals(111, topicListDto.getGroup());
+    Assert.assertEquals(123, topicListDto.getTag());
 
-    assertEquals(TopicListDto.DateLimitType.BETWEEN, topicListDto.getDateLimitType());
-    assertEquals(TopicListDao.CommitMode.COMMITED_ONLY, topicListDto.getCommitMode());
+    Assert.assertEquals(TopicListDto.DateLimitType.BETWEEN, topicListDto.getDateLimitType());
+    Assert.assertEquals(TopicListDao.CommitMode.COMMITED_ONLY, topicListDto.getCommitMode());
   }
 
   @Test
@@ -82,24 +80,24 @@ public class TopicListServiceTest {
       section1, group, "LOR", null, 2000, 11
     );
 
-    assertEquals(TopicListDto.DateLimitType.BETWEEN, topicListDto.getDateLimitType());
+    Assert.assertEquals(TopicListDto.DateLimitType.BETWEEN, topicListDto.getDateLimitType());
     Calendar calendar = Calendar.getInstance();
     calendar.set(2000, 10, 1, 0, 0, 0);
-    assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
+    Assert.assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
     calendar.set(2000, 11, 1, 0, 0, 0);
-    assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getToDate().getTime() / 1000);
-    assertNull(topicListDto.getLimit());
+    Assert.assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getToDate().getTime() / 1000);
+    Assert.assertNull(topicListDto.getLimit());
 
     topicList = topicListService.getTopicsFeed(
       section2, null, null, 0, null, null
     );
-    assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
+    Assert.assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -6);
-    assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
-    assertNull(topicListDto.getToDate());
-    assertEquals(Integer.valueOf(20), topicListDto.getLimit());
-    assertNull(topicListDto.getOffset());
+    Assert.assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
+    Assert.assertNull(topicListDto.getToDate());
+    Assert.assertEquals(Integer.valueOf(20), topicListDto.getLimit());
+    Assert.assertNull(topicListDto.getOffset());
   }
 
   @Test
@@ -112,11 +110,11 @@ public class TopicListServiceTest {
       user, 123, true, false
     );
 
-    assertEquals(Integer.valueOf(20), topicListDto.getLimit());
-    assertEquals(Integer.valueOf(123), topicListDto.getOffset());
-    assertEquals(TopicListDao.CommitMode.ALL, topicListDto.getCommitMode());
-    assertEquals(12345, topicListDto.getUserId());
-    assertTrue(topicListDto.isUserFavs());
+    Assert.assertEquals(Integer.valueOf(20), topicListDto.getLimit());
+    Assert.assertEquals(Integer.valueOf(123), topicListDto.getOffset());
+    Assert.assertEquals(TopicListDao.CommitMode.ALL, topicListDto.getCommitMode());
+    Assert.assertEquals(12345, topicListDto.getUserId());
+    Assert.assertTrue(topicListDto.isUserFavs());
   }
 
   @Test
@@ -129,17 +127,17 @@ public class TopicListServiceTest {
         user, section1, group, 123, true, false
     );
 
-    assertEquals(1, topicListDto.getSections().size());
+    Assert.assertEquals(1, topicListDto.getSections().size());
     Integer sectionId = topicListDto.getSections().iterator().next();
-    assertEquals(Integer.valueOf(11), sectionId);
+    Assert.assertEquals(Integer.valueOf(11), sectionId);
 
-    assertEquals(111, topicListDto.getGroup());
+    Assert.assertEquals(111, topicListDto.getGroup());
 
-    assertEquals(Integer.valueOf(20), topicListDto.getLimit());
-    assertEquals(Integer.valueOf(123), topicListDto.getOffset());
-    assertEquals(TopicListDao.CommitMode.ALL, topicListDto.getCommitMode());
-    assertEquals(12345, topicListDto.getUserId());
-    assertTrue(topicListDto.isUserFavs());
+    Assert.assertEquals(Integer.valueOf(20), topicListDto.getLimit());
+    Assert.assertEquals(Integer.valueOf(123), topicListDto.getOffset());
+    Assert.assertEquals(TopicListDao.CommitMode.ALL, topicListDto.getCommitMode());
+    Assert.assertEquals(12345, topicListDto.getUserId());
+    Assert.assertTrue(topicListDto.isUserFavs());
   }
 
   @Test
@@ -149,23 +147,23 @@ public class TopicListServiceTest {
       section1, group, new Date(), false, true, false
     );
 
-    assertEquals(1, topicListDto.getSections().size());
+    Assert.assertEquals(1, topicListDto.getSections().size());
     Integer sectionId = topicListDto.getSections().iterator().next();
-    assertEquals(Integer.valueOf(11), sectionId);
+    Assert.assertEquals(Integer.valueOf(11), sectionId);
 
-    assertEquals(111, topicListDto.getGroup());
-    assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
-    assertEquals(new Date().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
-    assertFalse(topicListDto.isNotalks());
-    assertTrue(topicListDto.isTech());
-    assertEquals(Integer.valueOf(20), topicListDto.getLimit());
-    assertEquals(TopicListDao.CommitMode.COMMITED_ONLY, topicListDto.getCommitMode());
+    Assert.assertEquals(111, topicListDto.getGroup());
+    Assert.assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
+    Assert.assertEquals(new Date().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
+    Assert.assertFalse(topicListDto.isNotalks());
+    Assert.assertTrue(topicListDto.isTech());
+    Assert.assertEquals(Integer.valueOf(20), topicListDto.getLimit());
+    Assert.assertEquals(TopicListDao.CommitMode.COMMITED_ONLY, topicListDto.getCommitMode());
 
 
     topicList = topicListService.getRssTopicsFeed(
       section2, group, new Date(), false, true, false
     );
-    assertEquals(TopicListDao.CommitMode.POSTMODERATED_ONLY, topicListDto.getCommitMode());
+    Assert.assertEquals(TopicListDao.CommitMode.POSTMODERATED_ONLY, topicListDto.getCommitMode());
   }
 
   @Test
@@ -176,38 +174,38 @@ public class TopicListServiceTest {
       section1, calendar.getTime()
     );
 
-    assertEquals(TopicListDao.CommitMode.UNCOMMITED_ONLY, topicListDto.getCommitMode());
+    Assert.assertEquals(TopicListDao.CommitMode.UNCOMMITED_ONLY, topicListDto.getCommitMode());
 
-    assertEquals(1, topicListDto.getSections().size());
+    Assert.assertEquals(1, topicListDto.getSections().size());
     Integer sectionId = topicListDto.getSections().iterator().next();
-    assertEquals(Integer.valueOf(11), sectionId);
+    Assert.assertEquals(Integer.valueOf(11), sectionId);
 
-    assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
+    Assert.assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
 
-    assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
+    Assert.assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
   }
 
   @Test
   public void getMainPageFeedTest() {
     List<Topic> topicList = topicListService.getMainPageFeed(false);
 
-    assertEquals(1, topicListDto.getSections().size());
+    Assert.assertEquals(1, topicListDto.getSections().size());
     Integer sectionId = topicListDto.getSections().iterator().next();
-    assertEquals(Integer.valueOf(Section.SECTION_NEWS), sectionId);
+    Assert.assertEquals(Integer.valueOf(Section.SECTION_NEWS), sectionId);
 
-    assertEquals(Integer.valueOf(20), topicListDto.getLimit());
-    assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
+    Assert.assertEquals(Integer.valueOf(20), topicListDto.getLimit());
+    Assert.assertEquals(TopicListDto.DateLimitType.MONTH_AGO, topicListDto.getDateLimitType());
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -1);
-    assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
+    Assert.assertEquals(calendar.getTime().getTime() / 1000, topicListDto.getFromDate().getTime() / 1000);
 
-    assertEquals(TopicListDao.CommitMode.COMMITED_ONLY, topicListDto.getCommitMode());
+    Assert.assertEquals(TopicListDao.CommitMode.COMMITED_ONLY, topicListDto.getCommitMode());
 
     topicList = topicListService.getMainPageFeed(true);
 
-    assertEquals(2, topicListDto.getSections().size());
+    Assert.assertEquals(2, topicListDto.getSections().size());
   }
 
 }

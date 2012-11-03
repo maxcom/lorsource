@@ -15,21 +15,22 @@
 
 package ru.org.linux.topic;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
+
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyString;
 
 /**
  * Created by IntelliJ IDEA.
@@ -72,11 +73,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    assertFalse(user.isModerator());
-    assertEquals(user.getId(), resultSet.getInt("userid"));
-    assertEquals(user.getId(), message.getUid());
+    Assert.assertFalse(user.isModerator());
+    Assert.assertEquals(user.getId(), resultSet.getInt("userid"));
+    Assert.assertEquals(user.getId(), message.getUid());
 
-    assertTrue(permissionService.isDeletable(message, user));
+    Assert.assertTrue(permissionService.isDeletable(message, user));
   }
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
@@ -110,11 +111,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    assertFalse(user.isModerator());
-    assertEquals(user.getId(), resultSet.getInt("userid"));
-    assertEquals(user.getId(), message.getUid());
+    Assert.assertFalse(user.isModerator());
+    Assert.assertEquals(user.getId(), resultSet.getInt("userid"));
+    Assert.assertEquals(user.getId(), message.getUid());
 
-    assertFalse(permissionService.isDeletable(message, user));
+    Assert.assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -149,11 +150,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    assertFalse(user.isModerator());
-    assertFalse(user.getId() == resultSet.getInt("userid"));
-    assertFalse(user.getId() == message.getUid());
+    Assert.assertFalse(user.isModerator());
+    Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
+    Assert.assertFalse(user.getId() == message.getUid());
 
-    assertFalse(permissionService.isDeletable(message, user));
+    Assert.assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -188,11 +189,11 @@ public class GroupPermissionServiceTest {
 
     Topic message = new Topic(resultSet);
 
-    assertFalse(user.isModerator());
-    assertFalse(user.getId() == resultSet.getInt("userid"));
-    assertFalse(user.getId() == message.getUid());
+    Assert.assertFalse(user.isModerator());
+    Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
+    Assert.assertFalse(user.getId() == message.getUid());
 
-    assertFalse(permissionService.isDeletable(message, user));
+    Assert.assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -278,7 +279,7 @@ public class GroupPermissionServiceTest {
     when(user.getId()).thenReturn(13);
 
     // проверка что данные в mock user верные
-    assertTrue(user.isModerator());
+    Assert.assertTrue(user.isModerator());
 
     Section sectionModerate = mock(Section.class);
     when(sectionModerate.isPremoderated()).thenReturn(true);
@@ -292,15 +293,15 @@ public class GroupPermissionServiceTest {
     permissionService.setSectionService(sectionService);
 
     // проверка что данные в mock resultSet верные
-    assertTrue(resultSetModerateNew.getBoolean("moderate"));
-    assertTrue(resultSetModerateOld.getBoolean("moderate"));
-    assertFalse(resultSetNotModerateNew.getBoolean("moderate"));
-    assertFalse(resultSetNotModerateOld.getBoolean("moderate"));
+    Assert.assertTrue(resultSetModerateNew.getBoolean("moderate"));
+    Assert.assertTrue(resultSetModerateOld.getBoolean("moderate"));
+    Assert.assertFalse(resultSetNotModerateNew.getBoolean("moderate"));
+    Assert.assertFalse(resultSetNotModerateOld.getBoolean("moderate"));
 
-    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postdate")));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postdate")));
-    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postdate")));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")));
+    Assert.assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postdate")));
+    Assert.assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postdate")));
+    Assert.assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postdate")));
+    Assert.assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")));
 
 
     Topic messageModerateOld = new Topic(resultSetModerateOld);
@@ -309,31 +310,31 @@ public class GroupPermissionServiceTest {
     Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
 
     // проверка что данные в mock message верные
-    assertTrue(messageModerateNew.isCommited());
-    assertTrue(messageModerateOld.isCommited());
-    assertFalse(messageNotModerateNew.isCommited());
-    assertFalse(messageNotModerateOld.isCommited());
+    Assert.assertTrue(messageModerateNew.isCommited());
+    Assert.assertTrue(messageModerateOld.isCommited());
+    Assert.assertFalse(messageNotModerateNew.isCommited());
+    Assert.assertFalse(messageNotModerateOld.isCommited());
 
-    assertEquals(0, (new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()));
-    assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()));
+    Assert.assertEquals(0, (new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()));
+    Assert.assertEquals(0, (new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()));
+    Assert.assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()));
+    Assert.assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()));
     
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
-    assertFalse(permissionService.isDeletable(messageModerateOld, user));
+    Assert.assertFalse(permissionService.isDeletable(messageModerateOld, user));
     // можно удалять старые подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateOld, user));
     // можно удалять старые не подтвержденные топики в премодерируемом разделе
-    assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
+    Assert.assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
     // можно удалять старые не подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user));
 
     // можно удалять новые подтвержденные топики в премодерируемом разделе
-    assertTrue(permissionService.isDeletable(messageModerateNew, user));
+    Assert.assertTrue(permissionService.isDeletable(messageModerateNew, user));
     // можно удалять новые подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user));
     // можно удалять новые не подтвержденные топики в премодерируемом разделе
-    assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
+    Assert.assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
     // можно удалять новые не подтвержденные топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user));
   }

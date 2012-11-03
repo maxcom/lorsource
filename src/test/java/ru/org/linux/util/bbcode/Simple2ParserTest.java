@@ -15,10 +15,10 @@
 
 package ru.org.linux.util.bbcode;
 
-import junit.framework.Assert;
 import org.apache.commons.httpclient.URI;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -27,7 +27,6 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.*;
@@ -46,7 +45,7 @@ public class Simple2ParserTest {
   String url;
 
 
-  @Before
+  @BeforeMethod
   public void init() throws Exception {
     maxcom = mock(User.class);
     JB = mock(User.class);
@@ -149,13 +148,13 @@ public class Simple2ParserTest {
   @Test
   public void listTest() {
     Assert.assertEquals("<ul><li>one</li><li>two</li><li>three</li></ul>", lorCodeService.parseComment("[LIST][*]one[*]two[*]three[/list]", false));
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n" +
             "</li><li>two\n" +
             "</li><li>three\n" +
             "</li></ul>",
         lorCodeService.parseComment("[list]\n[*]one\n[*]two\n[*]three\n[/LIST]", false));
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n" +
             "</li><li>two\n" +
             "</li><li>three\n" +
@@ -294,43 +293,43 @@ public class Simple2ParserTest {
 
   @Test
   public void urlParameterQuotesTest() {
-    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+    Assert.assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
         lorCodeService.parseComment("[url=\"http://www.example.com]example[/URL]", false));
-    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+    Assert.assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
         lorCodeService.parseComment("[url=\"http://www.example.com\"]example[/url]", false));
-    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+    Assert.assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
         lorCodeService.parseComment("[URL='http://www.example.com']example[/url]", false));
-    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+    Assert.assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
         lorCodeService.parseComment("[URL='http://www.example.com]example[/url]", false));
   }
 
   @Test
   public void cutWithParameterTest() {
-    assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">нечитать!</a> )</p>",
+    Assert.assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">нечитать!</a> )</p>",
         lorCodeService.parseTopicWithMinimizedCut("[CUT=нечитать!]\n\ntest[/cut]", url, true));
   }
 
   @Test
   public void autoLinksInList() {
-    assertEquals("<ul><li><a href=\"http://www.example.com\">http://www.example.com</a></li><li>sure</li><li>profit!</li></ul>",
+    Assert.assertEquals("<ul><li><a href=\"http://www.example.com\">http://www.example.com</a></li><li>sure</li><li>profit!</li></ul>",
         lorCodeService.parseComment("[list][*]www.example.com[*]sure[*]profit![/LIST]", false));
   }
 
   @Test
   public void quoteQuoteQuote() {
-    assertEquals(citeHeader + "<p>прювет!</p>" + citeFooter,
+    Assert.assertEquals(citeHeader + "<p>прювет!</p>" + citeFooter,
         lorCodeService.parseComment("[quote][quote][quote][QUOTE][quote][quote][quote][quote][quote][quote][quote][quote][quote][QUOTE][quote][quote][quote][quote]прювет![/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/QUOTE]", false));
   }
 
   @Test
   public void testMDash() {
-    assertEquals("test&nbsp;&mdash; test",
+    Assert.assertEquals("test&nbsp;&mdash; test",
         toHtmlFormatter.format("test -- test", false));
-    assertEquals("<p>test&nbsp;&mdash; test</p>",
+    Assert.assertEquals("<p>test&nbsp;&mdash; test</p>",
         lorCodeService.parseComment("test -- test", false));
-    assertEquals("<p>test<div class=\"code\"><pre class=\"no-highlight\"><code> -- </code></pre></div>test</p>",
+    Assert.assertEquals("<p>test<div class=\"code\"><pre class=\"no-highlight\"><code> -- </code></pre></div>test</p>",
         lorCodeService.parseComment("test[code] -- [/code]test", false));
-    assertEquals("<p><a href=\"http://www.linux.org.ru/\">http://www.linux.org.ru/</a>&nbsp;&mdash; русская информация об ос линукс</p>",
+    Assert.assertEquals("<p><a href=\"http://www.linux.org.ru/\">http://www.linux.org.ru/</a>&nbsp;&mdash; русская информация об ос линукс</p>",
         lorCodeService.parseComment("http://www.linux.org.ru/ -- русская информация об ос линукс", false));
   }
 

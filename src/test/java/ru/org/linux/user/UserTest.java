@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.test.Users;
 
@@ -67,10 +67,10 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
@@ -166,8 +166,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertTrue(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -175,10 +175,10 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
@@ -216,8 +216,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -225,8 +225,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -234,10 +234,10 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
-                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">" +
+      "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
@@ -275,8 +275,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -284,8 +284,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -330,8 +330,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -339,8 +339,8 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
+        resultSet.getString("nick") + " (" +
+        resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());

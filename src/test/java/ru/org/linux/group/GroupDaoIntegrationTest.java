@@ -14,23 +14,22 @@
  */
 package ru.org.linux.group;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 import ru.org.linux.section.Section;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("integration-tests-context.xml")
-public class GroupDaoIntegrationTest {
+public class GroupDaoIntegrationTest extends AbstractTestNGSpringContextTests {
   @Autowired
+
   GroupDao groupDao;
 
   @Test
@@ -40,9 +39,9 @@ public class GroupDaoIntegrationTest {
     when(sectionDto.getId()).thenReturn(Section.SECTION_FORUM);
 
     List<Group> groupDtoList = groupDao.getGroups(sectionDto);
-    assertEquals(16, groupDtoList.size());
+    Assert.assertEquals(16, groupDtoList.size());
 
     Group groupDto = groupDao.getGroup(sectionDto, "general");
-    assertEquals("General", groupDto.getTitle());
+    Assert.assertEquals("General", groupDto.getTitle());
   }
 }

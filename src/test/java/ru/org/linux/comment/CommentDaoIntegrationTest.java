@@ -15,13 +15,13 @@
 
 package ru.org.linux.comment;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -29,13 +29,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("integration-tests-context.xml")
-public class CommentDaoIntegrationTest {
+public class CommentDaoIntegrationTest extends AbstractTestNGSpringContextTests {
   private int topicId;
 
   @Autowired
@@ -48,7 +46,7 @@ public class CommentDaoIntegrationTest {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     topicId = jdbcTemplate.queryForInt("select min (id) from topics");
   }
@@ -108,17 +106,17 @@ public class CommentDaoIntegrationTest {
       commentDao.edit(oldComment, newComment, "test body");
 
       List<Map<String, Object>> rows = getComment(commentId);
-      assertFalse("No any records", rows.isEmpty());
+      Assert.assertFalse(rows.isEmpty(), "No any records");
       Map<String, Object> row = rows.get(0);
-      assertEquals("CommentDaoIntegrationTest.editCommentTest(): new title", row.get("title"));
+      Assert.assertEquals("CommentDaoIntegrationTest.editCommentTest(): new title", row.get("title"));
 
       rows = jdbcTemplate.queryForList(
         "SELECT * FROM msgbase WHERE id=?", commentId
       );
 
-      assertFalse("No any records", rows.isEmpty());
+      Assert.assertFalse(rows.isEmpty(), "No any records");
       row = rows.get(0);
-      assertEquals("test body", row.get("message"));
+      Assert.assertEquals("test body", row.get("message"));
     } finally {
       delComment(commentId);
     }
@@ -136,23 +134,23 @@ public class CommentDaoIntegrationTest {
       );
 
       List<Map<String, Object>> rows = getComment(commentId);
-      assertFalse("No any records", rows.isEmpty());
+      Assert.assertFalse(rows.isEmpty(), "No any records");
       Map<String, Object> row = rows.get(0);
 
-      assertNull(row.get("edit_nick"));
-      assertNull(row.get("edit_date"));
-      assertEquals(0, row.get("edit_count"));
+      Assert.assertNull(row.get("edit_nick"));
+      Assert.assertNull(row.get("edit_date"));
+      Assert.assertEquals(0, row.get("edit_count"));
 
       Date commentEditDate = new Date();
       commentDao.updateLatestEditorInfo(commentId, 1, commentEditDate, 1234);
 
       rows = getComment(commentId);
-      assertFalse("No any records", rows.isEmpty());
+      Assert.assertFalse(rows.isEmpty(), "No any records");
       row = rows.get(0);
       Timestamp rowTimestamp = (Timestamp) row.get("edit_date");
-      assertEquals("maxcom", row.get("edit_nick"));
-      assertEquals(rowTimestamp.getTime(), commentEditDate.getTime());
-      assertEquals(1234, row.get("edit_count"));
+      Assert.assertEquals("maxcom", row.get("edit_nick"));
+      Assert.assertEquals(rowTimestamp.getTime(), commentEditDate.getTime());
+      Assert.assertEquals(1234, row.get("edit_count"));
     } finally {
       delComment(commentId);
     }
@@ -170,7 +168,7 @@ public class CommentDaoIntegrationTest {
         "comment body"
       );
 
-      assertFalse(commentDao.isHaveAnswers(commentId1));
+      Assert.assertFalse(commentDao.isHaveAnswers(commentId1));
 
       addComment(
         commentId2,
@@ -179,7 +177,7 @@ public class CommentDaoIntegrationTest {
         "comment body"
       );
 
-      assertTrue(commentDao.isHaveAnswers(commentId1));
+      Assert.assertTrue(commentDao.isHaveAnswers(commentId1));
 
     } finally {
       delComment(commentId2);

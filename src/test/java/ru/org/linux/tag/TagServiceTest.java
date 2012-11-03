@@ -15,22 +15,19 @@
 
 package ru.org.linux.tag;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.web.bind.WebDataBinder;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
-public class TagServiceTest {
+public class TagServiceTest extends AbstractTestNGSpringContextTests {
   @Autowired
   TagService tagService;
 
@@ -39,7 +36,7 @@ public class TagServiceTest {
 
   WebDataBinder binder;
 
-  @Before
+  @BeforeMethod
   public void resetTagDaoMock() {
     reset(tagDao);
   }
@@ -63,24 +60,24 @@ public class TagServiceTest {
 
     prepareChangeDataBinder();
     tagService.change("InvalidTestTag", "testNewTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareChangeDataBinder();
     tagService.change("testTag", "#$%@@#%$", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareChangeDataBinder();
     tagService.change("#$%@@#%$", "testNewTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareChangeDataBinder();
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     when(tagDao.getTagId("testNewTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
     prepareChangeDataBinder();
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
-    assertFalse(binder.getBindingResult().hasErrors());
+    Assert.assertFalse(binder.getBindingResult().hasErrors());
   }
   @Test
   public void deleteTest()
@@ -90,22 +87,22 @@ public class TagServiceTest {
 
     prepareDeleteDataBinder();
     tagService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
     tagService.delete("testTag", "#$%@@#%$", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
     tagService.delete("#$%@@#%$", "testNewTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
     tagService.delete("testTag", "testTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
+    Assert.assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
     tagService.delete("testTag", "testNewTag", binder.getBindingResult());
-    assertFalse(binder.getBindingResult().hasErrors());
+    Assert.assertFalse(binder.getBindingResult().hasErrors());
   }
 }

@@ -16,15 +16,14 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.validation.Errors;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
 
@@ -36,9 +35,8 @@ import java.util.List;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
-public class UserTagServiceTest {
+public class UserTagServiceTest extends AbstractTestNGSpringContextTests {
   @Autowired
   TagDao tagDao;
 
@@ -50,7 +48,7 @@ public class UserTagServiceTest {
 
   private User user;
 
-  @Before
+  @BeforeMethod
   public void resetMockObjects() throws Exception {
     reset(userTagDao);
     reset(tagDao);

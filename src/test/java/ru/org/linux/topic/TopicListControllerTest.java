@@ -19,19 +19,17 @@
 
 package ru.org.linux.topic;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
-public class TopicListControllerTest {
+public class TopicListControllerTest  extends AbstractTestNGSpringContextTests {
 
   @Autowired
   private ApplicationContext applicationContext;
@@ -42,7 +40,7 @@ public class TopicListControllerTest {
 //  @Autowired
   private TopicListController topicListController;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     request = new MockHttpServletRequest();
     response = new MockHttpServletResponse();
