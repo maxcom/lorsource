@@ -27,15 +27,19 @@ import java.util.List;
 public class SectionService {
   private ImmutableList<Section> sectionList;
 
+  private SectionDao sectionDao;
+
   @Autowired
-  SectionDao sectionDao;
+  public void setSectionDao(SectionDao sectionDao) {
+    this.sectionDao = sectionDao;
+  }
 
   /**
    * Инициализация списка секций из БД.
    * Метод вызывается автоматически сразу после создания бина.
    */
   @PostConstruct
-  private void initializeSectionList() {
+  protected void initializeSectionList() {
     Builder<Section> sectionListBuilder = ImmutableList.builder();
     List<Section> sections = sectionDao.getAllSections();
     sectionListBuilder.addAll(sections);

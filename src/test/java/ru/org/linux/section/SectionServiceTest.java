@@ -14,88 +14,159 @@
  */
 package ru.org.linux.section;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import ru.org.linux.topic.TopicPermissionService;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
-@ContextConfiguration("unit-tests-context.xml")
-public class SectionServiceTest extends AbstractTestNGSpringContextTests {
-  @Autowired
+public class SectionServiceTest  {
   private SectionService sectionService;
+  private SectionDao sectionDao;
 
-  @Test
-  public void getSectionIdByNameTest() {
+  @BeforeMethod
+  public void setUp() {
+    sectionService = new SectionService();
 
-    Assert.assertEquals(1, sectionService.getSectionIdByName("Section 1"));
-    Assert.assertEquals(2, sectionService.getSectionIdByName("Section 2"));
-    Assert.assertEquals(3, sectionService.getSectionIdByName("Section 3"));
-    Assert.assertEquals(4, sectionService.getSectionIdByName("Section 4"));
+    sectionDao = mock(SectionDao.class);
+    when(sectionDao.getAllSections())
+      .thenReturn(createSectionList());
 
-    try {
-      sectionService.getSectionIdByName("Section XXX");
-      Assert.fail();
-    } catch (SectionNotFoundException ignored) {
-    }
-  }
-  @Test
-  public void getSectionTest() {
-    Section section = sectionService.getSection(3);
-    Assert.assertNotNull(section);
-    Assert.assertEquals("Section 3", section.getName());
-    Assert.assertTrue(section.isPremoderated());
-    Assert.assertFalse(section.isPollPostAllowed());
-    Assert.assertTrue(section.isImagepost());
-
-    section = sectionService.getSection(2);
-    Assert.assertNotNull(section);
-    Assert.assertEquals("Section 2", section.getName());
-    Assert.assertTrue(section.isPremoderated());
-    Assert.assertFalse(section.isPollPostAllowed());
-    Assert.assertFalse(section.isImagepost());
-
-    try {
-      section = sectionService.getSection(-1);
-      Assert.fail();
-    } catch (SectionNotFoundException ignored) {
-    }
+    sectionService.setSectionDao(sectionDao);
+    sectionService.initializeSectionList();
   }
 
+  @Test(expectedExceptions = {SectionNotFoundException.class})
+  public void getSectionIdByWrongName() {
+    // given
+
+    // when
+    sectionService.getSectionIdByName("Section XXX");
+
+    // then
+  }
+
+  @Test(dataProvider = "getSectionIdByNameDataSource")
+  public void getSectionIdByName(
+    String inputSectionName,
+    int expectedSectionId
+  ) {
+    // given
+
+    // when
+    int actualSectionId =sectionService.getSectionIdByName(inputSectionName);
+
+    // then
+    Assert.assertEquals(actualSectionId, expectedSectionId);
+
+    verify(sectionDao).getAllSections();
+    verifyNoMoreInteractions(sectionDao);
+  }
+
+  @DataProvider(name = "getSectionIdByNameDataSource")
+  public Object[][] getSectionIdByNameDataSource() {
+    return new Object[][] {
+      new Object[] {"Section 1", 1},
+      new Object[] {"Section 2", 2},
+      new Object[] {"Section 3", 3},
+      new Object[] {"Section 4", 4},
+    };
+  }
+
+  @Test(expectedExceptions = {SectionNotFoundException.class})
+  public void getSectionByInvalidId() {
+    // given
+
+    // when
+    sectionService.getSection(-1);
+
+    // then
+  }
+
+  @Test(dataProvider = "getSectionDataSource")
+  public void getSection(
+    int inputSectionId,
+    String expectedSectionName,
+    boolean expectedIsPremoderated,
+    boolean expectedIsPollPostAllowed,
+    boolean expectedIsImagePost,
+    SectionScrollModeEnum expectedScrollMode
+  ) {
+    // given
+
+    // when
+    Section section = sectionService.getSection(inputSectionId);
+
+    // then
+    Assert.assertNotNull(section);
+    Assert.assertEquals(section.getName(), expectedSectionName);
+    Assert.assertEquals(section.isPremoderated(), expectedIsPremoderated);
+    Assert.assertEquals(section.isPollPostAllowed(), expectedIsPollPostAllowed);
+    Assert.assertEquals(section.isImagepost(), expectedIsImagePost);
+    Assert.assertEquals(section.getScrollMode(), expectedScrollMode);
+
+    verify(sectionDao).getAllSections();
+    verifyNoMoreInteractions(sectionDao);
+  }
+
+  @DataProvider(name = "getSectionDataSource")
+  public Object[][] getSectionDataSource() {
+    return new Object[][] {
+      new Object[] {2, "Section 2", true, false, false, SectionScrollModeEnum.GROUP},
+      new Object[] {3, "Section 3", true, false, true, SectionScrollModeEnum.SECTION},
+      new Object[] {4, "Section 4", false, false, false, SectionScrollModeEnum.NO_SCROLL},
+    };
+  }
+
   @Test
-  public void getSectionListTest() {
+  public void countOfSectionInList() {
+    // given
+
+    // when
     List<Section> sectionList = sectionService.getSectionList();
+
+    // then
     Assert.assertEquals(5, sectionList.size());
+    verify(sectionDao).getAllSections();
+    verifyNoMoreInteractions(sectionDao);
   }
 
   @Test
-  public void getAddInfoTest() {
+  public void getAdditionalInformation() {
+    // given
+    final String additionInfo = "Extended info for Section 1";
+    when(sectionDao.getAddInfo(eq(1)))
+      .thenReturn(additionInfo);
+
+    // when
     String additionalInfo = sectionService.getAddInfo(1);
-    Assert.assertEquals("Extended info for Section 1", additionalInfo);
 
-    additionalInfo = sectionService.getAddInfo(3);
-    Assert.assertEquals("Extended info for Section 3", additionalInfo);
+    // then
+    Assert.assertSame(additionInfo, additionalInfo);
+
+    verify(sectionDao).getAllSections();
+    verify(sectionDao).getAddInfo(eq(1));
+    verifyNoMoreInteractions(sectionDao);
   }
 
-  @Test
-  public void getScrollModeTest() {
+  private List<Section> createSectionList() {
+    List<Section> sectionList = new ArrayList<Section>();
 
-    Section section = sectionService.getSection(1);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    sectionList.add(new Section("Section 1", false, true, 1, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
+    sectionList.add(new Section("Section 2", false, true, 2, false, "GROUP", TopicPermissionService.POSTSCORE_UNRESTRICTED));
+    sectionList.add(new Section("Section 3", true, true, 3, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
+    sectionList.add(new Section("Section 4", false, false, 4, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED));
+    sectionList.add(new Section("Section 5", false, false, 5, true, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
 
-    section = sectionService.getSection(2);
-    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
-
-    section = sectionService.getSection(3);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
-    section = sectionService.getSection(4);
-    Assert.assertEquals(SectionScrollModeEnum.NO_SCROLL, section.getScrollMode());
-
-    section = sectionService.getSection(5);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    return sectionList;
   }
 }
