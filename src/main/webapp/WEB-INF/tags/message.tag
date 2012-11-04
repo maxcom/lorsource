@@ -123,7 +123,13 @@
   <l:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>
-  <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false" timeprop="dateCreated"/>
+  <lor:sign
+          postdate="${message.postdate}"
+          user="${preparedMessage.author}"
+          shortMode="false"
+          timeprop="dateCreated"
+          author="true"
+  />
 
   <c:if test="${preparedMessage.remark != null}">
     <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>

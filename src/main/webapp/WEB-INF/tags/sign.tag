@@ -20,10 +20,16 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ attribute name="shortMode" type="java.lang.Boolean" %><%@
         attribute name="user" type="ru.org.linux.user.User" %><%@
+        attribute name="author" type="java.lang.Boolean" required="false" %><%@
         attribute name="postdate" type="java.sql.Timestamp" %><%@
         attribute name="timeprop" type="java.lang.String" required="false" %>
 
-<lor:user rel="author" decorate="true" link="true" user="${user}"/>
+<c:if test="${author}">
+  <lor:user rel="author" itemprop="creator" decorate="true" link="true" user="${user}"/>
+</c:if>
+<c:if test="${not author}">
+  <lor:user decorate="true" itemprop="creator" link="true" user="${user}"/>
+</c:if>
 
 <c:if test="${not shortMode and not user.anonymous}">
   ${user.stars}
