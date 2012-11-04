@@ -123,7 +123,7 @@
   <l:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>
-  <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
+  <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false" timeprop="dateCreated"/>
 
   <c:if test="${preparedMessage.remark != null}">
     <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
@@ -145,7 +145,7 @@
       <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>
 
       <c:if test="${message.commitDate!=null && message.commitDate != message.postdate}">
-        (<lor:date date="${message.commitDate}"/>)
+        (<lor:date date="${message.commitDate}" itemprop="datePublished"/>)
       </c:if>
     </c:if>
   </c:if>
