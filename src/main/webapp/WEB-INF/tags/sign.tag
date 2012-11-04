@@ -20,7 +20,8 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ attribute name="shortMode" type="java.lang.Boolean" %><%@
         attribute name="user" type="ru.org.linux.user.User" %><%@
-        attribute name="postdate" type="java.sql.Timestamp" %>
+        attribute name="postdate" type="java.sql.Timestamp" %><%@
+        attribute name="timeprop" type="java.lang.String" required="false" %>
 
 <lor:user rel="author" decorate="true" link="true" user="${user}"/>
 
@@ -32,5 +33,5 @@
   </c:if>
 </c:if>
 
-(<lor:date date="${postdate}"/>)
+(<lor:date date="${postdate}" itemprop="${timeprop}"/>)
 

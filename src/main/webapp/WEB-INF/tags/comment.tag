@@ -85,7 +85,12 @@
     ${comment.processedMessage}
 
     <div class=sign>
-      <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
+      <lor:sign
+              postdate="${comment.comment.postdate}"
+              user="${comment.author}"
+              shortMode="false"
+              timeprop="commentTime"
+      />
 
       <c:if test="${comment.remark != null}">
         <span class="user-remark"><c:out value="${comment.remark.text}" escapeXml="true"/></span>

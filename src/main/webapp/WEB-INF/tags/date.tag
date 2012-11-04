@@ -15,8 +15,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%><%@ attribute name="date" required="true" type="java.util.Date" %><%@
-        taglib tagdir="/WEB-INF/tags" prefix="lor" %><%--
---%><time datetime="<%= ISODateTimeFormat.dateTime().print(date.getTime()) %>"><%
+        taglib tagdir="/WEB-INF/tags" prefix="lor" %><%@
+        taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
+        attribute name="itemprop" type="java.lang.String" required="false" %><%--
+--%><time datetime="<%= ISODateTimeFormat.dateTime().print(date.getTime()) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
   DateFormat dateFormat = DateFormats.createDefault();
 
   out.print(dateFormat.format(date));
