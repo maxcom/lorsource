@@ -209,7 +209,7 @@ public class EditRegisterController {
           SecurityContextHolder.getContext().setAuthentication(auth);
           rememberMeServices.loginSuccess(request, response, auth);
         } catch (Exception ex) {
-          logger.error("В этом месте не должно быть исключительных ситуаций: " + ex.toString());
+          logger.error("В этом месте не должно быть исключительных ситуаций. ", ex);
         }
       }
 
