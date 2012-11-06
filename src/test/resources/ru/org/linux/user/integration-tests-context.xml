@@ -22,6 +22,8 @@
     <import resource="classpath:database.xml"/>
 
     <bean class="ru.org.linux.user.UserTagDao" id="userTagDao"/>
+    <bean class="ru.org.linux.user.UserDao" id="userDao"/>
+    <bean class="ru.org.linux.user.IgnoreListDao" id="ignoreListDao" />
 
 </beans>
 
