@@ -16,7 +16,7 @@
 package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.section.SectionDao;

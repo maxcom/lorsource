@@ -16,24 +16,21 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("integration-tests-context.xml")
-public class UserTagDaoIntegrationTest {
+public class UserTagDaoIntegrationTest extends AbstractTestNGSpringContextTests {
   private static final String QUERY_COUNT_FAVORITE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?";
   private static final String QUERY_COUNT_IGNORE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?";
   @Autowired
@@ -76,7 +73,7 @@ public class UserTagDaoIntegrationTest {
     return jdbcTemplate.queryForInt("SELECT currval('tags_values_id_seq') AS tagid");
   }
 
-  @Before
+  @BeforeMethod
   public void prepareTestData() {
     cleanupTestData();
 
@@ -90,7 +87,7 @@ public class UserTagDaoIntegrationTest {
     tag5Id = createTag("UserTagDaoIntegrationTest_tag5");
   }
 
-  @After
+  @AfterMethod
   public void cleanupTestData() {
     jdbcTemplate.update(
       "DELETE FROM user_TAGS WHERE user_id in (" + user1Id + ", " + user2Id + ')'
@@ -133,31 +130,31 @@ public class UserTagDaoIntegrationTest {
       QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 5, result);
+    Assert.assertEquals(5, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       QUERY_COUNT_IGNORE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 3, result);
+    Assert.assertEquals(3, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       QUERY_COUNT_FAVORITE_BY_USER,
       user2Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 5, result);
+    Assert.assertEquals(5, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       QUERY_COUNT_IGNORE_BY_USER,
       user2Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 0, result);
+    Assert.assertEquals(0, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
       tag1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 3, result);
+    Assert.assertEquals(3, result, "Wrong count of user tags.");
   }
 
   @Test
@@ -173,7 +170,7 @@ public class UserTagDaoIntegrationTest {
       QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 3, result);
+    Assert.assertEquals(3, result, "Wrong count of user tags.");
 
     userTagDao.deleteTag(user1Id, tag2Id, false);
 
@@ -181,13 +178,13 @@ public class UserTagDaoIntegrationTest {
       QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 3, result);
+    Assert.assertEquals(3, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       QUERY_COUNT_IGNORE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 1, result);
+    Assert.assertEquals(1, result, "Wrong count of user tags.");
   }
 
   @Test
@@ -202,19 +199,19 @@ public class UserTagDaoIntegrationTest {
       QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 4, result);
+    Assert.assertEquals(4, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       QUERY_COUNT_IGNORE_BY_USER,
       user1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 1, result);
+    Assert.assertEquals(1, result, "Wrong count of user tags.");
 
     result = jdbcTemplate.queryForInt(
       QUERY_COUNT_FAVORITE_BY_USER,
       user2Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 4, result);
+    Assert.assertEquals(4, result, "Wrong count of user tags.");
   }
 
   @Test
@@ -224,10 +221,10 @@ public class UserTagDaoIntegrationTest {
     ImmutableList<String> tags;
 
     tags = userTagDao.getTags(user1Id, true);
-    Assert.assertEquals("Wrong count of user tags.", 5, tags.size());
+    Assert.assertEquals(5, tags.size(), "Wrong count of user tags.");
 
     tags = userTagDao.getTags(user1Id, false);
-    Assert.assertEquals("Wrong count of user tags.", 2, tags.size());
+    Assert.assertEquals(2, tags.size(), "Wrong count of user tags.");
   }
 
   @Test
@@ -237,17 +234,17 @@ public class UserTagDaoIntegrationTest {
     List<String> tags = new ArrayList<String>();
     tags.add("UserTagDaoIntegrationTest_tag1");
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
-    Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
+    Assert.assertEquals(1, userIdList.size(), "Wrong count of user ID's.");
 
     tags.add("UserTagDaoIntegrationTest_tag2");
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
-    Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
+    Assert.assertEquals(1, userIdList.size(), "Wrong count of user ID's.");
 
     tags.clear();
     userTagDao.deleteTag(user1Id, tag5Id, true);
     tags.add("UserTagDaoIntegrationTest_tag5");
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
-    Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
+    Assert.assertEquals(1, userIdList.size(), "Wrong count of user ID's.");
   }
 
   @Test
@@ -260,7 +257,7 @@ public class UserTagDaoIntegrationTest {
       "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
       tag1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 2, result);
+    Assert.assertEquals(2, result, "Wrong count of user tags.");
 
     userTagDao.deleteTags(tag1Id);
     userTagDao.replaceTag(tag2Id, tag1Id);
@@ -268,6 +265,6 @@ public class UserTagDaoIntegrationTest {
       "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
       tag1Id
     );
-    Assert.assertEquals("Wrong count of user tags.", 3, result);
+    Assert.assertEquals(3, result, "Wrong count of user tags.");
   }
 }

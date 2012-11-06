@@ -15,19 +15,18 @@
 
 package ru.org.linux.user;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class ProfileTest {
   @Test
   public void testDefaultProfile() {
     Profile profile = new Profile();
 
-    assertTrue(profile.isDefault());
+    Assert.assertTrue(profile.isDefault());
   }
 
   @Test
@@ -39,14 +38,14 @@ public class ProfileTest {
 
     Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
 
-    assertFalse(profile1.isDefault());
+    Assert.assertFalse(profile1.isDefault());
   }
 
   @Test
   public void testModification() throws Exception {
     Profile profile = new Profile();
 
-    assertNotSame(125, profile.getProperties().getMessages());
+    Assert.assertNotSame(125, profile.getProperties().getMessages());
 
     profile.getProperties().setMessages(125);
 
@@ -56,7 +55,7 @@ public class ProfileTest {
 
     Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
 
-    assertEquals(125, profile1.getProperties().getMessages());
+    Assert.assertEquals(125, profile1.getProperties().getMessages());
   }
 
 }

@@ -14,22 +14,89 @@
  */
 package ru.org.linux.section;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("integration-tests-context.xml")
-public class SectionDaoIntegrationTest {
+public class SectionDaoIntegrationTest extends AbstractTestNGSpringContextTests {
   @Autowired
-  SectionDao sectionDao;
+  private SectionDao sectionDao;
 
-  private static Section getSectionById(List<Section> sectionList, int id) {
+  private List<Section> sectionList = null;
+
+  @BeforeClass
+  public void initSectionList() {
+    sectionList = sectionDao.getAllSections();
+  }
+
+  @Test
+  public void sectionsCount() {
+
+    // given
+
+    // when
+
+    // then
+    Assert.assertEquals(4, sectionList.size());
+  }
+
+  @Test(dataProvider = "additionInfoShouldBeFilledDataSource")
+  public void additionInfoShouldBeFilled(
+    int inputSectionId
+  ) {
+    // given
+
+    // when
+    String additionInfo = sectionDao.getAddInfo(inputSectionId);
+
+    // then
+    Assert.assertNotNull(additionInfo);
+
+  }
+  @DataProvider(name = "additionInfoShouldBeFilledDataSource")
+  public Object[][] additionInfoShouldBeFilledDataSource() {
+    return new Object[][] {
+      new Object[] {1},
+      new Object[] {2},
+    };
+  }
+
+
+  @Test(dataProvider = "sectionNamesDataSource")
+  public void sectionValues(
+    int inputSectionId,
+    String expectedSessionName,
+    SectionScrollModeEnum expectedScrollMode
+  ) {
+
+    // given
+
+    // when
+    Section section = getSectionById(inputSectionId);
+
+    // then
+    Assert.assertEquals(section.getName(), expectedSessionName);
+    Assert.assertEquals(section.getScrollMode(), expectedScrollMode);
+  }
+
+  @DataProvider(name = "sectionNamesDataSource")
+  public Object[][] sectionNamesDataSource() {
+    return new Object[][] {
+      new Object[] {1, "news",SectionScrollModeEnum.SECTION},
+      new Object[] {2, "forum", SectionScrollModeEnum.GROUP},
+      new Object[] {3, "gallery", SectionScrollModeEnum.SECTION},
+      new Object[] {5, "polls", SectionScrollModeEnum.SECTION}
+    };
+  }
+
+  private Section getSectionById(int id) {
     for (Section section: sectionList) {
       if (section.getId() == id) {
         return section;
@@ -37,36 +104,4 @@ public class SectionDaoIntegrationTest {
     }
     return null;
   }
-  @Test
-  public void sectionsTest() {
-
-    List<Section> sectionList = sectionDao.getAllSections();
-    Assert.assertEquals(4, sectionList.size());
-
-    String addInfo = sectionDao.getAddInfo(sectionList.get(0).getId());
-    Assert.assertNotNull(addInfo);
-  }
-  @Test
-  public void sectionsScrollModeTest() {
-
-    List<Section> sectionList = sectionDao.getAllSections();
-
-    Section section = getSectionById(sectionList, 1);
-    Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
-    section = getSectionById(sectionList, 2);
-    Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
-
-    section = getSectionById(sectionList, 3);
-    Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
-    section = getSectionById(sectionList, 5);
-    Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
-  }
-
 }

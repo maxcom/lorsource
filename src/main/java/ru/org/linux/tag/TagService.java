@@ -39,13 +39,17 @@ public class TagService {
   public static final int MIN_TAG_LENGTH = 2;
   public static final int MAX_TAG_LENGTH = 25;
 
-  @Autowired
   private TagDao tagDao;
 
   private final List<ITagActionHandler> actionHandlers = new ArrayList<ITagActionHandler>();
 
   public List<ITagActionHandler> getActionHandlers() {
     return actionHandlers;
+  }
+
+  @Autowired
+  public void setTagDao(TagDao tagDao) {
+    this.tagDao = tagDao;
   }
 
   /**
@@ -85,19 +89,15 @@ public class TagService {
    * @return список тегов
    */
   public ImmutableList<String> parseSanitizeTags(String tags) {
-    if (tags == null) {
+    if (StringUtils.isBlank(tags)) {
       return ImmutableList.of();
     }
 
     Set<String> tagSet = new HashSet<String>();
 
-    // Теги разделяютчя пайпом или запятой
+    // Теги разделяются пайпом или запятой
     tags = tags.replaceAll("\\|", ",");
     String[] tagsArr = tags.split(",");
-
-    if (tagsArr.length == 0) {
-      return ImmutableList.of();
-    }
 
     for (String aTagsArr : tagsArr) {
       String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
@@ -194,12 +194,12 @@ public class TagService {
    * @param errors  обработчик ошибок ввода для формы
    */
   public void create(String tagName, Errors errors) {
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       checkTag(tagName);
       int tagId = tagDao.getTagId(tagName);
       errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
     } catch (TagNotFoundException ignored) {
+      // todo: Нельзя строить логику на исключениях. Это антипаттерн!
       create(tagName);
     } catch (UserErrorException e) {
       errors.rejectValue("tagName", "", e.getMessage());
@@ -214,7 +214,6 @@ public class TagService {
    * @param errors     обработчик ошибок ввода для формы
    */
   public void change(String oldTagName, String tagName, Errors errors) {
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       checkTag(tagName);
       int oldTagId = tagDao.getTagId(oldTagName);
@@ -222,6 +221,7 @@ public class TagService {
         int tagId = tagDao.getTagId(tagName);
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
       } catch (TagNotFoundException ignored) {
+        // todo: Нельзя строить логику на исключениях. Это антипаттерн!
         tagDao.changeTag(oldTagId, tagName);
         StringBuilder logStr = new StringBuilder()
           .append("Изменено название тега. Старое значение: '")
@@ -248,7 +248,6 @@ public class TagService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void delete(String tagName, String newTagName, Errors errors) {
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       checkTag(tagName);
       int oldTagId = tagDao.getTagId(tagName);
@@ -293,10 +292,10 @@ public class TagService {
    */
   public int getOrCreateTag(String tagName) {
     int id;
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       id = tagDao.getTagId(tagName);
     } catch (TagNotFoundException e) {
+      // todo: Нельзя строить логику на исключениях. Это антипаттерн!
       create(tagName);
       try {
         id = tagDao.getTagId(tagName);
@@ -322,6 +321,9 @@ public class TagService {
   }
 
   public static boolean isGoodTag(String tag) {
+    if (tag == null) {
+      return false;
+    }
     return tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH;
   }
 

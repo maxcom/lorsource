@@ -17,8 +17,9 @@ package ru.org.linux.util;
 
 import org.apache.commons.httpclient.URI;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
@@ -30,7 +31,6 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
@@ -104,7 +104,7 @@ public class HTMLFormatterTest {
   private LorCodeService lorCodeService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
-  @Before
+  @BeforeMethod
   public void init() throws Exception {
 
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
@@ -179,47 +179,47 @@ public class HTMLFormatterTest {
 
   @Test
   public void testToHtmlFormatter() {
-    assertEquals(RESULT1, toHtmlFormatter.format(TEXT1, false));
-    assertEquals(RESULT2, toHtmlFormatter.format(TEXT2, false));
-    assertEquals(RESULT3, toHtmlFormatter20.format(TEXT3, false));
-    assertEquals(RESULT8, toHtmlFormatter20.format(TEXT8, false));
-    assertEquals(RESULT9, toHtmlFormatter.format(TEXT9, false));
-    assertEquals(RESULT10, toHtmlFormatter.format(TEXT10, false));
-    assertEquals(RESULT11, toHtmlFormatter.format(TEXT11, false));
-    assertEquals(RESULT12, toHtmlFormatter.format(TEXT12, false));
-    assertEquals(RESULT13, toHtmlFormatter.format(TEXT13, false));
-    assertEquals(RESULT14, toHtmlFormatter.format(TEXT14, false));
-    assertEquals(RESULT15, toHtmlFormatter.format(TEXT15, false));
-    assertEquals(RESULT16, toHtmlFormatter.format(TEXT16, false));
-    assertEquals(RESULT17, toHtmlFormatter.format(TEXT17, false));
-    assertEquals(RESULT17_2, toHtmlFormatter.format(TEXT17_2, false));
-    assertEquals(RESULT18, toHtmlFormatter.format(TEXT18, false));
-    assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(CYR_LINK, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(GOOGLE_CACHE, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(URL_WITH_AT, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(Latin1Supplement, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(greek, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(QP, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false).endsWith("</a>"));
+    Assert.assertEquals(RESULT1, toHtmlFormatter.format(TEXT1, false));
+    Assert.assertEquals(RESULT2, toHtmlFormatter.format(TEXT2, false));
+    Assert.assertEquals(RESULT3, toHtmlFormatter20.format(TEXT3, false));
+    Assert.assertEquals(RESULT8, toHtmlFormatter20.format(TEXT8, false));
+    Assert.assertEquals(RESULT9, toHtmlFormatter.format(TEXT9, false));
+    Assert.assertEquals(RESULT10, toHtmlFormatter.format(TEXT10, false));
+    Assert.assertEquals(RESULT11, toHtmlFormatter.format(TEXT11, false));
+    Assert.assertEquals(RESULT12, toHtmlFormatter.format(TEXT12, false));
+    Assert.assertEquals(RESULT13, toHtmlFormatter.format(TEXT13, false));
+    Assert.assertEquals(RESULT14, toHtmlFormatter.format(TEXT14, false));
+    Assert.assertEquals(RESULT15, toHtmlFormatter.format(TEXT15, false));
+    Assert.assertEquals(RESULT16, toHtmlFormatter.format(TEXT16, false));
+    Assert.assertEquals(RESULT17, toHtmlFormatter.format(TEXT17, false));
+    Assert.assertEquals(RESULT17_2, toHtmlFormatter.format(TEXT17_2, false));
+    Assert.assertEquals(RESULT18, toHtmlFormatter.format(TEXT18, false));
+    Assert.assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(CYR_LINK, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(GOOGLE_CACHE, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(URL_WITH_AT, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(Latin1Supplement, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(greek, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(QP, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false).endsWith("</a>"));
+    Assert.assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false).endsWith("</a>"));
   }
 
   @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
+    Assert.assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
         toHtmlFormatter.format(url1,false));
     String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
+    Assert.assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
         toHtmlFormatter.format(url3,false));
     String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comme...</a>",
+    Assert.assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comme...</a>",
         toHtmlFormatter.format(url15, false));
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
-    assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
+    Assert.assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
         toHtmlFormatter.format(urlHistory, true));
   }
 
@@ -227,10 +227,10 @@ public class HTMLFormatterTest {
   @Test
   public void testCrash() {
     try {
-      assertEquals("&quot;<a href=\"http://www.google.com/&quot;\">http://www.google.com/&quot;</a>",
+      Assert.assertEquals("&quot;<a href=\"http://www.google.com/&quot;\">http://www.google.com/&quot;</a>",
           toHtmlFormatter.format(GUARANTEED_CRASH, false));
     } catch (Exception e) {
-      fail("It seems, it should not happen?");
+      Assert.fail("It seems, it should not happen?");
     }
   }
 
@@ -238,15 +238,15 @@ public class HTMLFormatterTest {
   public void testHTMLEscape() {
     String str = "This is an entity &#1999;";
     String s = StringUtil.escapeHtml(str);
-    assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
+    Assert.assertEquals(s, str, "String should remaint unescaped");
 
     str = "a&b";
     s = StringUtil.escapeHtml(str);
-    assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
+    Assert.assertEquals(s, "a&amp;b", "Ampersand should be escaped");
 
-    assertEquals("&lt;script&gt;", StringUtil.escapeHtml("<script>"));
-    assertEquals("&nbsp;", StringUtil.escapeHtml("&nbsp;"));
-    assertEquals("&#41;&#41;&#41;", StringUtil.escapeHtml("&#41;&#41;&#41;"));
+    Assert.assertEquals("&lt;script&gt;", StringUtil.escapeHtml("<script>"));
+    Assert.assertEquals("&nbsp;", StringUtil.escapeHtml("&nbsp;"));
+    Assert.assertEquals("&#41;&#41;&#41;", StringUtil.escapeHtml("&#41;&#41;&#41;"));
   }
 
   @Test
@@ -297,21 +297,21 @@ public class HTMLFormatterTest {
 
     for(int i = 0; i<text.length; i++){
       String entry = text[i];
-      assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry));
-      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry), false));
+      Assert.assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry));
+      Assert.assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry), false));
 
-      assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
-      assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
+      Assert.assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
+      Assert.assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
     }
   }
 
   @Test
   public void inCodeEscape() {
-    assertEquals(
+    Assert.assertEquals(
         "<div class=\"code\"><pre class=\"no-highlight\"><code>&amp;#9618;</code></pre></div>",
         lorCodeService.parseTopic("[code]&#9618;[/code]", false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p>&#9618;</p>",
         lorCodeService.parseTopic("&#9618;", false)
     );
@@ -321,91 +321,91 @@ public class HTMLFormatterTest {
   @Test
   public void listTest2() {
     String a = "[list]\n[*]one\n[*]two\n[*]three\n[/list]";
-    assertEquals(
+    Assert.assertEquals(
         "[list][br][*]one[br][*]two[br][*]three[br][/list]",
         toLorCodeFormatter.format(a, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "[list][br][*]one[br][*]two[br][*]three[br][/list]",
         toLorCodeFormatter.format(a, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
         toLorCodeTexFormatter.format(a)
     );
 
     // toLorCodeFormatter.format(a, true)
     String b = toLorCodeFormatter.format(a, true);
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeFormatter.format(a, false)
     b = toLorCodeFormatter.format(a, false);
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeTexFormatter.format(a, true)
     b = toLorCodeTexFormatter.format(a);
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeTexFormatter.format(a, false)
     b = toLorCodeTexFormatter.format(a);
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, true)
     );
@@ -415,72 +415,72 @@ public class HTMLFormatterTest {
   @Test
   public void listTest3() {
     String a = "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]";
-    assertEquals(
+    Assert.assertEquals(
         "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
         toLorCodeFormatter.format(a, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
         toLorCodeFormatter.format(a, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
         toLorCodeTexFormatter.format(a)
     );
 
     // toLorCodeFormatter.format(a, true)
     String b = toLorCodeFormatter.format(a, true);
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeFormatter.format(a, false)
     b = toLorCodeFormatter.format(a, false);
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeTexFormatter.format(a, true)
     b = toLorCodeTexFormatter.format(a);
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, true)
     );
@@ -489,72 +489,72 @@ public class HTMLFormatterTest {
   @Test
   public void listTest4() {
     String a = "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]";
-    assertEquals(
+    Assert.assertEquals(
         "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
         toLorCodeFormatter.format(a, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
         toLorCodeFormatter.format(a, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
         toLorCodeTexFormatter.format(a)
     );
 
     // toLorCodeFormatter.format(a, true)
     String b = toLorCodeFormatter.format(a, true);
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeFormatter.format(a, false)
     b = toLorCodeFormatter.format(a, false);
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseTopic(b, true)
     );
 
     // toLorCodeTexFormatter.format(a, true)
     b = toLorCodeTexFormatter.format(a);
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, false)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseTopic(b, true)
     );
@@ -562,12 +562,12 @@ public class HTMLFormatterTest {
 
   @Test
   public void testOg() {
-    assertEquals(
+    Assert.assertEquals(
         "hello",
         lorCodeService.parseForOgDescription("hello")
     );
 
-    assertEquals(
+    Assert.assertEquals(
         "one crap two three",
         lorCodeService.parseForOgDescription("[list]\n" +
             "[*]one\n" +
@@ -577,20 +577,20 @@ public class HTMLFormatterTest {
             "[*]three\n" +
             "[/list]")
     );
-    assertEquals(
+    Assert.assertEquals(
         "due one teo neo wuf?\nok",
         lorCodeService.parseForOgDescription("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
-    assertEquals(
+    Assert.assertEquals(
         "",
         lorCodeService.parseForOgDescription("[code]&#9618;[/code]")
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
-    assertEquals(
+    Assert.assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
         lorCodeService.parseForOgDescription(txt)
     );
-    assertEquals(
+    Assert.assertEquals(
         250+3,
         lorCodeService.parseForOgDescription(txt).length()
     );
@@ -598,18 +598,18 @@ public class HTMLFormatterTest {
 
   @Test
   public void testCropLinkBody() {
-    assertEquals(
+    Assert.assertEquals(
         "Ссылка: <a href=\"http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y\">http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y</a>",
         toHtmlFormatter.format("Ссылка: http://www.opera.com/browser/download/?os=linux-x86-64&ver=12.00&local=y", true)
     );
-    assertEquals(
+    Assert.assertEquals(
         "<a href=\"https://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true\">www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true</a>",
         toHtmlFormatter.format("http://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&option=true", true));
   }
 
   @Test
   public void testMDash() {
-    assertEquals(
+    Assert.assertEquals(
         "<ul><li><a href=\"http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html\">PMake&nbsp;&mdash; A Tutorial</a></li></ul>",
         lorCodeService.parseComment("[list][*][url=http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html]PMake -- A Tutorial[/url][/list]", true)
     );
