@@ -7,11 +7,11 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.apache.commons.httpclient.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.section.Section;
+import ru.org.linux.test.WebHelper;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
@@ -20,11 +20,9 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 public class AddTopicControllerWebTest {
-  private static final String LOCAL_SERVER = "http://127.0.0.1:8080";
   private static final int TEST_GROUP = 4068;
   private static final String TEST_USER = "Shaman007";
   private static final String TEST_PASSWORD = "passwd";
-  private static final String AUTH_COOKIE = "remember_me";
   private static final String TEST_TITLE = "Test Title";
 
   private WebResource resource;
@@ -35,7 +33,7 @@ public class AddTopicControllerWebTest {
 
     client.setFollowRedirects(false);
 
-    resource = client.resource(LOCAL_SERVER);
+    resource = client.resource(WebHelper.MAIN_URL);
   }
 
   @Test
@@ -76,7 +74,7 @@ public class AddTopicControllerWebTest {
 
   @Test
   public void testPostSuccess() throws IOException {
-    String auth = doLogin();
+    String auth = WebHelper.doLogin(resource, TEST_USER, TEST_PASSWORD);
 
     MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
 
@@ -87,7 +85,7 @@ public class AddTopicControllerWebTest {
 
     ClientResponse cr = resource
             .path("add.jsp")
-            .cookie(new Cookie(AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
             .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
             .post(ClientResponse.class, formData);
 
@@ -112,37 +110,5 @@ public class AddTopicControllerWebTest {
     Document finalDoc = Jsoup.parse(page.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
     assertEquals(TEST_TITLE, finalDoc.select("h1[itemprop=headline] a").text());
-  }
-
-  /**
-   * Login as a test user
-   * @return rememberme cookie value
-   * @throws IOException
-   */
-  public String doLogin() throws IOException {
-    MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-
-    formData.add("nick", TEST_USER);
-    formData.add("passwd", TEST_PASSWORD);
-    formData.add("csrf", "csrf");
-
-    ClientResponse cr = resource
-            .path("login_process")
-            .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
-            .post(ClientResponse.class, formData);
-
-    //System.out.print(Jsoup.parse(cr.getEntityInputStream(), "utf-8", LOCAL_SERVER).html());
-
-    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
-
-    for (Cookie cookie : cr.getCookies()) {
-      if (cookie.getName().equals(AUTH_COOKIE)) {
-        return cookie.getValue();
-      }
-    }
-
-    System.out.println(cr.getCookies());
-    Assert.fail("Can't find rememberme cookie");
-    return null;
   }
 }

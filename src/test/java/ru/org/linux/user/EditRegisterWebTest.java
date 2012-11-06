@@ -7,10 +7,15 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.apache.commons.httpclient.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.csrf.CSRFProtectionService;
+import ru.org.linux.test.WebHelper;
 
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
@@ -19,29 +24,42 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-/**
- */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("integration-tests-context.xml")
 public class EditRegisterWebTest {
-  private static final String LOCAL_SERVER = "http://127.0.0.1:8080";
-  private static final String TEST_USER = "maxcom";
-  private static final String TEST_PASSWORD = "passwd";
-  private static final String AUTH_COOKIE = "remember_me";
 
   private WebResource resource;
+
+  @Autowired
+  private UserDao userDao;
 
   @Before
   public void initResource() {
     Client client = new Client();
     client.setFollowRedirects(false);
-    resource = client.resource(LOCAL_SERVER);
+    resource = client.resource(WebHelper.MAIN_URL);
+  }
+
+  @After
+  public void clean() throws Exception {
+    User user = userDao.getUser("maxcom");
+    UserInfo userInfo = userDao.getUserInfoClass(user);
+    userDao.updateUser(
+        user,
+        user.getName(),
+        userInfo.getUrl(),
+        user.getEmail(),
+        userInfo.getTown(),
+        "passwd",
+        userDao.getUserInfo(user));
   }
 
   @Test
   public void testChangePassword() throws IOException {
-    String auth = doLogin();
+    String auth = WebHelper.doLogin(resource, "maxcom", "passwd");
     ClientResponse cr = resource
             .path("people/maxcom/edit")
-            .cookie(new Cookie(AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
             .get(ClientResponse.class);
 
     assertEquals(HttpStatus.SC_OK, cr.getStatus());
@@ -73,19 +91,19 @@ public class EditRegisterWebTest {
 
     ClientResponse cr2 = resource
             .path("people/maxcom/edit")
-            .cookie(new Cookie(AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
             .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
             .post(ClientResponse.class, formData);
 
     assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr2.getStatus());
 
-    String newAuth = getAuthCookie(cr2);
+    String newAuth = WebHelper.getAuthCookie(cr2);
 
     assertNotNull(newAuth);
 
     ClientResponse cr3 = resource
             .uri(cr2.getLocation())
-            .cookie(new Cookie(AUTH_COOKIE, newAuth, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, newAuth, "/", "127.0.0.1", 1))
             .get(ClientResponse.class);
 
     assertEquals(HttpStatus.SC_OK, cr3.getStatus());
@@ -103,63 +121,20 @@ public class EditRegisterWebTest {
 
     ClientResponse cr4 = resource
             .path("people/maxcom/edit")
-            .cookie(new Cookie(AUTH_COOKIE, newAuth, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, newAuth, "/", "127.0.0.1", 1))
             .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
             .post(ClientResponse.class, formData2);
 
     assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr4.getStatus());
 
-    String newAuth2 = getAuthCookie(cr4);
+    String newAuth2 = WebHelper.getAuthCookie(cr4);
 
     ClientResponse cr5 = resource
             .uri(cr4.getLocation())
-            .cookie(new Cookie(AUTH_COOKIE, newAuth2, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, newAuth2, "/", "127.0.0.1", 1))
             .get(ClientResponse.class);
 
     assertEquals(HttpStatus.SC_OK, cr5.getStatus());
 
  }
-
-  /**
-   * Login as a test user
-   * @return rememberme cookie value
-   * @throws java.io.IOException
-   */
-  public String doLogin() throws IOException {
-    MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-
-    formData.add("nick", TEST_USER);
-    formData.add("passwd", TEST_PASSWORD);
-    formData.add("csrf", "csrf");
-
-    ClientResponse cr = resource
-            .path("login_process")
-            .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
-            .post(ClientResponse.class, formData);
-
-    //System.out.print(Jsoup.parse(cr.getEntityInputStream(), "utf-8", LOCAL_SERVER).html());
-
-    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
-
-    String auth = getAuthCookie(cr);
-    if(auth != null) {
-      return auth;
-    }
-
-    Assert.fail("Can't find rememberme cookie");
-    return null;
-  }
-
-  public String getAuthCookie(ClientResponse cr) {
-    for (Cookie cookie : cr.getCookies()) {
-      if (cookie.getName().equals(AUTH_COOKIE)) {
-        return cookie.getValue();
-      }
-    }
-
-    System.out.println("cookies:" + cr.getCookies());
-    return null;
-  }
-
-
 }
