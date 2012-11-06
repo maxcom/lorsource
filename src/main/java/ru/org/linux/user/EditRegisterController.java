@@ -202,8 +202,8 @@ public class EditRegisterController {
       // Обновление token-а аудетификации после смены пароля
       if(password != null) {
         try {
-          UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(nick, password);
-          UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(nick);
+          UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getNick(), password);
+          UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(user.getNick());
           token.setDetails(details);
           Authentication auth = authenticationManager.authenticate(token);
           SecurityContextHolder.getContext().setAuthentication(auth);
@@ -225,7 +225,7 @@ public class EditRegisterController {
 
       return new ModelAndView("action-done", "message", msg);
     } else {
-      return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
+      return new ModelAndView(new RedirectView("/people/" + tmpl.getNick() + "/profile"));
     }
   }
 
