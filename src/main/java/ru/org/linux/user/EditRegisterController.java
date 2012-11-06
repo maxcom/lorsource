@@ -18,7 +18,15 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -27,6 +35,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.UserDetailsImpl;
+import ru.org.linux.auth.UserDetailsServiceImpl;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -42,6 +52,18 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/people/{nick}/edit")
 public class EditRegisterController {
+
+  private static final Log logger = LogFactory.getLog(EditRegisterController.class);
+
+  @Autowired
+  RememberMeServices rememberMeServices;
+
+  @Autowired
+  @Qualifier("authenticationManager")
+  private AuthenticationManager authenticationManager;
+
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
 
   @Autowired
   private IPBlockDao ipBlockDao;
@@ -86,6 +108,7 @@ public class EditRegisterController {
   @RequestMapping(method = RequestMethod.POST)
   public ModelAndView edit(
       HttpServletRequest request,
+      HttpServletResponse response,
       @Valid @ModelAttribute("form") EditRegisterRequest form,
       Errors errors
   ) throws Exception {
@@ -176,6 +199,19 @@ public class EditRegisterController {
           password,
           info
       );
+      // Обновление token-а аудетификации после смены пароля
+      if(password != null) {
+        try {
+          UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(nick, password);
+          UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(nick);
+          token.setDetails(details);
+          Authentication auth = authenticationManager.authenticate(token);
+          SecurityContextHolder.getContext().setAuthentication(auth);
+          rememberMeServices.loginSuccess(request, response, auth);
+        } catch (Exception ex) {
+          logger.error("В этом месте не должно быть исключительных ситуаций!");
+        }
+      }
 
       if (emailChanged) {
         emailService.sendEmail(user.getNick(), mail.getAddress(), false);
@@ -189,6 +225,7 @@ public class EditRegisterController {
 
       return new ModelAndView("action-done", "message", msg);
     } else {
+      logger.debug("nick:" + nick);
       return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
     }
   }
