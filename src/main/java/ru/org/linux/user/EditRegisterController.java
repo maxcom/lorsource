@@ -225,7 +225,6 @@ public class EditRegisterController {
 
       return new ModelAndView("action-done", "message", msg);
     } else {
-      logger.debug("nick:" + nick);
       return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
     }
   }
