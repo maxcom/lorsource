@@ -15,6 +15,9 @@
 
 package ru.org.linux.user;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -23,11 +26,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
@@ -46,7 +49,10 @@ public class WhoisController {
   private LorCodeService lorCodeService;
 
   @Autowired
-  UserTagService userTagService;
+  private UserTagService userTagService;
+
+  @Autowired
+  private SectionService sectionService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -67,7 +73,9 @@ public class WhoisController {
     }
 
     if (!user.isAnonymous()) {
-      mv.getModel().put("userStat", userDao.getUserStatisticsClass(user));
+      UserStatistics userStat = userDao.getUserStatisticsClass(user);
+      mv.getModel().put("userStat", userStat);
+      mv.getModel().put("sectionStat", prepareSectionStats(userStat));
     }
 
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
@@ -96,6 +104,23 @@ public class WhoisController {
     }
     response.setDateHeader("Expires", System.currentTimeMillis()+120000);
     return mv;
+  }
+
+  private ImmutableList<PreparedUsersSectionStatEntry> prepareSectionStats(UserStatistics userStat) {
+    return ImmutableList.copyOf(
+            Iterables.transform(
+                    userStat.getTopicsBySection(),
+                    new Function<UsersSectionStatEntry, PreparedUsersSectionStatEntry>() {
+                      @Override
+                      public PreparedUsersSectionStatEntry apply(UsersSectionStatEntry input) {
+                        return new PreparedUsersSectionStatEntry(
+                                sectionService.getSection(input.getSection()),
+                                input.getCount()
+                        );
+                      }
+                    }
+            )
+    );
   }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")

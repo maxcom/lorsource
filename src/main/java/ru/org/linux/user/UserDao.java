@@ -15,8 +15,7 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
@@ -69,13 +68,12 @@ public class UserDao {
   private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
   private static final String queryTopicsBySectionStat =
-            "SELECT sections.name as pname, count(*) as c " +
-                    "FROM topics, groups, sections " +
+            "SELECT groups.section, count(*) as c " +
+                    "FROM topics, groups " +
                     "WHERE topics.userid=? " +
                     "AND groups.id=topics.groupid " +
-                    "AND sections.id=groups.section " +
                     "AND not deleted " +
-                    "GROUP BY sections.name";
+                    "GROUP BY groups.section ORDER BY groups.section";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -245,11 +243,11 @@ public class UserDao {
       topicStat = null;
     }
 
-    final Builder<String, Integer> builder = ImmutableMap.builder();
+    final ImmutableList.Builder<UsersSectionStatEntry> builder = ImmutableList.builder();
     jdbcTemplate.query(queryTopicsBySectionStat, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {
-        builder.put(resultSet.getString("pname"), resultSet.getInt("c"));
+        builder.add(new UsersSectionStatEntry(resultSet.getInt("section"), resultSet.getInt("c")));
       }
     }, user.getId());
     

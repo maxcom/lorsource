@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
-import java.sql.*;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.List;
 
 public class UserStatistics {
   private final int ignoreCount;
@@ -27,12 +27,12 @@ public class UserStatistics {
   private final Timestamp firstTopic;
   private final Timestamp lastTopic;
 
-  private final Map<String, Integer> topicsBySection;
+  private final List<UsersSectionStatEntry> topicsBySection;
 
   public UserStatistics(int ignoreCount, int commentCount,
                         Timestamp firstComment, Timestamp lastComment,
                         Timestamp firstTopic, Timestamp lastTopic,
-                        Map<String, Integer> topicsBySection) {
+                        List<UsersSectionStatEntry> topicsBySection) {
     this.ignoreCount = ignoreCount;
     this.commentCount = commentCount;
     this.firstComment = firstComment;
@@ -66,7 +66,7 @@ public class UserStatistics {
     return lastTopic;
   }
 
-  public Map<String, Integer> getTopicsBySection() {
+  public List<UsersSectionStatEntry> getTopicsBySection() {
     return topicsBySection;
   }
 }

@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.topic.TopicListController"   buffer="60kb" %>
-<%@ page import="ru.org.linux.user.User" %>
+<%@ page buffer="60kb" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -30,6 +29,7 @@
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
 <%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
+<%--@elvariable id="sectionStat" type="java.util.List<ru.org.linux.user.PreparedUsersSectionStatEntry>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -272,10 +272,10 @@
         <th>Число сообщений (тем)</th>
       </tr>
       <tbody>
-      <c:forEach items="${userStat.topicsBySection}" var="i">
+      <c:forEach items="${sectionStat}" var="i">
       <tr>
-        <td>${i.key}</td>
-        <td>${i.value}</td>
+        <td>${i.section.name}</td>
+        <td><a href="/people/${user.nick}/?section=${i.section.id}">${i.count}</a></td>
       </tr>
       </c:forEach>
     </table>
