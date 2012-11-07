@@ -113,14 +113,14 @@ public class RegisterController {
         errors.rejectValue("nick", null, "пользователь " + form.getNick() + " уже существует");
       }
 
-      if (userDao.getByEmail(new InternetAddress(form.getEmail()).getAddress(), false) != null) {
+      if (userDao.getByEmail(new InternetAddress(form.getEmail()).getAddress().toLowerCase(), false) != null) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
                 "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
       }
     }
 
     if (!errors.hasErrors()) {
-      InternetAddress mail = new InternetAddress(form.getEmail());
+      InternetAddress mail = new InternetAddress(form.getEmail().toLowerCase());
 
       int userid = userDao.createUser("", form.getNick(), form.getPassword(), "", mail, "", "");
 

@@ -179,11 +179,11 @@ public class EditRegisterController {
       if (user.getEmail()!=null && user.getEmail().equals(form.getEmail())) {
         newEmail = null;
       } else {
-        if (userDao.getByEmail(mail.getAddress(), false) != null) {
+        if (userDao.getByEmail(mail.getAddress().toLowerCase(), false) != null) {
           errors.rejectValue("email", null, "такой email уже используется");
         }
 
-        newEmail = mail.getAddress();
+        newEmail = mail.getAddress().toLowerCase();
 
         emailChanged = true;
       }
