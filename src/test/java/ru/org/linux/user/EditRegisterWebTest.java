@@ -28,30 +28,42 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration("integration-tests-context.xml")
 public class EditRegisterWebTest {
 
+  private static String MAXCOM_NAME = "Максим Валянский";
+  private static String MAXCOM_URL = "http://maxcom.pp.ru/";
+  private static String MAXCOM_EMAIL = "max.valjanski+test93@gmail.com";
+  private static String MAXCOM_TOWN = "Москва";
+  private static String MAXCOM_INFO = "test<b>test</b>";
+  private static String MAXCOM_PASS = "passwd";
+
   private WebResource resource;
 
   @Autowired
   private UserDao userDao;
 
+  private void rescueMaxcom() throws Exception {
+    User user = userDao.getUser("maxcom");
+    userDao.updateUser(
+        user,
+        MAXCOM_NAME,
+        MAXCOM_URL,
+        MAXCOM_EMAIL,
+        MAXCOM_TOWN,
+        MAXCOM_PASS,
+        MAXCOM_INFO
+    );
+  }
+
   @Before
-  public void initResource() {
+  public void initResource() throws Exception {
     Client client = new Client();
     client.setFollowRedirects(false);
     resource = client.resource(WebHelper.MAIN_URL);
+    rescueMaxcom();
   }
 
   @After
   public void clean() throws Exception {
-    User user = userDao.getUser("maxcom");
-    UserInfo userInfo = userDao.getUserInfoClass(user);
-    userDao.updateUser(
-        user,
-        user.getName(),
-        userInfo.getUrl(),
-        user.getEmail(),
-        userInfo.getTown(),
-        "passwd",
-        userDao.getUserInfo(user));
+    rescueMaxcom();
   }
 
   @Test
@@ -72,11 +84,11 @@ public class EditRegisterWebTest {
     String town = doc.getElementById("town").val();
     String info = doc.getElementById("info").val();
 
-    assertEquals("Максим Валянский", name);
-    assertEquals("http://maxcom.pp.ru/", url);
-    assertEquals("max.valjanski+test93@gmail.com", email);
-    assertEquals("Москва", town);
-    assertEquals("test<b>test</b>", info);
+    assertEquals(MAXCOM_NAME, name);
+    assertEquals(MAXCOM_URL, url);
+    assertEquals(MAXCOM_EMAIL, email);
+    assertEquals(MAXCOM_TOWN, town);
+    assertEquals(MAXCOM_INFO, info);
 
     MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
     formData.add("name", name);
