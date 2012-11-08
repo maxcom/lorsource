@@ -50,13 +50,20 @@ public class EditRegisterWebTest {
   private static String MAXCOM_INFO = "test<b>test</b>";
   private static String MAXCOM_PASS = "passwd";
 
+  private static String JB_NAME = "Тёма";
+  private static String JB_URL = "http://darkmachine.org";
+  private static String JB_EMAIL = "mail@darkmachine.org";
+  private static String JB_TOWN = "Самара";
+  private static String JB_INFO = "[i]Эффективный менеджер по распилу гос-бабла[/i]";
+  private static String JB_PASS = "passwd";
+
   private WebResource resource;
 
   @Autowired
   private UserDao userDao;
 
   private void rescueMaxcom() throws Exception {
-    User user = userDao.getUser("maxcom");
+    final User user = userDao.getUser("maxcom");
     userDao.updateUser(
         user,
         MAXCOM_NAME,
@@ -66,6 +73,21 @@ public class EditRegisterWebTest {
         MAXCOM_PASS,
         MAXCOM_INFO
     );
+    userDao.acceptNewEmail(user);
+  }
+
+  private void rescueJB() throws Exception {
+    final User user = userDao.getUser("JB");
+    userDao.updateUser(
+        user,
+        JB_NAME,
+        JB_URL,
+        JB_EMAIL,
+        JB_TOWN,
+        JB_PASS,
+        JB_INFO
+    );
+    userDao.acceptNewEmail(user);
   }
 
   @Before
@@ -74,16 +96,69 @@ public class EditRegisterWebTest {
     client.setFollowRedirects(false);
     resource = client.resource(WebHelper.MAIN_URL);
     rescueMaxcom();
+    rescueJB();
   }
 
   @After
   public void clean() throws Exception {
     rescueMaxcom();
+    rescueJB();
+  }
+
+  /**
+   * Вводим теже данные которые и были изначально. После изменений должен быть
+   * redirect в профиль
+   * @throws IOException
+   */
+  @Test
+  public void testSimple() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", JB_PASS);
+
+    ClientResponse cr = resource
+        .path("people/JB/edit")
+        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .get(ClientResponse.class);
+
+    assertEquals(HttpStatus.SC_OK, cr.getStatus());
+
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+
+    assertEquals("/people/JB/edit", doc.getElementById("editRegForm").attr("action"));
+
+    String name = doc.getElementById("name").val();
+    String url = doc.getElementById("url").val();
+    String email = doc.getElementById("email").val();
+    String town = doc.getElementById("town").val();
+    String info = doc.getElementById("info").val();
+
+    assertEquals(JB_NAME, name);
+    assertEquals(JB_URL, url);
+    assertEquals(JB_EMAIL, email);
+    assertEquals(JB_TOWN, town);
+    assertEquals(JB_INFO, info);
+
+    MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
+    formData.add("name", name);
+    formData.add("url", url);
+    formData.add("email", email);
+    formData.add("town", town);
+    formData.add("info", info);
+    formData.add("csrf", "csrf");
+    formData.add("oldpass", JB_PASS);
+
+    ClientResponse cr2 = resource
+        .path("people/maxcom/edit")
+        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
+        .post(ClientResponse.class, formData);
+
+    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr2.getStatus());
+    assertEquals("http://127.0.0.1:8080/people/JB/profile", cr2.getLocation().toString());
   }
 
   @Test
   public void testChangePassword() throws IOException {
-    String auth = WebHelper.doLogin(resource, "maxcom", "passwd");
+    String auth = WebHelper.doLogin(resource, "maxcom", MAXCOM_PASS);
     ClientResponse cr = resource
             .path("people/maxcom/edit")
             .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
