@@ -15,25 +15,14 @@
 
 package ru.org.linux.user;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.Template;
-
 @Controller
 public class EditBoxesController {
   @RequestMapping("/edit-boxes.jsp")
-  public ModelAndView view(HttpServletRequest request) {
-    boolean isThreeColumn = getThreeColumns(request);
-    ModelAndView result = new ModelAndView("edit-boxes");
-    result.addObject("isThreeColumn", isThreeColumn);
-    return result;
-  }
-
-  protected static boolean getThreeColumns(HttpServletRequest request) {
-    return Template.getTemplate(request).getProf().isThreeColumnsOnMain();
+  public ModelAndView view() {
+    return new ModelAndView("edit-boxes");
   }
 }

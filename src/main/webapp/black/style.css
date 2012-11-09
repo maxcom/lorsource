@@ -99,20 +99,8 @@ DIV.forum A { text-decoration: none }
   background: #000040;
 }
 
-.newsblog .nav {
-//  background-color: black;
-}
-
 .newsblog .nav a {
   text-decoration: underline;
-}
-
-.newsblog2 .nav a {
-  text-decoration: underline;
-}
-
-.newsblog2 .nav {
-//  background-color: black;
 }
 
 .entry-body .nav {
@@ -254,12 +242,7 @@ div.quote {
 		float:none;
 	}
 	
-	.column2 {
-		width: 100%;
-		position: static;
-	}
-	
-	#bd .column, #bd .column2 {
+	#bd .column {
 		font-size: inherit;
 	}
 	

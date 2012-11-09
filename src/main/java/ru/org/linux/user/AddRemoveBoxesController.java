@@ -41,8 +41,7 @@ import java.util.Set;
 @SessionAttributes("allboxes")
 public class AddRemoveBoxesController {
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
-  public ModelMap showRemove(@RequestParam String tag,
-                             @RequestParam(required = false) Integer pos,
+  public ModelMap showRemove(@RequestParam(required = false) Integer pos,
                              ServletRequest request)
     throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
@@ -54,7 +53,6 @@ public class AddRemoveBoxesController {
     ModelMap result = new ModelMap();
     EditBoxesRequest form = new EditBoxesRequest();
     form.setPosition(pos);
-    form.setTag(tag);
     result.addAttribute("form", form);
     return result;
   }
@@ -79,7 +77,7 @@ public class AddRemoveBoxesController {
       return "remove-box";
     }
 
-    String objectName = getObjectName(form, request);
+    String objectName = getObjectName(form);
     List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
 
     if (!boxlets.isEmpty()) {
@@ -123,7 +121,7 @@ public class AddRemoveBoxesController {
       form.setPosition(0);
     }
 
-    String objectName = getObjectName(form, request);
+    String objectName = getObjectName(form);
     List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
@@ -141,23 +139,12 @@ public class AddRemoveBoxesController {
     return "redirect:/edit-boxes.jsp";
   }
 
-  private static String getObjectName(EditBoxesRequest form, HttpServletRequest request)  {
-    String objectName;
-    if ("left".equals(form.getTag())) {
-      if (EditBoxesController.getThreeColumns(request)) {
-        objectName = "main3-1";
-      } else {
-        objectName = "main2";
-      }
-    } else {
-      objectName = "main3-2";
-    }
-    return objectName;
+  private static String getObjectName(EditBoxesRequest form)  {
+    return "main2";
   }
 
   public static class EditBoxesRequest {
     private Integer position;
-    private String tag;
     private String password;
     private String boxName;
 
@@ -169,13 +156,6 @@ public class AddRemoveBoxesController {
       this.position = position;
     }
 
-    public String getTag() {
-      return tag;
-    }
-
-    public void setTag(String tag) {
-      this.tag = tag;
-    }
 
     public String getPassword() {
       return password;

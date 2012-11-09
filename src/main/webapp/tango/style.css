@@ -17,7 +17,7 @@
 	border-top: none;
 }
 
-.newsblog .nav, .newsblog2 .nav {
+.newsblog .nav {
     border: none;
 }
 
@@ -173,7 +173,7 @@ p {
 	text-align: left;
 }
 
-#bd .column, #bd .column2 {
+#bd .column {
 	font-size: 0.8em;
 	text-align: left;
 }
@@ -406,27 +406,12 @@ figure.medium-image {
         margin-left: 0;
     }
 
-    div.newsblog2 {
-        float: none;
-        margin-left: 0;
-    }
-
-    .newsblog-in2 {
-        margin-left: 0;
-        margin-right: 0;
-    }
-
     .column {
         width: 100%;
         float: none;
     }
 
-    .column2 {
-        width: 100%;
-        position: static;
-    }
-
-    #bd .column, #bd .column2 {
+    #bd .column {
 	    font-size: inherit;
     }
 

@@ -35,11 +35,8 @@ public class ProfileProperties {
   public static final String PHOTOS_PROPERTY = "photos";
   public static final String MAIN_GALLERY_PROPERTY = "mainGallery";
   public static final String AVATAR_PROPERTY = "avatar";
-  public static final String MAIN_3COLUMNS_PROPERTY = "main.3columns";
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
-  public static final String BOXES_MAIN31_PROPERTY = "main3-1";
-  public static final String BOXES_MAIN32_PROPERTY = "main3-2";
   public static final String TIMESTAMP_PROPERTY = "system.timestamp";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
 
@@ -54,7 +51,6 @@ public class ProfileProperties {
   private boolean hideAdsense;
   private boolean showGalleryOnMain;
   private String avatarMode;
-  private boolean threeColumnsOnMain;
   private boolean showAnonymous;
   private boolean showSocial;
 
@@ -74,15 +70,12 @@ public class ProfileProperties {
     hideAdsense = p.getBoolean(HIDE_ADSENSE_PROPERTY);
     showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY);
     avatarMode = p.getString(AVATAR_PROPERTY);
-    threeColumnsOnMain = p.getBoolean(MAIN_3COLUMNS_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
 
     timestamp = p.getLong(TIMESTAMP_PROPERTY);
 
     boxes.put(BOXES_MAIN2_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN2_PROPERTY));
-    boxes.put(BOXES_MAIN31_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN31_PROPERTY));
-    boxes.put(BOXES_MAIN32_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN32_PROPERTY));
   }
 
   public ProfileHashtable getHashtable() {
@@ -99,13 +92,10 @@ public class ProfileProperties {
     p.setBoolean(HIDE_ADSENSE_PROPERTY, hideAdsense);
     p.setBoolean(MAIN_GALLERY_PROPERTY, showGalleryOnMain);
     p.setString(AVATAR_PROPERTY, avatarMode);
-    p.setBoolean(MAIN_3COLUMNS_PROPERTY, threeColumnsOnMain);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
 
     p.setObject(BOXES_MAIN2_PROPERTY, boxes.get(BOXES_MAIN2_PROPERTY));
-    p.setObject(BOXES_MAIN31_PROPERTY, boxes.get(BOXES_MAIN31_PROPERTY));
-    p.setObject(BOXES_MAIN32_PROPERTY, boxes.get(BOXES_MAIN32_PROPERTY));
 
     return p;
   }
@@ -196,15 +186,6 @@ public class ProfileProperties {
 
   public void setAvatarMode(String avatarMode) {
     this.avatarMode = avatarMode;
-  }
-
-  public boolean isThreeColumnsOnMain() {
-    return false;
-    //return threeColumnsOnMain;
-  }
-
-  public void setThreeColumnsOnMain(boolean threeColumnsOnMain) {
-    this.threeColumnsOnMain = threeColumnsOnMain;
   }
 
   public boolean isShowAnonymous() {

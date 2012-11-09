@@ -74,10 +74,6 @@ $(document).ready(function() {
 <td><input type=text size="5" id="messages" name="messages" value="${template.prof.messages}" ></td></tr>
 <tr><td><label for="tags">Число меток в облаке</label></td>
 <td><input type=text size="5" id="tags" name="tags" value="${template.prof.tags}" ></td></tr>
-<%--
-<tr><td>Верстка главной страницы в 3 колонки</td>
-<td><input type="checkbox" name="3column" <c:if test="${template.prof.threeColumnsOnMain}">checked</c:if> ></td></tr>
---%>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>

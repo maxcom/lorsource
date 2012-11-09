@@ -45,13 +45,9 @@
 </style>
 --%>
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
-<%
-  boolean columns3 = tmpl.getProf().isThreeColumnsOnMain();
-%>
-
 <div style="clear: both"></div>
-<div class="<%= columns3?"newsblog2":"newsblog"%>">
-  <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
+<div class="newsblog">
+  <div class="newsblog-in">
 
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
@@ -128,7 +124,7 @@
     </div>
   </c:if>
 
-  <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
+  <lor:boxlets object="main2" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
             <c:import url="/${boxlet}.boxlet"/>
@@ -136,17 +132,6 @@
       </c:forEach>
   </lor:boxlets>
 </aside>
-<% if (columns3) { %>
-<aside class=column2>
-  <lor:boxlets object="main3-2" var="boxes">
-      <c:forEach var="boxlet" items="${boxes}">
-        <div class="boxlet">
-            <c:import url="/${boxlet}.boxlet"/>
-        </div>
-      </c:forEach>
-  </lor:boxlets>
-</aside>
-<% } %>
 
 <div style="clear: both"></div>
 

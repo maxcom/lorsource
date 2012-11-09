@@ -15,15 +15,16 @@
 
 package ru.org.linux.site;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import static ru.org.linux.user.ProfileProperties.*;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.collections.Predicate;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ru.org.linux.user.ProfileProperties.*;
 
 public final class DefaultProfile {
   private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm", "tshirt"};
@@ -80,25 +81,11 @@ public final class DefaultProfile {
     defaults.put("DebugMode", Boolean.FALSE);
 
 // main page settings
-    defaults.put(MAIN_3COLUMNS_PROPERTY, Boolean.FALSE);
-
     ImmutableList<String> boxes = ImmutableList.of(
       "ibm", "poll", "top10", "gallery", "tagcloud", "archive", "tshirt"
     );
 
     defaults.put(BOXES_MAIN2_PROPERTY, boxes);
-
-    ImmutableList<String> boxes31 = ImmutableList.of(
-      "ibm", "poll", "archive", "tagcloud"
-    );
-
-    defaults.put(BOXES_MAIN31_PROPERTY, boxes31);
-
-    ImmutableList<String> boxes32 = ImmutableList.of(
-      "top10", "gallery", "tshirt"
-    );
-
-    defaults.put(BOXES_MAIN32_PROPERTY, boxes32);
 
     return defaults;
   }

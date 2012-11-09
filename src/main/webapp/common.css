@@ -26,15 +26,6 @@
   margin-bottom: 0;
 }
 
-.newsblog2 .nav {
-  border: none;
-  border-top: 1px solid;
-  border-bottom: 1px solid;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-bottom: 0;
-}
-
 .entry-body .nav {
   border: none;
   padding-top: 0;
@@ -61,13 +52,6 @@ div.entry-body {
   width: 240px;
 }
 
-.column2 {
-  text-align: center;
-  width: 240px;
-  position: absolute;
-  right: 0;
-}
-
 DIV.newsblog {
   margin-left: -245px;
   float: right;
@@ -76,17 +60,6 @@ DIV.newsblog {
 
 .newsblog-in {
   margin-left: 245px;
-}
-
-.newsblog-in2 {
-  margin-left: 245px;
-  margin-right: 245px;
-}
-
-DIV.newsblog2 {
-  margin-left: -490px;
-  width: 100%;
-  float: right;
 }
 
 H1 {

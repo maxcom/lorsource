@@ -30,23 +30,16 @@
       <h3>Левая колонка</h3>
 
       <div class=column>
-        <c:set var="boxvar">
-          <c:choose>
-            <c:when test="${isThreeColumn}">main3-1</c:when>
-            <c:otherwise>main2</c:otherwise>
-          </c:choose>
-        </c:set>
+        <c:set var="boxvar">main2</c:set>
         <lor:boxlets object="${boxvar}" var="boxes">
           <c:forEach items="${boxes}" var="box" varStatus="status">
             <div class="boxlet">
               <c:import url="/${box}.boxlet"/>
               <c:url var="add_url" value="/add-box.jsp">
-                <c:param name="tag" value="left"/>
                 <c:param name="pos" value="${status.index}"/>
               </c:url>
 
               <c:url var="remove_url" value="/remove-box.jsp">
-                <c:param name="tag" value="left"/>
                 <c:param name="pos" value="${status.index}"/>
               </c:url>
               <p/>
@@ -59,9 +52,7 @@
             </div>
           </c:forEach>
         </lor:boxlets>
-        <c:url var="add_url" value="/add-box.jsp">
-          <c:param name="tag" value="left"/>
-        </c:url>
+        <c:url var="add_url" value="/add-box.jsp"/>
         [<a href="${add_url}">Добавить</a>]
       </div>
     </td>
@@ -69,41 +60,6 @@
       Чтобы добавить или удалить Boxlet, выберете соответствующий пункт в меню
       редактирования внизу каждой коробочки.
     </td>
-    <c:if test="${isThreeColumn}">
-      <td valign="top">
-        <h3>Правая колонка</h3>
-
-        <div class="column">
-          <lor:boxlets object="main3-2" var="boxes">
-            <c:forEach items="${boxes}" var="box" varStatus="status">
-              <div class="boxlet">
-                <c:import url="/${box}.boxlet"/>
-                <c:url var="add_url" value="/add-box.jsp">
-                  <c:param name="tag" value="right"/>
-                  <c:param name="pos" value="${status.index}"/>
-                </c:url>
-
-                <c:url var="remove_url" value="/remove-box.jsp">
-                  <c:param name="tag" value="right"/>
-                  <c:param name="pos" value="${status.index}"/>
-                </c:url>
-                <p/>
-                <strong>Меню редактирования:</strong>
-                <br>
-                * <a href="${add_url}">добавить сюда</a>
-                <br>
-                * <a href="${remove_url}">удалить</a>
-                <br>
-              </div>
-            </c:forEach>
-          </lor:boxlets>
-          <c:url var="add_url" value="/add-box.jsp">
-            <c:param name="tag" value="right"/>
-          </c:url>
-          [<a href="${add_url}">Добавить</a>]
-        </div>
-      </td>
-    </c:if>
   </tr>
 </table>
 
