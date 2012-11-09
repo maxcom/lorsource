@@ -35,6 +35,8 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
@@ -59,7 +61,7 @@ public class AddPhotoController {
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, ServletRequest request) throws Exception {
+  public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
@@ -94,10 +96,13 @@ public class AddPhotoController {
 
       return new ModelAndView(new RedirectView(UriComponentsBuilder.fromUri(PROFILE_NOCACHE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick())).queryParam("nocache", Integer.toString(random.nextInt()) + "=").build().encode().toString()));
     } catch (IOException ex){
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return new ModelAndView("addphoto", "error", ex.getMessage());
     } catch (BadImageException ex){
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return new ModelAndView("addphoto", "error", ex.getMessage());
     } catch (UserErrorException ex) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return new ModelAndView("addphoto", "error", ex.getMessage());
     }
   }
