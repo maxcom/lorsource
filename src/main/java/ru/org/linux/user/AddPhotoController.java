@@ -18,6 +18,7 @@ package ru.org.linux.user;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,9 +26,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriTemplate;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -35,12 +37,13 @@ import ru.org.linux.util.ImageInfo;
 import javax.servlet.ServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.Random;
 
 @Controller
 public class AddPhotoController {
   private static final Log logger = LogFactory.getLog(AddPhotoController.class);
+
+  public static final UriTemplate PROFILE_NOCACHE_URI_TEMPLATE = new UriTemplate("/people/{nick}/profile");
 
   @Autowired
   private UserDao userDao;
@@ -49,23 +52,14 @@ public class AddPhotoController {
   private Configuration configuration;
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
   public ModelAndView showForm(ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("Not authorized");
-    }
-
     return new ModelAndView("addphoto");
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
   public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("Not authorized");
-    }
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
@@ -79,16 +73,13 @@ public class AddPhotoController {
       Userpic.checkUserpic(uploadedFile);
       String extension = ImageInfo.detectImageType(uploadedFile);
 
-      User user = tmpl.getCurrentUser();
-      user.checkAnonymous();
-
       Random random = new Random();
 
       String photoname;
       File photofile;
 
       do {
-        photoname = Integer.toString(user.getId()) + ':' + random.nextInt() + '.' + extension;
+        photoname = Integer.toString(AuthUtil.getCurrentUser().getId()) + ':' + random.nextInt() + '.' + extension;
         photofile = new File(configuration.getHTMLPathPrefix() + "/photos", photoname);
       } while (photofile.exists());
 
@@ -97,11 +88,11 @@ public class AddPhotoController {
         throw new ScriptErrorException("Can't move photo: internal error");
       }
 
-      userDao.setPhoto(user, photoname);
+      userDao.setPhoto(AuthUtil.getCurrentUser(), photoname);
 
-      logger.info("Установлена фотография пользователем " + user.getNick());
+      logger.info("Установлена фотография пользователем " + AuthUtil.getCurrentUser().getNick());
 
-      return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick(), "UTF-8") + "/profile?nocache=" + random.nextInt()));
+      return new ModelAndView(new RedirectView(UriComponentsBuilder.fromUri(PROFILE_NOCACHE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick())).queryParam("nocache", Integer.toString(random.nextInt()) + "=").build().encode().toString()));
     } catch (IOException ex){
       return new ModelAndView("addphoto", "error", ex.getMessage());
     } catch (BadImageException ex){
