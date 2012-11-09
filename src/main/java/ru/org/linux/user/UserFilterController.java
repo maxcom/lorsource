@@ -67,6 +67,10 @@ public class UserFilterController {
     ModelAndView modelAndView = new ModelAndView("user-filter-list");
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+
+    Map<Integer, Remark> ignoreRemarks = getIgnoreRemarks(user, ignoreMap.values());
+    modelAndView.addObject("ignoreRemarks", ignoreRemarks);
+
     modelAndView.addObject("ignoreList", ignoreMap);
     modelAndView.addObject("favoriteTags", userTagService.favoritesGet(user));
     if (!tmpl.isModeratorSession()) {
@@ -84,6 +88,20 @@ public class UserFilterController {
     }
 
     return modelAndView;
+  }
+
+  private Map<Integer, Remark> getIgnoreRemarks(User currentUser, Iterable<User> users) {
+    ImmutableMap.Builder<Integer, Remark> builder = ImmutableMap.builder();
+
+    for (User user : users) {
+      Remark remark = userDao.getRemark(currentUser, user);
+
+      if (remark!=null) {
+        builder.put(user.getId(), remark);
+      }
+    }
+
+    return builder.build();
   }
 
   private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) {

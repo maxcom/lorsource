@@ -17,6 +17,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="ignoreList" type="java.util.Map<Integer, User>"--%>
+<%--@elvariable id="ignoreRemarks" type="java.util.Map<Integer, Remark>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -53,6 +54,9 @@
           <lor:csrf/>
           <input type="hidden" name="id" value="${item.key}">
           <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" decorate="true" link="true"/> </span>
+          <c:if test="${not empty ignoreRemarks[item.key]}">
+            <c:out escapeXml="true" value="${ignoreRemarks[item.key].text}"/>
+          </c:if>
           <input type="submit" name="del" value="Удалить">
         </form>
       </li>
