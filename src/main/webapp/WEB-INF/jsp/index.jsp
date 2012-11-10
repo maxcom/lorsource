@@ -73,7 +73,7 @@
     [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
 
     <c:if test="${uncommitedNews > 0}">
-      в том числе <a href="view-all.jsp?section=1">новостей</a>: ${uncommitedNews}]
+      в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}]
     </c:if>
     <c:if test="${uncommitedNews == 0}">
       новостей нет]
