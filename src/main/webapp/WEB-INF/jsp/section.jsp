@@ -37,11 +37,6 @@
         <ul>
           <li><a href="/forum/lenta/">Лента</a></li>
         </ul>
-
-        [<a href="section-rss.jsp?section=${section.id}">RSS</a>
-            <span id="rss-select">
-                <a href="section-rss.jsp?section=${section.id}&filter=notalks">без talks</a>
-                <a href="section-rss.jsp?section=${section.id}&filter=tech">тех. разделы форума</a></span>]
       </div>
   </div>
 
@@ -64,6 +59,17 @@
   </c:forEach>
 
 </ul>
+
+<h1>RSS подписки</h1>
+
+<ul>
+  <li><a href="section-rss.jsp?section=${section.id}">Полный RSS форума</a></li>
+  <li><a href="section-rss.jsp?section=${section.id}&filter=notalks">RSS без Talks</a></li>
+  <li><a href="section-rss.jsp?section=${section.id}&filter=tech">RSS технических разделов форума</a></li>
+</ul>
+
+<p>Отдельные разделы форума так же имеют RSS подписки, ссылки на них расположены на страницах
+тем этих форумов.</p>
 
 <c:if test="${not template.sessionAuthorized}">
 <p>Если вы еще не зарегистрировались - вам <a href="/register.jsp">сюда</a>.</p>
