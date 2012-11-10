@@ -35,8 +35,6 @@
 
       <div class="nav-buttons">
         <ul>
-          <li><a href="add-section.jsp?section=${section.id}">Добавить сообщение</a></li>
-
           <li><a href="/forum/lenta/">Лента</a></li>
         </ul>
 
