@@ -15,7 +15,8 @@
 
 body {
    max-width: 95em;
-   margin:auto;
+   margin: auto;
+   padding: 0.5em;
 }
 
 .news {
