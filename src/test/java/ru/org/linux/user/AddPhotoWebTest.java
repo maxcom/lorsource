@@ -17,9 +17,9 @@ package ru.org.linux.user;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
 import org.apache.commons.httpclient.HttpStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +30,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.test.WebHelper;
 
 import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
@@ -67,33 +67,78 @@ public class AddPhotoWebTest {
    * @throws java.io.IOException
    */
   @Test
-  public void testSimple() throws IOException {
+  public void testPage() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-
     ClientResponse cr = resource
         .path("addphoto.jsp")
         .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
         .get(ClientResponse.class);
-
     assertEquals(HttpStatus.SC_OK, cr.getStatus());
-    String content = "This is a binary content";
+  }
 
-    FormDataMultiPart form = new FormDataMultiPart();
-    form.bodyPart(new FormDataBodyPart("csrf", "csrf"));
-    form.bodyPart(new FormDataBodyPart("file", content.getBytes(), new MediaType("image", "jpeg")));
-
-/*    ClientResponse cr2 = resource
-        .path("addphoto.jsp")
-        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
-        .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
-        .type(MediaType.MULTIPART_FORM_DATA_TYPE)
-        .post(ClientResponse.class, form);
-
+  @Test
+  /**
+   * Тест неправильной картинки
+   */
+  public void testInvalidImage() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", "passwd");
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/ROOT.xml", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+    assertEquals("Ошибка! Unsupported format: null", doc.select(".error").text()); // сообщение об ошипке
 
-    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString()); */
+  }
 
+  @Test
+  /**
+   * Тест неправильной картинки
+   */
+  public void testInvalid2Image() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", "passwd");
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/tux.png", auth);
+    assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+    assertEquals("Ошибка! Сбой загрузки изображения: слишком большой файл", doc.select(".error").text()); // сообщение об ошипке
+  }
 
+  @Test
+  /**
+   * Тест неправильной картинки
+   */
+  public void testInvalid3Image() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", "passwd");
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/twitter.png", auth);
+    assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+    assertEquals("Ошибка! Сбой загрузки изображения: недопустимые размеры фотографии", doc.select(".error").text()); // сообщение об ошипке
+  }
+
+  @Test
+  /**
+   * Тест неправильной картинки
+   */
+  public void testInvalid4Image() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", "passwd");
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/cd.gif", auth);
+    assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+    assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке
+  }
+
+  @Test
+  /**
+   * Тест неправильной картинки
+   */
+  public void testValidImage() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", "passwd");
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/tango/img/android.png", auth);
+    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
+    final String redirect = cr.getLocation().toString();
+    final String url = "http://127.0.0.1:8080/people/JB/profile";
+    final String val = "?nocache=";
+    assertEquals(url, redirect.substring(0, url.length()));
+    assertEquals(val, redirect.substring(url.length(), url.length() + val.length()));
+    assertTrue("у nocache должен быть апгумент", redirect.length() > url.length() + val.length());
   }
 
 
