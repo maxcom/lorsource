@@ -9,8 +9,12 @@ version: 2.5.2 (modified)
     background: #FFF;
 } */
 
-body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, form, fieldset, legend, input, textarea, p, blockquote, th, td {
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, form, fieldset, legend, input, textarea, p, blockquote, th, td {
     margin: 0;
+    padding: 0;
+}
+
+body {
     padding: 0;
 }
 
@@ -83,7 +87,6 @@ pre, code, kbd, samp, tt {
 body {
     text-align: left;
     min-width: 300px;
-    margin: auto;
     width: auto;
 }
 
