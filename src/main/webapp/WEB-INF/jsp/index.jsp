@@ -30,20 +30,11 @@
 <META NAME="Keywords" CONTENT="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
 <META NAME="Description" CONTENT="Все о Linux на русском языке">
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="section-rss.jsp?section=1" TYPE="application/rss+xml">
-
 <%
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
-<%--
-<style type="text/css">
-    #samsung_text { margin-left: 135px; }
-    @media screen and (max-width: 640px) {
-        #samsung_text { margin-left: 0; }
-    }
-</style>
---%>
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 <div style="clear: both"></div>
 <div class="newsblog">
