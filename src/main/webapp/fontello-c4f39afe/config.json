@@ -1,0 +1,37 @@
+{
+  "name": "",
+  "glyphs": [
+    {
+      "uid": "25fc99a30fecc4021fdcae5fff5ba9ac",
+      "orig_css": "eye",
+      "orig_code": 59146,
+      "css": "eye",
+      "code": 59146,
+      "src": "entypo"
+    },
+    {
+      "uid": "25b34dea4784f72c710454f32ff8fa2b",
+      "orig_css": "star",
+      "orig_code": 9733,
+      "css": "star",
+      "code": 9733,
+      "src": "entypo"
+    },
+    {
+      "uid": "875ab0f6d417223f6ec76ff7f0a4baed",
+      "orig_css": "tag",
+      "orig_code": 59148,
+      "css": "tag",
+      "code": 59148,
+      "src": "entypo"
+    },
+    {
+      "uid": "9e1c33b6849ceb08db8acfaf02188b7d",
+      "orig_css": "plus-squared",
+      "orig_code": 8862,
+      "css": "plus-squared",
+      "code": 8862,
+      "src": "entypo"
+    }
+  ]
+}
