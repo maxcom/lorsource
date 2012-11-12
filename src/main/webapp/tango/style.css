@@ -379,6 +379,11 @@ figure.medium-image {
     text-align: center;
 }
 
+.visible-phone {
+    display: none;
+}
+
+/* tablet */
 @media screen and (max-width: 800px) {
     img.medium-image {
         float: none;
@@ -442,9 +447,14 @@ figure.medium-image {
     }
 }
 
+/* phone */
 @media screen and (max-width: 640px) {
     .hideon-phone {
         display: none;
+    }
+
+    .visible-phone {
+        display: inherit;
     }
 
     div.entry-userpic {
