@@ -67,6 +67,11 @@
 
   Исходные тексты доступны под лицензией Apache License 2.0: <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
 
+  <h2>Entype font</h2>
+  На сайте используется иконочный шрифт Entypo, Copyright (C) 2012 by Daniel Bruce,
+  <a href="http://www.entypo.com">http://www.entypo.com</a>. Шрифт с нужным нам набором символов
+  снегерирован при помощи <a href="http://fontello.com/">fontello.com</a>.
+
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
   <ul>
