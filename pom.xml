@@ -279,6 +279,12 @@
         	<version>1.14</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>com.sun.jersey.contribs</groupId>
+        	<artifactId>jersey-multipart</artifactId>
+        	<version>1.14</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
           <!-- jsoup HTML parser library @ http://jsoup.org/ -->
