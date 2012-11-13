@@ -61,6 +61,7 @@ public class RootNode extends Node {
   private final Set<User> replier;
   private boolean secure;
   private boolean rss;
+  private boolean nofollow = false;
 
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
@@ -109,6 +110,14 @@ public class RootNode extends Node {
 
   public void setRss(boolean rss) {
     this.rss = rss;
+  }
+
+  public boolean isNofollow() {
+    return nofollow;
+  }
+
+  public void setNofollow(boolean nofollow) {
+    this.nofollow = nofollow;
   }
 
   public void addReplier(User nick) {

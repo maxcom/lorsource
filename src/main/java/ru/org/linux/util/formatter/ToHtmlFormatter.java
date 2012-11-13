@@ -19,16 +19,18 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.user.User;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.comment.Comment;
+import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,11 +85,13 @@ public class ToHtmlFormatter {
 
   /**
    * Форматирует текст
+   *
    * @param text текст
    * @param secure флаг https
+   * @param nofollow
    * @return отфарматированный текст
    */
-  public String format(String text, boolean secure) {
+  public String format(String text, boolean secure, boolean nofollow) {
     String escapedText = StringUtil.escapeHtml(text);
 
 
@@ -96,7 +100,7 @@ public class ToHtmlFormatter {
 
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
-      String formattedToken = formatURL(token, secure);
+      String formattedToken = formatURL(token, secure, nofollow);
       sb.append(formattedToken);
     }
 
@@ -123,7 +127,7 @@ public class ToHtmlFormatter {
     return (new URI(scheme, null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
   }
 
-  protected String formatURL(String line, boolean secure) {
+  protected String formatURL(String line, boolean secure, boolean nofollow) {
     StringBuilder out = new StringBuilder();
     Matcher m = URL_PATTERN.matcher(line);
     int index = 0;
@@ -146,18 +150,7 @@ public class ToHtmlFormatter {
       }
 
       try {
-        LorURL url = new LorURL(configuration.getMainURI(), urlHref);
-
-        if(url.isMessageUrl()) {
-          processMessageUrl(secure, out, url);
-        } else if(url.isTrueLorUrl()) {
-          processGenericLorUrl(secure, out, url);
-        } else {
-          // ссылка не из lorsource
-          String fixedUrlHref = url.toString();
-          String fixedUrlBody = url.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
-        }
+        processUrl(secure, nofollow, out, urlHref, null);
       } catch (URIException e) {
         // e.printStackTrace();
         // ссылка не ссылка
@@ -174,10 +167,49 @@ public class ToHtmlFormatter {
     return out.toString();
   }
 
-  private void processGenericLorUrl(boolean secure, StringBuilder out, LorURL url) throws URIException {
+  public void processUrl(
+          boolean secure,
+          boolean nofollow,
+          @Nonnull StringBuilder out,
+          @Nonnull String urlHref,
+          @Nullable String linktext
+  ) throws URIException {
+    LorURL url = new LorURL(configuration.getMainURI(), urlHref);
+
+    if(url.isMessageUrl()) {
+      processMessageUrl(secure, out, url, linktext);
+    } else if(url.isTrueLorUrl()) {
+      processGenericLorUrl(secure, out, url, linktext);
+    } else {
+      // ссылка не из lorsource
+      String fixedUrlHref = url.toString();
+      String fixedUrlBody = url.formatUrlBody(maxLength);
+
+      out.append("<a href=\"").append(fixedUrlHref).append("\"");
+      if (nofollow) {
+        out.append(" rel=nofollow");
+      }
+      out.append(">");
+
+      if (linktext!=null) {
+        out.append(simpleFormat(linktext));
+      } else {
+        out.append(fixedUrlBody);
+      }
+
+      out.append("</a>");
+    }
+  }
+
+  private void processGenericLorUrl(
+          boolean secure,
+          @Nonnull StringBuilder out,
+          @Nonnull LorURL url,
+          @Nullable String linktext
+  ) throws URIException {
     // ссылка внутри lorsource исправляем scheme
     String fixedUrlHref = url.fixScheme(secure);
-    String fixedUrlBody = url.formatUrlBody(maxLength);
+    String fixedUrlBody = linktext!=null?simpleFormat(linktext):url.formatUrlBody(maxLength);
     out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
   }
 
@@ -189,7 +221,12 @@ public class ToHtmlFormatter {
    * @param url исходный url
    * @throws URIException если uri не корректный
    */
-  private void processMessageUrl(boolean secure, StringBuilder out, LorURL url) throws URIException {
+  private void processMessageUrl(
+          boolean secure,
+          @Nonnull StringBuilder out,
+          @Nonnull LorURL url,
+          @Nullable String linkText
+  ) throws URIException {
     try {
       Topic message = messageDao.getById(url.getMessageId());
 
@@ -201,7 +238,7 @@ public class ToHtmlFormatter {
         deleted = comment.isDeleted();
       }
 
-      String urlTitle = StringUtil.escapeHtml(message.getTitle());
+      String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
       String newUrlHref = url.formatJump(messageDao, secure);
       String fixedUrlBody = url.formatUrlBody(maxLength);

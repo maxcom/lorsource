@@ -58,7 +58,7 @@ public class SearchItem {
       MessageText messageText = msgbaseDao.getMessageText(Integer.valueOf(msgid));
       String rawMessage = messageText.getText();
       if (messageText.isLorcode()) {
-        message = lorCodeService.parseComment(rawMessage, secure);
+        message = lorCodeService.parseComment(rawMessage, secure, false);
       } else {
         message = rawMessage;
       }

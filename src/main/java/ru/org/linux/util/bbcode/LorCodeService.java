@@ -19,9 +19,8 @@ package ru.org.linux.util.bbcode;
 import org.apache.commons.httpclient.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.user.User;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.nodes.RootNode;
@@ -55,16 +54,18 @@ public class LorCodeService {
   /**
    * Преобразует LORCODE в HTML для комментариев
    * тэги [cut] не отображаются никак
+   *
    * @param text LORCODE
    * @param secure является ли текущее соединение secure
+   * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseComment(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, false), text).renderXHtml();
+  public String parseComment(String text, boolean secure, boolean nofollow) {
+    return defaultParser.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
   }
 
   public String parseCommentRSS(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, true), text).renderXHtml();
+    return defaultParser.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
   }
 
   /**
@@ -73,7 +74,7 @@ public class LorCodeService {
    * @return og:description
    */
   public String parseForOgDescription(String text) {
-    return defaultParser.parseRoot(prepareCommentRootNode(false, true), text).renderOg();
+    return defaultParser.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
   }
 
   /**
@@ -82,7 +83,7 @@ public class LorCodeService {
    * @return множество пользователей
    */
   public Set<User> getReplierFromMessage(String text) {
-    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false), text);
+    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false, false), text);
     rootNode.renderXHtml();
     return rootNode.getReplier();
   }
@@ -107,13 +108,14 @@ public class LorCodeService {
     return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure), text).renderXHtml();
   }
 
-  private RootNode prepareCommentRootNode(boolean secure, boolean rss) {
+  private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow) {
     RootNode rootNode = defaultParser.getRootNode();
     rootNode.setCommentCutOptions();
     rootNode.setUserDao(userDao);
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setRss(rss);
+    rootNode.setNofollow(nofollow);
 
     return rootNode;
   }

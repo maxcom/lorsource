@@ -96,7 +96,7 @@ public class WhoisController {
     }
 
     String userinfo = userDao.getUserInfo(user);
-    mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure()));
+    mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure(), false));
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user));
     if (currentUser || tmpl.isModeratorSession()) {

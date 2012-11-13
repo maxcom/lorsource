@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import org.apache.commons.httpclient.URIException;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
@@ -83,26 +84,48 @@ public class UrlTag extends Tag {
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
-    String formattedText;
-    if(formatter != null) {
-      formattedText = formatter.simpleFormat(linkText);
-    } else {
-      formattedText = Parser.escape(linkText);
-    }
 
-    if(URLUtil.isUrl(escapedUrl)) {
-      ret.append("<a href=\"");
-      ret.append(escapedUrl);
-      ret.append("\">");
-      ret.append(formattedText);
-      ret.append("</a>");
+   if(formatter != null) {
+      StringBuilder out = new StringBuilder();
+
+      try {
+        formatter.processUrl(
+                rootNode.isSecure(),
+                rootNode.isNofollow(),
+                out,
+                escapedUrl,
+                linkText
+        );
+
+        ret.append(out);
+      } catch (URIException e) {
+        ret.append("<s>");
+        ret.append(Parser.escape(url));
+        ret.append("</s>");
+      }
     } else {
-      ret.append("<s>");
-      ret.append(Parser.escape(url));
-      ret.append("</s>");
+      String formattedText = Parser.escape(linkText);
+
+      if (URLUtil.isUrl(escapedUrl)) {
+        ret.append("<a href=\"");
+        ret.append(escapedUrl);
+
+        ret.append('\"');
+
+        if (rootNode.isNofollow()) {
+          ret.append(" rel=nofollow");
+        }
+
+        ret.append(">");
+        ret.append(formattedText);
+        ret.append("</a>");
+      } else {
+        ret.append("<s>");
+        ret.append(Parser.escape(url));
+        ret.append("</s>");
+      }
     }
 
     return ret.toString();
   }
-
 }

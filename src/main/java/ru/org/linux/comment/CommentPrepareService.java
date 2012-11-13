@@ -27,8 +27,8 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
-import ru.org.linux.user.User;
 import ru.org.linux.user.Remark;
+import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -67,7 +67,7 @@ public class CommentPrepareService {
     String processedMessage;
 
     if(!rss) {
-      processedMessage = prepareCommentText(messageText, secure);
+      processedMessage = prepareCommentText(messageText, secure, topicPermissionService.followAuthorLinks(author));
     } else {
       processedMessage = prepareCommentTextRSS(messageText, secure);
     }
@@ -153,7 +153,7 @@ public class CommentPrepareService {
    */
   public PreparedComment prepareCommentForEdit(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = lorCodeService.parseComment(message, secure);
+    String processedMessage = lorCodeService.parseComment(message, secure, false);
 
     return new PreparedComment(
         comment,
@@ -212,9 +212,9 @@ public class CommentPrepareService {
    * @param secure https соединение?
    * @return строку html комментария
    */
-  private String prepareCommentText(MessageText messageText, final boolean secure) {
+  private String prepareCommentText(MessageText messageText, final boolean secure, boolean nofollow) {
     if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.getText(), secure);
+      return lorCodeService.parseComment(messageText.getText(), secure, nofollow);
     } else {
       return "<p>" + messageText.getText() + "</p>";
     }

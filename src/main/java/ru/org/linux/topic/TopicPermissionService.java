@@ -33,6 +33,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
+  public static final int LINK_FOLLOW_MIN_SCORE = 100;
 
   @Autowired
   private CommentService commentService;
@@ -231,4 +232,17 @@ public class TopicPermissionService {
           nowTimestamp - commentTimestamp < DeleteCommentController.DELETE_PERIOD);
   }
 
+  /**
+   * Follow для ссылок автора
+   *
+   * @param author автор сообщения содержащего ссылку
+   * @return true обычная ссылка, false - добавить rel=nofollow
+   */
+  public boolean followAuthorLinks(User author) {
+    if (author.isBlocked() || author.isAnonymous()) {
+      return false;
+    }
+
+    return author.getScore()< TopicPermissionService.LINK_FOLLOW_MIN_SCORE;
+  }
 }

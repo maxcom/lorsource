@@ -66,7 +66,7 @@ public class TextNode extends Node {
       if (TagNode.class.isInstance(parent)) {
         TagNode tagNode = (TagNode) parent;
         if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
-          return toHtmlFormatter.format(text, rootNode.isSecure());
+          return toHtmlFormatter.format(text, rootNode.isSecure(), tagNode.getRootNode().isNofollow());
         } else {
           return toHtmlFormatter.simpleFormat(text);
         }
