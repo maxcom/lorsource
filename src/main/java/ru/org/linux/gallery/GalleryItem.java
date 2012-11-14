@@ -19,7 +19,7 @@ import ru.org.linux.util.ImageInfo;
 
 public class GalleryItem {
   private int msgid;
-  private String nick;
+  private int userid;
   private ImageInfo info;
   private ImageInfo imginfo;
   private String title;
@@ -51,12 +51,12 @@ public class GalleryItem {
     this.msgid = msgid;
   }
 
-  public String getNick() {
-    return nick;
+  public int getUserid() {
+    return userid;
   }
 
-  public void setNick(String nick) {
-    this.nick = nick;
+  public void setUserid(int userid) {
+    this.userid = userid;
   }
 
   public ImageInfo getInfo() {

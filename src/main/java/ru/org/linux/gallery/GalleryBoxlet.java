@@ -35,7 +35,7 @@ public class GalleryBoxlet extends AbstractBoxlet {
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    List<GalleryItem> list = imageDao.getGalleryItems(COUNT_ITEMS);
+    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(COUNT_ITEMS));
     mav.addObject("items", list);
     return mav;
   }

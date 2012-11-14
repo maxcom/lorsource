@@ -15,6 +15,7 @@
 
 package ru.org.linux.gallery;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -53,6 +56,9 @@ public class ImageDao {
   @Autowired
   private Configuration configuration;
 
+  @Autowired
+  private UserDao userDao;
+
   /**
    * Возвращает три последних объекта галереи.
    *
@@ -62,11 +68,11 @@ public class ImageDao {
     final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
 
     String sql = "SELECT topics.id as msgid, " +
-      " topics.stat1, topics.title, images.icon, images.original, nick, urlname, images.id as imageid " +
+      " topics.stat1, topics.title, images.icon, images.original, userid, urlname, images.id as imageid " +
       "FROM topics " +
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN images ON topics.id = images.topic "+
-      " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
+      " WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
       " AND NOT topics.deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
     return jdbcTemplate.query(sql,
       new RowMapper<GalleryItem>() {
@@ -86,7 +92,7 @@ public class ImageDao {
 
           item.setImage(image);
 
-          item.setNick(rs.getString("nick"));
+          item.setUserid(rs.getInt("userid"));
           item.setStat(rs.getInt("stat1"));
           item.setLink(gallery.getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
@@ -105,6 +111,23 @@ public class ImageDao {
       },
       countItems
     );
+  }
+
+  public List<PreparedGalleryItem> prepare(List<GalleryItem> items) {
+    ImmutableList.Builder<PreparedGalleryItem> builder = ImmutableList.builder();
+
+    for (GalleryItem item : items) {
+      try {
+        builder.add(new PreparedGalleryItem(
+                item,
+                userDao.getUserCached(item.getUserid())
+        ));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    return builder.build();
   }
 
   @Nullable
