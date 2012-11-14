@@ -20,13 +20,20 @@ import ru.org.linux.util.ImageInfo;
 public class GalleryItem {
   private Integer msgid;
   private String nick;
-  private String icon;
   private ImageInfo info;
   private ImageInfo imginfo;
   private String title;
   private Integer stat;
-  private String url;
   private String link;
+  private Image image;
+
+  public Image getImage() {
+    return image;
+  }
+
+  public void setImage(Image image) {
+    this.image = image;
+  }
 
   public String getLink() {
     return link;
@@ -50,14 +57,6 @@ public class GalleryItem {
 
   public void setNick(String nick) {
     this.nick = nick;
-  }
-
-  public String getIcon() {
-    return icon;
-  }
-
-  public void setIcon(String icon) {
-    this.icon = icon;
   }
 
   public ImageInfo getInfo() {
@@ -90,13 +89,5 @@ public class GalleryItem {
 
   public void setStat(Integer stat) {
     this.stat = stat;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
   }
 }

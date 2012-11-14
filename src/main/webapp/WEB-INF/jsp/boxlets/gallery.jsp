@@ -29,10 +29,10 @@
         <a href="${url}">
           <c:choose>
             <c:when test="${not empty item.info}">
-              <img src="${item.icon}" alt="Скриншот: <l:title>${item.title}</l:title>" ${item.info.code}>
+              <img src="${item.image.icon}" alt="Скриншот: <l:title>${item.title}</l:title>" ${item.info.code}>
             </c:when>
             <c:otherwise>
-              [bad image] <img src="${item.icon}" alt="Скриншот: ${item.title}">
+              [bad image] <img src="${item.image.icon}" alt="Скриншот: ${item.title}">
             </c:otherwise>
           </c:choose>
         </a>
