@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.util.BadImageException;
@@ -39,6 +40,9 @@ import java.util.List;
 public class ImageDao {
   private static final Log log = LogFactory.getLog(ImageDao.class);
 
+  @Autowired
+  private SectionService sectionService;
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -55,6 +59,8 @@ public class ImageDao {
    * @return список GalleryDto объектов
    */
   public List<GalleryItem> getGalleryItems(int countItems) {
+    final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
+
     String sql = "SELECT topics.id as msgid, " +
       " topics.stat1, topics.title, images.icon, images.original, nick, urlname, images.id as imageid " +
       "FROM topics " +
@@ -82,7 +88,7 @@ public class ImageDao {
 
           item.setNick(rs.getString("nick"));
           item.setStat(rs.getInt("stat1"));
-          item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
+          item.setLink(gallery.getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
           String htmlPath = configuration.getHTMLPathPrefix();
 
