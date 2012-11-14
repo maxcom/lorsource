@@ -16,14 +16,20 @@
 package ru.org.linux.gallery;
 
 import ru.org.linux.user.User;
+import ru.org.linux.util.ImageInfo;
 
 public class PreparedGalleryItem {
   private final GalleryItem item;
   private final User user;
 
-  public PreparedGalleryItem(GalleryItem item, User user) {
+  private final ImageInfo iconInfo;
+  private final ImageInfo fullInfo;
+
+  public PreparedGalleryItem(GalleryItem item, User user, ImageInfo iconInfo, ImageInfo fullInfo) {
     this.item = item;
     this.user = user;
+    this.iconInfo = iconInfo;
+    this.fullInfo = fullInfo;
   }
 
   public GalleryItem getItem() {
@@ -32,5 +38,13 @@ public class PreparedGalleryItem {
 
   public User getUser() {
     return user;
+  }
+
+  public ImageInfo getIconInfo() {
+    return iconInfo;
+  }
+
+  public ImageInfo getFullInfo() {
+    return fullInfo;
   }
 }

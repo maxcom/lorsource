@@ -41,7 +41,7 @@ import java.util.List;
 
 @Repository
 public class ImageDao {
-  private static final Log log = LogFactory.getLog(ImageDao.class);
+  private static final Log logger = LogFactory.getLog(ImageDao.class);
 
   @Autowired
   private SectionService sectionService;
@@ -96,16 +96,6 @@ public class ImageDao {
           item.setStat(rs.getInt("stat1"));
           item.setLink(gallery.getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
-          String htmlPath = configuration.getHTMLPathPrefix();
-
-          try {
-            item.setInfo(new ImageInfo(htmlPath + image.getIcon()));
-            item.setImginfo(new ImageInfo(htmlPath + image.getOriginal()));
-          } catch (BadImageException e) {
-            log.error(e);
-          } catch (IOException e) {
-            log.error(e);
-          }
           return item;
         }
       },
@@ -114,16 +104,25 @@ public class ImageDao {
   }
 
   public List<PreparedGalleryItem> prepare(List<GalleryItem> items) {
+    String htmlPath = configuration.getHTMLPathPrefix();
+
     ImmutableList.Builder<PreparedGalleryItem> builder = ImmutableList.builder();
 
     for (GalleryItem item : items) {
       try {
+        ImageInfo iconInfo = new ImageInfo(htmlPath + item.getImage().getIcon());
+        ImageInfo fullInfo = new ImageInfo(htmlPath + item.getImage().getOriginal());
+
         builder.add(new PreparedGalleryItem(
                 item,
-                userDao.getUserCached(item.getUserid())
-        ));
+                userDao.getUserCached(item.getUserid()),
+                iconInfo, fullInfo));
       } catch (UserNotFoundException e) {
         throw new RuntimeException(e);
+      } catch (BadImageException e) {
+        logger.error("Bad image id="+item.getImage().getId(), e);
+      } catch (IOException e) {
+        logger.error("Bad image id=" + item.getImage().getId(), e);
       }
     }
 

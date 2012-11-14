@@ -15,13 +15,9 @@
 
 package ru.org.linux.gallery;
 
-import ru.org.linux.util.ImageInfo;
-
 public class GalleryItem {
   private int msgid;
   private int userid;
-  private ImageInfo info;
-  private ImageInfo imginfo;
   private String title;
   private int stat;
   private String link;
@@ -57,22 +53,6 @@ public class GalleryItem {
 
   public void setUserid(int userid) {
     this.userid = userid;
-  }
-
-  public ImageInfo getInfo() {
-    return info;
-  }
-
-  public void setInfo(ImageInfo info) {
-    this.info = info;
-  }
-
-  public ImageInfo getImginfo() {
-    return imginfo;
-  }
-
-  public void setImginfo(ImageInfo imginfo) {
-    this.imginfo = imginfo;
   }
 
   public String getTitle() {
