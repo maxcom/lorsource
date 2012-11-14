@@ -26,8 +26,7 @@ import ru.org.linux.user.User;
 
 import java.net.URLEncoder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -385,4 +384,12 @@ public class LorURITest {
     assertEquals(User.EMPTY_GRAVATAR_URL,  URLEncoder.encode("http://www.linux.org.ru/img/p.gif", "UTF-8"));
   }
 
+  @Test
+  public void testBadId() throws Exception {
+    LorURL uri = new LorURL(mainLORURI, "http://www.linux.org.ru/forum/talks/12345678910");
+
+    assertTrue(uri.isTrueLorUrl());
+    assertFalse(uri.isMessageUrl());
+    assertFalse(uri.isCommentUrl());
+  }
 }

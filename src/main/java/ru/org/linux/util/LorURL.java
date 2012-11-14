@@ -117,7 +117,10 @@ public class LorURL extends URI {
 
         if (messageMatcher.find()) {
           if(isUnsignedPositiveNumber(messageMatcher.group(1))) {
-            _topic_id = Integer.parseInt(messageMatcher.group(1)); 
+            try {
+              _topic_id = Integer.parseInt(messageMatcher.group(1));
+            } catch (NumberFormatException ex) {
+            }
           }
         }
         if(path.endsWith("/history")) {
@@ -129,7 +132,10 @@ public class LorURL extends URI {
         Matcher commentMatcher = requestCommentPattern.matcher(fragment);
         if (commentMatcher.find()) {
           if(isUnsignedPositiveNumber(commentMatcher.group(1))) {
-            _comment_id = Integer.parseInt(commentMatcher.group(1)); 
+            try {
+              _comment_id = Integer.parseInt(commentMatcher.group(1));
+            } catch (NumberFormatException ex) {
+            }
           }
         }
       }
