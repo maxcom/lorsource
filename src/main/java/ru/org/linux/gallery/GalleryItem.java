@@ -15,13 +15,9 @@
 
 package ru.org.linux.gallery;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import ru.org.linux.util.ImageInfo;
 
 public class GalleryItem {
-  private static final Log log = LogFactory.getLog(GalleryItem.class);
-
   private Integer msgid;
   private String nick;
   private String icon;
