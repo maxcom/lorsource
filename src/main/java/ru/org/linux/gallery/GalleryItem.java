@@ -15,34 +15,22 @@
 
 package ru.org.linux.gallery;
 
-import java.io.IOException;
-import java.io.Serializable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
-/**
- * User: rsvato
- * Date: Apr 29, 2009
- * Time: 6:44:26 PM
- */
-public class GalleryItem implements Serializable {
+public class GalleryItem {
   private static final Log log = LogFactory.getLog(GalleryItem.class);
 
   private Integer msgid;
   private String nick;
   private String icon;
-  private transient ImageInfo info;
-  private transient ImageInfo imginfo;
+  private ImageInfo info;
+  private ImageInfo imginfo;
   private String title;
   private Integer stat;
   private String url;
-  private String htmlPath;
   private String link;
-  private static final long serialVersionUID = 2085410194928989589L;
 
   public String getLink() {
     return link;
@@ -77,15 +65,6 @@ public class GalleryItem implements Serializable {
   }
 
   public ImageInfo getInfo() {
-    if (info == null) {
-      try {
-        info = new ImageInfo(htmlPath + icon);
-      } catch (IOException e) {
-        log.error(e);
-      } catch (BadImageException e) {
-        log.error(e);
-      }
-    }
     return info;
   }
 
@@ -94,15 +73,6 @@ public class GalleryItem implements Serializable {
   }
 
   public ImageInfo getImginfo() {
-    if (imginfo == null){
-      try {
-        imginfo = new ImageInfo(htmlPath + url);
-      } catch (BadImageException e) {
-        log.error(e);
-      } catch (IOException e) {
-        log.error(e);
-      }
-    }
     return imginfo;
   }
 
@@ -132,9 +102,5 @@ public class GalleryItem implements Serializable {
 
   public void setUrl(String url) {
     this.url = url;
-  }
-
-  public void setHtmlPath(String htmlPath) {
-    this.htmlPath = htmlPath;
   }
 }

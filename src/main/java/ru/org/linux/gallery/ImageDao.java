@@ -76,7 +76,6 @@ public class ImageDao {
           item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
           String htmlPath = configuration.getHTMLPathPrefix();
-          item.setHtmlPath(htmlPath);
 
           try {
             item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
