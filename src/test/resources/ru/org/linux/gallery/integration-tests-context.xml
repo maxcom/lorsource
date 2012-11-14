@@ -23,5 +23,7 @@
     <import resource="classpath:common.xml"/>
 
     <bean class="ru.org.linux.gallery.ImageDao" id="galleryDao"/>
+    <bean class="ru.org.linux.section.SectionDaoImpl"/>
+    <bean class="ru.org.linux.section.SectionService"/>
 
 </beans>
