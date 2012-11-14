@@ -15,34 +15,21 @@
 
 package ru.org.linux.gallery;
 
-import java.io.IOException;
-import java.io.Serializable;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
-
-/**
- * User: rsvato
- * Date: Apr 29, 2009
- * Time: 6:44:26 PM
- */
-public class GalleryItem implements Serializable {
-  private static final Log log = LogFactory.getLog(GalleryItem.class);
-
-  private Integer msgid;
-  private String nick;
-  private String icon;
-  private transient ImageInfo info;
-  private transient ImageInfo imginfo;
+public class GalleryItem {
+  private int msgid;
+  private int userid;
   private String title;
-  private Integer stat;
-  private String url;
-  private String htmlPath;
+  private int stat;
   private String link;
-  private static final long serialVersionUID = 2085410194928989589L;
+  private Image image;
+
+  public Image getImage() {
+    return image;
+  }
+
+  public void setImage(Image image) {
+    this.image = image;
+  }
 
   public String getLink() {
     return link;
@@ -52,62 +39,20 @@ public class GalleryItem implements Serializable {
     this.link = link;
   }
 
-  public Integer getMsgid() {
+  public int getMsgid() {
     return msgid;
   }
 
-  public void setMsgid(Integer msgid) {
+  public void setMsgid(int msgid) {
     this.msgid = msgid;
   }
 
-  public String getNick() {
-    return nick;
+  public int getUserid() {
+    return userid;
   }
 
-  public void setNick(String nick) {
-    this.nick = nick;
-  }
-
-  public String getIcon() {
-    return icon;
-  }
-
-  public void setIcon(String icon) {
-    this.icon = icon;
-  }
-
-  public ImageInfo getInfo() {
-    if (info == null) {
-      try {
-        info = new ImageInfo(htmlPath + icon);
-      } catch (IOException e) {
-        log.error(e);
-      } catch (BadImageException e) {
-        log.error(e);
-      }
-    }
-    return info;
-  }
-
-  public void setInfo(ImageInfo info) {
-    this.info = info;
-  }
-
-  public ImageInfo getImginfo() {
-    if (imginfo == null){
-      try {
-        imginfo = new ImageInfo(htmlPath + url);
-      } catch (BadImageException e) {
-        log.error(e);
-      } catch (IOException e) {
-        log.error(e);
-      }
-    }
-    return imginfo;
-  }
-
-  public void setImginfo(ImageInfo imginfo) {
-    this.imginfo = imginfo;
+  public void setUserid(int userid) {
+    this.userid = userid;
   }
 
   public String getTitle() {
@@ -118,23 +63,11 @@ public class GalleryItem implements Serializable {
     this.title = title;
   }
 
-  public Integer getStat() {
+  public int getStat() {
     return stat;
   }
 
-  public void setStat(Integer stat) {
+  public void setStat(int stat) {
     this.stat = stat;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public void setHtmlPath(String htmlPath) {
-    this.htmlPath = htmlPath;
   }
 }

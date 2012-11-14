@@ -15,6 +15,7 @@
 
 package ru.org.linux.gallery;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -37,7 +41,10 @@ import java.util.List;
 
 @Repository
 public class ImageDao {
-  private static final Log log = LogFactory.getLog(ImageDao.class);
+  private static final Log logger = LogFactory.getLog(ImageDao.class);
+
+  @Autowired
+  private SectionService sectionService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -49,17 +56,23 @@ public class ImageDao {
   @Autowired
   private Configuration configuration;
 
+  @Autowired
+  private UserDao userDao;
+
   /**
    * Возвращает три последних объекта галереи.
    *
    * @return список GalleryDto объектов
    */
   public List<GalleryItem> getGalleryItems(int countItems) {
+    final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
+
     String sql = "SELECT topics.id as msgid, " +
-      " topics.stat1, topics.title, images.icon, images.original, nick, urlname FROM topics " +
+      " topics.stat1, topics.title, images.icon, images.original, userid, urlname, images.id as imageid " +
+      "FROM topics " +
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN images ON topics.id = images.topic "+
-      " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section= " + Section.SECTION_GALLERY +
+      " WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
       " AND NOT topics.deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
     return jdbcTemplate.query(sql,
       new RowMapper<GalleryItem>() {
@@ -69,28 +82,51 @@ public class ImageDao {
           item.setMsgid(rs.getInt("msgid"));
           item.setStat(rs.getInt("stat1"));
           item.setTitle(rs.getString("title"));
-          item.setUrl(rs.getString("original"));
-          item.setIcon(rs.getString("icon"));
-          item.setNick(rs.getString("nick"));
+
+          Image image = new Image(
+                  rs.getInt("imageid"),
+                  rs.getInt("msgid"),
+                  rs.getString("original"),
+                  rs.getString("icon")
+          );
+
+          item.setImage(image);
+
+          item.setUserid(rs.getInt("userid"));
           item.setStat(rs.getInt("stat1"));
-          item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
+          item.setLink(gallery.getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
-          String htmlPath = configuration.getHTMLPathPrefix();
-          item.setHtmlPath(htmlPath);
-
-          try {
-            item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
-            item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
-          } catch (BadImageException e) {
-            log.error(e);
-          } catch (IOException e) {
-            log.error(e);
-          }
           return item;
         }
       },
       countItems
     );
+  }
+
+  public List<PreparedGalleryItem> prepare(List<GalleryItem> items) {
+    String htmlPath = configuration.getHTMLPathPrefix();
+
+    ImmutableList.Builder<PreparedGalleryItem> builder = ImmutableList.builder();
+
+    for (GalleryItem item : items) {
+      try {
+        ImageInfo iconInfo = new ImageInfo(htmlPath + item.getImage().getIcon());
+        ImageInfo fullInfo = new ImageInfo(htmlPath + item.getImage().getOriginal());
+
+        builder.add(new PreparedGalleryItem(
+                item,
+                userDao.getUserCached(item.getUserid()),
+                iconInfo, fullInfo));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      } catch (BadImageException e) {
+        logger.error("Bad image id="+item.getImage().getId(), e);
+      } catch (IOException e) {
+        logger.error("Bad image id=" + item.getImage().getId(), e);
+      }
+    }
+
+    return builder.build();
   }
 
   @Nullable

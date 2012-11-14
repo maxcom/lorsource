@@ -16,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="items" type="java.util.List<ru.org.linux.gallery.GalleryItem>"--%>
+<%--@elvariable id="items" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 
   <h2><a href="/gallery/">Галерея</a></h2>
 
@@ -25,29 +25,15 @@
     <c:forEach var="item" items="${items}">
       <div style="margin-bottom: 1em">
       <div align="center">
-        <c:url var="url" value="${item.link}"/>
+        <c:url var="url" value="${item.item.link}"/>
         <a href="${url}">
-          <c:choose>
-            <c:when test="${not empty item.info}">
-              <img src="${item.icon}" alt="Скриншот: <l:title>${item.title}</l:title>" ${item.info.code}>
-            </c:when>
-            <c:otherwise>
-              [bad image] <img src="${item.icon}" alt="Скриншот: ${item.title}">
-            </c:otherwise>
-          </c:choose>
+          <img src="${item.item.image.icon}" alt="Скриншот: <l:title>${item.item.title}</l:title>" ${item.iconInfo.code}>
         </a>
       </div>
       <i>
-        <c:choose>
-          <c:when test="${not empty item.imginfo}">
-            ${item.imginfo.width}x${item.imginfo.height}
-          </c:when>
-          <c:otherwise>
-            [bad image]
-          </c:otherwise>
-        </c:choose>
-        <c:url value="/people/${item.nick}/profile" var="nickurl"/>
-      </i> ${item.title} от <a href="${nickurl}">${item.nick}</a> (${item.stat})
+        ${item.fullInfo.width}x${item.fullInfo.height}
+        <c:url value="/people/${item.user.nick}/profile" var="nickurl"/>
+      </i> ${item.item.title} от <a href="${nickurl}">${item.user.nick}</a> (${item.item.stat})
       </div>
     </c:forEach>
     <a href="/gallery/">другие скриншоты...</a>

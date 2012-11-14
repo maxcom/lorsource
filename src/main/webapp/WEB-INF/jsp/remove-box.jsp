@@ -27,7 +27,6 @@
   <s:errors path="*" cssClass="error"/><br/>
 
   <s:hidden path="position"/>
-  <s:hidden path="tag"/>
 
   <input type=submit value="Удалить">
 </s:form>
