@@ -18,12 +18,12 @@ package ru.org.linux.gallery;
 import ru.org.linux.util.ImageInfo;
 
 public class GalleryItem {
-  private Integer msgid;
+  private int msgid;
   private String nick;
   private ImageInfo info;
   private ImageInfo imginfo;
   private String title;
-  private Integer stat;
+  private int stat;
   private String link;
   private Image image;
 
@@ -43,11 +43,11 @@ public class GalleryItem {
     this.link = link;
   }
 
-  public Integer getMsgid() {
+  public int getMsgid() {
     return msgid;
   }
 
-  public void setMsgid(Integer msgid) {
+  public void setMsgid(int msgid) {
     this.msgid = msgid;
   }
 
@@ -83,11 +83,11 @@ public class GalleryItem {
     this.title = title;
   }
 
-  public Integer getStat() {
+  public int getStat() {
     return stat;
   }
 
-  public void setStat(Integer stat) {
+  public void setStat(int stat) {
     this.stat = stat;
   }
 }
