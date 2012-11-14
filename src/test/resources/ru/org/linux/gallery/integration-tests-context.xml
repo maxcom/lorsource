@@ -26,4 +26,7 @@
     <bean class="ru.org.linux.section.SectionDaoImpl"/>
     <bean class="ru.org.linux.section.SectionService"/>
 
+    <bean class="ru.org.linux.user.UserDao"/>
+    <bean class="ru.org.linux.user.IgnoreListDao"/>
+
 </beans>
