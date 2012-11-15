@@ -183,16 +183,16 @@ public class GroupPermissionService {
       return false;
     }
 
-    if (by.isModerator()) {
-      if (author.isModerator()) {
-        return true;
-      }
-
-      return section.isPremoderated();
+    if (by.isAdministrator()) {
+      return true;
     }
 
     if (!topic.isLorcode()) {
       return false;
+    }
+
+    if (by.isModerator()) {
+      return true;
     }
 
     if (by.canCorrect() && section.isPremoderated()) {
