@@ -48,7 +48,8 @@ public class RegisterRequestValidator implements Validator {
           "mailinator2.com",
           "rppkn.com",
           "rtrtr.com",
-          "mailmetrash.com"
+          "mailmetrash.com",
+          "getairmail.com"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
@@ -69,6 +70,7 @@ public class RegisterRequestValidator implements Validator {
     /*
     Nick validate
      */
+     
     String nick = form.getNick();
 
     if (Strings.isNullOrEmpty(nick)) {
