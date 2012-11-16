@@ -53,8 +53,6 @@ strong {
 
 body {
 	font-family: Trebuchet MS, sans-serif;
-	font-size: medium;
-	line-height: 1.4;
 }
 
 textarea {
@@ -237,10 +235,6 @@ div.msg_body h2 {
     border-radius: 1em;
 }
 
-pre {
-    line-height: 1.2em;
-}
-
 .msg .title {
      margin-left: 1em;
 }
@@ -257,10 +251,10 @@ pre {
 }
 
 .boxlet {
--moz-border-radius: 1em;
--webkit-border-radius: 1em;
--khtml-border-radius: 1em;
-border-radius: 1em;
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    border-radius: 1em;
 }
 
 #navPath {
@@ -506,10 +500,6 @@ figure.medium-image {
 
     #commentForm textarea {
         height: 10em;
-    }
-
-    html {
-        -webkit-text-size-adjust: none; /* Prevent font scaling in landscape */
     }
 
     div[itemprop="articleBody"] {

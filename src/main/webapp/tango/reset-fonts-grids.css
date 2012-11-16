@@ -59,12 +59,7 @@ sub {
 }
 
 input, textarea, select {
-    font-size: inherit;
     font-weight: inherit;
-}
-
-input, textarea, select {
-    *font-size: 100%;
 }
 
 legend {

@@ -13,11 +13,62 @@
  *    limitations under the License.
  */
 
+/* document wide styles */
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
 body {
    max-width: 95em;
    margin: auto;
    padding: 0.5em;
+   font-size: medium;
+   line-height: 1.4;
 }
+
+H1 {
+  margin-top: 0; margin-bottom: 5px
+}
+
+code {
+    padding: 0.5em;
+    display: block;
+}
+
+pre {
+    overflow: auto;
+    overflow-y: hidden;
+    white-space: pre-wrap; /* for Opera, Firefox, Safari, Chrome*/
+    word-wrap: break-word; /* IE 5.5+ */
+    margin: 0.5em 1em;
+    line-height: 1.2em;
+}
+
+p {
+    margin-top: 5px;
+}
+
+pre code span {
+    background: inherit !important;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: 100%;
+    max-width: 100%;
+}
+
+textarea {
+    overflow: auto;
+    vertical-align: top;
+}
+
+/* specific styles */
 
 .news {
   border-top: 1px solid;
@@ -70,10 +121,6 @@ DIV.newsblog {
 
 .newsblog-in {
   margin-left: 245px;
-}
-
-H1 {
-  margin-top: 0; margin-bottom: 5px
 }
 
 .messages H2 { margin-bottom: 5px; margin-top: 5px; }
@@ -189,20 +236,6 @@ div.quote h3 {
   white-space: pre;
 }
 
-code {
-    padding: 0.5em;
-    display: block;
-}
-
-pre {
-    overflow: auto;
-    overflow-y: hidden;
-    white-space: pre-wrap; /* for Opera, Firefox, Safari, Chrome*/
-    word-wrap: break-word; /* IE 5.5+ */
-    margin: 0.5em 1em;
-
-}
-
 .error {
     font-weight: bold;
     border: 1px dotted;
@@ -314,14 +347,6 @@ table.poll td {
     padding-right: 1em;
 }
 
-p {
-    margin-top: 5px;
-}
-
-pre code span {
-    background: inherit !important;
-}
-
 .nav li {
     display: inline-block;
     margin-left: 0 !important;
@@ -423,10 +448,6 @@ div.quote p cite {
 #warning-text p { margin: 0.1em !important; }
 #warning-logo { float: right;}
 #warning-footer { clear: both; }
-
-textarea, input {
-    max-width: 100%;
-}
 
 .nav-buttons {
    float: right;
