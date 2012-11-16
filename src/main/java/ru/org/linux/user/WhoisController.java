@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
@@ -53,6 +55,9 @@ public class WhoisController {
 
   @Autowired
   private SectionService sectionService;
+
+  @Autowired
+  private TopicPermissionService topicPermissionService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -96,7 +101,17 @@ public class WhoisController {
     }
 
     String userinfo = userDao.getUserInfo(user);
-    mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure(), false));
+
+    if (!Strings.isNullOrEmpty(userinfo)) {
+      mv.getModel().put(
+              "userInfoText",
+              lorCodeService.parseComment(
+                      userinfo,
+                      request.isSecure(),
+                      !topicPermissionService.followAuthorLinks(user)
+              )
+      );
+    }
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user));
     if (currentUser || tmpl.isModeratorSession()) {

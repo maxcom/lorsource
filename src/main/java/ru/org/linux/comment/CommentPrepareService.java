@@ -67,7 +67,7 @@ public class CommentPrepareService {
     String processedMessage;
 
     if(!rss) {
-      processedMessage = prepareCommentText(messageText, secure, topicPermissionService.followAuthorLinks(author));
+      processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
     } else {
       processedMessage = prepareCommentTextRSS(messageText, secure);
     }

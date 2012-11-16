@@ -243,6 +243,6 @@ public class TopicPermissionService {
       return false;
     }
 
-    return author.getScore()< TopicPermissionService.LINK_FOLLOW_MIN_SCORE;
+    return author.getScore()>=TopicPermissionService.LINK_FOLLOW_MIN_SCORE;
   }
 }
