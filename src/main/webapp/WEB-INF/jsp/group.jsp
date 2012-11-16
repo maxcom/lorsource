@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.group.Group,ru.org.linux.group.GroupController,ru.org.linux.site.Template,ru.org.linux.util.BadImageException,ru.org.linux.util.DateUtil"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -98,7 +97,6 @@
 
 </form>
 
-<h1 class="optional">${section.name}: ${group.title}</h1>
 <c:if test="${!empty groupImagePath}">
     <div align=center>
         <img src="${groupImagePath}" ${groupImageInfo.code} border="0" alt="Группа ${group.title}" />

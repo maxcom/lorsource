@@ -65,7 +65,6 @@
       </c:if>
     </div>
 </div>
-<H1 class="optional">${ptitle}</H1>
 
 <div class="infoblock" style="font-size: medium">
   <div class="fav-buttons">

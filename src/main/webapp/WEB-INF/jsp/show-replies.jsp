@@ -72,8 +72,6 @@
     </div>
 </div>
 
-<h1 class="optional">${title}</h1>
-
 <c:if test="${unreadCount > 0 && !forceReset}">
   <div id="counter_block" class="infoblock">
     <c:choose>

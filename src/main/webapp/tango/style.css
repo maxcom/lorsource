@@ -133,10 +133,6 @@ p {
     font-size: medium;
 }
 
-#bd h1.optional {
-    display: none;
-}
-
 #bd .news div.text {
 	margin-left: 64px;
 }

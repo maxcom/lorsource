@@ -46,8 +46,6 @@
     </div>
 </div>
 
-<h1 class="optional">Сообщения с <%= ip %> (за 3 дня)</h1>
-
 <strong>Текущий статус: </strong>
 
 <c:if test="${tor}">

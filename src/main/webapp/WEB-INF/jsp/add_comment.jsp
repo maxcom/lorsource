@@ -36,8 +36,6 @@
   </div>
 </div>
 
-<h1 class="optional">Добавить комментарий</h1>
-
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
 <%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>

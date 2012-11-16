@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic"   buffer="200kb"%>
+<%@ page buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -168,10 +168,6 @@
     </div>
   </div>
 </c:if></c:set>
-
-<c:if test="${showDeleted}">
-  <h1 class="optional">Режим показа удаленных комментариев</h1>
-</c:if>
 
 <c:if test="${pages > 1}">
     <c:set var="urlAdd" value='' />

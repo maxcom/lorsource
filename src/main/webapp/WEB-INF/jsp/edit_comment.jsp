@@ -1,6 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page
-        import="ru.org.linux.comment.PreparedComment,ru.org.linux.util.StringUtil" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -36,8 +34,6 @@
     </ul>
   </div>
 </div>
-
-<h1 class="optional">Изменить комментарий</h1>
 
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
   <a href="rules.jsp">правилами</a> сайта.</font>

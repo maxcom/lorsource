@@ -40,8 +40,6 @@
       </div>
   </div>
 
-<h1 class="optional">${section.name} — Группы</h1>
-
 <ul>
 
 <c:forEach var="group" items="${groups}">

@@ -55,8 +55,6 @@ $(document).ready(function() {
      </div>
  </div>
 
-<h1 class="optional">Настройки профиля</h1>
-
 <h2>Параметры профиля</h2>
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>

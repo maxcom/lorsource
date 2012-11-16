@@ -102,10 +102,6 @@ div.entry-body {
   margin-left: 75px;
 }
 
-h1.optional {
-    display: none;
-}
-
 /* info boxes on columns */
 .column {
   text-align: center;

@@ -46,8 +46,6 @@
      </div>
 </div>
 
-<H1 class="optional">Изменение регистрации</H1>
-
 <form:form modelAttribute="form" method="POST" action="/people/${nick}/edit" id="editRegForm">
     <form:errors element="label" cssClass="error"/>
     <dl>
