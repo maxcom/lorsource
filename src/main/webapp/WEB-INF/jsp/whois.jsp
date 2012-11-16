@@ -284,14 +284,19 @@
 
   <h2>Сообщения пользователя</h2>
 <ul>
-  <li>
-    <a href="/people/${user.nick}/">Темы</a>
-  </li>
+  <c:if test="${not empty userStat.topicsBySection}">
+    <li>
+      <a href="/people/${user.nick}/">Темы</a>
+    </li>
+  </c:if>
 
-  <li>
-    <a href="show-comments.jsp?nick=${user.nick}">Комментарии</a>
-  </li>
-<c:if test="${moderatorOrCurrentUser}">
+  <c:if test="${userStat.commentCount>0}">
+    <li>
+      <a href="show-comments.jsp?nick=${user.nick}">Комментарии</a>
+    </li>
+  </c:if>
+
+  <c:if test="${moderatorOrCurrentUser}">
   <li>
     <a href="show-replies.jsp?nick=${user.nick}">Уведомления</a>
   </li>
