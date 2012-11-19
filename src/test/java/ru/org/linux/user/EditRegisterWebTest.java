@@ -238,6 +238,54 @@ public class EditRegisterWebTest {
             .get(ClientResponse.class);
 
     assertEquals(HttpStatus.SC_OK, cr5.getStatus());
-
  }
+
+  @Test
+  public void testChange() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", JB_PASS);
+
+    ClientResponse cr = resource
+        .path("people/JB/edit")
+        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .get(ClientResponse.class);
+
+    assertEquals(HttpStatus.SC_OK, cr.getStatus());
+
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+
+    assertEquals("/people/JB/edit", doc.getElementById("editRegForm").attr("action"));
+
+    String name = doc.getElementById("name").val();
+    String url = doc.getElementById("url").val();
+    String email = doc.getElementById("email").val();
+    String town = doc.getElementById("town").val();
+    String info = doc.getElementById("info").val();
+
+    assertEquals(JB_NAME, name);
+    assertEquals(JB_URL, url);
+    assertEquals(JB_EMAIL, email);
+    assertEquals(JB_TOWN, town);
+    assertEquals(JB_INFO, info);
+
+    MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
+    formData.add("name", name);
+    formData.add("url", url);
+    formData.add("email", email);
+    formData.add("town", town);
+    formData.add("info", info);
+    formData.add("csrf", "csrf");
+
+    ClientResponse cr2 = resource
+        .path("people/JB/edit")
+        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
+        .post(ClientResponse.class, formData);
+
+    Document doc2 = Jsoup.parse(cr2.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+
+    assertEquals(HttpStatus.SC_OK, cr2.getStatus());
+    assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text());
+    assertEquals("/people/JB/edit", doc2.getElementById("editRegForm").attr("action"));
+  }
+
 }
