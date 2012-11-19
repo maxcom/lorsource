@@ -39,6 +39,7 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ServletParameterBadValueException;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
@@ -130,6 +131,98 @@ public class GroupController {
     return forum(groupName, offset, lastmod, request, response, null, null);
   }
 
+  // TODO: move to dao/service
+  private List<TopicsListItem> getTopics(
+          Group group,
+          int messagesInPage,
+          boolean firstPage,
+          boolean lastmod,
+          Integer year,
+          Integer month,
+          int topics,
+          int offset,
+          boolean showDeleted,
+          boolean showIgnored,
+          @Nullable User currentUser
+  ) {
+    Set<Integer> ignoreList;
+
+    if (currentUser!=null) {
+      ignoreList = ignoreListDao.get(currentUser);
+    } else {
+      ignoreList = Collections.emptySet();
+    }
+
+
+    String delq = showDeleted ? "" : " AND NOT deleted ";
+
+    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
+            "FROM topics WHERE topics.groupid=" + group.getId() + delq;
+
+    if (year!=null) {
+      q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+    }
+
+    String ignq = "";
+
+    if (!showIgnored && currentUser!=null) {
+      int currentUserId = currentUser.getId();
+      if (firstPage && !ignoreList.isEmpty()) {
+        ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
+      }
+
+      if (!currentUser.isModerator()) {
+        ignq += " AND topics.id NOT IN (select distinct tags.msgid from tags, user_tags "
+          + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=" + currentUserId + ") ";
+      }
+    }
+
+    SqlRowSet rs;
+
+    if (!lastmod) {
+      if (year==null) {
+        if (offset==0) {
+          q += " AND (sticky or postdate>CURRENT_TIMESTAMP-'3 month'::interval) ";
+        }
+
+        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY sticky DESC, msgid DESC LIMIT " + topics + " OFFSET " + offset);
+      } else {
+        rs = jdbcTemplate.queryForRowSet(q + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
+      }
+    } else {
+      if (firstPage) {
+        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+      } else {
+        rs = jdbcTemplate.queryForRowSet(q + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+      }
+    }
+
+    List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
+
+    while (rs.next()) {
+      User author;
+
+      try {
+        author = userDao.getUserCached(rs.getInt("userid"));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
+      ImmutableList<String> tags = topicTagService.getMessageTagsForTitle(rs.getInt("msgid"));
+
+      TopicsListItem topic = new TopicsListItem(author, rs, messagesInPage, tags);
+
+      if (!firstPage && !ignoreList.isEmpty() && ignoreList.contains(author.getId())) {
+        continue;
+      }
+
+      topicsList.add(topic);
+    }
+
+    return topicsList;
+  }
+
+
   private ModelAndView forum(
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
@@ -205,34 +298,7 @@ public class GroupController {
 
     params.put("section", section);
 
-    Set<Integer> ignoreList;
-
-    if (tmpl.getCurrentUser()!=null) {
-      ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
-    } else {
-      ignoreList = Collections.emptySet();
-    }
-
     params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
-
-    String ignq = "";
-
-    if (!showIgnored && tmpl.isSessionAuthorized()) {
-      int currentUserId = tmpl.getCurrentUser().getId();
-      if (firstPage && !ignoreList.isEmpty()) {
-        ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
-      }
-
-      if (!tmpl.isModeratorSession()) {
-        ignq += " AND topics.id NOT IN (select distinct tags.msgid from tags, user_tags "
-          + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=" + currentUserId + ") ";
-      }
-    }
-
-    String delq = showDeleted ? "" : " AND NOT deleted ";
-    int topics = tmpl.getProf().getTopics();
-
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics WHERE topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
       if (year<1990 || year > 3000) {
@@ -243,7 +309,6 @@ public class GroupController {
         throw new ServletParameterBadValueException("month", "указан некорректный месяц");
       }
 
-      q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
       params.put("year", year);
       params.put("month", month);
       params.put("url", group.getUrl()+year+ '/' +month+ '/');
@@ -251,50 +316,19 @@ public class GroupController {
       params.put("url", group.getUrl());
     }
 
-    SqlRowSet rs;
-
-    if (!lastmod) {
-      if (year==null) {
-        if (offset==0) {
-          q += " AND (sticky or postdate>CURRENT_TIMESTAMP-'3 month'::interval) ";
-        }
-
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY sticky DESC, msgid DESC LIMIT " + topics + " OFFSET " + offset);
-      } else {
-        rs = jdbcTemplate.queryForRowSet(q + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
-      }
-    } else {
-      if (firstPage) {
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
-      } else {
-        rs = jdbcTemplate.queryForRowSet(q + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
-      }
-    }
-
-    List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
-    int messages = tmpl.getProf().getMessages();
-
-    while (rs.next()) {
-      User author;
-
-      try {
-        author = userDao.getUserCached(rs.getInt("userid"));
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-
-      ImmutableList<String> tags = topicTagService.getMessageTagsForTitle(rs.getInt("msgid"));
-
-      TopicsListItem topic = new TopicsListItem(author, rs, messages, tags);
-
-      if (!firstPage && !ignoreList.isEmpty() && ignoreList.contains(author.getId())) {
-        continue;
-      }
-
-      topicsList.add(topic);
-    }
-
-    params.put("topicsList", topicsList);
+    params.put("topicsList", getTopics(
+            group,
+            tmpl.getProf().getMessages(),
+            firstPage,
+            lastmod,
+            year,
+            month,
+            tmpl.getProf().getTopics(),
+            offset,
+            showDeleted,
+            showIgnored,
+            tmpl.getCurrentUser()
+    ));
 
     if (year != null) {
       params.put("count", getArchiveCount(group.getId(), year, month));
