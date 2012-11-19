@@ -41,12 +41,12 @@
     <div class="nav-buttons">
       <ul>
         <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="/people/${nick}/settings">Настройки профиля</a></li>
+        <li><a href="/people/${form.nick}/settings">Настройки профиля</a></li>
       </ul>
      </div>
 </div>
 
-<form:form modelAttribute="form" method="POST" action="/people/${nick}/edit" id="editRegForm">
+<form:form modelAttribute="form" method="POST" action="/people/${form.nick}/edit" id="editRegForm">
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label for="name">Полное имя</label></dt>
