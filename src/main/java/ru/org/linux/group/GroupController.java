@@ -153,8 +153,7 @@ public class GroupController {
       ignoreList = Collections.emptySet();
     }
 
-
-    String delq = showDeleted ? "" : " AND NOT deleted ";
+   String delq = showDeleted ? "" : " AND NOT deleted ";
 
     String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
             "FROM topics WHERE topics.groupid=" + group.getId() + delq;
@@ -167,7 +166,7 @@ public class GroupController {
 
     if (!showIgnored && currentUser!=null) {
       int currentUserId = currentUser.getId();
-      if (firstPage && !ignoreList.isEmpty()) {
+      if (!ignoreList.isEmpty()) {
         ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
       }
 
@@ -187,16 +186,19 @@ public class GroupController {
 
         rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY sticky DESC, msgid DESC LIMIT " + topics + " OFFSET " + offset);
       } else {
-        rs = jdbcTemplate.queryForRowSet(q + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
+        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
       }
     } else {
-      if (firstPage) {
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
-      } else {
-        rs = jdbcTemplate.queryForRowSet(q + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
-      }
+      rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
     }
 
+    return prepareTopic(rs, messagesInPage);
+  }
+
+  private List<TopicsListItem> prepareTopic(
+          SqlRowSet rs,
+          int messagesInPage
+  ) {
     List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
 
     while (rs.next()) {
@@ -212,16 +214,11 @@ public class GroupController {
 
       TopicsListItem topic = new TopicsListItem(author, rs, messagesInPage, tags);
 
-      if (!firstPage && !ignoreList.isEmpty() && ignoreList.contains(author.getId())) {
-        continue;
-      }
-
       topicsList.add(topic);
     }
 
     return topicsList;
   }
-
 
   private ModelAndView forum(
     @PathVariable("group") String groupName,

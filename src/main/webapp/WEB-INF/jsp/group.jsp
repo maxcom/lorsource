@@ -115,9 +115,6 @@
       <c:if test="${lastmod}">
         <input type="hidden" name="lastmod" value="true">
       </c:if>
-      <c:if test="${firstPage}">
-        <input type="hidden" name="offset" value="${offset}">
-      </c:if>
         <select name="showignored" onchange="submit();">
           <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
           <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
@@ -198,7 +195,9 @@
 <tr><td colspan=3><p>
 <div style="float: left">
 
-<c:if test="${lastmod}"><c:set var="urlAdd" value="${urlAdd}&amp;lastmod=true" /></c:if>
+<c:if test="${lastmod}"><c:set var="urlAdd" value="&amp;lastmod=true" /></c:if>
+<c:if test="${showIgnored}"><c:set var="urlAdd" value="${urlAdd}&amp;showignored=t" /></c:if>
+
 <c:if test="${prevPage > 0}">
     <a rel="prev" href="${url}?offset=${prevPage}${urlAdd}">← назад</a>
 </c:if>
