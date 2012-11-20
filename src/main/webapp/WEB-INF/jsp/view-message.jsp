@@ -169,7 +169,7 @@
   </div>
 </c:if></c:set>
 
-<c:if test="${pages > 1}">
+<c:if test="${pages > 1 and not showDeleted}">
     <c:set var="urlAdd" value='' />
     <c:set var="bufInfo" value='' />
     <c:set var="filterAdd" value='' />
