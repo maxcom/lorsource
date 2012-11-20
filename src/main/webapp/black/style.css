@@ -19,6 +19,7 @@ BODY {
 	font-family: sans-serif;
 	background: #000000;
 	color: #c8c8c8;
+	max-width: 100%;
 }
 
 A {
