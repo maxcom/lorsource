@@ -16,6 +16,8 @@
 package ru.org.linux.group;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -131,11 +133,23 @@ public class GroupController {
     return forum(groupName, offset, lastmod, request, response, null, null);
   }
 
+  private List<TopicsListItem> getStickyTopics(
+          Group group,
+          int messagesInPage
+  ) {
+    String q =
+            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
+            "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY msgid DESC";
+
+    SqlRowSet rs = jdbcTemplate.queryForRowSet(q, group.getId());
+
+    return prepareTopic(rs, messagesInPage);
+  }
+
   // TODO: move to dao/service
   private List<TopicsListItem> getTopics(
           Group group,
           int messagesInPage,
-          boolean firstPage,
           boolean lastmod,
           Integer year,
           Integer month,
@@ -156,7 +170,7 @@ public class GroupController {
    String delq = showDeleted ? "" : " AND NOT deleted ";
 
     String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
-            "FROM topics WHERE topics.groupid=" + group.getId() + delq;
+            "FROM topics WHERE NOT sticky AND topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
       q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
@@ -181,10 +195,10 @@ public class GroupController {
     if (!lastmod) {
       if (year==null) {
         if (offset==0) {
-          q += " AND (sticky or postdate>CURRENT_TIMESTAMP-'3 month'::interval) ";
+          q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
         }
 
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY sticky DESC, msgid DESC LIMIT " + topics + " OFFSET " + offset);
+        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
       } else {
         rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
       }
@@ -192,7 +206,15 @@ public class GroupController {
       rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
     }
 
-    return prepareTopic(rs, messagesInPage);
+    List<TopicsListItem> mainTopics = prepareTopic(rs, messagesInPage);
+
+    if (year==null && offset==0 && !lastmod) {
+      List<TopicsListItem> stickyTopics = getStickyTopics(group, messagesInPage);
+
+      return Lists.newArrayList(Iterables.concat(stickyTopics, mainTopics));
+    } else {
+      return mainTopics;
+    }
   }
 
   private List<TopicsListItem> prepareTopic(
@@ -316,7 +338,6 @@ public class GroupController {
     params.put("topicsList", getTopics(
             group,
             tmpl.getProf().getMessages(),
-            firstPage,
             lastmod,
             year,
             month,
@@ -333,7 +354,7 @@ public class GroupController {
 
     params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
 
-    params.put("maxOffset", GroupController.MAX_OFFSET);
+    params.put("maxOffset", MAX_OFFSET);
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
