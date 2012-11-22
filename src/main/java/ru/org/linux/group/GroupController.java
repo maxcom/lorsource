@@ -206,15 +206,7 @@ public class GroupController {
       rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
     }
 
-    List<TopicsListItem> mainTopics = prepareTopic(rs, messagesInPage);
-
-    if (year==null && offset==0 && !lastmod) {
-      List<TopicsListItem> stickyTopics = getStickyTopics(group, messagesInPage);
-
-      return Lists.newArrayList(Iterables.concat(stickyTopics, mainTopics));
-    } else {
-      return mainTopics;
-    }
+    return prepareTopic(rs, messagesInPage);
   }
 
   private List<TopicsListItem> prepareTopic(
@@ -335,7 +327,7 @@ public class GroupController {
       params.put("url", group.getUrl());
     }
 
-    params.put("topicsList", getTopics(
+    List<TopicsListItem> mainTopics = getTopics(
             group,
             tmpl.getProf().getMessages(),
             lastmod,
@@ -346,15 +338,23 @@ public class GroupController {
             showDeleted,
             showIgnored,
             tmpl.getCurrentUser()
-    ));
+    );
+
+    if (year==null && offset==0 && !lastmod) {
+      List<TopicsListItem> stickyTopics = getStickyTopics(group, tmpl.getProf().getMessages());
+
+      params.put("topicsList",  Lists.newArrayList(Iterables.concat(stickyTopics, mainTopics)));
+    } else {
+      params.put("topicsList", mainTopics);
+    }
 
     if (year != null) {
-      params.put("count", getArchiveCount(group.getId(), year, month));
+      params.put("hasNext", offset + tmpl.getProf().getTopics() < getArchiveCount(group.getId(), year, month));
+    } else {
+      params.put("hasNext", offset<MAX_OFFSET && mainTopics.size()==tmpl.getProf().getTopics());
     }
 
     params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
-
-    params.put("maxOffset", MAX_OFFSET);
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
