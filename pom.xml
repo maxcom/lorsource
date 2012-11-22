@@ -339,6 +339,7 @@
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.form.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
+                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.min.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.style-switcher.js</include>
@@ -353,6 +354,7 @@
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/reset-fonts-grids.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
