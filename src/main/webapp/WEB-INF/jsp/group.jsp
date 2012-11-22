@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -25,7 +24,6 @@
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
 <%--@elvariable id="addable" type="java.lang.Boolean"--%>
-<%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -33,7 +31,7 @@
 <%--@elvariable id="month" type="java.lang.Integer"--%>
 <%--@elvariable id="url" type="java.lang.String"--%>
 <%--@elvariable id="groupInfo" type="ru.org.linux.group.PreparedGroupInfo"--%>
-<% Template tmpl = Template.getTemplate(request); %>
+<%--@elvariable id="hasNext" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <script type="text/javascript">
   <!--
@@ -115,9 +113,6 @@
       <c:if test="${lastmod}">
         <input type="hidden" name="lastmod" value="true">
       </c:if>
-      <c:if test="${firstPage}">
-        <input type="hidden" name="offset" value="${offset}">
-      </c:if>
         <select name="showignored" onchange="submit();">
           <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
           <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
@@ -198,7 +193,9 @@
 <tr><td colspan=3><p>
 <div style="float: left">
 
-<c:if test="${lastmod}"><c:set var="urlAdd" value="${urlAdd}&amp;lastmod=true" /></c:if>
+<c:if test="${lastmod}"><c:set var="urlAdd" value="&amp;lastmod=true" /></c:if>
+<c:if test="${showIgnored}"><c:set var="urlAdd" value="${urlAdd}&amp;showignored=t" /></c:if>
+
 <c:if test="${prevPage > 0}">
     <a rel="prev" href="${url}?offset=${prevPage}${urlAdd}">← назад</a>
 </c:if>
@@ -208,13 +205,7 @@
 
 </div>
 <div style="float: right">
-  <c:if test="${count==null && fn:length(topicsList) == template.prof.topics}">
-    <c:if test="${offset < maxOffset}">
-        <a rel="next" href="${url}?offset=${nextPage}${urlAdd}">вперед →</a>
-    </c:if>
-  </c:if>
-
-  <c:if test="${count!=null && nextPage<count}">
+  <c:if test="${hasNext}">
     <a rel="next" href="${url}?offset=${nextPage}${urlAdd}">вперед →</a>
   </c:if>
 </div>

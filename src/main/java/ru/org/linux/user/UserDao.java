@@ -473,9 +473,15 @@ public class UserDao {
       int id;
 
       if (searchBlocked) {
-        id = jdbcTemplate.queryForInt("SELECT id FROM users WHERE email=? ORDER BY blocked ASC, id DESC LIMIT 1", email);
+        id = jdbcTemplate.queryForInt(
+                "SELECT id FROM users WHERE email=? ORDER BY blocked ASC, id DESC LIMIT 1",
+                email.toLowerCase()
+        );
       } else {
-        id = jdbcTemplate.queryForInt("SELECT id FROM users WHERE email=? AND not blocked", email);
+        id = jdbcTemplate.queryForInt(
+                "SELECT id FROM users WHERE email=? AND not blocked",
+                email.toLowerCase()
+        );
       }
 
       return getUser(id);
