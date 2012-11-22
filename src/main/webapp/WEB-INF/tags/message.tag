@@ -219,6 +219,33 @@
   <div style="clear: both"></div>
 </article>
 
+<c:if test="${not template.sessionAuthorized}">
+<script type="text/javascript">
+    $(document).ready(function($) {
+        $("#favs_button").click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $("#memories_button").popover('hide');
+            $("#favs_button").popover('show');
+        });
+        $("#favs_button").popover({
+            content: "Для добавления в избранное надо залогиниться!"
+        });
+
+        $("#memories_button").click(function(event) {
+             event.preventDefault();
+             event.stopPropagation();
+             $("#favs_button").popover('hide');
+             $("#memories_button").popover('show');
+        });
+        $("#memories_button").popover({
+             content: "Для добавления в отслеживаемое надо залогиниться!"
+        });
+
+    })
+</script>
+</c:if>
+
 <c:if test="${template.sessionAuthorized}">
 <script type="text/javascript">
   function memories_add(event) {
