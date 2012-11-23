@@ -75,12 +75,15 @@
 
       <a id="tagFavAdd" href="${tagFavUrl}" title="В избранное"><i class="icon-eye"></i></a>
   </c:if>
+  <c:if test="${not template.sessionAuthorized}">
+      <a id="tagFavNoth" href="#"><i class="icon-eye"  title="Добавить в избранное"></i></a>
+  </c:if>
   <c:if test="${isShowUnFavoriteTagButton}">
       <c:url var="tagFavUrl" value="/user-filter"/>
 
       <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-eye"></i></a>
   </c:if>
-    <br><span id="favsCount">${favsCount}</span>
+    <br><span id="favsCount" title="Кол-во пользователей, добавивших в избранное">${favsCount}</span>
   </div>
 
   Всего сообщений: ${counter}
@@ -119,7 +122,22 @@
     </c:if>
   </tr>
 </table>
+<c:if test="${not template.sessionAuthorized}">
+<script type="text/javascript">
+    $(document).ready(function($) {
+        $("#tagFavNoth").click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $("#tagFavNoth").popover('show');
+        });
+        $("#tagFavNoth").popover({
+            content: "Для добавления в избранное надо залогиниться!"
+        });
+    })
+</script>
+</c:if>
 
+<c:if test="${template.sessionAuthorized}">
 <script type="text/javascript">
   function tag_filter(event) {
     event.preventDefault();
@@ -163,5 +181,5 @@
     $("#tagFavAdd").bind("click", tag_filter);
   });
 </script>
-
+</c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
