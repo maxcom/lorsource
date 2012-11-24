@@ -124,7 +124,7 @@
 </table>
 <c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
-    $(document).ready(function($) {
+    $(document).ready(function() {
         $("#tagFavNoth").click(function(event) {
             event.preventDefault();
             event.stopPropagation();
