@@ -18,7 +18,6 @@
 <html lang=ru>
 <head>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/fontello-c4f39afe/css/fontello.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
 
   <c:if test="${template.style=='black' and template.prof.useHover}">

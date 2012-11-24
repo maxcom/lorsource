@@ -351,6 +351,7 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
                             <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/reset-fonts-grids.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
@@ -362,6 +363,7 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
                             <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
                             </includes>
@@ -371,6 +373,7 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/white/combined.css</output>
                             <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
                             </includes>
@@ -380,6 +383,7 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
                             <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
                             </includes>
