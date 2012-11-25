@@ -1,6 +1,5 @@
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag
-        pageEncoding="UTF-8"
+        pageEncoding="UTF-8" trimDirectiveWhitespaces="true"
 %><%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

@@ -4,9 +4,8 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
-<%@ tag import="ru.org.linux.user.Remark" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag pageEncoding="UTF-8"%>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>

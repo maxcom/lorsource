@@ -1,10 +1,4 @@
-<%@ tag import="ru.org.linux.comment.Comment" %>
-<%@ tag import="ru.org.linux.comment.CommentNode" %>
-<%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.user.User" %>
-<%@ tag import="ru.org.linux.user.Remark" %>
-<%@ tag import="java.text.DateFormat" %>
-<%@ tag pageEncoding="UTF-8"%>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
