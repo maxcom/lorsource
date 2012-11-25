@@ -59,7 +59,7 @@
     </c:url>
     Ответ на:
     <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${comment.reply.messageId}')" ><l:title>${comment.replyTitle}</l:title></a>
-    от ${comment.replyAuthor.nick} <lor:date date="${comment.reply.postdate}"/>
+    от ${comment.replyAuthor.nick}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
   </c:if>
 </c:otherwise>
 </c:choose>
@@ -97,7 +97,7 @@
       <c:if test="${comment.comment.editCount != 0}">
         <span class="sign_more">
         <br>
-        Последнее исправление: ${comment.comment.editNick} <lor:date date="${comment.comment.editDate}"/>
+        Последнее исправление: ${comment.comment.editNick}<c:out value=" "/><lor:date date="${comment.comment.editDate}"/>
         (всего <a href="${topic.link}/${comment.comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
         </span>
       </c:if>
