@@ -31,7 +31,7 @@
 </c:if>
 
 <c:if test="${not shortMode and not user.anonymous}">
-  ${user.stars}
+  <c:out value=" "/>${user.stars}
 
   <c:if test="${template.moderatorSession}">
     (Score: ${user.score} MaxScore: ${user.maxScore})

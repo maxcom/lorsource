@@ -163,13 +163,13 @@
 
     <c:if test="${firstPage and topic.pages<=1}">
         <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}">
-          ${topic_tags} <l:title>${topic.subj}</l:title>
+          ${topic_tags}<c:out value=" "/><l:title>${topic.subj}</l:title>
         </a>
     </c:if>
 
     <c:if test="${not firstPage or topic.pages>1}">
       <a href="${group.url}${topic.msgid}">
-          ${topic_tags} <l:title>${topic.subj}</l:title>
+          ${topic_tags}<c:out value=" "/><l:title>${topic.subj}</l:title>
       </a>
     </c:if>
 
