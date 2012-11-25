@@ -165,6 +165,7 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   padding-bottom: 1em;
+  padding-left: 0.5em;
   word-wrap: break-word;
 }
 
@@ -324,7 +325,7 @@ label.error {
 }
 
 .message-w-userpic {
-    padding-left: 160px;
+    padding-left: 170px;
 }
 
 .news .group {
