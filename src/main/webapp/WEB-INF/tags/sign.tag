@@ -1,6 +1,5 @@
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag
-        pageEncoding="UTF-8"
+        pageEncoding="UTF-8" trimDirectiveWhitespaces="true"
 %><%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +31,7 @@
 </c:if>
 
 <c:if test="${not shortMode and not user.anonymous}">
-  ${user.stars}
+  <c:out value=" "/>${user.stars}
 
   <c:if test="${template.moderatorSession}">
     (Score: ${user.score} MaxScore: ${user.maxScore})

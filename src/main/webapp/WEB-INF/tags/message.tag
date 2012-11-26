@@ -1,7 +1,7 @@
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
-<%@ tag pageEncoding="UTF-8"%>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
@@ -160,7 +160,7 @@
   if (preparedMessage.getEditCount()>0) {
   %>
   <br>
-  Последнее исправление: <%= preparedMessage.getLastEditor().getNick() %> <lor:date date="<%= preparedMessage.getLastHistoryDto().getEditdate() %>"/>
+  Последнее исправление: <%= preparedMessage.getLastEditor().getNick() %><c:out value=" "/><lor:date date="<%= preparedMessage.getLastHistoryDto().getEditdate() %>"/>
     (всего <a href="${message.link}/history">исправлений: ${preparedMessage.editCount}</a>)
   <%
   }

@@ -165,6 +165,7 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   padding-bottom: 1em;
+  padding-left: 0.5em;
   word-wrap: break-word;
 }
 
@@ -240,11 +241,11 @@ div.quote h3 {
 }
 
 .message-table td {
-    padding: 3px 5px 3px 5px;
+    padding: 4px 5px 4px 5px;
 }
 
 .message-table th {
-    padding: 3px 3px 5px;
+    padding: 4px 4px 5px;
     vertical-align: top;
     text-align: left;
 }
@@ -324,7 +325,7 @@ label.error {
 }
 
 .message-w-userpic {
-    padding-left: 160px;
+    padding-left: 170px;
 }
 
 .news .group {

@@ -163,19 +163,19 @@
 
     <c:if test="${firstPage and topic.pages<=1}">
         <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}">
-          ${topic_tags} <l:title>${topic.subj}</l:title>
+          ${topic_tags}<c:out value=" "/><l:title>${topic.subj}</l:title>
         </a>
     </c:if>
 
     <c:if test="${not firstPage or topic.pages>1}">
       <a href="${group.url}${topic.msgid}">
-          ${topic_tags} <l:title>${topic.subj}</l:title>
+          ${topic_tags}<c:out value=" "/><l:title>${topic.subj}</l:title>
       </a>
     </c:if>
 
     <c:if test="${topic.pages>1}">
       (стр.
-      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage and year==null}"><a href="${group.url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage or year!=null}"><a href="${group.url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
+      <c:forEach var="i" begin="1" end="${topic.pages-1}"><c:out value=" "/><c:if test="${i==(topic.pages-1) and firstPage and year==null}"><a href="${group.url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage or year!=null}"><a href="${group.url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
     (<lor:user user="${topic.author}" decorate="true"/>)
   </td>
