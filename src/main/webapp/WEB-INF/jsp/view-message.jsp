@@ -66,8 +66,10 @@
 
 <script type="text/javascript">
   <!--
-  $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
-  $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
+  if (typeof  jQuery.hotkeys !== 'undefined') {
+      $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
+      $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
+  }
   -->
 </script>
 <c:if test="${not message.expired and template.sessionAuthorized}">
