@@ -109,7 +109,7 @@ TR.color2 { background: #f0f0f0; }
 
 DIV.messages .title { background: #aea6f2; }
 .messages .comment .title { background: #defefc; }
-.messages .msg { background: #f0f0f0; padding-left: 0; }
+.messages .msg { background: #f0f0f0; padding-left: 0; width: 100%; }
 
 /* comment signature */
 div.sig {
