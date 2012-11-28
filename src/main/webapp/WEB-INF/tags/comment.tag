@@ -28,43 +28,30 @@
 <!-- ${comment.comment.messageId}  -->
 <article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
   <div class=title>
-<c:choose>
-<c:when test="${not showMenu}">[#]</c:when>
-<c:otherwise>
-  <c:choose>
-    <c:when test="${not comment.comment.deleted}">
-      <c:url var="self_link" value="${topic.link}">
-        <c:param name="cid" value="${comment.comment.messageId}"/>
-      </c:url>
-      [<a href="${self_link}">#</a>]
-    </c:when>
-    <c:otherwise>
+    <c:if test="${comment.comment.deleted}">
       <c:choose>
         <c:when test="${comment.comment.deleteInfo == null}">
           <strong>Сообщение удалено</strong>
         </c:when>
         <c:otherwise>
           <strong>Сообщение удалено ${comment.comment.deleteInfo.nick}
-          по причине: <c:out value="${comment.comment.deleteInfo.reason}" escapeXml="true"/></strong>
+            по причине: <c:out value="${comment.comment.deleteInfo.reason}" escapeXml="true"/></strong>
         </c:otherwise>
       </c:choose>
-    </c:otherwise>
-  </c:choose>
+    </c:if>
 
-  <c:if test="${comment.reply != null}">
-    <c:url var="reply_url" value="${comment.topicPage}">
-      <c:if test="${comment.showLastMod}">
-        <c:param name="lastmod" value="${comments.lastModified}" />
-      </c:if>
-    </c:url>
-    Ответ на:
-    <a href="${reply_url}#comment-${comment.comment.replyTo}" onclick="highlightMessage('${comment.reply.messageId}')" ><l:title>${comment.replyTitle}</l:title></a>
-    от ${comment.replyAuthor.nick}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
-  </c:if>
-</c:otherwise>
-</c:choose>
-
-  &nbsp;</div>
+    <c:if test="${comment.reply != null}">
+      <c:url var="reply_url" value="${comment.topicPage}">
+        <c:if test="${comment.showLastMod}">
+          <c:param name="lastmod" value="${comments.lastModified}"/>
+        </c:if>
+      </c:url>
+      Ответ на:
+      <a href="${reply_url}#comment-${comment.comment.replyTo}"
+         onclick="highlightMessage('${comment.reply.messageId}')"><l:title>${comment.replyTitle}</l:title></a>
+      от ${comment.replyAuthor.nick}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
+    </c:if>
+  </div>
 
   <c:if test="${template.prof.showPhotos}">
     <l:userpic author="${comment.author}"/>
@@ -113,8 +100,7 @@
   <c:if test="${not comment.comment.deleted and showMenu}">
     <div class="reply">
 
-      <c:if test="${comment.deletable or comment.editable or commentsAllowed}">
-      <ul>
+    <ul>
       <c:if test="${commentsAllowed}">
         <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
       </c:if>
@@ -133,8 +119,12 @@
         </c:url>
         <li><a href="${delete_url}">Удалить</a></li>
       </c:if>
-      </ul>
-      </c:if>
+
+      <c:url var="self_link" value="${topic.link}">
+        <c:param name="cid" value="${comment.comment.messageId}"/>
+      </c:url>
+      <li><a href="${self_link}">Ссылка</a></li>
+    </ul>
      </div>
   </c:if>
 
