@@ -27,7 +27,6 @@ import org.springframework.web.bind.support.SessionStatus;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.validators.EditBoxesRequestValidator;
 import ru.org.linux.storage.StorageException;
 
 import javax.servlet.ServletRequest;
@@ -67,7 +66,6 @@ public class AddRemoveBoxesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    new EditBoxesRequestValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "position", "position.empty", "Не указанa позиция бокслета");
     if (result.hasErrors()) {
       return "remove-box";
@@ -103,7 +101,6 @@ public class AddRemoveBoxesController {
     throws IOException,
           AccessViolationException, StorageException {
 
-    new EditBoxesRequestValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
       result.addError(new FieldError("boxName", "boxName.invalid", "Неверный бокслет"));
