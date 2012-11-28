@@ -167,15 +167,12 @@ DIV.sign {
   padding-bottom: 1em;
   padding-left: 0.5em;
   word-wrap: break-word;
+  padding-top: 0.25em;
 }
 
 .msg_body, .msg_header, .msg_footer {
   padding-left: 0.5em;
   padding-right: 0.5em;
-}
-
-.msg_body {
-  padding-top: 0.25em;
 }
 
 .messages .highLighted {
