@@ -15,6 +15,7 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.site.Template;
@@ -96,9 +97,10 @@ public class CommentList implements Serializable {
     return getCommentPage(comment, messages, reverse);
   }
 
+  @Nonnull
   public static Set<Integer> makeHideSet(UserDao userDao, CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {
     if (filterChain == CommentFilter.FILTER_NONE) {
-      return null;
+      return ImmutableSet.of();
     }
 
     Set<Integer> hideSet = new HashSet<Integer>();
