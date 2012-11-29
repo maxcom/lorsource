@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.auth.AccessViolationException;
 
+import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -65,6 +66,7 @@ public class IgnoreListDao {
    * @param user пользователь который игнорирует
    * @return список игнорируемых
    */
+  @Nonnull
   public Set<Integer> get(User user) {
     final Builder<Integer> builder = ImmutableSet.builder();
     jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
