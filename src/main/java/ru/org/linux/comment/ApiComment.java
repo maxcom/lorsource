@@ -26,6 +26,11 @@ public class ApiComment {
 
   private Reply reply;
 
+  private ApiUserpic userpic;
+
+  private String title;
+  private String message;
+
   public ApiComment(int id) {
     this.id = id;
   }
@@ -64,6 +69,30 @@ public class ApiComment {
 
   public void setReply(Reply reply) {
     this.reply = reply;
+  }
+
+  public ApiUserpic getUserpic() {
+    return userpic;
+  }
+
+  public void setUserpic(ApiUserpic userpic) {
+    this.userpic = userpic;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
 
   public static class Reply {

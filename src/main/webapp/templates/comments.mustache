@@ -1,8 +1,9 @@
 {{! see ApiComments }}
 {{! check list:
-   * process title
-   * samePage logick
+   * process title and reply title
    * formatDate
+
+   TODO: move userpic to separate template
 }}
 {{#comments}}
 <article class="msg" id="comment-{{id}}" {{#enableSchema}}itemprop="comment" itemscope itemtype="http://schema.org/UserComments"{{/enableSchema}}>
@@ -19,12 +20,90 @@
     {{#reply}}
       Ответ на:
 
-      <a href="{{topicUrl}}?cid={{id}}" {{#samePage}}data-samepage onclick="highlightMessage('${comment.reply.messageId}')"{{/samePage}}>
+      <a href="{{topicUrl}}?cid={{id}}" {{#samePage}}data-samepage{{/samePage}}>
         {{title}}
       </a>
 
       от {{author.nick}} {{#formatDate}}{{postdate}}{{/formatDate}}
     {{/reply}}
   </div>
+
+  {{#userpic}}
+  <div class="userpic">
+    <img class="photo" src="{{url}}" alt="" width="{{width}}" height="{{height}}">
+  </div>
+  {{/userpic}}
+
+  <div class="msg_body {{#userpic}}message-w-userpic{{/userpic}}" {{#enableSchema}}itemprop="commentText"{{/enableSchema}}">
+    {{#title}}<h2>{{title}}</h2>{{/title}}
+
+    {{message}}
+
+    {{!
+    <div class=sign>
+      <lor:sign
+              postdate="${comment.comment.postdate}"
+              user="${comment.author}"
+              shortMode="false"
+              timeprop="commentTime"
+      />
+
+      <c:if test="${comment.remark != null}">
+        <span class="user-remark"><c:out value="${comment.remark.text}" escapeXml="true"/></span>
+      </c:if>
+
+      <c:if test="${template.moderatorSession}">
+        (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+      </c:if>
+
+      <c:if test="${comment.comment.editCount != 0}">
+        <span class="sign_more">
+        <br>
+        Последнее исправление: ${comment.comment.editNick}<c:out value=" "/><lor:date date="${comment.comment.editDate}"/>
+        (всего <a href="${topic.link}/${comment.comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
+        </span>
+      </c:if>
+
+      <c:if test="${template.moderatorSession}">
+        <c:if test="${comment.comment.userAgent!=null}">
+          <br>
+          <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
+        </c:if>
+      </c:if>
+    </div>
+
+  <c:if test="${not comment.comment.deleted and showMenu}">
+    <div class="reply">
+
+    <ul>
+      <c:if test="${commentsAllowed}">
+        <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
+      </c:if>
+
+      <c:if test="${comment.editable}">
+        <c:url var="edit_url" value="/edit_comment">
+          <c:param name="original" value="${comment.comment.messageId}"/>
+          <c:param name="topic" value="${topic.id}"/>
+        </c:url>
+        <li><a href="${edit_url}">Править</a></li>
+      </c:if>
+
+      <c:if test="${comment.deletable}">
+        <c:url var="delete_url" value="/delete_comment.jsp">
+          <c:param name="msgid" value="${comment.comment.messageId}"/>
+        </c:url>
+        <li><a href="${delete_url}">Удалить</a></li>
+      </c:if>
+
+      <c:url var="self_link" value="${topic.link}">
+        <c:param name="cid" value="${comment.comment.messageId}"/>
+      </c:url>
+      <li><a href="${self_link}">Ссылка</a></li>
+    </ul>
+     </div>
+  </c:if>
+          }}
+  </div><div style="clear: both"></div>
+
 </article>
 {{/comments}}
