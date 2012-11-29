@@ -21,6 +21,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
@@ -77,7 +78,7 @@ public class CommentList implements Serializable {
     return lastmod;
   }
 
-  public int getCommentPage(Comment comment, int messages, boolean reverse) {
+  public int getCommentPage(@Nonnull Comment comment, int messages, boolean reverse) {
     int index = comments.indexOf(comment);
 
     if (reverse) {
@@ -87,7 +88,7 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(Comment comment, Template tmpl) {
+  public int getCommentPage(@Nonnull Comment comment, @Nonnull Template tmpl) {
     int messages = tmpl.getProf().getMessages();
     boolean reverse = tmpl.getProf().isShowNewFirst();
 

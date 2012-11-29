@@ -26,16 +26,14 @@ public class PreparedComment {
   private final boolean haveAnswers;
   private final Comment reply;
   private final int replyPage;
-  private final String topicPage;
-  private final boolean showLastMod;
   private final boolean deletable;
   private final boolean editable;
   private final Remark remark;
-
+  private final boolean samePage;
 
   public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
-                         Comment reply, int replyPage, String topicPage, boolean showLastMod,
-                         boolean deletable, boolean editable, Remark remark) {
+                         Comment reply, int replyPage,
+                         boolean deletable, boolean editable, Remark remark, boolean samePage) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
@@ -43,11 +41,10 @@ public class PreparedComment {
     this.haveAnswers = haveAnswers;
     this.reply = reply;
     this.replyPage = replyPage;
-    this.topicPage = topicPage;
-    this.showLastMod = showLastMod;
     this.deletable = deletable;
     this.editable = editable;
     this.remark = remark;
+    this.samePage = samePage;
   }
 
   public Comment getComment() {
@@ -78,10 +75,6 @@ public class PreparedComment {
     return replyPage;
   }
 
-  public String getTopicPage() {
-    return topicPage;
-  }
-
   public String getReplyTitle() {
     if(reply != null) {
       String replyTitle = reply.getTitle();
@@ -94,10 +87,6 @@ public class PreparedComment {
     }
   }
 
-  public boolean isShowLastMod() {
-    return showLastMod;
-  }
-
   public boolean isDeletable() {
     return deletable;
   }
@@ -108,5 +97,9 @@ public class PreparedComment {
 
   public Remark getRemark() {
     return remark;
+  }
+
+  public boolean isSamePage() {
+    return samePage;
   }
 }

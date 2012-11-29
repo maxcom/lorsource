@@ -54,10 +54,9 @@ public class CommentPrepareService {
   @Autowired
   private TopicPermissionService topicPermissionService;
 
-  private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss,
-                                         Template tmpl, Topic topic) throws UserNotFoundException {
+  private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-    return prepareComment(messageText, comment, comments, secure, rss, tmpl, topic);
+    return prepareComment(messageText, comment, comments, secure, rss, null, null);
   }
 
 
@@ -75,12 +74,10 @@ public class CommentPrepareService {
     User replyAuthor = null;
     Comment reply = null;
     int replyPage = 0;
-    String topicPage = null;
-    boolean showLastMod = false;
     boolean haveAnswers = false;
     boolean deletable = false;
     boolean editable = false;
-    Remark remark = null;
+    boolean samePage = false;
 
     if (comments != null) {
       if (comment.getReplyTo() != 0) {
@@ -92,13 +89,12 @@ public class CommentPrepareService {
             replyPage = comments.getCommentPage(reply, tmpl);
           }
           replyAuthor = userDao.getUserCached(reply.getUserid());
-          if(topic != null) {
-            showLastMod = (tmpl != null && !topic.isExpired() && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1);
-            topicPage = topic.getLinkPage(replyPage);
-          }
+        }
+
+        if (tmpl!=null) {
+          samePage = comments.getCommentPage(comment, tmpl) == replyPage;
         }
       }
-
 
       haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
 
@@ -131,15 +127,18 @@ public class CommentPrepareService {
         }
       }
     }
+
+    Remark remark = null;
     if(tmpl != null && tmpl.getCurrentUser() != null ){
       remark = userDao.getRemark(tmpl.getCurrentUser(), author);
     }
+
     return new PreparedComment(comment, author, processedMessage, replyAuthor, haveAnswers,
-        reply, replyPage, topicPage, showLastMod, deletable, editable, remark);
+        reply, replyPage, deletable, editable, remark, samePage);
   }
 
   public PreparedComment prepareCommentForReplayto(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, null, secure, false, null, null);
+    return prepareComment(comment, null, secure, false);
   }
 
   /**
@@ -163,18 +162,16 @@ public class CommentPrepareService {
         commentService.isHaveAnswers(comment),
         null,  // reply
         0,     // replyPage
-        null,  // topicPage
-        false, // showLastMode
         false, // deletable
         false, // editable
-        null   // Remark
-    );
+        null,   // Remark
+        false);
   }
 
   public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure, true, null, null));
+      commentsPrepared.add(prepareComment(comment, comments, secure, true));
     }
     return commentsPrepared;
   }

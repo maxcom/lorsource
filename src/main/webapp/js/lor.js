@@ -35,68 +35,29 @@ function addTag(tag) {
   tags.value += tag;
 }
 
-// hightlight.js
-
-var highLighted;
-
-function highLight(toHighLight)
-{
-    if (highLighted==toHighLight) {
-      return;
-    }
-
-    if (highLighted) {
-      highLighted.className="msg";
-    }
-
-    highLighted = toHighLight;
-    highLighted.className = "msg highLighted";
-}
-
-function highlightMessage(id)
-{
-  var toHighLight = document.getElementById(id);
-
-  if (toHighLight)
-  {
-    highLight(toHighLight);
-  }
-}
-
-function parseHash()
-{
-  var results = location.hash.match(/^#([1-9]\d*)$/);
-  if (results) {
-    highlightMessage(results[1]);
-  }
-}
-
 function jump(link) {
   if (link && link.href) {
     document.location = link.href;
   }
 }
 
-// enable comment frame
-setInterval(parseHash, 1000);
-
 $(document).ready(function() {
   var options = {
-    type: "post",
-    dataType: "json",
-    success: function(response, status) {
-      if(response.loggedIn) {
-        window.location.reload();
-      } else {
-        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
-        window.location="/login.jsp";
+      type:"post",
+      dataType:"json",
+      success:function (response, status) {
+          if (response.loggedIn) {
+              window.location.reload();
+          } else {
+              alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
+              window.location = "/login.jsp";
+          }
+      },
+      error:function (response, status) {
+          alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
+          window.location = "/login.jsp";
       }
-    },
-    error: function(response, status) {
-        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
-        window.location="/login.jsp";
-    }
-  }
+  };
 
   $('#regform').ajaxForm(options);
 
@@ -128,7 +89,12 @@ $(document).ready(function() {
   });
 
   // remove hidden quote elements
-  $(".none").remove()
+  $(".none").remove();
+
+  $("article.msg .title a[data-samepage]").click(function(event) {
+      event.preventDefault();
+      location.hash = "comment-"+this.search.substr(5);
+  })
 });
 
 hljs.initHighlightingOnLoad();
