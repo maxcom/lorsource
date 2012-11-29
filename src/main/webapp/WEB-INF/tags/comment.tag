@@ -41,14 +41,13 @@
     </c:if>
 
     <c:if test="${comment.reply != null}">
-      <c:url var="reply_url" value="${comment.topicPage}">
-        <c:if test="${comment.showLastMod}">
-          <c:param name="lastmod" value="${comments.lastModified}"/>
-        </c:if>
+      <c:url var="reply_url" value="${topic.link}">
+        <c:param name="cid" value="${comment.reply.id}"/>
       </c:url>
       Ответ на:
-      <a href="${reply_url}#comment-${comment.comment.replyTo}"
-         onclick="highlightMessage('${comment.reply.messageId}')"><l:title>${comment.replyTitle}</l:title></a>
+      <a href="${reply_url}"
+         <c:if test="${comment.samePage}">data-samepage</c:if>
+       ><l:title>${comment.replyTitle}</l:title></a>
       от ${comment.replyAuthor.nick}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
     </c:if>
   </div>

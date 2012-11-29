@@ -161,10 +161,6 @@ DIV.notes
   border: 1px solid #000040;
 }
 
-.messages .highLighted {
-    border: red solid 1px;
-}
-
 .nav A {
   text-decoration: none
 }
