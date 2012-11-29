@@ -515,7 +515,7 @@ public class CommentService {
    * @param showDeleted вместе с удаленными
    * @return список комментариев топика
    */
-  public List<Comment> getCommentList(int topicId, boolean showDeleted) {
+  private List<Comment> getCommentList(int topicId, boolean showDeleted) {
     return commentDao.getCommentList(topicId, showDeleted);
   }
 
