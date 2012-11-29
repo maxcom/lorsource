@@ -295,9 +295,11 @@ public class TopicController {
     params.put("comments", comments);
 
     Set<Integer> ignoreList = null;
+    boolean emptyIgnoreList = true;
 
     if (currentUser != null) {
       ignoreList = ignoreListDao.get(currentUser);
+      emptyIgnoreList = ignoreList.isEmpty();
     }
 
     int filterMode = CommentFilter.FILTER_IGNORED;
@@ -306,15 +308,15 @@ public class TopicController {
       filterMode += CommentFilter.FILTER_ANONYMOUS;
     }
 
-    if (ignoreList == null || ignoreList.isEmpty()) {
-      filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
+    if (emptyIgnoreList) {
+      filterMode &= ~CommentFilter.FILTER_IGNORED;
     }
 
     int defaultFilterMode = filterMode;
 
     if (filter != null) {
       filterMode = CommentFilter.parseFilterChain(filter);
-      if (ignoreList != null && filterMode == CommentFilter.FILTER_ANONYMOUS) {
+      if (!emptyIgnoreList && filterMode == CommentFilter.FILTER_ANONYMOUS) {
         filterMode += CommentFilter.FILTER_IGNORED;
       }
     }
@@ -323,32 +325,7 @@ public class TopicController {
     params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
     if (!rss) {
-      Topic prevMessage;
-      Topic nextMessage;
-
-      if (ignoreList==null || ignoreList.isEmpty()) {
-        prevMessage = messageDao.getPreviousMessage(topic, null);
-        nextMessage = messageDao.getNextMessage(topic, null);
-      } else {
-        prevMessage = messageDao.getPreviousMessage(topic, currentUser);
-        nextMessage = messageDao.getNextMessage(topic, currentUser);
-      }
-
-      params.put("prevMessage", prevMessage);
-      params.put("nextMessage", nextMessage);
-
-      Boolean topScroller;
-      SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(topic.getSectionId());
-
-      if (prevMessage == null && nextMessage == null) {
-        topScroller = false;
-      } else {
-        topScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
-      }
-      params.put("topScroller", topScroller);
-
-      Boolean bottomScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
-      params.put("bottomScroller", bottomScroller);
+      loadTopicScroller(params, topic, currentUser, !emptyIgnoreList);
 
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
 
@@ -389,6 +366,35 @@ public class TopicController {
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
+  }
+
+  private void loadTopicScroller(Map<String, Object> params, Topic topic, User currentUser, boolean useIgnoreList) {
+    Topic prevMessage;
+    Topic nextMessage;
+
+    if (useIgnoreList) {
+      prevMessage = messageDao.getPreviousMessage(topic, currentUser);
+      nextMessage = messageDao.getNextMessage(topic, currentUser);
+    } else {
+      prevMessage = messageDao.getPreviousMessage(topic, null);
+      nextMessage = messageDao.getNextMessage(topic, null);
+    }
+
+    params.put("prevMessage", prevMessage);
+    params.put("nextMessage", nextMessage);
+
+    Boolean topScroller;
+    SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(topic.getSectionId());
+
+    if (prevMessage == null && nextMessage == null) {
+      topScroller = false;
+    } else {
+      topScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
+    }
+    params.put("topScroller", topScroller);
+
+    Boolean bottomScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
+    params.put("bottomScroller", bottomScroller);
   }
 
   /**
