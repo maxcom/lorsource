@@ -1,0 +1,30 @@
+{{! see ApiComments }}
+{{! check list:
+   * process title
+   * samePage logick
+   * formatDate
+}}
+{{#comments}}
+<article class="msg" id="comment-{{id}}" {{#enableSchema}}itemprop="comment" itemscope itemtype="http://schema.org/UserComments"{{/enableSchema}}>
+  <div class=title>
+    {{#deleted}}
+    <strong>
+      Сообщение удалено {{deleterNick}}
+      {{#deleteReason}}
+        по причине: {{deleteReason}}
+      {{/deleteReason}}
+    </strong>
+    {{/deleted}}
+
+    {{#reply}}
+      Ответ на:
+
+      <a href="{{topicUrl}}?cid={{id}}" {{#samePage}}data-samepage onclick="highlightMessage('${comment.reply.messageId}')"{{/samePage}}>
+        {{title}}
+      </a>
+
+      от {{author.nick}} {{#formatDate}}{{postdate}}{{/formatDate}}
+    {{/reply}}
+  </div>
+</article>
+{{/comments}}
