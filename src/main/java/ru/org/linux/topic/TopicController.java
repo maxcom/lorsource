@@ -37,7 +37,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,9 +64,6 @@ public class TopicController {
 
   @Autowired
   private CommentService commentService;
-
-  @Autowired
-  private UserDao userDao;
 
   @Autowired
   private IgnoreListDao ignoreListDao;
@@ -327,7 +323,7 @@ public class TopicController {
     if (!rss) {
       loadTopicScroller(params, topic, currentUser, !emptyIgnoreList);
 
-      Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
+      Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
 
       CommentFilter cv = new CommentFilter(comments);
 
