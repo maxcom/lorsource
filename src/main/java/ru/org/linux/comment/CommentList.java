@@ -42,6 +42,7 @@ public class CommentList implements Serializable {
     buildTree();
   }
 
+  @Nonnull
   public List<Comment> getList() {
     return Collections.unmodifiableList(comments);
   }

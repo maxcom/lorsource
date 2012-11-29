@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.site.*;
+
+import javax.annotation.Nonnull;
 
 public class CommentFilter {
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
@@ -35,7 +38,12 @@ public class CommentFilter {
     this.comments = comments;
   }
 
-  private static List<Comment> getCommentList(List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet) {
+  private static List<Comment> getCommentList(
+          @Nonnull List<Comment> comments,
+          boolean reverse,
+          int offset,
+          int limit,
+          @Nonnull Set<Integer> hideSet) {
     List<Comment> out = new ArrayList<Comment>();
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
@@ -47,7 +55,7 @@ public class CommentFilter {
         continue;
       }
 
-      if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
+      if (!hideSet.contains(comment.getMessageId())) {
         out.add(comment);
       }
     }
@@ -55,8 +63,8 @@ public class CommentFilter {
     return out;
   }
 
-  public List<Comment> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) {
-    return getCommentList(comments.getList(), reverse, offset, limit,  hideSet);
+  public List<Comment> getComments(boolean reverse, int offset, int limit, @Nonnull Set<Integer> hideSet) {
+    return getCommentList(comments.getList(), reverse, offset, limit, hideSet);
   }
 
   public List<Comment> getCommentsSubtree(int parentId) throws MessageNotFoundException {
@@ -70,7 +78,7 @@ public class CommentFilter {
     parentNode.buildList(parentList);
 
     /* display comments */
-    return getCommentList(parentList, false, 0, 0, null);
+    return getCommentList(parentList, false, 0, 0, ImmutableSet.<Integer>of());
   }
 
   public static int parseFilterChain(String filter) {

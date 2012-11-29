@@ -356,7 +356,7 @@ public class TopicController {
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
-      List<Comment> commentsFiltred = cv.getComments(true, 0, RSS_DEFAULT, null);
+      List<Comment> commentsFiltred = cv.getComments(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
