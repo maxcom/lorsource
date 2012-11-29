@@ -91,7 +91,9 @@ public class CommentPrepareService {
           replyAuthor = userDao.getUserCached(reply.getUserid());
         }
 
-        samePage = comments.getCommentPage(comment, tmpl) == replyPage;
+        if (tmpl!=null) {
+          samePage = comments.getCommentPage(comment, tmpl) == replyPage;
+        }
       }
 
       haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
