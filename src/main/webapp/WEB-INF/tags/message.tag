@@ -221,7 +221,7 @@
 
 <c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
-    $(document).ready(function($) {
+    $(function() {
         $("#favs_button").click(function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -229,7 +229,9 @@
             $("#favs_button").popover('show');
         });
         $("#favs_button").popover({
-            content: "Для добавления в избранное надо залогиниться!"
+            content: "Для добавления в избранное надо залогиниться!",
+            autoReposition: false,
+            trigger: 'manual'
         });
 
         $("#memories_button").click(function(event) {
@@ -239,10 +241,12 @@
              $("#memories_button").popover('show');
         });
         $("#memories_button").popover({
-             content: "Для добавления в отслеживаемое надо залогиниться!"
+            content: "Для добавления в отслеживаемое надо залогиниться!",
+            autoReposition: false,
+            trigger: 'manual'
         });
 
-    })
+    });
 </script>
 </c:if>
 
