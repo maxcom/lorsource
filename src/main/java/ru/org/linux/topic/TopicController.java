@@ -232,6 +232,10 @@ public class TopicController {
 
     boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
+    if (rss && topic.isExpired()) {
+      throw new MessageNotFoundException(topic.getId(), "no more comments");
+    }
+
     if (showDeleted && !"POST".equals(request.getMethod())) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
