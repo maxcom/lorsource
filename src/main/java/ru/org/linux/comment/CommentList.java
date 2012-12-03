@@ -72,10 +72,6 @@ public class CommentList implements Serializable {
     return treeHash.get(msgid);
   }
 
-  public long getLastModified() {
-    return lastmod;
-  }
-
   public int getCommentPage(@Nonnull Comment comment, int messages, boolean reverse) {
     int index = comments.indexOf(comment);
 
