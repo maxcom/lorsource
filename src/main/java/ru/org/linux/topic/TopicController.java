@@ -200,7 +200,7 @@ public class TopicController {
     return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
   }
 
-  public ModelAndView getMessageNew(
+  private ModelAndView getMessageNew(
     int section,
     WebRequest webRequest,
     HttpServletRequest request,
@@ -506,7 +506,7 @@ public class TopicController {
       throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
     }
 
-    int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+    int pagenum = comments.getCommentPage(node.getComment(), tmpl.getProf());
 
     if (pagenum > 0) {
       redirectUrl = topic.getLinkPage(pagenum);
@@ -563,7 +563,7 @@ public class TopicController {
         throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
       }
 
-      int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+      int pagenum = comments.getCommentPage(node.getComment(), tmpl.getProf());
 
       if (pagenum > 0) {
         redirectUrl = topic.getLinkPage(pagenum);

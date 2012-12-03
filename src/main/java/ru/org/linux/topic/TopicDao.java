@@ -58,6 +58,7 @@ import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -181,6 +182,7 @@ public class TopicDao {
    * @return сообщение
    * @throws MessageNotFoundException при отсутствии сообщения
    */
+  @Nonnull
   public Topic getById(int id) throws MessageNotFoundException {
     Topic message;
     try {

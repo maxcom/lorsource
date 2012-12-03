@@ -56,7 +56,6 @@ import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -108,17 +107,11 @@ public class CommentService {
   @Autowired
   private TopicDao topicDao;
 
-  /**
-   * @param binder
-   */
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new CommentRequestValidator());
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 
-  /**
-   * @param binder
-   */
   public void initBinder(WebDataBinder binder) {
     binder.registerCustomEditor(Topic.class, new PropertyEditorSupport() {
       @Override
@@ -301,12 +294,6 @@ public class CommentService {
     return user;
   }
 
-  /**
-   * @param add
-   * @param formParams
-   * @param request
-   * @throws UserNotFoundException
-   */
   public void prepareReplyto(
     CommentRequest add,
     Map<String, Object> formParams,
@@ -529,7 +516,8 @@ public class CommentService {
    * @param showDeleted вместе с удаленными
    * @return список комментариев топика
    */
-  public CommentList getCommentList(Topic topic, boolean showDeleted) {
+  @Nonnull
+  public CommentList getCommentList(@Nonnull Topic topic, boolean showDeleted) {
     CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;
@@ -604,12 +592,11 @@ public class CommentService {
    * @param moderator экзекутор-модератор
    * @param reason    прична блокировки
    * @return список удаленных комментариев
-   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
-    List<Integer> deletedTopicIds = new ArrayList<Integer>();
-    List<Integer> deletedCommentIds = new ArrayList<Integer>();
+    List<Integer> deletedTopicIds;
+    List<Integer> deletedCommentIds;
 
     userDao.blockWithoutTransaction(user, moderator, reason);
 

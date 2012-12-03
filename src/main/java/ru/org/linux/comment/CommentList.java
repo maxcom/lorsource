@@ -17,7 +17,7 @@ package ru.org.linux.comment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.org.linux.site.Template;
+import ru.org.linux.user.ProfileProperties;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -82,9 +82,9 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(@Nonnull Comment comment, @Nonnull Template tmpl) {
-    int messages = tmpl.getProf().getMessages();
-    boolean reverse = tmpl.getProf().isShowNewFirst();
+  public int getCommentPage(@Nonnull Comment comment, @Nonnull ProfileProperties profile) {
+    int messages = profile.getMessages();
+    boolean reverse = profile.isShowNewFirst();
 
     return getCommentPage(comment, messages, reverse);
   }

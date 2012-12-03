@@ -13,7 +13,6 @@
   ~    limitations under the License.
   --%><?xml version="1.0" encoding="utf-8"?>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>

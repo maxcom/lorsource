@@ -33,6 +33,7 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,13 +87,13 @@ public class CommentPrepareService {
         if (replyNode!=null) {
           reply = replyNode.getComment();
           if(tmpl != null) {
-            replyPage = comments.getCommentPage(reply, tmpl);
+            replyPage = comments.getCommentPage(reply, tmpl.getProf());
           }
           replyAuthor = userDao.getUserCached(reply.getUserid());
         }
 
         if (tmpl!=null) {
-          samePage = comments.getCommentPage(comment, tmpl) == replyPage;
+          samePage = comments.getCommentPage(comment, tmpl.getProf()) == replyPage;
         }
       }
 
@@ -129,7 +130,7 @@ public class CommentPrepareService {
     }
 
     Remark remark = null;
-    if(tmpl != null && tmpl.getCurrentUser() != null ){
+    if(tmpl != null && tmpl.isSessionAuthorized() ){
       remark = userDao.getRemark(tmpl.getCurrentUser(), author);
     }
 
@@ -176,8 +177,13 @@ public class CommentPrepareService {
     return commentsPrepared;
   }
 
-  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure,
-                                                  Template tmpl, Topic topic) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentList(
+          @Nonnull CommentList comments,
+          @Nonnull List<Comment> list,
+          boolean secure,
+          @Nonnull Template tmpl,
+          @Nonnull Topic topic
+  ) throws UserNotFoundException {
     if (list.isEmpty()) {
       return ImmutableList.of();
     }
