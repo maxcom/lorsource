@@ -16,6 +16,7 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +50,11 @@ import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -657,4 +660,26 @@ public class CommentService {
     }
   }
 
+  @Nonnull
+  public Set<Integer> makeHideSet(CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {
+    if (filterChain == CommentFilter.FILTER_NONE) {
+      return ImmutableSet.of();
+    }
+
+    Set<Integer> hideSet = new HashSet<Integer>();
+
+    /* hide anonymous */
+    if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {
+      comments.getRoot().hideAnonymous(userDao, hideSet);
+    }
+
+    /* hide ignored */
+    if ((filterChain & CommentFilter.FILTER_IGNORED) > 0) {
+      if (ignoreList != null && !ignoreList.isEmpty()) {
+        comments.getRoot().hideIgnored(hideSet, ignoreList);
+      }
+    }
+
+    return hideSet;
+  }
 }

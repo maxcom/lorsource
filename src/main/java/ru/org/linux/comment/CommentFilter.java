@@ -15,12 +15,13 @@
 
 package ru.org.linux.comment;
 
+import ru.org.linux.site.MessageNotFoundException;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-
-import ru.org.linux.site.*;
 
 public class CommentFilter {
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
@@ -35,7 +36,12 @@ public class CommentFilter {
     this.comments = comments;
   }
 
-  private static List<Comment> getCommentList(List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet) {
+  private static List<Comment> getCommentList(
+          @Nonnull List<Comment> comments,
+          boolean reverse,
+          int offset,
+          int limit,
+          @Nonnull Set<Integer> hideSet) {
     List<Comment> out = new ArrayList<Comment>();
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
@@ -47,7 +53,7 @@ public class CommentFilter {
         continue;
       }
 
-      if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
+      if (!hideSet.contains(comment.getMessageId())) {
         out.add(comment);
       }
     }
@@ -55,8 +61,16 @@ public class CommentFilter {
     return out;
   }
 
-  public List<Comment> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) {
-    return getCommentList(comments.getList(), reverse, offset, limit,  hideSet);
+  public List<Comment> getCommentsForPage(boolean reverse, int page, int messagesPerPage, @Nonnull Set<Integer> hideSet) {
+    int offset = 0;
+    int limit = 0;
+
+    if (page != -1) {
+      limit = messagesPerPage;
+      offset = messagesPerPage * page;
+    }
+
+    return getCommentList(comments.getList(), reverse, offset, limit, hideSet);
   }
 
   public List<Comment> getCommentsSubtree(int parentId) throws MessageNotFoundException {
@@ -69,8 +83,7 @@ public class CommentFilter {
     List<Comment> parentList = new ArrayList<Comment>();
     parentNode.buildList(parentList);
 
-    /* display comments */
-    return getCommentList(parentList, false, 0, 0, null);
+    return parentList;
   }
 
   public static int parseFilterChain(String filter) {

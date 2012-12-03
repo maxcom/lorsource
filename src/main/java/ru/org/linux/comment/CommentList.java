@@ -18,12 +18,9 @@ package ru.org.linux.comment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.site.Template;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.*;
 
 public class CommentList implements Serializable {
@@ -42,6 +39,7 @@ public class CommentList implements Serializable {
     buildTree();
   }
 
+  @Nonnull
   public List<Comment> getList() {
     return Collections.unmodifiableList(comments);
   }
@@ -93,28 +91,6 @@ public class CommentList implements Serializable {
     boolean reverse = tmpl.getProf().isShowNewFirst();
 
     return getCommentPage(comment, messages, reverse);
-  }
-
-  public static Set<Integer> makeHideSet(UserDao userDao, CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {
-    if (filterChain == CommentFilter.FILTER_NONE) {
-      return null;
-    }
-
-    Set<Integer> hideSet = new HashSet<Integer>();
-
-    /* hide anonymous */
-    if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {
-      comments.root.hideAnonymous(userDao, hideSet);
-    }
-
-    /* hide ignored */
-    if ((filterChain & CommentFilter.FILTER_IGNORED) > 0) {
-      if (ignoreList != null && !ignoreList.isEmpty()) {
-        comments.root.hideIgnored(hideSet, ignoreList);
-      }
-    }
-
-    return hideSet;
   }
 
   public long getLastmod() {

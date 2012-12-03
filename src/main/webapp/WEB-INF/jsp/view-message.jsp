@@ -60,17 +60,11 @@
   <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>">
 </c:if>
 
-<c:if test="${not message.expired}">
-  <LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
-</c:if>
-
 <script type="text/javascript">
-  <!--
   if (typeof  jQuery.hotkeys !== 'undefined') {
       $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
       $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
   }
-  -->
 </script>
 <c:if test="${not message.expired and template.sessionAuthorized}">
 <script src="/js/addComments.js" type="text/javascript"></script>
