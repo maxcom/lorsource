@@ -72,7 +72,7 @@ public class CommentList implements Serializable {
     return treeHash.get(msgid);
   }
 
-  public int getCommentPage(@Nonnull Comment comment, int messages, boolean reverse) {
+  private int getCommentPage(@Nonnull Comment comment, int messages, boolean reverse) {
     int index = comments.indexOf(comment);
 
     if (reverse) {
