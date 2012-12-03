@@ -16,6 +16,8 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -49,6 +51,8 @@ import java.util.Set;
 
 @Controller
 public class TopicController {
+  private static final Logger logger = LoggerFactory.getLogger(TopicController.class);
+
   public static final int RSS_DEFAULT = 20;
   @Autowired
   private SectionService sectionService;
@@ -234,6 +238,10 @@ public class TopicController {
 
     if (rss && topic.isExpired()) {
       throw new MessageNotFoundException(topic.getId(), "no more comments");
+    }
+
+    if (rss) {
+      logger.info("RSS for {} via {}", topic.getId(), request.getHeader("user-agent"));
     }
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
