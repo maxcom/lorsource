@@ -15,7 +15,6 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.collect.ImmutableSet;
 import ru.org.linux.site.MessageNotFoundException;
 
 import javax.annotation.Nonnull;
@@ -84,8 +83,7 @@ public class CommentFilter {
     List<Comment> parentList = new ArrayList<Comment>();
     parentNode.buildList(parentList);
 
-    /* display comments */
-    return getCommentList(parentList, false, 0, 0, ImmutableSet.<Integer>of());
+    return parentList;
   }
 
   public static int parseFilterChain(String filter) {
