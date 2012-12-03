@@ -60,10 +60,6 @@
   <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>">
 </c:if>
 
-<c:if test="${not message.expired}">
-  <LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
-</c:if>
-
 <script type="text/javascript">
   <!--
   if (typeof  jQuery.hotkeys !== 'undefined') {
