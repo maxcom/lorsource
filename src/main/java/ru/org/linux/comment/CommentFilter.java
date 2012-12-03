@@ -15,15 +15,14 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableSet;
+import ru.org.linux.site.MessageNotFoundException;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-import ru.org.linux.site.*;
-
-import javax.annotation.Nonnull;
 
 public class CommentFilter {
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
@@ -63,7 +62,15 @@ public class CommentFilter {
     return out;
   }
 
-  public List<Comment> getComments(boolean reverse, int offset, int limit, @Nonnull Set<Integer> hideSet) {
+  public List<Comment> getCommentsForPage(boolean reverse, int page, int messagesPerPage, @Nonnull Set<Integer> hideSet) {
+    int offset = 0;
+    int limit = 0;
+
+    if (page != -1) {
+      limit = messagesPerPage;
+      offset = messagesPerPage * page;
+    }
+
     return getCommentList(comments.getList(), reverse, offset, limit, hideSet);
   }
 

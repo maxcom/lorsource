@@ -286,10 +286,6 @@ public class TopicController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = commentService.getCommentList(topic, showDeleted);
-
-    params.put("comments", comments);
-
     Set<Integer> ignoreList = null;
     boolean emptyIgnoreList = true;
 
@@ -320,6 +316,10 @@ public class TopicController {
     params.put("filterMode", CommentFilter.toString(filterMode));
     params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
+    CommentList comments = commentService.getCommentList(topic, showDeleted);
+
+    params.put("comments", comments);
+
     if (!rss) {
       loadTopicScroller(params, topic, currentUser, !emptyIgnoreList);
 
@@ -328,31 +328,28 @@ public class TopicController {
       CommentFilter cv = new CommentFilter(comments);
 
       boolean reverse = tmpl.getProf().isShowNewFirst();
-      int offset = 0;
-      int limit = 0;
-      int messages = tmpl.getProf().getMessages();
 
-      if (page != -1) {
-        limit = messages;
-        offset = messages * page;
-      }
-
-      List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
-      List<Comment> commentsFull = cv.getComments(reverse, offset, limit, ImmutableSet.<Integer>of());
+      List<Comment> commentsFiltred = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), hideSet);
+      List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.<Integer>of());
 
       params.put("unfilteredCount", commentsFull.size());
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure(), tmpl, topic);
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
+              comments,
+              commentsFiltred,
+              request.isSecure(),
+              tmpl,
+              topic
+      );
 
       params.put("commentsPrepared", commentsPrepared);
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
       params.put("ipBlockInfo", ipBlockInfo);
-
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
-      List<Comment> commentsFiltred = cv.getComments(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
+      List<Comment> commentsFiltred = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
