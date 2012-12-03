@@ -355,7 +355,7 @@ public class TopicController {
 
       List<Comment> commentsFiltred = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
+      List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
       LorURL lorURL = new LorURL(configuration.getMainURI(), configuration.getMainUrl());

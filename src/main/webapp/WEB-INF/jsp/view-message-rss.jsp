@@ -19,7 +19,7 @@
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
-<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedRSSComment>"--%>
 <rss version="2.0">
 <channel>
 <link>http://www.linux.org.ru/view-message.jsp?msgid=${message.id}</link>

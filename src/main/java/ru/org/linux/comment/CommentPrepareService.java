@@ -55,22 +55,26 @@ public class CommentPrepareService {
   @Autowired
   private TopicPermissionService topicPermissionService;
 
-  private PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
+  private PreparedComment prepareComment(
+          @Nonnull Comment comment,
+          boolean secure
+  ) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-    return prepareComment(messageText, comment, comments, secure, rss, null, null);
+    return prepareComment(messageText, comment, null, secure, null, null);
   }
 
-
-  private PreparedComment prepareComment(MessageText messageText, Comment comment, CommentList comments,
-                                         boolean secure, boolean rss, Template tmpl, Topic topic) throws UserNotFoundException {
+  private PreparedComment prepareComment(
+          MessageText messageText,
+          @Nonnull Comment comment,
+          CommentList comments,
+          boolean secure,
+          Template tmpl,
+          Topic topic
+  ) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
 
-    if(!rss) {
-      processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
-    } else {
-      processedMessage = prepareCommentTextRSS(messageText, secure);
-    }
+    processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
 
     User replyAuthor = null;
     Comment reply = null;
@@ -138,8 +142,20 @@ public class CommentPrepareService {
         reply, replyPage, deletable, editable, remark, samePage);
   }
 
+  private PreparedRSSComment prepareRSSComment(
+          @Nonnull MessageText messageText,
+          @Nonnull Comment comment,
+          boolean secure
+  ) throws UserNotFoundException {
+    User author = userDao.getUserCached(comment.getUserid());
+
+    String processedMessage = prepareCommentTextRSS(messageText, secure);
+
+    return new PreparedRSSComment(comment, author, processedMessage);
+  }
+
   public PreparedComment prepareCommentForReplayto(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, null, secure, false);
+    return prepareComment(comment, secure);
   }
 
   /**
@@ -169,10 +185,15 @@ public class CommentPrepareService {
         false);
   }
 
-  public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
-    List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
+  public List<PreparedRSSComment> prepareCommentListRSS(
+          @Nonnull List<Comment> list,
+          boolean secure
+  ) throws UserNotFoundException {
+    List<PreparedRSSComment> commentsPrepared = new ArrayList<PreparedRSSComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure, true));
+      MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+
+      commentsPrepared.add(prepareRSSComment(messageText, comment, secure));
     }
     return commentsPrepared;
   }
@@ -203,7 +224,7 @@ public class CommentPrepareService {
     for (Comment comment : list) {
       MessageText text = texts.get(comment.getId());
 
-      commentsPrepared.add(prepareComment(text, comment, comments, secure, false, tmpl, topic));
+      commentsPrepared.add(prepareComment(text, comment, comments, secure, tmpl, topic));
     }
     return commentsPrepared;
   }
