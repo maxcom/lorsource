@@ -440,7 +440,7 @@ class CommentDaoImpl implements CommentDao {
   }
 
   @Override
-  public List<DeletedListItem> getDeletedComments(int userId) {
+  public List<DeletedListItem> getLastDeletedCommentsForUser(int userId) {
     return jdbcTemplate.query(
       "SELECT " +
         "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate, bonus " +
@@ -466,5 +466,40 @@ class CommentDaoImpl implements CommentDao {
   public boolean isHaveAnswers(int commentId) {
     int answersCount = jdbcTemplate.queryForInt("select count (id) from comments where replyto = ?",commentId);
     return answersCount != 0;
+  }
+
+  @Override
+  public  List<DeletedCommentForUser> getDeletedCommentsForUser(User user, int offset, int limit) {
+    StringBuilder query = new StringBuilder();
+    List <Object> queryParameters = new ArrayList<Object>();
+    query
+        .append("SELECT")
+        .append(" del_info.msgid as msgid, topics.title as subj, comments.title as comment_title, ")
+        .append(" nick, reason, bonus, delby, ")
+        .append(" case deldate is null when 't' then '1970-01-01 00:00:00'::timestamp else deldate end as del_date ")
+        .append(" FROM del_info ")
+        .append(" JOIN comments ON comments.id = del_info.msgid ")
+        .append(" JOIN topics ON topics.id = comments.topic ")
+        .append(" JOIN users ON users.id = comments.userid ")
+        .append(" WHERE users.id = ? ")
+        .append(" ORDER BY del_date DESC ");
+
+    queryParameters.add(user.getId());
+
+    if(limit == 0) {
+      query.append(" OFFSET ? ");
+      queryParameters.add(offset);
+    } else {
+      query.append(" LIMIT ? OFFSET ?");
+      queryParameters.add(limit);
+      queryParameters.add(offset);
+    }
+
+    return jdbcTemplate.query(query.toString(), queryParameters.toArray(), new RowMapper<DeletedCommentForUser>() {
+      @Override
+      public DeletedCommentForUser mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new DeletedCommentForUser(resultSet);
+      }
+    });
   }
 }

@@ -198,14 +198,14 @@ public interface CommentDao {
   );
 
   /**
-   * Получить список последних удалённых комментариев пользователя.
+   * Получить список последних 20 удалённых комментариев пользователя.
    *
    * @param userId идентификационный номер пользователя
    * @return список удалённых комментариев пользователя
    */
-   List<DeletedListItem> getDeletedComments
+   List<DeletedListItem> getLastDeletedCommentsForUser
    (
-     int userId
+       int userId
    );
 
   /**
@@ -218,6 +218,67 @@ public interface CommentDao {
   (
     int commentId
   );
+
+  /**
+   * Получить список удалённых комментариев пользователя.
+   * @param user
+   * @return
+   */
+  List<DeletedCommentForUser> getDeletedCommentsForUser(User user, int offset, int limit);
+
+  public static class DeletedCommentForUser {
+    private final int id;
+    private final String title;
+    private final String commentTitle;
+    private final String reason;
+    private final int bonus;
+    private final int moderatorId;
+    private final Timestamp date;
+
+    public DeletedCommentForUser(ResultSet rs) throws SQLException {
+      id = rs.getInt("msgid");
+      title = rs.getString("subj");
+      commentTitle = rs.getString("comment_title");
+      reason = rs.getString("reason");
+      bonus = rs.getInt("bonus");
+      moderatorId = rs.getInt("delby");
+      date = rs.getTimestamp("del_date");
+    }
+
+    public DeletedCommentForUser(int id, String title, String commentTitle, String reason, int bonus, int moderatorId, Timestamp date) {
+      this.id = id;
+      this.title = title;
+      this.commentTitle = commentTitle;
+      this.reason = reason;
+      this.bonus = bonus;
+      this.moderatorId = moderatorId;
+      this.date = date;
+    }
+
+    public int getId() {
+      return id;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public String getReason() {
+      return reason;
+    }
+
+    public int getBonus() {
+      return bonus;
+    }
+
+    public int getModeratorId() {
+      return moderatorId;
+    }
+
+    public Timestamp getDate() {
+      return date;
+    }
+  }
 
   /**
    * DTO-класс, описывающий данные удалённого комментария
