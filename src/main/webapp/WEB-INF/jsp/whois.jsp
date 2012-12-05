@@ -5,6 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -309,6 +310,28 @@
   </li>
 </ul>
 </c:if>
+
+<sec:authorize access="hasRole('ROLE_MODERATOR')">
+    <c:if test="${deletedTopicsCount > 0 || deletedCommentsCount > 0}">
+      <h2>Сообщения удаленные модератами у пользователя</h2>
+      <ul>
+
+      <c:if test="${deletedTopicsCount > 0}">
+        <spring:url value="/people/{nick}/deleted/topics" var="deletedTopicsLink">
+          <spring:param name="nick" value="${user.nick}" />
+        </spring:url>
+        <li><a id="deletedTopicsLink" href="${deletedTopicsLink}">Темы(${deletedTopicsCount})</a></li>
+      </c:if>
+
+      <c:if test="${deletedCommentsCount > 0}">
+        <spring:url value="/people/{nick}/deleted/comments" var="deletedCommentsLink">
+          <spring:param name="nick" value="${user.nick}" />
+        </spring:url>
+        <li><a id="deletedCommentsLink" href="${deletedCommentsLink}">Комментарии(${deletedCommentsCount})</a></li>
+      </c:if>
+      </ul>
+    </c:if>
+</sec:authorize>
 
 </div>
 

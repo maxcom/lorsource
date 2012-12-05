@@ -20,6 +20,7 @@ public class WebHelper {
 
   public static final String AUTH_COOKIE = "remember_me";
   public static final String MAIN_URL = "http://127.0.0.1:8080/";
+  public static final String MAIN_HOST = "127.0.0.1";
 
   public static ClientResponse addPhoto(WebResource resource, String filename, String auth) {
     File file = new File(filename);
@@ -56,6 +57,14 @@ public class WebHelper {
     }
 
     return null;
+  }
+
+  public static Cookie doLoginCookie(WebResource resource, String user, String password) throws IOException {
+    return new Cookie(AUTH_COOKIE, doLogin(resource, user, password), "/", MAIN_HOST, 1);
+  }
+
+  public static ClientResponse getPage(WebResource resource, Cookie auth, String page) {
+    return resource.path(page).cookie(auth).get(ClientResponse.class);
   }
 
   public static String getAuthCookie(ClientResponse cr) {

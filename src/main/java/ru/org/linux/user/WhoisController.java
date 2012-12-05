@@ -27,8 +27,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.comment.CommentDao;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -58,6 +60,12 @@ public class WhoisController {
 
   @Autowired
   private TopicPermissionService topicPermissionService;
+
+  @Autowired
+  private CommentDao commentDao;
+
+  @Autowired
+  private TopicListDao topicListDao;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -117,6 +125,8 @@ public class WhoisController {
     if (currentUser || tmpl.isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
+    mv.addObject("deletedTopicsCount", topicListDao.getCountDeletedTopicsForUser(user));
+    mv.addObject("deletedCommentsCount", commentDao.getCountDeletedCommentsForUser(user));
     response.setDateHeader("Expires", System.currentTimeMillis()+120000);
     return mv;
   }
