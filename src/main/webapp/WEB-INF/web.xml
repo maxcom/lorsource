@@ -303,6 +303,11 @@
         <url-pattern>/uncommit.jsp</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/show-deleted.jsp</url-pattern>
+    </servlet-mapping>
+
     <listener>
         <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
     </listener>

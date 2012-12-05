@@ -22,6 +22,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import java.io.IOException;
 
+import static ru.org.linux.util.StringUtil.escapeHtml;
 import static ru.org.linux.util.StringUtil.processTitle;
 
 /**
@@ -34,7 +35,7 @@ public class TitleTag extends BodyTagSupport {
       String body = bc.getString();
       JspWriter out = bc.getEnclosingWriter();
       if(body != null && !body.trim().isEmpty()) {
-        out.print(processTitle(body));
+        out.print(escapeHtml(processTitle(body)));
       }
     } catch (IOException e) {
       throw new JspException("Error:" + e.getMessage());

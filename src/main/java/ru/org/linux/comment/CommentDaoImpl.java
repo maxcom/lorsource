@@ -475,11 +475,14 @@ class CommentDaoImpl implements CommentDao {
     query
         .append("SELECT")
         .append(" del_info.msgid as msgid, topics.title as subj, comments.title as comment_title, ")
+        .append(" topics.groupid as group_id, ")
+        .append(" groups.section as section_id, ")
         .append(" reason, bonus, delby, ")
         .append(" case deldate is null when 't' then '1970-01-01 00:00:00'::timestamp else deldate end as del_date ")
         .append(" FROM del_info ")
         .append(" JOIN comments ON comments.id = del_info.msgid ")
         .append(" JOIN topics ON topics.id = comments.topic ")
+        .append(" JOIN groups ON groups.id = topics.groupid ")
         .append(" WHERE comments.userid = ? ")
         .append(" AND del_info.delby != comments.userid ")
         .append(" ORDER BY del_date DESC ");

@@ -122,9 +122,12 @@ public class TopicListDaoImpl implements TopicListDao {
     query
         .append("SELECT")
         .append(" del_info.msgid as msgid, topics.title as subj, reason, bonus, delby, ")
+        .append(" topics.groupid as group_id, ")
+        .append(" groups.section as section_id, ")
         .append(" case deldate is null when 't' then '1970-01-01 00:00:00'::timestamp else deldate end as del_date ")
         .append(" FROM del_info ")
         .append(" JOIN topics ON topics.id = del_info.msgid ")
+        .append(" JOIN groups ON groups.id = topics.groupid ")
         .append(" WHERE topics.userid = ? ")
         .append(" AND topics.userid!=del_info.delby ")
         .append(" ORDER BY del_date DESC ");

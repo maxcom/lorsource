@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -66,6 +67,9 @@ public class WhoisController {
 
   @Autowired
   private TopicListDao topicListDao;
+
+  @Autowired
+  private DeletedMessageService deletedMessageService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -128,6 +132,26 @@ public class WhoisController {
     mv.addObject("deletedTopicsCount", topicListDao.getCountDeletedTopicsForUser(user));
     mv.addObject("deletedCommentsCount", commentDao.getCountDeletedCommentsForUser(user));
     response.setDateHeader("Expires", System.currentTimeMillis()+120000);
+    return mv;
+  }
+
+  @RequestMapping(value="/people/{nick}/deleted/topics")
+  @PreAuthorize("hasRole('ROLE_MODERATOR')")
+  public ModelAndView getDeletedTopics(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    User user = userDao.getUser(nick);
+    ModelAndView mv = new ModelAndView("show-deleted");
+    mv.addObject("title", "Удаленные темы пользователя " + user.getNick());
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user));
+    return mv;
+  }
+
+  @RequestMapping(value="/people/{nick}/deleted/comments")
+  @PreAuthorize("hasRole('ROLE_MODERATOR')")
+  public ModelAndView getDeletedComments(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    User user = userDao.getUser(nick);
+    ModelAndView mv = new ModelAndView("show-deleted");
+    mv.addObject("title", "Удаленные комментарии пользователя " + user.getNick());
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user));
     return mv;
   }
 

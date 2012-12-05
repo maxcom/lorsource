@@ -68,6 +68,8 @@ public interface TopicListDao {
   public static class DeletedTopicForUser {
     private final int id;
     private final String title;
+    private final int sectionId;
+    private final int groupId;
     private final String reason;
     private final int bonus;
     private final int moderatorId;
@@ -76,19 +78,12 @@ public interface TopicListDao {
     public DeletedTopicForUser(ResultSet rs) throws SQLException {
       id = rs.getInt("msgid");
       title = rs.getString("subj");
+      sectionId = rs.getInt("section_id");
+      groupId = rs.getInt("group_id");
       reason = rs.getString("reason");
       bonus = rs.getInt("bonus");
       moderatorId = rs.getInt("delby");
       date = rs.getTimestamp("del_date");
-    }
-
-    public DeletedTopicForUser(int id, String title, String reason, int bonus, int moderatorId, Timestamp date) {
-      this.id = id;
-      this.title = title;
-      this.reason = reason;
-      this.bonus = bonus;
-      this.moderatorId = moderatorId;
-      this.date = date;
     }
 
     public int getId() {
@@ -97,6 +92,14 @@ public interface TopicListDao {
 
     public String getTitle() {
       return title;
+    }
+
+    public int getSectionId() {
+      return sectionId;
+    }
+
+    public int getGroupId() {
+      return groupId;
     }
 
     public String getReason() {

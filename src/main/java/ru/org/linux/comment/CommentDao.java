@@ -231,7 +231,8 @@ public interface CommentDao {
   public static class DeletedCommentForUser {
     private final int id;
     private final String title;
-    private final String commentTitle;
+    private final int groupId;
+    private final int sectionId;
     private final String reason;
     private final int bonus;
     private final int moderatorId;
@@ -240,21 +241,12 @@ public interface CommentDao {
     public DeletedCommentForUser(ResultSet rs) throws SQLException {
       id = rs.getInt("msgid");
       title = rs.getString("subj");
-      commentTitle = rs.getString("comment_title");
+      groupId = rs.getInt("group_id");
+      sectionId = rs.getInt("section_id");
       reason = rs.getString("reason");
       bonus = rs.getInt("bonus");
       moderatorId = rs.getInt("delby");
       date = rs.getTimestamp("del_date");
-    }
-
-    public DeletedCommentForUser(int id, String title, String commentTitle, String reason, int bonus, int moderatorId, Timestamp date) {
-      this.id = id;
-      this.title = title;
-      this.commentTitle = commentTitle;
-      this.reason = reason;
-      this.bonus = bonus;
-      this.moderatorId = moderatorId;
-      this.date = date;
     }
 
     public int getId() {
@@ -263,6 +255,14 @@ public interface CommentDao {
 
     public String getTitle() {
       return title;
+    }
+
+    public int getSectionId() {
+      return sectionId;
+    }
+
+    public int getGroupId() {
+      return groupId;
     }
 
     public String getReason() {
