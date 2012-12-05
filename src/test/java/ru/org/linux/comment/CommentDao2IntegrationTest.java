@@ -30,6 +30,7 @@ public class CommentDao2IntegrationTest {
       List<CommentDao.DeletedCommentForUser> nodashiDeleted= commentDao.getDeletedCommentsForUser(nodashi, 0, 0);
 
       assertEquals(1, nodashiDeleted.size());
+      assertEquals(commentDao.getCountDeletedCommentsForUser(nodashi), commentDao.getDeletedCommentsForUser(nodashi, 0, 0).size());
 
       CommentDao.DeletedCommentForUser[] nodashiDeletedArray = nodashiDeleted.toArray(new CommentDao.DeletedCommentForUser[nodashiDeleted.size()]);
       assertEquals(1948636, nodashiDeletedArray[0].getId());
@@ -41,9 +42,17 @@ public class CommentDao2IntegrationTest {
   @Test
   public void deletedCommentsForUserSunchTest() throws Exception {
     User user = userDao.getUser("Sun-ch");
-    assertEquals(9, commentDao.getDeletedCommentsForUser(user, 0, 0).size());
+    assertEquals(7, commentDao.getDeletedCommentsForUser(user, 0, 0).size());
     assertEquals(2, commentDao.getDeletedCommentsForUser(user, 0, 2).size());
-    assertEquals(7, commentDao.getDeletedCommentsForUser(user, 2, 0).size());
+    assertEquals(5, commentDao.getDeletedCommentsForUser(user, 2, 0).size());
     assertEquals(2, commentDao.getDeletedCommentsForUser(user, 2, 2).size());
+    assertEquals(commentDao.getCountDeletedCommentsForUser(user), commentDao.getDeletedCommentsForUser(user, 0, 0).size());
+  }
+
+  @Test
+  public void deletedCommentForUserWithZeroDeletedTest() throws Exception {
+    User user = userDao.getUser("waker");
+    assertEquals(0, commentDao.getCountDeletedCommentsForUser(user));
+    assertEquals(0, commentDao.getDeletedCommentsForUser(user, 0, 0).size());
   }
 }

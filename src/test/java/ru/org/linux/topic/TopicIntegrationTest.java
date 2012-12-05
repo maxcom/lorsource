@@ -48,6 +48,7 @@ public class TopicIntegrationTest {
     List<TopicListDao.DeletedTopicForUser> nodashiDeleted= topicListDao.getDeletedTopicsForUser(nodashi, 0, 0);
 
     assertEquals(2, nodashiDeleted.size());
+    assertEquals(topicListDao.getCountDeletedTopicsForUser(nodashi), nodashiDeleted.size());
 
     TopicListDao.DeletedTopicForUser[] nodashiDeletedArray = nodashiDeleted.toArray(new TopicListDao.DeletedTopicForUser[nodashiDeleted.size()]);
     assertEquals(1948635, nodashiDeletedArray[0].getId());
@@ -58,4 +59,12 @@ public class TopicIntegrationTest {
     assertEquals(1934709, nodashiDeletedArray[1].getId());
     assertEquals(Timestamp.valueOf("1970-01-01 00:00:00"), nodashiDeletedArray[1].getDate());
   }
+
+  @Test
+  public void deletedCommentForUserWithZeroDeletedTest() throws Exception {
+    User user = userDao.getUser("waker");
+    assertEquals(0, topicListDao.getCountDeletedTopicsForUser(user));
+    assertEquals(0, topicListDao.getDeletedTopicsForUser(user, 0, 0).size());
+  }
+
 }

@@ -43,4 +43,9 @@ public class TestTopicListDaoImpl implements TopicListDao {
   public List<DeletedTopicForUser> getDeletedTopicsForUser(User user, int offset, int limit) {
     return null;
   }
+
+  @Override
+  public int getCountDeletedTopicsForUser(User user) {
+    return 0;
+  }
 }

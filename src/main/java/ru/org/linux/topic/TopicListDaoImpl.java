@@ -121,12 +121,12 @@ public class TopicListDaoImpl implements TopicListDao {
     List <Object> queryParameters = new ArrayList<Object>();
     query
         .append("SELECT")
-        .append(" del_info.msgid as msgid, topics.title as subj, nick, reason, bonus, delby, ")
+        .append(" del_info.msgid as msgid, topics.title as subj, reason, bonus, delby, ")
         .append(" case deldate is null when 't' then '1970-01-01 00:00:00'::timestamp else deldate end as del_date ")
         .append(" FROM del_info ")
         .append(" JOIN topics ON topics.id = del_info.msgid ")
-        .append(" JOIN users ON users.id = topics.userid ")
-        .append(" WHERE users.id = ? ")
+        .append(" WHERE topics.userid = ? ")
+        .append(" AND topics.userid!=del_info.delby ")
         .append(" ORDER BY del_date DESC ");
 
     queryParameters.add(user.getId());
@@ -146,6 +146,11 @@ public class TopicListDaoImpl implements TopicListDao {
         return new DeletedTopicForUser(resultSet);
       }
     });
+  }
+
+  @Override
+  public int getCountDeletedTopicsForUser(User user) {
+    return jdbcTemplate.queryForInt("SELECT count(del_info.msgid) FROM del_info JOIN topics ON topics.id = del_info.msgid WHERE del_info.delby != topics.userid AND topics.userid = ?", user.getId());
   }
 
   /**

@@ -63,6 +63,8 @@ public interface TopicListDao {
    */
   List<DeletedTopicForUser> getDeletedTopicsForUser(User user, int offset, int limit);
 
+  int getCountDeletedTopicsForUser(User user);
+
   public static class DeletedTopicForUser {
     private final int id;
     private final String title;

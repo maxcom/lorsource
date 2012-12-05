@@ -203,10 +203,10 @@ public interface CommentDao {
    * @param userId идентификационный номер пользователя
    * @return список удалённых комментариев пользователя
    */
-   List<DeletedListItem> getLastDeletedCommentsForUser
-   (
-       int userId
-   );
+  List<DeletedListItem> getLastDeletedCommentsForUser
+  (
+      int userId
+  );
 
   /**
    * Проверить, имеет ли комментарий ответы.
@@ -225,6 +225,8 @@ public interface CommentDao {
    * @return
    */
   List<DeletedCommentForUser> getDeletedCommentsForUser(User user, int offset, int limit);
+
+  int getCountDeletedCommentsForUser(User user);
 
   public static class DeletedCommentForUser {
     private final int id;

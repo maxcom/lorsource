@@ -475,13 +475,13 @@ class CommentDaoImpl implements CommentDao {
     query
         .append("SELECT")
         .append(" del_info.msgid as msgid, topics.title as subj, comments.title as comment_title, ")
-        .append(" nick, reason, bonus, delby, ")
+        .append(" reason, bonus, delby, ")
         .append(" case deldate is null when 't' then '1970-01-01 00:00:00'::timestamp else deldate end as del_date ")
         .append(" FROM del_info ")
         .append(" JOIN comments ON comments.id = del_info.msgid ")
         .append(" JOIN topics ON topics.id = comments.topic ")
-        .append(" JOIN users ON users.id = comments.userid ")
-        .append(" WHERE users.id = ? ")
+        .append(" WHERE comments.userid = ? ")
+        .append(" AND del_info.delby != comments.userid ")
         .append(" ORDER BY del_date DESC ");
 
     queryParameters.add(user.getId());
@@ -501,5 +501,10 @@ class CommentDaoImpl implements CommentDao {
         return new DeletedCommentForUser(resultSet);
       }
     });
+  }
+
+  @Override
+  public int getCountDeletedCommentsForUser(User user) {
+    return jdbcTemplate.queryForInt("SELECT count(del_info.msgid) FROM del_info JOIN comments ON comments.id = del_info.msgid WHERE del_info.delby != comments.userid AND comments.userid = ?", user.getId());
   }
 }
