@@ -38,7 +38,7 @@ public class ProfileWebTest {
   public void testJB() throws IOException {
     Cookie authJB = WebHelper.doLoginCookie(resource, "JB", "passwd"); //
     ClientResponse crSunch = WebHelper.getPage(resource, authJB, "/people/Sun-ch/profile");
-    ClientResponse crTailgunner = WebHelper.getPage(resource, authJB, "/people/tailgunner /profile");
+    ClientResponse crTailgunner = WebHelper.getPage(resource, authJB, "/people/tailgunner/profile");
     ClientResponse crWaker = WebHelper.getPage(resource, authJB, "/people/waker/profile");
 
     assertEquals(HttpStatus.SC_OK, crSunch.getStatus());
@@ -64,7 +64,7 @@ public class ProfileWebTest {
   public void testSvu() throws IOException {
     Cookie authJB = WebHelper.doLoginCookie(resource, "svu", "passwd"); //
     ClientResponse crSunch = WebHelper.getPage(resource, authJB, "/people/Sun-ch/profile");
-    ClientResponse crTailgunner = WebHelper.getPage(resource, authJB, "/people/tailgunner /profile");
+    ClientResponse crTailgunner = WebHelper.getPage(resource, authJB, "/people/tailgunner/profile");
     ClientResponse crWaker = WebHelper.getPage(resource, authJB, "/people/waker/profile");
 
     assertEquals(HttpStatus.SC_OK, crSunch.getStatus());
@@ -90,7 +90,7 @@ public class ProfileWebTest {
   public void testMaxcom() throws IOException {
     Cookie authJB = WebHelper.doLoginCookie(resource, "maxcom", "passwd"); //
     ClientResponse crSunch = WebHelper.getPage(resource, authJB, "/people/Sun-ch/profile");
-    ClientResponse crTailgunner = WebHelper.getPage(resource, authJB, "/people/tailgunner /profile");
+    ClientResponse crTailgunner = WebHelper.getPage(resource, authJB, "/people/tailgunner/profile");
     ClientResponse crWaker = WebHelper.getPage(resource, authJB, "/people/waker/profile");
 
     assertEquals(HttpStatus.SC_OK, crSunch.getStatus());
