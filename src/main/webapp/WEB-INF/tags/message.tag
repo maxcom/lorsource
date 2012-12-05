@@ -65,7 +65,7 @@
             [<a href="/undelete.jsp?msgid=${message.id}">восстановить</a>]
         </c:if>
     </c:if>
-  &nbsp;</div>
+  </div>
 </c:if>
 
 <c:set var="showPhotos" value="${template.prof.showPhotos}"/>
