@@ -147,7 +147,7 @@
         <img src="/img/tuxlor.png" border="0" title="Упоминание" alt="[U]" width="7" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
-        <img src="/img/tag-icon.png" border="0" alt="[T]" title="Фаворитный тег" width="15" height="15">
+        <i class="icon-tag" title="Избранный тег"></i>
       </c:when>
     </c:choose>
   </td>
