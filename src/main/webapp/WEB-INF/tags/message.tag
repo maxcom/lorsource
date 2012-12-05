@@ -84,6 +84,10 @@
     <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
 
+    <c:if test="${not empty preparedMessage.tags}">
+      <l:tags list="${preparedMessage.tags}"/>
+    </c:if>
+
   <c:if test="${preparedMessage.image != null}">
     <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
@@ -119,9 +123,6 @@
       </p>
     </c:if>
 <footer>
-<c:if test="${not empty preparedMessage.tags}">
-  <l:tags list="${preparedMessage.tags}"/>
-</c:if>
 <div class=sign>
   <lor:sign
           postdate="${message.postdate}"
