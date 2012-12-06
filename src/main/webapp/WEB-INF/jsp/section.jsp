@@ -28,17 +28,7 @@
 <LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <div class=nav>
-      <div id="navPath">
-        <strong>${section.name}</strong>
-      </div>
-
-      <div class="nav-buttons">
-        <ul>
-          <li><a href="/forum/lenta/">Лента</a></li>
-        </ul>
-      </div>
-  </div>
+<h1>${section.name}</h1>
 
 <ul>
 
@@ -57,7 +47,10 @@
   </c:forEach>
 
 </ul>
-
+<p>
+  Все разделы форума так же доступны в виде единой
+  <a class="navLink" href="/forum/lenta/">ленты</a>.
+</p>
 <h1>RSS подписки</h1>
 
 <ul>
