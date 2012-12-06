@@ -17,13 +17,16 @@
 <!DOCTYPE html>
 <html lang=ru>
 <head>
+<c:if test="${template.style=='tango'}">
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700|Open+Sans+Condensed:700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+</c:if>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/fontello-c4f39afe/css/fontello.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
 
-  <c:if test="${template.style=='black' and template.prof.useHover}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
-  </c:if>
+<c:if test="${template.style=='black' and template.prof.useHover}">
+  <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
+</c:if>
 
 <!--[if lt IE 9]>
 <script src="/js/html5.js" type="text/javascript"></script>

@@ -23,6 +23,7 @@
 
 h1,h2 {
     font-weight: bold;
+    font-family: "Open Sans Condensed", sans-serif
 }
 
 #bd h1,h2 {
@@ -52,11 +53,11 @@ strong {
 }
 
 body {
-	font-family: Trebuchet MS, sans-serif;
+	font-family: "Open Sans", sans-serif;
 }
 
 textarea {
-    font-family: Trebuchet MS, sans-serif;
+    font-family: "Open Sans", sans-serif;
 }
 
 p {
