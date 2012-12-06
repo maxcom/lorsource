@@ -19,7 +19,6 @@
 <title>Правила LOR</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
-<div class=text>
 <h1>Правила написания и модерирования комментариев</h1>
 Linux.org.ru — клуб пользователей операционной системы Linux и
 других Unix-систем, предназначенный для обмена интересной
@@ -265,5 +264,4 @@ Linux.org.ru — клуб пользователей операционной с
 </p>
 <p>
 
-</div>
 <jsp:include page="WEB-INF/jsp/footer.jsp"/>
