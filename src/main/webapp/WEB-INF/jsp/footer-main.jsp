@@ -78,5 +78,6 @@ pageTracker._trackPageview();
 <!-- end of Top100 code -->
 </c:if>
 
+<script src="/js/lor.js?MAVEN_BUILD_TIMESTAMP" type="text/javascript">;</script>
 </body>
 </html>
