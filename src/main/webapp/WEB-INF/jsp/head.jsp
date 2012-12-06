@@ -25,8 +25,6 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700|Open+Sans+Condensed:700&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
   </c:if>
 </c:if>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/fontello-c4f39afe/css/fontello.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
 
 <c:if test="${template.style=='black' and template.prof.useHover}">
