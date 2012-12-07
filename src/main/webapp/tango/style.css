@@ -22,7 +22,8 @@
 }
 
 h1,h2 {
-    font-weight: bold;
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
 }
 
 #bd h1,h2 {
@@ -52,7 +53,7 @@ strong {
 }
 
 body {
-	font-family: "Open Sans", sans-serif;
+	font-family: "Arial", sans-serif;
 }
 
 textarea {
@@ -216,6 +217,7 @@ div.msg_body h1 {
 
 div.msg_body h2 {
     font-size: medium;
+    font-weight: 600;
     font-family: "Open Sans", sans-serif;
 }
 
