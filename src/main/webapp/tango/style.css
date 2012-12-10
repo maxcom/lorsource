@@ -329,6 +329,7 @@ div.quote {
     display: inline-block;
     margin-top: 5px;
     margin-bottom: 5px;
+    min-width: 1.1em;
 }
 
 .nav li a {
