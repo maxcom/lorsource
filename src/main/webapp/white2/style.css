@@ -225,3 +225,7 @@ div.quote {
     color: orange;
 }
 
+textarea {
+   font-family: inherit;
+}
+
