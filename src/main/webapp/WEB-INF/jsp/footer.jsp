@@ -63,5 +63,4 @@ pageTracker._trackPageview();
 </c:if>
 
 </footer>
-<script src="/js/lor.js?MAVEN_BUILD_TIMESTAMP" type="text/javascript">;</script>
 </body></html>

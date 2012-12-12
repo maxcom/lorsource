@@ -64,12 +64,7 @@
 </c:if>
 
 <script type="text/javascript">
-  $(function() {
-    if (typeof  jQuery.hotkeys !== 'undefined') {
-        $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
-        $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
-    }
-  });
+  $script.ready('lorjs', function() { initNextPrevKeys(); });
 </script>
 <c:if test="${not message.expired and template.sessionAuthorized}">
 <script src="/js/addComments.js" type="text/javascript"></script>

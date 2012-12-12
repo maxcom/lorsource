@@ -40,7 +40,9 @@
   <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
 </c:if>
 
-<!--[if lt IE 9]>
+<script src="/js/script.min.js" type="text/javascript"></script>
+
+  <!--[if lt IE 9]>
 <script src="/js/html5.js" type="text/javascript"></script>
 <![endif]-->
 
@@ -59,3 +61,7 @@
 </script>
 
 <script src="/js/head.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+</script>
