@@ -40,10 +40,10 @@ public class SectionRestControllerWebTest extends RestWebTestCommon {
     // then
     Assert.assertEquals(4, actualResult.size());
 
-    String expectedValue = "[{\"id\":1,\"alias\":\"news\",\"link\":\"/api/sections/1\",\"title\":\"news\"}," +
-            "{\"id\":2,\"alias\":\"forum\",\"link\":\"/api/sections/2\",\"title\":\"forum\"}," +
-            "{\"id\":3,\"alias\":\"gallery\",\"link\":\"/api/sections/3\",\"title\":\"gallery\"}," +
-            "{\"id\":5,\"alias\":\"polls\",\"link\":\"/api/sections/5\",\"title\":\"polls\"}]";
+    String expectedValue = "[{\"id\":1,\"alias\":\"Новости\",\"link\":\"/api/sections/1\",\"title\":\"Новости\"}," +
+            "{\"id\":2,\"alias\":\"Форум\",\"link\":\"/api/sections/2\",\"title\":\"Форум\"}," +
+            "{\"id\":3,\"alias\":\"Галерея\",\"link\":\"/api/sections/3\",\"title\":\"Галерея\"}," +
+            "{\"id\":5,\"alias\":\"Голосования\",\"link\":\"/api/sections/5\",\"title\":\"Голосования\"}]";
     List<Object> expectedResult = convertJsonStringToCommonArray(expectedValue);
 
     Assert.assertEquals(expectedResult, actualResult);
