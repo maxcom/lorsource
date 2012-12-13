@@ -340,7 +340,6 @@
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.min.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
-                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.style-switcher.js</include>
                             </includes>
                         </aggregation>
                         <aggregation>
@@ -350,6 +349,7 @@
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.form.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
+                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.style-switcher.js</include>
                             </includes>
                         </aggregation>
                         <aggregation>

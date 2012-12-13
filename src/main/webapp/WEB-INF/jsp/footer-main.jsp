@@ -45,12 +45,14 @@
             <a href="javascript: void(0)" id="tango-swamp">Swamp</a>
   </div>
   <script type="text/javascript">
-    $(document).ready(function() {
-        $('#styleswitch').styleSwitcher({
-            slidein: false,
-            cookieExpires: 365,
-            directory:"/tango/"
-        });
+    $script.ready('plugins', function() {
+      $(document).ready(function() {
+          $('#styleswitch').styleSwitcher({
+              slidein: false,
+              cookieExpires: 365,
+              directory:"/tango/"
+          });
+      });
     });
   </script>
   </c:if>
