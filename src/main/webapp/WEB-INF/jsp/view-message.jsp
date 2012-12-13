@@ -67,7 +67,9 @@
   $script.ready('lorjs', function() { initNextPrevKeys(); });
 </script>
 <c:if test="${not message.expired and template.sessionAuthorized}">
-<script src="/js/addComments.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $script('/js/addComments.js');
+</script>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
