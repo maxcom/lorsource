@@ -124,7 +124,8 @@
 </table>
 <c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
-    $(document).ready(function() {
+  $script.ready('plugins', function() {
+    $(function() {
         $("#tagFavNoth").click(function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -133,7 +134,8 @@
         $("#tagFavNoth").popover({
             content: "Для добавления в избранное надо залогиниться!"
         });
-    })
+    });
+  });
 </script>
 </c:if>
 

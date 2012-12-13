@@ -222,32 +222,9 @@
 
 <c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
-    $(function() {
-        $("#favs_button").click(function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $("#memories_button").popover('hide');
-            $("#favs_button").popover('show');
-        });
-        $("#favs_button").popover({
-            content: "Для добавления в избранное надо залогиниться!",
-            autoReposition: false,
-            trigger: 'manual'
-        });
-
-        $("#memories_button").click(function(event) {
-             event.preventDefault();
-             event.stopPropagation();
-             $("#favs_button").popover('hide');
-             $("#memories_button").popover('show');
-        });
-        $("#memories_button").popover({
-            content: "Для добавления в отслеживаемое надо залогиниться!",
-            autoReposition: false,
-            trigger: 'manual'
-        });
-
-    });
+  $script.ready('lorjs', function() {
+    initStarPopovers();
+  });
 </script>
 </c:if>
 
