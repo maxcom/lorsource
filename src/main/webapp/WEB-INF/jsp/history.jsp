@@ -21,6 +21,11 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>История изменений</title>
+<script type="text/javascript">
+  $script('/js/diff_match_patch.js', function() {
+     $script('/js/lor_view_diff_history.js');
+  });
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>История изменений</h1>
 <div id="historyButtonBar"></div>

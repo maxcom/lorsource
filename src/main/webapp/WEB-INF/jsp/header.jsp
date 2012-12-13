@@ -19,13 +19,6 @@
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 
-<c:if test="${javascriptsForLayout != null}">
-  <c:forEach items="${javascriptsForLayout}" var="javascriptForLayout">
-    <c:url value="/js/${javascriptForLayout}" var="jsURL"/>
-    <script src="${jsURL}" type="text/javascript"></script>
-  </c:forEach>
-</c:if>
-
 <c:if test="${pageContext.request.secure}">
   <base href="${fn:escapeXml(template.secureMainUrl)}">
 </c:if>
