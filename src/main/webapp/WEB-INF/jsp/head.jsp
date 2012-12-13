@@ -64,4 +64,5 @@
 
 <script type="text/javascript">
   $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+  $script('/js/highlight.pack.js', function() { hljs.initHighlightingOnLoad(); });
 </script>

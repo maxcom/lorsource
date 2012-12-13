@@ -343,7 +343,6 @@
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.min.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.style-switcher.js</include>
-                                <include>${project.build.directory}/${project.build.finalName}/js/highlight.pack.js</include>
                             </includes>
                         </aggregation>
                         <aggregation>

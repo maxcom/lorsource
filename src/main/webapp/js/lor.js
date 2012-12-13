@@ -132,6 +132,4 @@ $(document).ready(function() {
   initSamepageCommentNavigation();
 });
 
-hljs.initHighlightingOnLoad();
-
 
