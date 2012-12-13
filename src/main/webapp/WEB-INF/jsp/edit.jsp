@@ -38,11 +38,13 @@
   $script.ready('lorjs', function() { initTopTagSelection(); });
 
   document.tagInputCssString = "#tags";
-  $(document).ready(function() {
-    $("#messageForm").validate({
-      messages : {
-        title : "Введите заголовок"
-      }
+  $script.ready("plugins", function() {
+    $(function() {
+      $("#messageForm").validate({
+        messages : {
+          title : "Введите заголовок"
+        }
+      });
     });
   });
 </script>

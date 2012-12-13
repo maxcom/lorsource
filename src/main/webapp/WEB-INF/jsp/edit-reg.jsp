@@ -20,7 +20,8 @@
 
 <title>Регистрация пользователя</title>
 <script type="text/javascript">
-  $(document).ready(function() {
+$script.ready("plugins", function() {
+  $(function() {
     $("#editRegForm").validate({
       rules : {
         password2: {
@@ -29,6 +30,7 @@
       }
     });
   });
+});
 </script>
 
 <jsp:include page="header.jsp"/>

@@ -35,21 +35,24 @@
   $script.ready('lorjs', function() { initTopTagSelection(); });
 
   document.tagInputCssString = "#tags";
-  $(document).ready(function() {
-    $("#messageForm").validate({
-      messages : {
-        title : "Введите заголовок"
-      }
-    });
 
-    window.onbeforeunload = function() {
-        if ($("#form_msg").val()!='') {
-          return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+  $script.ready("plugins", function() {
+    $(function() {
+      $("#messageForm").validate({
+        messages : {
+          title : "Введите заголовок"
         }
-      };
+      });
 
-    $("#messageForm").bind("submit", function() {
-        window.onbeforeunload = null;
+      window.onbeforeunload = function() {
+          if ($("#form_msg").val()!='') {
+            return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+          }
+        };
+
+      $("#messageForm").bind("submit", function() {
+          window.onbeforeunload = null;
+      });
     });
   });
 </script>
