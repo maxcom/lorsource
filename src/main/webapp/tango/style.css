@@ -22,7 +22,8 @@
 }
 
 h1,h2 {
-    font-weight: bold;
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
 }
 
 #bd h1,h2 {
@@ -52,11 +53,7 @@ strong {
 }
 
 body {
-	font-family: Trebuchet MS, sans-serif;
-}
-
-textarea {
-    font-family: Trebuchet MS, sans-serif;
+	font-family: "Arial", sans-serif;
 }
 
 p {
@@ -131,10 +128,6 @@ p {
 
 .mini-news {
     font-size: medium;
-}
-
-#bd .news div.text {
-	margin-left: 64px;
 }
 
 #bd ul, #bd ol {
@@ -215,13 +208,13 @@ p {
 }
 
 div.msg_body h1 {
-    font-weight: bold;
-    font-size: 1.5em;
+    font-size: 1.6em;
 }
 
 div.msg_body h2 {
-    font-weight: bold;
     font-size: medium;
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
 }
 
 .msg {
@@ -332,6 +325,7 @@ div.quote {
     display: inline-block;
     margin-top: 5px;
     margin-bottom: 5px;
+    min-width: 1.1em;
 }
 
 .nav li a {

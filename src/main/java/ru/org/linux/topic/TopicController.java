@@ -221,10 +221,6 @@ public class TopicController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
-
-    params.put("page", page);
-
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {
       page = -1;
@@ -260,71 +256,73 @@ public class TopicController {
 
     checkView(topic, tmpl, currentUser);
 
-    params.put("group", group);
-
     if (group.getCommentsRestriction() == -1 && !tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
 
-    if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-      String etag = getEtag(topic, tmpl);
-      response.setHeader("Etag", etag);
-
-      if (request.getHeader("If-None-Match") != null) {
-        if (etag.equals(request.getHeader("If-None-Match"))) {
-          response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-          return null;
-        }
-      } else if (checkLastModified(webRequest, topic)) {
-        return null;
-      }
-    }
-
     params.put("message", topic);
-    params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
     params.put("preparedMessage", preparedMessage);
-
-    params.put("messageMenu", messagePrepareService.getTopicMenu(preparedMessage, currentUser));
 
     if (topic.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    Set<Integer> ignoreList = null;
-    boolean emptyIgnoreList = true;
-
-    if (currentUser != null) {
-      ignoreList = ignoreListDao.get(currentUser);
-      emptyIgnoreList = ignoreList.isEmpty();
-    }
-
-    int filterMode = CommentFilter.FILTER_IGNORED;
-
-    if (!tmpl.getProf().isShowAnonymous()) {
-      filterMode += CommentFilter.FILTER_ANONYMOUS;
-    }
-
-    if (emptyIgnoreList) {
-      filterMode &= ~CommentFilter.FILTER_IGNORED;
-    }
-
-    int defaultFilterMode = filterMode;
-
-    if (filter != null) {
-      filterMode = CommentFilter.parseFilterChain(filter);
-      if (!emptyIgnoreList && filterMode == CommentFilter.FILTER_ANONYMOUS) {
-        filterMode += CommentFilter.FILTER_IGNORED;
-      }
-    }
-
-    params.put("filterMode", CommentFilter.toString(filterMode));
-    params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
-
     CommentList comments = commentService.getCommentList(topic, showDeleted);
 
-    params.put("comments", comments);
-
     if (!rss) {
+      params.put("page", page);
+      params.put("group", group);
+      params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
+
+      if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
+        String etag = getEtag(topic, tmpl);
+        response.setHeader("Etag", etag);
+
+        if (request.getHeader("If-None-Match") != null) {
+          if (etag.equals(request.getHeader("If-None-Match"))) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return null;
+          }
+        } else if (checkLastModified(webRequest, topic)) {
+          return null;
+        }
+      }
+
+      params.put("messageMenu", messagePrepareService.getTopicMenu(preparedMessage, currentUser));
+
+      Set<Integer> ignoreList = null;
+      boolean emptyIgnoreList = true;
+
+      if (currentUser != null) {
+        ignoreList = ignoreListDao.get(currentUser);
+        emptyIgnoreList = ignoreList.isEmpty();
+      }
+
+      int filterMode = CommentFilter.FILTER_IGNORED;
+
+      if (!tmpl.getProf().isShowAnonymous()) {
+        filterMode += CommentFilter.FILTER_ANONYMOUS;
+      }
+
+      if (emptyIgnoreList) {
+        filterMode &= ~CommentFilter.FILTER_IGNORED;
+      }
+
+      int defaultFilterMode = filterMode;
+
+      if (filter != null) {
+        filterMode = CommentFilter.parseFilterChain(filter);
+        if (!emptyIgnoreList && filterMode == CommentFilter.FILTER_ANONYMOUS) {
+          filterMode += CommentFilter.FILTER_IGNORED;
+        }
+      }
+
+      params.put("comments", comments);
+
+      params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
+      params.put("filterMode", CommentFilter.toString(filterMode));
+      params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
+
       loadTopicScroller(params, topic, currentUser, !emptyIgnoreList);
 
       Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);

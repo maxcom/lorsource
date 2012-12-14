@@ -27,7 +27,6 @@
   <s:errors path="*" cssClass="error"/><br/>
 
   <s:hidden path="position"/>
-  <s:hidden path="tag"/>
 
   <s:radiobuttons path="boxName" items="${allboxes}" element="div"/> 
   <br/>

@@ -20,7 +20,6 @@
 
 <title>О Сервере</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<div class=text>
 
 <h1>О Проекте</h1>
 
@@ -109,7 +108,6 @@
       </li>
     </c:forEach>
   </ul>
-</div>
 
 <h1>Связанные проекты</h1>
 <ul>

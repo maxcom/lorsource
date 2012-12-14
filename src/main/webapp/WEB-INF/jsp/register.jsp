@@ -20,15 +20,17 @@
 
 <title>Регистрация пользователя</title>
 <script type="text/javascript">
-  $(document).ready(function() {
-    $("#registerForm").validate({
-      rules : {
-        password2: {
-          equalTo: "#password"
+  $script.ready("plugins", function() {
+    $(function() {
+      $("#registerForm").validate({
+        rules : {
+          password2: {
+            equalTo: "#password"
+          }
         }
-      }
+      });
+      $("#changeForm").validate();
     });
-    $("#changeForm").validate();    
   });
 </script>
 

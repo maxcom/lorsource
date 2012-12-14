@@ -45,12 +45,14 @@
             <a href="javascript: void(0)" id="tango-swamp">Swamp</a>
   </div>
   <script type="text/javascript">
-    $(document).ready(function() {
-        $('#styleswitch').styleSwitcher({
-            slidein: false,
-            cookieExpires: 365,
-            directory:"/tango/"
-        });
+    $script.ready('plugins', function() {
+      $(document).ready(function() {
+          $('#styleswitch').styleSwitcher({
+              slidein: false,
+              cookieExpires: 365,
+              directory:"/tango/"
+          });
+      });
     });
   </script>
   </c:if>
@@ -77,6 +79,5 @@ pageTracker._trackPageview();
 <script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?29833"></script><noscript><img src="http://counter.rambler.ru/top100.cnt?29833" alt="" width="1" height="1" border="0"/></noscript>
 <!-- end of Top100 code -->
 </c:if>
-
 </body>
 </html>

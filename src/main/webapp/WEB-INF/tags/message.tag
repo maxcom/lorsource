@@ -65,7 +65,7 @@
             [<a href="/undelete.jsp?msgid=${message.id}">восстановить</a>]
         </c:if>
     </c:if>
-  &nbsp;</div>
+  </div>
 </c:if>
 
 <c:set var="showPhotos" value="${template.prof.showPhotos}"/>
@@ -83,6 +83,10 @@
   <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
     <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
+
+    <c:if test="${not empty preparedMessage.tags}">
+      <l:tags list="${preparedMessage.tags}"/>
+    </c:if>
 
   <c:if test="${preparedMessage.image != null}">
     <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
@@ -119,9 +123,6 @@
       </p>
     </c:if>
 <footer>
-<c:if test="${not empty preparedMessage.tags}">
-  <l:tags list="${preparedMessage.tags}"/>
-</c:if>
 <div class=sign>
   <lor:sign
           postdate="${message.postdate}"
@@ -221,32 +222,9 @@
 
 <c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
-    $(function() {
-        $("#favs_button").click(function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $("#memories_button").popover('hide');
-            $("#favs_button").popover('show');
-        });
-        $("#favs_button").popover({
-            content: "Для добавления в избранное надо залогиниться!",
-            autoReposition: false,
-            trigger: 'manual'
-        });
-
-        $("#memories_button").click(function(event) {
-             event.preventDefault();
-             event.stopPropagation();
-             $("#favs_button").popover('hide');
-             $("#memories_button").popover('show');
-        });
-        $("#memories_button").popover({
-            content: "Для добавления в отслеживаемое надо залогиниться!",
-            autoReposition: false,
-            trigger: 'manual'
-        });
-
-    });
+  $script.ready('lorjs', function() {
+    initStarPopovers();
+  });
 </script>
 </c:if>
 

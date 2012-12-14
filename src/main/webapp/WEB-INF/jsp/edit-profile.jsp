@@ -20,22 +20,24 @@
 
         <title>Настройки профиля</title>
 <script type="text/javascript">
-$(document).ready(function() {
-  $("#profileForm").validate({
-  rules: {
-    topics: {
-      required: true,
-      range: [ 1, 500 ]
-    },
-    messages: {
-      required: true,
-      range: [ 1, 1000 ]
-    },
-    tags: {
-      required: true,
-      range: [ 1, 100 ]
+$script.ready('plugins', function() {
+  $(function() {
+    $("#profileForm").validate({
+    rules: {
+      topics: {
+        required: true,
+        range: [ 1, 500 ]
+      },
+      messages: {
+        required: true,
+        range: [ 1, 1000 ]
+      },
+      tags: {
+        required: true,
+        range: [ 1, 100 ]
+      }
     }
-  }
+    });
   });
 });
 </script>

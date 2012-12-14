@@ -34,15 +34,15 @@
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
 <link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml">
 <script type="text/javascript">
-  <!--
-  $(document).ready(function() {
-    $('#reset_form').ajaxSubmit(
-      function() {
-        $('#reset_form').hide();
-      }
-    );
+  $script.ready('plugins', function() {
+    $(document).ready(function() {
+      $('#reset_form').ajaxSubmit(
+        function() {
+          $('#reset_form').hide();
+        }
+      );
+    });
   });
-   -->
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=nav>
@@ -147,7 +147,7 @@
         <img src="/img/tuxlor.png" border="0" title="Упоминание" alt="[U]" width="7" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
-        <img src="/img/tag-icon.png" border="0" alt="[T]" title="Фаворитный тег" width="15" height="15">
+        <i class="icon-tag" title="Избранный тег"></i>
       </c:when>
     </c:choose>
   </td>

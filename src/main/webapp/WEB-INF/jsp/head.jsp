@@ -17,15 +17,32 @@
 <!DOCTYPE html>
 <html lang=ru>
 <head>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/fontello-c4f39afe/css/fontello.css">
+<c:if test="${template.style=='tango'}">
+  <c:if test="${not pageContext.request.secure}">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  </c:if>
+  <c:if test="${pageContext.request.secure}">
+    <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  </c:if>
+</c:if>
+<c:if test="${template.style!='tango'}">
+  <c:if test="${not pageContext.request.secure}">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  </c:if>
+  <c:if test="${pageContext.request.secure}">
+    <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  </c:if>
+</c:if>
+
 <LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
 
-  <c:if test="${template.style=='black' and template.prof.useHover}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
-  </c:if>
+<c:if test="${template.style=='black' and template.prof.useHover}">
+  <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
+</c:if>
 
-<!--[if lt IE 9]>
+<script src="/js/script.min.js" type="text/javascript"></script>
+
+  <!--[if lt IE 9]>
 <script src="/js/html5.js" type="text/javascript"></script>
 <![endif]-->
 
@@ -43,4 +60,10 @@
   }
 </script>
 
-<script src="/js/head.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $script('/js/plugins.js', 'plugins');
+  $script.ready('plugins', function() {
+    $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+  });
+  $script('/js/highlight.pack.js', function() { hljs.initHighlightingOnLoad(); });
+</script>

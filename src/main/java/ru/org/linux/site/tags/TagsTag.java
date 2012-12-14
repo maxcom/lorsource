@@ -57,7 +57,7 @@ public class TagsTag extends TagSupport {
           }
         }
         out
-            .append("<p class=\"tags\">Метки: ")
+            .append("<p class=\"tags\"><i class=\"icon-tag\"></i>&nbsp;")
             .append(buf)
             .append("</p>");
       } catch (IOException e) {

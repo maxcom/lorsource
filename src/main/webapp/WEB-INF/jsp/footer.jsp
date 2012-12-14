@@ -63,5 +63,4 @@ pageTracker._trackPageview();
 </c:if>
 
 </footer>
-
 </body></html>

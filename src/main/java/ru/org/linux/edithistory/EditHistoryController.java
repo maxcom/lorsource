@@ -26,7 +26,6 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -56,11 +55,6 @@ public class EditHistoryController {
 
     ModelAndView modelAndView = new ModelAndView("history");
 
-    List<String> javaScriptsForLayout = new ArrayList<String>();
-    javaScriptsForLayout.add("diff_match_patch.js");
-    javaScriptsForLayout.add("lor_view_diff_history.js");
-    modelAndView.addObject("javascriptsForLayout", javaScriptsForLayout);
-
     modelAndView.getModel().put("message", message);
     modelAndView.getModel().put("editHistories", editHistories);
 
@@ -84,11 +78,6 @@ public class EditHistoryController {
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(comment, request.isSecure());
 
     ModelAndView modelAndView = new ModelAndView("history");
-
-    List<String> javaScriptsForLayout = new ArrayList<String>();
-    javaScriptsForLayout.add("diff_match_patch.js");
-    javaScriptsForLayout.add("lor_view_diff_history.js");
-    modelAndView.addObject("javascriptsForLayout", javaScriptsForLayout);
 
     modelAndView.getModel().put("message", message);
     modelAndView.getModel().put("editHistories", editHistories);

@@ -32,22 +32,27 @@
 <script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
 <script src="/js/tagsAutocomplete.js" type="text/javascript"></script>
 <script type="text/javascript">
+  $script.ready('lorjs', function() { initTopTagSelection(); });
+
   document.tagInputCssString = "#tags";
-  $(document).ready(function() {
-    $("#messageForm").validate({
-      messages : {
-        title : "Введите заголовок"
-      }
-    });
 
-    window.onbeforeunload = function() {
-        if ($("#form_msg").val()!='') {
-          return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+  $script.ready("plugins", function() {
+    $(function() {
+      $("#messageForm").validate({
+        messages : {
+          title : "Введите заголовок"
         }
-      };
+      });
 
-    $("#messageForm").bind("submit", function() {
-        window.onbeforeunload = null;
+      window.onbeforeunload = function() {
+          if ($("#form_msg").val()!='') {
+            return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+          }
+        };
+
+      $("#messageForm").bind("submit", function() {
+          window.onbeforeunload = null;
+      });
     });
   });
 </script>
@@ -158,7 +163,7 @@
     </label><p>
     Популярные теги:
      <c:forEach items="${topTags}" var="topTag" varStatus = "status">
-${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
+${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
      </c:forEach>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
