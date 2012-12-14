@@ -25,20 +25,18 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.Timestamp;
 import java.util.*;
 
 @Controller
 public class TrackerController {
   @Autowired
-  private TrackerDao trackerDao;
+  private TrackerService trackerService;
 
   @Autowired
   private UserDao userDao;
@@ -122,32 +120,17 @@ public class TrackerController {
       params.put("addition_query", "");
     }
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(new Date());
-    if(trackerFilter == TrackerFilterEnum.MINE) {
-      calendar.add(Calendar.MONTH, -6);
-    } else {
-      calendar.add(Calendar.HOUR, -24);
-    }
-    Timestamp dateLimit = new Timestamp(calendar.getTimeInMillis());
-
     Template tmpl = Template.getTemplate(request);
-    int messages = tmpl.getProf().getMessages();
     int topics = tmpl.getProf().getTopics();
 
     params.put("topics", topics);
 
-    User user = tmpl.getCurrentUser();
-
     if (trackerFilter == TrackerFilterEnum.MINE) {
-      if (!tmpl.isSessionAuthorized()) {
-        throw new UserErrorException("Not authorized");
-      }
       params.put("title", "Последние сообщения (мои темы)");
     } else {
       params.put("title", "Последние сообщения");
     }
-    params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
+    params.put("msgs", trackerService.get(tmpl, offset, trackerFilter));
 
     if (tmpl.isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
       params.put("newUsers", userDao.getNewUsers());

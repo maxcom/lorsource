@@ -12,26 +12,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.rest.decorator;
 
-package ru.org.linux.rest;
+import ru.org.linux.tracker.TrackerItem;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Константы, используемые в REST API.
+ * REST-API декоратор для вывода информации по списку строк трекера.
  */
-public class Constants {
-
-  /**
-   * Префикс для всего REST-API
-   */
-  public static final String URL_PREFIX = "/api/v0";
-
-  /**
-   * Префикс для объектов section
-   */
-  public static final String URL_SECTION = URL_PREFIX + "/sections";
-
-  /**
-   * Префикс для трекера
-   */
-  public static final String URL_TRACKER = URL_PREFIX + "/tracker";
+public class TrackerListDecorator extends LinkedList<TrackerItemDecorator> implements List<TrackerItemDecorator>{
+  public TrackerListDecorator(List<TrackerItem> trackerItems) {
+    for (TrackerItem trackerItem : trackerItems) {
+      add(new TrackerItemDecorator(trackerItem));
+    }
+  }
 }
