@@ -15,36 +15,25 @@
 
 package ru.org.linux.site;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.servlet.support.RequestContextUtils;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.storage.FileStorage;
 import ru.org.linux.storage.Storage;
 import ru.org.linux.storage.StorageException;
-import ru.org.linux.storage.StorageNotFoundException;
-import ru.org.linux.user.*;
-import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.user.Profile;
+import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Properties;
 
 public final class Template {
-
   private final Profile userProfile;
   private final Configuration configuration;
   private User currentUser = null;
@@ -68,19 +57,6 @@ public final class Template {
 
   public String getProfileName() {
     return getNick();
-  }
-
-  private Profile readProfile() throws ClassNotFoundException, IOException, StorageException {
-    InputStream df = null;
-    try {
-      df = storage.getReadStream("profile", getNick());
-
-      return new Profile(df);
-    } finally {
-      if (df!=null) {
-        df.close();
-      }
-    }
   }
 
   public void writeProfile(String name) throws IOException, AccessViolationException, StorageException {
@@ -172,7 +148,7 @@ public final class Template {
     return new Template(request);
   }
 
-  public void updateCurrentUser(UserDao userDao) {
+  public void updateCurrentUser() {
     initCurrentUser(true);
   }
 

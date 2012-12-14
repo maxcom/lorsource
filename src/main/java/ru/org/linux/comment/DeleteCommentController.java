@@ -29,11 +29,9 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +42,6 @@ public class DeleteCommentController {
   private SearchQueueSender searchQueueSender;
   private CommentService commentService;
   private TopicDao messageDao;
-  private UserDao userDao;
   private CommentPrepareService prepareService;
 
   public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
@@ -66,20 +63,14 @@ public class DeleteCommentController {
   }
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
   public void setPrepareService(CommentPrepareService prepareService) {
     this.prepareService = prepareService;
   }
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
-    HttpSession session,
-    HttpServletRequest request,
-    @RequestParam("msgid") int msgid
+          HttpServletRequest request,
+          @RequestParam("msgid") int msgid
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -121,11 +112,10 @@ public class DeleteCommentController {
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.POST)
   public ModelAndView deleteComments(
-    @RequestParam("msgid") int msgid,
-    @RequestParam("reason") String reason,
-    @RequestParam(value="bonus", defaultValue="0") int bonus,
-    HttpSession session,
-    HttpServletRequest request
+          @RequestParam("msgid") int msgid,
+          @RequestParam("reason") String reason,
+          @RequestParam(value = "bonus", defaultValue = "0") int bonus,
+          HttpServletRequest request
   ) throws Exception {
     if (bonus < 0 || bonus > 20) {
       throw new BadParameterException("неправильный размер штрафа");
@@ -137,7 +127,7 @@ public class DeleteCommentController {
       throw new AccessViolationException("нет авторизации");
     }
 
-    tmpl.updateCurrentUser(userDao);
+    tmpl.updateCurrentUser();
 
     User user = tmpl.getCurrentUser();
     user.checkBlocked();
@@ -216,5 +206,4 @@ public class DeleteCommentController {
     mav.addObject("msgMessage", "");
     return mav;
   }
-
 }

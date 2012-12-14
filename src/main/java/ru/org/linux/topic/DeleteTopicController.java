@@ -30,7 +30,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,8 +41,6 @@ public class DeleteTopicController {
 
   @Autowired
   private SearchQueueSender searchQueueSender;
-  @Autowired
-  private UserDao userDao;
   @Autowired
   private SectionService sectionService;
   @Autowired
@@ -97,7 +94,7 @@ public class DeleteTopicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.updateCurrentUser(userDao);
+    tmpl.updateCurrentUser();
 
     User user = tmpl.getCurrentUser();
 
@@ -155,7 +152,7 @@ public class DeleteTopicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.updateCurrentUser(userDao);
+    tmpl.updateCurrentUser();
 
     Topic message = messageDao.getById(msgid);
 
