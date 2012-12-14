@@ -1,0 +1,11 @@
+//- подпись к посту
+    user - класс ApiUser
+    link - boolean; ставить ли ссылку
+    rel - аттрибут rel у ссылки на пользователя
+    itemprop - аттрибут itemprop
+include user
+
+if author
+    mixin user(user, true, "author", itemprop="creator")
+else
+    mixin user(user, true, rel=false, itemprop="creator")
