@@ -1,5 +1,4 @@
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -16,8 +15,6 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><%
-  DateFormat rfc822 = DateFormats.createRFC822();
-
-  out.print(rfc822.format(date));
+  out.print(DateFormats.rfc822().print(date.getTime()));
 %>
 

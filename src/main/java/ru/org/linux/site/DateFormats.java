@@ -15,27 +15,50 @@
 
 package ru.org.linux.site;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.util.Locale;
 
 public class DateFormats {
-  private static final Locale RUSSIAN_LOCALE = new Locale("ru");private DateFormats() {
+  private static final Locale RUSSIAN_LOCALE = new Locale("ru");
+
+  private static final DateTimeFormatter DEFAULT =
+          DateTimeFormat.forStyle("MM").withLocale(RUSSIAN_LOCALE);
+
+  private static final DateTimeFormatter ISO8601 =
+          ISODateTimeFormat.dateTime();
+
+  private static final DateTimeFormatter SHORT =
+          DateTimeFormat.forPattern("dd.MM.yy HH:mm").withLocale(RUSSIAN_LOCALE);
+
+  private static final DateTimeFormatter TIME =
+          DateTimeFormat.forPattern("HH:mm").withLocale(RUSSIAN_LOCALE);
+
+  private static final DateTimeFormatter RFC822 =
+          DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US);
+
+  private DateFormats() {
   }
 
-  public static DateFormat createDefault() {
-    return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, RUSSIAN_LOCALE);
+  public static DateTimeFormatter getDefault() {
+    return DEFAULT;
   }
 
-  public static DateFormat createShort() {
-    return new SimpleDateFormat("dd.MM.yy HH:mm");
+  public static DateTimeFormatter iso8601() {
+    return ISO8601;
   }
 
-  public static DateFormat createTime() {
-    return new SimpleDateFormat("HH:mm");
+  public static DateTimeFormatter getShort() {
+    return SHORT;
   }
 
-  public static DateFormat createRFC822() {
-    return new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+  public static DateTimeFormatter time() {
+    return TIME;
+  }
+
+  public static DateTimeFormatter rfc822() {
+    return RFC822;
   }
 }

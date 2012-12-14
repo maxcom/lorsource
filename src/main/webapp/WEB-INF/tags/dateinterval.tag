@@ -1,4 +1,3 @@
-<%@ tag import="org.joda.time.format.ISODateTimeFormat" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag import="java.util.Calendar" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
@@ -16,7 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= ISODateTimeFormat.dateTime().print(date.getTime()) %>"><%
+<%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>"><%
   long diff = System.currentTimeMillis() - date.getTime();
   Calendar c = Calendar.getInstance();
   c.setTime(date);
@@ -43,10 +42,10 @@
       out.print(min +"&nbsp;минут");
     }
   } else if (c.after(today)) {
-    out.print("сегодня " + DateFormats.createTime().format(date));
+    out.print("сегодня " + DateFormats.time().print(date.getTime()));
   } else if (c.after(yesterday)) {
-    out.print("вчера " + DateFormats.createTime().format(date));
+    out.print("вчера " + DateFormats.time().print(date.getTime()));
   } else {
-    out.print(DateFormats.createShort().format(date));
+    out.print(DateFormats.getShort().print(date.getTime()));
   }
 %></time>
