@@ -198,15 +198,15 @@ public interface CommentDao {
   );
 
   /**
-   * Получить список последних удалённых комментариев пользователя.
+   * Получить список последних 20 удалённых комментариев пользователя.
    *
    * @param userId идентификационный номер пользователя
    * @return список удалённых комментариев пользователя
    */
-   List<DeletedListItem> getDeletedComments
-   (
-     int userId
-   );
+  List<DeletedListItem> getLastDeletedCommentsForUser
+  (
+      int userId
+  );
 
   /**
    * Проверить, имеет ли комментарий ответы.
@@ -218,6 +218,69 @@ public interface CommentDao {
   (
     int commentId
   );
+
+  /**
+   * Получить список удалённых комментариев пользователя.
+   * @param user
+   * @return
+   */
+  List<DeletedCommentForUser> getDeletedCommentsForUser(User user, int offset, int limit);
+
+  int getCountDeletedCommentsForUser(User user);
+
+  public static class DeletedCommentForUser {
+    private final int id;
+    private final String title;
+    private final int groupId;
+    private final int sectionId;
+    private final String reason;
+    private final int bonus;
+    private final int moderatorId;
+    private final Timestamp date;
+
+    public DeletedCommentForUser(ResultSet rs) throws SQLException {
+      id = rs.getInt("msgid");
+      title = rs.getString("subj");
+      groupId = rs.getInt("group_id");
+      sectionId = rs.getInt("section_id");
+      reason = rs.getString("reason");
+      bonus = rs.getInt("bonus");
+      moderatorId = rs.getInt("delby");
+      date = rs.getTimestamp("del_date");
+    }
+
+    public int getId() {
+      return id;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public int getSectionId() {
+      return sectionId;
+    }
+
+    public int getGroupId() {
+      return groupId;
+    }
+
+    public String getReason() {
+      return reason;
+    }
+
+    public int getBonus() {
+      return bonus;
+    }
+
+    public int getModeratorId() {
+      return moderatorId;
+    }
+
+    public Timestamp getDate() {
+      return date;
+    }
+  }
 
   /**
    * DTO-класс, описывающий данные удалённого комментария

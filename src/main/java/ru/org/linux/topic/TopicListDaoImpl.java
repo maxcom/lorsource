@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.user.User;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -112,6 +113,47 @@ public class TopicListDaoImpl implements TopicListDao {
       queryParameters.toArray(),
       rowMapperForDeletedTopics
     );
+  }
+
+  @Override
+  public List<DeletedTopicForUser> getDeletedTopicsForUser(User user, int offset, int limit) {
+    StringBuilder query = new StringBuilder();
+    List <Object> queryParameters = new ArrayList<Object>();
+    query
+        .append("SELECT")
+        .append(" del_info.msgid as msgid, topics.title as subj, reason, bonus, delby, ")
+        .append(" topics.groupid as group_id, ")
+        .append(" groups.section as section_id, ")
+        .append(" case deldate is null when 't' then '1970-01-01 00:00:00'::timestamp else deldate end as del_date ")
+        .append(" FROM del_info ")
+        .append(" JOIN topics ON topics.id = del_info.msgid ")
+        .append(" JOIN groups ON groups.id = topics.groupid ")
+        .append(" WHERE topics.userid = ? ")
+        .append(" AND topics.userid!=del_info.delby ")
+        .append(" ORDER BY del_date DESC ");
+
+    queryParameters.add(user.getId());
+
+    if(limit == 0) {
+      query.append(" OFFSET ? ");
+      queryParameters.add(offset);
+    } else {
+      query.append(" LIMIT ? OFFSET ?");
+      queryParameters.add(limit);
+      queryParameters.add(offset);
+    }
+
+    return jdbcTemplate.query(query.toString(), queryParameters.toArray(), new RowMapper<DeletedTopicForUser>() {
+      @Override
+      public DeletedTopicForUser mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new DeletedTopicForUser(resultSet);
+      }
+    });
+  }
+
+  @Override
+  public int getCountDeletedTopicsForUser(User user) {
+    return jdbcTemplate.queryForInt("SELECT count(del_info.msgid) FROM del_info JOIN topics ON topics.id = del_info.msgid WHERE del_info.delby != topics.userid AND topics.userid = ?", user.getId());
   }
 
   /**

@@ -582,7 +582,7 @@ public class CommentService {
    * @return список удалённых комментариев пользователя
    */
   public List<CommentDao.DeletedListItem> getDeletedComments(User user) {
-    return commentDao.getDeletedComments(user.getId());
+    return commentDao.getLastDeletedCommentsForUser(user.getId());
   }
 
   /**

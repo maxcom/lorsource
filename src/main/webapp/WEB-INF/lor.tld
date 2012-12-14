@@ -28,6 +28,11 @@
         <function-class>ru.org.linux.util.DateUtil</function-class>
         <function-signature>java.lang.String getMonth(int)</function-signature>
     </function>
+    <function>
+        <name>escape</name>
+        <function-class>ru.org.linux.util.StringUtil</function-class>
+        <function-signature>java.lang.String escapeHtml(java.lang.String)</function-signature>
+    </function>
 
     <tag>
         <description>Boxlet container</description>
@@ -86,6 +91,21 @@
             <name>list</name>
             <required>true</required>
             <type>java.util.List</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>page</name>
+        <tag-class>ru.org.linux.site.tags.PageTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>pagination</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>baseUrl</name>
+            <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

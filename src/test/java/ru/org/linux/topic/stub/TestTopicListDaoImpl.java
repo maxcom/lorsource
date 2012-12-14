@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicListDto;
+import ru.org.linux.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,16 @@ public class TestTopicListDaoImpl implements TopicListDao {
 
   @Override
   public List<TopicListDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
-
     return null;
+  }
+
+  @Override
+  public List<DeletedTopicForUser> getDeletedTopicsForUser(User user, int offset, int limit) {
+    return null;
+  }
+
+  @Override
+  public int getCountDeletedTopicsForUser(User user) {
+    return 0;
   }
 }

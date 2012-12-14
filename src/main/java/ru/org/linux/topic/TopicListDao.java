@@ -15,6 +15,11 @@
 
 package ru.org.linux.topic;
 
+import ru.org.linux.user.User;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface TopicListDao {
@@ -50,4 +55,67 @@ public interface TopicListDao {
    * @return
    */
   List<TopicListDto.DeletedTopic> getDeletedTopics(Integer sectionId);
+
+  /**
+   * Удаленные топики пользователя user
+   * @param user пользователь
+   * @return список удаленных топиков
+   */
+  List<DeletedTopicForUser> getDeletedTopicsForUser(User user, int offset, int limit);
+
+  int getCountDeletedTopicsForUser(User user);
+
+  public static class DeletedTopicForUser {
+    private final int id;
+    private final String title;
+    private final int sectionId;
+    private final int groupId;
+    private final String reason;
+    private final int bonus;
+    private final int moderatorId;
+    private final Timestamp date;
+
+    public DeletedTopicForUser(ResultSet rs) throws SQLException {
+      id = rs.getInt("msgid");
+      title = rs.getString("subj");
+      sectionId = rs.getInt("section_id");
+      groupId = rs.getInt("group_id");
+      reason = rs.getString("reason");
+      bonus = rs.getInt("bonus");
+      moderatorId = rs.getInt("delby");
+      date = rs.getTimestamp("del_date");
+    }
+
+    public int getId() {
+      return id;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public int getSectionId() {
+      return sectionId;
+    }
+
+    public int getGroupId() {
+      return groupId;
+    }
+
+    public String getReason() {
+      return reason;
+    }
+
+    public int getBonus() {
+      return bonus;
+    }
+
+    public int getModeratorId() {
+      return moderatorId;
+    }
+
+    public Timestamp getDate() {
+      return date;
+    }
+  }
 }

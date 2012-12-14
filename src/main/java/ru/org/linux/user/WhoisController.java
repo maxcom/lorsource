@@ -21,14 +21,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.comment.CommentDao;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -58,6 +62,15 @@ public class WhoisController {
 
   @Autowired
   private TopicPermissionService topicPermissionService;
+
+  @Autowired
+  private CommentDao commentDao;
+
+  @Autowired
+  private TopicListDao topicListDao;
+
+  @Autowired
+  private DeletedMessageService deletedMessageService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -117,7 +130,49 @@ public class WhoisController {
     if (currentUser || tmpl.isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
+    mv.addObject("deletedTopicsCount", topicListDao.getCountDeletedTopicsForUser(user));
+    mv.addObject("deletedCommentsCount", commentDao.getCountDeletedCommentsForUser(user));
     response.setDateHeader("Expires", System.currentTimeMillis()+120000);
+    return mv;
+  }
+
+  @RequestMapping(value="/people/{nick}/deleted/topics")
+  @PreAuthorize("hasRole('ROLE_MODERATOR')")
+  public ModelAndView getDeletedTopics(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
+    User user = userDao.getUser(nick);
+
+    if (page==null) {
+      page = 1;
+    }
+    if(page <= 0) {
+      page = 1;
+    }
+
+    ModelAndView mv = new ModelAndView("show-deleted");
+    mv.addObject("title", "Удаленные темы пользователя ");
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, page));
+    mv.addObject("user", user);
+    mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/topics").expand(user.getNick()));
+    return mv;
+  }
+
+  @RequestMapping(value="/people/{nick}/deleted/comments")
+  @PreAuthorize("hasRole('ROLE_MODERATOR')")
+  public ModelAndView getDeletedComments(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
+    User user = userDao.getUser(nick);
+
+    if (page==null) {
+      page = 1;
+    }
+    if(page <= 0) {
+      page = 1;
+    }
+
+    ModelAndView mv = new ModelAndView("show-deleted");
+    mv.addObject("title", "Удаленные комментарии пользователя ");
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, page));
+    mv.addObject("user", user);
+    mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/comments").expand(user.getNick()));
     return mv;
   }
 
