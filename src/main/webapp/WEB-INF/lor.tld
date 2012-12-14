@@ -94,4 +94,19 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <name>page</name>
+        <tag-class>ru.org.linux.site.tags.PageTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>pagination</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>baseUrl</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

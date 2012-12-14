@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +23,12 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<h1>${title}</h1>
+<spring:url value="/people/{nick}/profile" var="profileLink">
+  <spring:param name="nick" value="${user.nick}" />
+</spring:url>
 
+<h1>${title} <lor:user user="${user}" link="true"/></h1>
+  <div class="nav"><l:page pagination="${listMessages}" baseUrl="${baseUrl}"/></div>
   <div class="forum">
     <table width="100%" class="message-table">
       <thead>
@@ -38,7 +43,7 @@
       </tr>
       </thead>
       <tbody>
-      <c:forEach items="${listMessages}" var="item">
+      <c:forEach items="${listMessages.items}" var="item">
       <tr>
         <td>${l:escape(item.sectionTitle)}</td>
         <td>${l:escape(item.groupTitle)}</td>

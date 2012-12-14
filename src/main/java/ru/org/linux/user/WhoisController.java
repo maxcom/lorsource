@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.section.SectionService;
@@ -137,21 +138,41 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/deleted/topics")
   @PreAuthorize("hasRole('ROLE_MODERATOR')")
-  public ModelAndView getDeletedTopics(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView getDeletedTopics(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
     User user = userDao.getUser(nick);
+
+    if (page==null) {
+      page = 1;
+    }
+    if(page <= 0) {
+      page = 1;
+    }
+
     ModelAndView mv = new ModelAndView("show-deleted");
-    mv.addObject("title", "Удаленные темы пользователя " + user.getNick());
-    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user));
+    mv.addObject("title", "Удаленные темы пользователя ");
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, page));
+    mv.addObject("user", user);
+    mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/topics").expand(user.getNick()));
     return mv;
   }
 
   @RequestMapping(value="/people/{nick}/deleted/comments")
   @PreAuthorize("hasRole('ROLE_MODERATOR')")
-  public ModelAndView getDeletedComments(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView getDeletedComments(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
     User user = userDao.getUser(nick);
+
+    if (page==null) {
+      page = 1;
+    }
+    if(page <= 0) {
+      page = 1;
+    }
+
     ModelAndView mv = new ModelAndView("show-deleted");
-    mv.addObject("title", "Удаленные комментарии пользователя " + user.getNick());
-    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user));
+    mv.addObject("title", "Удаленные комментарии пользователя ");
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, page));
+    mv.addObject("user", user);
+    mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/comments").expand(user.getNick()));
     return mv;
   }
 
