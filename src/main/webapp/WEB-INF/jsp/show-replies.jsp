@@ -175,7 +175,7 @@
     <lor:dateinterval date="${topic.event.eventDate}"/>
 
     <c:if test="${topic.event.cid != 0}">
-       (<lor:user user="${topic.commentAuthor}" decorate="true"/>)
+       (<lor:user user="${topic.commentAuthor}"/>)
     </c:if>
   </td>
 </tr>

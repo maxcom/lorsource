@@ -87,7 +87,7 @@
   <ul>
 <c:forEach var="user" items="${moderators}">
   <li>
-    <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" decorate="true" link="true"/>)
+    <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" link="true"/>)
   </li>
 </c:forEach>
 
@@ -99,10 +99,10 @@
       <li>
         <c:choose>
             <c:when test="${not empty user.name}">
-                <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" decorate="true" link="true"/>)
+                <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" link="true"/>)
             </c:when>
             <c:otherwise>
-                <lor:user user="${user}" decorate="true" link="true"/>
+                <lor:user user="${user}" link="true"/>
             </c:otherwise>
         </c:choose>
       </li>

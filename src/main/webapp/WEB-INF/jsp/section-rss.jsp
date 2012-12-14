@@ -31,7 +31,7 @@
     </pubDate>
   <c:forEach var="msg" items="${messages}">
     <item>
-      <author><lor:user user="${msg.author}"/></author>
+      <author>${msg.author.nick}</author>
       <link>http://www.linux.org.ru${msg.message.link}</link>
       <guid>http://www.linux.org.ru${msg.message.link}</guid>
       <title><c:out escapeXml="true" value="${msg.message.title}"/></title>

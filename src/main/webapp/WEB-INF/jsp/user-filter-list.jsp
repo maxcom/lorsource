@@ -53,7 +53,7 @@
         <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
           <lor:csrf/>
           <input type="hidden" name="id" value="${item.key}">
-          <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" decorate="true" link="true"/> </span>
+          <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" link="true"/> </span>
           <c:if test="${not empty ignoreRemarks[item.key]}">
             <c:out escapeXml="true" value="${ignoreRemarks[item.key].text}"/>
           </c:if>

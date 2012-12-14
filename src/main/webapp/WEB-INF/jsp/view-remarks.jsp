@@ -43,7 +43,7 @@
     <thead>
     <tr>
     <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=0">Ник</a></th>
-    <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=1">Комментарий</th>
+    <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=1">Комментарий</a></th>
     </tr>
     <tbody>
 
@@ -51,7 +51,7 @@
       <tr>
       <td><lor:user link="true" user="${remark.refUser}"/> ${remark.refUser.stars}</td>
       <td><a href="/people/${remark.refUser.nick}/remark/">
-        <c:out value="${remark.remark.text}" escapeXml="true"/></td>
+        <c:out value="${remark.remark.text}" escapeXml="true"/></a></td>
       </tr>
     </c:forEach>
     </table>

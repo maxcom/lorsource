@@ -35,7 +35,7 @@
           <c:out escapeXml="true" value="${message.title}"/>
         </c:if>
       </title>
-      <author><lor:user user="${comment.author}"/></author>
+      <author>${comment.author.nick}</author>
       <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.comment.id}</link>
       <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
