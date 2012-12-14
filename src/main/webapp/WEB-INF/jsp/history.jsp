@@ -40,7 +40,7 @@
         Исправление
       </c:if>
 
-      <lor:user link="true" decorate="true" user="${editHistory.editor}"/>,
+      <lor:user link="true" user="${editHistory.editor}"/>,
       <lor:dateinterval date="${editHistory.editDate}"/>
 
       <c:if test="${editHistory.current}">

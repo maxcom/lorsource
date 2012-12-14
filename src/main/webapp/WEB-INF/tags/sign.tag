@@ -24,10 +24,10 @@
         attribute name="timeprop" type="java.lang.String" required="false" %>
 
 <c:if test="${author}">
-  <lor:user rel="author" itemprop="creator" decorate="true" link="true" user="${user}"/>
+  <lor:user rel="author" itemprop="creator" link="true" user="${user}"/>
 </c:if>
 <c:if test="${not author}">
-  <lor:user decorate="true" itemprop="creator" link="true" user="${user}"/>
+  <lor:user itemprop="creator" link="true" user="${user}"/>
 </c:if>
 
 <c:if test="${not shortMode and not user.anonymous}">

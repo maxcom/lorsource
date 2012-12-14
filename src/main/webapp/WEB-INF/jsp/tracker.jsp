@@ -96,14 +96,14 @@
             </a>
 
                 (<%--
-                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}" decorate="true"/><%--
+                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}"/><%--
                   --%><span class="hideon-desktop"> в </span><%--
                   --%></c:if><span class="hideon-desktop">${groupLink}</span>)
         </td>
         <td class="dateinterval">
           <lor:dateinterval date="${msg.postdate}"/><%--
           --%><c:if test="${msg.lastCommentBy != null}"><%--
-            --%>, <lor:user user="${msg.lastCommentBy}" decorate="true"/>
+            --%>, <lor:user user="${msg.lastCommentBy}"/>
           </c:if>
         </td>
         <td class='numbers'>
