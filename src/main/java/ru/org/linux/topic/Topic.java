@@ -16,6 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
+import ru.org.linux.comment.CommentFilter;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
@@ -325,11 +326,21 @@ public class Topic implements Serializable {
   }
 
   public int getPageCount(int messages) {
-    return (int) Math.ceil(commentCount / ((double) messages));
+    final int pages = (int) Math.ceil(commentCount / ((double) messages));
+    if (commentCount % messages < CommentFilter.LIMIT_CLEARANCE + 1 && commentCount % messages > 0 ) {
+      return pages - 1;
+    } else {
+      return pages;
+    }
   }
 
   public static int getPageCount(int commentCount, int messages) {
-    return (int) Math.ceil(commentCount / ((double) messages));
+    final int pages =  (int) Math.ceil(commentCount / ((double) messages));
+    if (commentCount % messages < CommentFilter.LIMIT_CLEARANCE + 1 && commentCount % messages > 0 ) {
+      return pages - 1;
+    } else {
+      return pages;
+    }
   }
 
   public boolean isSticky() {
