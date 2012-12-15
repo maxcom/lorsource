@@ -89,4 +89,40 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <description>Signature</description>
+        <name>sign</name>
+        <tag-class>ru.org.linux.site.tags.SignTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>user</name>
+            <required>true</required>
+            <type>ru.org.linux.user.User</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>shortMode</name>
+            <required>true</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>author</name>
+            <required>true</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>postdate</name>
+            <required>true</required>
+            <type>java.util.Date</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>timeprop</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

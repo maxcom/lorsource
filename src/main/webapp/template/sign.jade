@@ -1,11 +1,11 @@
 //- подпись к посту
-    user - класс ApiUser
-    link - boolean; ставить ли ссылку
-    rel - аттрибут rel у ссылки на пользователя
-    itemprop - аттрибут itemprop
-include user
+    user - класс ApiUserRef
+    shortMode - boolean; короткий режим (для новостей)
+    author - boolean; является ли автором страницы
+    postdate - дата; дата написания
+    timeprop - атрибут itemprop даты
 
-if author
-    mixin user(user, true, "author", itemprop="creator")
-else
-    mixin user(user, true, rel=false, itemprop="creator")
+include common
+
+mixin sign(user, shortMode, author, postdate, timeprop)
+

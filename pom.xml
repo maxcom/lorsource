@@ -293,6 +293,18 @@
           <version>1.7.1</version>
           <scope>test</scope>
         </dependency>
+
+        <dependency>
+          <groupId>de.neuland</groupId>
+          <artifactId>jade4j</artifactId>
+          <version>0.3.5</version>
+        </dependency>
+
+        <dependency>
+          <groupId>de.neuland</groupId>
+          <artifactId>spring-jade4j</artifactId>
+          <version>0.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -719,6 +731,16 @@
             <id>spymemcached</id>
             <name>spymemcached</name>
             <url>http://files.couchbase.com/maven2/</url>
+        </repository>
+
+        <repository>
+            <id>jade4j-releases</id>
+            <url>https://raw.github.com/neuland/jade4j/blob/master/releases</url>
+        </repository>
+
+        <repository>
+          <id>spring-jade4j-releases</id>
+          <url>https://raw.github.com/neuland/spring-jade4j/master/releases</url>
         </repository>
     </repositories>
 

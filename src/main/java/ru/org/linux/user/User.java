@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
@@ -239,32 +240,65 @@ public class User implements Serializable {
     }
   }
 
+  @Deprecated
   public String getStars() {
     return getStars(score, maxScore);
   }
 
-  public static String getStars(int score, int maxScore) {
-    StringBuilder out = new StringBuilder();
-
+  public static int getGreenStars(int score) {
     if (score < 0) {
       score = 0;
     }
     if (score >= 600) {
       score = 599;
     }
+
+    return (int) Math.floor(score / 100.0);
+  }
+
+  public static int getGreyStars(int score, int maxScore) {
     if (maxScore < 0) {
       maxScore = 0;
+    }
+    if (maxScore < score) {
+      maxScore = score;
     }
     if (maxScore >= 600) {
       maxScore = 599;
     }
 
-    if (maxScore < score) {
-      maxScore = score;
+    int stars = getGreenStars(score);
+    return (int) Math.floor(maxScore / 100.0) - stars;
+  }
+
+  public int getGreenStars() {
+    return getGreenStars(score);
+  }
+
+  public int getGreyStars() {
+    return getGreyStars(score, maxScore);
+  }
+
+  // TODO move to ApiUserRef and rename to getStars
+  public ImmutableList<Boolean> getStarsArray() {
+    ImmutableList.Builder<Boolean> builder = ImmutableList.builder();
+
+    for (int i=0; i<getGreenStars(); i++) {
+      builder.add(true);
     }
 
-    int stars = (int) Math.floor(score / 100.0);
-    int greyStars = (int) Math.floor(maxScore / 100.0) - stars;
+    for (int i=0; i<getGreyStars(); i++) {
+      builder.add(false);
+    }
+
+    return builder.build();
+  }
+
+  public static String getStars(int score, int maxScore) {
+    StringBuilder out = new StringBuilder();
+
+    int stars = getGreenStars(score);
+    int greyStars = getGreyStars(score, maxScore);
 
     for (int i = 0; i < stars; i++) {
       out.append("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">");

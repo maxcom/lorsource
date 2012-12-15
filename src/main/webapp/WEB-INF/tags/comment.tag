@@ -72,6 +72,14 @@
               timeprop="commentTime"
       />
 
+      <l:sign
+              postdate="${comment.comment.postdate}"
+              user="${comment.author}"
+              shortMode="false"
+              timeprop="commentTime"
+              author="false"
+      />
+
       <c:if test="${comment.remark != null}">
         <span class="user-remark"><c:out value="${comment.remark.text}" escapeXml="true"/></span>
       </c:if>

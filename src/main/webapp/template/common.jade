@@ -1,0 +1,40 @@
+//- пользователь
+    user - класс ApiUserRef
+    link - ставить ли ссылку на профиль
+    rel - значение атрибута rel ссылки
+    itemprop - значение атрибута itemprop ссылки
+mixin user(user, link, rel, itemprop)
+    if user.blocked
+        s
+            if link
+                a(href='/people/#{user.nick}/profile',rel=rel,itemprop=itemprop)
+                    | #{user.nick}
+            else
+                | #{user.nick}
+    else
+        if link && !user.anonymous
+            a(href='/people/#{user.nick}/profile',rel=rel,itemprop=itemprop)
+                | #{user.nick}
+        else
+            | #{user.nick}
+
+//- подпись к посту
+    user - класс ApiUserRef
+    shortMode - boolean; короткий режим (для новостей)
+    author - boolean; является ли автором страницы
+    postdate - дата; дата написания
+    timeprop - атрибут itemprop даты
+mixin sign(user, shortMode, author, postdate, timeprop)
+    if author
+        mixin user(user, true, "author", itemprop="creator")
+    else
+        mixin user(user, true, rel=false, itemprop="creator")
+
+    | #{' '}
+
+    if !shortMode && !user.anonymous
+        each item in user.starsArray
+            if item
+                img(src="/img/normal-star.gif",width=9,height=9,alt="*")
+            else
+                img(src="/img/grey-star.gif",width=9,height=9,alt="*")
