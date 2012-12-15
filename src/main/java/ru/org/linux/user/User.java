@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
@@ -277,21 +276,6 @@ public class User implements Serializable {
 
   public int getGreyStars() {
     return getGreyStars(score, maxScore);
-  }
-
-  // TODO move to ApiUserRef and rename to getStars
-  public ImmutableList<Boolean> getStarsArray() {
-    ImmutableList.Builder<Boolean> builder = ImmutableList.builder();
-
-    for (int i=0; i<getGreenStars(); i++) {
-      builder.add(true);
-    }
-
-    for (int i=0; i<getGreyStars(); i++) {
-      builder.add(false);
-    }
-
-    return builder.build();
   }
 
   public static String getStars(int score, int maxScore) {

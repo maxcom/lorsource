@@ -5,6 +5,7 @@ import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.JadeTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.org.linux.user.ApiUserService;
 import ru.org.linux.user.User;
 
 import javax.servlet.jsp.JspException;
@@ -46,9 +47,11 @@ public class SignTag extends TagSupport {
     JadeConfiguration jadeConfiguration = context.getBean(JadeConfiguration.class);
     JadeTemplate jadeTemplate = context.getBean("TemplateSign", JadeTemplate.class);
 
+    ApiUserService apiUserService = context.getBean(ApiUserService.class);
+
     Map<String, Object> data = Maps.newHashMap();
 
-    data.put("user", user);
+    data.put("user", apiUserService.ref(user));
     data.put("shortMode", shortMode);
     data.put("author", author);
     data.put("postdate", postdate);
