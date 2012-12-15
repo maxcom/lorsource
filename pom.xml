@@ -735,7 +735,7 @@
 
         <repository>
             <id>jade4j-releases</id>
-            <url>https://raw.github.com/neuland/jade4j/blob/master/releases</url>
+            <url>https://raw.github.com/neuland/jade4j/master/releases</url>
         </repository>
 
         <repository>
