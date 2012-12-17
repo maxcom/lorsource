@@ -65,13 +65,6 @@
     ${comment.processedMessage}
 
     <div class=sign>
-      <lor:sign
-              postdate="${comment.comment.postdate}"
-              user="${comment.author}"
-              shortMode="false"
-              timeprop="commentTime"
-      />
-
       <l:sign
               postdate="${comment.comment.postdate}"
               user="${comment.author}"
