@@ -38,3 +38,5 @@ mixin sign(user, shortMode, author, postdate, timeprop)
                 img(src="/img/normal-star.gif",width=9,height=9,alt="*")
             else
                 img(src="/img/grey-star.gif",width=9,height=9,alt="*")
+        if user.score!=null
+            |  (Score: #{user.score} MaxScore: #{user.maxScore})

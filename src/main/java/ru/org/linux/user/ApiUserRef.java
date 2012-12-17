@@ -11,6 +11,8 @@ public class ApiUserRef {
   private final boolean blocked;
   private final boolean anonymous;
   private final ImmutableList<Boolean> stars;
+  private final Integer score;
+  private final Integer maxScore;
 
   /*
     Constructor with default values for Jackson serializer
@@ -20,6 +22,8 @@ public class ApiUserRef {
     blocked = false;
     anonymous = false;
     stars = ImmutableList.of();
+    score = null;
+    maxScore = null;
   }
 
   @JsonCreator
@@ -27,12 +31,14 @@ public class ApiUserRef {
           @JsonProperty("nick") String nick,
           @JsonProperty("blocked") boolean blocked,
           @JsonProperty("anonymous") boolean anonymous,
-          @JsonProperty("stars") ImmutableList<Boolean> stars
-  ) {
+          @JsonProperty("stars") ImmutableList<Boolean> stars,
+          Integer score, Integer maxScore) {
     this.nick = nick;
     this.blocked = blocked;
     this.anonymous = anonymous;
     this.stars = stars;
+    this.score = score;
+    this.maxScore = maxScore;
   }
 
   public String getNick() {
@@ -49,5 +55,13 @@ public class ApiUserRef {
 
   public ImmutableList<Boolean> getStars() {
     return stars;
+  }
+
+  public Integer getScore() {
+    return score;
+  }
+
+  public Integer getMaxScore() {
+    return maxScore;
   }
 }

@@ -19,12 +19,22 @@ public class ApiUserService {
     return builder.build();
   }
 
-  public ApiUserRef ref(User user) {
+  public ApiUserRef ref(User user, User requestUser) {
+    Integer score = null;
+    Integer maxScore = null;
+
+    if (requestUser!=null && requestUser.isModerator()) {
+      score = user.getScore();
+      maxScore = user.getMaxScore();
+    }
+
     return new ApiUserRef(
             user.getNick(),
             user.isBlocked(),
             user.isAnonymous(),
-            getStars(user)
+            getStars(user),
+            score,
+            maxScore
     );
   }
 }
