@@ -40,3 +40,9 @@ mixin sign(user, shortMode, author, postdate, timeprop)
                 img(src="/img/grey-star.gif",width=9,height=9,alt="*")
         if user.score!=null
             |  (Score: #{user.score} MaxScore: #{user.maxScore})
+
+    |  (
+
+    time(datetime='#{ dateFormat.iso(postdate) }', itemprop='#{timeprop}') #{ dateFormat.apply(postdate) }
+
+    | )

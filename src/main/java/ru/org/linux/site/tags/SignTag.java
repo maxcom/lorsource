@@ -6,6 +6,7 @@ import de.neuland.jade4j.template.JadeTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
+import ru.org.linux.site.DateFormats;
 import ru.org.linux.user.ApiUserService;
 import ru.org.linux.user.User;
 
@@ -57,6 +58,9 @@ public class SignTag extends TagSupport {
     data.put("author", author);
     data.put("postdate", postdate);
 
+    // TODO: move to globals
+    data.put("dateFormat", new DateFormatHandler());
+
     if (timeprop!=null) {
       data.put("timeprop", timeprop);
     }
@@ -74,5 +78,15 @@ public class SignTag extends TagSupport {
 */
 
     return SKIP_BODY;
+  }
+
+  public static class DateFormatHandler {
+    public String apply(Date input) {
+      return DateFormats.getDefault().print(input.getTime());
+    }
+
+    public String iso(Date input) {
+      return DateFormats.iso8601().print(input.getTime());
+    }
   }
 }
