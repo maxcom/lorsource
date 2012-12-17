@@ -62,6 +62,16 @@ public class SignTag extends TagSupport {
 
     jadeConfiguration.renderTemplate(jadeTemplate, data, pageContext.getOut());
 
+/*
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      pageContext.getOut().append(mapper.writer().writeValueAsString(data.get("user")));
+    } catch (Exception e) {
+      e.printStackTrace();
+     // throw new RuntimeException(e);
+    }
+*/
+
     return SKIP_BODY;
   }
 }

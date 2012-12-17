@@ -32,7 +32,7 @@ mixin sign(user, shortMode, author, postdate, timeprop)
 
     | #{' '}
 
-    if !shortMode && !user.anonymous
+    if !shortMode && user.stars!=null
         each item in user.stars
             if item
                 img(src="/img/normal-star.gif",width=9,height=9,alt="*")
