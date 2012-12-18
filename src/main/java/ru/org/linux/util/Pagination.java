@@ -51,6 +51,10 @@ public class Pagination {
     sortList.add(sort);
   }
 
+  public void addSort(List<Sort> sortList) {
+    this.sortList.addAll(sortList);
+  }
+
   public int getIndex() {
     return index;
   }

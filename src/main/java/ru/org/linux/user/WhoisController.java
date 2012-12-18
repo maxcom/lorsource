@@ -140,20 +140,13 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/deleted/topics")
   @PreAuthorize("hasRole('ROLE_MODERATOR')")
-  public ModelAndView getDeletedTopics(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
+  public ModelAndView getDeletedTopics(@PathVariable String nick, Pagination pagination) throws Exception {
     User user = userDao.getUser(nick);
 
-    if (page==null) {
-      page = 1;
-    }
-    if(page <= 0) {
-      page = 1;
-    }
-
-    ModelAndView mv = new ModelAndView("show-deleted");
+      ModelAndView mv = new ModelAndView("show-deleted");
     mv.addObject("title", "Удаленные темы пользователя ");
-    final int size = AuthUtil.getProf().getMessages();
-    Pagination pagination = new Pagination(page, size);
+
+    pagination.setSize(AuthUtil.getProf().getMessages());
     mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, pagination));
     mv.addObject("user", user);
     mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/topics").expand(user.getNick()));
@@ -162,20 +155,12 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/deleted/comments")
   @PreAuthorize("hasRole('ROLE_MODERATOR')")
-  public ModelAndView getDeletedComments(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
+  public ModelAndView getDeletedComments(@PathVariable String nick, Pagination pagination) throws Exception {
     User user = userDao.getUser(nick);
-
-    if (page==null) {
-      page = 1;
-    }
-    if(page <= 0) {
-      page = 1;
-    }
 
     ModelAndView mv = new ModelAndView("show-deleted");
     mv.addObject("title", "Удаленные комментарии пользователя ");
-    final int size = AuthUtil.getProf().getMessages();
-    Pagination pagination = new Pagination(page, size);
+    pagination.setSize(AuthUtil.getProf().getMessages());
     mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, pagination));
     mv.addObject("user", user);
     mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/comments").expand(user.getNick()));

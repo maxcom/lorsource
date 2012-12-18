@@ -50,6 +50,14 @@
         <property name="ignoreResourceNotFound" value="true"/>
     </bean>
 
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="customArgumentResolvers">
+            <list>
+                <bean class="ru.org.linux.spring.PaginationArgumentResolver" />
+            </list>
+        </property>
+    </bean>
+
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
           id="configurer">
         <property name="properties" ref="properties"/>
