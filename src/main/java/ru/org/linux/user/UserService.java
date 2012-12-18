@@ -10,6 +10,7 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ImageInfo2;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class UserService {
     return builder.build();
   }
 
-  public ApiUserRef ref(User user, User requestUser) {
+  public ApiUserRef ref(User user, @Nullable User requestUser) {
     Integer score = null;
     Integer maxScore = null;
 

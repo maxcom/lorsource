@@ -147,7 +147,9 @@ public class CommentPrepareService {
       );
     }
 
-    return new PreparedComment(comment, author, processedMessage, replyAuthor,
+    ApiUserRef ref = userService.ref(author, tmpl!=null?tmpl.getCurrentUser():null);
+
+    return new PreparedComment(comment, ref, processedMessage, replyAuthor,
             reply, deletable, editable, remark, samePage, userpic);
   }
 
@@ -180,9 +182,11 @@ public class CommentPrepareService {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage = lorCodeService.parseComment(message, secure, false);
 
+    ApiUserRef ref = userService.ref(author, null);
+
     return new PreparedComment(
         comment,
-        author,
+        ref,
         processedMessage,
         null, // comments
             null,  // reply

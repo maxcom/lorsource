@@ -5,10 +5,8 @@ import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.JadeTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DateFormats;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserService;
+import ru.org.linux.user.ApiUserRef;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -16,13 +14,13 @@ import java.util.Date;
 import java.util.Map;
 
 public class SignTag extends TagSupport {
-  private User user;
+  private ApiUserRef user;
   private boolean shortMode;
   private boolean author;
   private Date postdate;
   private String timeprop;
 
-  public void setUser(User user) {
+  public void setUser(ApiUserRef user) {
     this.user = user;
   }
 
@@ -49,11 +47,9 @@ public class SignTag extends TagSupport {
     JadeConfiguration jadeConfiguration = context.getBean(JadeConfiguration.class);
     JadeTemplate jadeTemplate = context.getBean("TemplateSign", JadeTemplate.class);
 
-    UserService apiUserService = context.getBean(UserService.class);
-
     Map<String, Object> data = Maps.newHashMap();
 
-    data.put("user", apiUserService.ref(user, AuthUtil.getCurrentUser()));
+    data.put("user", user);
     data.put("shortMode", shortMode);
     data.put("author", author);
     data.put("postdate", postdate);

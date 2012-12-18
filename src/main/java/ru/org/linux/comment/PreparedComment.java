@@ -15,6 +15,7 @@
 
 package ru.org.linux.comment;
 
+import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
 import ru.org.linux.user.Userpic;
@@ -23,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class PreparedComment {
   private final Comment comment;
-  private final User author;
+  private final ApiUserRef author;
   private final String processedMessage;
   private final User replyAuthor;
   private final Comment reply;
@@ -35,7 +36,7 @@ public class PreparedComment {
   @Nullable
   private final Userpic userpic;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor,
+  public PreparedComment(Comment comment, ApiUserRef author, String processedMessage, User replyAuthor,
                          Comment reply,
                          boolean deletable, boolean editable, Remark remark, boolean samePage,
                          @Nullable Userpic userpic) {
@@ -55,7 +56,7 @@ public class PreparedComment {
     return comment;
   }
 
-  public User getAuthor() {
+  public ApiUserRef getAuthor() {
     return author;
   }
 

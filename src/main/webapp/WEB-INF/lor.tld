@@ -97,7 +97,7 @@
         <attribute>
             <name>user</name>
             <required>true</required>
-            <type>ru.org.linux.user.User</type>
+            <type>ru.org.linux.user.ApiUserRef</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
