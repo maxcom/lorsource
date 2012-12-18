@@ -26,9 +26,7 @@ public class PreparedComment {
   private final User author;
   private final String processedMessage;
   private final User replyAuthor;
-  private final boolean haveAnswers;
   private final Comment reply;
-  private final int replyPage;
   private final boolean deletable;
   private final boolean editable;
   private final Remark remark;
@@ -37,17 +35,15 @@ public class PreparedComment {
   @Nullable
   private final Userpic userpic;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
-                         Comment reply, int replyPage,
+  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor,
+                         Comment reply,
                          boolean deletable, boolean editable, Remark remark, boolean samePage,
                          @Nullable Userpic userpic) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
-    this.haveAnswers = haveAnswers;
     this.reply = reply;
-    this.replyPage = replyPage;
     this.deletable = deletable;
     this.editable = editable;
     this.remark = remark;
@@ -71,16 +67,8 @@ public class PreparedComment {
     return replyAuthor;
   }
 
-  public boolean isHaveAnswers() {
-    return haveAnswers;
-  }
-
   public Comment getReply() {
     return reply;
-  }
-
-  public int getReplyPage() {
-    return replyPage;
   }
 
   public String getReplyTitle() {

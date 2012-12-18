@@ -79,7 +79,6 @@ public class CommentPrepareService {
     User replyAuthor = null;
     Comment reply = null;
     int replyPage = 0;
-    boolean haveAnswers = false;
     boolean deletable = false;
     boolean editable = false;
     boolean samePage = false;
@@ -101,7 +100,7 @@ public class CommentPrepareService {
         }
       }
 
-      haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
+      boolean haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
 
       if(tmpl != null && topic != null) {
         final boolean authored = author.getNick().equals(tmpl.getNick());
@@ -128,7 +127,7 @@ public class CommentPrepareService {
               haveAnswers,
               tmpl.getConfig().getCommentExpireMinutesForEdit(),
               currentTimestamp
-              );
+          );
         }
       }
     }
@@ -148,8 +147,8 @@ public class CommentPrepareService {
       );
     }
 
-    return new PreparedComment(comment, author, processedMessage, replyAuthor, haveAnswers,
-        reply, replyPage, deletable, editable, remark, samePage, userpic);
+    return new PreparedComment(comment, author, processedMessage, replyAuthor,
+            reply, deletable, editable, remark, samePage, userpic);
   }
 
   private PreparedRSSComment prepareRSSComment(
@@ -186,9 +185,8 @@ public class CommentPrepareService {
         author,
         processedMessage,
         null, // comments
-        commentService.isHaveAnswers(comment),
-        null,  // reply
-        0,     // replyPage
+            null,  // reply
+            // replyPage
         false, // deletable
         false, // editable
         null,   // Remark
