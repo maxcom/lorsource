@@ -99,7 +99,7 @@
         <tag-class>ru.org.linux.site.tags.PageTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>pagination</name>
+            <name>paginationPrepared</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>

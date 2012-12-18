@@ -29,11 +29,13 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicPermissionService;
+import ru.org.linux.util.Pagination;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
@@ -150,7 +152,9 @@ public class WhoisController {
 
     ModelAndView mv = new ModelAndView("show-deleted");
     mv.addObject("title", "Удаленные темы пользователя ");
-    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, page));
+    final int size = AuthUtil.getProf().getMessages();
+    Pagination pagination = new Pagination(page, size);
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, pagination));
     mv.addObject("user", user);
     mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/topics").expand(user.getNick()));
     return mv;
@@ -170,7 +174,9 @@ public class WhoisController {
 
     ModelAndView mv = new ModelAndView("show-deleted");
     mv.addObject("title", "Удаленные комментарии пользователя ");
-    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, page));
+    final int size = AuthUtil.getProf().getMessages();
+    Pagination pagination = new Pagination(page, size);
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, pagination));
     mv.addObject("user", user);
     mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/comments").expand(user.getNick()));
     return mv;

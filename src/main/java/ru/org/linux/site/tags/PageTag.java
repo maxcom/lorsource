@@ -14,7 +14,7 @@
  */
 package ru.org.linux.site.tags;
 
-import ru.org.linux.util.Pagination;
+import ru.org.linux.util.PaginationPrepared;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
@@ -23,11 +23,11 @@ import java.io.IOException;
 /**
  */
 public class PageTag extends SimpleTagSupport {
-  private Pagination pagination;
+  private PaginationPrepared paginationPrepared;
   private String baseUrl;
 
-  public void setPagination(Pagination pagination) {
-    this.pagination = pagination;
+  public void setPaginationPrepared(PaginationPrepared paginationPrepared) {
+    this.paginationPrepared = paginationPrepared;
   }
 
   public void setBaseUrl(String baseUrl) {
@@ -40,33 +40,33 @@ public class PageTag extends SimpleTagSupport {
   @Override
   public void doTag() throws JspException, IOException {
     StringBuilder sb = new StringBuilder();
-    if (pagination == null || pagination.getItems() == null
-    				|| pagination.getItems().size() == 0) {
+    if (paginationPrepared == null || paginationPrepared.getItems() == null
+    				|| paginationPrepared.getItems().size() == 0) {
       getJspContext().getOut().print("");
       return;
     }
 
-    if (pagination.getCount() > 1) {
-      if (pagination.getIndex() == 1) {
+    if (paginationPrepared.getCount() > 1) {
+      if (paginationPrepared.getIndex() == 1) {
         sb.append(createPrePage(0, true));
       } else {
-        sb.append(createPrePage(pagination.getIndex() - 1, false));
+        sb.append(createPrePage(paginationPrepared.getIndex() - 1, false));
       }
     }
 
-    for(int i=1; i<= pagination.getCount(); i++) {
-      if(i == pagination.getIndex()) {
+    for(int i=1; i<= paginationPrepared.getCount(); i++) {
+      if(i == paginationPrepared.getIndex()) {
         sb.append(createPageIndex(i, true));
       } else {
         sb.append(createPageIndex(i, false));
       }
     }
 
-    if (pagination.getCount() > 1) {
-      if (pagination.getIndex() == pagination.getCount()) {
+    if (paginationPrepared.getCount() > 1) {
+      if (paginationPrepared.getIndex() == paginationPrepared.getCount()) {
         sb.append(createNextPage(0, true));
       } else {
-        sb.append(createNextPage(pagination.getIndex() + 1, false));
+        sb.append(createNextPage(paginationPrepared.getIndex() + 1, false));
       }
     }
     getJspContext().getOut().print(sb.toString());

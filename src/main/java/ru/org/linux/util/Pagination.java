@@ -14,20 +14,21 @@
  */
 package ru.org.linux.util;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Хранение параметров пагинации, полученных из GET-запроса.
  */
-public class Pagination<T> implements Serializable {
-  private int total;
+public class Pagination {
+  /**
+   * Номер страницы.
+   */
   private int index;
+  /**
+   * Количество элементов на странице.
+   */
   private int size;
-  private List<T> items;
-  private int start;
-  private int end;
-  private int count;
 
   /**
    * Сортировка списка.
@@ -38,10 +39,8 @@ public class Pagination<T> implements Serializable {
   }
 
   public Pagination(int index, int size) {
-    this.index = index <= 0 ? 1 : index;
+    this.index = index < 1 ? 1 : index;
     this.size = size;
-    start = size * (index - 1) + 1;
-    end = start + size - 1;
   }
 
   public List<Sort> getSortList() {
@@ -50,28 +49,6 @@ public class Pagination<T> implements Serializable {
 
   public void addSort(Sort sort) {
     sortList.add(sort);
-  }
-
-  public int getTotal() {
-    return total;
-  }
-
-  public void setTotal(int total) {
-    this.total = total;
-    if(total < size) {
-      count = 1;
-    } else {
-      if (total % size == 0) {
-        count = total / size;
-      } else {
-        count = total / size + 1;
-      }
-    }
-    if(index > count) {
-      index = count;
-      start = size * (index - 1) + 1;
-      end = start + size - 1;
-    }
   }
 
   public int getIndex() {
@@ -90,63 +67,38 @@ public class Pagination<T> implements Serializable {
     this.size = size;
   }
 
-  public List<T> getItems() {
-    return items;
-  }
 
-  public void setItems(List<T> items) {
-    this.items = items;
-  }
-
-  public int getStart() {
-    return start;
-  }
-
-  public void setStart(int start) {
-    this.start = start;
-  }
-
-  public int getEnd() {
-    if(end > total) {
-      return total;
-    }
-    return end;
-  }
-
-  public void setEnd(int end) {
-    this.end = end;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
-  }
-
+  /**
+   * Класс для хранения параметров сортировки.
+   */
   public static class Sort {
-    String field;
-    Direction direction;
+    /**
+     * Поле, по которому необходимо сортировать.
+     */
+    private final String field;
+    /**
+     * Направление сортировки.
+     */
+    private final Direction direction;
 
+    /**
+     * перечисление для хранения возможных значений направления сортировки.
+     */
     public static enum Direction {
-      ASC, DESC;
+      ASC, DESC
+    }
+
+    public Sort(String field, Direction direction) {
+      this.field = field;
+      this.direction = direction;
     }
 
     public String getField() {
       return field;
     }
 
-    public void setField(String field) {
-      this.field = field;
-    }
-
     public Direction getDirection() {
       return direction;
-    }
-
-    public void setDirection(Direction direction) {
-      this.direction = direction;
     }
   }
 
