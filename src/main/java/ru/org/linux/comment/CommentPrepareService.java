@@ -72,13 +72,11 @@ public class CommentPrepareService {
           Topic topic
   ) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage;
 
-    processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
+    String processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
 
-    User replyAuthor = null;
+    String replyAuthor = null;
     Comment reply = null;
-    int replyPage = 0;
     boolean deletable = false;
     boolean editable = false;
     boolean samePage = false;
@@ -87,12 +85,14 @@ public class CommentPrepareService {
       if (comment.getReplyTo() != 0) {
         CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
+        int replyPage = 0;
+
         if (replyNode!=null) {
           reply = replyNode.getComment();
           if(tmpl != null) {
             replyPage = comments.getCommentPage(reply, tmpl.getProf());
           }
-          replyAuthor = userDao.getUserCached(reply.getUserid());
+          replyAuthor = userDao.getUserCached(reply.getUserid()).getNick();
         }
 
         if (tmpl!=null) {
