@@ -15,6 +15,7 @@
 package ru.org.linux.util;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,6 +29,11 @@ public class Pagination<T> implements Serializable {
   private int end;
   private int count;
 
+  /**
+   * Сортировка списка.
+   */
+  private final List<Sort> sortList = new LinkedList<Sort>();
+
   public Pagination() {
   }
 
@@ -36,6 +42,14 @@ public class Pagination<T> implements Serializable {
     this.size = size;
     start = size * (index - 1) + 1;
     end = start + size - 1;
+  }
+
+  public List<Sort> getSortList() {
+    return sortList;
+  }
+
+  public void addSort(Sort sort) {
+    sortList.add(sort);
   }
 
   public int getTotal() {
@@ -110,4 +124,30 @@ public class Pagination<T> implements Serializable {
   public void setCount(int count) {
     this.count = count;
   }
+
+  public static class Sort {
+    String field;
+    Direction direction;
+
+    public static enum Direction {
+      ASC, DESC;
+    }
+
+    public String getField() {
+      return field;
+    }
+
+    public void setField(String field) {
+      this.field = field;
+    }
+
+    public Direction getDirection() {
+      return direction;
+    }
+
+    public void setDirection(Direction direction) {
+      this.direction = direction;
+    }
+  }
+
 }
