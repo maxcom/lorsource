@@ -23,7 +23,7 @@ public class ApiUserService {
     Integer score = null;
     Integer maxScore = null;
 
-    if (requestUser!=null && requestUser.isModerator()) {
+    if (requestUser!=null && requestUser.isModerator() && !user.isAnonymous()) {
       score = user.getScore();
       maxScore = user.getMaxScore();
     }
