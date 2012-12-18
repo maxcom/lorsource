@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ApiUserService {
+public class UserService {
   private ImmutableList<Boolean> getStars(User user) {
     ImmutableList.Builder<Boolean> builder = ImmutableList.builder();
 

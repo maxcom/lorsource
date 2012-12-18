@@ -7,8 +7,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DateFormats;
-import ru.org.linux.user.ApiUserService;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserService;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -49,7 +49,7 @@ public class SignTag extends TagSupport {
     JadeConfiguration jadeConfiguration = context.getBean(JadeConfiguration.class);
     JadeTemplate jadeTemplate = context.getBean("TemplateSign", JadeTemplate.class);
 
-    ApiUserService apiUserService = context.getBean(ApiUserService.class);
+    UserService apiUserService = context.getBean(UserService.class);
 
     Map<String, Object> data = Maps.newHashMap();
 
