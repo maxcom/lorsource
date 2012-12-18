@@ -27,10 +27,7 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
-import ru.org.linux.user.Remark;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.*;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
@@ -54,6 +51,9 @@ public class CommentPrepareService {
 
   @Autowired
   private TopicPermissionService topicPermissionService;
+
+  @Autowired
+  private UserService userService;
 
   private PreparedComment prepareComment(
           @Nonnull Comment comment,
@@ -138,8 +138,18 @@ public class CommentPrepareService {
       remark = userDao.getRemark(tmpl.getCurrentUser(), author);
     }
 
+    Userpic userpic = null;
+
+    if (tmpl != null && tmpl.getProf().isShowPhotos()) {
+      userpic = userService.getUserpic(
+              author,
+              secure,
+              tmpl.getProf().getAvatarMode()
+      );
+    }
+
     return new PreparedComment(comment, author, processedMessage, replyAuthor, haveAnswers,
-        reply, replyPage, deletable, editable, remark, samePage);
+        reply, replyPage, deletable, editable, remark, samePage, userpic);
   }
 
   private PreparedRSSComment prepareRSSComment(
@@ -182,7 +192,7 @@ public class CommentPrepareService {
         false, // deletable
         false, // editable
         null,   // Remark
-        false);
+        false, null);
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(

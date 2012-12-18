@@ -59,6 +59,9 @@ public class WhoisController {
   @Autowired
   private TopicPermissionService topicPermissionService;
 
+  @Autowired
+  private UserService userService;
+
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -72,6 +75,12 @@ public class WhoisController {
     ModelAndView mv = new ModelAndView("whois");
     mv.getModel().put("user", user);
     mv.getModel().put("userInfo", userDao.getUserInfoClass(user));
+
+    mv.getModel().put("userpic", userService.getUserpic(
+            user,
+            request.isSecure(),
+            tmpl.getProf().getAvatarMode()
+    ));
 
     if (user.isBlocked()) {
       mv.getModel().put("banInfo", userDao.getBanInfoClass(user));

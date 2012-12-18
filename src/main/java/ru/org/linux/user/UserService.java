@@ -1,7 +1,11 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ImageInfo2;
@@ -13,9 +17,14 @@ import java.io.InputStream;
 
 @Service
 public class UserService {
+  private final static Logger logger = LoggerFactory.getLogger(UserService.class);
+
   public static final int MAX_USERPIC_FILESIZE = 32000;
   public static final int MIN_IMAGESIZE = 50;
   public static final int MAX_IMAGESIZE = 150;
+
+  @Autowired
+  private Configuration configuration;
 
   public static void checkUserpic(File file) throws UserErrorException, IOException, BadImageException {
     if (!file.isFile()) {
@@ -89,5 +98,33 @@ public class UserService {
             score,
             maxScore
     );
+  }
+
+  public Userpic getUserpic(User user, boolean secure, String avatarStyle) {
+    if (user.getPhoto() != null) {
+      try {
+        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
+
+        return new Userpic(
+            "/photos/" + user.getPhoto(),
+            info.getWidth(),
+            info.getHeight()
+        );
+      } catch (BadImageException e) {
+        logger.warn("Bad userpic for {}", user.getNick(), e);
+      } catch (IOException e) {
+        logger.warn("Bad userpic for {}", user.getNick(), e);
+      }
+    }
+
+    if (user.hasGravatar()) {
+      return new Userpic(
+          user.getGravatar(avatarStyle, 150, secure),
+          150,
+          150
+      );
+    }
+
+    return new Userpic("/img/p.gif", 1, 1);
   }
 }

@@ -44,11 +44,7 @@ import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.spring.dao.UserAgentDao;
-import ru.org.linux.user.MemoriesDao;
-import ru.org.linux.user.Remark;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.LorURL;
@@ -110,6 +106,9 @@ public class TopicPrepareService {
 
   @Autowired
   private ImageDao imageDao;
+
+  @Autowired
+  private UserService userService;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
     return prepareMessage(message, messageDao.getTags(message), false, null, secure, user, null, null);
@@ -251,6 +250,7 @@ public class TopicPrepareService {
       if (user != null ){
         remark = userDao.getRemark(user, author);
       }
+
       return new PreparedTopic(
               message, 
               author, 
@@ -270,8 +270,7 @@ public class TopicPrepareService {
               text.isLorcode(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(message.getPostScore()),
-              remark
-      );
+              remark);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
@@ -318,7 +317,13 @@ public class TopicPrepareService {
    * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PersonalizedPreparedTopic> prepareMessagesForUser(List<Topic> messages, boolean secure, User user) {
+  public List<PersonalizedPreparedTopic> prepareMessagesForUser(
+          List<Topic> messages,
+          boolean secure,
+          User user,
+          ProfileProperties profileProperties,
+          boolean loadUserpics
+  ) {
     List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
@@ -334,7 +339,13 @@ public class TopicPrepareService {
               textMap.get(message.getId()),
               null
       );
-      TopicMenu topicMenu = getTopicMenu(preparedMessage, user);
+      TopicMenu topicMenu = getTopicMenu(
+              preparedMessage,
+              user,
+              secure,
+              profileProperties,
+              loadUserpics
+      );
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
 
@@ -375,7 +386,13 @@ public class TopicPrepareService {
   }
 
   @Nonnull
-  public TopicMenu getTopicMenu(@Nonnull PreparedTopic message, @Nullable User currentUser) {
+  public TopicMenu getTopicMenu(
+          @Nonnull PreparedTopic message,
+          @Nullable User currentUser,
+          boolean secure,
+          ProfileProperties profileProperties,
+          boolean loadUserpics
+  ) {
     boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
     boolean tagsEditable = groupPermissionService.isTagsEditable(message, currentUser);
     boolean resolvable;
@@ -399,6 +416,16 @@ public class TopicPrepareService {
       deletable = false;
     }
 
+    Userpic userpic = null;
+
+    if (loadUserpics && profileProperties.isShowPhotos()) {
+      userpic = userService.getUserpic(
+              message.getAuthor(),
+              secure,
+              profileProperties.getAvatarMode()
+      );
+    }
+
     return new TopicMenu(
             topicEditable,
             tagsEditable,
@@ -408,7 +435,7 @@ public class TopicPrepareService {
             topicStats.get(0),
             topicStats.get(1),
             topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser),
-            deletable
-    );
+            deletable,
+            userpic);
   }
 }

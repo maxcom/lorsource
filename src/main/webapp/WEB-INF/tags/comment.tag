@@ -52,8 +52,8 @@
     </c:if>
   </div>
 
-  <c:if test="${template.prof.showPhotos}">
-    <l:userpic author="${comment.author}"/>
+  <c:if test="${comment.userpic != null}">
+    <l:userpic userpic="${comment.userpic}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 

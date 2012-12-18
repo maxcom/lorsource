@@ -21,8 +21,8 @@ import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.user.User;
 import ru.org.linux.user.Remark;
+import ru.org.linux.user.User;
 
 import java.util.List;
 

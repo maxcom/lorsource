@@ -15,8 +15,11 @@
 
 package ru.org.linux.comment;
 
-import ru.org.linux.user.User;
 import ru.org.linux.user.Remark;
+import ru.org.linux.user.User;
+import ru.org.linux.user.Userpic;
+
+import javax.annotation.Nullable;
 
 public class PreparedComment {
   private final Comment comment;
@@ -31,9 +34,13 @@ public class PreparedComment {
   private final Remark remark;
   private final boolean samePage;
 
+  @Nullable
+  private final Userpic userpic;
+
   public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor, boolean haveAnswers,
                          Comment reply, int replyPage,
-                         boolean deletable, boolean editable, Remark remark, boolean samePage) {
+                         boolean deletable, boolean editable, Remark remark, boolean samePage,
+                         @Nullable Userpic userpic) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
@@ -45,6 +52,7 @@ public class PreparedComment {
     this.editable = editable;
     this.remark = remark;
     this.samePage = samePage;
+    this.userpic = userpic;
   }
 
   public Comment getComment() {
@@ -101,5 +109,10 @@ public class PreparedComment {
 
   public boolean isSamePage() {
     return samePage;
+  }
+
+  @Nullable
+  public Userpic getUserpic() {
+    return userpic;
   }
 }

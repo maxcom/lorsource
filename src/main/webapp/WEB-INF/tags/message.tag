@@ -68,9 +68,9 @@
   </div>
 </c:if>
 
-<c:set var="showPhotos" value="${template.prof.showPhotos}"/>
+<c:set var="showPhotos" value="${messageMenu!=null && messageMenu.userpic!=null}"/>
   <c:if test="${showPhotos}">
-    <l:userpic author="${preparedMessage.author}"/>
+    <l:userpic userpic="${messageMenu.userpic}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 

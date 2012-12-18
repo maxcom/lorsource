@@ -21,8 +21,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.TopicPrepareService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +52,13 @@ public class MainPageController {
 
     ModelAndView mv = new ModelAndView("index");
 
-    mv.getModel().put("news", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
+    mv.getModel().put("news", prepareService.prepareMessagesForUser(
+            messages,
+            request.isSecure(),
+            tmpl.getCurrentUser(),
+            tmpl.getProf(),
+            false
+    ));
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
       int uncommited = jdbcTemplate.queryForInt("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");

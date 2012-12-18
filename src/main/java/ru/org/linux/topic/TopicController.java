@@ -288,7 +288,13 @@ public class TopicController {
         }
       }
 
-      params.put("messageMenu", messagePrepareService.getTopicMenu(preparedMessage, currentUser));
+      params.put("messageMenu", messagePrepareService.getTopicMenu(
+              preparedMessage,
+              currentUser,
+              request.isSecure(),
+              tmpl.getProf(),
+              true
+      ));
 
       Set<Integer> ignoreList = null;
       boolean emptyIgnoreList = true;

@@ -50,10 +50,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
@@ -132,7 +129,13 @@ public class EditTopicController {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
-    ModelAndView mv = prepareModel(preparedMessage, form, tmpl.getCurrentUser());
+    ModelAndView mv = prepareModel(
+            preparedMessage,
+            form,
+            tmpl.getCurrentUser(),
+            request.isSecure(),
+            tmpl.getProf()
+    );
 
     mv.getModel().put("commit", true);
 
@@ -161,13 +164,21 @@ public class EditTopicController {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    return prepareModel(preparedMessage, form, tmpl.getCurrentUser());
+    return prepareModel(
+            preparedMessage,
+            form,
+            tmpl.getCurrentUser(),
+            request.isSecure(),
+            tmpl.getProf()
+    );
   }
 
   private ModelAndView prepareModel(
     PreparedTopic preparedTopic,
     EditTopicRequest form,
-    User currentUser
+    User currentUser,
+    boolean secure,
+    ProfileProperties profileProperties
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -183,7 +194,14 @@ public class EditTopicController {
 
     params.put("newMsg", message);
 
-    TopicMenu topicMenu = prepareService.getTopicMenu(preparedTopic, currentUser);
+    TopicMenu topicMenu = prepareService.getTopicMenu(
+            preparedTopic,
+            currentUser,
+            secure,
+            profileProperties,
+            true
+    );
+
     params.put("topicMenu", topicMenu);
 
     List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
@@ -298,7 +316,13 @@ public class EditTopicController {
     params.put("message", message);
     params.put("preparedMessage", preparedTopic);
     params.put("group", group);
-    params.put("topicMenu", prepareService.getTopicMenu(preparedTopic, tmpl.getCurrentUser()));
+    params.put("topicMenu", prepareService.getTopicMenu(
+            preparedTopic,
+            tmpl.getCurrentUser(),
+            request.isSecure(),
+            tmpl.getProf(),
+            true
+    ));
 
     if (tagsEditable) {
       params.put("topTags", tagService.getTopTags());

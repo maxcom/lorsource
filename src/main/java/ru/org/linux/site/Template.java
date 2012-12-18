@@ -28,6 +28,7 @@ import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 import java.io.IOException;
@@ -144,6 +145,7 @@ public final class Template {
     }
   }
 
+  @Nonnull
   public static Template getTemplate(ServletRequest request) {
     return new Template(request);
   }

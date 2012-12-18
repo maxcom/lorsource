@@ -190,7 +190,13 @@ public class TopicListController {
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+      prepareService.prepareMessagesForUser(
+              messages,
+              request.isSecure(),
+              tmpl.getCurrentUser(),
+              tmpl.getProf(),
+              false
+      )
     );
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth() == null);
@@ -586,7 +592,13 @@ public class TopicListController {
     List<Topic> messages = topicListService.getAllTopicsFeed(section, calendar.getTime());
     modelAndView.addObject(
       "messages",
-      prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+      prepareService.prepareMessagesForUser(
+              messages,
+              request.isSecure(),
+              tmpl.getCurrentUser(),
+              tmpl.getProf(),
+              false
+      )
     );
 
     List<TopicListDto.DeletedTopic> deleted = topicListService.getDeletedTopicsFeed(sectionId);
@@ -719,7 +731,13 @@ public class TopicListController {
       Template tmpl = Template.getTemplate(request);
       modelAndView.addObject(
         "messages",
-        prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+        prepareService.prepareMessagesForUser(
+                messages,
+                request.isSecure(),
+                tmpl.getCurrentUser(),
+                tmpl.getProf(),
+                false
+        )
       );
 
       modelAndView.setViewName("view-news");

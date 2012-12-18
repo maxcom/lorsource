@@ -68,12 +68,12 @@
     <tag>
         <description>Userpic</description>
         <name>userpic</name>
-        <tag-class>ru.org.linux.site.tags.UserPic</tag-class>
+        <tag-class>ru.org.linux.site.tags.TagUserpic</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <name>author</name>
+            <name>userpic</name>
             <required>true</required>
-            <type>ru.org.linux.user.User</type>
+            <type>ru.org.linux.user.Userpic</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

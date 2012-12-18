@@ -20,6 +20,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
+<%--@elvariable id="userpic" type="ru.org.linux.user.Userpic"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
 <%--@elvariable id="userStat" type="ru.org.linux.user.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -45,7 +46,7 @@
 
 <h1>Информация о пользователе ${user.nick}</h1>
 <div id="whois_userpic">
-  <l:userpic author="${user}"/>
+  <l:userpic userpic="${userpic}"/>
     <div style="clear: both">
   </div>
 <c:if test="${user.photo !=null && moderatorOrCurrentUser}">
@@ -238,11 +239,11 @@
     <h2>Действия</h2>
     <ul>
       <li><a href="/people/${user.nick}/edit">Изменить регистрацию</a></li>
-      <li><a href="/people/${nick}/settings">Изменить настройки</a></li>
+      <li><a href="/people/${user.nick}/settings">Изменить настройки</a></li>
       <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>
       <c:if test="${hasRemarks}">
         <li>
-          <a href="/people/${nick}/remarks">Просмотр заметок о пользователях</a>
+          <a href="/people/${user.nick}/remarks">Просмотр заметок о пользователях</a>
         </li>
       </c:if>
     </ul>
