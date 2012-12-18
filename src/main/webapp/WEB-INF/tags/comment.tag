@@ -46,9 +46,9 @@
       </c:url>
       Ответ на:
       <a href="${reply_url}"
-         <c:if test="${comment.samePage}">data-samepage</c:if>
-       ><l:title>${comment.replyTitle}</l:title></a>
-      от ${comment.replyAuthor}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
+         <c:if test="${comment.reply.samePage}">data-samepage</c:if>
+       ><l:title>${comment.reply.title}</l:title></a>
+      от ${comment.reply.author}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
     </c:if>
   </div>
 

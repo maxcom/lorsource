@@ -47,9 +47,6 @@ public class CommentPrepareService {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private CommentService commentService;
-
-  @Autowired
   private TopicPermissionService topicPermissionService;
 
   @Autowired
@@ -75,28 +72,39 @@ public class CommentPrepareService {
 
     String processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
 
-    String replyAuthor = null;
-    Comment reply = null;
+    ReplyInfo replyInfo = null;
     boolean deletable = false;
     boolean editable = false;
-    boolean samePage = false;
 
     if (comments != null) {
       if (comment.getReplyTo() != 0) {
         CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
-        int replyPage = 0;
-
         if (replyNode!=null) {
-          reply = replyNode.getComment();
-          if(tmpl != null) {
-            replyPage = comments.getCommentPage(reply, tmpl.getProf());
-          }
-          replyAuthor = userDao.getUserCached(reply.getUserid()).getNick();
-        }
+          Comment reply = replyNode.getComment();
 
-        if (tmpl!=null) {
-          samePage = comments.getCommentPage(comment, tmpl.getProf()) == replyPage;
+          boolean samePage = false;
+
+          if (tmpl != null) {
+            int replyPage = comments.getCommentPage(reply, tmpl.getProf());
+            samePage = comments.getCommentPage(comment, tmpl.getProf()) == replyPage;
+          }
+
+          String replyAuthor = userDao.getUserCached(reply.getUserid()).getNick();
+
+          String replyTitle = reply.getTitle();
+          if (replyTitle.trim().isEmpty()) {
+            replyTitle = "комментарий";
+          }
+
+
+          replyInfo = new ReplyInfo(
+                  reply.getId(),
+                  replyAuthor,
+                  replyTitle,
+                  reply.getPostdate(),
+                  samePage
+          );
         }
       }
 
@@ -149,8 +157,8 @@ public class CommentPrepareService {
 
     ApiUserRef ref = userService.ref(author, tmpl!=null?tmpl.getCurrentUser():null);
 
-    return new PreparedComment(comment, ref, processedMessage, replyAuthor,
-            reply, deletable, editable, remark, samePage, userpic);
+    return new PreparedComment(comment, ref, processedMessage, replyInfo,
+            deletable, editable, remark, userpic);
   }
 
   private PreparedRSSComment prepareRSSComment(
@@ -188,13 +196,12 @@ public class CommentPrepareService {
         comment,
         ref,
         processedMessage,
-        null, // comments
-            null,  // reply
-            // replyPage
+        null, // reply
         false, // deletable
         false, // editable
         null,   // Remark
-        false, null);
+        null // userpic
+    );
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(

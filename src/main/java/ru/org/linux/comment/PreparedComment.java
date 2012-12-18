@@ -27,13 +27,11 @@ public class PreparedComment {
   private final String processedMessage;
 
   @Nullable
-  private final String replyAuthor;
+  private final ReplyInfo reply;
 
-  private final Comment reply;
   private final boolean deletable;
   private final boolean editable;
   private final Remark remark;
-  private final boolean samePage;
 
   @Nullable
   private final Userpic userpic;
@@ -41,23 +39,19 @@ public class PreparedComment {
   public PreparedComment(Comment comment,
                          ApiUserRef author,
                          String processedMessage,
-                         @Nullable String replyAuthor,
-                         Comment reply,
+                         @Nullable ReplyInfo reply,
                          boolean deletable,
                          boolean editable,
                          Remark remark,
-                         boolean samePage,
                          @Nullable Userpic userpic
   ) {
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
-    this.replyAuthor = replyAuthor;
     this.reply = reply;
     this.deletable = deletable;
     this.editable = editable;
     this.remark = remark;
-    this.samePage = samePage;
     this.userpic = userpic;
   }
 
@@ -74,24 +68,8 @@ public class PreparedComment {
   }
 
   @Nullable
-  public String getReplyAuthor() {
-    return replyAuthor;
-  }
-
-  public Comment getReply() {
+  public ReplyInfo getReply() {
     return reply;
-  }
-
-  public String getReplyTitle() {
-    if(reply != null) {
-      String replyTitle = reply.getTitle();
-      if (replyTitle.trim().isEmpty()) {
-        return  "комментарий";
-      }
-      return replyTitle;
-    } else {
-      return "";
-    }
   }
 
   public boolean isDeletable() {
@@ -104,10 +82,6 @@ public class PreparedComment {
 
   public Remark getRemark() {
     return remark;
-  }
-
-  public boolean isSamePage() {
-    return samePage;
   }
 
   @Nullable
