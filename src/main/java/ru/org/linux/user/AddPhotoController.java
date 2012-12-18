@@ -72,7 +72,7 @@ public class AddPhotoController {
 
       file.transferTo(uploadedFile);
 
-      Userpic.checkUserpic(uploadedFile);
+      UserService.checkUserpic(uploadedFile);
       String extension = ImageInfo.detectImageType(uploadedFile);
 
       Random random = new Random();
