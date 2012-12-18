@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
+import javax.annotation.Nonnull;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -432,6 +433,7 @@ public class UserDao {
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
   }
 
+  @Nonnull
   public User getAnonymous() {
     try {
       return getUserCached(2);
@@ -611,15 +613,13 @@ public class UserDao {
    
   
   public List<Remark> getRemarkList(User user, int offset, int sortorder, int limit) {
-    final String queryRByTe = "SELECT * FROM user_remarks WHERE user_id=? ORDER BY remark_text ASC LIMIT ? OFFSET ?";
-    final String queryRByNi = "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text " +
-                                     "FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?";
-
     String qs;
-    if(sortorder==1) {
-      qs = queryRByTe;
+
+    if (sortorder==1) {
+      qs = "SELECT * FROM user_remarks WHERE user_id=? ORDER BY remark_text ASC LIMIT ? OFFSET ?";
     } else {
-      qs = queryRByNi;
+      qs = "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text " +
+              "FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?";
     }
 
     return jdbcTemplate.query(qs, new RowMapper<Remark>() {

@@ -269,29 +269,29 @@ public class CommentService {
    * @param errors          обработчик ошибок ввода для формы
    * @return объект пользователя
    */
+  @Nonnull
   public User getCommentUser(
     CommentRequest commentRequest,
     HttpServletRequest request,
     Errors errors
   ) {
-    User user;
-
     Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized()) {
-      if (commentRequest.getNick() != null) {
-        user = commentRequest.getNick();
-      } else {
-        user = userDao.getAnonymous();
-      }
+    User currentUser = tmpl.getCurrentUser();
 
+    if (currentUser!=null) {
+      return currentUser;
+    }
+
+    if (commentRequest.getNick() != null) {
       if (commentRequest.getPassword() == null) {
         errors.reject(null, "Требуется авторизация");
       }
+
+      return commentRequest.getNick();
     } else {
-      user = tmpl.getCurrentUser();
+      return userDao.getAnonymous();
     }
-    return user;
   }
 
   public void prepareReplyto(
@@ -595,14 +595,11 @@ public class CommentService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
-    List<Integer> deletedTopicIds;
-    List<Integer> deletedCommentIds;
-
     userDao.blockWithoutTransaction(user, moderator, reason);
 
-    deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
+    List<Integer> deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
 
-    deletedCommentIds = commentDao.deleteAllByUser(user, moderator);
+    List<Integer> deletedCommentIds = commentDao.deleteAllByUser(user, moderator);
 
     return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
   }
