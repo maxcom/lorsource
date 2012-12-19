@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -121,7 +120,6 @@ public class CommentPrepareService {
         final long currentTimestamp = comment.getPostdate().getTime();
 
         final User currentUser = tmpl.getCurrentUser();
-        final Configuration config = tmpl.getConfig();
         deletable = topicPermissionService.isCommentDeletableNow(
             tmpl.isModeratorSession(),
             topic.isExpired(),
@@ -133,13 +131,9 @@ public class CommentPrepareService {
         if(currentUser != null) {
           editable = topicPermissionService.isCommentEditableNow(
               tmpl.isModeratorSession(),
-              config.isModeratorAllowedToEditComments(),
-              config.isCommentEditingAllowedIfAnswersExists(),
-              config.getCommentScoreValueForEditing(),
               currentUser.getScore(),
               authored,
               haveAnswers,
-              tmpl.getConfig().getCommentExpireMinutesForEdit(),
               currentTimestamp
           );
         }

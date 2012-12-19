@@ -143,46 +143,43 @@ public class TopicPermissionService {
     Template tmpl = Template.getTemplate(request);
 
     final boolean moderatorMode = tmpl.isModeratorSession();
-    final boolean moderatorAllowEditComments = configuration.isModeratorAllowedToEditComments();
-    final boolean commentEditingAllowedIfAnswersExists = configuration.isCommentEditingAllowedIfAnswersExists();
-    final int commentScoreValueForEditing = configuration.getCommentScoreValueForEditing();
     final int userScore = tmpl.getCurrentUser().getScore();
     /* проверка на то, что пользователь владелец комментария */
     final boolean authored = (commentRequest.getOriginal().getUserid() == user.getId());
     final boolean haveAnswers = commentService.isHaveAnswers(commentRequest.getOriginal());
-    final int commentExpireMinutesForEdit = configuration.getCommentExpireMinutesForEdit();
     final long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
     return isCommentEditableNow(
         moderatorMode,
-        moderatorAllowEditComments,
-        commentEditingAllowedIfAnswersExists,
-        commentScoreValueForEditing,
         userScore,
         authored,
         haveAnswers,
-        commentExpireMinutesForEdit,
         commentTimestamp
     );
   }
 
   /**
    * Проверяем можно ли редактировать комментарий на текущий момент
+   *
+   *
+   *
+   *
    * @param moderatorMode текущий пользователь можератор
-   * @param moderatorAllowEditComments модертор может редактировать?
-   * @param commentEditingAllowedIfAnswersExists можно ли редактировать если есть ответы?
-   * @param commentScoreValueForEditing кол-во шкворца необходимое для редактирования
    * @param userScore кол-во шгкворца у текущего пользователя
    * @param authored является текущий пользователь автором комментария
    * @param haveAnswers есть у комменатрия ответы
-   * @param commentExpireMinutesForEdit после скольки минут редактировать невкоем случае нельзя
    * @param commentTimestamp время создания комментария
    * @return результат
    */
-  public boolean isCommentEditableNow(boolean moderatorMode, boolean moderatorAllowEditComments, boolean commentEditingAllowedIfAnswersExists,
-                                int commentScoreValueForEditing, int userScore,
-                                boolean authored, boolean haveAnswers, int commentExpireMinutesForEdit, long commentTimestamp) {
+  public boolean isCommentEditableNow(boolean moderatorMode,
+                                      int userScore,
+                                      boolean authored, boolean haveAnswers, long commentTimestamp) {
+    final boolean moderatorAllowEditComments = configuration.isModeratorAllowedToEditComments();
+    final boolean commentEditingAllowedIfAnswersExists = configuration.isCommentEditingAllowedIfAnswersExists();
+    final int commentScoreValueForEditing = configuration.getCommentScoreValueForEditing();
+    final int commentExpireMinutesForEdit = configuration.getCommentExpireMinutesForEdit();
+
     /* Проверка на то, что пользователь модератор */
-    Boolean editable = moderatorMode && moderatorAllowEditComments;
+    boolean editable = moderatorMode && moderatorAllowEditComments;
     long nowTimestamp = System.currentTimeMillis();
     if (!editable && authored) {
 
