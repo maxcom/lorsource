@@ -184,4 +184,7 @@
     <bean id="TemplateSign" factory-bean="jadeConfiguration" factory-method="getTemplate">
         <constructor-arg value="sign"/>
     </bean>
+    <bean id="TemplateComment" factory-bean="jadeConfiguration" factory-method="getTemplate">
+        <constructor-arg value="comment"/>
+    </bean>
 </beans>

@@ -125,4 +125,22 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
+    <tag>
+        <description>Comment</description>
+        <name>comment</name>
+        <tag-class>ru.org.linux.site.tags.CommentTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>comment</name>
+            <required>true</required>
+            <type>ru.org.linux.comment.PreparedComment</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>enableSchema</name>
+            <required>true</required>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>

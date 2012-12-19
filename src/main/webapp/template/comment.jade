@@ -1,0 +1,21 @@
+//- комментарий
+    comment - комментарий
+    enableSchema - добавить разметку schema.org
+
+include common
+
+if enableSchema
+    articleItemprop = "comment"
+    articleItemscope = "itemscope"
+    articleItemtype = "http://schema.org/UserComments"
+
+article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemscope=articleItemscope, itemtype=articleItemtype)
+    div.title
+        if comment.deleted
+            if comment.deleteInfo==null
+                strong= Сообщение удалено
+            else
+                strong= Сообщение удалено #{comment.deleteInfo.nick} по причине #{comment.deleteInfo.reason}
+
+        if comment.reply!=null
+            Ответ на:
