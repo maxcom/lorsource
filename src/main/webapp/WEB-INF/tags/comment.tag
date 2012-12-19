@@ -81,11 +81,11 @@
         (<a href="sameip.jsp?msgid=${comment.id}">${comment.comment.postIP}</a>)
       </c:if>
 
-      <c:if test="${comment.comment.editCount != 0}">
+      <c:if test="${comment.editSummary != null}">
         <span class="sign_more">
         <br>
-        Последнее исправление: ${comment.comment.editNick}<c:out value=" "/><lor:date date="${comment.comment.editDate}"/>
-        (всего <a href="${topic.link}/${comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
+        Последнее исправление: ${comment.editSummary.editNick}<c:out value=" "/><lor:date date="${comment.editSummary.editDate}"/>
+        (всего <a href="${topic.link}/${comment.id}/history">исправлений: ${comment.editSummary.editCount}</a>)
         </span>
       </c:if>
 

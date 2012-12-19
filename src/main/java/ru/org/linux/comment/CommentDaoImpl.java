@@ -46,12 +46,10 @@ class CommentDaoImpl implements CommentDao {
   private static final Log logger = LogFactory.getLog(CommentDao.class);
 
   private static final String queryCommentById = "SELECT " +
-    "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-    "deleted, replyto, edit_count, edit_date, editors.nick as  edit_nick, " +
+    "postdate, topic, userid, comments.id as msgid, comments.title, " +
+    "deleted, replyto, edit_count, edit_date, editor_id, " +
     "user_agents.name AS useragent, comments.postip " +
     "FROM comments " +
-    "INNER JOIN users ON (users.id=comments.userid) " +
-    "LEFT JOIN users as editors ON comments.editor_id=editors.id " +
     "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
     "WHERE comments.id=?";
 
@@ -60,10 +58,9 @@ class CommentDaoImpl implements CommentDao {
    */
   private static final String queryCommentListByTopicId = "SELECT " +
     "comments.title, topic, postdate, userid, comments.id as msgid, " +
-    "replyto, edit_count, edit_date, editors.nick as  edit_nick, deleted, " +
+    "replyto, edit_count, edit_date, editor_id, deleted, " +
     "user_agents.name AS useragent, comments.postip " +
     "FROM comments " +
-    "LEFT JOIN users as editors ON comments.editor_id=editors.id " +
     "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
     "WHERE topic=? ORDER BY msgid ASC";
 
@@ -72,10 +69,9 @@ class CommentDaoImpl implements CommentDao {
    */
   private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
     "comments.title, topic, postdate, userid, comments.id as msgid, " +
-    "replyto, edit_count, edit_date, editors.nick as edit_nick, deleted, " +
+    "replyto, edit_count, edit_date, editor_id, deleted, " +
     "user_agents.name AS useragent, comments.postip " +
     "FROM comments " +
-    "LEFT JOIN users as editors ON comments.editor_id=editors.id " +
     "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
     "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 

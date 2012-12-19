@@ -102,7 +102,6 @@ public class CommentPrepareService {
             replyTitle = "комментарий";
           }
 
-
           replyInfo = new ReplyInfo(
                   reply.getId(),
                   replyAuthor,
@@ -157,6 +156,15 @@ public class CommentPrepareService {
 
     ApiUserRef ref = userService.ref(author, tmpl!=null?tmpl.getCurrentUser():null);
 
+    ApiDeleteInfo deleteInfo = loadDeleteInfo(comment);
+
+    EditSummary editSummary = loadEditSummary(comment);
+
+    return new PreparedComment(comment, ref, processedMessage, replyInfo,
+            deletable, editable, remark, userpic, deleteInfo, editSummary);
+  }
+
+  private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
     ApiDeleteInfo deleteInfo = null;
 
     if (comment.isDeleted()) {
@@ -167,8 +175,21 @@ public class CommentPrepareService {
       );
     }
 
-    return new PreparedComment(comment, ref, processedMessage, replyInfo,
-            deletable, editable, remark, userpic, deleteInfo);
+    return deleteInfo;
+  }
+
+  private EditSummary loadEditSummary(Comment comment) throws UserNotFoundException {
+    EditSummary editSummary = null;
+
+    if (comment.getEditCount()>0) {
+      editSummary = new EditSummary(
+              userDao.getUserCached(comment.getEditorId()).getNick(),
+              comment.getEditDate(),
+              comment.getEditCount()
+      );
+    }
+
+    return editSummary;
   }
 
   private PreparedRSSComment prepareRSSComment(
@@ -211,8 +232,8 @@ public class CommentPrepareService {
         false, // editable
         null,   // Remark
         null, // userpic
-        null
-    );
+        null,
+        null);
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(

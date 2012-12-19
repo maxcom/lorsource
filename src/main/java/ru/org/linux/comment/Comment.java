@@ -34,7 +34,7 @@ public class Comment implements Serializable {
   private final Timestamp postdate;
   private final String userAgent;
   private final String postIP;
-  private final String editNick;
+  private final int editorId;
   private final Timestamp editDate;
   private final int editCount;
   public static final int TITLE_LENGTH = 250;
@@ -50,7 +50,7 @@ public class Comment implements Serializable {
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
     editCount = rs.getInt("edit_count");
-    editNick = rs.getString("edit_nick");
+    editorId = rs.getInt("editor_id");
     editDate =rs.getTimestamp("edit_date");
   }
 
@@ -75,7 +75,7 @@ public class Comment implements Serializable {
 
     editCount = 0;
     editDate = null;
-    editNick = null;
+    editorId = 0;
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;
@@ -126,8 +126,8 @@ public class Comment implements Serializable {
     return postIP;
   }
 
-  public String getEditNick() {
-    return editNick;
+  public int getEditorId() {
+    return editorId;
   }
 
   public Timestamp getEditDate() {

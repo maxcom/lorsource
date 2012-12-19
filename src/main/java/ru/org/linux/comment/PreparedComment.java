@@ -42,6 +42,9 @@ public class PreparedComment {
   @Nullable
   private final ApiDeleteInfo deleteInfo;
 
+  @Nullable
+  private final EditSummary editSummary;
+
   public PreparedComment(Comment comment,
                          ApiUserRef author,
                          String processedMessage,
@@ -50,8 +53,10 @@ public class PreparedComment {
                          boolean editable,
                          Remark remark,
                          @Nullable Userpic userpic,
-                         @Nullable ApiDeleteInfo deleteInfo) {
+                         @Nullable ApiDeleteInfo deleteInfo,
+                         @Nullable EditSummary editSummary) {
     this.deleteInfo = deleteInfo;
+    this.editSummary = editSummary;
     this.id = comment.getId();
     this.comment = comment;
     this.author = author;
@@ -104,5 +109,10 @@ public class PreparedComment {
   @Nullable
   public ApiDeleteInfo getDeleteInfo() {
     return deleteInfo;
+  }
+
+  @Nullable
+  public EditSummary getEditSummary() {
+    return editSummary;
   }
 }
