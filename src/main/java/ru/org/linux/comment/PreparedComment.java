@@ -17,7 +17,6 @@ package ru.org.linux.comment;
 
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.user.ApiUserRef;
-import ru.org.linux.user.Remark;
 import ru.org.linux.user.Userpic;
 
 import javax.annotation.Nonnull;
@@ -35,7 +34,7 @@ public class PreparedComment {
 
   private final boolean deletable;
   private final boolean editable;
-  private final Remark remark;
+  private final String remark;
   private final boolean deleted;
   private final Date postdate;
 
@@ -63,7 +62,7 @@ public class PreparedComment {
                          @Nullable ReplyInfo reply,
                          boolean deletable,
                          boolean editable,
-                         Remark remark,
+                         String remark,
                          @Nullable Userpic userpic,
                          @Nullable ApiDeleteInfo deleteInfo,
                          @Nullable EditSummary editSummary,
@@ -108,7 +107,7 @@ public class PreparedComment {
     return editable;
   }
 
-  public Remark getRemark() {
+  public String getRemark() {
     return remark;
   }
 

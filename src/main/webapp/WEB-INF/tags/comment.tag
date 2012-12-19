@@ -74,7 +74,7 @@
 
       <c:if test="${comment.remark != null}">
         <c:out value=" "/>
-        <span class="user-remark"><c:out value="${comment.remark.text}" escapeXml="true"/></span>
+        <span class="user-remark"><c:out value="${comment.remark}" escapeXml="true"/></span>
       </c:if>
 
       <c:if test="${comment.postIP!=null}">

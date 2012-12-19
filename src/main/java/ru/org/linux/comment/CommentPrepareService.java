@@ -139,9 +139,13 @@ public class CommentPrepareService {
       }
     }
 
-    Remark remark = null;
+    String remark = null;
     if(tmpl != null && tmpl.isSessionAuthorized() ){
-      remark = userDao.getRemark(tmpl.getCurrentUser(), author);
+      Remark remarkObject = userDao.getRemark(tmpl.getCurrentUser(), author);
+
+      if (remarkObject!=null) {
+        remark = remarkObject.getText();
+      }
     }
 
     Userpic userpic = null;
