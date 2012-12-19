@@ -70,7 +70,6 @@
                 commentsAllowed="false"
                 showMenu="false"
                 comment="${onComment}"
-                comments="${null}"
                 expired="${false}" topic="${add.topic}"/>
     </div>
 </c:if>
@@ -83,7 +82,7 @@
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${add.topic}"/>
+    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" expired="${false}" topic="${add.topic}"/>
   </div>
 </c:if>
 

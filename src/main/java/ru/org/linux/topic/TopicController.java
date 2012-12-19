@@ -323,8 +323,6 @@ public class TopicController {
         }
       }
 
-      params.put("comments", comments);
-
       params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
       params.put("filterMode", CommentFilter.toString(filterMode));
       params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));

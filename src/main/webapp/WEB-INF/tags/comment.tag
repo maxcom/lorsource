@@ -14,7 +14,6 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="comment" required="true" type="ru.org.linux.comment.PreparedComment" %>
-<%@ attribute name="comments" required="true" type="ru.org.linux.comment.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="commentsAllowed" required="true" type="java.lang.Boolean" %>

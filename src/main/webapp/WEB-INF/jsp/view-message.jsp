@@ -26,7 +26,6 @@
 <%--@elvariable id="nextMessage" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
-<%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
@@ -266,7 +265,7 @@
 </c:if>
 <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}" comments="${comments}" expired="${message.expired}"/>
+      <lor:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}" expired="${message.expired}"/>
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">
