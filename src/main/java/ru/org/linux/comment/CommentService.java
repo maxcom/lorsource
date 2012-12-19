@@ -151,7 +151,6 @@ public class CommentService {
    * @param ipBlockInfo     информация о банах
    * @param request         данные запроса от web-клиента
    * @param errors          обработчик ошибок ввода для формы
-   * @throws UserNotFoundException
    * @throws UnknownHostException
    * @throws TextParseException
    */
@@ -518,18 +517,22 @@ public class CommentService {
    */
   @Nonnull
   public CommentList getCommentList(@Nonnull Topic topic, boolean showDeleted) {
-    CacheProvider mcc = MemCachedSettings.getCache();
+    if (showDeleted) {
+      return new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+    } else {
+      CacheProvider mcc = MemCachedSettings.getCache();
 
-    String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;
+      String cacheId = "commentList?msgid=" + topic.getMessageId();
 
-    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
+      CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
 
-    if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
-      commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
-      mcc.storeToCache(cacheId, commentList);
+      if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
+        commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+        mcc.storeToCache(cacheId, commentList);
+      }
+
+      return commentList;
     }
-
-    return commentList;
   }
 
   /**
