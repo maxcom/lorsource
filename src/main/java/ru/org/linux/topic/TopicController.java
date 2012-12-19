@@ -494,7 +494,7 @@ public class TopicController {
       userAddon+=tmpl.getProf().getTimestamp();
     }
 
-    return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
+    return "msg-"+message.getId()+ '-' +message.getLastModified().getTime()+userAddon;
   }
 
   private ModelAndView jumpMessage(

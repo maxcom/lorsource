@@ -316,10 +316,6 @@ public class Topic implements Serializable {
     return effective;
   }
 
-  public int getMessageId() {
-    return msgid;
-  }
-
   public boolean isCommited() {
     return moderate;
   }

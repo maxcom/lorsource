@@ -639,7 +639,7 @@ public class TopicDao {
                           "FROM topics " +
                           "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky",
                   Integer.class,
-                  message.getMessageId(),
+                  message.getId(),
                   message.getGroupId()
           );
         } else {
@@ -649,7 +649,7 @@ public class TopicDao {
                             "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
                             "AND userid NOT IN (select ignored from ignore_list where userid=?)",
                     Integer.class,
-                    message.getMessageId(),
+                    message.getId(),
                     message.getGroupId(),
                     currentUser.getId()
             );

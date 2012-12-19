@@ -522,7 +522,7 @@ public class CommentService {
     } else {
       CacheProvider mcc = MemCachedSettings.getCache();
 
-      String cacheId = "commentList?msgid=" + topic.getMessageId();
+      String cacheId = "commentList?msgid=" + topic.getId();
 
       CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
 

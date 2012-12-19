@@ -163,7 +163,7 @@ public class SearchQueueListener {
     doc.addField("section", topic.getSectionId());
     doc.addField("user_id", topic.getUid());
     doc.addField("topic_user_id", topic.getUid());
-    doc.addField("topic_id", topic.getMessageId());
+    doc.addField("topic_id", topic.getId());
     doc.addField("group_id", topic.getGroupId());
 
     doc.addField("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
