@@ -49,7 +49,7 @@ public class CommentList implements Serializable {
     for (Comment comment : comments) {
       CommentNode node = new CommentNode(comment);
 
-      treeHash.put(comment.getMessageId(), node);
+      treeHash.put(comment.getId(), node);
 
       if (comment.getReplyTo()==0) {
         root.addChild(node);

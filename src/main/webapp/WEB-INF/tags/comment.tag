@@ -25,8 +25,8 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<!-- ${comment.comment.messageId}  -->
-<article class="msg" id="comment-${comment.comment.messageId}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
+<!-- ${comment.comment.id}  -->
+<article class="msg" id="comment-${comment.comment.id}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
   <div class=title>
     <c:if test="${comment.comment.deleted}">
       <c:choose>
@@ -108,7 +108,7 @@
 
       <c:if test="${comment.editable}">
         <c:url var="edit_url" value="/edit_comment">
-          <c:param name="original" value="${comment.comment.messageId}"/>
+          <c:param name="original" value="${comment.comment.id}"/>
           <c:param name="topic" value="${topic.id}"/>
         </c:url>
         <li><a href="${edit_url}">Править</a></li>
@@ -116,13 +116,13 @@
 
       <c:if test="${comment.deletable}">
         <c:url var="delete_url" value="/delete_comment.jsp">
-          <c:param name="msgid" value="${comment.comment.messageId}"/>
+          <c:param name="msgid" value="${comment.comment.id}"/>
         </c:url>
         <li><a href="${delete_url}">Удалить</a></li>
       </c:if>
 
       <c:url var="self_link" value="${topic.link}">
-        <c:param name="cid" value="${comment.comment.messageId}"/>
+        <c:param name="cid" value="${comment.comment.id}"/>
       </c:url>
       <li><a href="${self_link}">Ссылка</a></li>
     </ul>

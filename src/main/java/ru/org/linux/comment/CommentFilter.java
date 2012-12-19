@@ -53,7 +53,7 @@ public class CommentFilter {
         continue;
       }
 
-      if (!hideSet.contains(comment.getMessageId())) {
+      if (!hideSet.contains(comment.getId())) {
         out.add(comment);
       }
     }

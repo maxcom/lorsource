@@ -46,7 +46,7 @@ public class CommentNode implements Serializable {
   }
 
   public int getMessageId() {
-    return comment==null?0:comment.getMessageId();
+    return comment==null?0:comment.getId();
   }
 
   public boolean isHaveAnswers() {
@@ -62,7 +62,7 @@ public class CommentNode implements Serializable {
       }
     }
 
-    if (comment==null || !hideSet.contains(comment.getMessageId())) {
+    if (comment==null || !hideSet.contains(comment.getId())) {
       for (CommentNode child : childs) {
         child.hideAnonymous(userDao, hideSet);
       }
@@ -76,7 +76,7 @@ public class CommentNode implements Serializable {
       }
     }
 
-    if (comment==null || !hideSet.contains(comment.getMessageId())) {
+    if (comment==null || !hideSet.contains(comment.getId())) {
       for (CommentNode child : childs) {
         child.hideIgnored(hideSet, ignoreList);
       }
@@ -95,7 +95,7 @@ public class CommentNode implements Serializable {
 
   public void hideNode(Set<Integer> hideSet) {
     if (comment!=null) {
-      hideSet.add(comment.getMessageId());
+      hideSet.add(comment.getId());
     }
 
     for (CommentNode child : childs) {

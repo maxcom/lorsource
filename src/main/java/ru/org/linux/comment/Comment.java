@@ -94,10 +94,6 @@ public class Comment implements Serializable {
     this.postIP=postIP;
   }
 
-  public int getMessageId() {
-    return msgid;
-  }
-
   public int getId() {
     return msgid;
   }
