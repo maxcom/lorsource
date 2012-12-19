@@ -110,11 +110,6 @@ public class Comment implements Serializable {
     return deleted;
   }
 
-  @Deprecated
-  public int getTopic() {
-    return topic;
-  }
-
   /**
    * @return id топика в котором находится сообщение
    */
