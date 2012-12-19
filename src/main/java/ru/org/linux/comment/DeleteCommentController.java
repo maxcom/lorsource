@@ -127,8 +127,6 @@ public class DeleteCommentController {
       throw new AccessViolationException("нет авторизации");
     }
 
-    tmpl.updateCurrentUser();
-
     User user = tmpl.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();

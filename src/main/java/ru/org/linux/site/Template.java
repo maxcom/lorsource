@@ -37,7 +37,6 @@ import java.io.OutputStream;
 public final class Template {
   private final Profile userProfile;
   private final Configuration configuration;
-  private User currentUser = null;
 
   private final Storage storage;
 
@@ -45,10 +44,6 @@ public final class Template {
     configuration = (Configuration)ctx.getBean("configuration");
     storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
     userProfile = AuthUtil.getCurrentProfile();
-
-    if(AuthUtil.isSessionAuthorized()) {
-      currentUser = AuthUtil.getCurrentUser();
-    }
   }
 
 
@@ -138,7 +133,9 @@ public final class Template {
    * @return nick or null if not authorized
    */
   public String getNick() {
-    if (!isSessionAuthorized()) {
+    User currentUser = getCurrentUser();
+
+    if (currentUser==null) {
       return null;
     } else {
       return currentUser.getNick();
@@ -148,20 +145,6 @@ public final class Template {
   @Nonnull
   public static Template getTemplate(ServletRequest request) {
     return new Template(request);
-  }
-
-  public void updateCurrentUser() {
-    initCurrentUser(true);
-  }
-
-  private void initCurrentUser(boolean forceUpdate) {
-    if (!isSessionAuthorized()) {
-      return;
-    }
-    if (currentUser != null && !forceUpdate) {
-      return;
-    }
-    currentUser = AuthUtil.getCurrentUser();
   }
 
   @Nullable

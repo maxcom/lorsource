@@ -94,8 +94,6 @@ public class DeleteTopicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    tmpl.updateCurrentUser();
-
     User user = tmpl.getCurrentUser();
 
     user.checkAnonymous();
@@ -151,8 +149,6 @@ public class DeleteTopicController {
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not authorized");
     }
-
-    tmpl.updateCurrentUser();
 
     Topic message = messageDao.getById(msgid);
 

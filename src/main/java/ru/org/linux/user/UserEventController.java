@@ -140,7 +140,6 @@ public class UserEventController {
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userEventService.resetUnreadReplies(currentUser);
-      tmpl.updateCurrentUser();
     } else {
       params.put("enableReset", true);
     }
