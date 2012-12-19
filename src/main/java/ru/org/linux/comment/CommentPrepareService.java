@@ -21,8 +21,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -51,6 +53,9 @@ public class CommentPrepareService {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private DeleteInfoDao deleteInfoDao;
 
   private PreparedComment prepareComment(
           @Nonnull Comment comment,
@@ -157,8 +162,14 @@ public class CommentPrepareService {
 
     ApiUserRef ref = userService.ref(author, tmpl!=null?tmpl.getCurrentUser():null);
 
+    DeleteInfo deleteInfo = null;
+
+    if (comment.isDeleted()) {
+      deleteInfo = deleteInfoDao.getDeleteInfo(comment.getId());
+    }
+
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
-            deletable, editable, remark, userpic);
+            deletable, editable, remark, userpic, deleteInfo);
   }
 
   private PreparedRSSComment prepareRSSComment(
@@ -200,7 +211,8 @@ public class CommentPrepareService {
         false, // deletable
         false, // editable
         null,   // Remark
-        null // userpic
+        null, // userpic
+        null
     );
   }
 

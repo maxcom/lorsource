@@ -29,7 +29,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.user.*;
+import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
@@ -85,7 +85,6 @@ class CommentDaoImpl implements CommentDao {
   private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
   private JdbcTemplate jdbcTemplate;
-  private UserDao userDao;
   private DeleteInfoDao deleteInfoDao;
 
   private SimpleJdbcInsert insertMsgbase;
@@ -100,11 +99,6 @@ class CommentDaoImpl implements CommentDao {
   }
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
   public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
     this.deleteInfoDao = deleteInfoDao;
   }
@@ -116,7 +110,7 @@ class CommentDaoImpl implements CommentDao {
       comment = jdbcTemplate.queryForObject(queryCommentById, new RowMapper<Comment>() {
         @Override
         public Comment mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Comment(resultSet, deleteInfoDao);
+          return new Comment(resultSet);
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {
@@ -133,14 +127,14 @@ class CommentDaoImpl implements CommentDao {
       jdbcTemplate.query(queryCommentListByTopicId, new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet, deleteInfoDao));
+          comments.add(new Comment(resultSet));
         }
       }, topicId);
     } else {
       jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet, deleteInfoDao));
+          comments.add(new Comment(resultSet));
         }
       }, topicId);
     }
@@ -173,9 +167,6 @@ class CommentDaoImpl implements CommentDao {
 
   @Override
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) {
-
-    int inReplyId = jdbcTemplate.queryForInt("SELECT replyto FROM comments WHERE id=? AND NOT deleted", msgid);
-
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {

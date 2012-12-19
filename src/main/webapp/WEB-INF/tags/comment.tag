@@ -29,12 +29,12 @@
   <div class=title>
     <c:if test="${comment.comment.deleted}">
       <c:choose>
-        <c:when test="${comment.comment.deleteInfo == null}">
+        <c:when test="${comment.deleteInfo == null}">
           <strong>Сообщение удалено</strong>
         </c:when>
         <c:otherwise>
-          <strong>Сообщение удалено ${comment.comment.deleteInfo.nick}
-            по причине: <c:out value="${comment.comment.deleteInfo.reason}" escapeXml="true"/></strong>
+          <strong>Сообщение удалено ${comment.deleteInfo.nick}
+            по причине: <c:out value="${comment.deleteInfo.reason}" escapeXml="true"/></strong>
         </c:otherwise>
       </c:choose>
     </c:if>

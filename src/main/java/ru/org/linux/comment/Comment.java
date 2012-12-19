@@ -15,9 +15,6 @@
 
 package ru.org.linux.comment;
 
-import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.dao.DeleteInfoDao;
-
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,7 +32,6 @@ public class Comment implements Serializable {
   private final int topic;
   private final boolean deleted;
   private final Timestamp postdate;
-  private final DeleteInfo deleteInfo;
   private final String userAgent;
   private final String postIP;
   private final String editNick;
@@ -43,7 +39,7 @@ public class Comment implements Serializable {
   private final int editCount;
   public static final int TITLE_LENGTH = 250;
 
-  public Comment(ResultSet rs, DeleteInfoDao deleteInfoDao) throws SQLException {
+  public Comment(ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
     title=rs.getString("title");
     topic=rs.getInt("topic");
@@ -56,12 +52,6 @@ public class Comment implements Serializable {
     editCount = rs.getInt("edit_count");
     editNick = rs.getString("edit_nick");
     editDate =rs.getTimestamp("edit_date");
-
-    if (deleted) {
-      deleteInfo = deleteInfoDao.getDeleteInfo(msgid);
-    } else {
-      deleteInfo = null;
-    }
   }
 
   public Comment(
@@ -89,7 +79,6 @@ public class Comment implements Serializable {
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;
-    deleteInfo = null;
     this.userAgent=userAgent;
     this.postIP=postIP;
   }
@@ -127,10 +116,6 @@ public class Comment implements Serializable {
 
   public int getUserid() {
     return userid;
-  }
-
-  public DeleteInfo getDeleteInfo() {
-    return deleteInfo;
   }
 
   public String getUserAgent() {

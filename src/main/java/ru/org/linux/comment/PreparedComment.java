@@ -15,6 +15,7 @@
 
 package ru.org.linux.comment;
 
+import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.Userpic;
@@ -38,6 +39,9 @@ public class PreparedComment {
   @Nullable
   private final Userpic userpic;
 
+  @Nullable
+  private final DeleteInfo deleteInfo;
+
   public PreparedComment(Comment comment,
                          ApiUserRef author,
                          String processedMessage,
@@ -45,8 +49,9 @@ public class PreparedComment {
                          boolean deletable,
                          boolean editable,
                          Remark remark,
-                         @Nullable Userpic userpic
-  ) {
+                         @Nullable Userpic userpic,
+                         @Nullable DeleteInfo deleteInfo) {
+    this.deleteInfo = deleteInfo;
     this.id = comment.getId();
     this.comment = comment;
     this.author = author;
@@ -94,5 +99,10 @@ public class PreparedComment {
 
   public int getId() {
     return id;
+  }
+
+  @Nullable
+  public DeleteInfo getDeleteInfo() {
+    return deleteInfo;
   }
 }
