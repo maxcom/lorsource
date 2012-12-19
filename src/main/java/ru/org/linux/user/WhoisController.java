@@ -29,11 +29,13 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicPermissionService;
+import ru.org.linux.util.Pagination;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
@@ -138,19 +140,14 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/deleted/topics")
   @PreAuthorize("hasRole('ROLE_MODERATOR')")
-  public ModelAndView getDeletedTopics(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
+  public ModelAndView getDeletedTopics(@PathVariable String nick, Pagination pagination) throws Exception {
     User user = userDao.getUser(nick);
 
-    if (page==null) {
-      page = 1;
-    }
-    if(page <= 0) {
-      page = 1;
-    }
-
-    ModelAndView mv = new ModelAndView("show-deleted");
+      ModelAndView mv = new ModelAndView("show-deleted");
     mv.addObject("title", "Удаленные темы пользователя ");
-    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, page));
+
+    pagination.setSize(AuthUtil.getProf().getMessages());
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedTopicForUser(user, pagination));
     mv.addObject("user", user);
     mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/topics").expand(user.getNick()));
     return mv;
@@ -158,19 +155,13 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/deleted/comments")
   @PreAuthorize("hasRole('ROLE_MODERATOR')")
-  public ModelAndView getDeletedComments(@PathVariable String nick, @RequestParam(value="page", required = false) Integer page) throws Exception {
+  public ModelAndView getDeletedComments(@PathVariable String nick, Pagination pagination) throws Exception {
     User user = userDao.getUser(nick);
-
-    if (page==null) {
-      page = 1;
-    }
-    if(page <= 0) {
-      page = 1;
-    }
 
     ModelAndView mv = new ModelAndView("show-deleted");
     mv.addObject("title", "Удаленные комментарии пользователя ");
-    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, page));
+    pagination.setSize(AuthUtil.getProf().getMessages());
+    mv.addObject("listMessages", deletedMessageService.prepareDeletedCommentForUser(user, pagination));
     mv.addObject("user", user);
     mv.addObject("baseUrl", new UriTemplate("/people/{nick}/deleted/comments").expand(user.getNick()));
     return mv;

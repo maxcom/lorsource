@@ -28,7 +28,7 @@
 </spring:url>
 
 <h1>${title} <lor:user user="${user}" link="true"/></h1>
-  <c:if test="${listMessages.count > 1}"><div class="nav"><l:page pagination="${listMessages}" baseUrl="${baseUrl}"/></div></c:if>
+  <c:if test="${listMessages.count > 1}"><div class="nav"><l:page paginationPrepared="${listMessages}" baseUrl="${baseUrl}"/></div></c:if>
   <div class="forum">
     <table width="100%" class="message-table">
       <thead>
@@ -60,6 +60,6 @@
 
     </table>
   </div>
-  <c:if test="${listMessages.count > 1}"><div class="nav"><l:page pagination="${listMessages}" baseUrl="${baseUrl}"/></div></c:if>
+  <c:if test="${listMessages.count > 1}"><div class="nav"><l:page paginationPrepared="${listMessages}" baseUrl="${baseUrl}"/></div></c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
 

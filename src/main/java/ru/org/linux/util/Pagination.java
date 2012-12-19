@@ -14,50 +14,49 @@
  */
 package ru.org.linux.util;
 
-import java.io.Serializable;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Хранение параметров пагинации, полученных из GET-запроса.
  */
-public class Pagination<T> implements Serializable {
-  private int total;
+public class Pagination {
+  /**
+   * Номер страницы.
+   */
   private int index;
+  /**
+   * Количество элементов на странице.
+   */
   private int size;
-  private List<T> items;
-  private int start;
-  private int end;
-  private int count;
+
+  /**
+   * Сортировка списка.
+   */
+  private final List<Sort> sortList = new LinkedList<Sort>();
 
   public Pagination() {
   }
 
   public Pagination(int index, int size) {
-    this.index = index <= 0 ? 1 : index;
+    this.index = index < 1 ? 1 : index;
     this.size = size;
-    start = size * (index - 1) + 1;
-    end = start + size - 1;
   }
 
-  public int getTotal() {
-    return total;
+  public List<Sort> getSortList() {
+    return sortList;
   }
 
-  public void setTotal(int total) {
-    this.total = total;
-    if(total < size) {
-      count = 1;
-    } else {
-      if (total % size == 0) {
-        count = total / size;
-      } else {
-        count = total / size + 1;
-      }
-    }
-    if(index > count) {
-      index = count;
-      start = size * (index - 1) + 1;
-      end = start + size - 1;
-    }
+  public void addSort(Sort sort) {
+    sortList.add(sort);
+  }
+
+  public void addSort(List<Sort> sortList) {
+    this.sortList.addAll(sortList);
   }
 
   public int getIndex() {
@@ -76,38 +75,68 @@ public class Pagination<T> implements Serializable {
     this.size = size;
   }
 
-  public List<T> getItems() {
-    return items;
-  }
 
-  public void setItems(List<T> items) {
-    this.items = items;
-  }
+  /**
+   * Класс для хранения параметров сортировки.
+   */
+  public static class Sort {
+    /**
+     * Поле, по которому необходимо сортировать.
+     */
+    private final String field;
+    /**
+     * Направление сортировки.
+     */
+    private final Direction direction;
 
-  public int getStart() {
-    return start;
-  }
-
-  public void setStart(int start) {
-    this.start = start;
-  }
-
-  public int getEnd() {
-    if(end > total) {
-      return total;
+    /**
+     * перечисление для хранения возможных значений направления сортировки.
+     */
+    public static enum Direction {
+      ASC, DESC
     }
-    return end;
+
+    public Sort(String field, Direction direction) {
+      this.field = field;
+      this.direction = direction;
+    }
+
+    public String getField() {
+      return field;
+    }
+
+    public Direction getDirection() {
+      return direction;
+    }
+
+    @Override
+    public String toString() {
+      return ToStringBuilder.reflectionToString(this);
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder()
+              .append(field)
+              .append(direction.toString())
+              .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Sort that = (Sort) o;
+      return new EqualsBuilder()
+              .append(field, that.field)
+              .append(direction, that.direction)
+              .isEquals();
+    }
   }
 
-  public void setEnd(int end) {
-    this.end = end;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
-  }
 }
