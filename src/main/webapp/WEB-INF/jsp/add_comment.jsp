@@ -55,7 +55,7 @@
     <%
         PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
 
-        replyto = onComment.getComment().getId();
+        replyto = onComment.getId();
 
         if (!onComment.getComment().getTitle().isEmpty()) {
             title = onComment.getComment().getTitle();

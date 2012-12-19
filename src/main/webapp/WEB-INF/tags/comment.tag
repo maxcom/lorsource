@@ -25,8 +25,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<!-- ${comment.comment.id}  -->
-<article class="msg" id="comment-${comment.comment.id}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
+<article class="msg" id="comment-${comment.id}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
   <div class=title>
     <c:if test="${comment.comment.deleted}">
       <c:choose>
@@ -79,14 +78,14 @@
       </c:if>
 
       <c:if test="${template.moderatorSession}">
-        (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+        (<a href="sameip.jsp?msgid=${comment.id}">${comment.comment.postIP}</a>)
       </c:if>
 
       <c:if test="${comment.comment.editCount != 0}">
         <span class="sign_more">
         <br>
         Последнее исправление: ${comment.comment.editNick}<c:out value=" "/><lor:date date="${comment.comment.editDate}"/>
-        (всего <a href="${topic.link}/${comment.comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
+        (всего <a href="${topic.link}/${comment.id}/history">исправлений: ${comment.comment.editCount}</a>)
         </span>
       </c:if>
 
@@ -103,12 +102,12 @@
 
     <ul>
       <c:if test="${commentsAllowed}">
-        <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
+        <li><a  <c:if test="${enableSchema}">itemprop="replyToUrl"</c:if> href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.id}">Ответить на это сообщение</a></li>
       </c:if>
 
       <c:if test="${comment.editable}">
         <c:url var="edit_url" value="/edit_comment">
-          <c:param name="original" value="${comment.comment.id}"/>
+          <c:param name="original" value="${comment.id}"/>
           <c:param name="topic" value="${topic.id}"/>
         </c:url>
         <li><a href="${edit_url}">Править</a></li>
@@ -116,13 +115,13 @@
 
       <c:if test="${comment.deletable}">
         <c:url var="delete_url" value="/delete_comment.jsp">
-          <c:param name="msgid" value="${comment.comment.id}"/>
+          <c:param name="msgid" value="${comment.id}"/>
         </c:url>
         <li><a href="${delete_url}">Удалить</a></li>
       </c:if>
 
       <c:url var="self_link" value="${topic.link}">
-        <c:param name="cid" value="${comment.comment.id}"/>
+        <c:param name="cid" value="${comment.id}"/>
       </c:url>
       <li><a href="${self_link}">Ссылка</a></li>
     </ul>

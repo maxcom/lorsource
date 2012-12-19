@@ -22,6 +22,8 @@ import ru.org.linux.user.Userpic;
 import javax.annotation.Nullable;
 
 public class PreparedComment {
+  private final int id;
+
   private final Comment comment;
   private final ApiUserRef author;
   private final String processedMessage;
@@ -45,6 +47,7 @@ public class PreparedComment {
                          Remark remark,
                          @Nullable Userpic userpic
   ) {
+    this.id = comment.getId();
     this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
@@ -87,5 +90,9 @@ public class PreparedComment {
   @Nullable
   public Userpic getUserpic() {
     return userpic;
+  }
+
+  public int getId() {
+    return id;
   }
 }
