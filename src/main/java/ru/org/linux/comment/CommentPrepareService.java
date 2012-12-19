@@ -162,7 +162,7 @@ public class CommentPrepareService {
     if (comment.isDeleted()) {
       DeleteInfo info = deleteInfoDao.getDeleteInfo(comment.getId());
       deleteInfo = new ApiDeleteInfo(
-              userDao.getUser(info.getUserid()).getNick(),
+              userDao.getUserCached(info.getUserid()).getNick(),
               info.getReason()
       );
     }

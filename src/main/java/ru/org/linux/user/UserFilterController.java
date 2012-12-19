@@ -162,7 +162,7 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User delUser = userDao.getUser(id);
+    User delUser = userDao.getUserCached(id);
 
     ignoreListDao.remove(user, delUser);
 
