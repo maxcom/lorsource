@@ -157,9 +157,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 //    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
     String mainUrl = "<unknown>";
 
-    if (tmpl!=null) {
-      mainUrl = tmpl.getMainUrl();
-    }
+    mainUrl = configuration.getMainUrl();
 
     text.append("Main URL: ").append(mainUrl).append(request.getServletPath());
 

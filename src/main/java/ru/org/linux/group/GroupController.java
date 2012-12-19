@@ -31,7 +31,7 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.tag.TagService;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
@@ -70,10 +70,10 @@ public class GroupController {
   private GroupPermissionService groupPermissionService;
 
   @Autowired
-  private TagService tagService;
+  private TopicTagService topicTagService;
 
   @Autowired
-  private TopicTagService topicTagService;
+  private Configuration configuration;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -296,7 +296,7 @@ public class GroupController {
     if(group.getImage() != null) {
       try {
         params.put("groupImagePath", '/' + tmpl.getStyle() + group.getImage());
-        ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
+        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
         params.put("groupImageInfo", info);
       } catch (BadImageException ex) {
         params.put("groupImagePath", null);
