@@ -160,8 +160,17 @@ public class CommentPrepareService {
 
     EditSummary editSummary = loadEditSummary(comment);
 
+    String postIP = null;
+    String userAgent = null;
+
+    if (tmpl!=null && tmpl.isModeratorSession()) {
+      postIP = comment.getPostIP();
+      userAgent = comment.getUserAgent();
+    }
+
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
-            deletable, editable, remark, userpic, deleteInfo, editSummary);
+            deletable, editable, remark, userpic, deleteInfo, editSummary,
+            postIP, userAgent);
   }
 
   private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
@@ -232,6 +241,8 @@ public class CommentPrepareService {
         false, // editable
         null,   // Remark
         null, // userpic
+        null,
+        null,
         null,
         null);
   }

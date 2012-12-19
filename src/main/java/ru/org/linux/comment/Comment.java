@@ -15,6 +15,7 @@
 
 package ru.org.linux.comment;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -106,6 +107,7 @@ public class Comment implements Serializable {
     return topic;
   }
 
+  @Nonnull
   public String getTitle() {
     return title;
   }

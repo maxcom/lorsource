@@ -20,12 +20,13 @@ import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.Userpic;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Date;
 
 public class PreparedComment {
   private final int id;
 
-  private final Comment comment;
   private final ApiUserRef author;
   private final String processedMessage;
 
@@ -35,6 +36,8 @@ public class PreparedComment {
   private final boolean deletable;
   private final boolean editable;
   private final Remark remark;
+  private final boolean deleted;
+  private final Date postdate;
 
   @Nullable
   private final Userpic userpic;
@@ -45,6 +48,15 @@ public class PreparedComment {
   @Nullable
   private final EditSummary editSummary;
 
+  @Nonnull
+  private final String title;
+
+  @Nullable
+  private final String postIP;
+
+  @Nullable
+  private final String userAgent;
+
   public PreparedComment(Comment comment,
                          ApiUserRef author,
                          String processedMessage,
@@ -54,11 +66,14 @@ public class PreparedComment {
                          Remark remark,
                          @Nullable Userpic userpic,
                          @Nullable ApiDeleteInfo deleteInfo,
-                         @Nullable EditSummary editSummary) {
+                         @Nullable EditSummary editSummary,
+                         @Nullable String postIP,
+                         @Nullable String userAgent) {
     this.deleteInfo = deleteInfo;
     this.editSummary = editSummary;
+    this.postIP = postIP;
+    this.userAgent = userAgent;
     this.id = comment.getId();
-    this.comment = comment;
     this.author = author;
     this.processedMessage = processedMessage;
     this.reply = reply;
@@ -66,10 +81,10 @@ public class PreparedComment {
     this.editable = editable;
     this.remark = remark;
     this.userpic = userpic;
-  }
 
-  public Comment getComment() {
-    return comment;
+    title = comment.getTitle();
+    deleted = comment.isDeleted();
+    postdate = comment.getPostdate();
   }
 
   public ApiUserRef getAuthor() {
@@ -114,5 +129,28 @@ public class PreparedComment {
   @Nullable
   public EditSummary getEditSummary() {
     return editSummary;
+  }
+
+  @Nonnull
+  public String getTitle() {
+    return title;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public Date getPostdate() {
+    return postdate;
+  }
+
+  @Nullable
+  public String getPostIP() {
+    return postIP;
+  }
+
+  @Nullable
+  public String getUserAgent() {
+    return userAgent;
   }
 }

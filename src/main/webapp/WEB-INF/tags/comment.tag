@@ -27,7 +27,7 @@
 
 <article class="msg" id="comment-${comment.id}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
   <div class=title>
-    <c:if test="${comment.comment.deleted}">
+    <c:if test="${comment.deleted}">
       <c:choose>
         <c:when test="${comment.deleteInfo == null}">
           <strong>Сообщение удалено</strong>
@@ -57,15 +57,15 @@
   </c:if>
 
   <div class="msg_body ${msgBodyStyle}" <c:if test="${enableSchema}">itemprop="commentText"</c:if>>
-    <c:if test="${fn:length(comment.comment.title)>0}">
-      <h2><l:title>${comment.comment.title}</l:title></h2>
+    <c:if test="${fn:length(comment.title)>0}">
+      <h2><l:title>${comment.title}</l:title></h2>
     </c:if>
 
     ${comment.processedMessage}
 
     <div class=sign>
       <l:sign
-              postdate="${comment.comment.postdate}"
+              postdate="${comment.postdate}"
               user="${comment.author}"
               shortMode="false"
               timeprop="commentTime"
@@ -77,8 +77,8 @@
         <span class="user-remark"><c:out value="${comment.remark.text}" escapeXml="true"/></span>
       </c:if>
 
-      <c:if test="${template.moderatorSession}">
-        (<a href="sameip.jsp?msgid=${comment.id}">${comment.comment.postIP}</a>)
+      <c:if test="${comment.postIP!=null}">
+        (<a href="sameip.jsp?msgid=${comment.id}">${comment.postIP}</a>)
       </c:if>
 
       <c:if test="${comment.editSummary != null}">
@@ -89,15 +89,13 @@
         </span>
       </c:if>
 
-      <c:if test="${template.moderatorSession}">
-        <c:if test="${comment.comment.userAgent!=null}">
-          <br>
-          <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
-        </c:if>
+      <c:if test="${comment.userAgent!=null}">
+        <br>
+        <span class="sign_more"><c:out value="${comment.userAgent}" escapeXml="true"/></span>
       </c:if>
     </div>
 
-  <c:if test="${not comment.comment.deleted and showMenu}">
+  <c:if test="${not comment.deleted and showMenu}">
     <div class="reply">
 
     <ul>
