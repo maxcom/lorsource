@@ -15,18 +15,17 @@
 
 package ru.org.linux.comment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.google.common.collect.ImmutableList;
 import ru.org.linux.user.ProfileProperties;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommentList implements Serializable {
-  private static final Log logger = LogFactory.getLog(CommentList.class);
-
-  private final List<Comment> comments = new ArrayList<Comment>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
+  private final ImmutableList<Comment> comments;
   private final CommentNode root = new CommentNode();
   private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
 
@@ -34,14 +33,14 @@ public class CommentList implements Serializable {
 
   public CommentList(List<Comment> comments, long lastmod) {
     this.lastmod = lastmod;
-    this.comments.addAll(comments);
-    logger.debug("Read list size = " +comments.size());
+
+    this.comments = ImmutableList.copyOf(comments);
     buildTree();
   }
 
   @Nonnull
-  public List<Comment> getList() {
-    return Collections.unmodifiableList(comments);
+  public ImmutableList<Comment> getList() {
+    return comments;
   }
 
   private void buildTree() {
