@@ -88,6 +88,16 @@
         <property name="location" value="/WEB-INF/feeds.properties"/>
     </bean>
 
+<!--
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="customArgumentResolvers">
+            <list>
+                <bean class="ru.org.linux.spring.PaginationArgumentResolver" />
+            </list>
+        </property>
+    </bean>
+-->
+
     <bean id="absractRomeView" class="ru.org.linux.spring.AbstractRomeView" abstract="true">
         <property name="contentTypes">
             <map>
@@ -120,6 +130,11 @@
         <property name="messageConverters">
             <list>
                 <ref bean="jacksonMessageConverter"/>
+            </list>
+        </property>
+        <property name="customArgumentResolvers">
+            <list>
+                <bean class="ru.org.linux.spring.PaginationArgumentResolver" />
             </list>
         </property>
     </bean>

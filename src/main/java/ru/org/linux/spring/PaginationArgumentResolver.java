@@ -18,8 +18,10 @@ import com.google.common.base.Enums;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.core.MethodParameter;
-import org.springframework.web.bind.support.WebArgumentResolver;
+import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 import ru.org.linux.util.Pagination;
 
 import java.util.LinkedHashMap;
@@ -30,7 +32,13 @@ import java.util.Map;
 /**
  * Обработчик Pagination-параметров.
  */
-public class PaginationArgumentResolver implements WebArgumentResolver {
+public class PaginationArgumentResolver implements HandlerMethodArgumentResolver {
+
+  @Override
+  public boolean supportsParameter(MethodParameter methodParameter) {
+    return methodParameter.getParameterType().equals(Pagination.class);
+  }
+
 
   private final static Pagination.Sort.Direction DEFAULT_SORT_DIRECTION = Pagination.Sort.Direction.DESC;
   private final static int DEFAULT_PAGE_NUMBER = 1;
@@ -43,10 +51,12 @@ public class PaginationArgumentResolver implements WebArgumentResolver {
    * @throws Exception
    */
   @Override
-  public Object resolveArgument(MethodParameter methodParameter, NativeWebRequest webRequest) throws Exception {
-    if (!methodParameter.getParameterType().equals(Pagination.class)) {
-      return UNRESOLVED;
-    }
+  public Object resolveArgument(
+          MethodParameter methodParameter,
+          ModelAndViewContainer modelAndViewContainer,
+          NativeWebRequest webRequest,
+          WebDataBinderFactory webDataBinderFactory
+  ) throws Exception {
 
     Map<String, String[]> parametersMap = makeCaseInsensitiveParametersMap(webRequest);
 
@@ -87,7 +97,7 @@ public class PaginationArgumentResolver implements WebArgumentResolver {
       retValue = defaultValue;
     }
 
-    if (retValue != null && retValue < 1) {
+    if (retValue == null || retValue < 1) {
       retValue = defaultValue;
     }
     return retValue;
@@ -113,11 +123,13 @@ public class PaginationArgumentResolver implements WebArgumentResolver {
       String[] sortInfos = value.split(",");
       for (String sortInfo : sortInfos) {
         String[] oneSortInfo = sortInfo.split(":");
-
-        orderList.put(
-            oneSortInfo[0].trim().toLowerCase(),
-            getSortDirectionFromString(oneSortInfo)
-        );
+        String sortName = oneSortInfo[0].trim().toLowerCase();
+        if (!sortName.isEmpty()) {
+          orderList.put(
+              sortName,
+              getSortDirectionFromString(oneSortInfo)
+          );
+        }
       }
       for (Map.Entry<String, Pagination.Sort.Direction> stringDirectionEntry : orderList.entrySet()) {
         sortList.add(
@@ -136,7 +148,7 @@ public class PaginationArgumentResolver implements WebArgumentResolver {
    */
   private Pagination.Sort.Direction getSortDirectionFromString(String[] sortDirectionArray) {
     String sortDirectionStr = (sortDirectionArray.length > 1) ? sortDirectionArray[1] : "";
-    return Enums.getIfPresent(Pagination.Sort.Direction.class, sortDirectionStr).or(DEFAULT_SORT_DIRECTION);
+    return Enums.getIfPresent(Pagination.Sort.Direction.class, sortDirectionStr.toUpperCase()).or(DEFAULT_SORT_DIRECTION);
   }
 
   /**
