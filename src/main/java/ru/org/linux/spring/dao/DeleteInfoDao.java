@@ -34,8 +34,8 @@ import java.util.List;
 @Repository
 public class DeleteInfoDao {
   private JdbcTemplate jdbcTemplate;
-  private static final String QUERY_DELETE_INFO = "SELECT nick,reason,users.id as userid, deldate, bonus FROM del_info,users WHERE msgid=? AND users.id=del_info.delby";
-  private static final String QUERY_DELETE_INFO_FOR_UPDATE = "SELECT nick,reason,users.id as userid, deldate, bonus FROM del_info,users WHERE msgid=? AND users.id=del_info.delby FOR UPDATE";
+  private static final String QUERY_DELETE_INFO = "SELECT reason,users.id as userid, deldate, bonus FROM del_info WHERE msgid=?";
+  private static final String QUERY_DELETE_INFO_FOR_UPDATE = "SELECT reason,users.id as userid, deldate, bonus FROM del_info WHERE msgid=? FOR UPDATE";
   private static final String INSERT_DELETE_INFO = "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)";
 
   @Autowired
@@ -70,7 +70,6 @@ public class DeleteInfoDao {
         }
 
         return new DeleteInfo(
-                resultSet.getString("nick"),
                 resultSet.getInt("userid"),
                 resultSet.getString("reason"),
                 resultSet.getTimestamp("deldate"),

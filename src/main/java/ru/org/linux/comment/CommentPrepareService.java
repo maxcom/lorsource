@@ -21,6 +21,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
@@ -162,10 +163,14 @@ public class CommentPrepareService {
 
     ApiUserRef ref = userService.ref(author, tmpl!=null?tmpl.getCurrentUser():null);
 
-    DeleteInfo deleteInfo = null;
+    ApiDeleteInfo deleteInfo = null;
 
     if (comment.isDeleted()) {
-      deleteInfo = deleteInfoDao.getDeleteInfo(comment.getId());
+      DeleteInfo info = deleteInfoDao.getDeleteInfo(comment.getId());
+      deleteInfo = new ApiDeleteInfo(
+              userDao.getUser(info.getUserid()).getNick(),
+              info.getReason()
+      );
     }
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
