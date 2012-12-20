@@ -89,7 +89,7 @@
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
       <lor:comment commentsAllowed="false" showMenu="true" comment="${comment}"
-                   expired="${topic.expired}" topic="${topic}"/>
+                   topic="${topic}"/>
     </c:forEach>
 
   </div>
