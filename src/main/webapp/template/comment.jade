@@ -1,7 +1,7 @@
 //- комментарий
     comment - комментарий
     enableSchema - добавить разметку schema.org
-    topic { id, link } - тема
+    topic { id, link, commentsAllowed } - тема
     showMenu - показывать ли меню добавить/удалить/ссылка/тп
 
 include common
@@ -10,6 +10,7 @@ if enableSchema
     articleItemprop = "comment"
     articleItemscope = "itemscope"
     articleItemtype = "http://schema.org/UserComments"
+    replyItemprop = "replyToUrl"
 
 article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemscope=articleItemscope, itemtype=articleItemtype)
     div.title
@@ -74,5 +75,30 @@ article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemsc
         if !comment.deleted && showMenu
             div.reply
                 ul
+                    if topic.commentsAllowed
+                        li
+                            a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}')
+                                | Ответить на это сообщение
 
+                    | #{' '}
 
+                    if comment.editable
+                        li
+                            a(href='/edit_comment?original=#{comment.id}&topic=#{topic.id}')
+                                | Править
+
+                    | #{' '}
+
+                    if comment.deletable
+                        li
+                            a(href='/delete_comment.jsp?msgid=#{comment.id}')
+                                | Удалить
+
+                    | #{' '}
+
+                    li
+                        a(href='#{topic.link}?cid=#{comment.id}')
+                            | Ссылка
+
+    div
+        div(style='clear: both')

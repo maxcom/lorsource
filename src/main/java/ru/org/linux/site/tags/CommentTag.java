@@ -1,11 +1,11 @@
 package ru.org.linux.site.tags;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.JadeTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.org.linux.comment.ApiCommentTopicInfo;
 import ru.org.linux.comment.PreparedComment;
 import ru.org.linux.topic.Topic;
 
@@ -18,6 +18,7 @@ public class CommentTag extends TagSupport {
   private boolean enableSchema;
   private Topic topic;
   private boolean showMenu;
+  private boolean commentsAllowed;
 
   public void setComment(PreparedComment comment) {
     this.comment = comment;
@@ -35,6 +36,11 @@ public class CommentTag extends TagSupport {
     this.showMenu = showMenu;
   }
 
+  public void setCommentsAllowed(boolean commentsAllowed) {
+
+    this.commentsAllowed = commentsAllowed;
+  }
+
   @Override
   public int doStartTag() throws JspException {
     WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext());
@@ -46,9 +52,10 @@ public class CommentTag extends TagSupport {
 
     data.put("comment", comment);
     data.put("enableSchema", enableSchema);
-    data.put("topic", ImmutableMap.of(
-            "id", topic.getId(),
-            "link", topic.getLink()
+    data.put("topic", new ApiCommentTopicInfo(
+            topic.getId(),
+            topic.getLink(),
+            commentsAllowed
     ));
 
     data.put("showMenu", showMenu);
