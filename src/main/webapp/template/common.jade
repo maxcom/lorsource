@@ -43,6 +43,13 @@ mixin sign(user, shortMode, author, postdate, timeprop)
 
     |  (
 
-    time(datetime='#{ dateFormat.iso(postdate) }', itemprop='#{timeprop}') #{ dateFormat.apply(postdate) }
+    mixin time(postdate, timeprop)
 
     | )
+
+mixin time(postdate, timeprop)
+    time(datetime='#{ dateFormat.iso(postdate) }', itemprop='#{timeprop}') #{ dateFormat.apply(postdate) }
+
+mixin userpic(userpic)
+    div.userpic
+        img.photo(src=userpic.url, width=userpic.width, height=userpic.height)

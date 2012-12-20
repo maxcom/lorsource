@@ -1,6 +1,8 @@
 //- комментарий
     comment - комментарий
     enableSchema - добавить разметку schema.org
+    topic { id, link } - тема
+    showMenu - показывать ли меню добавить/удалить/ссылка/тп
 
 include common
 
@@ -18,4 +20,59 @@ article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemsc
                 strong= Сообщение удалено #{comment.deleteInfo.nick} по причине #{comment.deleteInfo.reason}
 
         if comment.reply!=null
-            Ответ на:
+            if comment.reply.samePage
+                samePage = "samePage"
+            else
+                samePage = false
+
+            | Ответ на:#{' '}
+            a(href='#{topic.link}?cid=#{comment.reply.id}', data-samepage=samePage)
+                | #{comment.reply.title}
+            |  от #{comment.reply.author}#{' '}
+            mixin time(comment.reply.postdate, false)
+
+    if comment.userpic
+        mixin userpic(comment.userpic)
+        msgBodyStyle = 'message-w-userpic'
+    else
+        msgBodyStyle = false
+
+    div(class='msg_body #{msgBodyStyle}')
+        if comment.title
+            h2= comment.title
+
+        | !{comment.processedMessage}
+
+        div.sign
+            mixin sign(comment.author, false, false, comment.postdate, 'commentTime')
+
+            if comment.remark
+                | #{' '}
+                span.user-remark= comment.remark
+
+            if comment.postIP
+                |  (
+                a(href='sameip.jsp?msgid=#{comment.id}')
+                    | #{comment.postIP}
+                )
+
+            if comment.editSummary
+                span.sign_more
+                    br
+                    | Последнее исправление: #{comment.editSummary.editNick}#{' '}
+                    mixin time(comment.editSummary.editDate, false)
+                    |  (всего #{' '}
+                    a(href='#{topic.link}/#{comment.id}/history')
+                        | исправлений: #{comment.editSummary.editCount}
+                    | )
+
+            if comment.userAgent
+                br
+                span.sign_more
+                    | #{comment.userAgent}
+
+        if !comment.deleted && showMenu
+            div.reply
+                ul
+
+

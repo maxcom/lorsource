@@ -381,7 +381,7 @@ public class User implements Serializable {
 
     return grUrl
       + StringUtil.md5hash(email.toLowerCase())
-      + "?s="+size+"&amp;r=g&amp;d="+nonExist;
+      + "?s="+size+"&r=g&d="+nonExist;
   }
 
   public String getEmail() {

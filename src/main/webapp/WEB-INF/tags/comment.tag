@@ -128,4 +128,9 @@
   </div><div style="clear: both"></div>
 </article>
 
-<l:comment comment="${comment}" enableSchema="${enableSchema}"/>
+<l:comment
+        comment="${comment}"
+        enableSchema="${enableSchema}"
+        topic="${topic}"
+        showMenu="${showMenu}"
+/>

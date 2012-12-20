@@ -1,11 +1,13 @@
 package ru.org.linux.site.tags;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.JadeTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.comment.PreparedComment;
+import ru.org.linux.topic.Topic;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -14,6 +16,8 @@ import java.util.Map;
 public class CommentTag extends TagSupport {
   private PreparedComment comment;
   private boolean enableSchema;
+  private Topic topic;
+  private boolean showMenu;
 
   public void setComment(PreparedComment comment) {
     this.comment = comment;
@@ -21,6 +25,14 @@ public class CommentTag extends TagSupport {
 
   public void setEnableSchema(boolean enableSchema) {
     this.enableSchema = enableSchema;
+  }
+
+  public void setTopic(Topic topic) {
+    this.topic = topic;
+  }
+
+  public void setShowMenu(boolean showMenu) {
+    this.showMenu = showMenu;
   }
 
   @Override
@@ -34,6 +46,12 @@ public class CommentTag extends TagSupport {
 
     data.put("comment", comment);
     data.put("enableSchema", enableSchema);
+    data.put("topic", ImmutableMap.of(
+            "id", topic.getId(),
+            "link", topic.getLink()
+    ));
+
+    data.put("showMenu", showMenu);
 
     // TODO: move to globals
     data.put("dateFormat", new SignTag.DateFormatHandler());
