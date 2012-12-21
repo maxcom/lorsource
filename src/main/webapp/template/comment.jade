@@ -18,9 +18,11 @@ article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemsc
             if comment.deleteInfo==null
                 strong
                     | Сообщение удалено
+                br
             else
                 strong
                     | Сообщение удалено #{comment.deleteInfo.nick} по причине #{comment.deleteInfo.reason}
+                br
 
         if comment.reply!=null
             if comment.reply.samePage
