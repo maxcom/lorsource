@@ -33,7 +33,6 @@
 <article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
-    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
     <c:if test="${not message.deleted}">
       <c:if test="${template.moderatorSession}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
@@ -80,6 +79,7 @@
   </div>
 
   <div class="msg_body ${msgBodyStyle}">
+  <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
   <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
     <a href="${message.link}"><l:title>${message.title}</l:title></a>
   </h1>
