@@ -23,7 +23,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
-<c:if test="${not template.moderatorSession}">
+<c:if test="${not template.sessionAuthorized}">
 
 <article class="msg" id="comment-${comment.id}" <c:if test="${enableSchema}">itemprop="comment" itemscope itemtype="http://schema.org/UserComments"</c:if>>
   <div class=title>
@@ -130,7 +130,7 @@
 </article>
 </c:if>
 
-<c:if test="${template.moderatorSession}">
+<c:if test="${template.sessionAuthorized}">
 <l:comment
         comment="${comment}"
         enableSchema="${enableSchema}"
