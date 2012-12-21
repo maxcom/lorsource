@@ -20,6 +20,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -88,7 +89,7 @@
 <div class="messages">
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment commentsAllowed="false" showMenu="true" comment="${comment}"
+      <l:comment commentsAllowed="false" showMenu="true" comment="${comment}" enableSchema="false"
                    topic="${topic}"/>
     </c:forEach>
 

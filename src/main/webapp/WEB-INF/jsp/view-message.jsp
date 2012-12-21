@@ -265,7 +265,7 @@
 </c:if>
 <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
+      <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">

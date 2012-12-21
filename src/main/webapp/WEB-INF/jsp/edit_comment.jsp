@@ -2,6 +2,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +44,7 @@
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${null}"/>
+    <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${edit.topic}" enableSchema="false"/>
   </div>
 </c:if>
 
