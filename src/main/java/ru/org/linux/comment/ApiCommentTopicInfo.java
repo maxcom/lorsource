@@ -1,5 +1,8 @@
 package ru.org.linux.comment;
 
+import ru.org.linux.site.PublicApi;
+
+@PublicApi
 public class ApiCommentTopicInfo {
   private final int id;
   private final String link;
