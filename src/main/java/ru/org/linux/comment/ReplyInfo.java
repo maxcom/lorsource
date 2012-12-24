@@ -15,8 +15,11 @@
 
 package ru.org.linux.comment;
 
+import ru.org.linux.site.PublicApi;
+
 import java.util.Date;
 
+@PublicApi
 public class ReplyInfo {
   private final int id;
   private final String author;

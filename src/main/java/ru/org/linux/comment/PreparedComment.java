@@ -15,7 +15,9 @@
 
 package ru.org.linux.comment;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import ru.org.linux.site.ApiDeleteInfo;
+import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Userpic;
 
@@ -23,6 +25,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
 
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@PublicApi
 public class PreparedComment {
   private final int id;
 

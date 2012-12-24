@@ -21,10 +21,13 @@ import org.springframework.validation.Errors;
 import ru.org.linux.comment.CommentRequest;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.comment.DeleteCommentController;
+import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 @Service
@@ -34,6 +37,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   public static final int LINK_FOLLOW_MIN_SCORE = 100;
+  public static final int VIEW_DELETED_SCORE = 100;
 
   @Autowired
   private CommentService commentService;
@@ -63,6 +67,33 @@ public class TopicPermissionService {
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       default:
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore;
+    }
+  }
+
+  public void checkView(
+          @Nonnull Topic message,
+          @Nullable User currentUser
+  ) throws MessageNotFoundException {
+    if (currentUser!=null && currentUser.isModerator()) {
+      return;
+    }
+
+    if (message.isDeleted()) {
+      if (message.isExpired()) {
+        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+      }
+
+      if (currentUser==null || currentUser.isAnonymous()) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
+
+      if (currentUser.getId() == message.getUid()) {
+        return;
+      }
+
+      if (currentUser.getScore() < VIEW_DELETED_SCORE) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
     }
   }
 

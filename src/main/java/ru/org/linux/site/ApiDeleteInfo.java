@@ -1,5 +1,6 @@
 package ru.org.linux.site;
 
+@PublicApi
 public class ApiDeleteInfo {
   private final String nick;
   private final String reason;

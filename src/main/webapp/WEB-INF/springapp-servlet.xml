@@ -113,8 +113,12 @@
         <bean class="ru.org.linux.csrf.CSRFHandlerInterceptor"/>
     </mvc:interceptors>
 
+    <bean id="objectMapper" factory-bean="objectMapperFactory" factory-method="getMapper"/>
+
     <bean id="jacksonMessageConverter"
-          class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
+          class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+        <property name="objectMapper" ref="objectMapper"/>
+    </bean>
 
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="messageConverters">

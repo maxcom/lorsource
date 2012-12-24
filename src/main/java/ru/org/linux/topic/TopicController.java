@@ -24,6 +24,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
@@ -73,6 +74,9 @@ public class TopicController {
 
   @Autowired
   private IPBlockDao ipBlockDao;
+
+  @Autowired
+  private TopicPermissionService permissionService;
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
@@ -248,13 +252,13 @@ public class TopicController {
 
     params.put("showDeleted", showDeleted);
 
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = AuthUtil.getCurrentUser();
 
     if (topic.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
       throw new MessageNotFoundException(topic.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    checkView(topic, tmpl, currentUser);
+    permissionService.checkView(topic, currentUser);
 
     if (group.getCommentsRestriction() == -1 && !tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
@@ -449,30 +453,6 @@ public class TopicController {
     link.append(params);
 
     return new ModelAndView(new RedirectView(link.toString()));
-  }
-
-  private static void checkView(Topic message, Template tmpl, User currentUser) throws MessageNotFoundException {
-    if (tmpl.isModeratorSession()) {
-      return;
-    }
-
-    if (message.isDeleted()) {
-      if (message.isExpired()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
-      }
-
-      if (!tmpl.isSessionAuthorized()) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-      }
-
-      if (currentUser.getId() == message.getUid()) {
-        return;
-      }
-
-      if (currentUser.getScore() < User.VIEW_DELETED_SCORE) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-      }
-    }
   }
 
   private static boolean checkLastModified(WebRequest webRequest, Topic message) {

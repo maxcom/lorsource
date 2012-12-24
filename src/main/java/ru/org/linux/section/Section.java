@@ -15,13 +15,12 @@
 
 package ru.org.linux.section;
 
+import com.google.common.collect.ImmutableBiMap;
 import ru.org.linux.topic.TopicPermissionService;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Section implements Serializable {
   private static final long serialVersionUID = -2259350244006777911L;
@@ -41,13 +40,13 @@ public class Section implements Serializable {
   public static final int SECTION_NEWS = 1;
   public static final int SECTION_POLLS = 5;
 
-  private static final Map<String, Integer> sections = new HashMap<String, Integer>();
-  static {
-    sections.put("news", SECTION_NEWS);
-    sections.put("forum", SECTION_FORUM);
-    sections.put("gallery", SECTION_GALLERY);
-    sections.put("polls", SECTION_POLLS);
-  }
+  private static final ImmutableBiMap<String, Integer> sections
+          = ImmutableBiMap.of(
+          "news", SECTION_NEWS,
+          "forum", SECTION_FORUM,
+          "gallery", SECTION_GALLERY,
+          "polls", SECTION_POLLS
+  );
 
   public Section(ResultSet rs) throws SQLException {
     name = rs.getString("name");
@@ -125,33 +124,32 @@ public class Section implements Serializable {
   }
 
   private static String getSectionLinkInternal(int section) {
-    switch (section) {
-      case SECTION_FORUM:
-        return "/forum/";
-      case SECTION_GALLERY:
-        return "/gallery/";
-      case SECTION_NEWS:
-        return "/news/";
-      case SECTION_POLLS:
-        return "/polls/";
-      default:
-        throw new RuntimeException("unknown section: " + section);
-    }
+    return "/"+ getUrlName(section) +"/";
   }
 
   public static String getNewsViewerLink(int section) throws SectionNotFoundException {
+    String urlName = getUrlName(section);
+
     switch (section) {
       case SECTION_FORUM:
         return "/forum/lenta/";
-      case SECTION_GALLERY:
-        return "/gallery/";
-      case SECTION_NEWS:
-        return "/news/";
-      case SECTION_POLLS:
-        return "/polls/";
       default:
-        throw new SectionNotFoundException(section);
+        return "/"+urlName+"/";
     }
+  }
+
+  private static String getUrlName(int section) {
+    String name = sections.inverse().get(section);
+
+    if (name!=null) {
+      return name;
+    } else {
+      throw new SectionNotFoundException(section);
+    }
+  }
+
+  public String getUrlName() {
+    return getUrlName(id);
   }
 
   public String getArchiveLink(int year, int month) {

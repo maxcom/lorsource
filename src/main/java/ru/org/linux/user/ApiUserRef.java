@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableList;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import ru.org.linux.site.PublicApi;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
+@PublicApi
 public class ApiUserRef {
   private final String nick;
   private final boolean blocked;

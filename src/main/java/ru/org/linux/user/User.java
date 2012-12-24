@@ -60,7 +60,6 @@ public class User implements Serializable {
   public static final int CORRECTOR_SCORE = 100;
   private static final int BLOCK_MAX_SCORE = 400;
   private static final int BLOCK_SCORE = 200;
-  public static final int VIEW_DELETED_SCORE = 100;
 
   public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 

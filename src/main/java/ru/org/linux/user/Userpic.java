@@ -15,6 +15,9 @@
 
 package ru.org.linux.user;
 
+import ru.org.linux.site.PublicApi;
+
+@PublicApi
 public class Userpic {
   private final String url;
   private final int width;

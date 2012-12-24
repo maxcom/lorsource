@@ -1,7 +1,10 @@
 package ru.org.linux.comment;
 
+import ru.org.linux.site.PublicApi;
+
 import java.sql.Timestamp;
 
+@PublicApi
 public class EditSummary {
   private final String editNick;
   private final Timestamp editDate;
