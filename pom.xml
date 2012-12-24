@@ -474,8 +474,7 @@
                </executions>
                <configuration>
                    <includes>
-                       <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/header.jsp</include>
-                       <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/header-main.jsp</include>
+                       <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/head.jsp</include>
                    </includes>
                    <replacements>
                        <replacement>
