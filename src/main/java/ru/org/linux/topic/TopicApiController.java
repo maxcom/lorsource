@@ -53,7 +53,9 @@ public class TopicApiController {
     Group group = groupDao.getGroup(topic.getGroupId());
     Section section = sectionService.getSection(group.getSectionId());
 
-    if (!section.getUrlName().equals(sectionName) || !group.getUrlName().equals(groupName)) {
+    if (!section.getUrlName().equals(sectionName)
+            || !group.getUrlName().equals(groupName)
+            || page<0 ) {
       throw new MessageNotFoundException(msgid);
     }
 
