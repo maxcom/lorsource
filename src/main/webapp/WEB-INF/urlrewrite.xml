@@ -100,6 +100,11 @@
   </rule>
 
   <rule>
+    <from>\.(jade)$</from>
+    <set type="charset">UTF-8</set>
+  </rule>
+
+  <rule>
     <from>\.(gif)|(jpg)|(png)$</from>
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
   </rule>
