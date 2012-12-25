@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -97,15 +98,10 @@ public class CommentPrepareService {
 
           String replyAuthor = userDao.getUserCached(reply.getUserid()).getNick();
 
-          String replyTitle = reply.getTitle();
-          if (replyTitle.trim().isEmpty()) {
-            replyTitle = "комментарий";
-          }
-
           replyInfo = new ReplyInfo(
                   reply.getId(),
                   replyAuthor,
-                  replyTitle,
+                  Strings.emptyToNull(reply.getTitle().trim()),
                   reply.getPostdate(),
                   samePage
           );

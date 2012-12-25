@@ -15,11 +15,15 @@
 
 package ru.org.linux.comment;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import ru.org.linux.site.PublicApi;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Date;
 
 @PublicApi
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class ReplyInfo {
   private final int id;
   private final String author;
@@ -27,7 +31,13 @@ public class ReplyInfo {
   private final Date postdate;
   private final boolean samePage;
 
-  public ReplyInfo(int id, String author, String title, Date postdate, boolean samePage) {
+  public ReplyInfo(
+          int id,
+          @Nonnull String author,
+          @Nullable String title,
+          @Nonnull Date postdate,
+          boolean samePage
+  ) {
     this.id = id;
     this.author = author;
     this.title = title;
