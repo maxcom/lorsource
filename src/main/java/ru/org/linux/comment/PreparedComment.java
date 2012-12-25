@@ -15,13 +15,13 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.base.Strings;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Userpic;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
 
@@ -51,7 +51,7 @@ public class PreparedComment {
   @Nullable
   private final EditSummary editSummary;
 
-  @Nonnull
+  @Nullable
   private final String title;
 
   @Nullable
@@ -85,7 +85,7 @@ public class PreparedComment {
     this.remark = remark;
     this.userpic = userpic;
 
-    title = comment.getTitle();
+    title = Strings.emptyToNull(comment.getTitle().trim());
     deleted = comment.isDeleted();
     postdate = comment.getPostdate();
   }
@@ -134,7 +134,7 @@ public class PreparedComment {
     return editSummary;
   }
 
-  @Nonnull
+  @Nullable
   public String getTitle() {
     return title;
   }
