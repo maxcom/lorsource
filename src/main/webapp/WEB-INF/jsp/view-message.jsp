@@ -232,9 +232,21 @@
 <c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="${showAdsense}">
-  <div style="text-align: center; margin-top: 1em">
+  <div style="text-align: center; margin-top: 1em; height: 90px" id="interpage-adv">
+<%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
+--%>
   </div>
+
+  <script type="text/javascript">
+    $script('/js/jquery.swfobject.1-1-1.min.js', function() {
+      $('#interpage-adv').flash({
+        "swf": '/adv/728x90-storage.swf',
+        "width": 728,
+        "height": 90
+      });
+    });
+  </script>
   <br>
 </c:if>
 
