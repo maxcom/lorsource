@@ -6,106 +6,109 @@
 
 include common
 
-if enableSchema
-    articleItemprop = "comment"
-    articleItemscope = "itemscope"
-    articleItemtype = "http://schema.org/UserComments"
-    replyItemprop = "replyToUrl"
-
-article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemscope=articleItemscope, itemtype=articleItemtype)
-    div.title
-        if comment.deleted
-            if comment.deleteInfo==null
-                strong
-                    | Сообщение удалено
-                br
-            else
-                strong
-                    | Сообщение удалено #{comment.deleteInfo.nick} по причине #{comment.deleteInfo.reason}
-                br
-
-        if comment.reply!=null
-            if comment.reply.samePage
-                samePage = "samePage"
-            else
-                samePage = false
-
-            | Ответ на:#{' '}
-            a(href='#{topic.link}?cid=#{comment.reply.id}', data-samepage=samePage)
-                if comment.reply.title != null
-                    | #{comment.reply.title}
-                else
-                    | комментарий
-            |  от #{comment.reply.author}#{' '}
-            mixin time(comment.reply.postdate, false)
-
-    if comment.userpic
-        mixin userpic(comment.userpic)
-        msgBodyStyle = 'message-w-userpic'
-    else
-        msgBodyStyle = false
-
-    div(class='msg_body #{msgBodyStyle}')
-        if comment.title
-            h2= comment.title
-
-        | !{comment.processedMessage}
-
-        div.sign
-            mixin sign(comment.author, false, false, comment.postdate, 'commentTime')
-
-            if comment.remark
-                | #{' '}
-                span.user-remark= comment.remark
-
-            if comment.postIP
-                |  (
-                a(href='sameip.jsp?msgid=#{comment.id}')
-                    | #{comment.postIP}
-                )
-
-            if comment.editSummary
-                span.sign_more
+mixin comment(comment, enableSchema, topic, showMenu)
+    if enableSchema
+        articleItemprop = "comment"
+        articleItemscope = "itemscope"
+        articleItemtype = "http://schema.org/UserComments"
+        replyItemprop = "replyToUrl"
+    
+    article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemscope=articleItemscope, itemtype=articleItemtype)
+        div.title
+            if comment.deleted
+                if comment.deleteInfo==null
+                    strong
+                        | Сообщение удалено
                     br
-                    | Последнее исправление: #{comment.editSummary.editNick}#{' '}
-                    mixin time(comment.editSummary.editDate, false)
-                    |  (всего #{' '}
-                    a(href='#{topic.link}/#{comment.id}/history')
-                        | исправлений: #{comment.editSummary.editCount}
-                    | )
-
-            if comment.userAgent
-                br
-                span.sign_more
-                    | #{comment.userAgent}
-
-        if !comment.deleted && showMenu
-            div.reply
-                ul
-                    if topic.commentsAllowed
-                        li
-                            a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}')
-                                | Ответить на это сообщение
-
+                else
+                    strong
+                        | Сообщение удалено #{comment.deleteInfo.nick} по причине #{comment.deleteInfo.reason}
+                    br
+    
+            if comment.reply!=null
+                if comment.reply.samePage
+                    samePage = "samePage"
+                else
+                    samePage = false
+    
+                | Ответ на:#{' '}
+                a(href='#{topic.link}?cid=#{comment.reply.id}', data-samepage=samePage)
+                    if comment.reply.title != null
+                        | #{comment.reply.title}
+                    else
+                        | комментарий
+                |  от #{comment.reply.author}#{' '}
+                mixin time(comment.reply.postdate, false)
+    
+        if comment.userpic
+            mixin userpic(comment.userpic)
+            msgBodyStyle = 'message-w-userpic'
+        else
+            msgBodyStyle = false
+    
+        div(class='msg_body #{msgBodyStyle}')
+            if comment.title
+                h2= comment.title
+    
+            | !{comment.processedMessage}
+    
+            div.sign
+                mixin sign(comment.author, false, false, comment.postdate, 'commentTime')
+    
+                if comment.remark
                     | #{' '}
+                    span.user-remark= comment.remark
+    
+                if comment.postIP
+                    |  (
+                    a(href='sameip.jsp?msgid=#{comment.id}')
+                        | #{comment.postIP}
+                    )
+    
+                if comment.editSummary
+                    span.sign_more
+                        br
+                        | Последнее исправление: #{comment.editSummary.editNick}#{' '}
+                        mixin time(comment.editSummary.editDate, false)
+                        |  (всего #{' '}
+                        a(href='#{topic.link}/#{comment.id}/history')
+                            | исправлений: #{comment.editSummary.editCount}
+                        | )
+    
+                if comment.userAgent
+                    br
+                    span.sign_more
+                        | #{comment.userAgent}
+    
+            if !comment.deleted && showMenu
+                div.reply
+                    ul
+                        if topic.commentsAllowed
+                            li
+                                a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}')
+                                    | Ответить на это сообщение
 
-                    if comment.editable
+                        | #{' '}
+    
+                        if comment.editable
+                            li
+                                a(href='/edit_comment?original=#{comment.id}&topic=#{topic.id}')
+                                    | Править
+    
+                        | #{' '}
+    
+                        if comment.deletable
+                            li
+                                a(href='/delete_comment.jsp?msgid=#{comment.id}')
+                                    | Удалить
+    
+                        | #{' '}
+    
                         li
-                            a(href='/edit_comment?original=#{comment.id}&topic=#{topic.id}')
-                                | Править
+                            a(href='#{topic.link}?cid=#{comment.id}')
+                                | Ссылка
+    
+        div
+            div(style='clear: both')
 
-                    | #{' '}
-
-                    if comment.deletable
-                        li
-                            a(href='/delete_comment.jsp?msgid=#{comment.id}')
-                                | Удалить
-
-                    | #{' '}
-
-                    li
-                        a(href='#{topic.link}?cid=#{comment.id}')
-                            | Ссылка
-
-    div
-        div(style='clear: both')
+mixin comment(comment, enableSchema, topic, showMenu)
