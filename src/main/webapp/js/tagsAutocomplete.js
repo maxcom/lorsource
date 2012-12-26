@@ -7,7 +7,7 @@ $(function() {
             return split( term ).pop();
         }
 
-        $( document.tagInputCssString )
+        $('[data-tags-autocomplete]')
             // don't navigate away from the field on tab when selecting an item
             .bind( "keydown", function( event ) {
                 if ( event.keyCode === $.ui.keyCode.TAB &&

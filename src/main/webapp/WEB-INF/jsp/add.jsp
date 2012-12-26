@@ -29,12 +29,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <title>Добавить сообщение</title>
-<script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
-<script src="/js/tagsAutocomplete.js" type="text/javascript"></script>
 <script type="text/javascript">
   $script.ready('lorjs', function() { initTopTagSelection(); });
-
-  document.tagInputCssString = "#tags";
 
   $script.ready("plugins", function() {
     $(function() {
@@ -54,6 +50,11 @@
           window.onbeforeunload = null;
       });
     });
+  });
+
+  $script("/js/jqueryui/jquery-ui-1.8.18.custom.min.js", "jqueryui");
+  $script.ready("jqueryui", function() {
+    $script("/js/tagsAutocomplete.js");
   });
 </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
@@ -159,7 +160,7 @@
   Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
 </c:if>
 
-    <form:input id="tags" path="tags" style="width: 40em"/>
+    <form:input data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
     </label><p>
     Популярные теги:
      <c:forEach items="${topTags}" var="topTag" varStatus = "status">

@@ -26,10 +26,11 @@
 %>
 <title>Фильтрация сообщений</title>
 
-<script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
-<script src="/js/tagsAutocomplete.js" type="text/javascript"></script>
 <script type="text/javascript">
-  document.tagInputCssString = "#newFavoriteTagName, #newIgnoreTagName";
+  $script("/js/jqueryui/jquery-ui-1.8.18.custom.min.js", "jqueryui");
+  $script.ready("jqueryui", function() {
+    $script("/js/tagsAutocomplete.js");
+  });
 </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -75,7 +76,7 @@
 <legend>Список избранных тегов</legend>
 <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
   <lor:csrf/>
-  <label>Тег: <input type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
+  <label>Тег: <input data-tags-autocomplete="data-tags-autocomplete" type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${favoriteTagAddError != null}"><div class="error">
   <c:forEach var="tagAddError" items="${favoriteTagAddError}">
@@ -115,7 +116,7 @@
 <c:otherwise>
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
   <lor:csrf/>
-  <label>Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
+  <label>Тег: <input type="text" name="tagName" data-tags-autocomplete="data-tags-autocomplete" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${ignoreTagAddError != null}"><div class="error">
   <c:forEach var="tagAddError" items="${ignoreTagAddError}">
