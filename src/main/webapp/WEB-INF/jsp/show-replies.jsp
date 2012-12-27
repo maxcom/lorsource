@@ -65,9 +65,8 @@
             </c:otherwise>
         </c:choose>
         </c:forEach>
-        </ul>
-        <ul>
-        <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
+
+          <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
         </ul>
     </div>
 </div>
