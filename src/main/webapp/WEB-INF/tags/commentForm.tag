@@ -68,9 +68,9 @@
   <br>
   <lor:captcha ipBlockInfo="${ipBlockInfo}" />
 
-  <input type=submit value="Поместить">
-  <input type=submit name=preview value="Предпросмотр">
+  <button type=submit>Поместить</button>
+  <button type=submit name=preview>Предпросмотр</button>
   <c:if test="${cancel!=null && cancel}">
-    <input type=reset name=cancel value="Отменить" id="cancelButton">
+    <button type=reset name=cancel id="cancelButton">Отменить</button>
   </c:if>
 </form>
