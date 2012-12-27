@@ -48,7 +48,7 @@ will be detected and monitoring, via the Developer Console, will be enabled. Oth
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.
 -->
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false" monitoring="autodetect" dynamicConfig="true">
 
     <!--
     DiskStore configuration
