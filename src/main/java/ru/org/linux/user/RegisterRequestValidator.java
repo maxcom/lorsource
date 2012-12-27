@@ -49,7 +49,8 @@ public class RegisterRequestValidator implements Validator {
           "rppkn.com",
           "rtrtr.com",
           "mailmetrash.com",
-          "getairmail.com"
+          "getairmail.com",
+          "mailseal.de"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
