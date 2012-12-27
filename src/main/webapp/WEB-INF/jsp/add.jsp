@@ -169,7 +169,7 @@ ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <br>
-<input type=submit value="Поместить">
-<input type=submit name=preview value="Предпросмотр">
+<button type=submit>Поместить</button>
+<button type=submit name=preview>Предпросмотр</button>
 </form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
