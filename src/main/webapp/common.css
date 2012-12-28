@@ -66,7 +66,7 @@ textarea {
     overflow: auto;
     vertical-align: top;
     font-family: "Droid Sans Mono", sans-serif;
-    font-size: 100%;
+    font-size: 1rem;
     max-width: 100%;
 }
 
@@ -305,7 +305,7 @@ label.error {
 
 #commentForm {
     margin-top: 0.5em;
-    font-size: 100%;
+    font-size: 1rem;
 }
 
 #commentForm textarea {
