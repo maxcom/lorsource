@@ -365,6 +365,19 @@ figure.medium-image {
     display: none;
 }
 
+/* Very wide screens */
+@media screen and (min-width: 90em) {
+    body {
+        font-size: 112.5%;
+    }
+}
+
+@media screen and (min-width: 100em) {
+    body {
+        font-size: 125%;
+    }
+}
+
 /* tablet */
 @media screen and (max-width: 800px) {
     img.medium-image {
