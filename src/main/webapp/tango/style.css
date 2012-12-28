@@ -212,7 +212,7 @@ div.msg_body h1 {
 }
 
 div.msg_body h2 {
-    font-size: medium;
+    font-size: 100%;
     font-weight: 600;
     font-family: "Open Sans", sans-serif;
 }
