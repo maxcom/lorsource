@@ -219,7 +219,7 @@ div.quote {
 div.quote h3 {
   margin-top: 0;
   margin-bottom: 0;
-  font-size: medium;
+  font-size: 100%;
   font-style: normal;
 }
 
@@ -295,7 +295,7 @@ label.error {
 
 #editRegForm .help-block {
     display: block;
-    font-size: small;
+    font-size: smaller;
 }
 
 #editRegForm dd {
@@ -305,7 +305,7 @@ label.error {
 
 #commentForm {
     margin-top: 0.5em;
-    font-size: medium;
+    font-size: 100%;
 }
 
 #commentForm textarea {
@@ -326,7 +326,7 @@ label.error {
 }
 
 .news .group {
-    font-size: small;
+    font-size: smaller;
 }
 
 .news .entry-body {
@@ -357,7 +357,7 @@ table.poll td {
 }
 
 #ft {
-    font-size: small;
+    font-size: smaller;
     margin-top: 1em;
 }
 
@@ -375,7 +375,7 @@ table.poll td {
 }
 
 .tags {
-    font-size: small;
+    font-size: smaller;
 }
 
 .tag {
@@ -383,22 +383,22 @@ table.poll td {
 }
 
 .msg h1 {
-    font-size: x-large;
+    font-size: 1.6em;
 }
 
 .sign_more {
-    font-size: small;
+    font-size: smaller;
 }
 
 .infoblock {
-    font-size: small;
+    font-size: smaller;
     padding: 5px;
     border: 1px solid;
     margin-bottom: 1em;
 }
 
 .infoblock h2 {
-    font-size: large; font-weight: bold;
+    font-size: larger; font-weight: bold;
     margin: 0;
 }
 
@@ -522,7 +522,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .fav-buttons span {
-    font-size: small;
+    font-size: smaller;
 }
 
 .fav-buttons [class^="icon-"] {

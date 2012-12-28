@@ -127,7 +127,7 @@ p {
 }
 
 .mini-news {
-    font-size: medium;
+    font-size: 1em;
 }
 
 #bd ul, #bd ol {
@@ -212,7 +212,7 @@ div.msg_body h1 {
 }
 
 div.msg_body h2 {
-    font-size: 100%;
+    font-size: 1em;
     font-weight: 600;
     font-family: "Open Sans", sans-serif;
 }
@@ -336,7 +336,7 @@ div.quote {
     padding: 1px 5px;
     border: 1px solid;
     margin: 0;
-    font-size: small;
+    font-size: smaller;
     white-space: nowrap;
     outline: none;
     -webkit-border-radius: 0.2em;
