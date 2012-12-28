@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.PublicApi;
@@ -85,7 +86,14 @@ public class PreparedComment {
     this.remark = remark;
     this.userpic = userpic;
 
-    title = Strings.emptyToNull(comment.getTitle().trim());
+    String encodedTitle = Strings.emptyToNull(comment.getTitle().trim());
+
+    if (encodedTitle!=null) {
+      title = StringEscapeUtils.unescapeHtml(encodedTitle);
+    } else {
+      title = null;
+    }
+
     deleted = comment.isDeleted();
     postdate = comment.getPostdate();
   }

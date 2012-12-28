@@ -56,7 +56,7 @@
   </c:if>
 
   <label for="title">Заглавие:</label><br>
-  <input type=text id="title" name=title value="<l:title><%= title %>"></l:title><br>
+  <input type=text id="title" name=title value="<%= StringUtil.escapeHtml(title) %>"><br>
 
   <label for="msg">Сообщение:</label><br>
 
