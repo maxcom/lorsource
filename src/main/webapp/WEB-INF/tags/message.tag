@@ -192,7 +192,7 @@
           <ul id="topicMenu">
           <c:if test="${not message.expired}">
             <c:if test="${messageMenu.commentsAllowed}">
-              <li><a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a></li>
+              <li><a href="comment-message.jsp?topic=${message.id}">Ответить <span class="hideon-phone" на это сообщение</span></a></li>
             </c:if>
         </c:if>
         <c:if test="${messageMenu.editable}">

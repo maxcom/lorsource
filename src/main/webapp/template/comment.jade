@@ -86,7 +86,9 @@ mixin comment(comment, enableSchema, topic, showMenu)
                         if topic.commentsAllowed
                             li
                                 a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}')
-                                    | Ответить на это сообщение
+                                    | Ответить
+                                    span.hideon-phone
+                                        | на это сообщение
 
                         | #{' '}
     
