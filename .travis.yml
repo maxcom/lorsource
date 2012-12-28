@@ -3,7 +3,6 @@ script: mvn install
 jdk:
   - oraclejdk7
   - openjdk7
-  - openjdk6
 before_script:
   - createuser -U postgres -d -S -R maxcom
   - createuser -U postgres -D -S -R linuxweb
