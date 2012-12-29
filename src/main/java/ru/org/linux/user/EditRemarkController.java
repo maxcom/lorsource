@@ -69,7 +69,6 @@ public class EditRemarkController {
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-
     if(text.length()>255){
       text=text.substring(0,255);
     }
@@ -77,7 +76,7 @@ public class EditRemarkController {
     User refUser = userDao.getUser(nick);
     Remark rm = userDao.getRemark(user,refUser);
     if(rm!=null){
-      userDao.updateRemark(rm.getId(),text);
+        userDao.updateRemark(rm.getId(),text);
     } else {
       userDao.setRemark(user,refUser,text);
     }
