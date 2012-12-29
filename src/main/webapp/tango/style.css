@@ -372,12 +372,6 @@ figure.medium-image {
     }
 }
 
-@media screen and (min-width: 100em) {
-    body, textarea, #commentForm, input {
-        font-size: 1.25rem;
-    }
-}
-
 /* tablet */
 @media screen and (max-width: 800px) {
     img.medium-image {
