@@ -374,6 +374,10 @@ figure.medium-image {
 
 /* tablet */
 @media screen and (max-width: 800px) {
+    figure.medium-image {
+        float: none;
+    }
+
     img.medium-image {
         float: none;
         margin-left: inherit;
