@@ -15,7 +15,8 @@
 
 package ru.org.linux.util;
 
-import ru.org.linux.util.formatter.ToHtmlFormatter;
+import ru.org.linux.util.formatter.RuTypoChanger;
+import sun.security.ssl.Debug;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
@@ -57,7 +58,10 @@ public final class StringUtil {
   }
 
   public static String processTitle(String title) {
-    return title.replace(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
+    //Debug.println("ProcessTitle", title);
+    //return (new RuTypoChanger()).changeBatch(title);
+    //Ну что это за фигня, а?  Почему часть шаблона попадает в title?
+    return title.replaceAll(" -- ", "&nbsp;&mdash; ");
   }
 
   public static String makeTitle(String title) {

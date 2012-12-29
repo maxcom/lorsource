@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2013 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -48,12 +48,6 @@ public class ToHtmlFormatter {
     "|(?:mailto: ?[a-z0-9+.]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-
-  /*
-  Замена двойного минуса на тире
-   */
-  public static final String MDASH_REGEX = " -- ";
-  public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
 
   private Configuration configuration;
   private TopicDao messageDao;
@@ -104,7 +98,7 @@ public class ToHtmlFormatter {
       sb.append(formattedToken);
     }
 
-    return sb.toString().replaceAll(MDASH_REGEX, MDASH_REPLACE);
+    return sb.toString();
   }
 
   /**
@@ -113,7 +107,7 @@ public class ToHtmlFormatter {
    * @return форматированый текст
    */
   public String simpleFormat(String text) {
-    return StringUtil.escapeHtml(text).replaceAll(MDASH_REGEX, MDASH_REPLACE);
+    return StringUtil.escapeHtml(text);
   }
 
   public String memberURL(User user, boolean secure) throws URIException {

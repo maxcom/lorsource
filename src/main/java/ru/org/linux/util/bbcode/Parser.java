@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.Tag;
+import ru.org.linux.util.formatter.RuTypoChanger;
 
 import java.util.Map;
 import java.util.Set;
@@ -63,6 +64,8 @@ public class Parser {
 
   private final ParserParameters parserParameters;
 
+  private final RuTypoChanger changer = new RuTypoChanger();
+
 
   public Parser(ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
@@ -74,6 +77,7 @@ public class Parser {
   
   private void rawPushTextNode(RootNode rootNode, Node currentNode, String text, boolean isCode) {
     if(!isCode) {
+      text = changer.changeBatch(text);
       currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
     } else {
       currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, rootNode));
@@ -267,6 +271,7 @@ public class Parser {
     int pos = 0;
     boolean isCode = false;
     boolean firstCode = false;
+    changer.reset();
     while (pos < bbcode.length()) {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(pos, bbcode.length());
       if (match.find()) {
