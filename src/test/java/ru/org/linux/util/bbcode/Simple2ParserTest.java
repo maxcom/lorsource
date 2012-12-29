@@ -361,4 +361,18 @@ public class Simple2ParserTest {
         lorCodeService.parseComment("http://www.linux.org.ru/ -- русская информация об ос линукс", false, false));
   }
 
+  @Test
+  public void quoteChangerTest() {
+    RuTypoChanger changer = new RuTypoChanger();
+    assertEquals("громозяблики сказали: &laquo;Громозяблики - это &bdquo;ня&ldquo;, а не ваши &bdquo;пакости&ldquo;&raquo;",
+        changer.format("громозяблики сказали: \"Громозяблики - это \"ня\", а не ваши \"пакости\"\""));
+    assertEquals("мой 27&quot; аймак - сполшная няшнота, однако",
+        changer.format("мой 27\" аймак - сполшная няшнота, однако"));
+    changer.reset();
+    assertEquals("Мяу! Мяу! &laquo;Мяу! &bdquo;Мяу! &bdquo;Мяу!",
+        changer.format("Мяу! Мяу! \"Мяу! \"Мяу! \"Мяу!"));
+    assertEquals("хрр&ldquo;&ldquo;&raquo;, читать тесты - увлекательное дело", changer.format("хрр\"\"\", читать тесты - увлекательное дело"));
+    assertEquals("&quot;што?;&quot;", changer.format("''што?;''"));
+  }
+
 }
