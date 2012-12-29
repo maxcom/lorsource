@@ -3,6 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -192,21 +193,36 @@
 <tfoot>
 <tr><td colspan=3><p>
 <div style="float: left">
+<c:if test="${prevPage>=0}">
+  <spring:url value="${url}" var="prevUrl">
+    <c:if test="${lastmod}">
+      <spring:param name="lastmod" value="true"/>
+    </c:if>
+    <c:if test="${showIgnored}">
+      <spring:param name="showignored" value="t"/>
+    </c:if>
+    <c:if test="${prevPage > 0}">
+      <spring:param name="offset" value="${prevPage}"/>
+    </c:if>
+  </spring:url>
 
-<c:if test="${lastmod}"><c:set var="urlAdd" value="&amp;lastmod=true" /></c:if>
-<c:if test="${showIgnored}"><c:set var="urlAdd" value="${urlAdd}&amp;showignored=t" /></c:if>
-
-<c:if test="${prevPage > 0}">
-    <a rel="prev" href="${url}?offset=${prevPage}${urlAdd}">← назад</a>
+  <a rel="prev" href="${prevUrl}">← назад</a>
 </c:if>
-<c:if test="${prevPage == 0}">
-<a rel="prev" href="${url}${urlAdd}">← назад</a>
-</c:if>
-
 </div>
 <div style="float: right">
   <c:if test="${hasNext}">
-    <a rel="next" href="${url}?offset=${nextPage}${urlAdd}">вперед →</a>
+    <spring:url value="${url}" var="nextUrl">
+      <c:if test="${lastmod}">
+        <spring:param name="lastmod" value="true"/>
+      </c:if>
+      <c:if test="${showIgnored}">
+        <spring:param name="showignored" value="t"/>
+      </c:if>
+
+      <spring:param name="offset" value="${nextPage}"/>
+    </spring:url>
+
+    <a rel="next" href="${nextUrl}">вперед →</a>
   </c:if>
 </div>
 </tfoot>
