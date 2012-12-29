@@ -49,6 +49,13 @@ public class ToHtmlFormatter {
 
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
+  /*
+  Замена двойного минуса на тире
+  */
+
+  public static final String MDASH_REGEX = " -- ";
+  public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
+
   private Configuration configuration;
   private TopicDao messageDao;
 
@@ -98,7 +105,7 @@ public class ToHtmlFormatter {
       sb.append(formattedToken);
     }
 
-    return sb.toString();
+    return sb.toString().replaceAll(MDASH_REGEX, MDASH_REPLACE);
   }
 
   /**
@@ -107,7 +114,7 @@ public class ToHtmlFormatter {
    * @return форматированый текст
    */
   public String simpleFormat(String text) {
-    return StringUtil.escapeHtml(text);
+    return StringUtil.escapeHtml(text).replaceAll(MDASH_REGEX, MDASH_REPLACE);
   }
 
   public String memberURL(User user, boolean secure) throws URIException {

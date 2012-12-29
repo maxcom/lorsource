@@ -77,7 +77,7 @@ public class Parser {
   
   private void rawPushTextNode(RootNode rootNode, Node currentNode, String text, boolean isCode) {
     if(!isCode) {
-      text = changer.changeBatch(text);
+      text = changer.format(text);
       currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
     } else {
       currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, rootNode));

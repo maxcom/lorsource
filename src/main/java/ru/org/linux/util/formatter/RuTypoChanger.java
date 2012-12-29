@@ -18,12 +18,6 @@ package ru.org.linux.util.formatter;
 public class RuTypoChanger {
 
   /*
-  Замена двойного минуса на тире
-   */
-  public static final String MDASH_REGEX = " -- ";
-  public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
-
-  /*
   Константы замены кавычек на няшне
    */
 
@@ -116,7 +110,7 @@ public class RuTypoChanger {
    * @return форматированный текст
    */
 
-  public String changeBatch(String input) {
+  public String format(String input) {
 
     StringBuffer buff = new StringBuffer(input.replaceAll("&quot;", "\""));
 
@@ -142,7 +136,6 @@ public class RuTypoChanger {
 
     input = buff.toString().replaceAll("(''|\")", "&quot;");
 
-    input = input.replaceAll(MDASH_REGEX, MDASH_REPLACE);
     input = input.replaceAll(Character.toString(QUOTE_IN_OPEN), QUOTE_IN_OPEN_HTML);
     input = input.replaceAll(Character.toString(QUOTE_IN_CLOSE), QUOTE_IN_CLOSE_HTML);
     input = input.replaceAll(Character.toString(QUOTE_OUT_OPEN), QUOTE_OUT_OPEN_HTML);
