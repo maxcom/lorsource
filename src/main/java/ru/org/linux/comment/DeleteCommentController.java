@@ -28,6 +28,7 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
@@ -44,7 +45,8 @@ public class DeleteCommentController {
   private TopicDao messageDao;
   private CommentPrepareService prepareService;
 
-  public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
+  @Autowired
+  private TopicPermissionService permissionService;
 
   @Autowired
   @Required
@@ -132,40 +134,29 @@ public class DeleteCommentController {
     user.checkAnonymous();
 
     Comment comment = commentService.getById(msgid);
-    Topic topic = messageDao.getById(comment.getTopicId());
 
     if (comment.isDeleted()) {
       throw new UserErrorException("комментарий уже удален");
     }
 
-    boolean perm = false;
-    boolean selfDel = false;
+    Topic topic = messageDao.getById(comment.getTopicId());
 
-    if (comment.getUserid() == user.getId()) {
-      if(!user.isModerator()) {
-        perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
-        if (perm) {
-          selfDel = true;
-        }
-      } else {
-        bonus = 0;
-      }
+    final boolean haveAnswers = commentService.isHaveAnswers(comment);
+
+    if (!permissionService.isCommentDeletableNow(comment, user, topic, haveAnswers)) {
+      throw new UserErrorException("комментарий нельзя удалить");
     }
 
-    if (!perm && user.isModerator()) {
-      perm = true;
-    }
-
-    if (!perm) {
-      user.checkDelete();
+    if (!user.isModerator() || comment.getUserid() == user.getId()) {
+      bonus = 0;
     }
 
     StringBuilder out = new StringBuilder();
 
-    LinkedList<Integer> deleted = new LinkedList<Integer>();
+    List<Integer> deleted = new LinkedList<Integer>();
     deleted.add(msgid);
 
-    if (!selfDel) {
+    if (user.isModerator()) {
       List<Integer> deletedReplys = commentService.deleteReplys(msgid, user, bonus > 2);
       if (!deletedReplys.isEmpty()) {
         out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");

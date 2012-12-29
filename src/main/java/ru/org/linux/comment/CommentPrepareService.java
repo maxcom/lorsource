@@ -110,26 +110,22 @@ public class CommentPrepareService {
 
       boolean haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
 
-      if(tmpl != null && topic != null) {
-        final boolean authored = author.getNick().equals(tmpl.getNick());
-        final long currentTimestamp = comment.getPostdate().getTime();
-
+      if (tmpl != null && topic != null) {
         final User currentUser = tmpl.getCurrentUser();
+
         deletable = topicPermissionService.isCommentDeletableNow(
-            tmpl.isModeratorSession(),
-            topic.isExpired(),
-            authored,
-            haveAnswers,
-            currentTimestamp
+            comment,
+            currentUser,
+            topic,
+            haveAnswers
         );
 
-        if(currentUser != null) {
+        if (currentUser != null) {
           editable = topicPermissionService.isCommentEditableNow(
-              tmpl.isModeratorSession(),
-              currentUser.getScore(),
-              authored,
+              comment,
+              currentUser,
               haveAnswers,
-              currentTimestamp
+              topic
           );
         }
       }

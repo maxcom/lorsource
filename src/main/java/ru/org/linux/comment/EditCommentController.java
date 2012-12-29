@@ -81,15 +81,14 @@ public class EditCommentController extends ApplicationObjectSupport {
   /**
    * Показ формы изменения комментария.
    *
+   *
    * @param commentRequest  WEB-форма, содержащая данные
-   * @param request         данные запроса от web-клиента
    * @return объект web-модели
    * @throws ServletParameterException
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.GET)
   public ModelAndView editCommentShowHandler(
-    @ModelAttribute("edit") @Valid CommentRequest commentRequest,
-    HttpServletRequest request
+          @ModelAttribute("edit") @Valid CommentRequest commentRequest
   ) throws ServletParameterException {
     if (commentRequest.getTopic() == null) {
       throw new ServletParameterException("тема на задана");
@@ -138,7 +137,7 @@ public class EditCommentController extends ApplicationObjectSupport {
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
     }
 
-    boolean editable = topicPermissionService.isCommentsEditingAllowed(commentRequest,request, user);
+    boolean editable = topicPermissionService.isCommentsEditingAllowed(commentRequest,request);
     if (!editable) {
       throw new AccessViolationException("у Вас нет прав на редактирование этого сообщения");
     }

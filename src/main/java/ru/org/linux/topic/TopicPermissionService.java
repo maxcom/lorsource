@@ -18,9 +18,9 @@ package ru.org.linux.topic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentRequest;
 import ru.org.linux.comment.CommentService;
-import ru.org.linux.comment.DeleteCommentController;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
@@ -38,6 +38,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   public static final int LINK_FOLLOW_MIN_SCORE = 100;
   public static final int VIEW_DELETED_SCORE = 100;
+  public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
   @Autowired
   private CommentService commentService;
@@ -161,30 +162,23 @@ public class TopicPermissionService {
    * Проверка на права редактирования комментария.
    *
    *
+   *
    * @param commentRequest WEB-форма, содержащая данные
    * @param request        данные запроса от web-клиента
-   * @param user           пользователь, добавивший комментарий.
    * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
   public boolean isCommentsEditingAllowed(
           CommentRequest commentRequest,
-          HttpServletRequest request,
-          User user
+          HttpServletRequest request
   ) {
     Template tmpl = Template.getTemplate(request);
 
-    final boolean moderatorMode = tmpl.isModeratorSession();
-    final int userScore = tmpl.getCurrentUser().getScore();
-    /* проверка на то, что пользователь владелец комментария */
-    final boolean authored = (commentRequest.getOriginal().getUserid() == user.getId());
     final boolean haveAnswers = commentService.isHaveAnswers(commentRequest.getOriginal());
-    final long commentTimestamp = commentRequest.getOriginal().getPostdate().getTime();
     return isCommentEditableNow(
-        moderatorMode,
-        userScore,
-        authored,
+        commentRequest.getOriginal(),
+        tmpl.getCurrentUser(),
         haveAnswers,
-        commentTimestamp
+        commentRequest.getTopic()
     );
   }
 
@@ -194,70 +188,83 @@ public class TopicPermissionService {
    *
    *
    *
-   * @param moderatorMode текущий пользователь можератор
-   * @param userScore кол-во шгкворца у текущего пользователя
-   * @param authored является текущий пользователь автором комментария
+   *
+   *
+   *
+   *
    * @param haveAnswers есть у комменатрия ответы
-   * @param commentTimestamp время создания комментария
    * @return результат
    */
-  public boolean isCommentEditableNow(boolean moderatorMode,
-                                      int userScore,
-                                      boolean authored, boolean haveAnswers, long commentTimestamp) {
-    final boolean moderatorAllowEditComments = configuration.isModeratorAllowedToEditComments();
-    final boolean commentEditingAllowedIfAnswersExists = configuration.isCommentEditingAllowedIfAnswersExists();
-    final int commentScoreValueForEditing = configuration.getCommentScoreValueForEditing();
-    final int commentExpireMinutesForEdit = configuration.getCommentExpireMinutesForEdit();
+  public boolean isCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
+                                      boolean haveAnswers, @Nonnull Topic topic) {
+    if (comment.isDeleted() || topic.isDeleted()) {
+      return false;
+    }
+
+    if (currentUser==null || currentUser.isAnonymous()) {
+      return false;
+    }
+
+    boolean moderatorMode = currentUser.isModerator();
+    boolean authored = currentUser.getId() == comment.getUserid();
 
     /* Проверка на то, что пользователь модератор */
-    boolean editable = moderatorMode && moderatorAllowEditComments;
-    long nowTimestamp = System.currentTimeMillis();
-    if (!editable && authored) {
+    boolean editable = moderatorMode && configuration.isModeratorAllowedToEditComments();
 
+    if (!editable && authored) {
       /* проверка на то, что время редактирования не вышло */
       boolean isbyMinutesEnable;
-      if (commentExpireMinutesForEdit != 0) {
-        long deltaTimestamp = commentExpireMinutesForEdit * 60 * 1000;
+      if (configuration.getCommentExpireMinutesForEdit() != 0) {
+        long nowTimestamp = System.currentTimeMillis();
+        long deltaTimestamp = configuration.getCommentExpireMinutesForEdit() * 60 * 1000;
 
-        isbyMinutesEnable = commentTimestamp + deltaTimestamp > nowTimestamp;
+        isbyMinutesEnable = comment.getPostdate().getTime() + deltaTimestamp > nowTimestamp;
       } else {
         isbyMinutesEnable = true;
       }
 
       /* Проверка на то, что у комментария нет ответов */
-      boolean isbyAnswersEnable = true;
-      if (!commentEditingAllowedIfAnswersExists
-        && haveAnswers) {
-        isbyAnswersEnable = false;
-      }
+      boolean isbyAnswersEnable = configuration.isCommentEditingAllowedIfAnswersExists() || !haveAnswers;
 
       /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
-      boolean isByScoreEnable = true;
-      if (commentScoreValueForEditing > userScore) {
-        isByScoreEnable = false;
-      }
+      boolean isByScoreEnable = currentUser.getScore() >= configuration.getCommentScoreValueForEditing();
 
       editable = isbyMinutesEnable && isbyAnswersEnable && isByScoreEnable;
     }
+
     return editable;
   }
 
   /**
    * Проверяем можно ли удалять комментарий на текущий момент
-   * @param moderatorMode текущий пользователь модератор?
-   * @param expired топик устарел(архивный)?
-   * @param authored текущий пользьователь автор комментария?
+   *
    * @param haveAnswers у комментрия есть ответы?
-   * @param commentTimestamp время создания комментария
    * @return резултат
    */
-  public boolean isCommentDeletableNow(boolean moderatorMode, boolean expired, boolean authored, boolean haveAnswers, long commentTimestamp ) {
+  public boolean isCommentDeletableNow(
+          Comment comment,
+          @Nullable User currentUser,
+          Topic topic,
+          boolean haveAnswers
+  ) {
+    if (comment.isDeleted() || topic.isDeleted()) {
+      return false;
+    }
+
+    if (currentUser==null || currentUser.isAnonymous()) {
+      return false;
+    }
+
+    boolean moderatorMode = currentUser.isModerator();
+    boolean authored = currentUser.getId() == comment.getUserid();
+
     long nowTimestamp = System.currentTimeMillis();
+
     return moderatorMode ||
-        (!expired &&
+        (!topic.isExpired() &&
          authored &&
          !haveAnswers &&
-          nowTimestamp - commentTimestamp < DeleteCommentController.DELETE_PERIOD);
+          nowTimestamp - comment.getPostdate().getTime() < DELETE_PERIOD);
   }
 
   /**
@@ -271,6 +278,6 @@ public class TopicPermissionService {
       return false;
     }
 
-    return author.getScore()>=TopicPermissionService.LINK_FOLLOW_MIN_SCORE;
+    return author.getScore()>= LINK_FOLLOW_MIN_SCORE;
   }
 }
