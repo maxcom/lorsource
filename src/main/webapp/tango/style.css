@@ -434,6 +434,19 @@ figure.medium-image {
     #commentForm input[type='text'] {
         width: 100%;
     }
+
+    .userpic {
+        width: 100px;
+    }
+
+    .message-w-userpic {
+        padding-left: 115px;
+    }
+
+    img.photo {
+        max-width: 100%;
+        height: auto;
+    }
 }
 
 .photo {
