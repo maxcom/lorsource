@@ -78,6 +78,72 @@ function initStarPopovers() {
   });
 }
 
+function topic_memories_form_setup(memId, watch, msgid, csrf) {
+  function memories_add(event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: "/memories.jsp",
+      type: "POST",
+      data: { msgid : msgid, add: "add", watch: event.data.watch, csrf: csrf }
+    }).done(function(t) {
+       form_setup(t['id'], event.data.watch);
+       if (event.data.watch) {
+         $('#memories_count').text(t['count']);
+       } else {
+         $('#favs_count').text(t['count']);
+       }
+    });
+  }
+
+  function memories_remove(event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: "/memories.jsp",
+      type: "POST",
+      data: { id : event.data.id, remove: "remove", csrf: csrf }
+    }).done(function(t) {
+      form_setup(0, event.data.watch);
+      if (t>=0) {
+        if (event.data.watch) {
+          $('#memories_count').text(t);
+        } else {
+          $('#favs_count').text(t);
+        }
+      }
+    });
+  }
+
+  function form_setup(memId, watch) {
+    var el;
+
+    if (watch) {
+      el = $('#memories_button');
+    } else {
+      el = $('#favs_button');
+    }
+
+    if (memId==0) {
+      el.removeClass('selected');
+      el.attr('title', watch?"Отслеживать":"В избранное");
+
+      el.unbind("click", memories_remove);
+      el.bind("click", {watch: watch}, memories_add);
+    } else {
+      el.addClass('selected');
+      el.attr('title', watch?"Не отслеживать":"Удалить из избранного");
+
+      el.unbind("click", memories_add);
+      el.bind("click", {watch: watch, id: memId}, memories_remove);
+    }
+  }
+
+  $().ready(function () {
+    form_setup(memId, watch);
+  });
+}
+
 $(document).ready(function() {
   function initLoginForm() {
     var options = {
