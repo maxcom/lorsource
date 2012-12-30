@@ -252,8 +252,10 @@ public class TopicController {
       throw new MessageNotFoundException(topic.getId(), "no more comments");
     }
 
-    if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView(topic.getLink()));
+    if (!tmpl.isModeratorSession()) {
+      if (showDeleted && !"POST".equals(request.getMethod())) {
+        return new ModelAndView(new RedirectView(topic.getLink()));
+      }
     }
 
     if (page == -1 && !tmpl.isSessionAuthorized()) {
@@ -494,13 +496,26 @@ public class TopicController {
 
     CommentList comments = commentService.getCommentList(topic, false);
     CommentNode node = comments.getNode(cid);
+
+    boolean deleted = false;
+
+    if (node==null && tmpl.isModeratorSession()) {
+      comments = commentService.getCommentList(topic, true);
+      node = comments.getNode(cid);
+      deleted = true;
+    }
+
     if (node == null) {
       throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
     }
 
-    int pagenum = comments.getCommentPage(node.getComment(), tmpl.getProf());
+    int pagenum = deleted?0:comments.getCommentPage(node.getComment(), tmpl.getProf());
 
     UriComponentsBuilder redirectUrl = UriComponentsBuilder.fromUriString(topic.getLinkPage(pagenum));
+
+    if (deleted) {
+      redirectUrl.queryParam("deleted", "true");
+    }
 
     if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
       redirectUrl.queryParam("lastmod", topic.getLastModified().getTime());
@@ -508,7 +523,7 @@ public class TopicController {
 
     redirectUrl.fragment("comment-"+cid);
 
-    if (tmpl.isSessionAuthorized()) {
+    if (tmpl.isSessionAuthorized() && !deleted) {
       Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
 
       Set<Integer> hideSet = commentService.makeHideSet(
@@ -557,6 +572,7 @@ public class TopicController {
     if (cid != null) {
       CommentList comments = commentService.getCommentList(topic, false);
       CommentNode node = comments.getNode(cid);
+
       if (node == null) {
         throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
       }
