@@ -648,7 +648,11 @@ public class CommentService {
   }
 
   @Nonnull
-  public Set<Integer> makeHideSet(CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {
+  public Set<Integer> makeHideSet(
+          CommentList comments,
+          int filterChain,
+          @Nonnull Set<Integer> ignoreList
+  ) throws SQLException, UserNotFoundException {
     if (filterChain == CommentFilter.FILTER_NONE) {
       return ImmutableSet.of();
     }
@@ -662,7 +666,7 @@ public class CommentService {
 
     /* hide ignored */
     if ((filterChain & CommentFilter.FILTER_IGNORED) > 0) {
-      if (ignoreList != null && !ignoreList.isEmpty()) {
+      if (!ignoreList.isEmpty()) {
         comments.getRoot().hideIgnored(hideSet, ignoreList);
       }
     }

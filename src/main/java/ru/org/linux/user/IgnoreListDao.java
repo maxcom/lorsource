@@ -67,7 +67,7 @@ public class IgnoreListDao {
    * @return список игнорируемых
    */
   @Nonnull
-  public Set<Integer> get(User user) {
+  public Set<Integer> get(@Nonnull User user) {
     final Builder<Integer> builder = ImmutableSet.builder();
     jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
       @Override

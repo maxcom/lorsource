@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.auth.IPBlockDao;
@@ -37,6 +38,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
+import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 
@@ -204,6 +206,20 @@ public class TopicController {
     return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
   }
 
+  private static int getDefaultFilter(ProfileProperties prof, boolean emptyIgnoreList) {
+    int filterMode = CommentFilter.FILTER_IGNORED;
+
+    if (!prof.isShowAnonymous()) {
+      filterMode += CommentFilter.FILTER_ANONYMOUS;
+    }
+
+    if (emptyIgnoreList) {
+      filterMode &= ~CommentFilter.FILTER_IGNORED;
+    }
+
+    return filterMode;
+  }
+
   private ModelAndView getMessageNew(
     int section,
     WebRequest webRequest,
@@ -300,38 +316,32 @@ public class TopicController {
               true
       ));
 
-      Set<Integer> ignoreList = null;
-      boolean emptyIgnoreList = true;
+      Set<Integer> ignoreList;
 
       if (currentUser != null) {
         ignoreList = ignoreListDao.get(currentUser);
-        emptyIgnoreList = ignoreList.isEmpty();
+      } else {
+        ignoreList = ImmutableSet.of();
       }
 
-      int filterMode = CommentFilter.FILTER_IGNORED;
-
-      if (!tmpl.getProf().isShowAnonymous()) {
-        filterMode += CommentFilter.FILTER_ANONYMOUS;
-      }
-
-      if (emptyIgnoreList) {
-        filterMode &= ~CommentFilter.FILTER_IGNORED;
-      }
-
-      int defaultFilterMode = filterMode;
+      int defaultFilterMode = getDefaultFilter(tmpl.getProf(), ignoreList.isEmpty());
+      int filterMode;
 
       if (filter != null) {
         filterMode = CommentFilter.parseFilterChain(filter);
-        if (!emptyIgnoreList && filterMode == CommentFilter.FILTER_ANONYMOUS) {
+
+        if (!ignoreList.isEmpty() && filterMode == CommentFilter.FILTER_ANONYMOUS) {
           filterMode += CommentFilter.FILTER_IGNORED;
         }
+      } else {
+        filterMode = defaultFilterMode;
       }
 
       params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
       params.put("filterMode", CommentFilter.toString(filterMode));
       params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
-      loadTopicScroller(params, topic, currentUser, !emptyIgnoreList);
+      loadTopicScroller(params, topic, currentUser, !ignoreList.isEmpty());
 
       Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
 
@@ -481,10 +491,6 @@ public class TopicController {
           int cid) throws Exception {
     Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
-    String redirectUrl = topic.getLink();
-    StringBuilder options = new StringBuilder();
-
-    StringBuilder hash = new StringBuilder();
 
     CommentList comments = commentService.getCommentList(topic, false);
     CommentNode node = comments.getNode(cid);
@@ -494,26 +500,32 @@ public class TopicController {
 
     int pagenum = comments.getCommentPage(node.getComment(), tmpl.getProf());
 
-    if (pagenum > 0) {
-      redirectUrl = topic.getLinkPage(pagenum);
-    }
+    UriComponentsBuilder redirectUrl = UriComponentsBuilder.fromUriString(topic.getLinkPage(pagenum));
 
     if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
-      if (options.length() > 0) {
-        options.append('&');
+      redirectUrl.queryParam("lastmod", topic.getLastModified().getTime());
+    }
+
+    redirectUrl.fragment("comment-"+cid);
+
+    if (tmpl.isSessionAuthorized()) {
+      Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
+
+      Set<Integer> hideSet = commentService.makeHideSet(
+              comments,
+              getDefaultFilter(tmpl.getProf(), ignoreList.isEmpty()),
+              ignoreList
+      );
+
+      if (hideSet.contains(node.getComment().getId())) {
+        redirectUrl.queryParam(
+                "filter",
+                CommentFilter.toString(CommentFilter.FILTER_NONE)
+        );
       }
-      options.append("lastmod=");
-      options.append(topic.getLastModified().getTime());
     }
 
-    hash.append("#comment-");
-    hash.append(cid);
-
-    if (options.length() > 0) {
-      return new ModelAndView(new RedirectView(redirectUrl + '?' + options + hash));
-    } else {
-      return new ModelAndView(new RedirectView(redirectUrl + hash));
-    }
+    return new ModelAndView(new RedirectView(redirectUrl.build().toUriString()));
   }
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
