@@ -45,16 +45,11 @@ import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 1:00 PM
- */
 public class CodeTag extends Tag {
   private static final ImmutableMap<String, String> langHash =
           ImmutableMap.<String, String>builder().
                   put("bash", "language-bash")
+                  .put("coffeescript", "language-coffeescript")
                   .put("shell", "language-bash")
                   .put("cpp", "language-cpp")
                   .put("cxx", "language-cpp")
@@ -69,7 +64,6 @@ public class CodeTag extends Tag {
                   .put("php", "language-php")
                   .put("plain", "no-highlight")
                   .put("python", "language-python")
-
                   .put("css", "language-css")
                   .put("delphi", "language-delphi")
                   .put("pascal", "language-delphi")
