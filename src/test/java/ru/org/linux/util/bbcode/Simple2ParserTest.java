@@ -364,15 +364,9 @@ public class Simple2ParserTest {
   @Test
   public void quoteChangerTest() {
     RuTypoChanger changer = new RuTypoChanger();
-    assertEquals("громозяблики сказали: &laquo;Громозяблики - это &bdquo;ня&ldquo;, а не ваши &bdquo;пакости&ldquo;&raquo;",
-        changer.format("громозяблики сказали: \"Громозяблики - это \"ня\", а не ваши \"пакости\"\""));
-    assertEquals("мой 27&quot; аймак - сполшная няшнота, однако",
-        changer.format("мой 27\" аймак - сполшная няшнота, однако"));
-    changer.reset();
-    assertEquals("Мяу! Мяу! &laquo;Мяу! &bdquo;Мяу! &bdquo;Мяу!",
-        changer.format("Мяу! Мяу! \"Мяу! \"Мяу! \"Мяу!"));
-    assertEquals("хрр&ldquo;&ldquo;&raquo;, читать тесты - увлекательное дело", changer.format("хрр\"\"\", читать тесты - увлекательное дело"));
-    assertEquals("&quot;што?;&quot;", changer.format("''што?;''"));
+    assertEquals("Машааааа, открываааай. Открыыыто - \"",
+        changer.format("Машааааа, открываааай. Открыыыто - \""));
+    assertEquals("Закрываааааай. Закрыываю\"",
+        changer.format("Закрываааааай. Закрыываю\""));
   }
-
 }

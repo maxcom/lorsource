@@ -54,6 +54,25 @@ public class RuTypoChanger {
     return false;
   }
 
+  private static char firstNonQuote(String buff, int start) {
+
+    for (int pt = start; pt >= 0; pt--) {
+      if (!isQuoteChar(buff.charAt(pt)))
+        return buff.charAt(pt);
+    }
+    return buff.charAt(0);
+  }
+
+  private static char lastNonQuote(String buff, int start) {
+
+    for (int pt = start; pt < buff.length(); pt++) {
+      if (!isQuoteChar(buff.charAt(pt)))
+        return buff.charAt(pt);
+    }
+    return buff.charAt(buff.length() - 1);
+  }
+
+
   private static boolean isQuoteOpening(String buff, int position) {
     char before, after;
 
@@ -62,9 +81,9 @@ public class RuTypoChanger {
     else if (position == 0)
       before = '\0';
     else
-      before =  buff.charAt(position - 1);
+      before = firstNonQuote(buff, position - 1);
 
-    after = buff.charAt(position + 1);
+    after = lastNonQuote(buff, position + 1);
 
         /*
          * Остальная порнография, как ни странно, вполне допустима
@@ -80,7 +99,7 @@ public class RuTypoChanger {
         /*
          * Те, кто не ставит перед кавычками пробелы, пусть идут лесом
          */
-    if (!Character.isWhitespace(before) && !(before == '\0'))
+    if (!Character.isWhitespace(before) && !(before == '\0') && !isQuoteChar(before))
       return false;
 
     // русский авось всегда спасет. авось прокатит :)
@@ -95,8 +114,11 @@ public class RuTypoChanger {
     else if (position == buff.length() - 1)
       return true;
 
-    after = buff.charAt(position + 1);
-    before = buff.charAt(position - 1);
+    after = lastNonQuote(buff, position + 1);
+    before = firstNonQuote(buff, position - 1);
+
+    if (isQuoteChar(before))
+      return false;
 
     if (!Character.isWhitespace(after) && !isPunctuation(after) && !isQuoteChar(after))
       return false;
