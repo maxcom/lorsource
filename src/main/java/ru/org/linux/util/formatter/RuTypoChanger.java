@@ -33,6 +33,8 @@ public class RuTypoChanger {
   public static final String QUOTE_IN_OPEN_HTML = "&bdquo;";
   public static final String QUOTE_IN_CLOSE_HTML = "&ldquo;";
 
+  private static final char[] PUNCTUATION = {'.', ',', ':', ';', '-', '!', '?', '(', ')'};
+
   private int quoteDepth = 0;
 
   public void reset() {
@@ -46,9 +48,7 @@ public class RuTypoChanger {
   }
 
   private static boolean isPunctuation(char ch) {
-    char[] punctuation = {'.', ',', ':', ';', '-', '!', '?'};
-
-    for (char test: punctuation)
+    for (char test: PUNCTUATION)
       if (test == ch)
         return true;
     return false;
@@ -56,7 +56,7 @@ public class RuTypoChanger {
 
   private static char firstNonQuote(String buff, int start) {
 
-    for (int pt = start; pt >= 0; pt--) {
+    for (int pt = start - 1; pt >= 0; pt--) {
       if (!isQuoteChar(buff.charAt(pt)))
         return buff.charAt(pt);
     }
@@ -65,7 +65,7 @@ public class RuTypoChanger {
 
   private static char lastNonQuote(String buff, int start) {
 
-    for (int pt = start; pt < buff.length(); pt++) {
+    for (int pt = start + 1; pt < buff.length(); pt++) {
       if (!isQuoteChar(buff.charAt(pt)))
         return buff.charAt(pt);
     }
@@ -81,9 +81,9 @@ public class RuTypoChanger {
     else if (position == 0)
       before = '\0';
     else
-      before = firstNonQuote(buff, position - 1);
+      before = firstNonQuote(buff, position);
 
-    after = lastNonQuote(buff, position + 1);
+    after = lastNonQuote(buff, position);
 
         /*
          * Остальная порнография, как ни странно, вполне допустима
@@ -114,8 +114,8 @@ public class RuTypoChanger {
     else if (position == buff.length() - 1)
       return true;
 
-    after = lastNonQuote(buff, position + 1);
-    before = firstNonQuote(buff, position - 1);
+    after = lastNonQuote(buff, position);
+    before = firstNonQuote(buff, position);
 
     if (isQuoteChar(before))
       return false;
