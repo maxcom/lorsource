@@ -58,15 +58,12 @@ public final class StringUtil {
   }
 
   public static String processTitle(String title) {
-    //Debug.println("ProcessTitle", title);
-    //return (new RuTypoChanger()).format(title);
-    //Ну что это за фигня, а?  Почему часть шаблона попадает в title?
     return title.replaceAll(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
   }
 
   public static String makeTitle(String title) {
     if (title != null && !title.trim().isEmpty()) {
-      return title;
+      return new RuTypoChanger().format(title);
     }
     return "Без заглавия";
   }

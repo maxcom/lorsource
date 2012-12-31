@@ -31,4 +31,16 @@ public class StringUtilTest {
     // then
     Assert.assertEquals("one&nbsp;&mdash; two --- three&nbsp;&mdash; four-- five --six --", actualResult);
   }
+
+
+  @Test
+  public void makeTitle() {
+    // given
+
+    //when
+    String actualResult = StringUtil.makeTitle("\"Test of \"quotes '' \"in quotes\" in title\"\"");
+
+    // then
+    Assert.assertEquals("&laquo;Test of &bdquo;quotes &quot; &bdquo;in quotes&ldquo; in title&ldquo;&raquo;", actualResult);
+  }
 }
