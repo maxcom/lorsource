@@ -32,3 +32,4 @@
 * Django
 * Haskell
 * Nginx
+* CoffeeScript
