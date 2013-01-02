@@ -615,4 +615,12 @@ public class HTMLFormatterTest {
     );
   }
 
+  @Test
+  public void testInCodeQuotes() {
+    assertEquals(
+        "<p>Smth about &laquo;quotes&raquo;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
+        lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", true, false)
+    );
+  }
+
 }
