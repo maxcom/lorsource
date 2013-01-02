@@ -23,6 +23,7 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
@@ -360,4 +361,12 @@ public class Simple2ParserTest {
         lorCodeService.parseComment("http://www.linux.org.ru/ -- русская информация об ос линукс", false, false));
   }
 
+  @Test
+  public void quoteChangerTest() {
+    RuTypoChanger changer = new RuTypoChanger();
+    assertEquals("Машааааа, открываааай. Открыыыто - &laquo;пщщ...",
+        changer.format("Машааааа, открываааай. Открыыыто - \"пщщ..."));
+    assertEquals("щпщпщщщ&raquo;. Закрыылося",
+        changer.format("щпщпщщщ\". Закрыылося"));
+  }
 }
