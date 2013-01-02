@@ -623,4 +623,12 @@ public class HTMLFormatterTest {
     );
   }
 
+  @Test
+  public void testLocalBuffer() {
+    assertEquals(
+        "<p>This is simple &laquo;local <u>buffer</u>&raquo; test </p>",
+        lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", true, false)
+    );
+  }
+
 }

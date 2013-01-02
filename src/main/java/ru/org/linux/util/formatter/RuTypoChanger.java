@@ -36,9 +36,11 @@ public class RuTypoChanger {
   private static final char[] PUNCTUATION = {'.', ',', ':', ';', '-', '!', '?', '(', ')'};
 
   private int quoteDepth = 0;
+  private String localBuff = "";
 
   public void reset() {
     this.quoteDepth = 0;
+    this.localBuff = "";
   }
 
   private static boolean isQuoteChar(char ch) {
@@ -106,16 +108,20 @@ public class RuTypoChanger {
     return true;
   }
 
-  private static boolean isQuoteClosing(String buff, int position) {
+  private boolean isQuoteClosing(String buff, int position) {
     char before, after;
 
-    if (position == 0)
+    if (position == 0 && localBuff.equals(""))
       return false;
     else if (position == buff.length() - 1)
       return true;
 
     after = lastNonQuote(buff, position);
-    before = firstNonQuote(buff, position);
+
+    if (position == 0)
+      before = firstNonQuote(localBuff, localBuff.length());
+    else
+      before = firstNonQuote(buff, position);
 
     if (isQuoteChar(before))
       return false;
@@ -157,6 +163,7 @@ public class RuTypoChanger {
 
     }
 
+    localBuff = buff.toString();
     input = buff.toString().replaceAll("(''|\")", "&quot;");
 
     input = input.replaceAll(Character.toString(QUOTE_IN_OPEN), QUOTE_IN_OPEN_HTML);
