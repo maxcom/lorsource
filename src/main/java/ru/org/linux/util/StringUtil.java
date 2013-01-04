@@ -15,6 +15,7 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.math.BigInteger;
@@ -57,12 +58,12 @@ public final class StringUtil {
   }
 
   public static String processTitle(String title) {
-    return title.replace(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
+    return title.replaceAll(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
   }
 
   public static String makeTitle(String title) {
     if (title != null && !title.trim().isEmpty()) {
-      return title;
+      return new RuTypoChanger().format(title);
     }
     return "Без заглавия";
   }
