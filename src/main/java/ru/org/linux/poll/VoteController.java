@@ -15,7 +15,10 @@
 
 package ru.org.linux.poll;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,6 +38,7 @@ import java.util.Map;
 
 @Controller
 public class VoteController {
+  private static final Log logger = LogFactory.getLog(VoteController.class);
 
   @Autowired
   private PollDao pollDao;
@@ -71,7 +75,11 @@ public class VoteController {
       throw new BadVoteException("этот опрос допускает только один вариант ответа");
     }
 
-    pollDao.updateVotes(voteid, votes, user);
+    try {
+      pollDao.updateVotes(voteid, votes, user);
+    } catch (DuplicateKeyException ex) {
+      logger.info("Failed to vote", ex);
+    }
 
     return new ModelAndView(new RedirectView(msg.getLink()));
   }
