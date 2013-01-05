@@ -188,7 +188,7 @@
         <c:set var="urlAdd" value="${urlAdd}filter=${filterMode}" />
     </c:if>
     <c:if test="${page != -1 and page != 0}">
-        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${message.getLinkPage(page-1)}${filterAdd}'>←</a>" />
+        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${message.getLinkPage(page-1)}${filterAdd}#comments'>←</a>" />
     </c:if>
     <c:if test="${page == -1 or page == 0}">
         <c:set var="bufInfo" value="&emsp;<span class='page-number'>←</span>" />
@@ -198,10 +198,10 @@
         <c:set var="bufInfo" value="${bufInfo} " />
         <c:if test="${i != page}">
             <c:if test="${i == pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${urlAdd}'" />
+                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${urlAdd}#comments'" />
             </c:if>
             <c:if test="${i != pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${filterAdd}'" />
+                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${filterAdd}#comments'" />
             </c:if>
             <c:set var="bufInfo" value="${bufInfo}>${i + 1}</a>" />
         </c:if>
@@ -212,10 +212,10 @@
 
     <c:if test="${page != -1 and page + 1 != pages}">
         <c:if test="${page + 1 == pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${urlAdd}'>→</a>" />
+            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${urlAdd}#comments'>→</a>" />
         </c:if>
         <c:if test="${page + 1 != pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${filterAdd}'>→</a>" />
+            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${filterAdd}#comments'>→</a>" />
         </c:if>
     </c:if>
     <c:if test="${page == -1 or page + 1 == pages}">
@@ -231,8 +231,10 @@
 
 <c:out value="${scroller}" escapeXml="false"/>
 
+<div class="comment" id="comments" style="padding-top: 0.5em">
+
 <c:if test="${showAdsense}">
-  <div style="text-align: center; margin-top: 1em; height: 90px" id="interpage-adv">
+  <div style="text-align: center; margin-top: 0.5em; height: 90px" id="interpage-adv">
 <%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
 --%>
@@ -275,11 +277,10 @@
         </div>
     </c:if>
 </c:if>
-<div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
       <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
     </c:forEach>
-  </div>
+</div>
 <c:if test="${fn:length(commentsPrepared) > 0}">
   <c:if test="${ not empty bufInfo }">
     <div class="nav">

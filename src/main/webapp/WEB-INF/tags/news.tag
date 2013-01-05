@@ -42,7 +42,7 @@
   <%
       out.append(" [<a href=\"");
       out.append(message.getLink());
-      out.append("\">");
+      out.append("#comments\">");
 
       int stat1 = message.getCommentCount();
       out.append(Integer.toString(stat1));
@@ -81,7 +81,7 @@
             continue;
           }
 
-          out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
+          out.append(" <a href=\"").append(message.getLinkPage(i)).append("#comments\">").append(Integer.toString(i + 1)).append("</a>");
         }
 
         out.append(')');
