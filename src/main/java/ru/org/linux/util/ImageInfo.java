@@ -15,12 +15,12 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Gets image dimensions by parsing file headers.
@@ -199,7 +199,13 @@ public class ImageInfo{
           width = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read());
           break;
         } else {
-          fileStream.skip(shortBigEndian((byte) fileStream.read(), (byte) fileStream.read()) - 2);
+          int skip = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read()) - 2;
+
+          if (skip<0) {
+            throw new BadImageException("Bad JPG image: "+filename);
+          }
+
+          fileStream.skip(skip);
         }
       }
     } else {
