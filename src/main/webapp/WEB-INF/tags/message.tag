@@ -69,6 +69,14 @@
 </c:if>
 
 <c:set var="showPhotos" value="${messageMenu!=null && messageMenu.userpic!=null}"/>
+  <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
+    <a href="${message.link}"><l:title>${message.title}</l:title></a>
+  </h1>
+
+  <c:if test="${not empty preparedMessage.tags}">
+    <l:tags list="${preparedMessage.tags}"/>
+  </c:if>
+
   <c:if test="${showPhotos}">
     <l:userpic userpic="${messageMenu.userpic}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
@@ -80,14 +88,6 @@
   </div>
 
   <div class="msg_body ${msgBodyStyle}">
-  <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
-    <a href="${message.link}"><l:title>${message.title}</l:title></a>
-  </h1>
-
-    <c:if test="${not empty preparedMessage.tags}">
-      <l:tags list="${preparedMessage.tags}"/>
-    </c:if>
-
   <c:if test="${preparedMessage.image != null}">
     <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>

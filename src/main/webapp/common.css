@@ -164,10 +164,8 @@ DIV.sign {
 
 .messages .msg {
   margin-bottom: 1em;
-  padding-bottom: 1em;
-  padding-left: 0.5em;
   word-wrap: break-word;
-  padding-top: 0.25em;
+  padding: 0.25em 0.5em 1em;
 }
 
 .msg_body, .msg_header, .msg_footer {
