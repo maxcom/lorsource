@@ -22,7 +22,7 @@
 <body>
   	<div id="hd">
   	    <div id="hdtux">
-  	        <img src="/img/Tux.svg" height="100%" width="100%" />
+  	        <img src="/img/Tux.svg" height="100%" />
   	    </div>
         <a id="sitetitle" href="/">LINUX.ORG.RU</a>
         <ul class="menu">
