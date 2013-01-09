@@ -84,7 +84,7 @@
     </c:if>
   </table>
   <input type=hidden name=msgid value="${msgid}">
-  <input type=submit value="Delete/Удалить">
+  <input type=submit value="Удалить">
 </form>
 <div class="messages">
   <div class="comment">
