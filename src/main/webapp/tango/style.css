@@ -224,10 +224,6 @@ div.msg_body h2 {
     border-radius: 1em;
 }
 
-.msg .title {
-     margin-left: 0.5em;
-}
-
 .msg .code .title {
     margin-left: inherit;
 }

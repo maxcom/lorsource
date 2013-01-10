@@ -165,7 +165,7 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   word-wrap: break-word;
-  padding: 0.25em 0.5em 1em;
+  padding: 0.25em 0.5em 1em 1em;
 }
 
 .msg_body, .msg_header, .msg_footer {
@@ -174,8 +174,8 @@ DIV.sign {
   margin-top: 0.5em;
 }
 
-.msg .userpic {
-  margin-top: 0.5em;
+.msg header {
+    margin-bottom: 0.7em;
 }
 
 .messages .msg:target {
@@ -261,9 +261,6 @@ div.quote h3 {
 .userpic {
     float: left;
     width: 150px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 5px;
     text-align: center;
 }
 
