@@ -171,7 +171,21 @@ DIV.sign {
 .msg_body, .msg_header, .msg_footer {
   padding-left: 0.5em;
   padding-right: 0.5em;
+}
+
+.msg-container {
   margin-top: 0.5em;
+  *zoom: 1;  /* for IE7; part of clearfix */
+}
+
+/* clearfix */
+.msg-container:before,
+.msg-container:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+.msg-container:after {
+    clear: both;
 }
 
 .msg header {

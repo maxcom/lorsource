@@ -79,6 +79,8 @@
     </c:if>
   </header>
 
+  <div class="msg-container">
+
   <c:if test="${showPhotos}">
     <l:userpic userpic="${messageMenu.userpic}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
@@ -218,8 +220,8 @@
         </div>
       </c:if>
 </footer>
+  </div>
 </div>
-  <div style="clear: both"></div>
 </article>
 
 <c:if test="${not template.sessionAuthorized}">
