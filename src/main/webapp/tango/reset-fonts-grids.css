@@ -71,10 +71,6 @@ table {
     font: 100%;
 }
 
-pre, code, kbd, samp, tt {
-    font-family: monospace;
-}
-
 body {
     text-align: left;
     min-width: 300px;

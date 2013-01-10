@@ -43,7 +43,6 @@ pre {
     white-space: pre-wrap; /* for Opera, Firefox, Safari, Chrome*/
     word-wrap: break-word; /* IE 5.5+ */
     margin: 0.5em 1em;
-    line-height: 1.2em;
 }
 
 p {
@@ -240,11 +239,12 @@ div.quote h3 {
   font-style: normal;
 }
 
-.code {
+.code, code {
   border: 0;
   margin: 0.5em 0.5em 0.5em 5px;
-  font-family: monospace;
+  font-family: "Droid Sans Mono", monospace;
   white-space: pre;
+  font-size: 0.8rem;
 }
 
 .error {
