@@ -171,6 +171,11 @@ DIV.sign {
 .msg_body, .msg_header, .msg_footer {
   padding-left: 0.5em;
   padding-right: 0.5em;
+  margin-top: 0.5em;
+}
+
+.msg .userpic {
+  margin-top: 0.5em;
 }
 
 .messages .msg:target {
