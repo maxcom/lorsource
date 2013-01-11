@@ -252,19 +252,12 @@ public class UserModificationController {
 
     User currentUser = tmpl.getCurrentUser();
 
-    if (!currentUser.isModerator() && currentUser.getId()!=user.getId()) {
+    // Не модератор не может удалять чужие аватары
+    if (!tmpl.isModeratorSession() && currentUser.getId()!=user.getId()) {
       throw new AccessViolationException("Not permitted");
     }
 
-    if (user.isModerator()) {
-      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
-    }
-
-    if (user.getPhoto() == null) {
-      throw new AccessViolationException("Пользователь " + user.getNick() + " картинки не имеет");
-    }
-
-    if (userDao.removePhoto(user, currentUser)) {
+    if (user.getPhoto() != null && userDao.removePhoto(user, currentUser)) {
       logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
     } else {
       logger.debug("SKIP Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
