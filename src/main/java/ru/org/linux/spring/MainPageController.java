@@ -74,6 +74,8 @@ public class MainPageController {
       mv.getModel().put("uncommitedNews", uncommitedNews);
     }
 
+    mv.getModel().put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
+
     return mv;
   }
 }
