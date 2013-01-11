@@ -286,7 +286,8 @@ public class UserDao {
   public boolean removePhoto(User user, User cleaner) {
     boolean r = resetPhoto(user);
 
-    if(r && cleaner.isModerator() && cleaner.getId() != user.getId()){
+    // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
+    if(r && cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
       changeScore(user.getId(), -10);
     }
 
