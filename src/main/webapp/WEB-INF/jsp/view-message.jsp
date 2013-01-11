@@ -242,8 +242,12 @@
 
   <script type="text/javascript">
     $script('/js/jquery.swfobject.1-1-1.min.js', function() {
+      var ads = ['/adv/728x90-storage.swf', '/adv/selectel/728x90-vds.swf'];
+
+      var ad = ads[Math.floor(Math.random() * ads.length)];
+
       $('#interpage-adv').flash({
-        "swf": '/adv/728x90-storage.swf',
+        "swf": ad,
         "width": 728,
         "height": 90
       });
