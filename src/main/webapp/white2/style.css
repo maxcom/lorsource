@@ -161,8 +161,9 @@ table.poll-result .penguin {
     background-image: url("/white/img/votes.png") !important;
 }
 
-.code {
+.code code {
     background-color: #dadada;
+    font-family: monospace !important;
 }
 
 div.quote {
@@ -250,7 +251,7 @@ div.quote {
 }
 
 textarea {
-    font-family: inherit;
+    font-family: sans-serif !important;
 }
 
 .userpic {
@@ -260,5 +261,9 @@ textarea {
 
 .msg-container {
     margin: 0;
+}
+
+article header {
+    margin-left: .75em;
 }
 
