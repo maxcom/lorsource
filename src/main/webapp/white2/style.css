@@ -263,3 +263,7 @@ textarea {
     margin: 0;
 }
 
+article header {
+    margin-left: .75em;
+}
+
