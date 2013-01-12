@@ -34,7 +34,7 @@
   </c:if>
 </c:if>
 
-<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 
 <c:if test="${template.style=='black' and template.prof.useHover}">
   <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
