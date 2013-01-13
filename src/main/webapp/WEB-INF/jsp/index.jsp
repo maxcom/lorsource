@@ -51,7 +51,7 @@
     google_ad_slot = "2628258430";
     google_ad_width = 320;
     google_ad_height = 50;
-  } else if ($(window).width()>1100) {
+  } else if ($(window).width()>1000) {
     /* lor-main-wide */
     google_ad_slot = "4104991635";
     google_ad_width = 728;
