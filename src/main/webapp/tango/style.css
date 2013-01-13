@@ -355,12 +355,8 @@ figure.medium-image {
 
 /* Very wide screens */
 @media screen and (min-width: 90em) {
-    body {
+    html {
         font-size: 1.125em;
-    }
-
-    textarea, #commentForm, input, code {
-        font-size: 1.125rem;
     }
 }
 
