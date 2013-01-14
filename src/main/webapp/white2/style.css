@@ -14,7 +14,7 @@
  */
 
 body {
-    font-family: serif;
+    font-family: sans-serif;
 }
 
 a {
@@ -60,7 +60,7 @@ DIV.boxlet H3 {
 
 DIV.boxlet {
     font-size: small;
-    font-family: serif;
+    font-family: sans-serif;
     margin-bottom: 30px;
     padding-bottom: 5px;
     text-align: left;
@@ -70,7 +70,7 @@ DIV.boxlet {
 
 DIV.columnimg {
     font-size: small;
-    font-family: serif;
+    font-family: sans-serif;
     margin-top: 30px;
     text-align: center;
 }
@@ -222,9 +222,9 @@ div.quote {
 }
 
 #hdtux {
-    width: 4em;
     height: 2.5em;
     float: left;
+    padding: 0.2em;
 }
 
 #hd .menu li {
