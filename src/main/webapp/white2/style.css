@@ -222,9 +222,9 @@ div.quote {
 }
 
 #hdtux {
-    width: 4em;
     height: 2.5em;
     float: left;
+    padding: 0.2em;
 }
 
 #hd .menu li {
