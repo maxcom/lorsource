@@ -551,7 +551,9 @@ public class TopicController {
           @RequestParam(required = false) String nocache,
           @RequestParam(required = false) Integer cid
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+    if (cid!=null) {
+      return jumpMessage(request, msgid, cid);
+    }
 
     Topic topic = messageDao.getById(msgid);
 
@@ -568,32 +570,6 @@ public class TopicController {
     }
 
     StringBuilder hash = new StringBuilder();
-
-    if (cid != null) {
-      CommentList comments = commentService.getCommentList(topic, false);
-      CommentNode node = comments.getNode(cid);
-
-      if (node == null) {
-        throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
-      }
-
-      int pagenum = comments.getCommentPage(node.getComment(), tmpl.getProf());
-
-      if (pagenum > 0) {
-        redirectUrl = topic.getLinkPage(pagenum);
-      }
-
-      if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
-        if (options.length() > 0) {
-          options.append('&');
-        }
-        options.append("lastmod=");
-        options.append(topic.getLastModified().getTime());
-      }
-
-      hash.append("#comment-");
-      hash.append(cid);
-    }
 
     if (options.length() > 0) {
       return new ModelAndView(new RedirectView(redirectUrl + '?' + options + hash));

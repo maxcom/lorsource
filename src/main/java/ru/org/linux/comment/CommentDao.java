@@ -230,6 +230,7 @@ public interface CommentDao {
     private final String reason;
     private final Timestamp delDate;
     private final int bonus;
+    private final int cid;
 
     public DeletedListItem(ResultSet rs) throws SQLException {
       ptitle = rs.getString("ptitle");
@@ -239,6 +240,7 @@ public interface CommentDao {
       reason = rs.getString("reason");
       delDate = rs.getTimestamp("deldate");
       bonus = rs.getInt("bonus");
+      cid = rs.getInt("cid");
     }
 
     public String getPtitle() {
@@ -267,6 +269,10 @@ public interface CommentDao {
 
     public int getBonus() {
       return bonus;
+    }
+
+    public int getCommentId() {
+      return cid;
     }
   }
 

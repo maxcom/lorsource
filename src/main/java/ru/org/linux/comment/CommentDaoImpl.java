@@ -430,7 +430,7 @@ class CommentDaoImpl implements CommentDao {
   public List<DeletedListItem> getDeletedComments(int userId) {
     return jdbcTemplate.query(
       "SELECT " +
-        "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate, bonus " +
+        "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate, bonus, comments.id as cid " +
         "FROM sections, groups, topics, comments, del_info " +
         "WHERE sections.id=groups.section " +
         "AND groups.id=topics.groupid " +
