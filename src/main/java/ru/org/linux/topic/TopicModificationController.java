@@ -153,7 +153,7 @@ public class TopicModificationController {
   }
 
   @RequestMapping(value="/mt.jsp", method=RequestMethod.POST)
-  public ModelAndView moveTopic(
+  public RedirectView moveTopic(
     ServletRequest request,
     @RequestParam int msgid,
     @RequestParam("moveto") int newgr
@@ -176,7 +176,7 @@ public class TopicModificationController {
       messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
    }
 
-    return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
+    return new RedirectView(TopicLinkBuilder.baseLink(msg).forceLastmod().build());
   }
 
   @RequestMapping(value="/mt.jsp", method=RequestMethod.GET)

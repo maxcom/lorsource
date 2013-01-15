@@ -25,10 +25,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.PreparedTopic;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.topic.TopicDao;
-import ru.org.linux.topic.TopicPrepareService;
+import ru.org.linux.topic.*;
 import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -97,6 +94,6 @@ public class DeleteImageController {
 
     imageService.deleteImage(tmpl.getCurrentUser(), image);
 
-    return new RedirectView(topic.getLinkLastmod());
+    return new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod().build());
   }
 }

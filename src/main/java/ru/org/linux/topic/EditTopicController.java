@@ -504,7 +504,7 @@ public class EditTopicController {
           feedPinger.pingFeedburner();
         }
 
-        return new ModelAndView(new RedirectView(message.getLinkLastmod()));
+        return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build()));
       } else {
         errors.reject(null, "Нет изменений");
       }
