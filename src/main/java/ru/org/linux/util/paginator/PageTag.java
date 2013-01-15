@@ -14,57 +14,91 @@
  */
 package ru.org.linux.util.paginator;
 
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriTemplate;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  */
 public class PageTag extends SimpleTagSupport {
-  private PaginationPrepared paginationPrepared;
-  private String baseUrl;
+  private PreparedPagination preparedPagination;
+  private UriTemplate baseTemplate;
+  private UriTemplate pageTemplate;
 
-  public void setPaginationPrepared(PaginationPrepared paginationPrepared) {
-    this.paginationPrepared = paginationPrepared;
+  public void setPreparedPagination(PreparedPagination preparedPagination) {
+    this.preparedPagination = preparedPagination;
   }
 
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
+  /**
+   * @param template like /forum/talks/12345
+   */
+  public void setBaseTemplate(String template) {
+    this.baseTemplate = new UriTemplate(template);
   }
 
-  private final static int MAX_PAGE_HTML_LENGTH = 8;
-  private final static int PRE_LAST_PAGE_LENGTH = 5;
+  /**
+   * @param template like /forum/talks/12345/page{page}
+   */
+  public void setPageTemplate(String template) {
+    this.pageTemplate = new UriTemplate(template);
+  }
+
+  private String templateToString(int page) {
+    URI uri;
+    if(page <= 1) {
+      uri = baseTemplate.expand();
+    } else {
+      uri = pageTemplate.expand(page);
+    }
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
+    String lastmod = preparedPagination.getLastmod();
+    String filter = preparedPagination.getFilter();
+    if(lastmod != null && !lastmod.isEmpty()) {
+      builder.queryParam("lastmod", lastmod);
+    }
+    if(filter != null && !filter.isEmpty()) {
+      builder.queryParam("filter", filter);
+    }
+    return builder.build().toUriString();
+  }
 
   @Override
   public void doTag() throws JspException, IOException {
     StringBuilder sb = new StringBuilder();
-    if (paginationPrepared == null || paginationPrepared.getItems() == null
-    				|| paginationPrepared.getItems().size() == 0) {
+    if (preparedPagination == null || preparedPagination.getItems() == null
+    				|| preparedPagination.getItems().size() == 0) {
       getJspContext().getOut().print("");
       return;
     }
 
-    if (paginationPrepared.getCount() > 1) {
-      if (paginationPrepared.getIndex() == 1) {
+    if (preparedPagination.getCount() > 1) {
+      if (preparedPagination.getIndex() == 1) {
         sb.append(createPrePage(0, true));
       } else {
-        sb.append(createPrePage(paginationPrepared.getIndex() - 1, false));
+        sb.append(createPrePage(preparedPagination.getIndex() - 1, false));
       }
     }
 
-    for(int i=1; i<= paginationPrepared.getCount(); i++) {
-      if(i == paginationPrepared.getIndex()) {
+    for(int i=1; i<= preparedPagination.getCount(); i++) {
+      if(i == preparedPagination.getIndex()) {
         sb.append(createPageIndex(i, true));
       } else {
         sb.append(createPageIndex(i, false));
       }
     }
 
-    if (paginationPrepared.getCount() > 1) {
-      if (paginationPrepared.getIndex() == paginationPrepared.getCount()) {
+    if (preparedPagination.getCount() > 1) {
+      if (preparedPagination.getIndex() == preparedPagination.getCount()) {
         sb.append(createNextPage(0, true));
       } else {
-        sb.append(createNextPage(paginationPrepared.getIndex() + 1, false));
+        sb.append(createNextPage(preparedPagination.getIndex() + 1, false));
       }
     }
     getJspContext().getOut().print(sb.toString());
@@ -75,7 +109,7 @@ public class PageTag extends SimpleTagSupport {
     if (distable) {
       sb.append("<span class='page-number'>←</span>");
     } else {
-      sb.append("<a class='page-number' href='").append(baseUrl).append('?').append("page=").append(pageIndex).append("'>←</a>");
+      sb.append("<a class='page-number' href='").append(templateToString(pageIndex)).append("'>←</a>");
     }
     return sb.toString();
   }
@@ -85,7 +119,7 @@ public class PageTag extends SimpleTagSupport {
     if (distable) {
       sb.append(" <span class='page-number'>→</span>");
     } else {
-      sb.append(" <a class='page-number' href='").append(baseUrl).append('?').append("page=").append(pageIndex).append("'>→</a>");
+      sb.append(" <a class='page-number' href='").append(templateToString(pageIndex)).append("'>→</a>");
     }
     return sb.toString();
   }
@@ -93,7 +127,7 @@ public class PageTag extends SimpleTagSupport {
   private String createPageIndex(int pageIndex, boolean cur) {
     StringBuilder sb = new StringBuilder();
     if (!cur) {
-      sb.append(" <a class='page-number' href='").append(baseUrl).append('?').append("page=").append(pageIndex).append("'>")
+      sb.append(" <a class='page-number' href='").append(templateToString(pageIndex)).append("'>")
           .append(pageIndex)
           .append("</a>");
     } else {

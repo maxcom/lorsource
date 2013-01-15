@@ -29,6 +29,7 @@ public class Pagination {
    * Номер страницы.
    */
   private int index;
+
   /**
    * Количество элементов на странице.
    */
@@ -38,6 +39,13 @@ public class Pagination {
    * Сортировка списка.
    */
   private final List<Sort> sortList = new LinkedList<Sort>();
+
+  /**
+   * filter
+   */
+  private String filter;
+
+  private String lastmod;
 
   public Pagination() {
   }
@@ -64,7 +72,7 @@ public class Pagination {
   }
 
   public void setIndex(int index) {
-    this.index = index;
+    this.index = index <1 ? 1 : index;
   }
 
   public int getSize() {
@@ -75,6 +83,21 @@ public class Pagination {
     this.size = size;
   }
 
+  public String getFilter() {
+    return filter;
+  }
+
+  public void setFilter(String filter) {
+    this.filter = filter;
+  }
+
+  public String getLastmod() {
+    return lastmod;
+  }
+
+  public void setLastmod(String lastmod) {
+    this.lastmod = lastmod;
+  }
 
   /**
    * Класс для хранения параметров сортировки.

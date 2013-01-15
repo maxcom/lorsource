@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Подготовка данных для отображения в View
  */
-public class PaginationPrepared<T> implements Serializable {
+public class PreparedPagination<T> implements Serializable {
 
   /**
    * Записи на текущей странице списка.
@@ -51,7 +51,7 @@ public class PaginationPrepared<T> implements Serializable {
    */
   private final Pagination pagination;
 
-  public PaginationPrepared(Pagination pagination) {
+  public PreparedPagination(Pagination pagination) {
     this.pagination = pagination;
     int size = pagination.getSize();
     start = size * (pagination.getIndex() - 1) + 1;
@@ -135,6 +135,14 @@ public class PaginationPrepared<T> implements Serializable {
    */
   public int getSize() {
     return pagination.getSize();
+  }
+
+  public String getLastmod() {
+    return pagination.getLastmod();
+  }
+
+  public String getFilter() {
+    return pagination.getFilter();
   }
 
 }

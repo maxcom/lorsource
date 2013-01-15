@@ -16,6 +16,8 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -41,6 +43,8 @@ import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
+import ru.org.linux.util.paginator.Pagination;
+import ru.org.linux.util.paginator.PreparedPagination;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +56,9 @@ import java.util.Set;
 
 @Controller
 public class TopicController {
+
+  private static final Log logger = LogFactory.getLog(TopicController.class);
+
   public static final int RSS_DEFAULT = 20;
   @Autowired
   private SectionService sectionService;
@@ -93,7 +100,7 @@ public class TopicController {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 1, filter, groupName, msgid);
   }
 
   @RequestMapping("/news/{group}/{id}")
@@ -109,7 +116,7 @@ public class TopicController {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 1, filter, groupName, msgid);
   }
 
   @RequestMapping("/polls/{group}/{id}")
@@ -130,7 +137,7 @@ public class TopicController {
       webRequest,
       request,
       response,
-      0,
+      1,
       filter,
       groupName,
       msgid);
@@ -149,7 +156,7 @@ public class TopicController {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 1, filter, groupName, msgid);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
@@ -343,6 +350,7 @@ public class TopicController {
       params.put("filterMode", CommentFilter.toString(filterMode));
       params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
+
       loadTopicScroller(params, topic, currentUser, !ignoreList.isEmpty());
 
       Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
@@ -353,6 +361,7 @@ public class TopicController {
 
       List<Comment> commentsFiltred = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), hideSet);
       List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.<Integer>of());
+
 
       params.put("unfilteredCount", commentsFull.size());
 
@@ -365,6 +374,20 @@ public class TopicController {
       );
 
       params.put("commentsPrepared", commentsPrepared);
+
+      Pagination pagination = new Pagination();
+      pagination.setIndex(page);
+      pagination.setSize(tmpl.getProf().getMessages());
+      pagination.setFilter(defaultFilterMode == filterMode ? "" : CommentFilter.toString(filterMode));
+      pagination.setLastmod(topic.isExpired() ? "" : topic.getLinkLastmod());
+
+      PreparedPagination<PreparedComment> preparedPagination = new PreparedPagination<PreparedComment>(pagination);
+      preparedPagination.setTotal(topic.getCommentCount());
+      preparedPagination.setItems(commentsPrepared);
+
+      params.put("preparedPagination", preparedPagination);
+      params.put("paginationPageTemplate", topic.getLink() + "/page{page}#comments");
+      params.put("paginationBaseTemplate", topic.getLink());
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
       params.put("ipBlockInfo", ipBlockInfo);
