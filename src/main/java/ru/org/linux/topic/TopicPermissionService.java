@@ -289,6 +289,6 @@ public class TopicPermissionService {
    * @return
    */
   public boolean followInTopic(Topic topic, User author) {
-    return !topic.isCommited() && followAuthorLinks(author);
+    return topic.isCommited() || followAuthorLinks(author);
   }
 }
