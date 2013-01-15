@@ -92,20 +92,22 @@ public class LorCodeService {
    * @param text LORCODE
    * @param cutURL абсолютный URL до топика
    * @param secure является ли текущее соединение secure
+   * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseTopicWithMinimizedCut(String text, String cutURL, boolean secure) {
-    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure), text).renderXHtml();
+  public String parseTopicWithMinimizedCut(String text, String cutURL, boolean secure, boolean nofollow) {
+    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure, nofollow), text).renderXHtml();
   }
   /**
    * Преобразует LORCODE в HTML для топиков со развернутым содержимым тэга cut
    * содержимое тэга cut оборачивается в div с якорем
    * @param text LORCODE
    * @param secure является ли текущее соединение secure
+   * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseTopic(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure), text).renderXHtml();
+  public String parseTopic(String text, boolean secure, boolean nofollow) {
+    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure, nofollow), text).renderXHtml();
   }
 
   private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow) {
@@ -120,7 +122,7 @@ public class LorCodeService {
     return rootNode;
   }
 
-  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure) {
+  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure, boolean nofollow) {
     RootNode rootNode = defaultParser.getRootNode();
     if(minimizeCut) {
       try {
@@ -140,6 +142,7 @@ public class LorCodeService {
     rootNode.setUserDao(userDao);
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
+    rootNode.setNofollow(nofollow);
 
     return rootNode;
   }

@@ -280,4 +280,15 @@ public class TopicPermissionService {
 
     return author.getScore()>= LINK_FOLLOW_MIN_SCORE;
   }
+
+  /**
+   * follow топиков которые подтверждены и у которых автор не заблокирован и
+   * score > LINK_FOLLOW_MIN_SCORE
+   * @param topic
+   * @param author
+   * @return
+   */
+  public boolean followInTopic(Topic topic, User author) {
+    return !topic.isCommited() && followAuthorLinks(author);
+  }
 }
