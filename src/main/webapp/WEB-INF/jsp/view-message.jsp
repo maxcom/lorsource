@@ -184,16 +184,50 @@
   </div>
 
   <script type="text/javascript">
-    $script('/js/jquery.swfobject.1-1-1.min.js', function() {
-      var ads = ['/adv/728x90-storage.swf', '/adv/selectel/728x90-vds.swf'];
+    $(function() {
+      var ads = [
+        {
+          type: 'flash',
+          src: '/adv/selectel/728x90-vds.swf'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/728x90-cloud.gif',
+          href: 'http://selectel.ru/services/cloud-storage/?utm_source=linuxorgru&utm_medium=banner&utm_content=all&utm_campaign=110113'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/728x90-dedic.gif',
+          href: 'http://selectel.ru/services/dedicated/?utm_source=linuxorgru&utm_medium=banner&utm_content=all&utm_campaign=110113'
+        }
+      ];
 
       var ad = ads[Math.floor(Math.random() * ads.length)];
 
-      $('#interpage-adv').flash({
-        "swf": ad,
-        "width": 728,
-        "height": 90
-      });
+      if (ad.type=='flash') {
+        $script('/js/jquery.swfobject.1-1-1.min.js', function() {
+
+          $('#interpage-adv').flash({
+            "swf": ad.src,
+            "width": 728,
+            "height": 90
+          });
+        });
+      }
+
+      if (ad.type=='img') {
+        var anchor = $('<a>');
+        anchor.attr('href', ad.href);
+        anchor.attr('target', '_blank');
+
+        var img = $('<img>');
+        img.attr('src', ad.src);
+        img.attr('width', 728);
+        img.attr('height', 90);
+
+        anchor.append(img);
+        $('#interpage-adv').append(anchor);
+      }
     });
   </script>
   <br>

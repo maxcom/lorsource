@@ -34,7 +34,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                 | Ответ на:#{' '}
                 a(href='#{topic.link}?cid=#{comment.reply.id}', data-samepage=samePage)
                     if comment.reply.title != null
-                        | #{comment.reply.title}
+                        | !{comment.reply.title}
                     else
                         | комментарий
                 |  от #{comment.reply.author}#{' '}

@@ -88,7 +88,7 @@
       <tr>
         <th>Раздел</th>
         <th>Группа</th>
-        <th>Заглавие темы</th>
+        <th>Комментарий</th>
         <th>Причина удаления</th>
         <th>Бонус</th>
         <th>Дата</th>
@@ -100,7 +100,7 @@
         <td>${item.ptitle}</td>
         <td>${item.gtitle}</td>
         <td>
-          <a href="view-message.jsp?msgid=${item.msgid}" rev=contents><l:title>${item.title}</l:title></a>
+          <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title>${item.title}</l:title></a>
         </td>
         <td><c:out value="${item.reason}" escapeXml="true"/></td>
         <td>${item.bonus}</td>
