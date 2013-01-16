@@ -31,6 +31,7 @@ public class PageTag extends SimpleTagSupport {
   private PreparedPagination preparedPagination;
   private UriTemplate baseTemplate;
   private UriTemplate pageTemplate;
+  private Integer page;
 
   public void setPreparedPagination(PreparedPagination preparedPagination) {
     this.preparedPagination = preparedPagination;
@@ -48,6 +49,10 @@ public class PageTag extends SimpleTagSupport {
    */
   public void setPageTemplate(String template) {
     this.pageTemplate = new UriTemplate(template);
+  }
+
+  public void setPage(Integer page) {
+    this.page = page;
   }
 
   private String templateToString(int page) {
@@ -71,69 +76,10 @@ public class PageTag extends SimpleTagSupport {
 
   @Override
   public void doTag() throws JspException, IOException {
-    StringBuilder sb = new StringBuilder();
-    if (preparedPagination == null || preparedPagination.getItems() == null
-    				|| preparedPagination.getItems().size() == 0) {
+    if (preparedPagination == null) {
       getJspContext().getOut().print("");
       return;
     }
-
-    if (preparedPagination.getCount() > 1) {
-      if (preparedPagination.getIndex() == 1) {
-        sb.append(createPrePage(0, true));
-      } else {
-        sb.append(createPrePage(preparedPagination.getIndex() - 1, false));
-      }
-    }
-
-    for(int i=1; i<= preparedPagination.getCount(); i++) {
-      if(i == preparedPagination.getIndex()) {
-        sb.append(createPageIndex(i, true));
-      } else {
-        sb.append(createPageIndex(i, false));
-      }
-    }
-
-    if (preparedPagination.getCount() > 1) {
-      if (preparedPagination.getIndex() == preparedPagination.getCount()) {
-        sb.append(createNextPage(0, true));
-      } else {
-        sb.append(createNextPage(preparedPagination.getIndex() + 1, false));
-      }
-    }
-    getJspContext().getOut().print(sb.toString());
+    getJspContext().getOut().print(templateToString(page));
   }
-
-  private String createPrePage(int pageIndex, boolean distable) {
-    StringBuilder sb = new StringBuilder();
-    if (distable) {
-      sb.append("<span class='page-number'>←</span>");
-    } else {
-      sb.append("<a class='page-number' href='").append(templateToString(pageIndex)).append("'>←</a>");
-    }
-    return sb.toString();
-  }
-
-  private String createNextPage(int pageIndex, boolean distable) {
-    StringBuilder sb = new StringBuilder();
-    if (distable) {
-      sb.append(" <span class='page-number'>→</span>");
-    } else {
-      sb.append(" <a class='page-number' href='").append(templateToString(pageIndex)).append("'>→</a>");
-    }
-    return sb.toString();
-  }
-
-  private String createPageIndex(int pageIndex, boolean cur) {
-    StringBuilder sb = new StringBuilder();
-    if (!cur) {
-      sb.append(" <a class='page-number' href='").append(templateToString(pageIndex)).append("'>")
-          .append(pageIndex)
-          .append("</a>");
-    } else {
-      sb.append(" <strong class='page-number'>").append(pageIndex).append("</strong>");
-    }
-    return sb.toString();
-  }
-
 }

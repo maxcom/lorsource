@@ -252,7 +252,7 @@
 </c:if>
 
 <c:if test="${not showDeleted}">
-<div class="nav"><l:page preparedPagination="${preparedPagination}" baseTemplate="${paginationBaseTemplate}" pageTemplate="${paginationPageTemplate}" /></div>
+<div class="nav"><lor:paginator preparedPagination="${preparedPagination}" baseTemplate="${paginationBaseTemplate}" pageTemplate="${paginationPageTemplate}" /></div>
 </c:if>
 
     <c:forEach var="comment" items="${commentsPrepared}">
@@ -261,7 +261,7 @@
 </div>
 
     <c:if test="${not showDeleted}">
-        <div class="nav"><l:page preparedPagination="${preparedPagination}" baseTemplate="${paginationBaseTemplate}" pageTemplate="${paginationPageTemplate}" /></div>
+        <div class="nav"><lor:paginator preparedPagination="${preparedPagination}" baseTemplate="${paginationBaseTemplate}" pageTemplate="${paginationPageTemplate}" /></div>
         <c:out value="${bottomScroller}" escapeXml="false"/>
     </c:if>
 </div>

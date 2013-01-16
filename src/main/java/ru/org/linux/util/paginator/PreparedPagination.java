@@ -145,4 +145,12 @@ public class PreparedPagination<T> implements Serializable {
     return pagination.getFilter();
   }
 
+  public boolean isFirstPage() {
+    return count > 0 && getIndex() == 1;
+  }
+
+  public boolean isLastPage() {
+    return count > 0 && getIndex() == count;
+  }
+
 }
