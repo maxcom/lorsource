@@ -377,7 +377,7 @@ public class TopicController {
       pagination.setIndex(page);
       pagination.setSize(tmpl.getProf().getMessages());
       pagination.setFilter(defaultFilterMode == filterMode ? "" : CommentFilter.toString(filterMode));
-      pagination.setLastmod(topic.isExpired() ? "" : topic.getLinkLastmod());
+      pagination.setLastmod(topic.isExpired() ? "" : Long.toString(topic.getLastModified().getTime()));
 
       PreparedPagination<PreparedComment> preparedPagination = new PreparedPagination<PreparedComment>(pagination);
       preparedPagination.setTotal(topic.getCommentCount());
