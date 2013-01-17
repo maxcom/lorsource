@@ -15,10 +15,10 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -244,6 +244,36 @@ public class TopicDao {
         tags.add(resultSet.getString("value"));
       }
     }, message.getId());
+
+    return tags.build();
+  }
+
+  @Nonnull
+  public ImmutableListMultimap<Integer, String> getTags(@Nonnull List<Topic> topics) {
+    if (topics.isEmpty()) {
+      return ImmutableListMultimap.of();
+    }
+
+    ArrayList<Integer> topicIds = Lists.newArrayList(
+            Iterables.transform(topics, new Function<Topic, Integer>() {
+              @Override
+              public Integer apply(Topic topic) {
+                return topic.getId();
+              }
+            })
+    );
+
+    final ImmutableListMultimap.Builder<Integer, String> tags = ImmutableListMultimap.builder();
+
+    namedJdbcTemplate.query(
+            "SELECT msgid, tags_values.value FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
+            ImmutableMap.of("list", topicIds),
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet resultSet) throws SQLException {
+                tags.put(resultSet.getInt("msgid"), resultSet.getString("value"));
+              }
+            });
 
     return tags.build();
   }
