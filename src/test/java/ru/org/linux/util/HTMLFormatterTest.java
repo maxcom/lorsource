@@ -309,11 +309,11 @@ public class HTMLFormatterTest {
   public void inCodeEscape() {
     assertEquals(
         "<div class=\"code\"><pre class=\"no-highlight\"><code>&amp;#9618;</code></pre></div>",
-        lorCodeService.parseTopic("[code]&#9618;[/code]", false)
+        lorCodeService.parseTopic("[code]&#9618;[/code]", false, false)
     );
     assertEquals(
         "<p>&#9618;</p>",
-        lorCodeService.parseTopic("&#9618;", false)
+        lorCodeService.parseTopic("&#9618;", false, false)
     );
   }
 
@@ -346,11 +346,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeFormatter.format(a, false)
@@ -365,11 +365,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeTexFormatter.format(a, true)
@@ -384,11 +384,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeTexFormatter.format(a, false)
@@ -403,11 +403,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
   }
@@ -440,11 +440,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeFormatter.format(a, false)
@@ -459,11 +459,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeTexFormatter.format(a, true)
@@ -478,11 +478,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
   }
 
@@ -514,11 +514,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeFormatter.format(a, false)
@@ -533,11 +533,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
 
     // toLorCodeTexFormatter.format(a, true)
@@ -552,11 +552,11 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(b, false, false)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true)
+        lorCodeService.parseTopic(b, true, false)
     );
   }
 

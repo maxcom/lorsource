@@ -162,7 +162,7 @@
         </c:choose>
 
         <c:if test="${message.commited}">
-          <p>&gt;&gt;&gt; <a href="${message.linkLastmod}">Результаты</a>
+          <p>&gt;&gt;&gt; <a href="${message.link}">Результаты</a>
         </c:if>
   <%
   }

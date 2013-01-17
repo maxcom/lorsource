@@ -532,6 +532,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .fav-buttons a {
     font-size: 200%;
+    text-decoration: none;
 }
 
 .fav-buttons span {

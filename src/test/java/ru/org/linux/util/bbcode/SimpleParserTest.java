@@ -161,7 +161,7 @@ public class SimpleParserTest {
             "</li><li>two\n" +
             "</li><li>three\n" +
             "</li></ul>",
-        lorCodeService.parseTopic("[list]\n[*]one\n[*]two\n[*]three\n[/list]", false));
+        lorCodeService.parseTopic("[list]\n[*]one\n[*]two\n[*]three\n[/list]", false, false));
   }
 
   @Test
@@ -252,11 +252,11 @@ public class SimpleParserTest {
     Assert.assertEquals("<p>test</p>",
         lorCodeService.parseComment("[cut]test[/cut]", false, false));
     Assert.assertEquals("<p>( <a href=\"http://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("[cut]test[/cut]", url, false));
+        lorCodeService.parseTopicWithMinimizedCut("[cut]test[/cut]", url, false, false));
     Assert.assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("[cut]test[/cut]", url, true));
+        lorCodeService.parseTopicWithMinimizedCut("[cut]test[/cut]", url, true, false));
     Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>",
-        lorCodeService.parseTopic("[cut]test[/cut]", false));
+        lorCodeService.parseTopic("[cut]test[/cut]", false, false));
   }
 
   @Test
@@ -264,27 +264,27 @@ public class SimpleParserTest {
     Assert.assertEquals("<p>test</p>",
         lorCodeService.parseComment("[cut]\n\ntest[/cut]", false, false));
     Assert.assertEquals("<p>( <a href=\"http://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("[cut]\n\ntest[/cut]", url, false));
+        lorCodeService.parseTopicWithMinimizedCut("[cut]\n\ntest[/cut]", url, false, false));
     Assert.assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("[cut]\n\ntest[/cut]", url, true));
+        lorCodeService.parseTopicWithMinimizedCut("[cut]\n\ntest[/cut]", url, true, false));
     Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>",
-        lorCodeService.parseTopic("[cut]\n\ntest[/cut]", false));
+        lorCodeService.parseTopic("[cut]\n\ntest[/cut]", false, false));
   }
 
   @Test
   public void cut3Test() {
     Assert.assertEquals("<p>some text</p><div id=\"cut0\"><ul><li>one</li><li><p>two</p></li></ul></div>",
-        lorCodeService.parseTopic("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false));
+        lorCodeService.parseTopic("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false));
     Assert.assertEquals("<p>some text</p><p>( <a href=\"http://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", url, false));
+        lorCodeService.parseTopicWithMinimizedCut("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", url, false, false));
     Assert.assertEquals("<p>some text</p><p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", url, true));
+        lorCodeService.parseTopicWithMinimizedCut("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", url, true, false));
   }
 
   @Test
   public void cut4Test() {
     Assert.assertEquals("<div id=\"cut0\"><p>test</p></div><div id=\"cut1\"><p>test</p></div>",
-        lorCodeService.parseTopic("[cut]\n\ntest[/cut][cut]test[/cut]", false));
+        lorCodeService.parseTopic("[cut]\n\ntest[/cut][cut]test[/cut]", false, false));
   }
 
   @Test
@@ -308,7 +308,7 @@ public class SimpleParserTest {
   @Test
   public void cutWithParameterTest() {
     assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">нечитать!</a> )</p>",
-        lorCodeService.parseTopicWithMinimizedCut("[cut=нечитать!]\n\ntest[/cut]", url, true));
+        lorCodeService.parseTopicWithMinimizedCut("[cut=нечитать!]\n\ntest[/cut]", url, true, false));
   }
 
   @Test

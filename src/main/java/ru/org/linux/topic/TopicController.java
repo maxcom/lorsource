@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.auth.IPBlockDao;
@@ -48,7 +47,6 @@ import ru.org.linux.util.paginator.PreparedPagination;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -534,17 +532,15 @@ public class TopicController {
 
     int pagenum = deleted?0:comments.getCommentPage(node.getComment(), tmpl.getProf());
 
-    UriComponentsBuilder redirectUrl = UriComponentsBuilder.fromUriString(topic.getLinkPage(pagenum));
+    TopicLinkBuilder redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum);
 
     if (deleted) {
-      redirectUrl.queryParam("deleted", "true");
+      redirectUrl.showDeleted();
     }
 
-    if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
-      redirectUrl.queryParam("lastmod", topic.getLastModified().getTime());
-    }
+    redirectUrl.lastmod(tmpl.getProf().getMessages());
 
-    redirectUrl.fragment("comment-"+cid);
+    redirectUrl.comment(cid);
 
     if (tmpl.isSessionAuthorized() && !deleted) {
       Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
@@ -556,14 +552,11 @@ public class TopicController {
       );
 
       if (hideSet.contains(node.getComment().getId())) {
-        redirectUrl.queryParam(
-                "filter",
-                CommentFilter.toString(CommentFilter.FILTER_NONE)
-        );
+        redirectUrl.filter(CommentFilter.FILTER_NONE);
       }
     }
 
-    return new ModelAndView(new RedirectView(redirectUrl.build().toUriString()));
+    return new ModelAndView(new RedirectView(redirectUrl.build()));
   }
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
@@ -571,7 +564,6 @@ public class TopicController {
           HttpServletRequest request,
           @RequestParam int msgid,
           @RequestParam(required = false) Integer page,
-          @RequestParam(required = false) String nocache,
           @RequestParam(required = false) Integer cid
   ) throws Exception {
     if (cid!=null) {
@@ -580,25 +572,15 @@ public class TopicController {
 
     Topic topic = messageDao.getById(msgid);
 
-    String redirectUrl = topic.getLink();
-    StringBuilder options = new StringBuilder();
+    TopicLinkBuilder builder;
 
     if (page != null) {
-      redirectUrl = topic.getLinkPage(page);
-    }
-
-    if (nocache != null) {
-      options.append("nocache=");
-      options.append(URLEncoder.encode(nocache, "UTF-8"));
-    }
-
-    StringBuilder hash = new StringBuilder();
-
-    if (options.length() > 0) {
-      return new ModelAndView(new RedirectView(redirectUrl + '?' + options + hash));
+      builder = TopicLinkBuilder.pageLink(topic, page);
     } else {
-      return new ModelAndView(new RedirectView(redirectUrl + hash));
+      builder = TopicLinkBuilder.baseLink(topic);
     }
+
+    return new ModelAndView(new RedirectView(builder.build()));
   }
 
   @ExceptionHandler(MessageNotFoundException.class)

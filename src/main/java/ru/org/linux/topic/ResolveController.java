@@ -19,12 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +37,7 @@ public class ResolveController  {
   private GroupDao groupDao;
 
   @RequestMapping("/resolve.jsp")
-  public ModelAndView resolve(
+  public RedirectView resolve(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @RequestParam("resolve") String resolved
@@ -61,6 +60,6 @@ public class ResolveController  {
     }
     messageDao.resolveMessage(message.getId(), (resolved != null) && "yes".equals(resolved));
 
-    return new ModelAndView(new RedirectView(message.getLinkLastmod()));
+    return new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build());
   }
 }

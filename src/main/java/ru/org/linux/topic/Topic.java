@@ -348,14 +348,6 @@ public class Topic implements Serializable {
     return notop;
   }
 
-  public String getLinkLastmod() {
-    if (expired) {
-      return getLink();
-    } else {
-      return getLink() + "?lastmod=" + getLastModified().getTime();
-    }
-  }
-
   public boolean isHaveLink() {
     return havelink;
   }
