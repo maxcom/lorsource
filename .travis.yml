@@ -10,4 +10,4 @@ before_script:
   - createdb -U maxcom lor
   - psql -f sql/demo.db -U maxcom lor
 before_install:
-  - mvn install -DskipTests=true
+  - mvn dependency:go-offline
