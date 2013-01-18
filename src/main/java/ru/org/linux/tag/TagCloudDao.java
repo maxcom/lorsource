@@ -15,12 +15,6 @@
 
 package ru.org.linux.tag;
 
-import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.mutable.MutableDouble;
@@ -30,6 +24,11 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 @Repository
 public class TagCloudDao {
@@ -42,7 +41,7 @@ public class TagCloudDao {
   }
 
   public List<TagDTO> getTags(int tagcount) {
-    String sql = "select value,counter from tags_values where counter>0 order by counter desc limit ?";
+    String sql = "select value,counter from tags_values where counter>=10 order by counter desc limit ?";
     final MutableDouble maxc = new MutableDouble(1);
     final MutableDouble minc = new MutableDouble(-1);
     List<TagDTO> result = jdbcTemplate.query(sql, new RowMapper<TagDTO>() {
