@@ -10,4 +10,4 @@ before_script:
   - createdb -U maxcom lor
   - psql -f sql/demo.db -U maxcom lor
 before_install:
-  - cd maxcom/lorsource && mvn install -DskipTests=true
+  - mvn install -DskipTests=true
