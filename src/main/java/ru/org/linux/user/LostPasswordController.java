@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -121,8 +122,10 @@ public class LostPasswordController {
 
     return new ModelAndView(
             "action-done",
-            "message",
-            "Ваш новый пароль: " + StringUtil.escapeHtml(password)
+            ImmutableMap.of(
+                    "message", "Установлен новый пароль",
+                    "bigmessage", "Ваш новый пароль: " + StringUtil.escapeHtml(password)
+            )
     );
   }
 
