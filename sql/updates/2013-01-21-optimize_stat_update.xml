@@ -19,7 +19,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-    <changeSet id="2013012101" author="Maxim Valyanskiy">
+    <changeSet id="2013012102" author="Maxim Valyanskiy">
         <sql splitStatements="false">
 CREATE OR REPLACE FUNCTION public.stat_update()
     RETURNS timestamp with time zone
@@ -36,6 +36,7 @@ BEGIN
                    count(CASE WHEN now-'3 day'::interval&lt;postdate THEN 1 ELSE null END) as st2,
                    count(CASE WHEN now-'1 day'::interval&lt;postdate THEN 1 ELSE null END) as st3,
                    count(CASE WHEN now-'1 hour'::interval&lt;postdate THEN 1 ELSE null END) as st4
+                INTO st
                 FROM comments WHERE topic = top.id AND NOT deleted;
 
             UPDATE topics SET stat1=st.st1, stat2=st.st2, stat3=st.st3, stat4=st.st4
