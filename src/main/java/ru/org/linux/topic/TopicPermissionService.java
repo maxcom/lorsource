@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.comment.CommentRequest;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
@@ -163,34 +162,28 @@ public class TopicPermissionService {
    *
    *
    *
-   * @param commentRequest WEB-форма, содержащая данные
+   *
    * @param request        данные запроса от web-клиента
    * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
   public boolean isCommentsEditingAllowed(
-          CommentRequest commentRequest,
+          @Nonnull Comment comment,
+          @Nonnull Topic topic,
           HttpServletRequest request
   ) {
     Template tmpl = Template.getTemplate(request);
 
-    final boolean haveAnswers = commentService.isHaveAnswers(commentRequest.getOriginal());
+    final boolean haveAnswers = commentService.isHaveAnswers(comment);
     return isCommentEditableNow(
-        commentRequest.getOriginal(),
+        comment,
         tmpl.getCurrentUser(),
         haveAnswers,
-        commentRequest.getTopic()
+        topic
     );
   }
 
   /**
    * Проверяем можно ли редактировать комментарий на текущий момент
-   *
-   *
-   *
-   *
-   *
-   *
-   *
    *
    * @param haveAnswers есть у комменатрия ответы
    * @return результат
