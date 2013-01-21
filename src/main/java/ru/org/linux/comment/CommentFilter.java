@@ -67,7 +67,7 @@ public class CommentFilter {
 
     if (page != -1) {
       limit = messagesPerPage;
-      offset = messagesPerPage * page;
+      offset = messagesPerPage * (page - 1);
     }
 
     return getCommentList(comments.getList(), reverse, offset, limit, hideSet);

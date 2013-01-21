@@ -126,5 +126,10 @@
                 <ref bean="jacksonMessageConverter"/>
             </list>
         </property>
+        <property name="customArgumentResolvers">
+            <list>
+                <bean class="ru.org.linux.util.paginator.PaginationArgumentResolver" />
+            </list>
+        </property>
     </bean>
 </beans>

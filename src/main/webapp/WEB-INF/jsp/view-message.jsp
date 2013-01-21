@@ -166,63 +166,6 @@
   </div>
 </c:if></c:set>
 
-<c:if test="${pages > 1 and not showDeleted}">
-    <c:set var="urlAdd" value='' />
-    <c:set var="bufInfo" value='' />
-    <c:set var="filterAdd" value='' />
-
-    <c:if test="${not message.expired}">
-        <c:set var="urlAdd" value="?lastmod=${message.lastModified.time}" />
-    </c:if>
-
-    <c:if test="${filterMode != defaultFilterMode}">
-        <c:choose>
-            <c:when test="${empty urlAdd}">
-                <c:set var="urlAdd" value="?" />
-            </c:when>
-            <c:otherwise>
-                <c:set var="urlAdd" value="${urlAdd}&" />
-            </c:otherwise>
-        </c:choose>
-        <c:set var="filterAdd" value="?filter=${filterMode}" />
-        <c:set var="urlAdd" value="${urlAdd}filter=${filterMode}" />
-    </c:if>
-    <c:if test="${page != -1 and page != 0}">
-        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${message.getLinkPage(page-1)}${filterAdd}#comments'>←</a>" />
-    </c:if>
-    <c:if test="${page == -1 or page == 0}">
-        <c:set var="bufInfo" value="&emsp;<span class='page-number'>←</span>" />
-    </c:if>
-
-    <c:forEach var="i" begin="0" end="${pages-1}">
-        <c:set var="bufInfo" value="${bufInfo} " />
-        <c:if test="${i != page}">
-            <c:if test="${i == pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${urlAdd}#comments'" />
-            </c:if>
-            <c:if test="${i != pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${filterAdd}#comments'" />
-            </c:if>
-            <c:set var="bufInfo" value="${bufInfo}>${i + 1}</a>" />
-        </c:if>
-        <c:if test="${i == page}">
-            <c:set var="bufInfo" value="${bufInfo}<strong class='page-number'>${i + 1}</strong>" />
-        </c:if>
-    </c:forEach>
-
-    <c:if test="${page != -1 and page + 1 != pages}">
-        <c:if test="${page + 1 == pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${urlAdd}#comments'>→</a>" />
-        </c:if>
-        <c:if test="${page + 1 != pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${filterAdd}#comments'>→</a>" />
-        </c:if>
-    </c:if>
-    <c:if test="${page == -1 or page + 1 == pages}">
-        <c:set var="bufInfo" value="${bufInfo} <span class='page-number'>→</span>" />
-    </c:if>
-</c:if>
-
 <lor:message
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
@@ -308,26 +251,19 @@
   </div>
 </c:if>
 
-<c:if test="${not empty bufInfo}">
-    <c:if test="${not showDeleted}">
-        <div class="nav">
-            ${bufInfo}
-        </div>
-    </c:if>
+<c:if test="${not showDeleted}">
+<div class="nav"><lor:paginator preparedPagination="${preparedPagination}" baseTemplate="${paginationBaseTemplate}" pageTemplate="${paginationPageTemplate}" /></div>
 </c:if>
+
     <c:forEach var="comment" items="${commentsPrepared}">
       <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
     </c:forEach>
 </div>
-<c:if test="${fn:length(commentsPrepared) > 0}">
-  <c:if test="${ not empty bufInfo }">
-    <div class="nav">
-      ${bufInfo}
-    </div>
-  </c:if>
 
-  <c:out value="${bottomScroller}" escapeXml="false"/>
-</c:if>
+    <c:if test="${not showDeleted}">
+        <div class="nav"><lor:paginator preparedPagination="${preparedPagination}" baseTemplate="${paginationBaseTemplate}" pageTemplate="${paginationPageTemplate}" /></div>
+        <c:out value="${bottomScroller}" escapeXml="false"/>
+    </c:if>
 </div>
 
 <c:if test="${template.sessionAuthorized && (!message.expired || template.moderatorSession) && !showDeleted}">
