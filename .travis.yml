@@ -9,3 +9,5 @@ before_script:
   - createuser -U postgres -D -S -R jamwiki
   - createdb -U maxcom lor
   - psql -f sql/demo.db -U maxcom lor
+before_install:
+  - mvn dependency:go-offline

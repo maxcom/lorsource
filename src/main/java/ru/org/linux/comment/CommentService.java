@@ -406,7 +406,7 @@ public class CommentService {
    * @param comment  объект комментария
    * @return true если есть ответы, иначе false
    */
-  public boolean isHaveAnswers(Comment comment) {
+  public boolean isHaveAnswers(@Nonnull Comment comment) {
     return commentDao.isHaveAnswers(comment.getId());
   }
 

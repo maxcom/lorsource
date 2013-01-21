@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright 1998-2012 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2013012102" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+CREATE OR REPLACE FUNCTION public.stat_update()
+    RETURNS timestamp with time zone
+    LANGUAGE plpgsql
+AS $function$
+DECLARE
+        top record;
+        st record;
+        now timestamp;
+BEGIN
+        now=CURRENT_TIMESTAMP;
+        FOR top IN SELECT id FROM topics WHERE stat2!=0 FOR UPDATE LOOP
+            SELECT count(*) as st1,
+                   count(CASE WHEN now-'3 day'::interval&lt;postdate THEN 1 ELSE null END) as st2,
+                   count(CASE WHEN now-'1 day'::interval&lt;postdate THEN 1 ELSE null END) as st3,
+                   count(CASE WHEN now-'1 hour'::interval&lt;postdate THEN 1 ELSE null END) as st4
+                INTO st
+                FROM comments WHERE topic = top.id AND NOT deleted;
+
+            UPDATE topics SET stat1=st.st1, stat2=st.st2, stat3=st.st3, stat4=st.st4
+                WHERE id = top.id AND (stat1!=st.st1 OR stat2!=st.st2 OR stat3!=st.st3 OR stat4!=st.st4);
+        END LOOP;
+        RETURN now;
+END;
+$function$
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

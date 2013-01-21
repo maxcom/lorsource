@@ -17,6 +17,7 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
@@ -328,11 +329,12 @@ public class TopicPrepareService {
     List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
+    ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
 
     for (Topic message : messages) {
       PreparedTopic preparedMessage = prepareMessage(
               message,
-              messageDao.getTags(message),
+              tags.get(message.getId()),
               true,
               null,
               secure,
@@ -340,6 +342,7 @@ public class TopicPrepareService {
               textMap.get(message.getId()),
               null
       );
+
       TopicMenu topicMenu = getTopicMenu(
               preparedMessage,
               user,
@@ -347,6 +350,7 @@ public class TopicPrepareService {
               profileProperties,
               loadUserpics
       );
+
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
 
@@ -377,9 +381,20 @@ public class TopicPrepareService {
     List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
+    ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, null, textMap.get(message.getId()), null);
+      PreparedTopic preparedMessage = prepareMessage(
+              message,
+              tags.get(message.getId()),
+              true,
+              null,
+              secure,
+              null,
+              textMap.get(message.getId()),
+              null
+      );
+
       pm.add(preparedMessage);
     }
 

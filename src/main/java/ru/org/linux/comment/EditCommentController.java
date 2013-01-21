@@ -137,7 +137,12 @@ public class EditCommentController extends ApplicationObjectSupport {
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
     }
 
-    boolean editable = topicPermissionService.isCommentsEditingAllowed(commentRequest,request);
+    boolean editable = topicPermissionService.isCommentsEditingAllowed(
+            commentRequest.getOriginal(),
+            commentRequest.getTopic(),
+            request
+    );
+
     if (!editable) {
       throw new AccessViolationException("у Вас нет прав на редактирование этого сообщения");
     }
