@@ -80,7 +80,9 @@ public class RuTypoChangerTest {
             {"\"много непарных кавычек в конце\"\"\"\"\"\"\"\"", "&laquo;много непарных кавычек в конце&raquo;&quot;&quot;&quot;&quot;&quot;&quot;&quot;"},
             {"\"Ты криворукий жабокодер\"™.", "&laquo;Ты криворукий жабокодер&raquo;™."},
             {"(\"текст в кавычках в скобках\")", "(&laquo;текст в кавычках в скобках&raquo;)"},
-            {"\"волки\"-\"палки\"", "&laquo;волки&raquo;-&laquo;палки&raquo;"}
+            {"\"волки\"-\"палки\"", "&laquo;волки&raquo;-&laquo;палки&raquo;"},
+            {"\"волки\"-\"палки\"", "&laquo;волки&raquo;-&laquo;палки&raquo;"},
+            {"\"Test1 \"Test2 мяу-мяу?\"\"", "&laquo;Test1 &bdquo;Test2 мяу-мяу?&ldquo;&raquo;"},
     };
     return Arrays.asList(data);
   }

@@ -134,6 +134,14 @@ public class RuTypoChanger {
 
     for (int iter = 0; iter < buff.length(); iter++) {
       if (buff.charAt(iter) == QUOTE_SYMBOL) {
+        if (isQuoteClosing(buff.toString(), iter) && quoteDepth > 0) {
+          if (quoteDepth == 1)
+            buff.setCharAt(iter, QUOTE_OUT_CLOSE);
+          else
+            buff.setCharAt(iter, QUOTE_IN_CLOSE);
+          quoteDepth--;
+        }
+        else
         if (isQuoteOpening(buff.toString(), iter)) { //убеждаемся, что всё так
           if (quoteDepth == 0)
             buff.setCharAt(iter, QUOTE_OUT_OPEN);
@@ -141,13 +149,7 @@ public class RuTypoChanger {
             buff.setCharAt(iter, QUOTE_IN_OPEN);
           quoteDepth++;
         }
-        else if (isQuoteClosing(buff.toString(), iter) && quoteDepth > 0) {
-          if (quoteDepth == 1)
-            buff.setCharAt(iter, QUOTE_OUT_CLOSE);
-          else
-            buff.setCharAt(iter, QUOTE_IN_CLOSE);
-          quoteDepth--;
-        }
+
       }
 
     }
