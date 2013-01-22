@@ -87,21 +87,10 @@ public class RuTypoChanger {
 
     after = lastNonQuote(buff, position);
 
-        /*
-         * Остальная порнография, как ни странно, вполне допустима
-         * Особенно, в пределах кабинета ухогорлоноса
-         * Например, предложения:
-         *
-         * Я люблю проект "№2"
-         * Такой массив: "{blah, blah, blah}"
-         */
-    if (Character.isWhitespace(after) || isPunctuation(after))
+    if (Character.isWhitespace(after) || (after != '.' && isPunctuation(after)))
       return false;
 
-        /*
-         * Те, кто не ставит перед кавычками пробелы, пусть идут лесом
-         */
-    if (!Character.isWhitespace(before) && !(before == '\0') && !isQuoteChar(before))
+    if (Character.isLetterOrDigit(before))
       return false;
 
     // русский авось всегда спасет. авось прокатит :)
@@ -126,7 +115,7 @@ public class RuTypoChanger {
     if (isQuoteChar(before))
       return false;
 
-    if (!Character.isWhitespace(after) && !isPunctuation(after) && !isQuoteChar(after))
+    if (Character.isLetterOrDigit(after))
       return false;
 
     return true;
