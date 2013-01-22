@@ -16,6 +16,8 @@
 package ru.org.linux.group;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,10 +34,10 @@ import java.util.List;
 
 @Repository
 public class GroupDao {
-  private final JdbcTemplate jdbcTemplate;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public GroupDao(DataSource ds) {
+  public void setDateSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
@@ -46,6 +48,7 @@ public class GroupDao {
    * @return объект группы
    * @throws BadGroupException если группа не существует
    */
+  @Cacheable("Groups")
   public Group getGroup(int id) throws BadGroupException {
     try {
       return jdbcTemplate.queryForObject(
@@ -111,6 +114,7 @@ public class GroupDao {
    * @param resolvable м ожно ли ставить темам признак "тема решена"
    * @param urlName
    */
+  @CacheEvict(value="Groups", key="#group.id")
   public void setParams(final Group group, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
     jdbcTemplate.execute(
       "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?",

@@ -810,6 +810,8 @@ used with JMX monitors.
 
     <cache name="Users" maxElementsInMemory="5000" eternal="false" overflowToDisk="false" timeToLiveSeconds="300" memoryStoreEvictionPolicy="LFU" transactionalMode="off"/>
 
+    <cache name="Groups" maxElementsInMemory="500" eternal="false" overflowToDisk="false" timeToLiveSeconds="300" memoryStoreEvictionPolicy="LFU" transactionalMode="off"/>
+
     <!--
     Sample caches. Following are some example caches. Remove these before use.
     -->
