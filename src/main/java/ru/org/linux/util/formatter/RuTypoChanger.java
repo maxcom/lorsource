@@ -87,21 +87,10 @@ public class RuTypoChanger {
 
     after = lastNonQuote(buff, position);
 
-        /*
-         * Остальная порнография, как ни странно, вполне допустима
-         * Особенно, в пределах кабинета ухогорлоноса
-         * Например, предложения:
-         *
-         * Я люблю проект "№2"
-         * Такой массив: "{blah, blah, blah}"
-         */
-    if (Character.isWhitespace(after) || isPunctuation(after))
+    if (Character.isWhitespace(after) || (after != '.' && isPunctuation(after)))
       return false;
 
-        /*
-         * Те, кто не ставит перед кавычками пробелы, пусть идут лесом
-         */
-    if (!Character.isWhitespace(before) && !(before == '\0') && !isQuoteChar(before))
+    if (Character.isLetterOrDigit(before))
       return false;
 
     // русский авось всегда спасет. авось прокатит :)
@@ -126,7 +115,7 @@ public class RuTypoChanger {
     if (isQuoteChar(before))
       return false;
 
-    if (!Character.isWhitespace(after) && !isPunctuation(after) && !isQuoteChar(after))
+    if (Character.isLetterOrDigit(after))
       return false;
 
     return true;
@@ -145,6 +134,14 @@ public class RuTypoChanger {
 
     for (int iter = 0; iter < buff.length(); iter++) {
       if (buff.charAt(iter) == QUOTE_SYMBOL) {
+        if (isQuoteClosing(buff.toString(), iter) && quoteDepth > 0) {
+          if (quoteDepth == 1)
+            buff.setCharAt(iter, QUOTE_OUT_CLOSE);
+          else
+            buff.setCharAt(iter, QUOTE_IN_CLOSE);
+          quoteDepth--;
+        }
+        else
         if (isQuoteOpening(buff.toString(), iter)) { //убеждаемся, что всё так
           if (quoteDepth == 0)
             buff.setCharAt(iter, QUOTE_OUT_OPEN);
@@ -152,13 +149,7 @@ public class RuTypoChanger {
             buff.setCharAt(iter, QUOTE_IN_OPEN);
           quoteDepth++;
         }
-        else if (isQuoteClosing(buff.toString(), iter) && quoteDepth > 0) {
-          if (quoteDepth == 1)
-            buff.setCharAt(iter, QUOTE_OUT_CLOSE);
-          else
-            buff.setCharAt(iter, QUOTE_IN_CLOSE);
-          quoteDepth--;
-        }
+
       }
 
     }
