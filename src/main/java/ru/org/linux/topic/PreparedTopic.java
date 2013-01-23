@@ -44,8 +44,6 @@ public final class PreparedTopic {
   private final User lastEditor;
   private final int editCount;
 
-  private final String userAgent;
-  
   private final PreparedImage image;
   
   private final String postscoreInfo;
@@ -67,7 +65,6 @@ public final class PreparedTopic {
           EditHistoryDto lastHistoryDto,
           User lastEditor,
           int editorCount,
-          String userAgent,
           boolean lorcode,
           PreparedImage image,
           String postscoreInfo,
@@ -92,7 +89,6 @@ public final class PreparedTopic {
     this.lastHistoryDto = lastHistoryDto;
     this.lastEditor = lastEditor;
     editCount = editorCount;
-    this.userAgent = userAgent;
     this.image = image;
     this.remark = remark;
   }
@@ -143,10 +139,6 @@ public final class PreparedTopic {
 
   public int getId() {
     return message.getId();
-  }
-
-  public String getUserAgent() {
-    return userAgent;
   }
 
   public ImmutableList<String> getTags() {

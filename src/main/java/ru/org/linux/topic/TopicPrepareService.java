@@ -235,8 +235,6 @@ public class TopicPrepareService {
         ogDescription = "";
       }
 
-      String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
-      
       PreparedImage preparedImage = null;
 
       if (section.isImagepost() || section.isImageAllowed()) {
@@ -268,7 +266,6 @@ public class TopicPrepareService {
               editHistoryDto,
               lastEditor, 
               editCount,
-              userAgent, 
               text.isLorcode(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(message.getPostScore()),
@@ -442,6 +439,14 @@ public class TopicPrepareService {
       );
     }
 
+    String userAgent;
+
+    if (currentUser!=null && currentUser.isModerator()) {
+      userAgent = userAgentDao.getUserAgentById(message.getMessage().getUserAgent());
+    } else {
+      userAgent = null;
+    }
+
     return new TopicMenu(
             topicEditable,
             tagsEditable,
@@ -452,6 +457,8 @@ public class TopicPrepareService {
             topicStats.get(1),
             topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser),
             deletable,
-            userpic);
+            userpic,
+            userAgent
+    );
   }
 }
