@@ -14,6 +14,7 @@
  */
 package ru.org.linux.util;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -23,6 +24,11 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
 import javax.xml.bind.NotIdentifiableEvent;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -36,7 +42,7 @@ public class ImageCheck {
   private final int height;
   private final int width;
 
-  public ImageCheck(File file) throws IOException {
+  public ImageCheck(File file) throws Exception {
     ImageInputStream iis = ImageIO.createImageInputStream(file);
     Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
     if(!iter.hasNext()) {
@@ -48,44 +54,25 @@ public class ImageCheck {
     if("png".equals(formatName) && hasAnimatedPng(reader)) {
       animated = true;
     } else {
-      if(reader.getNumImages(true) > 1) {
-        animated = true;
-      } else {
-        animated = false;
-      }
+      animated = reader.getNumImages(true) > 1;
     }
     height = reader.getHeight(0);
     width = reader.getWidth(0);
     iis.close();
   }
 
-  private boolean hasAnimatedPng(ImageReader reader) throws IOException {
+  private boolean hasAnimatedPng(ImageReader reader) throws Exception {
     if(! "png".equals(reader.getFormatName())) {
       return false;
     }
     IIOMetadata metadata = reader.getImageMetadata(0);
+    XPath xPath = XPathFactory.newInstance().newXPath();
 
     for(String name : metadata.getMetadataFormatNames()) {
       Node root = metadata.getAsTree(name);
-      for(int i=0; i < root.getChildNodes().getLength(); i++) {
-        Node child = root.getChildNodes().item(i);
-        if("UnknownChunks".equals(child.getNodeName())) {
-          NodeList unknownChunks = child.getChildNodes();
-          for(int j=0; j < unknownChunks.getLength(); j++) {
-            if("UnknownChunk".equals(unknownChunks.item(j).getNodeName())) {
-              NamedNodeMap map = unknownChunks.item(j).getAttributes();
-              for(int k=0; k<map.getLength(); k++) {
-                Node attr = map.item(k);
-                if("type".equals(attr.getNodeName()) && ("acTL".equals(attr.getNodeValue()) || "fcTL".equals(attr.getNodeValue()))) {
-                  return true;
-                }
-              }
-            }
-          }
-
-        }
+      if((Boolean)xPath.evaluate("//UnknownChunk[@type='acTL'] | //UnknownChunk[@type='fcTL']", root, XPathConstants.BOOLEAN)) {
+        return true;
       }
-
     }
     return false;
   }
