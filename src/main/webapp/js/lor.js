@@ -222,7 +222,7 @@ $(document).ready(function() {
     backButton.text("Вверх");
 
     backButton.click(function() {
-      $("html, body").animate({ scrollTop: 0 });
+      ("html, body").scrollTop(0);
     });
 
     $('#ft').prepend(backButton);
