@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.ImageInfo2;
+import ru.org.linux.util.ImageCheck;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -36,9 +35,7 @@ public class UserService {
       throw new UserErrorException("Сбой загрузки изображения: слишком большой файл");
     }
 
-    String extension = ImageInfo.detectImageType(file);
-
-    ImageInfo info = new ImageInfo(file.getPath(), extension);
+    ImageCheck info = new ImageCheck(file);
 
     if (info.getHeight()<MIN_IMAGESIZE || info.getHeight() > MAX_IMAGESIZE) {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
@@ -48,23 +45,8 @@ public class UserService {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
     }
 
-    ImageInfo2 ii = new ImageInfo2();
-    InputStream is = null;
-    try {
-      is = new FileInputStream(file);
-
-      ii.setInput(is);
-      ii.setDetermineImageNumber(true);
-
-      ii.check();
-
-      if (ii.getNumberOfImages()>1) {
-        throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
-      }
-    } finally {
-      if (is!=null) {
-        is.close();
-      }
+    if (info.isAnimated()) {
+      throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
     }
   }
 
@@ -104,7 +86,7 @@ public class UserService {
   public Userpic getUserpic(User user, boolean secure, String avatarStyle) {
     if (user.getPhoto() != null) {
       try {
-        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
+        ImageCheck info = new ImageCheck(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
 
         return new Userpic(
             "/photos/" + user.getPhoto(),
