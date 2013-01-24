@@ -124,7 +124,7 @@ public class LostPasswordController {
             "action-done",
             ImmutableMap.of(
                     "message", "Установлен новый пароль",
-                    "bigmessage", "Ваш новый пароль: " + StringUtil.escapeHtml(password)
+                    "bigMessage", "Ваш новый пароль: " + StringUtil.escapeHtml(password)
             )
     );
   }
