@@ -120,12 +120,15 @@ public class ImageCheck {
     return "width=\"" + width + "\" height=\"" + height + '"';
   }
 
-  public static String detectImageType(File file) throws BadImageException, IOException {
-    ImageCheck check = new ImageCheck(file);
-    if("JPEG".equals(check.getFormatName())) {
+  /**
+   * Get extension for filename
+   * @return ext
+   */
+  public String getExtension() {
+    if("JPEG".equals(formatName)) {
       return "jpg";
     } else {
-      return check.getFormatName();
+      return formatName;
     }
   }
 
@@ -134,6 +137,6 @@ public class ImageCheck {
     BufferedImage source = ImageIO.read(new File(filename));
     BufferedImage destination = null;
     destination = Scalr.resize(source, size);
-    ImageIO.write(destination, check.getFormatName(), new File(iconname));
+    ImageIO.write(destination, "JPEG", new File(iconname));
   }
 }

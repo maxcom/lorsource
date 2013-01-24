@@ -18,7 +18,7 @@ package ru.org.linux.gallery;
 import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ImageCheck;
 import ru.org.linux.util.UtilException;
 
 import java.io.File;
@@ -55,16 +55,14 @@ public class Screenshot {
       error = true;
     }
 
-    String extension = ImageInfo.detectImageType(file);
+    ImageCheck check = new ImageCheck(file);
 
-    ImageInfo info = new ImageInfo(file, extension);
-
-    if (info.getHeight()< MIN_SCREENSHOT_SIZE || info.getHeight() > MAX_SCREENSHOT_SIZE) {
+    if (check.getHeight()< MIN_SCREENSHOT_SIZE || check.getHeight() > MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
       error = true;
     }
 
-    if (info.getWidth()<MIN_SCREENSHOT_SIZE || info.getWidth() > MAX_SCREENSHOT_SIZE) {
+    if (check.getWidth()<MIN_SCREENSHOT_SIZE || check.getWidth() > MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
       error = true;
     }
@@ -75,7 +73,7 @@ public class Screenshot {
       try {
         String name = tempFile.getName();
 
-        Screenshot scrn = new Screenshot(name, dir, extension);
+        Screenshot scrn = new Screenshot(name, dir, check.getExtension());
 
         scrn.doResize(file);
 
@@ -110,7 +108,7 @@ public class Screenshot {
     return dest;
   }
 
-  private void doResize(File uploadedFile) throws IOException, UtilException {
+  private void doResize(File uploadedFile) throws IOException, UtilException, BadImageException {
     if (mainFile.exists()) {
       mainFile.delete();
     }
@@ -120,11 +118,9 @@ public class Screenshot {
     boolean error = true;
 
     try {
-      ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
-      ImageInfo.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
+      ImageCheck.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
+      ImageCheck.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
       error = false;
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
     } finally {
       if (error) {
         if (mainFile.exists()) {
