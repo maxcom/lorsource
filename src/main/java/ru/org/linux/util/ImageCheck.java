@@ -50,6 +50,9 @@ public class ImageCheck {
   public ImageCheck(File file) throws BadImageException, IOException {
     size = file.length();
     ImageInputStream iis = ImageIO.createImageInputStream(file);
+    if(iis == null) {
+      throw new BadImageException("Invalid image");
+    }
     Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
     if(!iter.hasNext()) {
       throw new BadImageException("Invalid image");

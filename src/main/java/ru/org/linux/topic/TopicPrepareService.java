@@ -47,7 +47,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ImageCheck;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -290,12 +290,9 @@ public class TopicPrepareService {
     }
 
     try {
-      ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
+      ImageCheck mediumImageInfo = new ImageCheck(htmlPath + mediumName);
       String fullName = htmlPath + image.getOriginal();
-      ImageInfo fullInfo = new ImageInfo(
-              fullName,
-              ImageInfo.detectImageType(new File(fullName))
-      );
+      ImageCheck fullInfo = new ImageCheck(fullName);
       LorURL medURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+mediumName);
       LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+image.getOriginal());
 
