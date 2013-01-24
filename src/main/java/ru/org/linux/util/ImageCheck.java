@@ -14,10 +14,12 @@
  */
 package ru.org.linux.util;
 
+import org.imgscalr.Scalr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import sun.java2d.loops.ScaledBlit;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -28,53 +30,67 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
  */
 public class ImageCheck {
 
+  public static String supportedFormat[] = {"JPEG", "gif", "png"};
+
   private final String formatName;
   private final boolean animated;
   private final int height;
   private final int width;
+  private final long size;
 
-  public ImageCheck(File file) throws Exception {
+  public ImageCheck(String filename) throws BadImageException, IOException {
+    this(new File(filename));
+  }
+
+  public ImageCheck(File file) throws BadImageException, IOException {
+    size = file.length();
     ImageInputStream iis = ImageIO.createImageInputStream(file);
     Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
     if(!iter.hasNext()) {
-      throw new RuntimeException("No readers");
+      throw new BadImageException("Invalid image");
     }
     ImageReader reader = iter.next();
     reader.setInput(iis);
     formatName = reader.getFormatName();
-    if("png".equals(formatName) && hasAnimatedPng(reader)) {
-      animated = true;
-    } else {
-      animated = reader.getNumImages(true) > 1;
+    if(!Arrays.asList(supportedFormat).contains(formatName)) {
+      throw new BadImageException("Invalid image");
     }
+    animated = hasAnimatedPng(reader) || reader.getNumImages(true) > 1;
     height = reader.getHeight(0);
     width = reader.getWidth(0);
     iis.close();
   }
 
-  private boolean hasAnimatedPng(ImageReader reader) throws Exception {
-    if(! "png".equals(reader.getFormatName())) {
-      return false;
-    }
-    IIOMetadata metadata = reader.getImageMetadata(0);
-    XPath xPath = XPathFactory.newInstance().newXPath();
-
-    for(String name : metadata.getMetadataFormatNames()) {
-      Node root = metadata.getAsTree(name);
-      if((Boolean)xPath.evaluate("//UnknownChunk[@type='acTL'] | //UnknownChunk[@type='fcTL']", root, XPathConstants.BOOLEAN)) {
-        return true;
+  private boolean hasAnimatedPng(ImageReader reader) throws IOException {
+    try {
+      if(! "png".equals(reader.getFormatName())) {
+        return false;
       }
+      IIOMetadata metadata = reader.getImageMetadata(0);
+      XPath xPath = XPathFactory.newInstance().newXPath();
+
+      for(String name : metadata.getMetadataFormatNames()) {
+        Node root = metadata.getAsTree(name);
+        if((Boolean)xPath.evaluate("//UnknownChunk[@type='acTL'] | //UnknownChunk[@type='fcTL']", root, XPathConstants.BOOLEAN)) {
+          return true;
+        }
+      }
+      return false;
+    } catch (XPathExpressionException e) {
+      throw new IOException(e.getMessage());
     }
-    return false;
   }
 
   public String getFormatName() {
@@ -91,5 +107,40 @@ public class ImageCheck {
 
   public int getWidth() {
     return width;
+  }
+
+  public long getSize() {
+    return size;
+  }
+
+  /**
+   * get file size in user-printable form
+   */
+  public String getSizeString() {
+    return size / 1024 + " Kb";
+  }
+
+  /**
+   * get HTML code for inclusion into IMG tag
+   */
+  public String getCode() {
+    return "width=\"" + width + "\" height=\"" + height + '"';
+  }
+
+  public static String detectImageType(File file) throws BadImageException, IOException {
+    ImageCheck check = new ImageCheck(file);
+    if("JPEG".equals(check.getFormatName())) {
+      return "jpg";
+    } else {
+      return check.getFormatName();
+    }
+  }
+
+  public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
+    ImageCheck check = new ImageCheck(filename);
+    BufferedImage source = ImageIO.read(new File(filename));
+    BufferedImage destination = null;
+    destination = Scalr.resize(source, size);
+    ImageIO.write(destination, check.getFormatName(), new File(iconname));
   }
 }
