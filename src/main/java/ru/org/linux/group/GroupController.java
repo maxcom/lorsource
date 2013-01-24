@@ -38,7 +38,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ImageCheck;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.annotation.Nullable;
@@ -195,7 +195,7 @@ public class GroupController {
     if (!lastmod) {
       if (year==null) {
         if (offset==0) {
-          q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
+          q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::INTERVAL ";
         }
 
         rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
@@ -296,7 +296,7 @@ public class GroupController {
     if(group.getImage() != null) {
       try {
         params.put("groupImagePath", '/' + tmpl.getStyle() + group.getImage());
-        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
+        ImageCheck info = new ImageCheck(configuration.getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
         params.put("groupImageInfo", info);
       } catch (BadImageException ex) {
         params.put("groupImagePath", null);

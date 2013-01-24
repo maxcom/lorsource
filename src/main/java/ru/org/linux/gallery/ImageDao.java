@@ -29,7 +29,7 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ImageCheck;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -110,8 +110,8 @@ public class ImageDao {
 
     for (GalleryItem item : items) {
       try {
-        ImageInfo iconInfo = new ImageInfo(htmlPath + item.getImage().getIcon());
-        ImageInfo fullInfo = new ImageInfo(htmlPath + item.getImage().getOriginal());
+        ImageCheck iconInfo = new ImageCheck(htmlPath + item.getImage().getIcon());
+        ImageCheck fullInfo = new ImageCheck(htmlPath + item.getImage().getOriginal());
 
         builder.add(new PreparedGalleryItem(
                 item,
@@ -120,9 +120,9 @@ public class ImageDao {
       } catch (UserNotFoundException e) {
         throw new RuntimeException(e);
       } catch (BadImageException e) {
-        logger.error("Bad image id="+item.getImage().getId(), e);
+        logger.error("Bad image id="+item.getImage().getId());
       } catch (IOException e) {
-        logger.error("Bad image id=" + item.getImage().getId(), e);
+        logger.error("Bad image id=" + item.getImage().getId());
       }
     }
 

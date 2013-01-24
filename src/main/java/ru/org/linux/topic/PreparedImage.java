@@ -17,7 +17,6 @@ package ru.org.linux.topic;
 
 import ru.org.linux.gallery.Image;
 import ru.org.linux.util.ImageCheck;
-import ru.org.linux.util.ImageInfo;
 
 public class PreparedImage {
   private final String mediumName;
