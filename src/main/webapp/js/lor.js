@@ -216,6 +216,18 @@ $(document).ready(function() {
     })
   }
 
+  function initScollupButton() {
+    var backButton = $('<button id="ft-back-button">');
+
+    backButton.text("Вверх");
+
+    backButton.click(function() {
+      $("html").animate({ scrollTop: 0 });
+    });
+
+    $('#ft').prepend(backButton);
+  }
+
   initLoginForm();
   initCtrlEnter();
   initCommentFormValidation();
@@ -224,6 +236,7 @@ $(document).ready(function() {
   $(".none").remove();
 
   initSamepageCommentNavigation();
+  initScollupButton();
 });
 
 
