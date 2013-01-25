@@ -138,22 +138,6 @@ class CommentDaoImpl implements CommentDao {
     return comments;
   }
 
-  /**
-   * Удалить комментарий если у него нет ответов
-   *
-   * @param msgid   идентификационнай номер комментария
-   * @param reason  причина удаления
-   * @param user    пользователь, удаляющий комментарий
-   * @return true если комментарий был удалён, иначе false
-   */
-  private boolean deleteCommentWithCheck(int msgid, String reason, User user) {
-    if (getReplaysCount(msgid) != 0) {
-      return false;
-    }
-
-    return deleteComment(msgid, reason, user, 0);
-  }
-
   @Override
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
@@ -270,10 +254,10 @@ class CommentDaoImpl implements CommentDao {
 
     for (int msgid : commentIds) {
       deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
-      if (deleteCommentWithCheck(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
-        updateStatsAfterDelete(msgid, 1);
-        deletedCommentIds.add(msgid);
-      }
+
+      deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+      updateStatsAfterDelete(msgid, 1);
+      deletedCommentIds.add(msgid);
     }
 
     return deletedCommentIds;
@@ -281,46 +265,42 @@ class CommentDaoImpl implements CommentDao {
 
   @Override
   public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
-    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
 
     final Map<Integer, String> deleteInfo = new HashMap<Integer, String>();
-    // Удаляем топики
-    jdbcTemplate.query("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          int msgid = resultSet.getInt("id");
-          deletedTopicIds.add(msgid);
-          deleteInfo.put(msgid, "Топик " + msgid + " удален");
-          jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", msgid);
-          deleteInfoDao.insert(msgid, moderator, reason, 0);
-        }
-      },
-      ip, timedelta);
+
+    List<Integer> topicIds = jdbcTemplate.queryForList("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
+            Integer.class,
+            ip,
+            timedelta
+    );
+
+    for (int msgid : topicIds) {
+      deleteInfo.put(msgid, "Топик " + msgid + " удален");
+      jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", msgid);
+      deleteInfoDao.insert(msgid, moderator, reason, 0);
+    }
 
     // Удаляем комментарии если на них нет ответа
-    jdbcTemplate.query("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          int msgid = resultSet.getInt("id");
-          if (getReplaysCount(msgid) == 0) {
-            if (deleteCommentWithCheck(msgid, reason, moderator)) {
-              deletedCommentIds.add(msgid);
-              updateStatsAfterDelete(msgid, 1);
-              deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
-            } else {
-              deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
-            }
-          } else {
-            deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
-          }
-        }
-      },
-      ip, timedelta);
+    List<Integer> commentIds = jdbcTemplate.queryForList("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
+            Integer.class,
+            ip, timedelta);
 
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
+    for (int msgid : commentIds) {
+      if (getReplaysCount(msgid) == 0) {
+        if (deleteComment(msgid, reason, moderator, 0)) {
+          deletedCommentIds.add(msgid);
+          updateStatsAfterDelete(msgid, 1);
+          deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
+        } else {
+          deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
+        }
+      } else {
+        deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
+      }
+    }
+
+    return new DeleteCommentResult(topicIds, deletedCommentIds, deleteInfo);
   }
 
   @Override
