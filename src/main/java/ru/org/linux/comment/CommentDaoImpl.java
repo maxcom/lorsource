@@ -139,25 +139,19 @@ class CommentDaoImpl implements CommentDao {
   }
 
   /**
-   * Удалить комментарий, не начиная транзакции. Обновить статистику, если было осуществлено удаление.
+   * Удалить комментарий если у него нет ответов
    *
    * @param msgid   идентификационнай номер комментария
    * @param reason  причина удаления
    * @param user    пользователь, удаляющий комментарий
    * @return true если комментарий был удалён, иначе false
    */
-  private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) {
+  private boolean deleteCommentWithCheck(int msgid, String reason, User user) {
     if (getReplaysCount(msgid) != 0) {
-      throw new IllegalStateException("Нельзя удалить комментарий с ответами");
+      return false;
     }
 
-    boolean deleted = deleteComment(msgid, reason, user, 0);
-
-    if (deleted) {
-      updateStatsAfterDelete(msgid, 1);
-    }
-
-    return deleted;
+    return deleteComment(msgid, reason, user, 0);
   }
 
   @Override
@@ -276,7 +270,8 @@ class CommentDaoImpl implements CommentDao {
 
     for (int msgid : commentIds) {
       deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
-      if (deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
+      if (deleteCommentWithCheck(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
+        updateStatsAfterDelete(msgid, 1);
         deletedCommentIds.add(msgid);
       }
     }
@@ -311,8 +306,9 @@ class CommentDaoImpl implements CommentDao {
         public void processRow(ResultSet resultSet) throws SQLException {
           int msgid = resultSet.getInt("id");
           if (getReplaysCount(msgid) == 0) {
-            if (deleteCommentWithoutTransaction(msgid, reason, moderator)) {
+            if (deleteCommentWithCheck(msgid, reason, moderator)) {
               deletedCommentIds.add(msgid);
+              updateStatsAfterDelete(msgid, 1);
               deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
             } else {
               deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
