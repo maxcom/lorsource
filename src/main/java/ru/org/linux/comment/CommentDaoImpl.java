@@ -287,7 +287,6 @@ class CommentDaoImpl implements CommentDao {
       if (getReplaysCount(msgid) == 0) {
         if (deleteComment(msgid, reason, moderator, 0)) {
           deletedCommentIds.add(msgid);
-          updateStatsAfterDelete(msgid, 1);
           deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
         } else {
           deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
@@ -295,6 +294,10 @@ class CommentDaoImpl implements CommentDao {
       } else {
         deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
       }
+    }
+
+    for (int msgid : deletedCommentIds) {
+      updateStatsAfterDelete(msgid, 1);
     }
 
     return new DeleteCommentResult(topicIds, deletedCommentIds, deleteInfo);

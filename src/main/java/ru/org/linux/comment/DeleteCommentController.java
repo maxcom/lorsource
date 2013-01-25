@@ -156,9 +156,11 @@ public class DeleteCommentController {
     List<Integer> deleted;
 
     if (user.isModerator()) {
-      deleted = commentService.deleteWithReplys(msgid, reason, user, -bonus);
+      deleted = commentService.deleteWithReplys(msgid, reason, user, bonus);
       if (!deleted.isEmpty()) {
         out.append("Удаленные комментарии: ").append(deleted).append("<br>");
+      } else {
+        out.append("Ничего не удалено");
       }
     } else {
       if (commentService.deleteComment(msgid, reason, user, 0)) {

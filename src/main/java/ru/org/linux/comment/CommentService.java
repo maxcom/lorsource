@@ -539,7 +539,7 @@ public class CommentService {
    *
    * @param msgid  идентификационнай номер комментария
    * @param user   пользователь, удаляющий комментарий
-   * @param score  сколько снять скора у автора комментария
+   * @param scoreBonus  сколько снять скора у автора комментария
    * @return список идентификационных номеров удалённых комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
