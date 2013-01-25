@@ -175,10 +175,6 @@ class CommentDaoImpl implements CommentDao {
   public List<Integer> doDeleteReplys(int msgid, User user, boolean score) {
     List<Integer> deleted = deleteReplys(msgid, user, score, 0);
 
-    if (!deleted.isEmpty()) {
-      updateStatsAfterDelete(msgid, deleted.size());
-    }
-
     return deleted;
   }
 
@@ -253,10 +249,11 @@ class CommentDaoImpl implements CommentDao {
     );
 
     for (int msgid : commentIds) {
-      deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
+      List<Integer> deletedReplys = doDeleteReplys(msgid, moderator, false);
+      deletedCommentIds.addAll(deletedReplys);
 
       deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
-      updateStatsAfterDelete(msgid, 1);
+      updateStatsAfterDelete(msgid, 1 + deletedReplys.size());
       deletedCommentIds.add(msgid);
     }
 

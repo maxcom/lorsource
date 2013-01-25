@@ -483,7 +483,6 @@ public class CommentService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
-
     if (commentDao.getReplaysCount(msgid) != 0) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
@@ -544,8 +543,20 @@ public class CommentService {
    * @return список идентификационных номеров удалённых комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
-    return commentDao.doDeleteReplys(msgid, user, score);
+  public List<Integer> deleteWithReplys(int msgid, String reason, User user, int scoreBonus) {
+    List<Integer> deleted = commentDao.doDeleteReplys(msgid, user, scoreBonus>2);
+
+    boolean deletedMain = commentDao.deleteComment(msgid, reason, user, -scoreBonus);
+
+    if (deletedMain) {
+      deleted.add(msgid);
+    }
+
+    if (!deleted.isEmpty()) {
+      commentDao.updateStatsAfterDelete(msgid, deleted.size());
+    }
+
+    return deleted;
   }
 
   /**

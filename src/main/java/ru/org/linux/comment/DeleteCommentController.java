@@ -15,6 +15,7 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,6 @@ import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -153,19 +153,12 @@ public class DeleteCommentController {
 
     StringBuilder out = new StringBuilder();
 
-    List<Integer> deleted = new LinkedList<Integer>();
-    deleted.add(msgid);
+    List<Integer> deleted;
 
     if (user.isModerator()) {
-      List<Integer> deletedReplys = commentService.deleteReplys(msgid, user, bonus > 2);
-      if (!deletedReplys.isEmpty()) {
-        out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");
-      }
-
-      deleted.addAll(deletedReplys);
-
-      if (commentService.deleteComment(msgid, reason, user, -bonus)) {
-        out.append("Сообщение ").append(msgid).append(" удалено");
+      deleted = commentService.deleteWithReplys(msgid, reason, user, -bonus);
+      if (!deleted.isEmpty()) {
+        out.append("Удаленные комментарии: ").append(deleted).append("<br>");
       }
     } else {
       if (commentService.deleteComment(msgid, reason, user, 0)) {
@@ -173,6 +166,8 @@ public class DeleteCommentController {
       } else {
         out.append("Сообщение ").append(msgid).append(" уже было удалено");
       }
+
+      deleted = ImmutableList.of(msgid);
     }
 
     searchQueueSender.updateComment(deleted);
