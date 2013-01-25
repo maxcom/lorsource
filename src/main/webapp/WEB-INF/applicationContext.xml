@@ -92,7 +92,9 @@
     </amq:broker>
 
     <amq:redeliveryPolicy id="redeliveryPolicy" maximumRedeliveries="-1"
-                          initialRedeliveryDelay="60000"/>
+                          initialRedeliveryDelay="60000">
+	<property name="queue" value="*" />
+    </amq:redeliveryPolicy>
 
     <amq:connectionFactory id="jmsFactory" brokerURL="vm://localhost?create=false">
         <property name="redeliveryPolicy" ref="redeliveryPolicy"/>
