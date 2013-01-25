@@ -90,11 +90,11 @@ public interface CommentDao {
    * @param score сколько снять скора у автора комментария
    * @return список идентификационных номеров удалённых комментариев
    */
-  List<Integer> doDeleteReplys
+  List<Integer> deleteReplys
   (
-    int msgid,
-    User user,
-    boolean score
+          int msgid,
+          User user,
+          boolean score
   );
 
   /**

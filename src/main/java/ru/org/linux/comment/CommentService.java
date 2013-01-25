@@ -499,17 +499,6 @@ public class CommentService {
   /**
    * Список комментариев топика.
    *
-   * @param topicId     id топика
-   * @param showDeleted вместе с удаленными
-   * @return список комментариев топика
-   */
-  private List<Comment> getCommentList(int topicId, boolean showDeleted) {
-    return commentDao.getCommentList(topicId, showDeleted);
-  }
-
-  /**
-   * Список комментариев топика.
-   *
    * @param topic       топик
    * @param showDeleted вместе с удаленными
    * @return список комментариев топика
@@ -517,7 +506,7 @@ public class CommentService {
   @Nonnull
   public CommentList getCommentList(@Nonnull Topic topic, boolean showDeleted) {
     if (showDeleted) {
-      return new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      return new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
     } else {
       CacheProvider mcc = MemCachedSettings.getCache();
 
@@ -526,7 +515,7 @@ public class CommentService {
       CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
 
       if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
-        commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+        commentList = new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
         mcc.storeToCache(cacheId, commentList);
       }
 
@@ -544,7 +533,7 @@ public class CommentService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public List<Integer> deleteWithReplys(int msgid, String reason, User user, int scoreBonus) {
-    List<Integer> deleted = commentDao.doDeleteReplys(msgid, user, scoreBonus>2);
+    List<Integer> deleted = commentDao.deleteReplys(msgid, user, scoreBonus > 2);
 
     boolean deletedMain = commentDao.deleteComment(msgid, reason, user, -scoreBonus);
 

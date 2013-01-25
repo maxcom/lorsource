@@ -172,10 +172,8 @@ class CommentDaoImpl implements CommentDao {
   }
 
   @Override
-  public List<Integer> doDeleteReplys(int msgid, User user, boolean score) {
-    List<Integer> deleted = deleteReplys(msgid, user, score, 0);
-
-    return deleted;
+  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
+    return doDeleteReplys(msgid, user, score, 0);
   }
 
   /**
@@ -187,11 +185,11 @@ class CommentDaoImpl implements CommentDao {
    * @param depth  текущий уровень ответов
    * @return список идентификационных номеров удалённых комментариев
    */
-  private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
+  private List<Integer> doDeleteReplys(int msgid, User user, boolean score, int depth) {
     List<Integer> replys = getReplysForUpdate(msgid);
     List<Integer> deleted = new LinkedList<Integer>();
     for (Integer r : replys) {
-      deleted.addAll(deleteReplys(r, user, score, depth + 1));
+      deleted.addAll(doDeleteReplys(r, user, score, depth + 1));
 
       boolean del;
 
@@ -249,7 +247,7 @@ class CommentDaoImpl implements CommentDao {
     );
 
     for (int msgid : commentIds) {
-      List<Integer> deletedReplys = doDeleteReplys(msgid, moderator, false);
+      List<Integer> deletedReplys = deleteReplys(msgid, moderator, false);
       deletedCommentIds.addAll(deletedReplys);
 
       deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
