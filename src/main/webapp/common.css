@@ -374,12 +374,8 @@ table.poll td {
     margin-top: 1em;
 }
 
-#ft-info {
-    float: left;
-}
-
-#ft-buttons {
-    text-align: right;
+#ft-back-button {
+    float: right;
 }
 
 .boxlet li {
