@@ -631,7 +631,7 @@
                                 </connector>
                                 <connector implementation="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
                                     <port>8443</port>
-                                    <keystore>${build.testOutputDirectory}/test.jks</keystore>
+                                    <keystore>${project.build.testOutputDirectory}/test.jks</keystore>
                                     <password>qwerty</password>
                                     <keyPassword>qwerty</keyPassword>
                                 </connector>
