@@ -35,7 +35,6 @@ import ru.org.linux.util.StringUtil;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
-import java.util.Date;
 
 /**
  * Операции над комментариями
@@ -145,11 +144,10 @@ class CommentDaoImpl implements CommentDao {
    * @param reason  причина удаления
    * @param user    пользователь, удаляющий комментарий
    * @return true если комментарий был удалён, иначе false
-   * @throws SQLException
    */
-  private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) throws SQLException {
+  private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) {
     if (getReplaysCount(msgid) != 0) {
-      throw new SQLException("Нельзя удалить комментарий с ответами");
+      throw new IllegalStateException("Нельзя удалить комментарий с ответами");
     }
 
     boolean deleted = deleteComment(msgid, reason, user, 0);
@@ -270,25 +268,23 @@ class CommentDaoImpl implements CommentDao {
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
 
     // Удаляем все комментарии
-    jdbcTemplate.query("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          int msgid = resultSet.getInt("id");
-          deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
-          if (deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
-            deletedCommentIds.add(msgid);
-          }
-        }
-      },
-      user.getId()
+    List<Integer> commentIds = jdbcTemplate.queryForList("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
+            Integer.class,
+            user.getId()
     );
+
+    for (int msgid : commentIds) {
+      deletedCommentIds.addAll(doDeleteReplys(msgid, moderator, false));
+      if (deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
+        deletedCommentIds.add(msgid);
+      }
+    }
+
     return deletedCommentIds;
   }
 
   @Override
   public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
-
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
 
@@ -306,6 +302,7 @@ class CommentDaoImpl implements CommentDao {
         }
       },
       ip, timedelta);
+
     // Удаляем комментарии если на них нет ответа
     jdbcTemplate.query("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
       new RowCallbackHandler() {
