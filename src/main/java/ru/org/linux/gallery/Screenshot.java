@@ -18,8 +18,9 @@ package ru.org.linux.gallery;
 import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageCheck;
+import ru.org.linux.util.images.ImageCheck;
 import ru.org.linux.util.UtilException;
+import ru.org.linux.util.images.ImageUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class Screenshot {
       error = true;
     }
 
-    ImageCheck check = new ImageCheck(file);
+    ImageCheck check = ImageUtil.imageCheck(file);
 
     if (check.getHeight()< MIN_SCREENSHOT_SIZE || check.getHeight() > MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
@@ -118,8 +119,8 @@ public class Screenshot {
     boolean error = true;
 
     try {
-      ImageCheck.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
-      ImageCheck.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
       error = false;
     } finally {
       if (error) {

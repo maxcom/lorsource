@@ -16,6 +16,8 @@ package ru.org.linux.util;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import ru.org.linux.util.images.ImageCheck;
+import ru.org.linux.util.images.ImageUtil;
 
 import java.io.File;
 
@@ -25,14 +27,14 @@ public class ImageCheckTest {
 
   @Test
   public void gifTest() throws Exception {
-    ImageCheck typicalGif = new ImageCheck(new File("src/test/resources/images/typical-gif.gif"));
+    ImageCheck typicalGif = ImageUtil.imageCheck(new File("src/test/resources/images/typical-gif.gif"));
     Assert.assertFalse(typicalGif.isAnimated());
     Assert.assertEquals("gif", typicalGif.getFormatName());
     Assert.assertEquals(9, typicalGif.getHeight());
     Assert.assertEquals(9, typicalGif.getWidth());
 
 
-    ImageCheck failExtGif = new ImageCheck(new File("src/test/resources/images/failext-gif.png"));
+    ImageCheck failExtGif = ImageUtil.imageCheck(new File("src/test/resources/images/failext-gif.png"));
     Assert.assertFalse(failExtGif.isAnimated());
     Assert.assertEquals("gif", failExtGif.getFormatName());
     Assert.assertEquals(9, failExtGif.getHeight());
@@ -41,14 +43,14 @@ public class ImageCheckTest {
 
   @Test
   public void pngTest() throws Exception {
-    ImageCheck typical = new ImageCheck(new File("src/test/resources/images/typical-png.png"));
+    ImageCheck typical = ImageUtil.imageCheck(new File("src/test/resources/images/typical-png.png"));
     Assert.assertFalse(typical.isAnimated());
     Assert.assertEquals("png", typical.getFormatName());
     Assert.assertEquals(32, typical.getHeight());
     Assert.assertEquals(32, typical.getWidth());
 
 
-    ImageCheck failExt = new ImageCheck(new File("src/test/resources/images/failext-png.jpg"));
+    ImageCheck failExt = ImageUtil.imageCheck(new File("src/test/resources/images/failext-png.jpg"));
     Assert.assertFalse(failExt.isAnimated());
     Assert.assertEquals("png", failExt.getFormatName());
     Assert.assertEquals(32, failExt.getHeight());
@@ -57,14 +59,14 @@ public class ImageCheckTest {
 
   @Test
   public void jpgTest() throws Exception {
-    ImageCheck typical = new ImageCheck(new File("src/test/resources/images/typical-jpg.jpg"));
+    ImageCheck typical = ImageUtil.imageCheck(new File("src/test/resources/images/typical-jpg.jpg"));
     Assert.assertFalse(typical.isAnimated());
     Assert.assertEquals("JPEG", typical.getFormatName());
     Assert.assertEquals(400, typical.getHeight());
     Assert.assertEquals(240, typical.getWidth());
 
 
-    ImageCheck failExt = new ImageCheck(new File("src/test/resources/images/failext-jpg.png"));
+    ImageCheck failExt = ImageUtil.imageCheck(new File("src/test/resources/images/failext-jpg.png"));
     Assert.assertFalse(failExt.isAnimated());
     Assert.assertEquals("JPEG", failExt.getFormatName());
     Assert.assertEquals(400, failExt.getHeight());
@@ -75,7 +77,7 @@ public class ImageCheckTest {
   public void crapTest() throws Exception {
     boolean r = false;
     try {
-      ImageCheck crap = new ImageCheck(new File("src/test/resources/images/crap.png"));
+      ImageCheck crap = ImageUtil.imageCheck(new File("src/test/resources/images/crap.png"));
     } catch (Exception e) {
       r = true;
     }
@@ -85,9 +87,9 @@ public class ImageCheckTest {
 
   @Test
   public void animatedGifTest() throws Exception {
-    ImageCheck anima1 = new ImageCheck(new File("src/test/resources/images/animated-gif.gif"));
-    ImageCheck anima2 = new ImageCheck(new File("src/test/resources/images/animated-gif.png"));
-    ImageCheck anima3 = new ImageCheck(new File("src/test/resources/images/animated-gif.jpg"));
+    ImageCheck anima1 = ImageUtil.imageCheck(new File("src/test/resources/images/animated-gif.gif"));
+    ImageCheck anima2 = ImageUtil.imageCheck(new File("src/test/resources/images/animated-gif.png"));
+    ImageCheck anima3 = ImageUtil.imageCheck(new File("src/test/resources/images/animated-gif.jpg"));
     Assert.assertTrue(anima1.isAnimated());
     Assert.assertTrue(anima2.isAnimated());
     Assert.assertTrue(anima3.isAnimated());
@@ -95,9 +97,9 @@ public class ImageCheckTest {
 
   @Test
   public void animatedPngTest() throws Exception {
-    ImageCheck anima1 = new ImageCheck(new File("src/test/resources/images/animated-png.gif"));
-    ImageCheck anima2 = new ImageCheck(new File("src/test/resources/images/animated-png.png"));
-    ImageCheck anima3 = new ImageCheck(new File("src/test/resources/images/animated-png.jpg"));
+    ImageCheck anima1 = ImageUtil.imageCheck(new File("src/test/resources/images/animated-png.gif"));
+    ImageCheck anima2 = ImageUtil.imageCheck(new File("src/test/resources/images/animated-png.png"));
+    ImageCheck anima3 = ImageUtil.imageCheck(new File("src/test/resources/images/animated-png.jpg"));
     Assert.assertTrue(anima1.isAnimated());
     Assert.assertTrue(anima2.isAnimated());
     Assert.assertTrue(anima3.isAnimated());

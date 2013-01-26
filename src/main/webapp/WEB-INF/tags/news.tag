@@ -4,7 +4,9 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="ru.org.linux.util.ImageCheck" %>
+<%@ tag import="ru.org.linux.util.images.ImageCheck" %>
+<%@ tag import="ru.org.linux.util.images.ImageUtil" %>
+<%@ tag import="ru.org.linux.util.images.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
@@ -118,7 +120,7 @@
   <a href="${group.url}">
   <%
     try {
-      ImageCheck info = new ImageCheck(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + image);
+      ImageInfo info = ImageUtil.imageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + image);
       out.append("<img src=\"/").append(tmpl.getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
       out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");

@@ -29,7 +29,6 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageCheck;
 import ru.org.linux.util.images.ImageInfo;
 import ru.org.linux.util.images.ImageUtil;
 

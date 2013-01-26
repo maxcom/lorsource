@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageCheck;
+import ru.org.linux.util.images.ImageCheck;
+import ru.org.linux.util.images.ImageInfo;
+import ru.org.linux.util.images.ImageUtil;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Service
 public class UserService {
@@ -35,7 +35,7 @@ public class UserService {
       throw new UserErrorException("Сбой загрузки изображения: слишком большой файл");
     }
 
-    ImageCheck info = new ImageCheck(file);
+    ImageCheck info = ImageUtil.imageCheck(file);
 
     if (info.getHeight()<MIN_IMAGESIZE || info.getHeight() > MAX_IMAGESIZE) {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
@@ -86,7 +86,7 @@ public class UserService {
   public Userpic getUserpic(User user, boolean secure, String avatarStyle) {
     if (user.getPhoto() != null) {
       try {
-        ImageCheck info = new ImageCheck(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
+        ImageInfo info = ImageUtil.imageInfo(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
 
         return new Userpic(
             "/photos/" + user.getPhoto(),

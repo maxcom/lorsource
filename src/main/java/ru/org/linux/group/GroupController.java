@@ -38,8 +38,10 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageCheck;
+import ru.org.linux.util.images.ImageCheck;
 import ru.org.linux.util.ServletParameterBadValueException;
+import ru.org.linux.util.images.ImageInfo;
+import ru.org.linux.util.images.ImageUtil;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -138,7 +140,7 @@ public class GroupController {
           int messagesInPage
   ) {
     String q =
-            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
+            "SELECT topics.title AS subj, lastmod, userid, topics.id AS msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
             "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY msgid DESC";
 
     SqlRowSet rs = jdbcTemplate.queryForRowSet(q, group.getId());
@@ -169,7 +171,7 @@ public class GroupController {
 
    String delq = showDeleted ? "" : " AND NOT deleted ";
 
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
+    String q = "SELECT topics.title AS subj, lastmod, userid, topics.id AS msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
             "FROM topics WHERE NOT sticky AND topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
@@ -296,7 +298,7 @@ public class GroupController {
     if(group.getImage() != null) {
       try {
         params.put("groupImagePath", '/' + tmpl.getStyle() + group.getImage());
-        ImageCheck info = new ImageCheck(configuration.getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
+        ImageInfo info = ImageUtil.imageInfo(configuration.getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
         params.put("groupImageInfo", info);
       } catch (BadImageException ex) {
         params.put("groupImagePath", null);

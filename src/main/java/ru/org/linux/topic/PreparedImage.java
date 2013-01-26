@@ -16,18 +16,19 @@
 package ru.org.linux.topic;
 
 import ru.org.linux.gallery.Image;
-import ru.org.linux.util.ImageCheck;
+import ru.org.linux.util.images.ImageCheck;
+import ru.org.linux.util.images.ImageInfo;
 
 public class PreparedImage {
   private final String mediumName;
   private final String fullName;
 
-  private final ImageCheck mediumInfo;
-  private final ImageCheck fullInfo;
+  private final ImageInfo mediumInfo;
+  private final ImageInfo fullInfo;
 
   private final Image image;
 
-  public PreparedImage(String mediumName, ImageCheck mediumInfo, String fullName, ImageCheck fullInfo, Image image) {
+  public PreparedImage(String mediumName, ImageInfo mediumInfo, String fullName, ImageInfo fullInfo, Image image) {
     this.mediumName = mediumName;
     this.mediumInfo = mediumInfo;
     this.fullName = fullName;
@@ -39,7 +40,7 @@ public class PreparedImage {
     return mediumName;
   }
 
-  public ImageCheck getMediumInfo() {
+  public ImageInfo getMediumInfo() {
     return mediumInfo;
   }
 
@@ -47,7 +48,7 @@ public class PreparedImage {
     return fullName;
   }
 
-  public ImageCheck getFullInfo() {
+  public ImageInfo getFullInfo() {
     return fullInfo;
   }
 

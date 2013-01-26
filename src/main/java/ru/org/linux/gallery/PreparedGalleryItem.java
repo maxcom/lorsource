@@ -16,7 +16,6 @@
 package ru.org.linux.gallery;
 
 import ru.org.linux.user.User;
-import ru.org.linux.util.ImageCheck;
 import ru.org.linux.util.images.ImageInfo;
 
 public class PreparedGalleryItem {
