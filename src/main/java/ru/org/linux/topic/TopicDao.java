@@ -56,7 +56,9 @@ import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
+import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.UtilException;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
@@ -384,7 +386,7 @@ public class TopicDao {
           Screenshot scrn,
           Topic previewMsg,
           Set<User> userRefs
-  ) throws IOException, ScriptErrorException {
+  ) throws IOException, ScriptErrorException, BadImageException, UtilException {
     final int msgid = saveNewMessage(
             previewMsg,
             request,

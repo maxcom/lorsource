@@ -20,11 +20,15 @@ public class ImageInfo {
   private final int width;
   private final int height;
   private final String code;
+  private final long size;
+  private final String sizeString;
 
-  public ImageInfo(int width, int height) {
+  public ImageInfo(int width, int height, long size) {
     this.width = width;
     this.height = height;
     this.code = "width=\"" + width + "\" height=\"" + height + '"';
+    this.size = size;
+    this.sizeString = size / 1024 + " Kb";
   }
 
   public int getWidth() {
@@ -37,5 +41,13 @@ public class ImageInfo {
 
   public String getCode() {
     return code;
+  }
+
+  public long getSize() {
+    return size;
+  }
+
+  public String getSizeString() {
+    return sizeString;
   }
 }

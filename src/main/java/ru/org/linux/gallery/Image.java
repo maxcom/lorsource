@@ -3,7 +3,7 @@ package ru.org.linux.gallery;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Image {
+public class  Image {
   private static final Pattern GALLERY_NAME = Pattern.compile("(gallery/[^.]+)(\\.\\w+)");
 
   private final int id;

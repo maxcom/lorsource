@@ -1,7 +1,8 @@
 package ru.org.linux.util.images;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.imgscalr.Scalr;
-import org.springframework.cache.annotation.Cacheable;
 import org.w3c.dom.Node;
 import ru.org.linux.util.BadImageException;
 
@@ -18,28 +19,44 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  */
 public class ImageUtil {
 
-  public static String supportedFormat[] = {"JPEG", "gif", "png"};
+  private static final Log logger = LogFactory.getLog(ImageUtil.class);
 
-  @Cacheable("ImageInfo")
+  public static String supportedFormat[] = {"JPEG", "gif", "png"};
+  private static Pattern pattern = Pattern.compile("\\w+(?:-\\w+)?-w(\\d+)?-h(\\d+)");
+
   public static ImageInfo imageInfo(String filename) throws BadImageException, IOException {
-    ImageInputStream iis = ImageIO.createImageInputStream(new File(filename));
-    if(iis == null) {
-      throw new BadImageException("Invalid image");
+    return imageInfo(new File(filename));
+  }
+
+  public static ImageInfo imageInfo(File file) throws BadImageException, IOException {
+    Matcher matcher = pattern.matcher(file.getName());
+    if(matcher.find()) {
+      int width = Integer.parseInt(matcher.group(1));
+      int height = Integer.parseInt(matcher.group(2));
+      logger.debug("get info from filename " + file.getName() + ":" + width + "x" + height);
+      return new ImageInfo(width, height, file.length());
+    } else {
+      ImageInputStream iis = ImageIO.createImageInputStream(file);
+      if(iis == null) {
+        throw new BadImageException("Invalid image");
+      }
+      Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+      if(!iter.hasNext()) {
+        throw new BadImageException("Invalid image");
+      }
+      ImageReader reader = iter.next();
+      reader.setInput(iis, true, true);
+      ImageInfo imageInfo = new ImageInfo(reader.getWidth(0), reader.getHeight(0), file.length());
+      iis.close();
+      return imageInfo;
     }
-    Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-    if(!iter.hasNext()) {
-      throw new BadImageException("Invalid image");
-    }
-    ImageReader reader = iter.next();
-    reader.setInput(iis, true, true);
-    ImageInfo imageInfo = new ImageInfo(reader.getWidth(0), reader.getHeight(0));
-    iis.close();
-    return imageInfo;
   }
 
   public static ImageCheck imageCheck(String filename) throws BadImageException, IOException  {
@@ -89,11 +106,15 @@ public class ImageUtil {
     }
   }
 
-  public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
+  public static String resizeImage(String filename, String name, String path, String suffix, int size) throws IOException, BadImageException {
     BufferedImage source = ImageIO.read(new File(filename));
     BufferedImage destination = null;
     destination = Scalr.resize(source, size);
-    ImageIO.write(destination, "JPEG", new File(iconname));
+    int w = destination.getWidth();
+    int h = destination.getHeight();
+    File f = new File(path, name + "-w" + w + "-h" + h + suffix + ".jpg");
+    ImageIO.write(destination, "JPEG", f);
+    return f.getAbsolutePath();
   }
 
 }

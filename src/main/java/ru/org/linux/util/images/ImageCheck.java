@@ -14,30 +14,10 @@
  */
 package ru.org.linux.util.images;
 
-import org.imgscalr.Scalr;
-import org.w3c.dom.Node;
-import ru.org.linux.util.BadImageException;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.ImageInputStream;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  */
 public class ImageCheck {
-
-  public static String supportedFormat[] = {"JPEG", "gif", "png"};
-
   private final String formatName;
   private final boolean animated;
   private final int height;
