@@ -32,7 +32,8 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.images.ImageCheck;
+import ru.org.linux.util.images.ImageUtil;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -73,7 +74,7 @@ public class AddPhotoController {
       file.transferTo(uploadedFile);
 
       UserService.checkUserpic(uploadedFile);
-      String extension = ImageInfo.detectImageType(uploadedFile);
+      ImageCheck check = ImageUtil.imageCheck(uploadedFile);
 
       Random random = new Random();
 
@@ -81,7 +82,7 @@ public class AddPhotoController {
       File photofile;
 
       do {
-        photoname = Integer.toString(AuthUtil.getCurrentUser().getId()) + ':' + random.nextInt() + '.' + extension;
+        photoname = Integer.toString(AuthUtil.getCurrentUser().getId()) + ':' + random.nextInt() + '.' + check.getExtension();
         photofile = new File(configuration.getHTMLPathPrefix() + "/photos", photoname);
       } while (photofile.exists());
 
