@@ -85,7 +85,7 @@ public class AddPhotoWebTest {
     ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/ROOT.xml", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
-    assertEquals("Ошибка! Unsupported format: null", doc.select(".error").text()); // сообщение об ошипке
+    assertEquals("Ошибка! Unsupported format", doc.select(".error").text()); // сообщение об ошипке
 
   }
 
