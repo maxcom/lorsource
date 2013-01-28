@@ -65,8 +65,6 @@ public class Parser {
 
   private final ParserParameters parserParameters;
 
-  private final RuTypoChanger changer = new RuTypoChanger();
-
   /**
    * Конструктор по умолчанию.
    *
@@ -94,7 +92,7 @@ public class Parser {
   public RootNode parseRoot(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     ParserAutomatonState automatonState = new ParserAutomatonState(rootNode, parserParameters);
-    changer.reset();
+    RuTypoChanger changer = new RuTypoChanger();
 
     while (automatonState.getPos() < bbcode.length()) {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(automatonState.getPos(), bbcode.length());
@@ -208,7 +206,7 @@ public class Parser {
 
   private void rawPushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
     if (!automatonState.isCode()) {
-      text = changer.format(text);
+      text = automatonState.changer.format(text);
       currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, automatonState.getRootNode()));
     } else {
       currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, automatonState.getRootNode()));
@@ -391,6 +389,8 @@ public class Parser {
     private int pos = 0;
     private boolean isCode = false;
     private boolean firstCode = false;
+
+    public final RuTypoChanger changer = new RuTypoChanger();
 
     private String tagname;
     private String parameter;
