@@ -51,18 +51,6 @@ public class RuTypoChangerTest {
     Assert.assertEquals(expectedResult, actualResult);
   }
 
-  @Test
-  public void checkQuotesDecoratorWithReset() {
-    // given
-    typoChanger.reset();
-
-    // when
-    String actualResult = typoChanger.format(inputString);
-
-    // then
-    Assert.assertEquals(expectedResult, actualResult);
-  }
-
   @Parameterized.Parameters
   public static Collection<Object[]> data() {
     Object[][] data = new Object[][]{

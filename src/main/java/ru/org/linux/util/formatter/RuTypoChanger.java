@@ -38,11 +38,6 @@ public class RuTypoChanger {
   private int quoteDepth = 0;
   private String localBuff = "";
 
-  public void reset() {
-    this.quoteDepth = 0;
-    this.localBuff = "";
-  }
-
   private static boolean isQuoteChar(char ch) {
     return ch == QUOTE_SYMBOL ||
             ch == QUOTE_OUT_OPEN || ch == QUOTE_OUT_CLOSE ||
