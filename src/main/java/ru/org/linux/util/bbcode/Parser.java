@@ -92,7 +92,6 @@ public class Parser {
   public RootNode parseRoot(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     ParserAutomatonState automatonState = new ParserAutomatonState(rootNode, parserParameters);
-    RuTypoChanger changer = new RuTypoChanger();
 
     while (automatonState.getPos() < bbcode.length()) {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(automatonState.getPos(), bbcode.length());
