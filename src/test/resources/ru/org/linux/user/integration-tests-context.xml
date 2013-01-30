@@ -25,5 +25,19 @@
     <bean class="ru.org.linux.user.UserDao" id="userDao"/>
     <bean class="ru.org.linux.user.IgnoreListDao" id="ignoreListDao" />
 
+    <bean class="ru.org.linux.user.PasswordVerify" id="passwordVerify" />
+    <bean class="ru.org.linux.spring.Configuration" id="configuration" />
+
+    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
+          name="properties">
+        <property name="locations">
+            <list>
+                <value>config.properties.user.test</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="true"/>
+    </bean>
+
+
 </beans>
 

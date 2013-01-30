@@ -33,10 +33,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.UserDetailsImpl;
-import ru.org.linux.auth.UserDetailsServiceImpl;
+import ru.org.linux.auth.*;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -73,6 +70,9 @@ public class EditRegisterController {
 
   @Autowired
   private EmailService emailService;
+
+  @Autowired
+  private PasswordVerify passwordVerify;
 
 
   @RequestMapping(method = RequestMethod.GET)
@@ -231,7 +231,7 @@ public class EditRegisterController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new EditRegisterRequestValidator());
+    binder.setValidator(new EditRegisterRequestValidator(passwordVerify, AuthUtil.getNick()));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }

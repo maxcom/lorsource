@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import edu.vt.middleware.password.RuleResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.util.StringUtil;
@@ -26,7 +27,7 @@ import javax.mail.internet.InternetAddress;
 
 public class RegisterRequestValidator implements Validator {
   protected static final int TOWN_LENGTH = 100;
-  protected static final int MIN_PASSWORD_LEN = 4;
+  protected final PasswordVerify passwordVerify;
 
   protected static final ImmutableSet<String> BAD_DOMAINS = ImmutableSet.of(
           "asdasd.ru",
@@ -57,6 +58,10 @@ public class RegisterRequestValidator implements Validator {
     if (BAD_DOMAINS.contains(email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase())) {
       errors.reject("email", "некорректный email домен");
     }
+  }
+
+  public RegisterRequestValidator(PasswordVerify passwordVerify) {
+    this.passwordVerify = passwordVerify;
   }
 
   @Override
@@ -104,14 +109,13 @@ public class RegisterRequestValidator implements Validator {
       errors.reject(password, null, "пароль не может совпадать с логином");
     }
 
-    if (form.getPassword2() != null &&
-            form.getPassword() != null &&
-            !form.getPassword().equals(form.getPassword2())) {
-      errors.reject(null, "введенные пароли не совпадают");
-    }
-
-    if (!Strings.isNullOrEmpty(form.getPassword()) && form.getPassword().length()< MIN_PASSWORD_LEN) {
-      errors.reject("password", null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
+    if (password != null &&
+        password2 != null) {
+        if(!password.equals(password2)) {
+          errors.reject(null, "введенные пароли не совпадают");
+        } else {
+          checkPassword(password, errors);
+        }
     }
 
     /*
@@ -135,6 +139,15 @@ public class RegisterRequestValidator implements Validator {
 
     if(Strings.isNullOrEmpty(form.getRules()) || !"okay".equals(form.getRules())) {
       errors.reject("rules", null, "Вы не согласились с правилами");
+    }
+  }
+
+  protected void checkPassword(String password, Errors errors) {
+    RuleResult result = passwordVerify.validate(password);
+    if(!result.isValid()) {
+      for(String msg : passwordVerify.getMessages(result)) {
+        errors.reject("password", null, msg);
+      }
     }
   }
 }

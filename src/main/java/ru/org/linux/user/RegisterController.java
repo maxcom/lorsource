@@ -72,6 +72,9 @@ public class RegisterController {
   private Configuration configuration;
 
   @Autowired
+  private PasswordVerify passwordVerify;
+
+  @Autowired
   public void setCaptcha(CaptchaService captcha) {
     this.captcha = captcha;
   }
@@ -209,7 +212,7 @@ public class RegisterController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new RegisterRequestValidator());
+    binder.setValidator(new RegisterRequestValidator(passwordVerify));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }
