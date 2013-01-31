@@ -294,10 +294,9 @@ public class ImageInfo{
     return "width=" + width + " height=" + height;
   }
 
-  public static void resizeImage(String filename, String iconname, int size) throws IOException, UtilException, InterruptedException {
+  public static void resizeImage(String filename, String iconname, int size) throws IOException {
     BufferedImage source = ImageIO.read(new File(filename));
-    BufferedImage destination = null;
-    destination = Scalr.resize(source, size);
+    BufferedImage destination = Scalr.resize(source, size);
     ImageIO.write(destination, "JPEG", new File(iconname));
   }
 }

@@ -15,9 +15,9 @@ import java.io.IOException;
 
 @Service
 public class UserService {
-  private final static Logger logger = LoggerFactory.getLogger(UserService.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-  public static final int MAX_USERPIC_FILESIZE = 32000;
+  public static final int MAX_USERPIC_FILESIZE = 35000;
   public static final int MIN_IMAGESIZE = 50;
   public static final int MAX_IMAGESIZE = 150;
 
