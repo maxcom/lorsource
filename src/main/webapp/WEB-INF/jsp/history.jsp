@@ -61,7 +61,9 @@
           <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? "#" : editHistory.url}">${editHistory.linktext==null ? "(текст ссылки не изменен)" : editHistory.linktext}</a>
         </c:if>
         <c:if test="${editHistory.tags != null}">
-          <l:tags list="${editHistory.tags}"/>
+          <p class="tags"><i class="icon-tag"></i>&nbsp;
+            <l:tags list="${editHistory.tags}"/>
+          </p>
         </c:if>
         <c:if test="${editHistory.minor != null}">
             <em>Мини-новость: ${editHistory.minor}</em>

@@ -56,10 +56,7 @@ public class TagsTag extends TagSupport {
             buf.append(StringUtil.escapeHtml(el));
           }
         }
-        out
-            .append("<p class=\"tags\"><i class=\"icon-tag\"></i>&nbsp;")
-            .append(buf)
-            .append("</p>");
+        out.append(buf);
       } catch (IOException e) {
         throw new JspException("Error:" + e.getMessage());
       }

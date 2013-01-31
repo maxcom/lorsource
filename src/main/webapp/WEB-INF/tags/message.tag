@@ -74,9 +74,18 @@
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
     </h1>
 
-    <c:if test="${not empty preparedMessage.tags}">
-      <l:tags list="${preparedMessage.tags}"/>
-    </c:if>
+    <div>
+      <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
+      ${preparedMessage.section.title} - ${preparedMessage.group.title}
+      <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+        (не подтверждено)
+      </c:if>
+
+        <c:if test="${not empty preparedMessage.tags}">
+          (<l:tags list="${preparedMessage.tags}"/>)
+        </c:if>
+      </span>
+    </div>
   </header>
 
   <div class="msg-container">

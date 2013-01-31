@@ -169,7 +169,7 @@
 %>
   </div>
 <c:if test="${not empty preparedMessage.tags}">
-  <l:tags list="${preparedMessage.tags}"/>
+  <p class="tags"><i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/></p>
 </c:if>
 
   <div class=sign>

@@ -74,16 +74,6 @@
 
 <div class=messages itemscope itemtype="http://schema.org/Article">
 
-<div class=nav>
-  <div id="navPath" itemprop="articleSection">
-    <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
-    <a href="${group.url}">${group.title}</a>
-    <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-      (не подтверждено)
-    </c:if>
-  </div>
-</div>
-
 <c:set var="scroller"><c:if test="${topScroller}">
   <div class="nav grid-row">
     <div class="grid-3-1">
