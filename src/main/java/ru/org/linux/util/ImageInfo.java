@@ -17,7 +17,10 @@ package ru.org.linux.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.imgscalr.Scalr;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -254,21 +257,9 @@ public class ImageInfo{
     return "width=" + width + " height=" + height;
   }
 
-  public static void resizeImage(String filename, String iconname, int size) throws IOException, UtilException, InterruptedException {
-    String[] cmd = {
-      "/usr/bin/convert",
-      "-scale",
-      Integer.toString(size),
-      filename,
-      iconname };
-
-    Process proc = Runtime.getRuntime().exec(cmd);
-
-    int exitStatus = proc.waitFor();
-
-    if (exitStatus!=0) {
-      logger.warn("Failed to convert from "+filename+" to "+iconname);
-      throw new UtilException("Can't convert image: convert failed");
-    }
+  public static void resizeImage(String filename, String iconname, int size) throws IOException {
+    BufferedImage source = ImageIO.read(new File(filename));
+    BufferedImage destination = Scalr.resize(source, size);
+    ImageIO.write(destination, "JPEG", new File(iconname));
   }
 }
