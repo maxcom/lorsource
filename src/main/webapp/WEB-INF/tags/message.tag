@@ -76,7 +76,8 @@
 
     <div>
       <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
-      ${preparedMessage.section.title} - ${preparedMessage.group.title}
+      ${preparedMessage.section.title} -
+      <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
       <c:if test="${preparedMessage.section.premoderated and not message.commited}">
         (не подтверждено)
       </c:if>
