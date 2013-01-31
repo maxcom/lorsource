@@ -34,8 +34,6 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -55,13 +53,13 @@ public class AddPhotoController {
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView showForm(ServletRequest request) throws Exception {
+  public ModelAndView showForm() {
     return new ModelAndView("addphoto");
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
@@ -94,7 +92,7 @@ public class AddPhotoController {
 
       logger.info("Установлена фотография пользователем " + AuthUtil.getCurrentUser().getNick());
 
-      return new ModelAndView(new RedirectView(UriComponentsBuilder.fromUri(PROFILE_NOCACHE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick())).queryParam("nocache", Integer.toString(random.nextInt()) + "=").build().encode().toString()));
+      return new ModelAndView(new RedirectView(UriComponentsBuilder.fromUri(PROFILE_NOCACHE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick())).queryParam("nocache", Integer.toString(random.nextInt()) + '=').build().encode().toString()));
     } catch (IOException ex){
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return new ModelAndView("addphoto", "error", ex.getMessage());
