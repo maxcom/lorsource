@@ -18,12 +18,21 @@ package ru.org.linux.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imgscalr.Scalr;
+import org.w3c.dom.Node;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Gets image dimensions by parsing file headers.
@@ -53,35 +62,63 @@ public class ImageInfo{
   }
 
   public static String detectImageType(File file) throws BadImageException, IOException {
-    logger.debug("Detecting image type for: " + file+ " ("+file.length()+" bytes)");
+    ImageInputStream iis = ImageIO.createImageInputStream(file);
+    if(iis == null) {
+      throw new BadImageException("Unsupported format");
+    }
+    Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+    if(!iter.hasNext()) {
+      iis.close();
+      throw new BadImageException("Unsupported format");
+    }
+    ImageReader reader = iter.next();
+    reader.setInput(iis, true, true);
+    String formatName = reader.getFormatName();
+    iis.close();
+    if("gif".equals(formatName)) {
+      return "gif";
+    }
+    if("png".equals(formatName)) {
+      return "png";
+    }
+    if("JPEG".equals(formatName)) {
+      return "jpg";
+    }
+    throw new BadImageException("Unsupported format");
+  }
 
-    ImageInfo2 ii = new ImageInfo2();
+  public static boolean detectImageAnimation(File file) throws IOException {
+    ImageInputStream iis = ImageIO.createImageInputStream(file);
+    if(iis == null) {
+      throw new IOException("Unsupported format");
+    }
+    Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+    if(!iter.hasNext()) {
+      iis.close();
+      throw new IOException("Unsupported format");
+    }
+    ImageReader reader = iter.next();
+    reader.setInput(iis);
+    return hasAnimatedPng(reader) || reader.getNumImages(true) > 1;
+  }
 
-    FileInputStream is = null;
-
+  private static boolean hasAnimatedPng(ImageReader reader) throws IOException {
     try {
-      is = new FileInputStream(file);
-
-      ii.setInput(is);
-
-      ii.check();
-      
-      int format = ii.getFormat();
-
-      switch (format) {
-        case ImageInfo2.FORMAT_GIF:
-          return "gif";
-        case ImageInfo2.FORMAT_JPEG:
-          return "jpg";
-        case ImageInfo2.FORMAT_PNG:
-          return "png";
-        default:
-          throw new BadImageException("Unsupported format: " + ii.getMimeType());
+      if(! "png".equals(reader.getFormatName())) {
+        return false;
       }
-    } finally {
-      if (is != null) {
-        is.close();
+      IIOMetadata metadata = reader.getImageMetadata(0);
+      XPath xPath = XPathFactory.newInstance().newXPath();
+
+      for(String name : metadata.getMetadataFormatNames()) {
+        Node root = metadata.getAsTree(name);
+        if((Boolean)xPath.evaluate("//UnknownChunk[@type='acTL'] | //UnknownChunk[@type='fcTL']", root, XPathConstants.BOOLEAN)) {
+          return true;
+        }
       }
+      return false;
+    } catch (XPathExpressionException e) {
+      throw new IOException(e.getMessage());
     }
   }
 

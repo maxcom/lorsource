@@ -8,13 +8,10 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.ImageInfo2;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Service
 public class UserService {
@@ -48,23 +45,8 @@ public class UserService {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
     }
 
-    ImageInfo2 ii = new ImageInfo2();
-    InputStream is = null;
-    try {
-      is = new FileInputStream(file);
-
-      ii.setInput(is);
-      ii.setDetermineImageNumber(true);
-
-      ii.check();
-
-      if (ii.getNumberOfImages()>1) {
-        throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
-      }
-    } finally {
-      if (is!=null) {
-        is.close();
-      }
+    if (ImageInfo.detectImageAnimation(file)) {
+      throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
     }
   }
 
@@ -112,9 +94,9 @@ public class UserService {
             info.getHeight()
         );
       } catch (BadImageException e) {
-        logger.warn("Bad userpic for {}", user.getNick(), e);
+        logger.warn("Bad userpic for {}", user.getNick());
       } catch (IOException e) {
-        logger.warn("Bad userpic for {}", user.getNick(), e);
+        logger.warn("Bad userpic for {}", user.getNick());
       }
     }
 
