@@ -224,6 +224,7 @@
                 <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a></li>
             </c:if>
         </c:if>
+            <li><a href="${message.link}">Ссылка</a></li>
           </ul>
         <c:if test="${template.sessionAuthorized and not message.expired}">
           <br>${preparedMessage.postscoreInfo}
