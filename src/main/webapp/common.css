@@ -227,6 +227,10 @@ div[itemprop="articleBody"] {
     margin-top: 0;
 }
 
+.msg footer .userpic {
+    width: 100px;
+}
+
 .msg footer .userpic img {
     max-width: 100px;
     max-height: 100px;
