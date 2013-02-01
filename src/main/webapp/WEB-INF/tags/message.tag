@@ -68,7 +68,6 @@
   </div>
 </c:if>
 
-<c:set var="showPhotos" value="${messageMenu!=null && messageMenu.userpic!=null}"/>
   <header>
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
@@ -133,7 +132,9 @@
     </c:if>
 <footer>
 
-<l:userpic userpic="${messageMenu.userpic}"/>
+<c:if test="${messageMenu!=null && messageMenu.userpic!=null}">
+  <l:userpic userpic="${messageMenu.userpic}"/>
+</c:if>
 
 <div class=sign>
   <lor:sign
