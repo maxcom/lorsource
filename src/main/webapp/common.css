@@ -163,12 +163,35 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   word-wrap: break-word;
-  padding: 0.25em 0.5em 1em 0.5em;
+  padding: 0.25em 1em 1em 1em;
+}
+
+.msg_header, .msg_footer {
+  padding-left: 0.5em;
 }
 
 .msg_body, .msg_header, .msg_footer {
-  padding-left: 0.5em;
   padding-right: 0.5em;
+}
+
+div[itemprop="articleBody"] {
+    margin-right: 4em;
+    padding-bottom: .5em;
+}
+
+div[itemprop="articleBody"] {
+    *zoom: 1; /* for IE7; part of clearfix */
+}
+
+/* clearfix */
+div[itemprop="articleBody"]:before,
+div[itemprop="articleBody"]:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+div[itemprop="articleBody"]:after {
+    clear: both;
 }
 
 .msg-container {
@@ -186,8 +209,47 @@ DIV.sign {
     clear: both;
 }
 
+.msg .tags-section-info {
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    padding-top: 0.5em;
+    padding-bottom: .5em;
+}
+
 .msg header {
     margin-bottom: 0.7em;
+}
+
+.msg footer {
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    padding-top: .5em;
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+    *zoom: 1;  /* for IE7; part of clearfix */
+}
+/* clearfix */
+.msg footer:before,
+.msg footer:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+.msg footer:after {
+    clear: both;
+}
+
+.msg footer .sign {
+    margin-left: 115px;
+    margin-top: 0;
+}
+
+.msg footer .userpic {
+    width: 100px;
+}
+
+.msg footer .userpic img {
+    max-width: 100%;
+    height: auto;
 }
 
 .messages .msg:target {
@@ -540,6 +602,3 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     margin-right: 0;
 }
 
-div[itemprop="articleBody"] {
-    margin-right: 4em;
-}

@@ -73,35 +73,30 @@
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
     </h1>
-
-    <div>
-      <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
-      ${preparedMessage.section.title} -
-      <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
-      <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-        (не подтверждено)
-      </c:if>
-
-        <c:if test="${not empty preparedMessage.tags}">
-          (<l:tags list="${preparedMessage.tags}"/>)
-        </c:if>
-      </span>
-    </div>
   </header>
 
-  <div class="msg-container">
-
-  <c:if test="${showPhotos}">
-    <l:userpic userpic="${messageMenu.userpic}"/>
-    <c:set var="msgBodyStyle" value="message-w-userpic"/>
+<div class="tags-section-info">
+  <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
+  ${preparedMessage.section.title} -
+  <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
+  <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+    (не подтверждено)
   </c:if>
+
+    <c:if test="${not empty preparedMessage.tags}">
+      &emsp;<i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/>
+    </c:if>
+  </span>
+</div>
+
+  <div class="msg-container">
 
   <div class="fav-buttons">
     <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
     <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
   </div>
 
-  <div class="msg_body ${msgBodyStyle}">
+  <div class="msg_body">
   <c:if test="${preparedMessage.image != null}">
     <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
@@ -137,6 +132,9 @@
       </p>
     </c:if>
 <footer>
+
+<l:userpic userpic="${messageMenu.userpic}"/>
+
 <div class=sign>
   <lor:sign
           postdate="${message.postdate}"
@@ -183,6 +181,8 @@
     </c:if>
    </span>
 </div>
+</footer>
+
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
@@ -229,7 +229,7 @@
         </c:if>
         </div>
       </c:if>
-</footer>
+
   </div>
 </div>
 </article>
