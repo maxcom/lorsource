@@ -445,6 +445,10 @@ table.poll td {
     line-height: 1.2;
 }
 
+.msg h1 a {
+    text-decoration: none;
+}
+
 .sign_more {
     font-size: smaller;
 }
