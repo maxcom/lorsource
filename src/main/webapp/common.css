@@ -228,11 +228,14 @@ div[itemprop="articleBody"] {
 
 .msg footer .userpic {
     width: 100px;
+    height: 100px;
 }
 
 .msg footer .userpic img {
     max-width: 100%;
+    max-height: 100%;
     height: auto;
+    width: auto;
 }
 
 .messages .msg:target {
