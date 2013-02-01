@@ -210,8 +210,8 @@ div[itemprop="articleBody"]:after {
 }
 
 .msg .tags-section-info {
-    border-top: 1px solid gray;
-    border-bottom: 1px solid gray;
+    border-top: 1px dashed gray;
+    border-bottom: 1px dashed gray;
     padding-top: 0.5em;
     padding-bottom: .5em;
 }
@@ -221,8 +221,8 @@ div[itemprop="articleBody"]:after {
 }
 
 .msg footer {
-    border-top: 1px solid gray;
-    border-bottom: 1px solid gray;
+    border-top: 1px dashed gray;
+    border-bottom: 1px dashed gray;
     padding-top: .5em;
     padding-bottom: 0.5em;
     margin-bottom: 1em;
