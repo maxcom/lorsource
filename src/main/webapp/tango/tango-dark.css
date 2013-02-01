@@ -49,6 +49,10 @@ a {
 	color: #fcaf3e;
 }
 
+#bd .tags-section-info a:visited {
+    color: #729fcf;
+}
+
 #bd a.tag {
 	color: #fcaf3e;
 }
