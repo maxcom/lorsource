@@ -379,12 +379,6 @@ public class LorURITest {
   }
   
   @Test
-  public void testUrlEncode() throws Exception {
-    assertEquals(User.EMPTY_GRAVATAR_SECURE_URL,  URLEncoder.encode("https://www.linux.org.ru/img/p.gif", "UTF-8"));
-    assertEquals(User.EMPTY_GRAVATAR_URL,  URLEncoder.encode("http://www.linux.org.ru/img/p.gif", "UTF-8"));
-  }
-
-  @Test
   public void testBadId() throws Exception {
     LorURL uri = new LorURL(mainLORURI, "http://www.linux.org.ru/forum/talks/12345678910");
 
