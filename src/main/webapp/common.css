@@ -179,21 +179,6 @@ div[itemprop="articleBody"] {
     padding-bottom: .5em;
 }
 
-div[itemprop="articleBody"] {
-    *zoom: 1; /* for IE7; part of clearfix */
-}
-
-/* clearfix */
-div[itemprop="articleBody"]:before,
-div[itemprop="articleBody"]:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
-
-div[itemprop="articleBody"]:after {
-    clear: both;
-}
-
 .msg-container {
   margin-top: 0.5em;
   *zoom: 1;  /* for IE7; part of clearfix */
@@ -221,8 +206,6 @@ div[itemprop="articleBody"]:after {
 }
 
 .msg footer {
-    border-top: 1px dashed gray;
-    border-bottom: 1px dashed gray;
     padding-top: .5em;
     padding-bottom: 0.5em;
     margin-bottom: 1em;
