@@ -190,17 +190,17 @@
           <div class="social-buttons">
             <a target="_blank" style="text-decoration: none"
                href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+ ' '+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-              <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
+              <img src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
             </a>
 
             <a target="_blank" style="text-decoration: none"
                href="https://twitter.com/intent/tweet?text=<%= URLEncoder.encode(message.getTitle()) %>&amp;url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>&amp;hashtags=<%= URLEncoder.encode("лор") %>">
-              <img border="0" src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
+              <img src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
             </a>
 
             <a target="_blank" style="text-decoration: none"
                href="https://plus.google.com/share?url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-              <img border="0" src="/img/google-plus-icon.png" width=16 height=16 alt="Share on Google Plus" title="Share on Google Plus">
+              <img src="/img/google-plus-icon.png" width=16 height=16 alt="Share on Google Plus" title="Share on Google Plus">
             </a>
           </div>
           </c:if>
