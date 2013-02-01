@@ -210,7 +210,6 @@ div[itemprop="articleBody"] {
 .msg footer {
     padding-top: .5em;
     padding-bottom: 0.5em;
-    margin-bottom: 1em;
     *zoom: 1;  /* for IE7; part of clearfix */
 }
 /* clearfix */
@@ -228,14 +227,9 @@ div[itemprop="articleBody"] {
     margin-top: 0;
 }
 
-.msg footer .userpic {
-    width: 100px;
-    height: 100px;
-}
-
 .msg footer .userpic img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 100px;
+    max-height: 100px;
     height: auto;
     width: auto;
 }
