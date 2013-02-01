@@ -597,3 +597,4 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     margin-right: 0;
 }
 
+a img { border: none; }
