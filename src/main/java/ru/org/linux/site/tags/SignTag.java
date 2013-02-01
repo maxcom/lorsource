@@ -78,7 +78,7 @@ public class SignTag extends TagSupport {
 
   public static class DateFormatHandler {
     public String apply(Date input) {
-      return DateFormats.getDefault().print(input.getTime());
+      return DateFormats.getShort().print(input.getTime());
     }
 
     public String iso(Date input) {
