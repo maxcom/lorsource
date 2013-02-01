@@ -176,7 +176,8 @@ DIV.sign {
 
 div[itemprop="articleBody"] {
     margin-right: 4em;
-    padding-bottom: .5em;
+    margin-bottom: .5em;
+    margin-top: .5em;
 }
 
 .msg-container {
