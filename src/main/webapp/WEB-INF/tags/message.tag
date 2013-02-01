@@ -100,36 +100,36 @@
     <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
 
-  <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
-    ${preparedMessage.processedMessage}
-  </div>
+    <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
+      ${preparedMessage.processedMessage}
 
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
-  </c:if>
-
-    <c:if test="${preparedMessage.section.pollPostAllowed}">
-      <c:choose>
+      <c:if test="${preparedMessage.section.pollPostAllowed}">
+        <c:choose>
           <c:when test="${not message.commited}">
-              <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
+            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
-              <lor:poll poll="${preparedMessage.poll}"/>
+            <lor:poll poll="${preparedMessage.poll}"/>
 
-              <c:if test="${preparedMessage.poll.poll.current}">
-                <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
-              </c:if>
+            <c:if test="${preparedMessage.poll.poll.current}">
+              <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+            </c:if>
           </c:otherwise>
-      </c:choose>
-    </c:if>
+        </c:choose>
+      </c:if>
 
-    <c:if test="${message.haveLink and not empty message.url}">
-      <p <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
-    <%
-    out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
-%>
-      </p>
-    </c:if>
+      <c:if test="${message.haveLink and not empty message.url}">
+        <p>
+          <%
+            out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
+          %>
+        </p>
+      </c:if>
+
+        <c:if test="${preparedMessage.image != null}">
+          <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+        </c:if>
+    </div>
 <footer>
 
 <c:if test="${messageMenu!=null && messageMenu.userpic!=null}">
