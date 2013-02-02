@@ -110,7 +110,7 @@
     }
 
     img.photo {
-        max-width: 100%;
+        max-width: 100% !important;
         height: auto;
     }
 
@@ -120,11 +120,15 @@
     }
 
     .userpic {
-        width: 50px;
+        width: 50px !important;
     }
 
     .message-w-userpic {
         padding-left: 60px;
+    }
+
+    .msg footer .sign {
+        margin-left: 60px;
     }
 
     #navPath {
