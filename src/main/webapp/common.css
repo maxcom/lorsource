@@ -227,6 +227,11 @@ div[itemprop="articleBody"] {
     margin-top: 0;
 }
 
+.msg footer .reply {
+    margin-left: 115px;
+    margin-top: 0;
+}
+
 .msg footer .userpic {
     width: 100px;
 }
