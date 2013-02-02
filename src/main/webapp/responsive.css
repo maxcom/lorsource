@@ -152,4 +152,8 @@
     div[itemprop="articleBody"] {
         margin-right: 0;
     }
+
+    .msg .tags-section-info .tags {
+        display: block;
+    }
 }

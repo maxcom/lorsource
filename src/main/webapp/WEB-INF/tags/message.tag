@@ -83,7 +83,7 @@
   </c:if>
 
     <c:if test="${not empty preparedMessage.tags}">
-      &emsp;<i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/>
+      &emsp;<span class=tags><i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/></span>
     </c:if>
   </span>
 </div>
