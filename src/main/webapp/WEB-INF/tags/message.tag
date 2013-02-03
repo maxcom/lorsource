@@ -33,25 +33,6 @@
 <article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
-    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
-    <c:if test="${not message.deleted}">
-      <c:if test="${template.moderatorSession}">
-        <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-          [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
-        </c:if>
-        
-        [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
-        [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]
-
-        <c:if test="${preparedMessage.section.premoderated}">
-          [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
-        </c:if>
-
-        <c:if test="${message.commited and not message.expired}">
-          [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
-        </c:if>
-      </c:if>
-    </c:if>
     <c:if test="${message.deleted}">
         <c:if test="${preparedMessage.deleteInfo == null}">
             <strong>Сообщение удалено</strong>
@@ -69,24 +50,51 @@
 </c:if>
 
   <header>
+    <div class="msg-top-header">
+    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"></c:if>
+
+    <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
+      <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
+      <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
+      <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+        (не подтверждено)
+      </c:if>
+    </span>
+      <c:if test="${template.moderatorSession and not message.deleted}">
+        &emsp;
+        <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+          [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
+        </c:if>
+
+        [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
+        <c:if test="${preparedMessage.section.premoderated}">
+          [<a href="mt.jsp?msgid=${message.id}">В форум</a>]
+        </c:if>
+        <c:if test="${not preparedMessage.section.premoderated}">
+          [<a href="mt.jsp?msgid=${message.id}">Группа</a>]
+        </c:if>
+
+        <c:if test="${preparedMessage.section.premoderated}">
+          [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
+        </c:if>
+
+        <c:if test="${message.commited and not message.expired}">
+          [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
+        </c:if>
+      </c:if>
+    </span>
+    </div>
+
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
     </h1>
-  </header>
-
-<div class="tags-section-info">
-  <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
-  <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
-  <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
-  <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-    (не подтверждено)
-  </c:if>
 
     <c:if test="${not empty preparedMessage.tags}">
-      &emsp;<span class=tags><i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/></span>
+      <div class=tags>
+        <i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/>
+      </div>
     </c:if>
-  </span>
-</div>
+  </header>
 
   <div class="msg-container">
 

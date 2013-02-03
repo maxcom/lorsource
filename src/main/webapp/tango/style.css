@@ -31,7 +31,7 @@ h1,h2 {
     margin-bottom: 0.5em;
 }
 
-#bd .messages h1, .messages h2 {
+#bd .messages h2 {
     margin-top: 0;
     margin-bottom: 0;
 }

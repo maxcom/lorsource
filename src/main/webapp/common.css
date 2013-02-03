@@ -180,6 +180,11 @@ div[itemprop="articleBody"] {
     margin-top: .5em;
 }
 
+.msg header h1 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
 .msg-container {
   margin-top: 0.5em;
   *zoom: 1;  /* for IE7; part of clearfix */
@@ -193,13 +198,6 @@ div[itemprop="articleBody"] {
 }
 .msg-container:after {
     clear: both;
-}
-
-.msg .tags-section-info {
-    border-top: 1px dashed gray;
-    border-bottom: 1px dashed gray;
-    padding-top: 0.5em;
-    padding-bottom: .5em;
 }
 
 .msg header {
