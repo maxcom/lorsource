@@ -18,6 +18,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="bonus" type="java.lang.Boolean"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
+<%--@elvariable id="author" type="ru.org.linux.user.User"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -37,7 +38,7 @@ function change(dest,source)
 его помещения.
 <form method=POST action="delete.jsp">
 <lor:csrf/>
-<table>
+<table style="border-spacing: .5em; border-collapse: separate">
 <tr>
 <td>Причина удаления
 <td>
@@ -71,8 +72,11 @@ function change(dest,source)
 </tr>
   <c:if test="${template.moderatorSession and bonus}">
   <tr>
-    <td>Штраф score (от 0 до 20)</td>
-    <td><input type=number name=bonus size=40 value="7" min="0" max="20"></td>
+    <td align=right>
+      Штраф<br>
+      score автора: ${author.score}
+    </td>
+    <td valign=top><input type=number name=bonus size=40 value="7" min="0" max="20"> (от 0 до 20)</td>
   </tr>
 </c:if>
 
