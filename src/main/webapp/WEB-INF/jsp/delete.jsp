@@ -72,12 +72,12 @@ function change(dest,source)
   <c:if test="${template.moderatorSession and bonus}">
   <tr>
     <td>Штраф score (от 0 до 20)</td>
-    <td><input type=text name=bonus size=40 value="7"></td>
+    <td><input type=number name=bonus size=40 value="7" min="0" max="20"></td>
   </tr>
 </c:if>
 
 </table>
 <input type=hidden name=msgid value="${msgid}">
-<input type=submit value="Удалить">
+<button type=submit>Удалить</button>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
