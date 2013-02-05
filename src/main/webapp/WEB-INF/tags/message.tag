@@ -145,29 +145,24 @@
 </c:if>
 
 <div class=sign>
-  <lor:sign
-          postdate="${message.postdate}"
-          user="${preparedMessage.author}"
-          shortMode="false"
-          timeprop="dateCreated"
-          author="true"
-  />
+  <lor:user rel="author" itemprop="creator" link="true" user="${preparedMessage.author}"/>
+
+  <c:if test="${not preparedMessage.author.anonymous}">
+    <c:out value=" "/>${preparedMessage.author.stars}
+  </c:if>
 
   <c:if test="${preparedMessage.remark != null}">
     <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
   </c:if>
  
-  <c:if test="${template.moderatorSession}">
+  <c:if test="${template.moderatorSession and not empty message.postIP}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
 
+  <br>
+  <lor:date date="${message.postdate}" itemprop="dateCreated"/>
+
   <span class="sign_more">
-  <c:if test="${template.moderatorSession}">
-    <c:if test="${messageMenu.userAgent!=null}">
-      <br>
-      <c:out value="${messageMenu.userAgent}" escapeXml="true"/>
-    </c:if>
-  </c:if>
   <c:if test="${preparedMessage.section.premoderated and message.commited}">
     <c:if test="${preparedMessage.commiter != preparedMessage.author}">
       <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>

@@ -36,9 +36,6 @@ public class TopicMenu {
   @Nullable
   private final Userpic userpic;
 
-  @Nullable
-  private final String userAgent;
-
   public TopicMenu(
           boolean topicEditable,
           boolean tagsEditable,
@@ -49,8 +46,7 @@ public class TopicMenu {
           int favsCount,
           boolean commentsAllowed,
           boolean deletable,
-          @Nullable Userpic userpic,
-          @Nullable String userAgent) {
+          @Nullable Userpic userpic) {
     this.topicEditable = topicEditable;
     this.tagsEditable = tagsEditable;
     this.resolvable = resolvable;
@@ -61,7 +57,6 @@ public class TopicMenu {
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
     this.userpic = userpic;
-    this.userAgent = userAgent;
   }
 
   public boolean isEditable() {
@@ -107,10 +102,5 @@ public class TopicMenu {
   @Nullable
   public Userpic getUserpic() {
     return userpic;
-  }
-
-  @Nullable
-  public String getUserAgent() {
-    return userAgent;
   }
 }

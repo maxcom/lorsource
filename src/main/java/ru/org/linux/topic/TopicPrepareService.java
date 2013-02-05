@@ -44,7 +44,6 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -86,9 +85,6 @@ public class TopicPrepareService {
 
   @Autowired
   private Configuration configuration;
-
-  @Autowired
-  private UserAgentDao userAgentDao;
 
   @Autowired
   private MemoriesDao memoriesDao;
@@ -445,14 +441,6 @@ public class TopicPrepareService {
       );
     }
 
-    String userAgent;
-
-    if (currentUser!=null && currentUser.isModerator()) {
-      userAgent = userAgentDao.getUserAgentById(message.getMessage().getUserAgent());
-    } else {
-      userAgent = null;
-    }
-
     return new TopicMenu(
             topicEditable,
             tagsEditable,
@@ -463,8 +451,7 @@ public class TopicPrepareService {
             topicStats.get(1),
             topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser),
             deletable,
-            userpic,
-            userAgent
+            userpic
     );
   }
 }
