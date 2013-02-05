@@ -18,5 +18,5 @@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         attribute name="itemprop" type="java.lang.String" required="false" %><%--
 --%><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
-  out.print(DateFormats.getShort().print(date.getTime()));
+  out.print(DateFormats.getDefault().print(date.getTime()));
 %></time>
