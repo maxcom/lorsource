@@ -141,10 +141,10 @@
         </c:if>
       </c:forEach>
     </select></label><br>
-    <label>Бонус автору (<lor:user user="${preparedMessage.author}"/>) (от 0 до 20): <form:input path="bonus" size="5" cssClass="number" type="number"/></label><br>
+    <label>Бонус автору (<lor:user user="${preparedMessage.author}"/>): <form:input path="bonus" size="5" cssClass="number" type="number" min="0" max="20"/> (от 0 до 20; текущий score=${preparedMessage.author.score})</label><br>
 
     <c:forEach items="${editors}" var="editor">
-      <label>Бонус корректору (<lor:user user="${editor}"/>) (от 0 до 5): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number"/></label><br>
+      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label><br>
     </c:forEach>
 
     <input type=submit name=commit value="Подтвердить">
