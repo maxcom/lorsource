@@ -19,7 +19,7 @@
 <table border="0" bgcolor="#000000">
 <tr><td nowrap="nowrap" valign="top" align="left" height="32">
 <a href="http://www.google.com/">
-<img src="http://www.google.com/logos/Logo_25blk.gif" border="0" alt="Google" align="middle"></img></a>
+<img src="http://www.google.com/logos/Logo_25blk.gif" alt="Google" align="middle"></img></a>
 </td>
 <td nowrap="nowrap">
 <input type="hidden" name="domains" value="www.linux.org.ru"></input>

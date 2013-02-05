@@ -137,13 +137,13 @@
   <td align="center">
     <c:choose>
       <c:when test="${topic.event.type == 'DELETED'}">
-        <img src="/img/del.png" border="0" alt="[X]" title="Сообщение удалено" width="15" height="15">
+        <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
       <c:when test="${topic.event.type == 'ANSWERS'}">
-        <img src="/img/mail_reply.png" border="0" title="Ответ" alt="[R]" width="16" height="16">
+        <img src="/img/mail_reply.png" title="Ответ" alt="[R]" width="16" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'REFERENCE'}">
-        <img src="/img/tuxlor.png" border="0" title="Упоминание" alt="[U]" width="7" height="16">
+        <img src="/img/tuxlor.png" title="Упоминание" alt="[U]" width="7" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
         <i class="icon-tag" title="Избранный тег"></i>

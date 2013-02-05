@@ -25,7 +25,7 @@
 </c:if>
 
 <div align="center">
-<img src="/white/linux_main.gif" border=0 width=469 height=81 alt="Русская Информация об ОС Linux">
+<img src="/white/linux_main.gif" width=469 height=81 alt="Русская Информация об ОС Linux">
 </div>
 
 
