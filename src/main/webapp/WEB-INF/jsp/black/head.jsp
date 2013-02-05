@@ -20,7 +20,7 @@
 <body>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="head">
 <tr>
-        <td rowspan="2" align=left><a href="/"><img src="/black/lor-new.png" width=282 height=60 border=0 alt="Linux.org.ru"></a></td>
+        <td rowspan="2" align=left><a href="/"><img src="/black/lor-new.png" width=282 height=60 alt="Linux.org.ru"></a></td>
         <td align="right">
           <c:if test="${template.sessionAuthorized}">
             <c:url var="userUrl" value="/people/${template.nick}/profile"/>
