@@ -50,7 +50,10 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.*;
+import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
@@ -208,7 +211,7 @@ public class EditTopicController {
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
-      ImmutableSet<User> editors = getEditors(message, editInfoList);
+      ImmutableSet<User> editors = editHistoryService.getEditors(message, editInfoList);
 
       ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
       for (User editor : editors) {
@@ -251,28 +254,6 @@ public class EditTopicController {
     }
 
     return new ModelAndView("edit", params);
-  }
-
-  private ImmutableSet<User> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
-    return ImmutableSet.copyOf(
-            Iterables.transform(
-                    Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
-                      @Override
-                      public boolean apply(EditHistoryDto input) {
-                        return input.getEditor() != message.getUid();
-                      }
-                    }),
-                    new Function<EditHistoryDto, User>() {
-                      @Override
-                      public User apply(EditHistoryDto input) {
-                        try {
-                          return userDao.getUserCached(input.getEditor());
-                        } catch (UserNotFoundException e) {
-                          throw new RuntimeException(e);
-                        }
-                      }
-                    })
-    );
   }
 
   @ModelAttribute("ipBlockInfo")

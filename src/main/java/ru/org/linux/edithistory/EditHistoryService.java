@@ -15,6 +15,10 @@
 
 package ru.org.linux.edithistory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
@@ -22,6 +26,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
+import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
@@ -209,5 +214,27 @@ public class EditHistoryService {
 
   public void insert(EditHistoryDto editHistoryDto) {
     editHistoryDao.insert(editHistoryDto);
+  }
+
+  public ImmutableSet<User> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
+    return ImmutableSet.copyOf(
+            Iterables.transform(
+                    Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
+                      @Override
+                      public boolean apply(EditHistoryDto input) {
+                        return input.getEditor() != message.getUid();
+                      }
+                    }),
+                    new Function<EditHistoryDto, User>() {
+                      @Override
+                      public User apply(EditHistoryDto input) {
+                        try {
+                          return userDao.getUserCached(input.getEditor());
+                        } catch (UserNotFoundException e) {
+                          throw new RuntimeException(e);
+                        }
+                      }
+                    })
+    );
   }
 }
