@@ -67,7 +67,7 @@
 <c:if test="${newPreparedMessage!=null}">
   <h2>Ваше сообщение</h2>
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
+  <lor:message messageMenu="${topicMenu}" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
 </c:if>
 
