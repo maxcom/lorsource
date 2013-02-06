@@ -1,0 +1,16 @@
+[Unit]
+Description=Apache Tomcat6 Web Application Container
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/lor/run-solr.sh /opt/lor/ /home/maxcom/git-checkout/lorsource/target/test-classes/solr /opt/lor/jetty-solr.xml
+
+User=tomcat
+Group=tomcat
+
+SyslogIdentifier=lor-solr
+SyslogFacility=local2
+
+[Install]
+WantedBy=multi-user.target
