@@ -185,7 +185,6 @@
     </c:if>
    </span>
 </div>
-</footer>
 
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
@@ -232,10 +231,10 @@
         <c:if test="${template.sessionAuthorized and not message.expired}">
           <br>${preparedMessage.postscoreInfo}
         </c:if>
-        </div>
-      </c:if>
-
-  </div>
+      </div>
+    </c:if>
+</footer>
+</div>
 </div>
 </article>
 
