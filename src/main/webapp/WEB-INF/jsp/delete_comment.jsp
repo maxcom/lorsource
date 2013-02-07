@@ -81,9 +81,7 @@
   <div class="control-group">
     <label class="control-label" for="bonus-input">
       Штраф<br>
-<%--
-      score автора: ${author.score}
---%>
+      score автора: ${commentsPrepared[0].author.score}
     </label>
     <div class="controls">
       <input id="bonus-input" type=number name=bonus value="7" min="0" max="20">
