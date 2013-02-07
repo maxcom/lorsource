@@ -8,6 +8,6 @@ fi
 INSTALL_HOME=$1
 
 JETTY_RUNNER=$INSTALL_HOME/jetty-runner.jar
-WAR_FILE=$INSTALL_HOME/solr.war
+WAR_FILE=/opt/lor/solr/
 
 java -Dsolr.solr.home=$2 -jar $JETTY_RUNNER --config $3 $WAR_FILE
