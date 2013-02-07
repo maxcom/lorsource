@@ -36,52 +36,65 @@ function change(dest,source)
 <h1>Удаление сообщения</h1>
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
-<form method=POST action="delete.jsp">
+<form method=POST action="delete.jsp" class="form-horizontal">
 <lor:csrf/>
-<table style="border-spacing: .5em; border-collapse: separate">
-<tr>
-<td>Причина удаления
-<td>
-<c:if test="${template.moderatorSession}">
-<select name=reason_select onChange="change(reason,reason_select);">
-<option value="">
-<option value="3.1 Дубль">3.1 Дубль
-<option value="3.2 Неверная кодировка">3.2 Неверная кодировка
-<option value="3.3 Некорректное форматирование">3.3 Некорректное форматирование
-<option value="3.4 Пустое сообщение">3.4 Пустое сообщение
-<option value="4.1 Offtopic">4.1 Offtopic
-<option value="4.2 Вызывающе неверная информация">4.2 Вызывающе неверная информация
-<option value="4.3 Провокация flame">4.3 Провокация flame
-<option value="4.4 Обсуждение действий модераторов">4.4 Обсуждение действий модераторов
-<option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
-<option value="4.6 Спам">4.6 Спам
-<option value="4.7 Флуд">4.7 Флуд
-<option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
-<option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
-<option value="5.3 Национальные/политические/религиозные споры">5.3 Национальные/политические/религиозные споры
-<option value="5.4 Личная переписка">5.4 Личная переписка
-<option value="5.5 Преднамеренное нарушение правил русского языка">5.5 Преднамеренное нарушение правил русского языка
-<option value="6 Нарушение copyright">6 Нарушение copyright
-<option value="6.2 Warez">6.2 Warez
-<option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
-</select>
-</c:if>
-</td>
-<tr><td></td>
-<td><input type=text name=reason size=40></td>
-</tr>
+  <div class="control-group">
+    <label class="control-label" for="reason-input">
+      Причина удаления
+    </label>
+
+    <div class="controls">
+      <c:if test="${template.moderatorSession}">
+        <select name=reason_select onChange="change(reason,reason_select);">
+          <option value="">
+          <option value="3.1 Дубль">3.1 Дубль
+          <option value="3.2 Неверная кодировка">3.2 Неверная кодировка
+          <option value="3.3 Некорректное форматирование">3.3 Некорректное форматирование
+          <option value="3.4 Пустое сообщение">3.4 Пустое сообщение
+          <option value="4.1 Offtopic">4.1 Offtopic
+          <option value="4.2 Вызывающе неверная информация">4.2 Вызывающе неверная информация
+          <option value="4.3 Провокация flame">4.3 Провокация flame
+          <option value="4.4 Обсуждение действий модераторов">4.4 Обсуждение действий модераторов
+          <option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
+          <option value="4.6 Спам">4.6 Спам
+          <option value="4.7 Флуд">4.7 Флуд
+          <option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
+          <option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
+          <option value="5.3 Национальные/политические/религиозные споры">5.3 Национальные/политические/религиозные
+            споры
+          <option value="5.4 Личная переписка">5.4 Личная переписка
+          <option value="5.5 Преднамеренное нарушение правил русского языка">5.5 Преднамеренное нарушение правил
+            русского
+            языка
+          <option value="6 Нарушение copyright">6 Нарушение copyright
+          <option value="6.2 Warez">6.2 Warez
+          <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
+        </select><br>
+      </c:if>
+
+      <input id="reason-input" type=text name=reason>
+    </div>
+  </div>
+
   <c:if test="${template.moderatorSession and bonus}">
-  <tr>
-    <td align=right>
+  <div class="control-group">
+    <label class="control-label" for="bonus-input">
       Штраф<br>
       score автора: ${author.score}
-    </td>
-    <td valign=top><input type=number name=bonus size=40 value="7" min="0" max="20"> (от 0 до 20)</td>
-  </tr>
-</c:if>
+    </label>
+    <div class="controls">
+      <input id="bonus-input" type=number name=bonus value="7" min="0" max="20">
+      <span class="help-inline">(от 0 до 20)</span>
+    </div>
+  </div>
+  </c:if>
 
-</table>
-<input type=hidden name=msgid value="${msgid}">
-<button type=submit>Удалить</button>
+  <input type=hidden name=msgid value="${msgid}">
+
+  <div class="control-group">
+    <div class="controls">
+      <button type=submit>Удалить</button>
+    </div>
+  </div>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

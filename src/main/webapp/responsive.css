@@ -160,4 +160,15 @@
     .msg h1 {
         font-size: 1.6em;
     }
+
+    .form-horizontal .control-label {
+        float: none;
+        width: auto;
+        padding-top: 0;
+        text-align: left;
+    }
+
+    .form-horizontal .controls {
+        margin-left: 0;
+    }
 }

@@ -1,0 +1,47 @@
+.form-horizontal .control-label {
+    float: left;
+    width: 16rem;
+    text-align: right;
+}
+
+.form-horizontal .controls {
+    margin-left: 18rem;
+}
+
+.form-horizontal .control-group {
+  margin-bottom: 1.5rem;
+}
+
+/* clearfix */
+.control-group:before,
+.control-group:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+.control-group:after {
+    clear: both;
+}
+
+.form-horizontal .controls {
+    margin-left: 18rem;
+}
+
+.form-horizontal input {
+    width: 20rem;
+    max-width: 100%;
+}
+
+.form-horizontal select {
+    width: 20rem;
+    max-width: 100%;
+}
+
+.form-horizontal {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.help-inline {
+    padding-left: 0.5rem;
+    vertical-align: middle;
+}
