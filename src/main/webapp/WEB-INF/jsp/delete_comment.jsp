@@ -37,13 +37,15 @@
 <h1>Удаление сообщения</h1>
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
-<form method=POST action="delete_comment.jsp">
+<form method=POST action="delete_comment.jsp" class="form-horizontal">
   <lor:csrf/>
-  <table>
-    <tr>
-      <td>Причина удаления
-      <td>
-        <c:if test="${template.moderatorSession}">
+  <div class="control-group">
+    <label class="control-label" for="reason-input">
+      Причина удаления
+    </label>
+
+    <div class="controls">
+      <c:if test="${template.moderatorSession}">
         <select name=reason_select onChange="change(reason,reason_select);">
           <option value="">
           <option value="3.1 Дубль">3.1 Дубль
@@ -68,24 +70,36 @@
           <option value="6.2 Warez">6.2 Warez
           <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
         </select>
-        </c:if>
-      </td>
-    </tr>
-    <tr>
-      <td></td>
-      <td><input type=text name=reason size=40></td>
-    </tr>
+        <br>
+      </c:if>
 
-    <c:if test="${template.moderatorSession}">
-    <tr>
-      <td>Штраф score (от 0 до 20)</td>
-      <td><input type=text name=bonus size=40 value="7"></td>
-    </tr>
-    </c:if>
-  </table>
-  <input type=hidden name=msgid value="${msgid}">
-  <input type=submit value="Удалить">
+      <input id="reason-input" type=text name=reason>
+    </div>
+  </div>
+
+  <c:if test="${template.moderatorSession}">
+  <div class="control-group">
+    <label class="control-label" for="bonus-input">
+      Штраф<br>
+<%--
+      score автора: ${author.score}
+--%>
+    </label>
+    <div class="controls">
+      <input id="bonus-input" type=number name=bonus value="7" min="0" max="20">
+      <span class="help-inline">(от 0 до 20)</span>
+    </div>
+  </div>
+  </c:if>
+
+ <input type=hidden name=msgid value="${msgid}">
+  <div class="control-group">
+    <div class="controls">
+      <button type=submit>Удалить</button>
+    </div>
+  </div>
 </form>
+
 <div class="messages">
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
