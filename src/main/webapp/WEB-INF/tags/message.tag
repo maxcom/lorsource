@@ -155,12 +155,12 @@
     <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
   </c:if>
  
+  <br>
+  <lor:date date="${message.postdate}" itemprop="dateCreated"/>
+
   <c:if test="${template.moderatorSession and not empty message.postIP}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
-
-  <br>
-  <lor:date date="${message.postdate}" itemprop="dateCreated"/>
 
   <span class="sign_more">
   <c:if test="${preparedMessage.section.premoderated and message.commited}">
