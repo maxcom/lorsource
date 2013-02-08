@@ -144,7 +144,7 @@
   <l:userpic userpic="${messageMenu.userpic}"/>
 </c:if>
 
-<div class=sign>
+<div class=sign <c:if test="${messageMenu==null || messageMenu.userpic==null}">style="margin-left: 0"</c:if>>
   <lor:user rel="author" itemprop="creator" link="true" user="${preparedMessage.author}"/>
 
   <c:if test="${not preparedMessage.author.anonymous}">
