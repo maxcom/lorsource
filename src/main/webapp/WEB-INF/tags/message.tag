@@ -149,6 +149,10 @@
 
   <c:if test="${not preparedMessage.author.anonymous}">
     <c:out value=" "/>${preparedMessage.author.stars}
+
+    <c:if test="${template.moderatorSession && preparedMessage.author.score<50}">
+      (Score: ${preparedMessage.author.score} MaxScore: ${preparedMessage.author.maxScore})
+    </c:if>
   </c:if>
 
   <c:if test="${preparedMessage.remark != null}">
