@@ -23,6 +23,7 @@
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
 <%--@elvariable id="postscoreInfo" type="java.lang.String"--%>
 <%--@elvariable id="imagepost" type="java.lang.Boolean"--%>
+<%--@elvariable id="topicMenu" type="ru.org.linux.topic.TopicMenu"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -65,7 +66,7 @@
 <c:if test="${message != null}">
 <h1>Предпросмотр</h1>
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
+  <lor:message messageMenu="${topicMenu}" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
 <h1>Добавить в раздел ${group.title}</h1>

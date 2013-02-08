@@ -281,6 +281,7 @@ public class AddTopicController {
     }
 
     Topic previewMsg = null;
+    TopicMenu topicMenu = null;
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
@@ -296,14 +297,26 @@ public class AddTopicController {
         );
       }
 
-      params.put("message", prepareService.prepareTopicPreview(
+      PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
               tagService.parseSanitizeTags(form.getTags()),
               poll,
               request.isSecure(),
               message,
               imageObject
-      ));
+      );
+
+      params.put("message", preparedTopic);
+
+      topicMenu = prepareService.getTopicMenu(
+              preparedTopic,
+              tmpl.getCurrentUser(),
+              request.isSecure(),
+              tmpl.getProf(),
+              true
+      );
+
+      params.put("topicMenu", topicMenu);
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors()) {
