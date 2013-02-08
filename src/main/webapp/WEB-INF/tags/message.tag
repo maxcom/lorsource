@@ -152,7 +152,7 @@
   </c:if>
 
   <c:if test="${preparedMessage.remark != null}">
-    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
+    &emsp;<span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/></span>
   </c:if>
  
   <br>
