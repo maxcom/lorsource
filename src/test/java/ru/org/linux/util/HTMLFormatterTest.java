@@ -221,6 +221,8 @@ public class HTMLFormatterTest {
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
         toHtmlFormatter.format(urlHistory, true, false));
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/lor-source/6992532/comments\">www.linux.org.ru/forum/lor-source/6992532/comments</a>",
+        toHtmlFormatter.format("www.linux.org.ru/forum/lor-source/6992532/comments", true, false));
   }
 
 

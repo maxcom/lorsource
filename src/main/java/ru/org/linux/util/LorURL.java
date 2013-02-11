@@ -123,7 +123,7 @@ public class LorURL extends URI {
             }
           }
         }
-        if(path.endsWith("/history")) {
+        if(path.endsWith("/history") || path.endsWith("/comments")) {
           _topic_id = -1;
         }
       }
