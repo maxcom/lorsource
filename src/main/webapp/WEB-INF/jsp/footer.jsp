@@ -19,8 +19,8 @@
 <footer id="ft">
 
 <p id="ft-info">
-  <a href="/about">О Сервере</a> -
-  <a href="/rules.jsp">Правила форума</a><br>
+  <a href="/about">О cервере</a> 
+  <a href="/rules.jsp">Правила форума</a> 
   <c:if test="${not pageContext.request.secure}">
     <a href="${template.mainUrl}">${template.mainUrl}</a>
   </c:if>
