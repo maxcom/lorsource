@@ -224,7 +224,7 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <div style="text-align: center; margin-top: 0.5em; height: 90px" id="interpage-adv">
+  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
 <%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
 --%>
@@ -246,6 +246,12 @@
           type: 'img',
           src: '/adv/selectel/728x90-dedic.gif',
           href: 'http://selectel.ru/services/dedicated/?utm_source=linuxorgru&utm_medium=banner&utm_content=all&utm_campaign=110113'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/linux.png',
+          href: 'http://tehnodom.com/?utm_source=lor&utm_medium=banner&utm_campaign=220213',
+          height: 91
         }
       ];
 
@@ -270,7 +276,12 @@
         var img = $('<img>');
         img.attr('src', ad.src);
         img.attr('width', 728);
-        img.attr('height', 90);
+
+        if ('height' in ad) {
+          img.attr('height', ad.height);
+        } else {
+          img.attr('height', 90);
+        }
 
         anchor.append(img);
         $('#interpage-adv').append(anchor);
