@@ -633,8 +633,11 @@ public class UserDao {
    * @param text текст комментария
    * @throws SQLException on database failure
    */
-  public void setRemark(User user,User ref,String text) {
-    if(text.length()==0)return;
+  public void setRemark(User user, User ref, String text) {
+    if(text.isEmpty()) {
+      return;
+    }
+
     jdbcTemplate.update("INSERT INTO user_remarks (user_id,ref_user_id,remark_text) VALUES (?,?,?)", 
                         user.getId(),ref.getId(),text);
   }
@@ -646,11 +649,12 @@ public class UserDao {
    * @throws SQLException on database failure
    * если комментарий нулевой длины - он удаляется из базы
    */
-  public void updateRemark(int id,String text) {
-    if(text.length()==0)
+  public void updateRemark(int id, String text) {
+    if(text.isEmpty()) {
       jdbcTemplate.update("DELETE FROM user_remarks WHERE id=?", id);
-    else 
-      jdbcTemplate.update("UPDATE user_remarks SET remark_text=? WHERE id=?",text,id);
+    } else {
+      jdbcTemplate.update("UPDATE user_remarks SET remark_text=? WHERE id=?", text, id);
+    }
   }
 
 
