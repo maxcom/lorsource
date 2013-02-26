@@ -19,9 +19,11 @@
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.Poll" %>
 <%@ attribute name="enabled" required="true" type="java.lang.Boolean" %>
 
-<form action="/vote.jsp" method="POST">
-  <lor:csrf/>
-  <input type="hidden" name="voteid" value="${poll.id}">
+<c:if test="${enabled}">
+  <form action="/vote.jsp" method="POST">
+    <lor:csrf/>
+    <input type="hidden" name="voteid" value="${poll.id}">
+</c:if>
 
   <c:forEach var="variant" items="${poll.variants}">
     <label>
@@ -37,7 +39,7 @@
     </label><br>
   </c:forEach>
 
-  <c:if test="${enabled}">
+<c:if test="${enabled}">
     <button type="submit">Голосовать</button>
-  </c:if>
 </form>
+</c:if>
