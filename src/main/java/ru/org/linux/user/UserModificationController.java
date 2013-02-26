@@ -99,7 +99,7 @@ public class UserModificationController {
       throw new UserErrorException("Пользователь уже блокирован");
     }
 
-    userDao.blockWithResetPassword(user, moderator, reason);
+    userDao.block(user, moderator, reason);
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
     return redirectToProfile(user);
   }

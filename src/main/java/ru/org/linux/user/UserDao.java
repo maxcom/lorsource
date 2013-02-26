@@ -405,22 +405,17 @@ public class UserDao {
   }
 
   /**
-   * Блокировка пользователя и сброс пароля одной транзикацией
+   * Блокировка пользователя
    * @param user блокируемый пользователь
    * @param moderator модератор который блокирует пользователя
    * @param reason причина блокировки
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void blockWithResetPassword(User user, User moderator, String reason) {
-
+  public void block(User user, User moderator, String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
         user.getId(), reason, moderator.getId());
-    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-    String password = encryptor.encryptPassword(StringUtil.generatePassword());
-    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
-        password, user.getId());
   }
 
   /**
