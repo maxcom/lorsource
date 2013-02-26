@@ -24,12 +24,15 @@
 
 <h1>Восстановление сообщения</h1>
 Вы можете восстановить удалённое сообщение.
-<form method=POST action="undelete.jsp">
-<lor:csrf/>
-<input type=hidden name=msgid value="${message.id}">
+
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
-<input type=submit name=undel value="Восстановить">
+
+<form method=POST action="undelete.jsp">
+  <lor:csrf/>
+  <input type=hidden name=msgid value="${message.id}">
+  <input type=submit name=undel value="Восстановить">
 </form>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
