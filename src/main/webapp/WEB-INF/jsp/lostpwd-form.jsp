@@ -25,7 +25,7 @@
 <form method=POST action="/lostpwd.jsp">
 <lor:csrf/>
 <label>Email:
-<input type=email name=email size=40></label><br>
-<input type=submit value="Получить">
+<input type=email name=email size=40 autofocus="autofocus"></label><br>
+<button type=submit>Получить</button>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
