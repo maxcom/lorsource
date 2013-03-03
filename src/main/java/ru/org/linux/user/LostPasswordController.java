@@ -98,8 +98,7 @@ public class LostPasswordController {
   @RequestMapping(value="/reset-password", method= RequestMethod.POST)
   public ModelAndView resetPassword(
     @RequestParam("nick") String nick,
-    @RequestParam("code") String formCode,
-    HttpServletRequest request
+    @RequestParam("code") String formCode
   ) throws Exception {
     User user = userDao.getUser(nick);
 
