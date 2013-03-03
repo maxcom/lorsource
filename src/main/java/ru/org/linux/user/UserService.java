@@ -9,12 +9,14 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ImageInfo2;
+import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
 
 @Service
 public class UserService {
@@ -127,5 +129,9 @@ public class UserService {
     }
 
     return new Userpic("/img/p.gif", 1, 1);
+  }
+
+  public static String getResetCode(String base, String nick, String email, Timestamp tm) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + Long.toString(tm.getTime()) + ":reset");
   }
 }

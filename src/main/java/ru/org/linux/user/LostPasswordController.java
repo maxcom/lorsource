@@ -16,9 +16,9 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,7 +27,6 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.util.StringUtil;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -42,6 +41,7 @@ import java.util.Date;
 import java.util.Properties;
 
 @Controller
+@RequestMapping(value="/lostpwd.jsp")
 public class LostPasswordController {
   @Autowired
   private UserDao userDao;
@@ -49,17 +49,12 @@ public class LostPasswordController {
   @Autowired
   private Configuration configuration;
 
-  @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.GET)
+  @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm() {
     return new ModelAndView("lostpwd-form");
   }
 
-  @RequestMapping(value="/reset-password", method= RequestMethod.GET)
-  public ModelAndView showCodeForm() {
-    return new ModelAndView("reset-password-form");
-  }
-
-  @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.POST)
+  @RequestMapping(method=RequestMethod.POST)
   public ModelAndView sendPassword(@RequestParam("email") String email, HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -69,7 +64,7 @@ public class LostPasswordController {
 
     User user = userDao.getByEmail(email, true);
     if (user==null) {
-      throw new BadInputException("Ваш email не зарегистрирован");
+      throw new BadInputException("Этот email не зарегистрирован!");
     }
 
     user.checkBlocked();
@@ -80,7 +75,7 @@ public class LostPasswordController {
     }
 
     if (!tmpl.isModeratorSession() && !userDao.canResetPassword(user)) {
-      throw new AccessViolationException("нельзя запрашивать пароль чаще одного раза в неделю");
+      throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в неделю!");
     }
 
     Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -95,43 +90,6 @@ public class LostPasswordController {
     }
   }
 
-  @RequestMapping(value="/reset-password", method= RequestMethod.POST)
-  public ModelAndView resetPassword(
-    @RequestParam("nick") String nick,
-    @RequestParam("code") String formCode
-  ) throws Exception {
-    User user = userDao.getUser(nick);
-
-    user.checkBlocked();
-    user.checkAnonymous();
-
-    if (user.isAdministrator()) {
-      throw new AccessViolationException("this feature is not for you, ask me directly");
-    }
-
-    Timestamp resetDate = userDao.getResetDate(user);
-
-    String resetCode = getResetCode(configuration.getSecret(), user.getNick(), user.getEmail(), resetDate);
-
-    if (!resetCode.equals(formCode)) {
-      throw new UserErrorException("Код не совпадает");
-    }
-
-    String password = userDao.resetPassword(user);
-
-    return new ModelAndView(
-            "action-done",
-            ImmutableMap.of(
-                    "message", "Установлен новый пароль",
-                    "bigMessage", "Ваш новый пароль: " + StringUtil.escapeHtml(password)
-            )
-    );
-  }
-
-  private static String getResetCode(String base, String nick, String email, Timestamp tm) {
-    return StringUtil.md5hash(base + ':' + nick + ':' + email+ ':' +Long.toString(tm.getTime())+":reset");
-  }
-
   private void sendEmail(User user, String email, Timestamp resetDate) throws MessagingException {
     Properties props = new Properties();
     props.put("mail.smtp.host", "localhost");
@@ -140,7 +98,7 @@ public class LostPasswordController {
     MimeMessage msg = new MimeMessage(mailSession);
     msg.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
-    String resetCode = getResetCode(configuration.getSecret(), user.getNick(), email, resetDate);
+    String resetCode = UserService.getResetCode(configuration.getSecret(), user.getNick(), email, resetDate);
 
     msg.addRecipient(RecipientType.TO, new InternetAddress(email));
     msg.setSubject("Your password @linux.org.ru");
@@ -153,5 +111,10 @@ public class LostPasswordController {
     );
 
     Transport.send(msg);
+  }
+
+  @ExceptionHandler(UserErrorException.class)
+  public ModelAndView handleUserError(UserErrorException ex) {
+    return new ModelAndView("lostpwd-form", "error", ex.getMessage());
   }
 }

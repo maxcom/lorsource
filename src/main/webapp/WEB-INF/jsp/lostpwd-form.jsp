@@ -13,7 +13,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="error" type="java.lang.String"--%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -24,6 +26,12 @@
 <H1>Сбросить забытый пароль</H1>
 <form method=POST action="/lostpwd.jsp" class="form-horizontal">
 <lor:csrf/>
+
+  <c:if test="${not empty error}">
+    <div class="error">
+      <strong>Ошибка!</strong> <c:out escapeXml="true" value="${error}"/>
+    </div>
+  </c:if>
 
   <div class="control-group">
     <label class="control-label" for="email-input">Email</label>
