@@ -17,15 +17,26 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Получить забытый пароль</title>
+<title>Сбросить забытый пароль</title>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<H1>Получить забытый пароль</H1>
-<form method=POST action="/lostpwd.jsp">
+<H1>Сбросить забытый пароль</H1>
+<form method=POST action="/lostpwd.jsp" class="form-horizontal">
 <lor:csrf/>
-<label>Email:
-<input type=email name=email size=40 autofocus="autofocus" required="required"></label><br>
-<button type=submit>Получить</button>
+
+  <div class="control-group">
+    <label class="control-label" for="email-input">Email</label>
+    <div class="controls">
+      <input id="email-input" type=email name=email size=40 autofocus="autofocus" required="required">
+      <span class="help-block">Инструкция по сбросу пароля будет отправлена на этот адрес</span>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class="controls">
+      <button type=submit>Сбросить</button>
+    </div>
+  </div>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

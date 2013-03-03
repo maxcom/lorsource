@@ -45,3 +45,8 @@
     padding-left: 0.5rem;
     vertical-align: middle;
 }
+
+.help-block {
+    display: block;
+    margin-bottom: .5em;
+}
