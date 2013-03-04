@@ -82,15 +82,15 @@ public class TopicApiController {
             topic
     );
 
-    return ImmutableMap.<String, Object>of(
+    return ImmutableMap.of(
             "comments", preparedComments,
             "topic", new ApiCommentTopicInfo(
-                        topic.getId(),
-                        topic.getLink(),
-                        permissionService.isCommentsAllowed(
-                                topic,
-                                AuthUtil.getCurrentUser())
-            )
+            topic.getId(),
+            topic.getLink(),
+            permissionService.isCommentsAllowed(
+                    topic,
+                    AuthUtil.getCurrentUser())
+    )
     );
   }
 }
