@@ -24,8 +24,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;

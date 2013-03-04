@@ -22,9 +22,6 @@ import org.junit.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.user.User;
-
-import java.net.URLEncoder;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
