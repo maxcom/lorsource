@@ -74,7 +74,7 @@ public class DeleteCommentController {
           HttpServletRequest request,
           @RequestParam("msgid") int msgid
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -174,7 +174,7 @@ public class DeleteCommentController {
 
     searchQueueSender.updateComment(deleted);
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("message", "Удалено успешно");
     params.put("bigMessage", out.toString());
 

@@ -151,7 +151,7 @@ public class AddTopicController {
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -211,7 +211,7 @@ public class AddTopicController {
           BindingResult errors,
           @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -368,7 +368,7 @@ public class AddTopicController {
   }
   
   private static Poll preparePollPreview(AddTopicRequest form) {
-    List<PollVariant> variants = new ArrayList<PollVariant>(form.getPoll().length);
+    List<PollVariant> variants = new ArrayList<>(form.getPoll().length);
 
     for (String item : form.getPoll()) {
       if (!Strings.isNullOrEmpty(item)) {
@@ -381,7 +381,7 @@ public class AddTopicController {
 
   @RequestMapping("/add-section.jsp")
   public ModelAndView showForm(@RequestParam("section") int sectionId) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     params.put("sectionId", sectionId);
 

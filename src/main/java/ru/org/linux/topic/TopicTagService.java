@@ -145,7 +145,7 @@ public class TopicTagService {
    * @return список тегов
    */
   public ImmutableList<String> parseTags(String tags, Errors errors) {
-    Set<String> tagSet = new HashSet<String>();
+    Set<String> tagSet = new HashSet<>();
 
     // Теги разделяютчя пайпом или запятой
     tags = tags.replaceAll("\\|", ",");

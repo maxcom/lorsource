@@ -221,7 +221,7 @@ public class TrackerDao {
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
-    List<TrackerItem> res = new ArrayList<TrackerItem>(topics);
+    List<TrackerItem> res = new ArrayList<>(topics);
     
     while (resultSet.next()) {
       User author;

@@ -37,7 +37,7 @@ public class SectionDaoImpl implements SectionDao {
 
   @Override
   public List<Section> getAllSections() {
-    final List<Section> sectionList = new ArrayList<Section>();
+    final List<Section> sectionList = new ArrayList<>();
     jdbcTemplate.query("SELECT id, name, imagepost, imageallowed, vote, moderate, scroll_mode, restrict_topics FROM sections ORDER BY id",
       new RowCallbackHandler() {
         @Override

@@ -76,7 +76,7 @@ public class AddRemoveBoxesController {
     }
 
     String objectName = getObjectName(form);
-    List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
+    List<String> boxlets = new ArrayList<>(t.getProf().getList(objectName));
 
     if (!boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
@@ -119,7 +119,7 @@ public class AddRemoveBoxesController {
     }
 
     String objectName = getObjectName(form);
-    List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
+    List<String> boxlets = new ArrayList<>(t.getProf().getList(objectName));
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
 

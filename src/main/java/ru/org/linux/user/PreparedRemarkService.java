@@ -32,7 +32,7 @@ public class PreparedRemarkService {
       return ImmutableList.of();
     }
 
-    List<PreparedRemark> remarksPrepared = new ArrayList<PreparedRemark>(list.size());
+    List<PreparedRemark> remarksPrepared = new ArrayList<>(list.size());
     for (Remark remark : list) {
       User refUser = userDao.getUserCached(remark.getRefUserId());
       remarksPrepared.add(new PreparedRemark(remark,refUser));

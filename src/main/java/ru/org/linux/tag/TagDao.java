@@ -75,7 +75,7 @@ public class TagDao {
   }
 
   public SortedSet<String> getTopTags() {
-    final SortedSet<String> set = new TreeSet<String>();
+    final SortedSet<String> set = new TreeSet<>();
 
     jdbcTemplate.query(
       "SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT,
@@ -96,7 +96,7 @@ public class TagDao {
    * @return список первых букв тегов.
    */
   SortedSet<String> getFirstLetters() {
-    final SortedSet<String> set = new TreeSet<String>();
+    final SortedSet<String> set = new TreeSet<>();
 
     StringBuilder query = new StringBuilder();
     query.append("select distinct firstchar from ")

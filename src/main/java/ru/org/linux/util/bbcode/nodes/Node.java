@@ -54,13 +54,13 @@ public class Node {
 
   public Node(ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
-    children = new ArrayList<Node>();
+    children = new ArrayList<>();
   }
 
   public Node(Node parent, ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
     this.parent = parent;
-    children = new ArrayList<Node>();
+    children = new ArrayList<>();
   }
 
   public Node getParent() {

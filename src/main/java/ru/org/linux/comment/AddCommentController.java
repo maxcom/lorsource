@@ -85,7 +85,7 @@ public class AddCommentController {
 
     Template tmpl = Template.getTemplate(request);
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     if (add.getMode() == null) {
       add.setMode(tmpl.getFormatMode());
@@ -144,7 +144,7 @@ public class AddCommentController {
     @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
 
-    Map<String, Object> formParams = new HashMap<String, Object>();
+    Map<String, Object> formParams = new HashMap<>();
 
     User user = commentService.getCommentUser(add, request, errors);
 

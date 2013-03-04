@@ -657,7 +657,7 @@ public class TopicListController {
   ) throws Exception {
 
     final String[] filterValues = {"all", "notalks", "tech"};
-    final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+    final Set<String> filterValuesSet = new HashSet<>(Arrays.asList(filterValues));
 
     if (topicListForm.getFilter() != null && !filterValuesSet.contains(topicListForm.getFilter())) {
       throw new UserErrorException("Некорректное значение filter");

@@ -233,7 +233,7 @@ public class UserTagDaoIntegrationTest {
   public void getUserIdListByTagsTest() {
     prepareUserTags();
     List<Integer> userIdList;
-    List<String> tags = new ArrayList<String>();
+    List<String> tags = new ArrayList<>();
     tags.add("UserTagDaoIntegrationTest_tag1");
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
     Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());

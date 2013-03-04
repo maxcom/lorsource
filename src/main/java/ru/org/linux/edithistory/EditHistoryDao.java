@@ -65,7 +65,7 @@ public class EditHistoryDao {
    * @return список изменений топика
    */
   public List<EditHistoryDto> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
-    final List<EditHistoryDto> editInfoDTOs = new ArrayList<EditHistoryDto>();
+    final List<EditHistoryDto> editInfoDTOs = new ArrayList<>();
     jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {

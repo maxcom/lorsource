@@ -178,8 +178,8 @@ public class SearchQueueListener {
   }
 
   private void reindexComments(Topic topic, CommentList comments) throws IOException, SolrServerException {
-    Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
-    List<String> delete = new ArrayList<String>();
+    Collection<SolrInputDocument> docs = new ArrayList<>();
+    List<String> delete = new ArrayList<>();
 
     for (Comment comment : comments.getList()) {
       if (comment.isDeleted()) {

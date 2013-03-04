@@ -222,7 +222,7 @@ public class PollDao {
    * @return неизменяемый список вариантов опроса
    */
   public ImmutableList<PollVariantResult> getPollVariants(Poll poll, int order, final User user) {
-    final List<PollVariantResult> variants = new ArrayList<PollVariantResult>();
+    final List<PollVariantResult> variants = new ArrayList<>();
     
     String query;
     

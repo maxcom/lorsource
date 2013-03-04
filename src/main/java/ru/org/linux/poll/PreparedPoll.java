@@ -41,7 +41,7 @@ public class PreparedPoll {
     this.poll = poll;
     this.maximumValue = maximumValue;
     this.totalOfVotesPerson = totalOfVotesPerson;
-    ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<PreparedPollVariantResult>();
+    ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<>();
     int total=0;
     for(PollVariantResult variant : variants1) {
       total += variant.getVotes();

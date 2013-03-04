@@ -69,7 +69,7 @@ public class EditHistoryService {
     boolean secure
   ) throws UserNotFoundException {
     List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
-    List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
+    List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
     String currentMessage = msgbaseDao.getMessageText(message.getId()).getText();
     String currentTitle = message.getTitle();
@@ -152,7 +152,7 @@ public class EditHistoryService {
     boolean secure
   ) throws UserNotFoundException {
     List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
-    List<PreparedEditHistory> editHistories = new ArrayList<PreparedEditHistory>(editInfoDTOs.size());
+    List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
     String currentMessage = msgbaseDao.getMessageText(comment.getId()).getText();
     String currentTitle = comment.getTitle();

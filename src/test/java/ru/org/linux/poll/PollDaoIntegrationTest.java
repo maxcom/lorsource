@@ -44,7 +44,7 @@ public class PollDaoIntegrationTest {
   @Test
   public void voteCreateAndRunningPollTest()
       throws Exception {
-    List <String> pollList = new ArrayList<String>();
+    List <String> pollList = new ArrayList<>();
     pollList.add("Case 1");
     pollList.add("Case 2");
     pollList.add("Case 3");

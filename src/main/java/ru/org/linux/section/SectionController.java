@@ -39,7 +39,7 @@ public class SectionController {
   public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) {
     Section section = sectionService.getSection(sectionid);
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("section", section);
 
     params.put("groups", groupDao.getGroups(section));

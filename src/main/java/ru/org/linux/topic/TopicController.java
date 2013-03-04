@@ -237,7 +237,7 @@ public class TopicController {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {

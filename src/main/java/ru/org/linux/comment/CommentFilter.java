@@ -42,7 +42,7 @@ public class CommentFilter {
           int offset,
           int limit,
           @Nonnull Set<Integer> hideSet) {
-    List<Comment> out = new ArrayList<Comment>();
+    List<Comment> out = new ArrayList<>();
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
       int index = reverse?(comments.size()-i.previousIndex()):i.nextIndex();
@@ -80,7 +80,7 @@ public class CommentFilter {
       throw new MessageNotFoundException(parentId);
     }
 
-    List<Comment> parentList = new ArrayList<Comment>();
+    List<Comment> parentList = new ArrayList<>();
     parentNode.buildList(parentList);
 
     return parentList;

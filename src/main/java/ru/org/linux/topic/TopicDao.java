@@ -425,7 +425,7 @@ public class TopicDao {
       // оповещение пользователей по тегам
       List<Integer> userIdListByTags = userTagService.getUserIdListByTags(user, tags);
 
-      List<Integer> userRefIds = new ArrayList<Integer>();
+      List<Integer> userRefIds = new ArrayList<>();
       for (User userRef: userRefs) {
         userRefIds.add(userRef.getId());
       }
@@ -850,7 +850,7 @@ public class TopicDao {
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   public List<Integer> deleteAllByUser(User user, final User moderator) {
-    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
+    final List<Integer> deletedTopicIds = new ArrayList<>();
     // Удаляем все топики
     jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
       new RowCallbackHandler() {

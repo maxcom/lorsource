@@ -123,7 +123,7 @@ public class SearchRequest {
   }
 
   public String getQuery(int newOffset) {
-    Map<String, String> params = new LinkedHashMap<String, String>();
+    Map<String, String> params = new LinkedHashMap<>();
 
     if (q!=null && !q.isEmpty()) {
       params.put("q", q);

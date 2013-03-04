@@ -183,7 +183,7 @@ public class EditTopicController {
     boolean secure,
     ProfileProperties profileProperties
   ) throws PollNotFoundException {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     final Topic message = preparedTopic.getMessage();
 
@@ -277,7 +277,7 @@ public class EditTopicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     final Topic message = messageDao.getById(msgid);
     PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
@@ -410,7 +410,7 @@ public class EditTopicController {
     if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      List<PollVariant> newVariants = new ArrayList<PollVariant>();
+      List<PollVariant> newVariants = new ArrayList<>();
 
       for (PollVariant v : poll.getVariants()) {
         String label = form.getPoll().get(v.getId());

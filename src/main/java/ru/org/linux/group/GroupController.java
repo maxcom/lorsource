@@ -213,7 +213,7 @@ public class GroupController {
           SqlRowSet rs,
           int messagesInPage
   ) {
-    List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
+    List<TopicsListItem> topicsList = new ArrayList<>();
 
     while (rs.next()) {
       User author;
@@ -243,7 +243,7 @@ public class GroupController {
     Integer year,
     Integer month
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     Template tmpl = Template.getTemplate(request);
 
     boolean showDeleted = request.getParameter("deleted") != null;

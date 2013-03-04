@@ -105,7 +105,7 @@ public class UserFilterController {
   }
 
   private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) {
-    Map<Integer, User> ignoreMap = new HashMap<Integer, User>(ignoreList.size());
+    Map<Integer, User> ignoreMap = new HashMap<>(ignoreList.size());
 
     for (int id : ignoreList) {
       try {

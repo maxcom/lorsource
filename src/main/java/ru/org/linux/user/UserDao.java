@@ -453,7 +453,7 @@ public class UserDao {
   }
 
   public List<User> getUsersCached(List<Integer> ids) {
-    List<User> users = new ArrayList<User>(ids.size());
+    List<User> users = new ArrayList<>(ids.size());
 
     for (int id : ids) {
       try {

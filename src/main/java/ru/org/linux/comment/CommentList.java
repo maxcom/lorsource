@@ -27,7 +27,7 @@ import java.util.Map;
 public class CommentList implements Serializable {
   private final ImmutableList<Comment> comments;
   private final CommentNode root = new CommentNode();
-  private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
+  private final Map<Integer, CommentNode> treeHash = new HashMap<>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
 
   private final long lastmod;
 

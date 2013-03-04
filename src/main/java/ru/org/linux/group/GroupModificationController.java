@@ -77,7 +77,7 @@ public class GroupModificationController {
       group.setInfo(info);
       group.setLongInfo(longInfo);
 
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put("group", group);
       params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
       params.put("preview", true);

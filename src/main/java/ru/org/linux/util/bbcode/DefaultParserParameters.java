@@ -98,7 +98,7 @@ public class DefaultParserParameters implements ParserParameters{
 
     otherTags = ImmutableSet.of("*");
 
-    allTags = new ArrayList<Tag>();
+    allTags = new ArrayList<>();
     { // <br/>
       HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.<String>of(), "p", this);
       tag.setSelfClosing(true);
@@ -194,13 +194,13 @@ public class DefaultParserParameters implements ParserParameters{
       allTags.add(tag);
     }
 
-    allTagsDict = new HashMap<String, Tag>();
+    allTagsDict = new HashMap<>();
     for (Tag tag : allTags) {
       if (!"text".equals(tag.getName())) {
         allTagsDict.put(tag.getName(), tag);
       }
     }
-    Builder<String> allTagsBuilder = new Builder<String>();
+    Builder<String> allTagsBuilder = new Builder<>();
     for (Tag tag : allTags) {
       allTagsBuilder.add(tag.getName());
     }

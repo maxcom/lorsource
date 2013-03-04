@@ -35,7 +35,7 @@ public class UserDetailsImpl implements UserDetails {
 
   public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1, Profile profile, Configuration configuration) {
     this.user = user1;
-    this.authorities = new ArrayList<GrantedAuthority>(authorities1);
+    this.authorities = new ArrayList<>(authorities1);
     this.profile = profile;
     this.configuration = configuration;
   }

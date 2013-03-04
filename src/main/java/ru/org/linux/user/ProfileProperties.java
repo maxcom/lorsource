@@ -56,7 +56,7 @@ public class ProfileProperties {
 
   private final long timestamp;
 
-  private final Map<String, List<String>> boxes = new HashMap<String, List<String>>();
+  private final Map<String, List<String>> boxes = new HashMap<>();
 
   public ProfileProperties(ProfileHashtable p) {
     style = fixStyle(p.getString(STYLE_PROPERTY));
@@ -225,7 +225,7 @@ public class ProfileProperties {
   }
 
   public void setList(String name, List<String> list) {
-    boxes.put(name, new ArrayList<String>(list));
+    boxes.put(name, new ArrayList<>(list));
   }
 
   public long getTimestamp() {

@@ -160,7 +160,7 @@ public class SearchController {
       long current = System.currentTimeMillis();
 
       SolrDocumentList list = response.getResults();
-      Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
+      Collection<SearchItem> res = new ArrayList<>(list.size());
 
       for (SolrDocument doc : list) {
         res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));

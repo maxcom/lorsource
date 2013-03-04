@@ -49,7 +49,7 @@ public class TrackerController {
   private static final Set<String> filterValues;
 
   static {
-    filterValues = new HashSet<String>();
+    filterValues = new HashSet<>();
     for (TrackerFilterEnum eventFilter : TrackerFilterEnum.values()) {
       filterValues.add(eventFilter.getValue());
     }
@@ -61,7 +61,7 @@ public class TrackerController {
     if(tmpl.isSessionAuthorized()) {
       return Arrays.asList(TrackerFilterEnum.values());
     } else {
-      List<TrackerFilterEnum> trackerFilters = new ArrayList<TrackerFilterEnum>();
+      List<TrackerFilterEnum> trackerFilters = new ArrayList<>();
       for(TrackerFilterEnum trackerFilter : TrackerFilterEnum.values()) {
         if("mine".equals(trackerFilter.getValue())) {
           continue;
@@ -111,7 +111,7 @@ public class TrackerController {
 
     TrackerFilterEnum trackerFilter = getFilterValue(filterAction);
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("mine", trackerFilter == TrackerFilterEnum.MINE);
     params.put("offset", offset);
     params.put("filter", trackerFilter.getValue());

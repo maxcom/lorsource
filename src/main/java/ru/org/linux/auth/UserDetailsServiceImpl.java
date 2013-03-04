@@ -117,7 +117,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   private static Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
     logger.debug("retrive auth for:" + user.getNick()) ;
-    Collection<GrantedAuthority> results = new ArrayList<GrantedAuthority>();
+    Collection<GrantedAuthority> results = new ArrayList<>();
     if(user.isActivated()) {
       results.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
       if (user.getScore() >= 50) {

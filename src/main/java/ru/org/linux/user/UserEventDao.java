@@ -110,7 +110,7 @@ public class UserEventDao {
     Integer commentId,
     String message
   ) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("userid", userId);
     params.put("type", eventType);
     params.put("private", isPrivate);

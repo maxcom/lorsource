@@ -55,7 +55,7 @@ public class UserEventService {
    * @return
    */
   public List<PreparedUserEvent> prepare(List<UserEvent> events, boolean readMessage, boolean secure) {
-    List<PreparedUserEvent> prepared = new ArrayList<PreparedUserEvent>(events.size());
+    List<PreparedUserEvent> prepared = new ArrayList<>(events.size());
 
     for (UserEvent event : events) {
       String text;

@@ -319,7 +319,7 @@ public class TopicPrepareService {
           ProfileProperties profileProperties,
           boolean loadUserpics
   ) {
-    List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
+    List<PersonalizedPreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
     ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
@@ -371,7 +371,7 @@ public class TopicPrepareService {
    * @return список подготовленных топиков
    */
   public List<PreparedTopic> prepareMessages(List<Topic> messages, boolean secure) {
-    List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
+    List<PreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
     ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);

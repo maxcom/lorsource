@@ -63,7 +63,7 @@ public class DelIPController {
                             @RequestParam("ip") String ip,
                             @RequestParam("time") String time
                             ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
 

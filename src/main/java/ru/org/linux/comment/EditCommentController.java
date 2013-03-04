@@ -121,7 +121,7 @@ public class EditCommentController extends ApplicationObjectSupport {
     HttpServletRequest request,
     @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
-    Map<String, Object> formParams = new HashMap<String, Object>();
+    Map<String, Object> formParams = new HashMap<>();
 
     User user = commentService.getCommentUser(commentRequest, request, errors);
 

@@ -55,7 +55,7 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("stylesList", DefaultProfile.getStyleList());
     params.put("avatarsList", DefaultProfile.getAvatars());
 

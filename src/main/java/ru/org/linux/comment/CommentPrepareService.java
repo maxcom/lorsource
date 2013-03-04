@@ -247,7 +247,7 @@ public class CommentPrepareService {
           @Nonnull List<Comment> list,
           boolean secure
   ) throws UserNotFoundException {
-    List<PreparedRSSComment> commentsPrepared = new ArrayList<PreparedRSSComment>(list.size());
+    List<PreparedRSSComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
       MessageText messageText = msgbaseDao.getMessageText(comment.getId());
 
@@ -278,7 +278,7 @@ public class CommentPrepareService {
             )
     );
 
-    List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
+    List<PreparedComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
       MessageText text = texts.get(comment.getId());
 

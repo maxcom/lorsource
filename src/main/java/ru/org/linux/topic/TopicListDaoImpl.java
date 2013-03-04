@@ -90,7 +90,7 @@ public class TopicListDaoImpl implements TopicListDao {
   @Override
   public List<TopicListDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
     StringBuilder query = new StringBuilder();
-    List <Object> queryParameters = new ArrayList<Object>();
+    List <Object> queryParameters = new ArrayList<>();
 
     query
       .append("SELECT ")

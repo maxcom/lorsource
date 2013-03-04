@@ -272,7 +272,7 @@ public class ImageInfo2 {
 
 	private void addComment(String s) {
 		if (comments == null) {
-			comments = new ArrayList<String>();
+			comments = new ArrayList<>();
 		}
 		comments.add(s);
 	}

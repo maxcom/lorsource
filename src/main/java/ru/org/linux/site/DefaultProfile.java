@@ -61,7 +61,7 @@ public final class DefaultProfile {
   }
 
   private static Map<String, Object> createDefaultProfile() {
-    Map<String, Object> defaults = new HashMap<String, Object>();
+    Map<String, Object> defaults = new HashMap<>();
 
     defaults.put(NEWFIRST_PROPERTY, Boolean.FALSE);
     defaults.put(HOVER_PROPERTY, Boolean.TRUE);

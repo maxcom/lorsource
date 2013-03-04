@@ -64,7 +64,7 @@ public class TopTenBoxlet extends AbstractBoxlet {
       }
     });
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("messages", list);
     params.put("style", style);
 
