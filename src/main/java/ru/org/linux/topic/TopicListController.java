@@ -481,7 +481,7 @@ public class TopicListController {
    * @return
    * @throws Exception
    */
-  @RequestMapping("/people/{nick}/favs")
+  @RequestMapping(value="/people/{nick}/favs", params="!output")
   public ModelAndView showUserFavs(
     HttpServletRequest request,
     TopicListRequest topicListForm,
@@ -514,7 +514,7 @@ public class TopicListController {
     return modelAndView;
   }
 
-  @RequestMapping("/people/{nick}/tracked")
+  @RequestMapping(value = "/people/{nick}/tracked", params="!output")
   public ModelAndView showUserWatches(
     HttpServletRequest request,
     TopicListRequest topicListForm,
