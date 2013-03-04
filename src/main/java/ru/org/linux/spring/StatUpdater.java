@@ -30,6 +30,10 @@ public class StatUpdater {
   private static final Log logger = LogFactory.getLog(StatUpdater.class);
   private static final int MAX_EVENTS = 1000;
 
+  private static final int FIVE_MINS = 5 * 60 * 1000;
+  private static final int TEN_MINS = 10 * 60 * 1000;
+  private static final int HOUR = 60 * 60 * 1000;
+
   private SimpleJdbcCall statUpdate;
   private SimpleJdbcCall statUpdate2;
   private SimpleJdbcCall statMonthly;
@@ -44,7 +48,7 @@ public class StatUpdater {
     statMonthly = new SimpleJdbcCall(dataSource).withFunctionName("update_monthly_stats");
   }
 
-  @Scheduled(fixedDelay=10*60*1000)
+  @Scheduled(fixedDelay=TEN_MINS, initialDelay = FIVE_MINS)
   public void updateStats() {
     logger.debug("Updating statistics");
 
@@ -52,14 +56,14 @@ public class StatUpdater {
     statMonthly.execute();
   }
 
-  @Scheduled(fixedDelay=60*60*1000)
+  @Scheduled(fixedDelay=HOUR, initialDelay = FIVE_MINS)
   public void updateGroupStats() {
     logger.debug("Updating group statistics");
 
     statUpdate2.execute();
   }
 
-  @Scheduled(fixedDelay = 60*60*1000)
+  @Scheduled(fixedDelay=HOUR, initialDelay = FIVE_MINS)
   public void cleanEvents() {
     userEventService.cleanupOldEvents(MAX_EVENTS);
   }
