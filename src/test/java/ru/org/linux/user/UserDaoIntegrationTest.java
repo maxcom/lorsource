@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 @ContextConfiguration(classes=UserDaoIntegrationTestConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
