@@ -15,7 +15,7 @@
 
 package ru.org.linux.section;
 
-import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import ru.org.linux.topic.TopicPermissionService;
 
 import java.io.Serializable;
@@ -40,12 +40,12 @@ public class Section implements Serializable {
   public static final int SECTION_NEWS = 1;
   public static final int SECTION_POLLS = 5;
 
-  private static final ImmutableBiMap<String, Integer> sections
-          = ImmutableBiMap.of(
-          "news", SECTION_NEWS,
-          "forum", SECTION_FORUM,
-          "gallery", SECTION_GALLERY,
-          "polls", SECTION_POLLS
+  private static final ImmutableMap<Integer, String> sections
+          = ImmutableMap.of(
+          SECTION_NEWS, "news",
+          SECTION_FORUM, "forum",
+          SECTION_GALLERY, "gallery",
+          SECTION_POLLS, "polls"
   );
 
   public Section(ResultSet rs) throws SQLException {
@@ -139,7 +139,7 @@ public class Section implements Serializable {
   }
 
   private static String getUrlName(int section) {
-    String name = sections.inverse().get(section);
+    String name = sections.get(section);
 
     if (name!=null) {
       return name;
