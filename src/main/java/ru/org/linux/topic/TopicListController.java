@@ -27,6 +27,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupNotFoundException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
@@ -933,10 +934,9 @@ public class TopicListController {
     return navTitle.toString();
   }
 
-  @ExceptionHandler(UserNotFoundException.class)
+  @ExceptionHandler({UserNotFoundException.class, GroupNotFoundException.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleUserNotFoundException() {
+  public ModelAndView handleNotFoundException() {
     return new ModelAndView("errors/code404");
   }
-
 }

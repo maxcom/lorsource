@@ -46,10 +46,10 @@ public class GroupDao {
    *
    * @param id идентификатор группы
    * @return объект группы
-   * @throws BadGroupException если группа не существует
+   * @throws GroupNotFoundException если группа не существует
    */
   @Cacheable("Groups")
-  public Group getGroup(int id) throws BadGroupException {
+  public Group getGroup(int id) throws GroupNotFoundException {
     try {
       return jdbcTemplate.queryForObject(
         "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments,stat1,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
@@ -62,7 +62,7 @@ public class GroupDao {
         id
       );
     } catch (EmptyResultDataAccessException ex) {
-      throw new BadGroupException("Группа " + id + " не существует", ex);
+      throw new GroupNotFoundException("Группа " + id + " не существует", ex);
     }
   }
 
@@ -92,15 +92,15 @@ public class GroupDao {
    * @param section объект секции.
    * @param name    имя группы
    * @return объект группы
-   * @throws BadGroupException если группа не существует
+   * @throws GroupNotFoundException если группа не существует
    */
-  public Group getGroup(Section section, String name) throws BadGroupException {
+  public Group getGroup(Section section, String name) throws GroupNotFoundException {
     try {
       int id = jdbcTemplate.queryForInt("SELECT id FROM groups WHERE section=? AND urlname=?", section.getId(), name);
 
       return getGroup(id);
     } catch (EmptyResultDataAccessException ex) {
-      throw new BadGroupException("group not found");
+      throw new GroupNotFoundException("group not found");
     }
   }
 

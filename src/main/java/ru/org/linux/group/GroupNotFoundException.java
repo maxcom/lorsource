@@ -15,15 +15,12 @@
 
 package ru.org.linux.group;
 
-public class BadGroupException extends RuntimeException {
-  public BadGroupException() {
-  }
-
-  public BadGroupException(String info) {
+public class GroupNotFoundException extends RuntimeException {
+  public GroupNotFoundException(String info) {
     super(info);
   }
 
-  public BadGroupException(String info, Exception cause) {
+  public GroupNotFoundException(String info, Exception cause) {
     super(info, cause);
   }
 }
