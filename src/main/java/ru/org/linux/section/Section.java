@@ -164,16 +164,6 @@ public class Section implements Serializable {
     return getSectionLink(id)+"archive/";
   }
 
-  public static int getSection(String name) throws SectionNotFoundException {
-    Integer v = sections.get(name);
-
-    if (v==null) {
-      throw new SectionNotFoundException();
-    }
-
-    return v;
-  }
-
   public int getTopicsRestriction() {
     return topicsRestriction;
   }

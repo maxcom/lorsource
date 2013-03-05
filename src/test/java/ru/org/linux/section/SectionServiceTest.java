@@ -31,20 +31,6 @@ public class SectionServiceTest {
   private SectionService sectionService;
 
   @Test
-  public void getSectionIdByNameTest() {
-
-    assertEquals(1, sectionService.getSectionIdByName("Section 1"));
-    assertEquals(2, sectionService.getSectionIdByName("Section 2"));
-    assertEquals(3, sectionService.getSectionIdByName("Section 3"));
-    assertEquals(4, sectionService.getSectionIdByName("Section 4"));
-
-    try {
-      sectionService.getSectionIdByName("Section XXX");
-      fail();
-    } catch (SectionNotFoundException ignored) {
-    }
-  }
-  @Test
   public void getSectionTest() {
     Section section = sectionService.getSection(3);
     assertNotNull(section);

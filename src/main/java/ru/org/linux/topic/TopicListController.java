@@ -379,7 +379,7 @@ public class TopicListController {
   ) throws Exception {
     TopicListRequest topicListForm = new TopicListRequest();
 
-    topicListForm.setSection(Section.getSection(section));
+    topicListForm.setSection(sectionService.getSectionByName(section).getId());
     topicListForm.setYear(year);
     topicListForm.setMonth(month);
 
