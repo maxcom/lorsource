@@ -153,14 +153,10 @@ public class Section implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+year+ '/' +month+ '/';
+    return getArchiveLink()+year+ '/' +month+ '/';
   }
 
   public String getArchiveLink() {
-    return getArchiveLink(id);
-  }
-
-  private static String getArchiveLink(int id) {
     if (id==SECTION_FORUM) {
       return null;
     }
