@@ -15,17 +15,21 @@
 
 package ru.org.linux.user;
 
+import ru.org.linux.group.Group;
+
 public class PreparedUserEvent {
   private final UserEvent event;
   private final String messageText;
   private final User commentAuthor;
   private final int bonus;
+  private final Group group;
 
-  public PreparedUserEvent(UserEvent event, String messageText, User commentAuthor, int bonus) {
+  public PreparedUserEvent(UserEvent event, String messageText, User commentAuthor, int bonus, Group group) {
     this.event = event;
     this.messageText = messageText;
     this.commentAuthor = commentAuthor;
     this.bonus = bonus;
+    this.group = group;
   }
 
   public UserEvent getEvent() {
@@ -42,5 +46,9 @@ public class PreparedUserEvent {
 
   public int getBonus() {
     return bonus;
+  }
+
+  public Group getGroup() {
+    return group;
   }
 }

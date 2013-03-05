@@ -42,13 +42,13 @@ public class UserEventDao {
 
   private static final String QUERY_ALL_REPLIES_FOR_USER =
     "SELECT event_date, " +
-      " topics.title as subj, groups.title as gtitle, " +
+      " topics.title as subj, " +
       " lastmod, topics.id as msgid, " +
       " comments.id AS cid, " +
       " comments.postdate AS cDate, " +
       " comments.userid AS cAuthor, " +
       " unread, " +
-      " urlname, groups.section, comments.deleted," +
+      " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
       " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
       " INNER JOIN groups ON (groups.id = topics.groupid) " +
@@ -61,13 +61,13 @@ public class UserEventDao {
 
   private static final String QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE =
     "SELECT event_date, " +
-      " topics.title as subj, groups.title as gtitle, " +
+      " topics.title as subj, " +
       " lastmod, topics.id as msgid, " +
       " comments.id AS cid, " +
       " comments.postdate AS cDate, " +
       " comments.userid AS cAuthor, " +
       " unread, " +
-      " urlname, groups.section, comments.deleted," +
+      " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
       " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
       " INNER JOIN groups ON (groups.id = topics.groupid) " +
@@ -146,12 +146,11 @@ public class UserEventDao {
    * @return список идентификационных номеров пользователей
    */
   public List<Integer> getUserIdListByOldEvents(int maxEventsPerUser) {
-    final List<Integer> oldEventsList = jdbcTemplate.queryForList(
+    return jdbcTemplate.queryForList(
       "select userid from user_events group by userid having count(user_events.id) > ? order by count(user_events.id) DESC limit 10",
       Integer.class,
       maxEventsPerUser
     );
-    return oldEventsList;
   }
 
   /**
@@ -209,17 +208,15 @@ public class UserEventDao {
           cDate = null;
           cAuthor = 0;
         }
-        String groupTitle = resultSet.getString("gtitle");
-        String groupUrlName = resultSet.getString("urlname");
-        int sectionId = resultSet.getInt("section");
+        int groupId = resultSet.getInt("groupid");
         int msgid = resultSet.getInt("msgid");
         UserEventFilterEnum type = UserEventFilterEnum.valueOfByType(resultSet.getString("type"));
         String eventMessage = resultSet.getString("ev_msg");
 
         boolean unread = resultSet.getBoolean("unread");
 
-        return new UserEvent(cid, cAuthor, cDate, groupTitle, groupUrlName,
-          sectionId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
+        return new UserEvent(cid, cAuthor, cDate,
+                groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
       }
     }, userId, topics, offset);
   }
