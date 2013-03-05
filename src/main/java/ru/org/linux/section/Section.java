@@ -160,7 +160,7 @@ public class Section implements Serializable {
     return getArchiveLink(id);
   }
 
-  public static String getArchiveLink(int id) {
+  private static String getArchiveLink(int id) {
     if (id==SECTION_FORUM) {
       return null;
     }

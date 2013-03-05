@@ -19,17 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.topic.ArchiveDao.ArchiveDTO;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Controller
@@ -94,17 +90,5 @@ public class ArchiveController {
     @PathVariable String group
   ) throws Exception {
     return archiveList(Section.SECTION_FORUM, group);
-  }
-
-  @RequestMapping("/view-news-archive.jsp")
-  public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
-    String link = Section.getArchiveLink(id);
-
-    if (link==null) {
-      response.sendError(404, "No archive for this section");
-      return null;
-    }
-
-    return new RedirectView(link);
   }
 }
