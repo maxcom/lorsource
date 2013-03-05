@@ -127,14 +127,12 @@ public class Section implements Serializable {
     return '/' + getUrlName(section) + '/';
   }
 
-  public static String getNewsViewerLink(int section) throws SectionNotFoundException {
-    String urlName = getUrlName(section);
-
-    switch (section) {
+  public String getNewsViewerLink() throws SectionNotFoundException {
+    switch (id) {
       case SECTION_FORUM:
         return "/forum/lenta/";
       default:
-        return '/' +urlName+ '/';
+        return '/' + getUrlName(id) + '/';
     }
   }
 

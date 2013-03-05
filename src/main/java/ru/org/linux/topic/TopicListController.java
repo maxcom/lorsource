@@ -622,7 +622,10 @@ public class TopicListController {
     @RequestParam(value="group", defaultValue = "0") int groupId
   ) throws Exception {
     StringBuilder redirectLink = new StringBuilder();
-    redirectLink.append(Section.getNewsViewerLink(topicListForm.getSection()));
+
+    Section section = sectionService.getSection(topicListForm.getSection());
+
+    redirectLink.append(section.getNewsViewerLink());
 
     if (topicListForm.getYear() != null && topicListForm.getMonth() != null) {
       redirectLink
@@ -913,7 +916,7 @@ public class TopicListController {
       navTitle.setLength(0);
       navTitle
         .append("<a href=\"")
-        .append(Section.getNewsViewerLink(group.getSectionId()))
+        .append(section.getNewsViewerLink())
         .append("\">")
         .append(section.getName())
         .append("</a> - <strong>")
