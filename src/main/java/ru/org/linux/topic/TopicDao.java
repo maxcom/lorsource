@@ -37,7 +37,6 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.Screenshot;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.Poll;
@@ -203,9 +202,8 @@ public class TopicDao {
    * Получить group message
    * @param message message
    * @return group
-   * @throws BadGroupException если что-то неправильно
    */
-  public Group getGroup(Topic message) throws BadGroupException {
+  public Group getGroup(Topic message) {
     return groupDao.getGroup(message.getGroupId());
   }
 
@@ -332,7 +330,7 @@ public class TopicDao {
           final HttpServletRequest request,
           final User user,
           String text
-  ) throws ScriptErrorException {
+  ) {
     final Group group = groupDao.getGroup(msg.getGroupId());
 
     final int msgid = allocateMsgid();

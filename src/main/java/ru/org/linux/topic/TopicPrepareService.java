@@ -29,7 +29,6 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -266,11 +265,7 @@ public class TopicPrepareService {
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(message.getPostScore()),
               remark);
-    } catch (BadGroupException e) {
-      throw new RuntimeException(e);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (PollNotFoundException e) {
+    } catch (UserNotFoundException | PollNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

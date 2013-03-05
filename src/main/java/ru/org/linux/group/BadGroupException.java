@@ -15,9 +15,7 @@
 
 package ru.org.linux.group;
 
-import ru.org.linux.site.ScriptErrorException;
-
-public class BadGroupException extends ScriptErrorException {
+public class BadGroupException extends RuntimeException {
   public BadGroupException() {
   }
 

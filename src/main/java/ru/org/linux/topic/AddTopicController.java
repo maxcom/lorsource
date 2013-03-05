@@ -38,7 +38,6 @@ import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.Screenshot;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -281,7 +280,6 @@ public class AddTopicController {
     }
 
     Topic previewMsg = null;
-    TopicMenu topicMenu = null;
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
@@ -308,7 +306,7 @@ public class AddTopicController {
 
       params.put("message", preparedTopic);
 
-      topicMenu = prepareService.getTopicMenu(
+      TopicMenu topicMenu = prepareService.getTopicMenu(
               preparedTopic,
               tmpl.getCurrentUser(),
               request.isSecure(),
@@ -401,11 +399,7 @@ public class AddTopicController {
     binder.registerCustomEditor(Group.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
-        try {
-          setValue(groupDao.getGroup(Integer.parseInt(text)));
-        } catch (BadGroupException e) {
-          throw new IllegalArgumentException(e);
-        }
+        setValue(groupDao.getGroup(Integer.parseInt(text)));
       }
 
       @Override
@@ -445,7 +439,7 @@ public class AddTopicController {
           HttpSession session,
           String image,
           Errors errors
-  ) throws IOException, UtilException {
+  ) throws IOException {
     if (session==null) {
       return null;
     }
