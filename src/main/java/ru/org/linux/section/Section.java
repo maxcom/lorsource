@@ -107,7 +107,7 @@ public class Section implements Serializable {
 
   public static int getCommentPostscore(int id) {
     //TODO move this to database
-    if (id==1 || id==2) {
+    if (id==SECTION_NEWS || id==SECTION_FORUM) {
       return TopicPermissionService.POSTSCORE_UNRESTRICTED;
     } else {
       return 50;
@@ -124,7 +124,7 @@ public class Section implements Serializable {
   }
 
   private static String getSectionLinkInternal(int section) {
-    return "/"+ getUrlName(section) +"/";
+    return '/' + getUrlName(section) + '/';
   }
 
   public static String getNewsViewerLink(int section) throws SectionNotFoundException {
@@ -134,7 +134,7 @@ public class Section implements Serializable {
       case SECTION_FORUM:
         return "/forum/lenta/";
       default:
-        return "/"+urlName+"/";
+        return '/' +urlName+ '/';
     }
   }
 
