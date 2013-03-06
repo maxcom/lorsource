@@ -78,130 +78,40 @@ public class TopicController {
   @Autowired
   private TopicPermissionService permissionService;
 
-  @RequestMapping("/forum/{group}/{id}")
-  public ModelAndView getMessageNewForum(
+  @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
+  public ModelAndView getMessageNewMain(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "filter", required = false) String filter,
     @RequestParam(value = "cid" , required = false) Integer cid,
+    @PathVariable("section") String sectionName,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
+
+    Section section = sectionService.getSectionByName(sectionName);
+
+    return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
-  @RequestMapping("/news/{group}/{id}")
-  public ModelAndView getMessageNewNews(
+  @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}/page{page}")
+  public ModelAndView getMessageNewPage(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
-  ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, msgid, cid);
-    }
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/polls/{group}/{id}")
-  public ModelAndView getMessageNewPolls(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
-  ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, msgid, cid);
-    }
-    return getMessageNew(
-      Section.SECTION_POLLS,
-      webRequest,
-      request,
-      response,
-      0,
-      filter,
-      groupName,
-      msgid);
-  }
-
-  @RequestMapping("/gallery/{group}/{id}")
-  public ModelAndView getMessageNewGallery(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
-  ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, msgid, cid);
-    }
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/forum/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewForumPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("section") String sectionName,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
-  }
+    Section section = sectionService.getSectionByName(sectionName);
 
-  @RequestMapping("/news/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewNewsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
-  ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/polls/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewPollsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
-  ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/gallery/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewGalleryPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
-  ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(section, webRequest, request, response, page, filter, groupName, msgid);
   }
 
   private static int getDefaultFilter(ProfileProperties prof, boolean emptyIgnoreList) {
@@ -219,7 +129,7 @@ public class TopicController {
   }
 
   private ModelAndView getMessageNew(
-    int section,
+    Section section,
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
@@ -233,7 +143,7 @@ public class TopicController {
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
-    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
+    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 

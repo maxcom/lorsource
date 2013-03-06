@@ -109,7 +109,7 @@ public class GroupController {
     }
   }
 
-  @RequestMapping("/forum/{group}/{year}/{month}")
+  @RequestMapping("/forum/{group}/{year:\\d+}/{month:\\d+}")
   public ModelAndView forumArchive(
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
