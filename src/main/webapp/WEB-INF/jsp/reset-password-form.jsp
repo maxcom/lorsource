@@ -14,6 +14,8 @@
   ~    limitations under the License.
   --%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%--@elvariable id="error" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -23,8 +25,16 @@
 <H1>Получить забытый пароль</H1>
 <form method=POST action="/reset-password">
   <lor:csrf/>
-  <label>Логин: <input type=text name=nick size=40><br></label>
-  <label>Код: <input type=text name=code size=40><br></label>
-<input type=submit value="Сбросить">
+
+  <c:if test="${not empty error}">
+    <div class="error">
+      <strong>Ошибка!</strong> <c:out escapeXml="true" value="${error}"/>
+    </div>
+  </c:if>
+
+  <label>Логин: <input type=text name=nick size=40 required><br></label>
+  <label>Код: <input type=text name=code size=40 required><br></label>
+
+  <button type=submit>Сбросить</button>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
