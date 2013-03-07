@@ -438,15 +438,15 @@ public class TopicController {
 
     int pagenum = deleted?0:comments.getCommentPage(node.getComment(), tmpl.getProf());
 
-    TopicLinkBuilder redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum);
+    TopicLinkBuilder redirectUrl =
+            TopicLinkBuilder
+                    .pageLink(topic, pagenum)
+                    .lastmod(tmpl.getProf().getMessages())
+                    .comment(cid);
 
     if (deleted) {
-      redirectUrl.showDeleted();
+      redirectUrl = redirectUrl.showDeleted();
     }
-
-    redirectUrl.lastmod(tmpl.getProf().getMessages());
-
-    redirectUrl.comment(cid);
 
     if (tmpl.isSessionAuthorized() && !deleted) {
       Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
@@ -458,7 +458,7 @@ public class TopicController {
       );
 
       if (hideSet.contains(node.getComment().getId())) {
-        redirectUrl.filter(CommentFilter.FILTER_NONE);
+        redirectUrl = redirectUrl.filter(CommentFilter.FILTER_NONE);
       }
     }
 
