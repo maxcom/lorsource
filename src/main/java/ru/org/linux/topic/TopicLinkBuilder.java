@@ -70,7 +70,7 @@ public class TopicLinkBuilder {
   public TopicLinkBuilder filter(int filter) { // TODO: use Enum for filter
     String value = CommentFilter.toString(filter);
 
-    if (!value.equals(value)) {
+    if (!value.equals(this.filter)) {
       return new TopicLinkBuilder(topic, page, showDeleted, lastmod, comment, value);
     } else {
       return this;
