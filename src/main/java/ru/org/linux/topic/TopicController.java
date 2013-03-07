@@ -29,6 +29,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
+import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -43,10 +44,7 @@ import ru.org.linux.util.LorURL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class TopicController {
@@ -126,6 +124,22 @@ public class TopicController {
     }
 
     return filterMode;
+  }
+
+  private static PagesInfo buildPages(Topic topic, int messagesPerPage, int filterMode, int defaultFilterMode, int currentPage) {
+    TopicLinkBuilder base = TopicLinkBuilder.baseLink(topic).lastmod(messagesPerPage);
+
+    if (filterMode!=defaultFilterMode) {
+      base = base.filter(filterMode);
+    }
+
+    List<String> out = new ArrayList<>();
+
+    for (int i=0; i<topic.getPageCount(messagesPerPage); i++) {
+      out.add(base.page(i).build());
+    }
+
+    return new PagesInfo(out, currentPage);
   }
 
   private ModelAndView getMessageNew(
@@ -247,7 +261,8 @@ public class TopicController {
         filterMode = defaultFilterMode;
       }
 
-      params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
+      int pages = topic.getPageCount(tmpl.getProf().getMessages());
+
       params.put("filterMode", CommentFilter.toString(filterMode));
       params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
@@ -276,6 +291,10 @@ public class TopicController {
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
       params.put("ipBlockInfo", ipBlockInfo);
+
+      if (pages>1 && !showDeleted) {
+        params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
+      }
     } else {
       CommentFilter cv = new CommentFilter(comments);
 

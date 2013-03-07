@@ -29,6 +29,7 @@
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
+<%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -156,62 +157,32 @@
   </div>
 </c:if></c:set>
 
-<c:if test="${pages > 1 and not showDeleted}">
-    <c:set var="urlAdd" value='' />
-    <c:set var="bufInfo" value='' />
-    <c:set var="filterAdd" value='' />
-
-    <c:if test="${not message.expired}">
-        <c:set var="urlAdd" value="?lastmod=${message.lastModified.time}" />
+<c:set var="bufInfo">
+<c:if test="${pages!=null}">
+    <c:if test="${pages.hasPrevious}">
+        &emsp;<a class='page-number' href='${pages.previous}#comments'>←</a>
+    </c:if>
+    <c:if test="${not pages.hasPrevious}">
+        &emsp;<span class='page-number'>←</span>
     </c:if>
 
-    <c:if test="${filterMode != defaultFilterMode}">
-        <c:choose>
-            <c:when test="${empty urlAdd}">
-                <c:set var="urlAdd" value="?" />
-            </c:when>
-            <c:otherwise>
-                <c:set var="urlAdd" value="${urlAdd}&" />
-            </c:otherwise>
-        </c:choose>
-        <c:set var="filterAdd" value="?filter=${filterMode}" />
-        <c:set var="urlAdd" value="${urlAdd}filter=${filterMode}" />
-    </c:if>
-    <c:if test="${page != -1 and page != 0}">
-        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${message.getLinkPage(page-1)}${filterAdd}#comments'>←</a>" />
-    </c:if>
-    <c:if test="${page == -1 or page == 0}">
-        <c:set var="bufInfo" value="&emsp;<span class='page-number'>←</span>" />
-    </c:if>
-
-    <c:forEach var="i" begin="0" end="${pages-1}">
-        <c:set var="bufInfo" value="${bufInfo} " />
-        <c:if test="${i != page}">
-            <c:if test="${i == pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${urlAdd}#comments'" />
-            </c:if>
-            <c:if test="${i != pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${filterAdd}#comments'" />
-            </c:if>
-            <c:set var="bufInfo" value="${bufInfo}>${i + 1}</a>" />
+    <c:forEach var="i" items="${pages.pageLinks}">
+        <c:if test="${not i.current}">
+            <a class='page-number' href='${i.url}#comments'>${i.index + 1}</a>
         </c:if>
-        <c:if test="${i == page}">
-            <c:set var="bufInfo" value="${bufInfo}<strong class='page-number'>${i + 1}</strong>" />
+        <c:if test="${i.current}">
+            <strong class='page-number'>${i.index + 1}</strong>
         </c:if>
     </c:forEach>
 
-    <c:if test="${page != -1 and page + 1 != pages}">
-        <c:if test="${page + 1 == pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${urlAdd}#comments'>→</a>" />
-        </c:if>
-        <c:if test="${page + 1 != pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${filterAdd}#comments'>→</a>" />
-        </c:if>
+    <c:if test="${pages.hasNext}">
+      <a class='page-number' href='${pages.next}#comments'>→</a>
     </c:if>
-    <c:if test="${page == -1 or page + 1 == pages}">
-        <c:set var="bufInfo" value="${bufInfo} <span class='page-number'>→</span>" />
+    <c:if test="${not pages.hasNext}">
+        <span class='page-number'>→</span>
     </c:if>
 </c:if>
+</c:set>
 
 <lor:message
         messageMenu="${messageMenu}"

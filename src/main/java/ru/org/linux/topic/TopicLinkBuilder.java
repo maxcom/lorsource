@@ -98,4 +98,12 @@ public class TopicLinkBuilder {
 
     return builder.build().toUriString();
   }
+
+  public TopicLinkBuilder page(int page) {
+    if (page!=this.page) {
+      return new TopicLinkBuilder(topic, page, showDeleted, lastmod, comment, filter);
+    } else {
+      return this;
+    }
+  }
 }
