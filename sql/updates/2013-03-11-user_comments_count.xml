@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright 1998-2012 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2013030101" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE user_comment_counts (
+                userid int primary key references users (id),
+                cnt int not null
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="2013030102" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            GRANT ALL ON user_comment_counts TO linuxweb;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

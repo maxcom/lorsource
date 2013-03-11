@@ -205,17 +205,27 @@ public class UserDao {
   /**
    * Получить статситику пользователя
    * @param user пользователь
+   * @param exact точная или приблизительная статистика
    * @return статистика
    */
-  public UserStatistics getUserStatisticsClass(User user) {
+  public UserStatistics getUserStatisticsClass(User user, boolean exact) {
     int ignoreCount = ignoreListDao.getIgnoreStat(user);
 
-    int commentCount;
+    int commentCount = 0;
 
-    try {
-      commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
-    } catch (EmptyResultDataAccessException exception) {
-      commentCount = 0;
+    if (!exact) {
+      List<Integer> res = jdbcTemplate.queryForList("SELECT cnt FROM user_comment_counts WHERE userid=?", Integer.class, user.getId());
+
+      if (res.size()>0) {
+        commentCount = (int) Math.round(res.get(0) / 1000.0) * 1000;
+      }
+    }
+
+    if (commentCount == 0) {
+      try {
+        commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
+      } catch (EmptyResultDataAccessException exception) {
+      }
     }
 
     List<Timestamp> commentStat;
