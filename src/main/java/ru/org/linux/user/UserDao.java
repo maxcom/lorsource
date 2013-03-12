@@ -212,6 +212,7 @@ public class UserDao {
     int ignoreCount = ignoreListDao.getIgnoreStat(user);
 
     int commentCount = 0;
+    boolean exactCommentCount = false;
 
     if (!exact) {
       List<Integer> res = jdbcTemplate.queryForList("SELECT cnt FROM user_comment_counts WHERE userid=?", Integer.class, user.getId());
@@ -226,6 +227,8 @@ public class UserDao {
         commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
       } catch (EmptyResultDataAccessException exception) {
       }
+
+      exactCommentCount = true;
     }
 
     List<Timestamp> commentStat;
@@ -263,7 +266,7 @@ public class UserDao {
     }, user.getId());
     
     return new UserStatistics(ignoreCount, commentCount,
-        commentStat.get(0), commentStat.get(1),
+            exactCommentCount, commentStat.get(0), commentStat.get(1),
         topicStat.get(0), topicStat.get(1),
         builder.build());
   }

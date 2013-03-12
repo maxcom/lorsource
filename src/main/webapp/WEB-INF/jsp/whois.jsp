@@ -259,7 +259,7 @@
   <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
 </c:if>
 <c:if test="${not user.anonymous}">
-  <b>Число комментариев:</b> <c:if test="${not template.sessionAuthorized and userStat.commentCount>=1000}">приблизительно </c:if> ${userStat.commentCount}
+  <b>Число комментариев:</b> <c:if test="${not userStat.exactCommentCount}">приблизительно </c:if> ${userStat.commentCount}
 </c:if>
 <p>
 
