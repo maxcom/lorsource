@@ -21,7 +21,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
@@ -33,9 +32,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
 @Repository
 public class TrackerDao {
   private NamedParameterJdbcTemplate jdbcTemplate;
@@ -47,9 +43,6 @@ public class TrackerDao {
 
   @Autowired
   private UserDao userDao;
-
-  @Autowired
-  private TagService tagService;
 
   @Autowired
   private TopicTagService topicTagService;
