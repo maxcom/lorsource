@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,6 +63,7 @@ public class TopicTagDao {
    * @param msgid идентификационный номер топика
    * @return список тегов топика
    */
+  @Nonnull
   public ImmutableList<String> getTags(int msgid) {
     final ImmutableList.Builder<String> tags = ImmutableList.builder();
 
@@ -75,6 +77,7 @@ public class TopicTagDao {
       },
       msgid
     );
+
     return tags.build();
   }
 
