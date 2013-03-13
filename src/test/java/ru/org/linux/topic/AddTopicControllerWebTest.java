@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -130,8 +132,11 @@ public class AddTopicControllerWebTest {
 
     Document searchDoc = Jsoup.parse(searchCR.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
-    assertEquals("Всего найдено 0 результатов", searchDoc.select(".infoblock div").text().trim());
+    Matcher m = Pattern
+        .compile("Всего найдено (\\d+) результатов")
+        .matcher(searchDoc.select(".infoblock div").text().trim());
 
-
+    assertTrue(m.find());                            // Всего найдено
+    assertTrue(Integer.parseInt(m.group(1)) > 0);    //
   }
 }
