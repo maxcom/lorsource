@@ -67,34 +67,34 @@
 <c:if test="${not query.initial && numFound!=null}">
   <div class="infoblock">
     <c:if test="${numFound > 1}">
-      <div style="float: right">
-        <label>сортировать
-          <form:select path="sort" onchange="submit()" items="${sorts}"/>
-        </label>
-      </div>
-    </c:if>
-
-    <c:choose>
-      <c:when test="${sectionFacet !=null}">
-        <div>
-          Раздел:
-          <c:forEach items="${sectionFacet}" var="facet">
-            <form:radiobutton path="section" onchange="submit()" value="${facet.key}"
-                              label="${facet.value}"/>
-          </c:forEach>
+        <div style="float: right">
+            <label>сортировать
+              <form:select path="sort" onchange="submit()" items="${sorts}"/>
+            </label>
         </div>
-      </c:when>
 
-      <c:otherwise>
-        <form:hidden path="section"/>
-      </c:otherwise>
-    </c:choose>
+        <c:choose>
+          <c:when test="${sectionFacet !=null}">
+            <div>
+              Раздел:
+              <c:forEach items="${sectionFacet}" var="facet">
+                <form:radiobutton path="section" onchange="submit()" value="${facet.key}"
+                                  label="${facet.value}"/>
+              </c:forEach>
+            </div>
+          </c:when>
+          <c:otherwise>
+            <form:hidden path="section"/>
+          </c:otherwise>
+        </c:choose>
 
-    <c:if test="${groupFacet!=null}">
-      <div>
-        Группа:
-        <form:select path="group" items="${groupFacet}" onchange="submit()"/>
-      </div>
+        <c:if test="${groupFacet!=null}">
+          <div>
+            Группа:
+            <form:select path="group" items="${groupFacet}" onchange="submit()"/>
+          </div>
+        </c:if>
+
     </c:if>
 
     <div>
