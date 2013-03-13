@@ -16,6 +16,10 @@ import ru.org.linux.test.WebHelper;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -82,6 +86,7 @@ public class AddTopicControllerWebTest {
     formData.add("group", Integer.toString(TEST_GROUP));
     formData.add("csrf", "csrf");
     formData.add("title", TEST_TITLE);
+    formData.add("msg", "http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06_03");
 
     ClientResponse cr = resource
             .path("add.jsp")
@@ -110,5 +115,23 @@ public class AddTopicControllerWebTest {
     Document finalDoc = Jsoup.parse(page.getEntityInputStream(), "UTF-8", resource.getURI().toString());
 
     assertEquals(TEST_TITLE, finalDoc.select("h1[itemprop=headline] a").text());
+
+    //
+    // Search
+    //
+
+    ClientResponse searchCR = resource
+        .path("search.jsp")
+        .queryParam("q", "*opengroup*")
+        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .get(ClientResponse.class);
+
+    assertEquals(HttpStatus.SC_OK, searchCR.getStatus());
+
+    Document searchDoc = Jsoup.parse(searchCR.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+
+    assertEquals("Всего найдено 0 результатов", searchDoc.select(".infoblock div").text().trim());
+
+
   }
 }
