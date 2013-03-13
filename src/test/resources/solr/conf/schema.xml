@@ -45,7 +45,7 @@
 
         <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
             <analyzer type="index">
-                <tokenizer class="solr.UAX29URLEmailTokenizerFactory"/>
+                <tokenizer class="solr.StandardTokenizerFactory"/>
                 <charFilter class="solr.HTMLStripCharFilterFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.PatternReplaceFilterFactory"
@@ -62,7 +62,7 @@
                 <filter class="solr.LengthFilterFactory" min="2" max="50"/>
             </analyzer>
             <analyzer type="query">
-                <tokenizer class="solr.UAX29URLEmailTokenizerFactory"/>
+                <tokenizer class="solr.StandardTokenizerFactory"/>
                 <charFilter class="solr.HTMLStripCharFilterFactory"/>
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.PatternReplaceFilterFactory"
