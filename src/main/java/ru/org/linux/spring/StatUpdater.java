@@ -79,7 +79,7 @@ public class StatUpdater {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateUserCounters() {
     jdbcTemplate.update("DELETE FROM user_comment_counts");
-    jdbcTemplate.update("INSERT INTO user_comment_counts (SELECT userid, count(*) FROM comments GROUP BY userid HAVING count(*)>1000)");
+    jdbcTemplate.update("INSERT INTO user_comment_counts (SELECT userid, count(*) FROM comments WHERE NOT deleted GROUP BY userid HAVING count(*)>1000)");
   }
 
 }
