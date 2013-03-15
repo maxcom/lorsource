@@ -18,6 +18,16 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
+<div class="poll-result">
+<c:forEach var="variant" items="${poll.variants}">
+    <ol>
+        <li>
+            <span>${fn:escapeXml(variant.label)} ${variant.votes} (${variant.percentage}%)</span>
+            <p class="penguin_progress"><span style="width: ${variant.percentage}%"><span>${variant.percentage}%</span></span></p>
+        </li>
+    </ol>
+</c:forEach>
+</div>
 <table class="poll-result">
 <c:forEach var="variant" items="${poll.variants}">
     <tr>

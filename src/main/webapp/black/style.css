@@ -170,12 +170,6 @@ DIV.notes
     border: #808080 1px solid;
 }
 
-table.poll-result .penguin{
-    background-repeat: repeat-x;
-    background-color: transparent !Important;
-    background-image: url("/black/img/votes.png") !important;
-}
-
 .code {
     background: #000020;
 }

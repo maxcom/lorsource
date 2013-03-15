@@ -291,12 +291,6 @@ input[type="checkbox"] {
     margin-bottom: 5px;
 }
 
-table.poll-result .penguin{
-    background-repeat: repeat-x;
-    background-color: transparent !important;
-    background-image: url("/tango/img/votes.png") !important;
-}
-
 div.quote {
     margin: 0;
     border: 0 solid #555753;
