@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
         excludeFilters = {
                 @ComponentScan.Filter(
                         type = FilterType.ANNOTATION,
-                        value = Controller.class
+                        value = {Controller.class,Configuration.class}
                 ),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
                                 SearchQueueSender.class,
                                 SolrOptimizer.class,
                                 FeedPinger.class,
-                                TopicListService.class
+                                TopicListService.class,
                         }
                 )
         }
