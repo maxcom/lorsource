@@ -46,7 +46,7 @@ public class TopicControllerIntegrationTest {
   @Test
   public void testLoadBaseZeroComments() throws Exception {
     mockMvc.perform(
-            get("/forum/linux-org-ru/1948720")
+            get("/polls/polls/98075")
     ).andExpect(status().isOk());
   }
 
@@ -60,7 +60,7 @@ public class TopicControllerIntegrationTest {
   @Test
   public void testZeroCommentsWrongPage() throws Exception {
     mockMvc.perform(
-            get("/forum/linux-org-ru/1948720/page10")
-    ).andExpect(redirectedUrl("/forum/linux-org-ru/1948720"));
+            get("/polls/polls/98075/page10")
+    ).andExpect(redirectedUrl("/polls/polls/98075"));
   }
 }
