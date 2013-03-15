@@ -186,8 +186,12 @@ public class TopicController {
 
     int pages = topic.getPageCount(tmpl.getProf().getMessages());
 
-    if (page>=pages) {
-      return new ModelAndView(new RedirectView(topic.getLinkPage(pages-1)));
+    if (page >= pages && (page > 0 || pages > 0)) {
+      if (pages==0) {
+        return new ModelAndView(new RedirectView(topic.getLink()));
+      } else {
+        return new ModelAndView(new RedirectView(topic.getLinkPage(pages - 1)));
+      }
     }
 
     if (showDeleted) {
