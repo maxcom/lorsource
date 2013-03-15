@@ -208,8 +208,26 @@ public class LorURL extends URI {
     return _comment_id;
   }
 
+  /**
+   * Ищет в стороке символ который полчается если строка однобайтовая вместо предполагаемого utf8
+   * @param str строка для проверки
+   * @return флажок
+   */
+  private boolean isContainReplacementCharset(String str) {
+    for(char c : str.toCharArray()) {
+      if(c == 65533) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public String formatUrlBody(int maxLength) throws URIException {
     String all = getURIReference();
+    // Костыль для однобайтовых неудачников
+    if(isContainReplacementCharset(all)) {
+      all = getEscapedURIReference();
+    }
     String scheme = getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
     int trueMaxLength = maxLength - 3; // '...'
