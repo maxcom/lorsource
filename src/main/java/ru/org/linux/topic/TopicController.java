@@ -184,6 +184,12 @@ public class TopicController {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
+    int pages = topic.getPageCount(tmpl.getProf().getMessages());
+
+    if (page>=pages) {
+      return new ModelAndView(new RedirectView(topic.getLinkPage(pages-1)));
+    }
+
     if (showDeleted) {
       if (!tmpl.isSessionAuthorized()) {
         throw new BadInputException("Вы уже вышли из системы");
@@ -260,8 +266,6 @@ public class TopicController {
       } else {
         filterMode = defaultFilterMode;
       }
-
-      int pages = topic.getPageCount(tmpl.getProf().getMessages());
 
       params.put("filterMode", CommentFilter.toString(filterMode));
       params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
