@@ -30,7 +30,12 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.endsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
@@ -95,6 +100,7 @@ public class HTMLFormatterTest {
   private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
   private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
   private static final String QP = "http://www.ozon.ru/?context=search&text=%D8%E8%EB%E4%F2";
+  private static final String QP2= "http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0";
   private static final String EMPTY_ANCHOR = "http://www.google.com/#";
   private static final String SLASH_AFTER_AMP = "http://extensions.joomla.org/extensions/communities-&-groupware/ratings-&-reviews/5483/details";
 
@@ -103,11 +109,12 @@ public class HTMLFormatterTest {
   private ToLorCodeFormatter toLorCodeFormatter;
   private LorCodeService lorCodeService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
+  private URI mainURI;
 
   @Before
   public void init() throws Exception {
 
-    URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
+    mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao messageDao = mock(TopicDao.class);
     Topic message1 = mock(Topic.class);
@@ -205,6 +212,16 @@ public class HTMLFormatterTest {
     assertTrue(toHtmlFormatter.format(QP, false, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false, false).endsWith("</a>"));
+  }
+
+  @Test
+  public void testUrlParse() throws Exception {
+    assertEquals("<a href=\"http://el.wikipedia.org/wiki/%CE%AC%CE%BB%CE%BB%CE%B5%CF%82\">http://el.wikipedia.org/wiki/άλλες</a>", toHtmlFormatter.format(greek, false, false));
+    assertEquals("<a href=\"http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;%D0%9C%D0%B0%D0%BC%D0%B0_%D0%BC%D1%8B%D0%BB%D0%B0_%D1%80%D0%B0%D0%BC%D1%83&amp;$-_.+!*'(,)=$-_.+!*'(),#anchor\">http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;Мама...</a>", toHtmlFormatter.format(RFC1738, false, false));
+    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D0%BD%D1%8B%D0%B9_'%D0%BD%D0%B5%D0%B3%D1%80'(Fran%C3%87ais%C5%92uvre_%D7%90)?%D0%BD%D0%B5%D0%B3%D1%80=%D1%8D%D1%84%D0%B8%D0%BE%D0%BF&amp;%D1%8D%D1%84%D0%B8%D0%BE%D0%BF\">http://ru.wikipedia.org/wiki/Литературный_'негр'(FranÇaisŒuvre_א)?негр=эфиоп&...</a>", toHtmlFormatter.format(CYR_LINK, false, false));
+    assertEquals("<a href=\"http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&amp;cd=1&amp;hl=en&amp;ct=clnk&amp;gl=us\">http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showt...</a>", toHtmlFormatter.format(GOOGLE_CACHE, false, false));
+    assertEquals("<a href=\"http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2\">http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2</a>", toHtmlFormatter.format(QP, false, false));
+    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0\">http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0</a>", toHtmlFormatter.format(QP2, false, false));
   }
 
   @Test
