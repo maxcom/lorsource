@@ -19,6 +19,7 @@
   --%>
 <%--@elvariable id="counter" type="java.lang.Integer"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
+<%--@elvariable id="sectionList" type="java.util.List<ru.org.linux.section.Section>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
@@ -45,16 +46,15 @@
           <a id="tagIgnAdd" href="${tagIgnUrl}">Не игнорировать тег</a>
           </li>
         </c:if>
+
+        <li><a href="${url}" <c:if test="${topicListRequest.section == 0}">class="current"</c:if>>Все</a></li>
+
+        <c:forEach items="${sectionList}" var="section">
+          <li>
+            <a href="${url}?section=${section.id}" <c:if test="${topicListRequest.section == section.id}">class="current"</c:if>>${section.name}</a>
+          </li>
+        </c:forEach>
       </ul>
-      <c:if test="${sectionList != null}">
-        <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
-          <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
-            <form:option value="0" label="Все" />
-            <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
-          </form:select>
-          <noscript><input type='submit' value='&gt;'></noscript>
-        </form:form>
-      </c:if>
     </div>
 </div>
 
@@ -83,7 +83,7 @@
 </div>
 
 <c:forEach var="msg" items="${messages}">
-  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==null && group==null}" moderateMode="false"/>
+  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==null}" moderateMode="false"/>
 </c:forEach>
 
 <c:if test="${params !=null}">
