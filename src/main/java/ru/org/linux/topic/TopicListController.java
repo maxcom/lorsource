@@ -88,40 +88,43 @@ public class TopicListController {
   @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView tagFeed(
     HttpServletRequest request,
-    TopicListRequest topicListForm,
     HttpServletResponse response,
-    @PathVariable String tag
+    @PathVariable String tag,
+    @RequestParam(value = "offset", defaultValue = "0") int offset,
+    @RequestParam(value = "section", required = false) Integer section
   ) throws Exception {
+    TopicListRequest topicListForm = new TopicListRequest();
+
     topicListForm.setTag(tag);
+    topicListForm.setOffset(offset);
+    topicListForm.setSection(section);
 
     ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
-    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
-    if (!rss) {
-      modelAndView.addObject("sectionList", sectionService.getSectionList());
-    }
+    modelAndView.addObject("sectionList", sectionService.getSectionList());
+    modelAndView.addObject("topicListRequest", topicListForm);
 
     Template tmpl = Template.getTemplate(request);
 
     if (tmpl.isSessionAuthorized()) {
       modelAndView.addObject(
               "isShowFavoriteTagButton",
-              !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+              !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), tag)
       );
 
       modelAndView.addObject(
               "isShowUnFavoriteTagButton",
-              userTagService.hasFavoriteTag(tmpl.getCurrentUser(), topicListForm.getTag())
+              userTagService.hasFavoriteTag(tmpl.getCurrentUser(), tag)
       );
 
       if (!tmpl.isModeratorSession()) {
         modelAndView.addObject(
                 "isShowIgnoreTagButton",
-                !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+                !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), tag)
         );
         modelAndView.addObject(
                 "isShowUnIgnoreTagButton",
-                userTagService.hasIgnoreTag(tmpl.getCurrentUser(), topicListForm.getTag())
+                userTagService.hasIgnoreTag(tmpl.getCurrentUser(), tag)
         );
       }
     }

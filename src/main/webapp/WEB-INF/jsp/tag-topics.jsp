@@ -22,10 +22,6 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
-<c:if test="${rssLink != null}">
-  <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
-</c:if>
-
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
   <div class=nav>
     <div id="navPath">
@@ -49,10 +45,6 @@
           <a id="tagIgnAdd" href="${tagIgnUrl}">Не игнорировать тег</a>
           </li>
         </c:if>
-
-      <c:if test="${rssLink != null}">
-        <li><a href="${rssLink}">RSS</a></li>
-      </c:if>
       </ul>
       <c:if test="${sectionList != null}">
         <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
