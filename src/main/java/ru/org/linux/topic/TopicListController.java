@@ -109,8 +109,10 @@ public class TopicListController {
 
     ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
+    modelAndView.addObject("tag", tag);
+    modelAndView.addObject("section", section);
+    modelAndView.addObject("offset", offset);
     modelAndView.addObject("sectionList", sectionService.getSectionList());
-    modelAndView.addObject("topicListRequest", topicListForm);
 
     Template tmpl = Template.getTemplate(request);
 
