@@ -44,7 +44,6 @@ public class PollPrepareService {
 
     return new PreparedPoll(
             poll,
-            pollDao.getMaxVote(poll),
             pollDao.getCountUsers(poll),
             pollDao.getPollVariants(poll, Poll.ORDER_VOTES, user)
     );
@@ -83,6 +82,6 @@ public class PollPrepareService {
             }
     );
 
-    return new PreparedPoll(newPoll, 1, 0, variants);
+    return new PreparedPoll(newPoll, 0, variants);
   }
 }
