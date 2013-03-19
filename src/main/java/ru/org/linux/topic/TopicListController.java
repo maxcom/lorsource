@@ -142,7 +142,6 @@ public class TopicListController {
     modelAndView.addObject("counter", tagService.getCounter(tag));
 
     modelAndView.addObject("url", tagListUrl(tag));
-    modelAndView.addObject("params", null);
     modelAndView.addObject("favsCount", userTagService.countFavs(tagService.getTagId(tag)));
 
     if (sectionId==0) {
@@ -173,13 +172,6 @@ public class TopicListController {
     ModelAndView modelAndView = new ModelAndView("view-news");
 
     modelAndView.addObject("group", group);
-
-    if(!Strings.isNullOrEmpty(topicListForm.getTag()) ||
-        topicListForm.getSection() != null) {
-      URLUtil.QueryString queryString = new URLUtil.QueryString();
-      queryString.add("section", topicListForm.getSection());
-      modelAndView.addObject("params", queryString.toString());
-    }
 
     modelAndView.addObject("url", "view-news.jsp");
     if (section != null) {
@@ -251,7 +243,6 @@ public class TopicListController {
 
     modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_GALLERY), topicListForm));
     modelAndView.addObject("url", "/gallery/");
-    modelAndView.addObject("params", null);
 
     return modelAndView;
   }
@@ -275,7 +266,6 @@ public class TopicListController {
     modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_FORUM), topicListForm));
 
     modelAndView.addObject("url", "/forum/lenta");
-    modelAndView.addObject("params", null);
 
     return modelAndView;
   }
@@ -320,7 +310,6 @@ public class TopicListController {
     ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/news/");
-    modelAndView.addObject("params", null);
     modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_NEWS), topicListForm));
 
     return modelAndView;
@@ -411,7 +400,6 @@ public class TopicListController {
 
     modelAndView.addObject("ptitle", calculatePTitle(sectionObject, topicListForm));
     modelAndView.addObject("url", "/gallery/archive/" + year + '/' + month + '/');
-    modelAndView.addObject("params", null);
 
     return modelAndView;
   }
@@ -816,7 +804,6 @@ public class TopicListController {
     modelAndView.addObject("ptitle", ptitle.toString());
 
     modelAndView.addObject("url", group.getUrl());
-    modelAndView.addObject("params", null);
 
     return modelAndView;
   }
