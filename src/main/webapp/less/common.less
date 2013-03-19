@@ -407,10 +407,6 @@ label.error {
     padding-top: 5px;
 }
 
-table.poll td {
-    padding-right: 1em;
-}
-
 .nav li {
     display: inline-block;
     margin-left: 0 !important;
@@ -474,17 +470,32 @@ table.poll td {
     margin: 0;
 }
 
-/*результаты опроса в топике, размер пингвина 19px*/
-table.poll-result td {
-    padding: 0 5px;
-    height: 21px;
+table.poll td {
+  padding-right: 1em;
 }
 
-table.poll-result .penguin {
-    display: block;
-    margin: 0;
-    padding: 0;
-    height: 19px;
+.poll-result ol {
+    list-style: none;
+}
+
+.poll-result li {
+    font-size: 0.9;
+}
+
+.penguin_progress {
+    width: 320px;
+}
+
+.penguin_progress span {
+  background-repeat: repeat-x;
+  background-color: transparent !important;
+  background-image: url("/tango/img/votes.png") !important;
+  display: block;
+  height: 19px;
+}
+
+.penguin_progress span span {
+  display: none;
 }
 
 .none {

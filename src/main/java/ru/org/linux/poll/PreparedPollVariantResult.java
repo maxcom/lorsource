@@ -20,13 +20,26 @@ package ru.org.linux.poll;
 public class PreparedPollVariantResult extends PollVariantResult {
   final int percentage;
   final int width;
+  final int penguinPercent;
   final String alt;
 
+  /**
+   * Подготовленные варианты опроса
+   * @param id                - id
+   * @param label             -
+   * @param votes             - кол-во голосов
+   * @param userVoted         - голосовал ли текущий пользователь
+   * @param percentage        - процент
+   * @param width             -
+   * @param penguinPercent    - процент кратный ширине пингвина
+   * @param alt               -
+   */
   public PreparedPollVariantResult(int id, String label, int votes, boolean userVoted,
-                                   int percentage, int width, String alt) {
+                                   int percentage, int width, int penguinPercent, String alt) {
     super(id, label, votes, userVoted);
     this.percentage = percentage;
     this.width = width;
+    this.penguinPercent = penguinPercent;
     this.alt = alt;
   }
 
@@ -36,6 +49,10 @@ public class PreparedPollVariantResult extends PollVariantResult {
 
   public int getWidth() {
     return width;
+  }
+
+  public int getPenguinPercent() {
+    return penguinPercent;
   }
 
   public String getAlt() {
