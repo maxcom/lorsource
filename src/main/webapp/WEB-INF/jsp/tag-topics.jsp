@@ -50,13 +50,16 @@
           </li>
         </c:if>
 
-        <li><a href="${url}" <c:if test="${section == 0}">class="current"</c:if>>Все</a></li>
+        <c:if test="${counter>10}">
+          <li><a href="${url}" <c:if test="${section == 0}">class="current"</c:if>>Все</a></li>
 
-        <c:forEach items="${sectionList}" var="cursection">
-          <li>
-            <a href="${url}?section=${cursection.id}" <c:if test="${section == cursection.id}">class="current"</c:if>>${cursection.name}</a>
-          </li>
-        </c:forEach>
+          <c:forEach items="${sectionList}" var="cursection">
+            <li>
+              <a href="${url}?section=${cursection.id}"
+                 <c:if test="${section == cursection.id}">class="current"</c:if>>${cursection.name}</a>
+            </li>
+          </c:forEach>
+        </c:if>
       </ul>
     </div>
 </div>
