@@ -171,4 +171,17 @@
     .form-horizontal .controls {
         margin-left: 0;
     }
+
+    .penguin_progress {
+        width: 60%;
+    }
+
+    .penguin_progress span {
+        background-repeat: repeat-x;
+        background-color: #729fcf !important;
+        background-image: none !important;
+        display: block;
+        height: 19px;
+    }
+
 }

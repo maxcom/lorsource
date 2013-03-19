@@ -18,17 +18,17 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
-<table class="poll-result">
+<div class="poll-result">
 <c:forEach var="variant" items="${poll.variants}">
-    <tr>
-        <td><c:if test="${variant.userVoted}"><b></c:if>${fn:escapeXml(variant.label)}<c:if test="${variant.userVoted}"></b></c:if></td>
-        <td><c:if test="${variant.userVoted}"><b></c:if>${variant.votes}<c:if test="${variant.userVoted}"></b></c:if></td>
-        <td><c:if test="${variant.userVoted}"><b></c:if>(${variant.percentage}%)<c:if test="${variant.userVoted}"></b></c:if></td>
-        <td width="380"><div class="penguin" style="width:${variant.width}px;">&nbsp;<span class="none">${variant.alt}</span></div></td>
-    </tr>
+    <ol>
+        <li>
+            <span>${fn:escapeXml(variant.label)} ${variant.votes} (${variant.percentage}%)</span>
+            <p class="penguin_progress"><span style="width: ${variant.penguinPercent}%"><span>${variant.alt}%</span></span></p>
+        </li>
+    </ol>
 </c:forEach>
-    <tr><td colspan=2>Всего голосов: ${poll.totalVotes}</td></tr>
+    <p>Всего голосов: ${poll.totalVotes}</p>
     <c:if test="${poll.poll.multiSelect}">
-        <tr><td colspan=2>Всего проголосовавших: ${poll.totalOfVotesPerson}</td></tr>
+        <p>Всего проголосовавших: ${poll.totalOfVotesPerson}</p>
     </c:if>
-</table>
+</div>
