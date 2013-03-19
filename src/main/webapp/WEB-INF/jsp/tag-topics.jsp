@@ -94,19 +94,14 @@
 
 <table class="nav">
   <tr>
-    <c:if test="${offset < 200 && fn:length(messages) == 20}">
+    <c:if test="${not empty prevLink}">
       <td align="left" width="35%">
-        <a href="${url}?offset=${offset+20}">← предыдущие</a>
+        <a href="${prevLink}">← назад</a>
       </td>
     </c:if>
-    <c:if test="${offset > 20}">
+    <c:if test="${not empty nextLink}">
       <td width="35%" align="right">
-        <a href="${url}?offset=${offset-20}">следующие →</a>
-      </td>
-    </c:if>
-    <c:if test="${offset == 20}">
-      <td width="35%" align="right">
-        <a href="${url}">следующие →</a>
+        <a href="${nextLink}">вперед →</a>
       </td>
     </c:if>
   </tr>

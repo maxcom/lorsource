@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -152,7 +153,31 @@ public class TopicListController {
 
     modelAndView.setViewName("tag-topics");
 
+    List messages = (List) modelAndView.getModel().get("messages");
+
+    if (offset<200 && messages.size()==20) {
+      modelAndView.addObject("nextLink", buildTagUri(tag, sectionId, offset+20));
+    }
+
+    if (offset>=20) {
+      modelAndView.addObject("prevLink", buildTagUri(tag, sectionId, offset-20));
+    }
+
     return modelAndView;
+  }
+
+  private String buildTagUri(String tag, int section, int offset) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUri(TAG_URI_TEMPLATE.expand(tag));
+
+    if (section!=0) {
+      builder.queryParam("section", section);
+    }
+
+    if (offset!=0) {
+      builder.queryParam("offset", offset);
+    }
+
+    return builder.build().toUriString();
   }
 
   private ModelAndView mainTopicsFeedHandler(
