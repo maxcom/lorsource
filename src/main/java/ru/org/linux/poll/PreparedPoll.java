@@ -44,8 +44,8 @@ public class PreparedPoll {
       total += variant.getVotes();
     }
     totalVotes = total;
-    // В старых опросах нет информации о голосовавших или она не верная
-    int divisor = totalOfVotesPerson > totalVotes ? totalOfVotesPerson : totalVotes;
+    // В старых опросах нет информации о голосовавших
+    int divisor = totalOfVotesPerson != 0 ? totalOfVotesPerson : totalVotes;
     for(PollVariantResult variant : variants1) {
       int variantWidth = 320*variant.getVotes()/divisor; // пингвин 20 штук 16px
       int variantPercent = variantWidth / 16 * 16 * 100 / 320; // пингвин 16px
