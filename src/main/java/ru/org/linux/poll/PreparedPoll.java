@@ -47,14 +47,26 @@ public class PreparedPoll {
     // В старых опросах нет информации о голосовавших
     int divisor = totalOfVotesPerson != 0 ? totalOfVotesPerson : totalVotes;
     for(PollVariantResult variant : variants1) {
-      int variantWidth = 320*variant.getVotes()/divisor; // пингвин 20 штук 16px
-      int variantPercent = variantWidth / 16 * 16 * 100 / 320; // пингвин 16px
+      int variantWidth; // пингвин 20 штук 16px
+      int variantPercent; // пингвин 16px
+      int percentage;
+
+      if (divisor!=0) {
+        variantWidth = 320*variant.getVotes()/divisor;
+        variantPercent = variantWidth / 16 * 16 * 100 / 320;
+        percentage = (int) Math.round(100 * (double) variant.getVotes() / divisor);
+      } else {
+        variantWidth = 0;
+        variantPercent = 0;
+        percentage = 0;
+      }
+
       variantsBuilder.add(new PreparedPollVariantResult(
           variant.getId(),
           variant.getLabel(),
           variant.getVotes(),
           variant.getUserVoted(),
-          (int)Math.round(100 * (double)variant.getVotes() / divisor),
+          percentage,
           variantWidth,
           variantPercent,
           StringUtil.repeat("*", variantWidth)
