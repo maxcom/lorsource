@@ -13,7 +13,6 @@ public class TopicListRequest {
   private Integer year;
   private String filter;
 
-
   public Integer getSection() {
     return section;
   }
