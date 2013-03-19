@@ -111,7 +111,7 @@ public class TopicListController {
     ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("tag", tag);
-    modelAndView.addObject("section", section);
+    modelAndView.addObject("section", section.getId());
     modelAndView.addObject("offset", offset);
     modelAndView.addObject("sectionList", sectionService.getSectionList());
 
