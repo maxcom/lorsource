@@ -40,8 +40,12 @@ public class PreparedPoll {
     this.totalOfVotesPerson = totalOfVotesPerson;
     ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<>();
     int total=0;
+    int max=0;
     for(PollVariantResult variant : variants1) {
       total += variant.getVotes();
+      if(max < variant.getVotes()) {
+        max = variant.getVotes();
+      }
     }
     totalVotes = total;
     // В старых опросах нет информации о голосовавших
@@ -52,7 +56,7 @@ public class PreparedPoll {
       int percentage;
 
       if (divisor!=0) {
-        variantWidth = 320*variant.getVotes()/divisor;
+        variantWidth = 320*variant.getVotes()/max;
         variantPercent = variantWidth / 16 * 16 * 100 / 320;
         percentage = (int) Math.round(100 * (double) variant.getVotes() / divisor);
       } else {

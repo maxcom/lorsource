@@ -176,6 +176,14 @@
         width: 60%;
     }
 
+    .penguin_label {
+        width: 20%;
+    }
+
+    .penguin_percent {
+        width: 10%;
+    }
+
     .penguin_progress span {
         background-repeat: repeat-x;
         background-color: #729fcf !important;
