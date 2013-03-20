@@ -80,6 +80,27 @@
         max-width: 100%;
         height: auto;
     }
+
+    .penguin_progress {
+        width: 60%;
+    }
+
+    .penguin_label {
+        width: 20%;
+    }
+
+    .penguin_percent {
+        width: 10%;
+    }
+
+    .penguin_progress span {
+        background-repeat: repeat-x;
+        background-color: #729fcf !important;
+        background-image: none !important;
+        display: block;
+        height: 19px;
+    }
+
 }
 
 /* phone */
@@ -174,6 +195,14 @@
 
     .penguin_progress {
         width: 60%;
+    }
+
+    .penguin_label {
+        width: 20%;
+    }
+
+    .penguin_percent {
+        width: 10%;
     }
 
     .penguin_progress span {

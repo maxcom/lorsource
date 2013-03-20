@@ -19,14 +19,16 @@
   --%>
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
 <div class="poll-result">
-<c:forEach var="variant" items="${poll.variants}">
     <ol>
+<c:forEach var="variant" items="${poll.variants}">
         <li>
-            <span>${fn:escapeXml(variant.label)} ${variant.votes} (${variant.percentage}%)</span>
-            <p class="penguin_progress"><span style="width: ${variant.penguinPercent}%"><span>${variant.alt}%</span></span></p>
+            <span class="penguin_label">${fn:escapeXml(variant.label)}</span><span class="penguin_percent">${variant.votes} (${variant.percentage}%)</span>
+            <p class="penguin_progress"><span style="width: ${variant.penguinPercent}%"><span>${variant.alt}</span></span></p>
         </li>
-    </ol>
 </c:forEach>
+    </ol>
+</div>
+<div class="poll-sum">
     <p>Всего голосов: ${poll.totalVotes}</p>
     <c:if test="${poll.poll.multiSelect}">
         <p>Всего проголосовавших: ${poll.totalOfVotesPerson}</p>
