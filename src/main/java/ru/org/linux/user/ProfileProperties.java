@@ -30,7 +30,6 @@ public class ProfileProperties {
   public static final String MESSAGES_PROPERTY = "messages";
   public static final String NEWFIRST_PROPERTY = "newfirst";
   public static final String TOPICS_PROPERTY = "topics";
-  public static final String TAGS_PROPERTY = "tags";
   public static final String HIDE_ADSENSE_PROPERTY = "hideAdsense";
   public static final String PHOTOS_PROPERTY = "photos";
   public static final String MAIN_GALLERY_PROPERTY = "mainGallery";
@@ -46,7 +45,6 @@ public class ProfileProperties {
   private int messages;
   private boolean showNewFirst;
   private int topics;
-  private int tags;
   private boolean showPhotos;
   private boolean hideAdsense;
   private boolean showGalleryOnMain;
@@ -65,7 +63,6 @@ public class ProfileProperties {
     messages = p.getInt(MESSAGES_PROPERTY);
     showNewFirst = p.getBoolean(NEWFIRST_PROPERTY);
     topics = p.getInt(TOPICS_PROPERTY);
-    tags = p.getInt(TAGS_PROPERTY);
     showPhotos = p.getBoolean(PHOTOS_PROPERTY);
     hideAdsense = p.getBoolean(HIDE_ADSENSE_PROPERTY);
     showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY);
@@ -87,7 +84,6 @@ public class ProfileProperties {
     p.setInt(MESSAGES_PROPERTY, messages);
     p.setBoolean(NEWFIRST_PROPERTY, showNewFirst);
     p.setInt(TOPICS_PROPERTY, topics);
-    p.setInt(TAGS_PROPERTY, tags);
     p.setBoolean(PHOTOS_PROPERTY, showPhotos);
     p.setBoolean(HIDE_ADSENSE_PROPERTY, hideAdsense);
     p.setBoolean(MAIN_GALLERY_PROPERTY, showGalleryOnMain);
@@ -146,14 +142,6 @@ public class ProfileProperties {
 
   public void setTopics(int topics) {
     this.topics = topics;
-  }
-
-  public int getTags() {
-    return tags;
-  }
-
-  public void setTags(int tags) {
-    this.tags = tags;
   }
 
   public boolean isShowPhotos() {

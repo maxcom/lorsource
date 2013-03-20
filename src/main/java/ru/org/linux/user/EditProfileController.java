@@ -66,7 +66,6 @@ public class EditProfileController {
   @RequestMapping(method=RequestMethod.POST)
   public ModelAndView editProfile(
           ServletRequest request,
-          @RequestParam("tags") int tags,
           @RequestParam("topics") int topics,
           @RequestParam("messages") int messages,
           @PathVariable String nick
@@ -89,17 +88,12 @@ public class EditProfileController {
       throw new BadInputException("некорректное число сообщений");
     }
 
-    if (tags<=0 || tags>100) {
-      throw new BadInputException("некорректное число меток в облаке");
-    }
-
     if(!DefaultProfile.getStyleList().contains(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы");
     }
 
     tmpl.getProf().setTopics(topics);
     tmpl.getProf().setMessages(messages);
-    tmpl.getProf().setTags(tags);
     tmpl.getProf().setShowNewFirst("on".equals(request.getParameter("newfirst")));
     tmpl.getProf().setShowPhotos("on".equals(request.getParameter("photos")));
     tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hideAdsense")));

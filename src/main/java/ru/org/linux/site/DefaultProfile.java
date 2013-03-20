@@ -69,7 +69,6 @@ public final class DefaultProfile {
     defaults.put(FORMAT_MODE_PROPERTY, "quot");
     defaults.put(TOPICS_PROPERTY, 30);
     defaults.put(MESSAGES_PROPERTY, 50);
-    defaults.put(TAGS_PROPERTY, 50);
     defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
     defaults.put(TIMESTAMP_PROPERTY, System.currentTimeMillis());
     defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
