@@ -22,18 +22,7 @@
 <script type="text/javascript">
 $script.ready('plugins', function() {
   $(function() {
-    $("#profileForm").validate({
-    rules: {
-      topics: {
-        required: true,
-        range: [ 1, 500 ]
-      },
-      messages: {
-        required: true,
-        range: [ 1, 1000 ]
-      }
-    }
-    });
+    $("#profileForm").validate();
   });
 });
 </script>
@@ -65,9 +54,9 @@ $script.ready('plugins', function() {
 <tr><td>Показывать фотографии</td>
 <td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="topics">Число тем форума на странице</label> </td>
-<td><input type=text size="5" id="topics" name="topics" value="${template.prof.topics}" ></td></tr>
+<td><input type=number min=1 max=500 size="5" id="topics" name="topics" value="${template.prof.topics}" required></td></tr>
 <tr><td><label for="messages">Число комментариев на странице</label></td>
-<td><input type=text size="5" id="messages" name="messages" value="${template.prof.messages}" ></td></tr>
+<td><input type=number min=1 max=1000 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>
