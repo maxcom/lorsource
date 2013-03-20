@@ -29,24 +29,10 @@ $script.ready('plugins', function() {
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class=nav>
-    <div id="navPath">
-      Настройки профиля
-    </div>
-
-    <div class="nav-buttons">
-      <ul>
-        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
-      </ul>
-     </div>
- </div>
-
-<h2>Параметры профиля</h2>
+<h1>Параметры профиля</h1>
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>
-<tr><td colspan=2><hr></td></tr>
 <tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
 <td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
 <tr><td>Новые комментарии в начале</td>
@@ -104,21 +90,20 @@ $script.ready('plugins', function() {
   <td>
     <input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> ><label for="format-quot">TeX paragraphs (default)</label><br>
     <input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> ><label for="format-ntobr">User line break</label><br>
-<%--
-    <input type=radio name=format_mode id="format-lorcode" value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>><label for="format-lorcode">LORCODE</label><br>
---%>
   </td>
 </tr>
 
 </table>
 
-<input type=submit value="Установить">
+<button type=submit>Установить</button>
 </form>
 
 <h2>Другие настройки</h2>
 <ul>
-<li><a href="/edit-boxes.jsp">настройка главной страницы</a>
-<li><a href="<c:url value="/user-filter"/>">настройка фильтрации сообщений</a>
+<li><a href="/addphoto.jsp">Добавить фотографию</a></li>
+<li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
+<li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
+<li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
 </ul>
 
 <p><b>Внимание!</b> Настройки на некоторых уже посещенных страницах могут
