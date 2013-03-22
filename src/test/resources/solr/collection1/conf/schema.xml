@@ -59,7 +59,8 @@
                         words="stopwords.txt"
                         enablePositionIncrements="true"
                         />
-                <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+                <filter class="solr.EnglishMinimalStemFilterFactory" />
+                <filter class="solr.RussianLightStemFilterFactory" />
                 <filter class="solr.LengthFilterFactory" min="2" max="50"/>
             </analyzer>
             <analyzer type="query">
@@ -77,7 +78,8 @@
                         words="stopwords.txt"
                         enablePositionIncrements="true"
                         />
-                <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+                <filter class="solr.EnglishMinimalStemFilterFactory" />
+                <filter class="solr.RussianLightStemFilterFactory" />
                 <filter class="solr.LengthFilterFactory" min="2" max="50"/>
             </analyzer>
         </fieldType>
