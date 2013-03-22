@@ -729,9 +729,9 @@
                                         <artifactItem>
                                             <groupId>org.apache.solr</groupId>
                                             <artifactId>solr</artifactId>
-                                            <version>3.5.0</version>
+                                            <version>4.2.0</version>
                                             <type>war</type>
-                                            <overWrite>false</overWrite>
+                                            <overWrite>true</overWrite>
                                             <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
                                             <destFileName>solr.war</destFileName>
                                         </artifactItem>
@@ -743,6 +743,15 @@
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
                                             <destFileName>postgresql.jar</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ru.org.linux.solr</groupId>
+                                            <artifactId>lor-solr-plugin</artifactId>
+                                            <version>4.2.0</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/test-classes/solr/collection1/lib</outputDirectory>
+                                            <destFileName>lor-solr-plugin.jar</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
