@@ -6,7 +6,6 @@ package ru.org.linux.topic;
 public class TopicListRequest {
   private Integer section;
   private Integer group;
-  private String tag;
   private Integer offset;
   private String output;
   private Integer month;
@@ -19,14 +18,6 @@ public class TopicListRequest {
 
   public void setSection(Integer section) {
     this.section = section;
-  }
-
-  public String getTag() {
-    return tag;
-  }
-
-  public void setTag(String tag) {
-    this.tag = tag;
   }
 
   public Integer getOffset() {

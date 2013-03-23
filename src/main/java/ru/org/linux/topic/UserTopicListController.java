@@ -1,9 +1,12 @@
 package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -83,10 +86,6 @@ public class UserTopicListController {
       section = sectionService.getSection(topicListForm.getSection());
     }
 
-    if (topicListForm.getTag() != null) {
-      tagService.checkTag(topicListForm.getTag());
-    }
-
     User user = getUserByNickname(modelAndView, nick);
 
     UserInfo userInfo = userDao.getUserInfoClass(user);
@@ -130,7 +129,6 @@ public class UserTopicListController {
     }
     URLUtil.QueryString queryString = new URLUtil.QueryString();
     queryString.add("section", topicListForm.getSection());
-    queryString.add("tag", topicListForm.getTag());
     modelAndView.addObject("params", queryString.toString());
 
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
@@ -211,5 +209,11 @@ public class UserTopicListController {
     }
     modelAndView.addObject("user", user);
     return user;
+  }
+
+  @ExceptionHandler(UserNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleNotFoundException() {
+    return new ModelAndView("errors/code404");
   }
 }

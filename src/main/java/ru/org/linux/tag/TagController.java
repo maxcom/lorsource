@@ -29,7 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TopicListController;
+import ru.org.linux.topic.TagTopicListController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -253,8 +253,7 @@ public class TagController {
    */
   private ModelAndView redirectToListPage(String tagName) {
     char firstLetter = tagName.toLowerCase().charAt(0);
-    String redirectUrl = TopicListController.tagsUrl(firstLetter);
-    ModelAndView modelAndView = new ModelAndView(new RedirectView(redirectUrl));
-    return modelAndView;
+    String redirectUrl = TagTopicListController.tagsUrl(firstLetter);
+    return new ModelAndView(new RedirectView(redirectUrl));
   }
 }

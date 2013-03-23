@@ -15,8 +15,6 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Strings;
-import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -24,8 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriTemplate;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupNotFoundException;
@@ -34,10 +30,7 @@ import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.user.UserTagService;
 import ru.org.linux.util.*;
 
 import javax.annotation.Nullable;
@@ -47,9 +40,6 @@ import java.util.*;
 
 @Controller
 public class TopicListController {
-  private static final UriTemplate TAG_URI_TEMPLATE = new UriTemplate("/tag/{tag}");
-  private static final UriTemplate TAGS_URI_TEMPLATE = new UriTemplate("/tags/{tag}");
-
   @Autowired
   private SectionService sectionService;
 
@@ -59,124 +49,9 @@ public class TopicListController {
   @Autowired
   private TopicPrepareService prepareService;
 
-  @Autowired
-  private TagService tagService;
-
-  @Autowired
-  private UserTagService userTagService;
-
   // TODO: здесь должен быть сервис, а не DAO
   @Autowired
   private GroupDao groupDao;
-
-  @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD}, params = {"tag"})
-  public View tagFeedOld(
-          TopicListRequest topicListForm
-  ) {
-    return new RedirectView(tagListUrl(topicListForm.getTag()));
-  }
-
-  public static String tagListUrl(String tag) {
-    return TAG_URI_TEMPLATE.expand(tag).toString();
-  }
-
-  public static String tagsUrl(char letter) {
-    return TAGS_URI_TEMPLATE.expand(letter).toString();
-  }
-
-  @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView tagFeed(
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @PathVariable String tag,
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @RequestParam(value = "section", defaultValue = "0") int sectionId
-  ) throws Exception {
-    Section section;
-
-    if (sectionId!=0) {
-      section = sectionService.getSection(sectionId);
-    } else {
-      section = null;
-    }
-
-    TopicListRequest topicListForm = new TopicListRequest();
-
-    topicListForm.setTag(tag);
-    topicListForm.setOffset(offset);
-    topicListForm.setSection(sectionId);
-
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
-
-    modelAndView.addObject("tag", tag);
-    modelAndView.addObject("section", sectionId);
-    modelAndView.addObject("offset", offset);
-    modelAndView.addObject("sectionList", sectionService.getSectionList());
-
-    Template tmpl = Template.getTemplate(request);
-
-    if (tmpl.isSessionAuthorized()) {
-      modelAndView.addObject(
-              "isShowFavoriteTagButton",
-              !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), tag)
-      );
-
-      modelAndView.addObject(
-              "isShowUnFavoriteTagButton",
-              userTagService.hasFavoriteTag(tmpl.getCurrentUser(), tag)
-      );
-
-      if (!tmpl.isModeratorSession()) {
-        modelAndView.addObject(
-                "isShowIgnoreTagButton",
-                !userTagService.hasIgnoreTag(tmpl.getCurrentUser(), tag)
-        );
-        modelAndView.addObject(
-                "isShowUnIgnoreTagButton",
-                userTagService.hasIgnoreTag(tmpl.getCurrentUser(), tag)
-        );
-      }
-    }
-
-    modelAndView.addObject("counter", tagService.getCounter(tag));
-
-    modelAndView.addObject("url", tagListUrl(tag));
-    modelAndView.addObject("favsCount", userTagService.countFavs(tagService.getTagId(tag)));
-
-    if (sectionId==0) {
-      modelAndView.addObject("ptitle", WordUtils.capitalize(tag));
-    } else {
-      modelAndView.addObject("ptitle", WordUtils.capitalize(tag)+" ("+section.getName()+")");
-    }
-
-    modelAndView.setViewName("tag-topics");
-
-    List messages = (List) modelAndView.getModel().get("messages");
-
-    if (offset<200 && messages.size()==20) {
-      modelAndView.addObject("nextLink", buildTagUri(tag, sectionId, offset+20));
-    }
-
-    if (offset>=20) {
-      modelAndView.addObject("prevLink", buildTagUri(tag, sectionId, offset-20));
-    }
-
-    return modelAndView;
-  }
-
-  private String buildTagUri(String tag, int section, int offset) {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUri(TAG_URI_TEMPLATE.expand(tag));
-
-    if (section!=0) {
-      builder.queryParam("section", section);
-    }
-
-    if (offset!=0) {
-      builder.queryParam("offset", offset);
-    }
-
-    return builder.build().toUriString();
-  }
 
   private ModelAndView mainTopicsFeedHandler(
     HttpServletRequest request,
@@ -200,9 +75,7 @@ public class TopicListController {
     if (section != null) {
       modelAndView.addObject("section", section);
 
-      if (Strings.isNullOrEmpty(topicListForm.getTag())) {
-        modelAndView.addObject("archiveLink", section.getArchiveLink());
-      }
+      modelAndView.addObject("archiveLink", section.getArchiveLink());
     }
 
     setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
@@ -216,7 +89,7 @@ public class TopicListController {
     List<Topic> messages = topicListService.getTopicsFeed(
       section,
       group,
-      topicListForm.getTag(),
+      null,
       topicListForm.getOffset(),
       topicListForm.getYear(),
       topicListForm.getMonth()
@@ -235,25 +108,9 @@ public class TopicListController {
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth() == null);
 
-    if (section != null && Strings.isNullOrEmpty(topicListForm.getTag())) {
-      String rssLink = "/section-rss.jsp?section=" + section.getId();
-      if (group != null) {
-        rssLink += "&group=" + group.getId();
-      }
-
-      modelAndView.addObject("rssLink", rssLink);
-    }
-
     return modelAndView;
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/gallery/")
   public ModelAndView gallery(
     HttpServletRequest request,
@@ -270,13 +127,6 @@ public class TopicListController {
     return modelAndView;
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/forum/lenta")
   public ModelAndView forum(
     HttpServletRequest request,
@@ -293,13 +143,6 @@ public class TopicListController {
     return modelAndView;
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/polls/")
   public ModelAndView polls(
     HttpServletRequest request,
@@ -316,13 +159,6 @@ public class TopicListController {
     return modelAndView;
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/news/")
   public ModelAndView news(
     HttpServletRequest request,
@@ -338,14 +174,6 @@ public class TopicListController {
     return modelAndView;
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param groupName
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/gallery/{group}")
   public ModelAndView galleryGroup(
     HttpServletRequest request,
@@ -357,14 +185,6 @@ public class TopicListController {
     return group(request, topicListForm, groupName, response);
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param groupName
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/news/{group}")
   public ModelAndView newsGroup(
     HttpServletRequest request,
@@ -376,14 +196,6 @@ public class TopicListController {
     return group(request, topicListForm, groupName, response);
   }
 
-  /**
-   * @param request
-   * @param topicListForm
-   * @param groupName
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/polls/{group}")
   public ModelAndView pollsGroup(
     HttpServletRequest request,
@@ -395,15 +207,6 @@ public class TopicListController {
     return group(request, topicListForm, groupName, response);
   }
 
-  /**
-   * @param section
-   * @param year
-   * @param month
-   * @param request
-   * @param response
-   * @return
-   * @throws Exception
-   */
   @RequestMapping("/{section}/archive/{year}/{month}")
   public ModelAndView galleryArchive(
     HttpServletRequest request,
@@ -427,11 +230,6 @@ public class TopicListController {
     return modelAndView;
   }
 
-  /**
-   * @param nick
-   * @param output
-   * @return
-   */
   @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
   public View showUserTopics(
     @RequestParam("nick") String nick,
@@ -444,12 +242,6 @@ public class TopicListController {
     return new RedirectView("/people/" + nick + '/');
   }
 
-  /**
-   * @param sectionId
-   * @param request
-   * @return
-   * @throws Exception
-   */
   @RequestMapping(value = "/view-all.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
     @RequestParam(value = "section", required = false, defaultValue = "0") int sectionId,
@@ -489,12 +281,6 @@ public class TopicListController {
     return modelAndView;
   }
 
-  /**
-   * @param topicListForm
-   * @return
-   * @throws Exception
-   * @deprecated
-   */
   @Deprecated
   @RequestMapping(value = "/view-news.jsp", params = {"section", "!tag"})
   public View oldLink(
@@ -650,35 +436,19 @@ public class TopicListController {
     }
   }
 
-  /**
-   * @param section
-   * @param group
-   * @param topicListForm
-   * @throws Exception
-   */
   private void checkRequestConditions(Section section, Group group, TopicListRequest topicListForm)
     throws Exception {
     if (topicListForm.getMonth() != null && topicListForm.getYear() == null) {
       throw new ServletParameterMissingException("year");
     }
-    if (section == null && topicListForm.getTag() == null) {
+    if (section == null) {
       throw new ServletParameterException("section or tag required");
     }
-    if (topicListForm.getTag() != null) {
-      tagService.checkTag(topicListForm.getTag());
-    }
-    if (section != null && group != null && group.getSectionId() != section.getId()) {
+    if (group != null && group.getSectionId() != section.getId()) {
       throw new ScriptErrorException("группа #" + group.getId() + " не принадлежит разделу #" + section.getId());
     }
   }
 
-  /**
-   *
-   * @param section
-   * @param topicListForm
-   * @return
-   * @throws BadDateException
-   */
   private static String calculatePTitle(Section section, TopicListRequest topicListForm)
     throws BadDateException {
     StringBuilder ptitle = new StringBuilder();
@@ -686,19 +456,9 @@ public class TopicListController {
     if (topicListForm.getMonth() == null) {
       if (section != null) {
         ptitle.append(section.getName());
-
-        if (topicListForm.getTag() != null) {
-          ptitle.append(" - ").append(WordUtils.capitalize(topicListForm.getTag()));
-        }
-      } else {
-        ptitle.append(topicListForm.getTag());
       }
     } else {
       ptitle.append("Архив: ").append(section.getName());
-
-      if (topicListForm.getTag() != null) {
-        ptitle.append(" - ").append(topicListForm.getTag());
-      }
 
       ptitle
         .append(", ")
@@ -709,27 +469,12 @@ public class TopicListController {
     return ptitle.toString();
   }
 
-  /**
-   * @param section
-   * @param group
-   * @param topicListForm
-   * @return
-   * @throws BadDateException
-   * @throws SectionNotFoundException
-   */
   private static String calculateNavTitle(Section section, Group group, TopicListRequest topicListForm)
     throws BadDateException, SectionNotFoundException {
 
     StringBuilder navTitle = new StringBuilder();
 
-    if (!Strings.isNullOrEmpty(topicListForm.getTag())) {
-      navTitle.append(WordUtils.capitalize(topicListForm.getTag()));
-
-      if (section!=null) {
-        navTitle.append(" - ");
-        navTitle.append(section.getName());
-      }
-    } else if (group == null) {
+    if (group == null) {
       if (section != null) {
         navTitle.setLength(0);
         navTitle.append(section.getName());
@@ -737,13 +482,13 @@ public class TopicListController {
     } else if (section != null) {
       navTitle.setLength(0);
       navTitle
-        .append("<a href=\"")
-        .append(section.getNewsViewerLink())
-        .append("\">")
-        .append(section.getName())
-        .append("</a> - <strong>")
-        .append(group.getTitle())
-        .append("</strong>");
+              .append("<a href=\"")
+              .append(section.getNewsViewerLink())
+              .append("\">")
+              .append(section.getName())
+              .append("</a> - <strong>")
+              .append(group.getTitle())
+              .append("</strong>");
     }
     if (topicListForm.getMonth() != null) {
       navTitle
@@ -755,7 +500,7 @@ public class TopicListController {
     return navTitle.toString();
   }
 
-  @ExceptionHandler({UserNotFoundException.class, GroupNotFoundException.class})
+  @ExceptionHandler(GroupNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ModelAndView handleNotFoundException() {
     return new ModelAndView("errors/code404");

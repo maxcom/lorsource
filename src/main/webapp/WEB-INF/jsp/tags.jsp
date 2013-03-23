@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.topic.TopicListController"   %>
+<%@ page import="ru.org.linux.topic.TagTopicListController"   %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.Map" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -58,7 +58,7 @@ ${status.first ? '' : ', '}
 
         <c:choose>
           <c:when test="${tag.value != 0}">
-            <c:url value="<%= TopicListController.tagListUrl(tag.getKey()) %>" var="tag_url"/>
+            <c:url value="<%= TagTopicListController.tagListUrl(tag.getKey()) %>" var="tag_url"/>
             <a href="${fn:escapeXml(tag_url)}">${tag.key}</a>
           </c:when>
           <c:otherwise>
