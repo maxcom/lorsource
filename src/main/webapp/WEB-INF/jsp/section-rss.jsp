@@ -18,6 +18,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
   <channel>
     <link>http://www.linux.org.ru/</link>
@@ -32,8 +33,8 @@
   <c:forEach var="msg" items="${messages}">
     <item>
       <author>${msg.author.nick}</author>
-      <link>http://www.linux.org.ru${msg.message.link}</link>
-      <guid>http://www.linux.org.ru${msg.message.link}</guid>
+      <link>${template.mainUrlNoSlash}${msg.message.link}</link>
+      <guid>${template.mainUrlNoSlash}${msg.message.link}</guid>
       <title>${l:escapeHtml(msg.message.title)}"</title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
