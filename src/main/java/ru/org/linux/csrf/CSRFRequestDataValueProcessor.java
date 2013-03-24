@@ -45,13 +45,15 @@ public class CSRFRequestDataValueProcessor implements RequestDataValueProcessor 
 
   @Override
   public Map<String, String> getExtraHiddenFields(HttpServletRequest request) {
+    if(!"POST".equals(request.getMethod())) { // Не добавлять CSRF для не POST запросов #432
+      return null;
+    }
     String csrfAttribute = (String) request.getAttribute(CSRF_ATTRIBUTE);
 
     if (csrfAttribute!=null) {
       return ImmutableMap.of(CSRF_INPUT_NAME, csrfAttribute);
     } else {
       logger.debug("missing CSRF attribute "+request.getRequestURI());
-
       return null;
     }
   }
