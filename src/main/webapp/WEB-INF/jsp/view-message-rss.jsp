@@ -16,12 +16,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedRSSComment>"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
 <channel>
-<link>http://www.linux.org.ru/view-message.jsp?msgid=${message.id}</link>
+<link>${template.mainUrlNoSlash}${message.link}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${message.title}</title>
   <lor:message-rss preparedMessage="${preparedMessage}"/>
@@ -29,15 +31,15 @@
     <item>
       <title>
         <c:if test="${fn:length(comment.comment.title)>0}">
-          <c:out escapeXml="true" value="${comment.comment.title}"/>
+            ${l:escapeHtml(comment.comment.title)}
         </c:if>
         <c:if test="${fn:length(comment.comment.title)==0}">
-          <c:out escapeXml="true" value="${message.title}"/>
+          ${l:escapeHtml(message.title)}
         </c:if>
       </title>
       <author>${comment.author.nick}</author>
-      <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.comment.id}</link>
-      <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.comment.id}</guid>
+      <link>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
+      <guid>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
       <description ><![CDATA[${comment.processedMessage}]]>
       </description>
