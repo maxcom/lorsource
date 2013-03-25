@@ -312,7 +312,7 @@ public class Parser {
       currentNode = pushTextNode(automatonState, currentNode, "[");
     }
 
-    boolean tagNameIsCode = "code".equals(automatonState.getTagname());
+    boolean tagNameIsCode = "code".equals(automatonState.getTagname()) || "inline".equals(automatonState.getTagname());
 
     if (automatonState.isCloseTag(automatonState)) {
       currentNode = processCloseTag(automatonState, currentNode, tagNameIsCode);

@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableMap;
+import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -46,7 +47,7 @@ import ru.org.linux.util.bbcode.nodes.TextNode;
 import java.util.Set;
 
 public class CodeTag extends Tag {
-  private static final ImmutableMap<String, String> langHash =
+  protected static final ImmutableMap<String, String> langHash =
           ImmutableMap.<String, String>builder().
                   put("bash", "language-bash")
                   .put("coffeescript", "language-coffeescript")
@@ -99,16 +100,8 @@ public class CodeTag extends Tag {
 
   @Override
   public String renderNodeXhtml(Node node) {
-    if (node.lengthChildren() == 0) {
+    if(NodeUtils.isEmptyNode(node)) {
       return "";
-    } else {
-      // обработка пустого тэга
-      if (node.lengthChildren() == 1) {
-        Node child = node.getChildren().iterator().next();
-        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().isEmpty()) {
-          return "";
-        }
-      }
     }
     StringBuilder ret = new StringBuilder();
     if (node.isParameter()) {
