@@ -25,7 +25,7 @@
 <channel>
 <link>${template.mainUrlNoSlash}${message.link}</link>
 <language>ru</language>
-<title>Linux.org.ru: ${message.title}</title>
+<title>Linux.org.ru: ${l:escapeHtml(message.title)}</title>
   <lor:message-rss preparedMessage="${preparedMessage}"/>
   <c:forEach items="${commentsPrepared}" var="comment">
     <item>
