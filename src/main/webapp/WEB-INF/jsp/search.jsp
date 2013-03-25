@@ -41,7 +41,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Поиск по сайту</h1>
-<form:form method="GET" commandName="query" ACTION="search.jsp">
+<l:form method="GET" commandName="query" ACTION="search.jsp">
 
   <c:if test="${query.initial}">
   <h2>Поисковая система сайта</h2>
@@ -147,7 +147,7 @@
     </i>
   </p>
 </c:if>
-</form:form>
+</l:form>
 
 <c:if test="${query.initial}">
   <h2>Поиск через Google</h2>
