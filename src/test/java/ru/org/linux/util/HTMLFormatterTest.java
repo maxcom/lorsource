@@ -30,12 +30,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.endsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
@@ -637,7 +632,7 @@ public class HTMLFormatterTest {
   @Test
   public void testInCodeQuotes() {
     assertEquals(
-        "<p>Smth about &laquo;quotes&raquo;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
+        "<p>Smth about &#171;quotes&#187;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
         lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", true, false)
     );
   }
@@ -645,7 +640,7 @@ public class HTMLFormatterTest {
   @Test
   public void testLocalBuffer() {
     assertEquals(
-        "<p>This is simple &laquo;local <u>buffer</u>&raquo; test </p>",
+        "<p>This is simple &#171;local <u>buffer</u>&#187; test </p>",
         lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", true, false)
     );
   }

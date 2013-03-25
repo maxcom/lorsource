@@ -364,9 +364,9 @@ public class Simple2ParserTest {
   @Test
   public void quoteChangerTest() {
     RuTypoChanger changer = new RuTypoChanger();
-    assertEquals("Машааааа, открываааай. Открыыыто - &laquo;пщщ...",
+    assertEquals("Машааааа, открываааай. Открыыыто - " + RuTypoChanger.QUOTE_OUT_OPEN_HTML +"пщщ...",
         changer.format("Машааааа, открываааай. Открыыыто - \"пщщ..."));
-    assertEquals("щпщпщщщ&raquo;. Закрыылося",
+    assertEquals("щпщпщщщ"+ RuTypoChanger.QUOTE_OUT_CLOSE_HTML +". Закрыылося",
         changer.format("щпщпщщщ\". Закрыылося"));
   }
 }
