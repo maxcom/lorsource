@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.org.linux.user.ProfileProperties.*;
+import static ru.org.linux.user.Profile.*;
 
 public final class DefaultProfile {
   private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm", "tshirt"};

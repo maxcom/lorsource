@@ -87,7 +87,7 @@ public class AddRemoveBoxesController {
         boxlets.remove(form.position.intValue());
         tmpl.getProf().setList(objectName, boxlets);
 
-        profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProfile());
+        profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProf());
       }
     }
     
@@ -135,7 +135,7 @@ public class AddRemoveBoxesController {
     
     t.getProf().setList(objectName, boxlets);
 
-    profileDao.writeProfile(t.getCurrentUser(), t.getProfile());
+    profileDao.writeProfile(t.getCurrentUser(), t.getProf());
 
     status.setComplete();
     return "redirect:/edit-boxes.jsp";

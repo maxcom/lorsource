@@ -22,7 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,35 +42,17 @@ public class ProfileDaoTest {
   }
 
   @Test
-  public void testDefaultProfile() {
-    Profile profile = new Profile();
-
-    assertTrue(profile.isDefault());
-  }
-
-  @Test
-  public void testDefaultProfileSave() throws Exception {
-    Profile profile = new Profile();
-
-    profileDao.writeProfile(testUser, profile);
-
-    Profile profile1 = profileDao.readProfile(testUser);
-
-    assertFalse(profile1.isDefault());
-  }
-
-  @Test
   public void testModification() throws Exception {
-    Profile profile = new Profile();
+    Profile profile = Profile.createDefault();
 
-    assertNotSame(125, profile.getProperties().getMessages());
+    assertNotSame(125, profile.getMessages());
 
-    profile.getProperties().setMessages(125);
+    profile.setMessages(125);
 
     profileDao.writeProfile(testUser, profile);
 
     Profile profile1 = profileDao.readProfile(testUser);
 
-    assertEquals(125, profile1.getProperties().getMessages());
+    assertEquals(125, profile1.getMessages());
   }
 }

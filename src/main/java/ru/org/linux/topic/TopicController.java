@@ -38,7 +38,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
-import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 
@@ -112,7 +112,7 @@ public class TopicController {
     return getMessageNew(section, webRequest, request, response, page, filter, groupName, msgid);
   }
 
-  private static int getDefaultFilter(ProfileProperties prof, boolean emptyIgnoreList) {
+  private static int getDefaultFilter(Profile prof, boolean emptyIgnoreList) {
     int filterMode = CommentFilter.FILTER_IGNORED;
 
     if (!prof.isShowAnonymous()) {
@@ -229,7 +229,7 @@ public class TopicController {
       params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
 
       if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-        String etag = getEtag(topic, tmpl);
+        String etag = getEtag(topic);
         response.setHeader("Etag", etag);
 
         if (request.getHeader("If-None-Match") != null) {
@@ -410,16 +410,8 @@ public class TopicController {
     }
   }
 
-  private static String getEtag(Topic message, Template tmpl) {
-    String nick = tmpl.getNick();
-
-    String userAddon = nick!=null?('-' +nick):"";
-
-    if (!tmpl.isUsingDefaultProfile()) {
-      userAddon+=tmpl.getProf().getTimestamp();
-    }
-
-    return "msg-"+message.getId()+ '-' +message.getLastModified().getTime()+userAddon;
+  private static String getEtag(Topic message) {
+    return "msg-"+message.getId()+ '-' +message.getLastModified().getTime();
   }
 
   private ModelAndView jumpMessage(

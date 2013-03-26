@@ -20,7 +20,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.Profile;
-import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
@@ -28,14 +27,15 @@ import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 
 public final class Template {
+  @Nonnull
   private final Profile userProfile;
+
   private final Configuration configuration;
 
   public Template(WebApplicationContext ctx) {
     configuration = (Configuration)ctx.getBean("configuration");
-    userProfile = AuthUtil.getCurrentProfile();
+    userProfile = AuthUtil.getProfile();
   }
-
 
   public Template(ServletRequest request) {
     this(WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()));
@@ -51,19 +51,12 @@ public final class Template {
   }
 
   public String getFormatMode() {
-    return userProfile.getProperties().getFormatMode();
+    return userProfile.getFormatMode();
   }
 
-  public ProfileProperties getProf() {
-    return userProfile.getProperties();
-  }
-
-  public Profile getProfile() {
+  @Nonnull
+  public Profile getProf() {
     return userProfile;
-  }
-
-  public boolean isUsingDefaultProfile() {
-    return userProfile.isDefault();
   }
 
   public String getMainUrl() {

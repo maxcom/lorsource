@@ -78,8 +78,4 @@ public class UserDetailsImpl implements UserDetails {
   public boolean isEnabled() {
     return !user.isBlocked();
   }
-
-  public String getStyle() {
-    return user.getStyle();
-  }
 }
