@@ -15,14 +15,31 @@
 
 package ru.org.linux.user;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class ProfileTest {
+@ContextConfiguration(classes=ProfileDaoTestConfiguration.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+public class ProfileDaoTest {
+  @Autowired
+  private ProfileDao profileDao;
+
+  private User testUser;
+
+  @Before
+  public void initTestUser() {
+    testUser = mock(User.class);
+    when(testUser.getNick()).thenReturn("test-user");
+  }
+
   @Test
   public void testDefaultProfile() {
     Profile profile = new Profile();
@@ -33,11 +50,10 @@ public class ProfileTest {
   @Test
   public void testDefaultProfileSave() throws Exception {
     Profile profile = new Profile();
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-    profile.write(os);
+    profileDao.writeProfile(testUser, profile);
 
-    Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
+    Profile profile1 = profileDao.readProfile(testUser);
 
     assertFalse(profile1.isDefault());
   }
@@ -50,13 +66,10 @@ public class ProfileTest {
 
     profile.getProperties().setMessages(125);
 
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    profileDao.writeProfile(testUser, profile);
 
-    profile.write(os);
-
-    Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
+    Profile profile1 = profileDao.readProfile(testUser);
 
     assertEquals(125, profile1.getProperties().getMessages());
   }
-
 }

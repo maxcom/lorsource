@@ -35,14 +35,12 @@ import java.util.Map;
 @Controller
 @RequestMapping("/people/{nick}/settings")
 public class EditProfileController {
+  @Autowired
   private UserDao userDao;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private ProfileDao profileDao;
 
-  
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -115,7 +113,7 @@ public class EditProfileController {
     tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
     tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
 
-    tmpl.writeProfile(nick);
+    profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProfile());
 
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
