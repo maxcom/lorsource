@@ -15,16 +15,20 @@
 
 package ru.org.linux.auth;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.util.ProfileHashtable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
 
 /**
  */
@@ -106,13 +110,13 @@ public class AuthUtil {
   @Nonnull
   public static Profile getCurrentProfile() {
     if (!isSessionAuthorized()) {
-      return Profile.getDefaultProfile();
+      return getDefaultProfile();
     }
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principal instanceof UserDetailsImpl) {
       return ((UserDetailsImpl) principal).getProfile();
     } else {
-      return Profile.getDefaultProfile();
+      return getDefaultProfile();
     }
   }
 
@@ -134,5 +138,14 @@ public class AuthUtil {
     } else {
       return "tango";
     }
+  }
+
+  public static Profile getDefaultProfile() {
+    ProfileProperties properties1 = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
+    return new Profile(properties1, true);
+  }
+
+  public static ImmutableMap<String, Object> getDefaults() {
+    return DefaultProfile.getDefaultProfile();
   }
 }

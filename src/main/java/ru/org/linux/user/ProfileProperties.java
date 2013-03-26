@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.util.ProfileHashtable;
 
@@ -188,7 +189,7 @@ public class ProfileProperties {
     if (!"quot".equals(mode) &&
         !"ntobr".equals(mode) &&
         !"lorcode".equals(mode)) {
-      return (String) Profile.getDefaults().get("format.mode");
+      return (String) AuthUtil.getDefaults().get("format.mode");
     }
 
     return mode;
@@ -196,7 +197,7 @@ public class ProfileProperties {
 
   private static String fixStyle(String style) {
     if (!DefaultProfile.isStyle(style)) {
-      return (String) Profile.getDefaults().get(STYLE_PROPERTY);
+      return (String) AuthUtil.getDefaults().get(STYLE_PROPERTY);
     }
 
     return style;

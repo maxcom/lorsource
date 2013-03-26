@@ -17,66 +17,28 @@ package ru.org.linux.site;
 
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.storage.FileStorage;
-import ru.org.linux.storage.Storage;
-import ru.org.linux.storage.StorageException;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
-import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
-import java.io.IOException;
-import java.io.OutputStream;
 
 public final class Template {
   private final Profile userProfile;
   private final Configuration configuration;
 
-  private final Storage storage;
-
   public Template(WebApplicationContext ctx) {
     configuration = (Configuration)ctx.getBean("configuration");
-    storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
     userProfile = AuthUtil.getCurrentProfile();
   }
 
 
   public Template(ServletRequest request) {
     this(WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()));
-  }
-
-  public String getProfileName() {
-    return getNick();
-  }
-
-  public void writeProfile(String name) throws IOException, AccessViolationException, StorageException {
-    if (name.charAt(0) == '_') {
-      throw new AccessViolationException("нельзя менять специальный профиль");
-    }
-
-    if (!StringUtil.checkLoginName(name)) {
-      throw new AccessViolationException("некорректное имя пользователя");
-    }
-
-    if ("anonymous".equals(name)) {
-      throw new AccessViolationException("нельзя менять профиль по умолчанию");
-    }
-
-    OutputStream df = null;
-    try {
-      df = storage.getWriteStream("profile", name);
-      userProfile.write(df);
-    } finally {
-      if (df!=null) {
-        df.close();
-      }
-    }
   }
 
   public String getStyle() {
@@ -94,6 +56,10 @@ public final class Template {
 
   public ProfileProperties getProf() {
     return userProfile.getProperties();
+  }
+
+  public Profile getProfile() {
+    return userProfile;
   }
 
   public boolean isUsingDefaultProfile() {

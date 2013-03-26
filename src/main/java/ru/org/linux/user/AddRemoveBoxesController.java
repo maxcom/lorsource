@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -39,6 +40,9 @@ import java.util.Set;
 @Controller
 @SessionAttributes("allboxes")
 public class AddRemoveBoxesController {
+  @Autowired
+  private ProfileDao profileDao;
+
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
   public ModelMap showRemove(@RequestParam(required = false) Integer pos,
                              ServletRequest request)
@@ -60,9 +64,9 @@ public class AddRemoveBoxesController {
   public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                          SessionStatus status, HttpServletRequest request)
     throws Exception {
-    Template t = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate(request);
 
-    if (!t.isSessionAuthorized()) {
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -75,14 +79,15 @@ public class AddRemoveBoxesController {
       return "remove-box";
     }
 
-    String objectName = getObjectName(form);
-    List<String> boxlets = new ArrayList<>(t.getProf().getList(objectName));
+    String objectName = "main2";
+    List<String> boxlets = new ArrayList<>(tmpl.getProf().getList(objectName));
 
     if (!boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
         boxlets.remove(form.position.intValue());
-        t.getProf().setList(objectName, boxlets);
-        t.writeProfile(t.getProfileName());
+        tmpl.getProf().setList(objectName, boxlets);
+
+        profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProfile());
       }
     }
     
@@ -98,8 +103,7 @@ public class AddRemoveBoxesController {
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
   public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                       SessionStatus status, HttpServletRequest request)
-    throws IOException,
-          AccessViolationException, StorageException {
+    throws IOException, StorageException {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
@@ -118,7 +122,7 @@ public class AddRemoveBoxesController {
       form.setPosition(0);
     }
 
-    String objectName = getObjectName(form);
+    String objectName = "main2";
     List<String> boxlets = new ArrayList<>(t.getProf().getList(objectName));
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
@@ -130,14 +134,11 @@ public class AddRemoveBoxesController {
     }
     
     t.getProf().setList(objectName, boxlets);
-    t.writeProfile(t.getProfileName());
+
+    profileDao.writeProfile(t.getCurrentUser(), t.getProfile());
 
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
-  }
-
-  private static String getObjectName(EditBoxesRequest form)  {
-    return "main2";
   }
 
   public static class EditBoxesRequest {

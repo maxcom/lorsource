@@ -15,14 +15,10 @@
 
 package ru.org.linux.user;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-
-import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.util.ProfileHashtable;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 
 public class Profile {
   private final ProfileProperties properties;
@@ -30,39 +26,12 @@ public class Profile {
   private final boolean isdefault;
 
   public Profile(ProfileProperties profileProperties, boolean isdefault) {
-    this.properties = profileProperties;
+    properties = profileProperties;
     this.isdefault = isdefault;
   }
 
-  public Profile(InputStream df) throws IOException, ClassNotFoundException {
-    if (df==null) {
-      throw new NullPointerException();
-    }
-
-    ObjectInputStream dof = null;
-    try {
-      dof = new ObjectInputStream(df);
-      Map<String, Object> userProfile = (Map<String, Object>) dof.readObject();
-      dof.close();
-      df.close();
-
-      properties = new ProfileProperties(new ProfileHashtable(getDefaults(), userProfile));
-
-      isdefault = false;
-    } finally {
-      if (dof!=null) {
-        dof.close();
-      }
-    }
-  }
-
-  public static Profile getDefaultProfile() {
-    ProfileProperties properties1 = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
-    return new Profile(properties1, true);
-  }
-
   public Profile() {
-    properties = new ProfileProperties(new ProfileHashtable(getDefaults(), new HashMap<String, Object>()));
+    properties = new ProfileProperties(new ProfileHashtable(AuthUtil.getDefaults(), new HashMap<String, Object>()));
 
     isdefault = true;
   }
@@ -73,26 +42,5 @@ public class Profile {
 
   public ProfileProperties getProperties() {
     return properties;
-  }
-
-  public static ImmutableMap<String, Object> getDefaults() {
-    return DefaultProfile.getDefaultProfile();
-  }
-
-  public void write(OutputStream df) throws IOException {
-    ProfileHashtable profileHashtable = properties.getHashtable();
-
-    profileHashtable.setObject(ProfileProperties.TIMESTAMP_PROPERTY, System.currentTimeMillis());
-
-    ObjectOutputStream dof = null;
-    try {
-      dof = new ObjectOutputStream(df);
-      dof.writeObject(profileHashtable.getSettings());
-      dof.close();
-    } finally {
-      if (dof!=null) {
-        dof.close();
-      }
-    }
   }
 }
