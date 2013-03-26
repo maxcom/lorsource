@@ -120,9 +120,9 @@ public class ImageDao {
       } catch (UserNotFoundException e) {
         throw new RuntimeException(e);
       } catch (BadImageException e) {
-        logger.error("Bad image id="+item.getImage().getId(), e);
+        logger.error("Bad image id="+item.getImage().getId());
       } catch (IOException e) {
-        logger.error("Bad image id=" + item.getImage().getId(), e);
+        logger.error("Bad image id=" + item.getImage().getId());
       }
     }
 

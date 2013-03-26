@@ -114,9 +114,9 @@ public class UserService {
             info.getHeight()
         );
       } catch (BadImageException e) {
-        logger.warn("Bad userpic for {}", user.getNick(), e);
+        logger.warn("Bad userpic for {}", user.getNick());
       } catch (IOException e) {
-        logger.warn("Bad userpic for {}", user.getNick(), e);
+        logger.warn("Bad userpic for {}", user.getNick());
       }
     }
 
