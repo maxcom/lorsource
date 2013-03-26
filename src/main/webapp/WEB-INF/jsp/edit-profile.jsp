@@ -13,6 +13,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
@@ -51,6 +52,8 @@ $script.ready('plugins', function() {
 <td><input type="checkbox" name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
 <td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
+<tr><td>Всегда https</td>
+<td><input type="checkbox" name="alwaysSecure" <c:if test="${template.prof.alwaysSecure}">checked</c:if> ></td></tr>
   <tr><td colspan=2><hr></td></tr>
 <tr>
   <td valign=top>Тема</td>

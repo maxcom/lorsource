@@ -19,9 +19,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorHttpUtils;
 
@@ -33,6 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -49,6 +53,7 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     request.setCharacterEncoding("utf-8"); // блядский tomcat
     CSRFManipulation(request, (HttpServletResponse) res);
     forWikiManipulation(request, (HttpServletResponse) res);
+    alwaysSecureFix(request, (HttpServletResponse) res, ctx.getBean(Configuration.class));
     chain.doFilter(req, res);
   }
 
@@ -70,4 +75,32 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     }
   }
 
+  /**
+   * Редиректить на secure страницу всегда
+   * @param request
+   * @param response
+   * @param configuration
+   */
+  private void alwaysSecureFix(HttpServletRequest request, HttpServletResponse response, Configuration configuration) {
+    User user = AuthUtil.getCurrentUser();
+    if(user != null) {
+      ProfileProperties prop = AuthUtil.getProf();
+      if(prop.isAlwaysSecure() && !request.isSecure()) {
+        try {
+          URL url = new URL(request.getRequestURL().toString());
+          UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(configuration.getSecureUrl());
+          builder.path(url.getPath());
+          String queryString = request.getQueryString();
+          if(queryString != null && !queryString.isEmpty()) {
+            builder.query(queryString);
+          }
+          response.sendRedirect(builder.build().toUriString());
+        } catch (MalformedURLException e) {
+          logger.warn("Invalid URL:" + e.getMessage());
+        } catch (IOException e) {
+          logger.warn("IO error:" + e.getMessage());
+        }
+      }
+    }
+  }
 }

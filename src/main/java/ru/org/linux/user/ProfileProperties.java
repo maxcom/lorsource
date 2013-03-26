@@ -38,6 +38,7 @@ public class ProfileProperties {
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String TIMESTAMP_PROPERTY = "system.timestamp";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
+  public static final String ALWAYS_SECURE_PROPERTY = "alwaysSecure";
 
   private String style;
   private String formatMode;
@@ -51,6 +52,7 @@ public class ProfileProperties {
   private String avatarMode;
   private boolean showAnonymous;
   private boolean showSocial;
+  private boolean alwaysSecure;
 
   private final long timestamp;
 
@@ -69,6 +71,7 @@ public class ProfileProperties {
     avatarMode = p.getString(AVATAR_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
+    alwaysSecure = p.getBoolean(ALWAYS_SECURE_PROPERTY);
 
     timestamp = p.getLong(TIMESTAMP_PROPERTY);
 
@@ -90,6 +93,7 @@ public class ProfileProperties {
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
+    p.setBoolean(ALWAYS_SECURE_PROPERTY, alwaysSecure);
 
     p.setObject(BOXES_MAIN2_PROPERTY, boxes.get(BOXES_MAIN2_PROPERTY));
 
@@ -226,5 +230,13 @@ public class ProfileProperties {
 
   public void setShowSocial(boolean showSocial) {
     this.showSocial = showSocial;
+  }
+
+  public boolean isAlwaysSecure() {
+    return alwaysSecure;
+  }
+
+  public void setAlwaysSecure(boolean alwaysSecure) {
+    this.alwaysSecure = alwaysSecure;
   }
 }
