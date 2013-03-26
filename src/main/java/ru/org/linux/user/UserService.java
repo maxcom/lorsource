@@ -12,10 +12,7 @@ import ru.org.linux.util.ImageInfo2;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.Timestamp;
 
 @Service
@@ -113,9 +110,9 @@ public class UserService {
             info.getWidth(),
             info.getHeight()
         );
-      } catch (BadImageException e) {
-        logger.warn("Bad userpic for {}", user.getNick(), e);
-      } catch (IOException e) {
+      } catch (FileNotFoundException e) {
+        logger.warn("Userpic not found for {}: {}", user.getNick(), e.getMessage());
+      } catch (BadImageException | IOException e) {
         logger.warn("Bad userpic for {}", user.getNick(), e);
       }
     }
