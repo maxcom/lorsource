@@ -76,6 +76,7 @@ public final class DefaultProfile {
     defaults.put(HIDE_ADSENSE_PROPERTY, true);
     defaults.put(MAIN_GALLERY_PROPERTY, false);
     defaults.put(SHOW_SOCIAL_PROPERTY, true);
+    defaults.put(ALWAYS_SECURE_PROPERTY, false);
 
     defaults.put("DebugMode", Boolean.FALSE);
 

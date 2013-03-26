@@ -100,6 +100,7 @@ public class EditProfileController {
     tmpl.getProf().setShowGalleryOnMain("on".equals(request.getParameter("mainGallery")));
     tmpl.getProf().setFormatMode(request.getParameter("format_mode"));
     tmpl.getProf().setStyle(request.getParameter("style")); // TODO убрать как только
+    tmpl.getProf().setAlwaysSecure("on".equals(request.getParameter("alwaysSecure")));
     userDao.setStyle(tmpl.getCurrentUser(), request.getParameter("style"));
     
     tmpl.getProf().setShowSocial("on".equals(request.getParameter("showSocial")));
