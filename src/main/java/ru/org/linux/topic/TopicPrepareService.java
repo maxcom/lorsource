@@ -311,7 +311,7 @@ public class TopicPrepareService {
           List<Topic> messages,
           boolean secure,
           User user,
-          ProfileProperties profileProperties,
+          Profile profile,
           boolean loadUserpics
   ) {
     List<PersonalizedPreparedTopic> pm = new ArrayList<>(messages.size());
@@ -335,7 +335,7 @@ public class TopicPrepareService {
               preparedMessage,
               user,
               secure,
-              profileProperties,
+              profile,
               loadUserpics
       );
 
@@ -394,7 +394,7 @@ public class TopicPrepareService {
           @Nonnull PreparedTopic message,
           @Nullable User currentUser,
           boolean secure,
-          ProfileProperties profileProperties,
+          Profile profile,
           boolean loadUserpics
   ) {
     boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
@@ -422,8 +422,8 @@ public class TopicPrepareService {
 
     Userpic userpic = null;
 
-    if (loadUserpics && profileProperties.isShowPhotos()) {
-      String avatarMode = profileProperties.getAvatarMode();
+    if (loadUserpics && profile.isShowPhotos()) {
+      String avatarMode = profile.getAvatarMode();
 
       if ("empty".equals(avatarMode)) {
         avatarMode = "mm";

@@ -30,8 +30,7 @@
       <h3>Левая колонка</h3>
 
       <div class=column>
-        <c:set var="boxvar">main2</c:set>
-        <lor:boxlets object="${boxvar}" var="boxes">
+        <lor:boxlets var="boxes">
           <c:forEach items="${boxes}" var="box" varStatus="status">
             <div class="boxlet">
               <c:import url="/${box}.boxlet"/>

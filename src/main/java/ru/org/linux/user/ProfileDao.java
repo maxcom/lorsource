@@ -26,6 +26,7 @@ import ru.org.linux.storage.Storage;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.util.ProfileHashtable;
 
+import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ public class ProfileDao {
   @Autowired
   private Configuration configuration;
 
+  @Nonnull
   public Profile readProfile(@NotNull User user) {
     Storage storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
     InputStream df = null;
@@ -72,19 +74,19 @@ public class ProfileDao {
         }
       }
     }
-    ProfileProperties properties;
+    Profile properties;
     if (userProfile != null) {
-      properties = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), userProfile));
+      properties = new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), userProfile));
     } else {
-      properties = new ProfileProperties(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
+      properties = new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
     }
-    return new Profile(properties, false);
+    return properties;
   }
 
-  public void writeProfile(@NotNull User user, Profile profile) throws IOException, StorageException {
-    ProfileHashtable profileHashtable = profile.getProperties().getHashtable();
+  public void writeProfile(@Nonnull User user, @Nonnull Profile profile) throws IOException, StorageException {
+    ProfileHashtable profileHashtable = profile.getHashtable();
 
-    profileHashtable.setObject(ProfileProperties.TIMESTAMP_PROPERTY, System.currentTimeMillis());
+    profileHashtable.setObject(Profile.TIMESTAMP_PROPERTY, System.currentTimeMillis());
 
     Storage storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
     OutputStream df = storage.getWriteStream("profile", user.getNick());

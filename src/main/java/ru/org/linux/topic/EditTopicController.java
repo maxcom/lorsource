@@ -50,7 +50,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
@@ -181,7 +181,7 @@ public class EditTopicController {
     EditTopicRequest form,
     User currentUser,
     boolean secure,
-    ProfileProperties profileProperties
+    Profile profile
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<>();
 
@@ -201,7 +201,7 @@ public class EditTopicController {
             preparedTopic,
             currentUser,
             secure,
-            profileProperties,
+            profile,
             true
     );
 

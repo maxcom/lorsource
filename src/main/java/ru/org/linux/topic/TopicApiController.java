@@ -65,7 +65,7 @@ public class TopicApiController {
 
     CommentFilter cv = new CommentFilter(comments);
 
-    int messagesPerPage = AuthUtil.getCurrentProfile().getProperties().getMessages();
+    int messagesPerPage = AuthUtil.getProfile().getMessages();
 
     List<Comment> commentsFiltered = cv.getCommentsForPage(
             false,

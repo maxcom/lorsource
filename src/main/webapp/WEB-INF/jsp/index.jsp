@@ -115,7 +115,7 @@
     </div>
   </c:if>
 
-  <lor:boxlets object="main2" var="boxes">
+  <lor:boxlets var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
             <c:import url="/${boxlet}.boxlet"/>

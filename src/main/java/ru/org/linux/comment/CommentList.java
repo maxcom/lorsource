@@ -16,7 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.Profile;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -81,7 +81,7 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(@Nonnull Comment comment, @Nonnull ProfileProperties profile) {
+  public int getCommentPage(@Nonnull Comment comment, @Nonnull Profile profile) {
     int messages = profile.getMessages();
     boolean reverse = profile.isShowNewFirst();
 

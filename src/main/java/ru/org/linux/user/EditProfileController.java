@@ -113,7 +113,7 @@ public class EditProfileController {
     tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
     tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
 
-    profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProfile());
+    profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProf());
 
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
