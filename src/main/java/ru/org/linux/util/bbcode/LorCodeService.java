@@ -78,6 +78,15 @@ public class LorCodeService {
   }
 
   /**
+   * Проверяем комментарий на отсутствие текста
+   * @param msg текст
+   * @return флаг пустоты
+   */
+  public boolean isEmptyTextComment(String msg) {
+    return parseForOgDescription(msg.trim()).isEmpty();
+  }
+
+  /**
    * Возвращает множество пользователей упомянутых в сообщении
    * @param text сообщение
    * @return множество пользователей
