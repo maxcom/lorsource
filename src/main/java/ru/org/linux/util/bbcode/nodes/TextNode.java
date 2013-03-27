@@ -47,12 +47,12 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
  */
 public class TextNode extends Node {
   final String text;
-  final RootNode rootNode;
+  final Parser.ParserAutomatonState state;
 
-  public TextNode(Node parent, ParserParameters parserParameters, String text, RootNode rootNode) {
+  public TextNode(Node parent, ParserParameters parserParameters, String text, Parser.ParserAutomatonState state1) {
     super(parent, parserParameters);
     this.text = text;
-    this.rootNode = rootNode;
+    this.state = state1;
   }
 
   public String getText() {
@@ -61,14 +61,19 @@ public class TextNode extends Node {
 
   @Override
   public String renderXHtml() {
-    ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
+    ToHtmlFormatter toHtmlFormatter = state.getRootNode().getToHtmlFormatter();
     if(toHtmlFormatter != null) {
       if (TagNode.class.isInstance(parent)) {
         TagNode tagNode = (TagNode) parent;
         if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
-          return toHtmlFormatter.format(text, rootNode.isSecure(), tagNode.getRootNode().isNofollow());
+          return toHtmlFormatter.format(
+              text,
+              state.getRootNode().isSecure(),
+              state.getRootNode().isNofollow(),
+              state.getTypoChanger()
+              );
         } else {
-          return toHtmlFormatter.simpleFormat(text);
+          return toHtmlFormatter.simpleFormat(state.getTypoChanger().format(text));
         }
       }
     }
