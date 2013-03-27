@@ -28,6 +28,7 @@ import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.bbcode.Parser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -93,6 +94,10 @@ public class ToHtmlFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean secure, boolean nofollow) {
+    return format(text, secure, nofollow, null);
+  }
+
+  public String format(String text, boolean secure, boolean nofollow, RuTypoChanger changer) {
     String escapedText = StringUtil.escapeHtml(text);
 
 
@@ -101,7 +106,7 @@ public class ToHtmlFormatter {
 
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
-      String formattedToken = formatURL(token, secure, nofollow);
+      String formattedToken = formatURL(token, secure, nofollow, changer);
       sb.append(formattedToken);
     }
 
@@ -117,6 +122,11 @@ public class ToHtmlFormatter {
     return StringUtil.escapeHtml(text).replaceAll(MDASH_REGEX, MDASH_REPLACE);
   }
 
+  private String formatWithMagic(String text, RuTypoChanger changer) {
+    String text2 = changer!=null ? changer.format(text) : text;
+    return text2;
+  }
+
   public String memberURL(User user, boolean secure) throws URIException {
     URI mainUri = configuration.getMainURI();
     String scheme;
@@ -128,7 +138,7 @@ public class ToHtmlFormatter {
     return (new URI(scheme, null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
   }
 
-  protected String formatURL(String line, boolean secure, boolean nofollow) {
+  protected String formatURL(String line, boolean secure, boolean nofollow, RuTypoChanger changer) {
     StringBuilder out = new StringBuilder();
     Matcher m = URL_PATTERN.matcher(line);
     int index = 0;
@@ -137,7 +147,7 @@ public class ToHtmlFormatter {
       int end = m.end();
 
       // обработка начальной части до URL
-      out.append(line.substring(index, start));
+      out.append(formatWithMagic(line.substring(index, start), changer));
 
       // возможно это url
       String mayUrl = line.substring(start, end);
@@ -155,14 +165,14 @@ public class ToHtmlFormatter {
       } catch (URIException e) {
         // e.printStackTrace();
         // ссылка не ссылка
-        out.append(mayUrl);
+        out.append(formatWithMagic(mayUrl, changer));
       }
       index = end;
     }
 
     // обработка последнего фрагмента
     if (index < line.length()) {
-      out.append(line.substring(index));
+      out.append(formatWithMagic(line.substring(index), changer));
     }
 
     return out.toString();
