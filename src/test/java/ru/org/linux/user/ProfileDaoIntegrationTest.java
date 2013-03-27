@@ -41,6 +41,15 @@ public class ProfileDaoIntegrationTest {
   }
 
   @Test
+  public void testReadEmpty() throws Exception {
+    profileDao.deleteProfile(testUser);
+
+    Profile profile = profileDao.readProfile(testUser);
+
+    assertNull(profile.getCustomBoxlets());
+  }
+
+  @Test
   public void testModification() throws Exception {
     Profile profile = Profile.createDefault();
 

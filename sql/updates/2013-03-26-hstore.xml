@@ -34,4 +34,10 @@
             );
         </sql>
     </changeSet>
+
+    <changeSet id="2013032603" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            GRANT ALL ON user_settings TO linuxweb;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

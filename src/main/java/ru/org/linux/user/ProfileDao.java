@@ -110,7 +110,7 @@ public class ProfileDao {
               new PreparedStatementCreator() {
                 @Override
                 public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                  PreparedStatement st = con.prepareStatement("INSERT INTO user_settings (id, settings, main) VALUES (?,?,?g)");
+                  PreparedStatement st = con.prepareStatement("INSERT INTO user_settings (id, settings, main) VALUES (?,?,?)");
 
                   st.setInt(1, user.getId());
 
