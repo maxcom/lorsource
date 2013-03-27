@@ -21,8 +21,16 @@ import org.springframework.validation.Validator;
 import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 public class CommentRequestValidator implements Validator {
+
+  private final LorCodeService service;
+
+  public CommentRequestValidator(LorCodeService lorCodeService) {
+    service = lorCodeService;
+  }
+
   @Override
   public boolean supports(Class<?> clazz) {
     return CommentRequest.class.equals(clazz);
@@ -47,6 +55,10 @@ public class CommentRequestValidator implements Validator {
       }
 
       if (add.getMsg().trim().isEmpty()) {
+        errors.rejectValue("msg", null, "комментарий не может быть пустым");
+      }
+
+      if(service.isEmptyTextComment(add.getMsg())) {
         errors.rejectValue("msg", null, "комментарий не может быть пустым");
       }
     }

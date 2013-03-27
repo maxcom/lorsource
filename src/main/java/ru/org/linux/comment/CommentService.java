@@ -108,7 +108,7 @@ public class CommentService {
   private TopicDao topicDao;
 
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new CommentRequestValidator());
+    binder.setValidator(new CommentRequestValidator(lorCodeService));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 
