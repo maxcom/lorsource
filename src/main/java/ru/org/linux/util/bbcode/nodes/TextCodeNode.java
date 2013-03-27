@@ -40,6 +40,7 @@
 package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 
 /**
@@ -47,8 +48,8 @@ import ru.org.linux.util.bbcode.ParserParameters;
  */
 public class TextCodeNode extends TextNode {
 
-  public TextCodeNode(Node parent, ParserParameters parserParameters, String text, RootNode rootNode) {
-    super(parent, parserParameters, text, rootNode);
+  public TextCodeNode(Node parent, ParserParameters parserParameters, String text, Parser.ParserAutomatonState state1) {
+    super(parent, parserParameters, text, state1);
   }
 
   @Override
