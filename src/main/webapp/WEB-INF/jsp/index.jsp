@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2012 Linux.org.ru
+  ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -61,13 +61,13 @@
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
-    [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
+    <a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
 
     <c:if test="${uncommitedNews > 0}">
-      в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}]
+      в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}
     </c:if>
     <c:if test="${uncommitedNews == 0}">
-      новостей нет]
+      новостей нет
     </c:if>
   </c:if>
 </div>
