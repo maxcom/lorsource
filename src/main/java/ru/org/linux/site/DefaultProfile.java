@@ -70,7 +70,6 @@ public final class DefaultProfile {
     defaults.put(TOPICS_PROPERTY, 30);
     defaults.put(MESSAGES_PROPERTY, 50);
     defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
-    defaults.put(TIMESTAMP_PROPERTY, System.currentTimeMillis());
     defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
     defaults.put(AVATAR_PROPERTY, "empty");
     defaults.put(HIDE_ADSENSE_PROPERTY, true);

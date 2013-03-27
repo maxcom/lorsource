@@ -18,31 +18,31 @@ package ru.org.linux.util;
 import java.util.Map;
 
 public class ProfileHashtable {
-  private final Map<String, Object> Defaults;
-  private final Map<String, Object> settings;
+  private final Map<String, Object> defaults;
+  private final Map<String, String> settings;
 
-  public ProfileHashtable(Map<String, Object> defaults, Map<String, Object> settings) {
-    Defaults = defaults;
+  public ProfileHashtable(Map<String, Object> defaults, Map<String, String> settings) {
+    this.defaults = defaults;
     this.settings = settings;
 
-    if (this.settings == null || Defaults == null) {
+    if (this.settings == null || this.defaults == null) {
       throw new NullPointerException();
     }
   }
 
   public String getString(String prop) {
     if (settings.get(prop) != null) {
-      return (String) settings.get(prop);
+      return settings.get(prop);
     } else {
-      return (String) Defaults.get(prop);
+      return (String) defaults.get(prop);
     }
   }
 
   public boolean getBoolean(String prop) {
     if (settings.get(prop) != null) {
-      return (Boolean) settings.get(prop);
+      return Boolean.valueOf(settings.get(prop));
     } else {
-      Boolean value = (Boolean) Defaults.get(prop);
+      Boolean value = (Boolean) defaults.get(prop);
       if (value == null) {
         throw new RuntimeException("unknown property '"+prop+"'; no default value");
       }
@@ -50,89 +50,33 @@ public class ProfileHashtable {
     }
   }
 
-  public Object getObject(String prop) {
-    if (settings.get(prop) != null) {
-      return settings.get(prop);
-    } else {
-      return Defaults.get(prop);
-    }
-  }
-
   public int getInt(String prop) {
     if (settings.get(prop) != null) {
-      return (Integer) settings.get(prop);
+      return Integer.parseInt(settings.get(prop));
     } else {
-      return (Integer) Defaults.get(prop);
+      return (Integer) defaults.get(prop);
     }
   }
 
-  public long getLong(String prop) {
-    if (settings.get(prop) != null) {
-      return (Long) settings.get(prop);
-    } else {
-      return (Long) Defaults.get(prop);
-    }
-  }
-
-  public boolean setInt(String prop, Integer value) {
+  public void setInt(String prop, Integer value) {
     if (value != null && value != getInt(prop)) {
-      settings.put(prop, value);
-      return true;
-    } else {
-      return false;
+      settings.put(prop, Integer.toString(value));
     }
   }
 
-  public boolean setString(String prop, String value) {
+  public void setString(String prop, String value) {
     if (value != null && !value.equals(getString(prop))) {
       settings.put(prop, value);
-      return true;
-    } else {
-      return false;
     }
   }
 
-  public void setObject(String prop, Object value) {
-    if (value != null) {
-      settings.put(prop, value);
-      } else {
-      }
-  }
-
-  public boolean setBoolean(String prop, boolean value) {
+  public void setBoolean(String prop, boolean value) {
     if (value != getBoolean(prop)) {
-      settings.put(prop, value);
-      return true;
-    } else {
-      return false;
+      settings.put(prop, Boolean.toString(value));
     }
   }
 
-  public boolean setBoolean(String prop, String value)  {
-    if (value == null) {
-      return setBoolean(prop, false);
-    }
-
-    if ("on".equals(value)) {
-      return setBoolean(prop, true);
-    }
-
-    return false;
-  }
-
-  public void addBoolean(String prop, boolean value) {
-    settings.put(prop, value);
-  }
-
-  public void addObject(String prop, Object value) {
-    settings.put(prop, value);
-  }
-
-  public void removeObject(String key) {
-    settings.remove(key);
-  }
-
-  public Map<String, Object> getSettings() {
+  public Map<String, String> getSettings() {
     return settings;
   }
 }

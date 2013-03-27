@@ -22,14 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes=ProfileDaoTestConfiguration.class)
+@ContextConfiguration(classes= ProfileDaoIntegrationTestConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ProfileDaoTest {
+public class ProfileDaoIntegrationTest {
   @Autowired
   private ProfileDao profileDao;
 
@@ -38,7 +37,7 @@ public class ProfileDaoTest {
   @Before
   public void initTestUser() {
     testUser = mock(User.class);
-    when(testUser.getNick()).thenReturn("test-user");
+    when(testUser.getId()).thenReturn(1);
   }
 
   @Test
@@ -53,6 +52,9 @@ public class ProfileDaoTest {
 
     Profile profile1 = profileDao.readProfile(testUser);
 
+    profileDao.deleteProfile(testUser);
+
     assertEquals(125, profile1.getMessages());
+    assertNull(profile1.getCustomBoxlets());
   }
 }

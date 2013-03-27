@@ -19,9 +19,12 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.util.ProfileHashtable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Profile {
   public static final String STYLE_PROPERTY = "style";
@@ -36,7 +39,6 @@ public class Profile {
   public static final String AVATAR_PROPERTY = "avatar";
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
-  public static final String TIMESTAMP_PROPERTY = "system.timestamp";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
 
   private String style;
@@ -52,11 +54,9 @@ public class Profile {
   private boolean showAnonymous;
   private boolean showSocial;
 
-  private final long timestamp;
-
   private List<String> boxes;
 
-  public Profile(ProfileHashtable p) {
+  public Profile(ProfileHashtable p, List<String> boxes) {
     style = fixStyle(p.getString(STYLE_PROPERTY));
     formatMode = fixFormat(p.getString(FORMAT_MODE_PROPERTY));
     useHover = p.getBoolean(HOVER_PROPERTY);
@@ -70,13 +70,11 @@ public class Profile {
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
 
-    timestamp = p.getLong(TIMESTAMP_PROPERTY);
-
-    boxes = (List<String>) p.getSettings().get(BOXES_MAIN2_PROPERTY);
+    this.boxes = boxes;
   }
 
-  public ProfileHashtable getHashtable() {
-    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>());
+  public Map<String, String> getSettings() {
+    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, String>());
 
     p.setString(STYLE_PROPERTY, style);
     p.setString(FORMAT_MODE_PROPERTY, formatMode);
@@ -91,9 +89,7 @@ public class Profile {
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
 
-    p.setObject(BOXES_MAIN2_PROPERTY, boxes);
-
-    return p;
+    return p.getSettings();
   }
 
   public String getStyle() {
@@ -202,6 +198,7 @@ public class Profile {
     return style;
   }
 
+  @Nonnull
   public List<String> getBoxlets() {
     List<String> list = boxes;
 
@@ -212,12 +209,13 @@ public class Profile {
     }
   }
 
-  public void setBoxlets(List<String> list) {
-    boxes = new ArrayList<>(list);
+  @Nullable
+  public List<String> getCustomBoxlets() {
+    return boxes;
   }
 
-  public long getTimestamp() {
-    return timestamp;
+  public void setBoxlets(List<String> list) {
+    boxes = new ArrayList<>(list);
   }
 
   public boolean isShowSocial() {
@@ -229,6 +227,6 @@ public class Profile {
   }
 
   public static Profile createDefault() {
-    return new Profile(new ProfileHashtable(AuthUtil.getDefaults(), new HashMap<String, Object>()));
+    return new Profile(new ProfileHashtable(AuthUtil.getDefaults(), new HashMap<String, String>()), null);
   }
 }
