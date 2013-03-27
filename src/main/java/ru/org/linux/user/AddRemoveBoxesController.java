@@ -79,13 +79,12 @@ public class AddRemoveBoxesController {
       return "remove-box";
     }
 
-    String objectName = "main2";
-    List<String> boxlets = new ArrayList<>(tmpl.getProf().getList(objectName));
+    List<String> boxlets = new ArrayList<>(tmpl.getProf().getBoxlets());
 
     if (!boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
         boxlets.remove(form.position.intValue());
-        tmpl.getProf().setList(objectName, boxlets);
+        tmpl.getProf().setBoxlets(boxlets);
 
         profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProf());
       }
@@ -122,8 +121,7 @@ public class AddRemoveBoxesController {
       form.setPosition(0);
     }
 
-    String objectName = "main2";
-    List<String> boxlets = new ArrayList<>(t.getProf().getList(objectName));
+    List<String> boxlets = new ArrayList<>(t.getProf().getBoxlets());
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
 
@@ -133,7 +131,7 @@ public class AddRemoveBoxesController {
       boxlets.add(form.boxName);
     }
     
-    t.getProf().setList(objectName, boxlets);
+    t.getProf().setBoxlets(boxlets);
 
     profileDao.writeProfile(t.getCurrentUser(), t.getProf());
 

@@ -41,11 +41,6 @@
         <tag-class>ru.org.linux.site.tags.BoxListTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
-            <name>object</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
             <description>Variable to export boxlet names</description>
             <name>var</name>
             <required>true</required>

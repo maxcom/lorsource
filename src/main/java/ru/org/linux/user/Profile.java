@@ -22,7 +22,6 @@ import ru.org.linux.util.ProfileHashtable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Profile {
   public static final String STYLE_PROPERTY = "style";
@@ -55,7 +54,7 @@ public class Profile {
 
   private final long timestamp;
 
-  private final Map<String, List<String>> boxes = new HashMap<>();
+  private List<String> boxes;
 
   public Profile(ProfileHashtable p) {
     style = fixStyle(p.getString(STYLE_PROPERTY));
@@ -73,7 +72,7 @@ public class Profile {
 
     timestamp = p.getLong(TIMESTAMP_PROPERTY);
 
-    boxes.put(BOXES_MAIN2_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN2_PROPERTY));
+    boxes = (List<String>) p.getSettings().get(BOXES_MAIN2_PROPERTY);
   }
 
   public ProfileHashtable getHashtable() {
@@ -92,7 +91,7 @@ public class Profile {
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
 
-    p.setObject(BOXES_MAIN2_PROPERTY, boxes.get(BOXES_MAIN2_PROPERTY));
+    p.setObject(BOXES_MAIN2_PROPERTY, boxes);
 
     return p;
   }
@@ -203,18 +202,18 @@ public class Profile {
     return style;
   }
 
-  public List<String> getList(String name) {
-    List<String> list = boxes.get(name);
+  public List<String> getBoxlets() {
+    List<String> list = boxes;
 
     if (list==null) {
-      return (List<String>) DefaultProfile.getDefaultProfile().get(name);
+      return (List<String>) DefaultProfile.getDefaultProfile().get(BOXES_MAIN2_PROPERTY);
     } else {
       return list;
     }
   }
 
-  public void setList(String name, List<String> list) {
-    boxes.put(name, new ArrayList<>(list));
+  public void setBoxlets(List<String> list) {
+    boxes = new ArrayList<>(list);
   }
 
   public long getTimestamp() {
