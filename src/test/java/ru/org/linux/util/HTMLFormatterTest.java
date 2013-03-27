@@ -655,4 +655,13 @@ public class HTMLFormatterTest {
         lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", true, false));
   }
 
+  @Test
+  public void testEmpty() {
+    assertTrue(lorCodeService.isEmptyTextComment("[br]"));
+    assertTrue(lorCodeService.isEmptyTextComment("[br] "));
+    assertTrue(lorCodeService.isEmptyTextComment("[b] [br][/b][u] "));
+    assertTrue(lorCodeService.isEmptyTextComment("[list][*][br][br][*][u][/u][/list]"));
+    assertTrue(lorCodeService.isEmptyTextComment("[url]   [/url][list][*][br][br][*][u][/u][/list][/url]"));
+  }
+
 }
