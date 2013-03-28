@@ -664,4 +664,13 @@ public class HTMLFormatterTest {
     assertTrue(lorCodeService.isEmptyTextComment("[url]   [/url][list][*][br][br][*][u][/u][/list][/url]"));
   }
 
+  @Test
+  public void testQuotes() {
+    assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+    assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+
+  }
+
 }
