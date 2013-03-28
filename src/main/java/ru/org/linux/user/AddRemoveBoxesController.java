@@ -29,7 +29,6 @@ import org.springframework.web.bind.support.SessionStatus;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
-import ru.org.linux.storage.StorageException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -103,7 +102,7 @@ public class AddRemoveBoxesController {
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
   public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                       SessionStatus status, HttpServletRequest request)
-    throws IOException, StorageException {
+    throws IOException {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
