@@ -15,10 +15,10 @@
 
 package ru.org.linux.site;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.collections.Predicate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +35,12 @@ public final class DefaultProfile {
   private static final ImmutableSet<String> STYLE_SET = ImmutableSet.copyOf(STYLES);
 
   private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
-
-  private static final Predicate isBoxPredicate = new Predicate() {
-      @Override
-      public boolean evaluate(Object o) {
-        return isBox((String)o);
-      }
-    };
+  private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
+    @Override
+    public boolean apply(String s) {
+      return DefaultProfile.isBox(s);
+    }
+  };
 
   private static final ImmutableMap<String, Object> defaultProfile = ImmutableMap.copyOf(createDefaultProfile());
 
@@ -70,7 +69,6 @@ public final class DefaultProfile {
     defaults.put(TOPICS_PROPERTY, 30);
     defaults.put(MESSAGES_PROPERTY, 50);
     defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
-    defaults.put(TIMESTAMP_PROPERTY, System.currentTimeMillis());
     defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
     defaults.put(AVATAR_PROPERTY, "empty");
     defaults.put(HIDE_ADSENSE_PROPERTY, true);
@@ -89,7 +87,7 @@ public final class DefaultProfile {
     return defaults;
   }
 
-  public static Predicate getBoxPredicate() {
+  public static Predicate<String> boxPredicate() {
     return isBoxPredicate;
   }
 

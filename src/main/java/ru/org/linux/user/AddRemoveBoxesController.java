@@ -15,7 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -121,9 +122,9 @@ public class AddRemoveBoxesController {
       form.setPosition(0);
     }
 
-    List<String> boxlets = new ArrayList<>(t.getProf().getBoxlets());
-
-    CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
+    List<String> boxlets = Lists.newArrayList(
+            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate())
+    );
 
     if (boxlets.size() > form.position) {
       boxlets.add(form.position, form.boxName);
