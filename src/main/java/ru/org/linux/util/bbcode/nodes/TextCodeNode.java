@@ -53,6 +53,11 @@ public class TextCodeNode extends TextNode {
   }
 
   @Override
+  public String renderOg() {
+    return StringUtil.escapeForceHtml(text);
+  }
+
+  @Override
   public String renderXHtml() {
     return StringUtil.escapeForceHtml(text);
   }
