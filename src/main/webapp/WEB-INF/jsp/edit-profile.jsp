@@ -15,6 +15,7 @@
   --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -35,8 +36,10 @@ $script.ready('plugins', function() {
 <table>
 <tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
 <td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
-<tr><td>Новые комментарии в начале</td>
-<td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
+<c:if test="${template.prof.showNewFirst}">
+  <tr><td>Новые комментарии в начале</td>
+  <td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
+</c:if>
 <tr><td>Показывать фотографии</td>
 <td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="topics">Число тем форума на странице</label> </td>
