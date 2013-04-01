@@ -21,11 +21,14 @@
 
     <changeSet id="2013040105" author="Maxim Valyanskiy">
         <sql splitStatements="false">
+            CREATE TYPE user_log_action AS ENUM ('reset_userpic');
+
             CREATE TABLE user_log (
                 id serial primary key,
                 userid int not null references users(id),
                 action_userid int not null references users(id),
                 action_date timestamp not null,
+                action user_log_action not null,
                 info hstore not null
             );
         </sql>
@@ -34,6 +37,12 @@
     <changeSet id="2013040106" author="Maxim Valyanskiy">
         <sql splitStatements="false">
             GRANT SELECT,INSERT ON user_log TO linuxweb;
+        </sql>
+    </changeSet>
+
+    <changeSet id="2013040107" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            GRANT USAGE ON user_log_id_seq TO linuxweb;
         </sql>
     </changeSet>
 </databaseChangeLog>

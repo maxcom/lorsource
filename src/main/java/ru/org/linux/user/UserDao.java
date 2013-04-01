@@ -49,6 +49,9 @@ public class UserDao {
   @Autowired
   private IgnoreListDao ignoreListDao;
 
+  @Autowired
+  private UserLogDao userLogDao;
+
   /**
    * изменение score пользователю
    */
@@ -157,7 +160,7 @@ public class UserDao {
    */
   public String getUserInfo(User user) {
     return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
-        new Object[] {user.getId()}, String.class);
+            new Object[]{user.getId()}, String.class);
   }
 
   /**
@@ -296,12 +299,20 @@ public class UserDao {
    * @param cleaner пользователь который чистит
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean removePhoto(User user, User cleaner) {
-    boolean r = resetPhoto(user);
+  @CacheEvict(value="Users", key="#user.id")
+  public boolean resetUserpic(User user, User cleaner) {
+    boolean r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
+
+    if (!r) {
+      return false;
+    }
 
     // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
-    if(r && cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
+    if(cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
       changeScore(user.getId(), -10);
+      userLogDao.logResetUserpic(user, cleaner, -10);
+    } else {
+      userLogDao.logResetUserpic(user, cleaner, 0);
     }
 
     return r;
@@ -315,16 +326,6 @@ public class UserDao {
   @CacheEvict(value="Users", key="#user.id")
   public void setPhoto(User user, String photo){
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
-  }
-
-  /**
-   * Сброс userpic-а пользовтаеля
-   * @param user пользователь
-   * @return true если обновлено, false если userpic не установлен
-   */
-  @CacheEvict(value="Users", key="#user.id")
-  public boolean resetPhoto(User user){
-    return jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId())>0;
   }
 
   /**
