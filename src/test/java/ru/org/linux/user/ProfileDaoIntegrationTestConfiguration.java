@@ -13,18 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.user;
 
-public class StorageException extends Exception {
-  public StorageException() {
-    super("неизвестная ошибка хранилища");
-  }
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 
-  public StorageException(String info) {
-    super(info);
-  }
-
-  public StorageException(String info, Exception e) {
-    super(info, e);
+@Configuration
+@ImportResource("classpath:database.xml")
+public class ProfileDaoIntegrationTestConfiguration {
+  @Bean
+  public ProfileDao profileDao() {
+    return new ProfileDao();
   }
 }

@@ -15,85 +15,117 @@
 
 package ru.org.linux.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.spring.Configuration;
-import ru.org.linux.storage.FileStorage;
-import ru.org.linux.storage.Storage;
-import ru.org.linux.storage.StorageException;
 import ru.org.linux.util.ProfileHashtable;
 
 import javax.annotation.Nonnull;
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.sql.*;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
 public class ProfileDao {
-  private static final Logger logger = LoggerFactory.getLogger(ProfileDao.class);
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  private Configuration configuration;
+  private void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
+  }
 
   @Nonnull
   public Profile readProfile(@NotNull User user) {
-    Storage storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
-    InputStream df = null;
-    Map<String, Object> userProfile = null;
-    try {
-      df = storage.getReadStream("profile", user.getNick());
-      ObjectInputStream dof = null;
-      try {
-        dof = new ObjectInputStream(df);
-        userProfile = (Map<String, Object>) dof.readObject();
-        dof.close();
-        df.close();
-      } catch (IOException e) {
-        logger.info("Bad profile for user " + user.getNick());
-      } finally {
-        if (dof != null) {
-          try {
-            dof.close();
-          } catch (IOException e) {
-            logger.info("Bad profile for user " + user.getNick());
-          }
-        }
-      }
-    } catch (StorageException | ClassNotFoundException e) {
-      logger.info("Bad profile for user " + user.getNick());
-    } finally {
-      if (df != null) {
-        try {
-          df.close();
-        } catch (IOException e) {
-          logger.info("Bad profile for user " + user.getNick());
-        }
-      }
-    }
-    Profile properties;
-    if (userProfile != null) {
-      properties = new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), userProfile));
+    List<Profile> profiles = jdbcTemplate.query(
+            "SELECT settings, main FROM user_settings WHERE id=?",
+            new RowMapper<Profile>() {
+              @Override
+              public Profile mapRow(ResultSet resultSet, int i) throws SQLException {
+                Array boxes = resultSet.getArray("main");
+
+                if (boxes != null) {
+                  return new Profile(
+                          new ProfileHashtable(DefaultProfile.getDefaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
+                          Arrays.asList((String[]) boxes.getArray())
+                  );
+                } else {
+                  return new Profile(
+                          new ProfileHashtable(DefaultProfile.getDefaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
+                          null
+                  );
+                }
+              }
+            },
+            user.getId()
+    );
+
+    if (profiles.isEmpty()) {
+      return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, String>()), null);
     } else {
-      properties = new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, Object>()));
+      return profiles.get(0);
     }
-    return properties;
   }
 
-  public void writeProfile(@Nonnull User user, @Nonnull Profile profile) throws IOException, StorageException {
-    ProfileHashtable profileHashtable = profile.getHashtable();
+  public void deleteProfile(@Nonnull User user) {
+    jdbcTemplate.update("DELETE FROM user_settings WHERE id=?", user.getId());
+  }
 
-    profileHashtable.setObject(Profile.TIMESTAMP_PROPERTY, System.currentTimeMillis());
+  public void writeProfile(@Nonnull final User user, @Nonnull final Profile profile) {
+    String boxlets[] = null;
 
-    Storage storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
-    OutputStream df = storage.getWriteStream("profile", user.getNick());
+    List<String> customBoxlets = profile.getCustomBoxlets();
 
-    try (ObjectOutputStream dof = new ObjectOutputStream(df)) {
-      dof.writeObject(profileHashtable.getSettings());
-      dof.close();
+    if (customBoxlets !=null) {
+      boxlets = customBoxlets.toArray(new String[customBoxlets.size()]);
+    }
+
+    final String[] finalBoxlets = boxlets;
+    if (jdbcTemplate.update(
+            new PreparedStatementCreator() {
+              @Override
+              public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement st = con.prepareStatement("UPDATE user_settings SET settings=?, main=? WHERE id=?");
+
+                st.setObject(1, profile.getSettings());
+
+                if (finalBoxlets!=null) {
+                  st.setArray(2, con.createArrayOf("text", finalBoxlets));
+                } else {
+                  st.setNull(2, Types.ARRAY);
+                }
+
+                st.setInt(3, user.getId());
+
+                return st;
+              }
+            })==0) {
+      jdbcTemplate.update(
+              new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                  PreparedStatement st = con.prepareStatement("INSERT INTO user_settings (id, settings, main) VALUES (?,?,?)");
+
+                  st.setInt(1, user.getId());
+
+                  st.setObject(2, profile.getSettings());
+
+                  if (finalBoxlets!=null) {
+                    st.setArray(3, con.createArrayOf("text", finalBoxlets));
+                  } else {
+                    st.setNull(3, Types.ARRAY);
+                  }
+
+                  return st;
+                }
+              }
+      );
     }
   }
 }

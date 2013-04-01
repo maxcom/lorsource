@@ -15,7 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.support.SessionStatus;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
-import ru.org.linux.storage.StorageException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -102,7 +102,7 @@ public class AddRemoveBoxesController {
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
   public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                       SessionStatus status, HttpServletRequest request)
-    throws IOException, StorageException {
+    throws IOException {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
@@ -121,9 +121,9 @@ public class AddRemoveBoxesController {
       form.setPosition(0);
     }
 
-    List<String> boxlets = new ArrayList<>(t.getProf().getBoxlets());
-
-    CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
+    List<String> boxlets = Lists.newArrayList(
+            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate())
+    );
 
     if (boxlets.size() > form.position) {
       boxlets.add(form.position, form.boxName);

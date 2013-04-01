@@ -596,7 +596,7 @@ public class HTMLFormatterTest {
         lorCodeService.parseForOgDescription("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
     assertEquals(
-        "",
+        "&amp;#9618;",
         lorCodeService.parseForOgDescription("[code]&#9618;[/code]")
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
@@ -643,6 +643,35 @@ public class HTMLFormatterTest {
         "<p>This is simple &#171;local <u>buffer</u>&#187; test </p>",
         lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", true, false)
     );
+  }
+
+  @Test
+  public void testUrlQuotes() {
+    assertEquals("<p><a href=\"https://www.linux.org.ru/search.jsp?q=&quot;100%25&quot;\">www.linux.org.ru/search.jsp?q=&quot;100%&quot;</a></p>",
+        lorCodeService.parseComment("www.linux.org.ru/search.jsp?q=\"100%\"", true, false));
+    assertEquals("<p><a href=\"http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;\">http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;</a></p>",
+        lorCodeService.parseComment("http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;", true, false));
+    assertEquals("<p><a href=\"http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&amp;oldQ=&amp;range=ALL&amp;interval=ALL&amp;user=&amp;_usertopic=on&amp;csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D\">http://127.0.0.1:8080/search.jsp?q=\"тест-тост-холокост\"&amp;oldQ=&amp;range=A...</a></p>",
+        lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", true, false));
+  }
+
+  @Test
+  public void testEmpty() {
+    assertTrue(lorCodeService.isEmptyTextComment("[br]"));
+    assertTrue(lorCodeService.isEmptyTextComment("[br] "));
+    assertTrue(lorCodeService.isEmptyTextComment("[b] [br][/b][u] "));
+    assertTrue(lorCodeService.isEmptyTextComment("[list][*][br][br][*][u][/u][/list]"));
+    assertTrue(lorCodeService.isEmptyTextComment("[url]   [/url][list][*][br][br][*][u][/u][/list][/url]"));
+    assertFalse(lorCodeService.isEmptyTextComment("[code]text[/code]"));
+  }
+
+  @Test
+  public void testQuotes() {
+    assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+    assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+
   }
 
 }

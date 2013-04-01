@@ -93,11 +93,6 @@ public class CodeTag extends Tag {
   }
 
   @Override
-  public String renderNodeOg(Node node) {
-    return "";
-  }
-
-  @Override
   public String renderNodeXhtml(Node node) {
     if (node.lengthChildren() == 0) {
       return "";

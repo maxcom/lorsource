@@ -205,10 +205,9 @@ public class Parser {
 
   private void rawPushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
     if (!automatonState.isCode()) {
-      text = automatonState.getTypoChanger().format(text);
-      currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, automatonState.getRootNode()));
+      currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, automatonState));
     } else {
-      currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, automatonState.getRootNode()));
+      currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, automatonState));
     }
   }
 

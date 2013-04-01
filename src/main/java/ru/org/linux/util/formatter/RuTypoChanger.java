@@ -15,6 +15,10 @@
 
 package ru.org.linux.util.formatter;
 
+import com.google.common.collect.ImmutableCollection;
+
+import java.util.Collection;
+
 public class RuTypoChanger {
 
   /*
@@ -82,7 +86,7 @@ public class RuTypoChanger {
 
     after = lastNonQuote(buff, position);
 
-    if (Character.isWhitespace(after) || (after != '.' && isPunctuation(after)))
+    if (Character.isWhitespace(after) || isPunctuation(after))
       return false;
 
     if (Character.isLetterOrDigit(before))
