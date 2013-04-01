@@ -21,7 +21,7 @@
 
     <changeSet id="2013040105" author="Maxim Valyanskiy">
         <sql splitStatements="false">
-            CREATE TYPE user_log_action AS ENUM ('reset_userpic');
+            CREATE TYPE user_log_action AS ENUM ('reset_userpic', 'set_userpic');
 
             CREATE TABLE user_log (
                 id serial primary key,

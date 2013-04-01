@@ -25,7 +25,6 @@ import javax.sql.DataSource;
 
 @Repository
 public class UserLogDao {
-  private static final String ACTION_RESET_USERPIC = "reset_userpic";
   private static final String OPTION_OLD_USERPIC = "old_userpic";
   private static final String OPTION_NEW_USERPIC = "new_userpic";
 
@@ -49,7 +48,7 @@ public class UserLogDao {
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             user.getId(),
             actionUser.getId(),
-            ACTION_RESET_USERPIC,
+            UserLogAction.RESET_USERPIC.toString(),
             options
     );
   }
@@ -67,7 +66,7 @@ public class UserLogDao {
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             user.getId(),
             user.getId(),
-            ACTION_RESET_USERPIC,
+            UserLogAction.SET_USERPIC.toString(),
             builder.build()
     );
   }
