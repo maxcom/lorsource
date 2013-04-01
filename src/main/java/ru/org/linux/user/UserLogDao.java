@@ -20,11 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 
 @Repository
 public class UserLogDao {
   private static final String ACTION_RESET_USERPIC = "reset_userpic";
+  private static final String OPTION_OLD_USERPIC = "old_userpic";
+  private static final String OPTION_NEW_USERPIC = "new_userpic";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -33,11 +36,11 @@ public class UserLogDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  public void logResetUserpic(User user, User actionUser, int bonus) {
+  public void logResetUserpic(@Nonnull User user, @Nonnull User actionUser, int bonus) {
     ImmutableMap<String, Object> options;
 
     if (bonus!=0) {
-      options = ImmutableMap.<String, Object>of("bonus", bonus, "old_userpic", user.getPhoto());
+      options = ImmutableMap.<String, Object>of("bonus", bonus, OPTION_OLD_USERPIC, user.getPhoto());
     } else {
       options = ImmutableMap.<String, Object>of("old_userpic", user.getPhoto());
     }
@@ -48,6 +51,24 @@ public class UserLogDao {
             actionUser.getId(),
             ACTION_RESET_USERPIC,
             options
+    );
+  }
+
+  public void logSetUserpic(@Nonnull User user, @Nonnull String userpic) {
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+
+    if (user.getPhoto()!=null) {
+      builder.put(OPTION_OLD_USERPIC, user.getPhoto());
+    }
+
+    builder.put(OPTION_NEW_USERPIC, userpic);
+
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            user.getId(),
+            ACTION_RESET_USERPIC,
+            builder.build()
     );
   }
 }

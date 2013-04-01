@@ -324,8 +324,10 @@ public class UserDao {
    * @param photo userpick
    */
   @CacheEvict(value="Users", key="#user.id")
-  public void setPhoto(User user, String photo){
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setPhoto(@Nonnull User user, @Nonnull String photo){
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
+    userLogDao.logSetUserpic(user, photo);
   }
 
   /**
