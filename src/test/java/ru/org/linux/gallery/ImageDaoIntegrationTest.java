@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = ImageDaoIntegrationTestConfiguration.class)
 public class ImageDaoIntegrationTest {
 
   @Autowired

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 public class UserTagDaoIntegrationTest {
   private static final String QUERY_COUNT_FAVORITE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?";
   private static final String QUERY_COUNT_IGNORE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?";

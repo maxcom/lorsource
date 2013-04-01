@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 public class AddPhotoWebTest {
   private WebResource resource;
 

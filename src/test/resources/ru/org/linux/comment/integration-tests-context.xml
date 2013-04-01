@@ -26,6 +26,11 @@
         <constructor-arg value="ru.org.linux.user.IgnoreListDao"/>
     </bean>
 
+    <bean id="userLogDao" name="mockUserLogDao"
+          class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="ru.org.linux.user.UserLogDao"/>
+    </bean>
+
     <bean id="userDao" name="mockUserDao"
           class="org.mockito.Mockito" factory-method="mock">
         <constructor-arg value="ru.org.linux.user.UserDao"/>
