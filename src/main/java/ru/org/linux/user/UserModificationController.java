@@ -233,7 +233,7 @@ public class UserModificationController {
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
-    userDao.removeUserInfo(user);
+    userDao.removeUserInfo(user, moderator);
     logger.info("Clearing " + user.getNick() + " userinfo by " + moderator.getNick());
 
     return redirectToProfile(user);

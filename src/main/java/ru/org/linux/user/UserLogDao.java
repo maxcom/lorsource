@@ -29,6 +29,8 @@ import javax.sql.DataSource;
 public class UserLogDao {
   private static final String OPTION_OLD_USERPIC = "old_userpic";
   private static final String OPTION_NEW_USERPIC = "new_userpic";
+  private static final String OPTION_BONUS = "bonus";
+  private static final String OPTION_REASON = "reason";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -42,9 +44,9 @@ public class UserLogDao {
     ImmutableMap<String, Object> options;
 
     if (bonus!=0) {
-      options = ImmutableMap.<String, Object>of("bonus", bonus, OPTION_OLD_USERPIC, user.getPhoto());
+      options = ImmutableMap.<String, Object>of(OPTION_BONUS, bonus, OPTION_OLD_USERPIC, user.getPhoto());
     } else {
-      options = ImmutableMap.<String, Object>of("old_userpic", user.getPhoto());
+      options = ImmutableMap.<String, Object>of(OPTION_OLD_USERPIC, user.getPhoto());
     }
 
     jdbcTemplate.update(
@@ -82,7 +84,7 @@ public class UserLogDao {
             user.getId(),
             moderator.getId(),
             UserLogAction.BLOCK_USER.toString(),
-            ImmutableMap.of("reason", reason)
+            ImmutableMap.of(OPTION_REASON, reason)
     );
   }
 
@@ -107,6 +109,20 @@ public class UserLogDao {
             ImmutableMap.of(
                     "old_email", user.getEmail(),
                     "new_email", newEmail
+            )
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logResetInfo(@Nonnull User user, @Nonnull User moderator, @Nonnull String userInfo, int bonus) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.RESET_INFO.toString(),
+            ImmutableMap.of(
+                    "old_info", userInfo,
+                    OPTION_BONUS, bonus
             )
     );
   }

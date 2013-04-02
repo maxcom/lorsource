@@ -159,8 +159,7 @@ public class UserDao {
    * @return поле userinfo
    */
   public String getUserInfo(User user) {
-    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
-            new Object[]{user.getId()}, String.class);
+    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?", String.class, user.getId());
   }
 
   /**
@@ -283,7 +282,7 @@ public class UserDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void removeUserInfo(User user) {
+  public void removeUserInfo(User user, User moderator) {
     String userInfo = getUserInfo(user);
     if(userInfo == null || userInfo.trim().isEmpty()) {
       return;
@@ -291,6 +290,7 @@ public class UserDao {
 
     setUserInfo(user.getId(), null);
     changeScore(user.getId(), -10);
+    userLogDao.logResetInfo(user, moderator, userInfo, -10);
   }
 
   /**
