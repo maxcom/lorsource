@@ -85,7 +85,7 @@ public class DefaultParserParameters implements ParserParameters{
 
   public DefaultParserParameters() {
     allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
-    inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr");
+    inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr", "inline");
     urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
     blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
     autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre", "*");
@@ -182,6 +182,10 @@ public class DefaultParserParameters implements ParserParameters{
     { // <pre class="code">
       CodeTag tag = new CodeTag("code", inlineTags, "div", this);
       tag.setProhibitedElements(ImmutableSet.<String>of("img"));
+      allTags.add(tag);
+    }
+    {
+      InlineTag tag = new InlineTag("inline", inlineTags, "p", this);
       allTags.add(tag);
     }
     {   // [cut]
