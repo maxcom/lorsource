@@ -212,16 +212,16 @@ public class UserDao {
     int ignoreCount = ignoreListDao.getIgnoreStat(user);
 
     int commentCount = 0;
-    boolean exactCommentCount = false;
 
     if (!exact) {
       List<Integer> res = jdbcTemplate.queryForList("SELECT cnt FROM user_comment_counts WHERE userid=?", Integer.class, user.getId());
 
-      if (res.size()>0) {
+      if (!res.isEmpty()) {
         commentCount = (int) Math.round(res.get(0) / 1000.0) * 1000;
       }
     }
 
+    boolean exactCommentCount = false;
     if (commentCount == 0) {
       try {
         commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
