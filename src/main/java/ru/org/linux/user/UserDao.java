@@ -383,12 +383,21 @@ public class UserDao {
    * @param user пользователь которому сбрасывается пароль
    * @return новый пароь в открытом виде
    */
+  @CacheEvict(value="Users", key="#user.id")
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public String resetPassword(User user){
     String password = StringUtil.generatePassword();
+    userLogDao.logResetPassword(user, user);
     return setPassword(user, password);
   }
 
   @CacheEvict(value="Users", key="#user.id")
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void resetPassword(User user, User moderator){
+    setPassword(user, StringUtil.generatePassword());
+    userLogDao.logResetPassword(user, moderator);
+  }
+
   private String setPassword(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);

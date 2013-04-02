@@ -21,7 +21,7 @@ public enum UserLogAction {
   BLOCK_USER("block_user"),
   UNBLOCK_USER("unblock_user"),
   ACCENT_NEW_EMAIL("accent_new_email"),
-  RESET_INFO("reset_info");
+  RESET_INFO("reset_info"), RESET_PASSWORD("reset_password");
 
   private final String name;
 

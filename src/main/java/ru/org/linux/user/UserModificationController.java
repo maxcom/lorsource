@@ -208,7 +208,7 @@ public class UserModificationController {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
     }
 
-    userDao.resetPassword(user);
+    userDao.resetPassword(user, moderator);
 
     logger.info("Пароль "+user.getNick()+" сброшен модератором "+moderator.getNick());
 
