@@ -28,7 +28,8 @@
                 'unblock_user',
                 'accept_new_email',
                 'reset_info',
-                'reset_password'
+                'reset_password',
+                'set_password'
             );
 
             CREATE TABLE user_log (

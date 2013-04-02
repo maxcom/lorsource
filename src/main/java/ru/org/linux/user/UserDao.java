@@ -34,6 +34,7 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -518,7 +519,15 @@ public class UserDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void updateUser(User user, String name, String url, String new_email, String town, String password, String info) {
+  public void updateUser(
+          @Nonnull User user,
+          String name,
+          String url,
+          String new_email,
+          String town,
+          @Nullable String password,
+          String info
+  ) {
     jdbcTemplate.update(
             "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
             name,
@@ -530,6 +539,7 @@ public class UserDao {
 
     if (password != null) {
       setPassword(user, password);
+      userLogDao.logSetPassword(user);
     }
 
     setUserInfo(user.getId(), info);
