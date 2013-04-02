@@ -96,4 +96,18 @@ public class UserLogDao {
             ImmutableMap.of()
     );
   }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logAcceptNewEmail(@Nonnull User user, @Nonnull String newEmail) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            user.getId(),
+            UserLogAction.ACCENT_NEW_EMAIL.toString(),
+            ImmutableMap.of(
+                    "old_email", user.getEmail(),
+                    "new_email", newEmail
+            )
+    );
+  }
 }

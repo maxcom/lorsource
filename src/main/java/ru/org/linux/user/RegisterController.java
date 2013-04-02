@@ -202,7 +202,7 @@ public class RegisterController {
       throw new AccessViolationException("Bad activation code");
     }
 
-    userDao.acceptNewEmail(user);
+    userDao.acceptNewEmail(user, newEmail);
 
     return new ModelAndView(new RedirectView("/people/" + user.getNick() + "/profile"));
   }

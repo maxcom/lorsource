@@ -19,7 +19,8 @@ public enum UserLogAction {
   RESET_USERPIC("reset_userpic"),
   SET_USERPIC("set_userpic"),
   BLOCK_USER("block_user"),
-  UNBLOCK_USER("unblock_user");
+  UNBLOCK_USER("unblock_user"),
+  ACCENT_NEW_EMAIL("accent_new_email");
 
   private final String name;
 

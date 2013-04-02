@@ -72,7 +72,7 @@ public class EditRegisterWebTest {
         MAXCOM_PASS,
         MAXCOM_INFO
     );
-    userDao.acceptNewEmail(user);
+    userDao.acceptNewEmail(user, MAXCOM_EMAIL);
   }
 
   private void rescueJB() throws Exception {
@@ -86,7 +86,7 @@ public class EditRegisterWebTest {
         JB_PASS,
         JB_INFO
     );
-    userDao.acceptNewEmail(user);
+    userDao.acceptNewEmail(user, JB_EMAIL);
     userDao.unblock(user, user);
   }
 

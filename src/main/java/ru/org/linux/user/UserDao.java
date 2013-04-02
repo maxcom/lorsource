@@ -558,13 +558,15 @@ public class UserDao {
     return c>0;
   }
 
-  public String getNewEmail(User user) {
+  public String getNewEmail(@Nonnull User user) {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
 
   @CacheEvict(value="Users", key="#user.id")
-  public void acceptNewEmail(User user) {
-    jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void acceptNewEmail(@Nonnull User user, @Nonnull String newEmail) {
+    jdbcTemplate.update("UPDATE users SET email=?, new_email=null WHERE id=?", newEmail, user.getId());
+    userLogDao.logAcceptNewEmail(user, newEmail);
   }
 
   /**
