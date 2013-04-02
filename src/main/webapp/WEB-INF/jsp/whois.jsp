@@ -185,7 +185,7 @@
         <input type='submit' name='action' value='unblock'>
       </c:if>
       <c:if test="${not user.blocked}">
-        Причина: <input type="text" name="reason" size="40">
+        <label>Причина: <input type="text" name="reason" size="40" required></label>
         <input type='submit' name='action' value='block'><br>
 
         [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
