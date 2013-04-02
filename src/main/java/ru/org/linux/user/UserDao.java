@@ -408,19 +408,6 @@ public class UserDao {
   }
 
   /**
-   * Блокирование пользователя без транзакации(используется в CommentDao для массового удаления с блокировкой)
-   * @param user пользователь которого блокируем
-   * @param moderator модератор который блокирует
-   * @param reason причина блокировки
-   */
-  @CacheEvict(value="Users", key="#user.id")
-  public void blockWithoutTransaction(User user, User moderator, String reason) {
-    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
-    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
-        user.getId(), reason, moderator.getId());
-  }
-
-  /**
    * Блокировка пользователя
    * @param user блокируемый пользователь
    * @param moderator модератор который блокирует пользователя

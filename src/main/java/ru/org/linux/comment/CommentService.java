@@ -598,7 +598,7 @@ public class CommentService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
-    userDao.blockWithoutTransaction(user, moderator, reason);
+    userDao.block(user, moderator, reason);
 
     List<Integer> deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
 

@@ -102,7 +102,7 @@ public class UserDaoIntegrationTest {
   public void testBlock() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
 
-    userDao.blockWithoutTransaction(user, user, "");
+    userDao.block(user, user, "");
 
     User userAfter = userDao.getUser(TEST_ID);
 
@@ -113,7 +113,7 @@ public class UserDaoIntegrationTest {
   public void testCacheResetOnBlock() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
 
-    userDao.blockWithoutTransaction(user, user, "");
+    userDao.block(user, user, "");
 
     User userAfter = userDao.getUserCached(TEST_ID);
 
