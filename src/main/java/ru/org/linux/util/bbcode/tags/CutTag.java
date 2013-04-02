@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import org.apache.commons.httpclient.URI;
+import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
@@ -63,16 +64,8 @@ public class CutTag extends HtmlEquivTag {
 
   @Override
   public String renderNodeXhtml(Node node) {
-    if (node.lengthChildren() == 0) {
+    if(NodeUtils.isEmptyNode(node)) {
       return "";
-    } else {
-      // обработка пустого тэга
-      if (node.lengthChildren() == 1) {
-        Node child = node.getChildren().iterator().next();
-        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().isEmpty()) {
-          return "";
-        }
-      }
     }
     if (!node.isParameter()) {
       node.setParameter("");
