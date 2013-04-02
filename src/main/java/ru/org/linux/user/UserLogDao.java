@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
@@ -35,6 +37,7 @@ public class UserLogDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logResetUserpic(@Nonnull User user, @Nonnull User actionUser, int bonus) {
     ImmutableMap<String, Object> options;
 
@@ -53,6 +56,7 @@ public class UserLogDao {
     );
   }
 
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logSetUserpic(@Nonnull User user, @Nonnull String userpic) {
     ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
@@ -68,6 +72,28 @@ public class UserLogDao {
             user.getId(),
             UserLogAction.SET_USERPIC.toString(),
             builder.build()
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logBlockUser(@Nonnull User user, @Nonnull User moderator, @Nonnull String reason) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.BLOCK_USER.toString(),
+            ImmutableMap.of("reason", reason)
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logUnblockUser(@Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.UNBLOCK_USER.toString(),
+            ImmutableMap.of()
     );
   }
 }

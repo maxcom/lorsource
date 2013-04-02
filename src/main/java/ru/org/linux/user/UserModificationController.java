@@ -121,7 +121,7 @@ public class UserModificationController {
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
     }
-    userDao.unblock(user);
+    userDao.unblock(user, moderator);
     logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
     return redirectToProfile(user);
   }

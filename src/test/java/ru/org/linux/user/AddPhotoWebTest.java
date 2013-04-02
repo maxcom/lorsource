@@ -47,7 +47,7 @@ public class AddPhotoWebTest {
 
   private void rescueJB() throws Exception {
     final User user = userDao.getUser("JB");
-    userDao.unblock(user);
+    userDao.unblock(user, user);
   }
 
   @Before

@@ -87,7 +87,7 @@ public class EditRegisterWebTest {
         JB_INFO
     );
     userDao.acceptNewEmail(user);
-    userDao.unblock(user);
+    userDao.unblock(user, user);
   }
 
   @Before

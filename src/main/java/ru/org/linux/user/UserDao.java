@@ -415,10 +415,10 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void block(User user, User moderator, String reason) {
+  public void block(@Nonnull User user, @Nonnull User moderator, @Nonnull String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
-    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
-        user.getId(), reason, moderator.getId());
+    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)", user.getId(), reason, moderator.getId());
+    userLogDao.logBlockUser(user, moderator, reason);
   }
 
   /**
@@ -427,9 +427,10 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void unblock(User user){
+  public void unblock(@Nonnull User user, @Nonnull User moderator){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
+    userLogDao.logUnblockUser(user, moderator);
   }
 
   @Nonnull
