@@ -25,7 +25,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = ImageDaoIntegrationTestConfiguration.class)
 public class ImageDaoIntegrationTest {
 
   @Autowired

@@ -57,4 +57,8 @@ public class UserDaoIntegrationTestConfiguration {
     return cacheManager.getCache(USERS_CACHE);
   }
 
+  @Bean
+  public UserLogDao userLogDao() {
+    return new UserLogDao();
+  }
 }

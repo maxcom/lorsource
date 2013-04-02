@@ -34,6 +34,7 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -48,6 +49,9 @@ public class UserDao {
 
   @Autowired
   private IgnoreListDao ignoreListDao;
+
+  @Autowired
+  private UserLogDao userLogDao;
 
   /**
    * изменение score пользователю
@@ -156,8 +160,7 @@ public class UserDao {
    * @return поле userinfo
    */
   public String getUserInfo(User user) {
-    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
-        new Object[] {user.getId()}, String.class);
+    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?", String.class, user.getId());
   }
 
   /**
@@ -280,7 +283,7 @@ public class UserDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void removeUserInfo(User user) {
+  public void removeUserInfo(User user, User moderator) {
     String userInfo = getUserInfo(user);
     if(userInfo == null || userInfo.trim().isEmpty()) {
       return;
@@ -288,20 +291,29 @@ public class UserDao {
 
     setUserInfo(user.getId(), null);
     changeScore(user.getId(), -10);
+    userLogDao.logResetInfo(user, moderator, userInfo, -10);
   }
 
   /**
-   * Отчистка userpicture пользователя, с обрезанием шкворца если удляет моедратор
+   * Отчистка userpicture пользователя, с обрезанием шкворца если удаляет модератор
    * @param user пользовтель у которого чистят
    * @param cleaner пользователь который чистит
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean removePhoto(User user, User cleaner) {
-    boolean r = resetPhoto(user);
+  @CacheEvict(value="Users", key="#user.id")
+  public boolean resetUserpic(User user, User cleaner) {
+    boolean r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
+
+    if (!r) {
+      return false;
+    }
 
     // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
-    if(r && cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
+    if(cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
       changeScore(user.getId(), -10);
+      userLogDao.logResetUserpic(user, cleaner, -10);
+    } else {
+      userLogDao.logResetUserpic(user, cleaner, 0);
     }
 
     return r;
@@ -313,18 +325,10 @@ public class UserDao {
    * @param photo userpick
    */
   @CacheEvict(value="Users", key="#user.id")
-  public void setPhoto(User user, String photo){
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setPhoto(@Nonnull User user, @Nonnull String photo){
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
-  }
-
-  /**
-   * Сброс userpic-а пользовтаеля
-   * @param user пользователь
-   * @return true если обновлено, false если userpic не установлен
-   */
-  @CacheEvict(value="Users", key="#user.id")
-  public boolean resetPhoto(User user){
-    return jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId())>0;
+    userLogDao.logSetUserpic(user, photo);
   }
 
   /**
@@ -380,12 +384,21 @@ public class UserDao {
    * @param user пользователь которому сбрасывается пароль
    * @return новый пароь в открытом виде
    */
+  @CacheEvict(value="Users", key="#user.id")
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public String resetPassword(User user){
     String password = StringUtil.generatePassword();
+    userLogDao.logResetPassword(user, user);
     return setPassword(user, password);
   }
 
   @CacheEvict(value="Users", key="#user.id")
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void resetPassword(User user, User moderator){
+    setPassword(user, StringUtil.generatePassword());
+    userLogDao.logResetPassword(user, moderator);
+  }
+
   private String setPassword(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
@@ -412,10 +425,10 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void block(User user, User moderator, String reason) {
+  public void block(@Nonnull User user, @Nonnull User moderator, @Nonnull String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
-    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
-        user.getId(), reason, moderator.getId());
+    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)", user.getId(), reason, moderator.getId());
+    userLogDao.logBlockUser(user, moderator, reason);
   }
 
   /**
@@ -424,9 +437,10 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void unblock(User user){
+  public void unblock(@Nonnull User user, @Nonnull User moderator){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
+    userLogDao.logUnblockUser(user, moderator);
   }
 
   @Nonnull
@@ -505,7 +519,15 @@ public class UserDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void updateUser(User user, String name, String url, String new_email, String town, String password, String info) {
+  public void updateUser(
+          @Nonnull User user,
+          String name,
+          String url,
+          String new_email,
+          String town,
+          @Nullable String password,
+          String info
+  ) {
     jdbcTemplate.update(
             "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
             name,
@@ -517,6 +539,7 @@ public class UserDao {
 
     if (password != null) {
       setPassword(user, password);
+      userLogDao.logSetPassword(user);
     }
 
     setUserInfo(user.getId(), info);
@@ -554,13 +577,15 @@ public class UserDao {
     return c>0;
   }
 
-  public String getNewEmail(User user) {
+  public String getNewEmail(@Nonnull User user) {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
 
   @CacheEvict(value="Users", key="#user.id")
-  public void acceptNewEmail(User user) {
-    jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void acceptNewEmail(@Nonnull User user, @Nonnull String newEmail) {
+    jdbcTemplate.update("UPDATE users SET email=?, new_email=null WHERE id=?", newEmail, user.getId());
+    userLogDao.logAcceptNewEmail(user, newEmail);
   }
 
   /**
