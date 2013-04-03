@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 public class AddPhotoWebTest {
   private WebResource resource;
 
@@ -47,7 +47,7 @@ public class AddPhotoWebTest {
 
   private void rescueJB() throws Exception {
     final User user = userDao.getUser("JB");
-    userDao.unblock(user);
+    userDao.unblock(user, user);
   }
 
   @Before
