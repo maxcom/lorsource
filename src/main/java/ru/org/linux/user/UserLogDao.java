@@ -105,7 +105,7 @@ public class UserLogDao {
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             user.getId(),
             user.getId(),
-            UserLogAction.ACCENT_NEW_EMAIL.toString(),
+            UserLogAction.ACCEPT_NEW_EMAIL.toString(),
             ImmutableMap.of(
                     "old_email", user.getEmail(),
                     "new_email", newEmail
