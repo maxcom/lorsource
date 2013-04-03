@@ -265,7 +265,7 @@ public class TopicPrepareService {
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(message.getPostScore()),
               remark);
-    } catch (UserNotFoundException | PollNotFoundException e) {
+    } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

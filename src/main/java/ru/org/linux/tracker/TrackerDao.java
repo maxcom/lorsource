@@ -226,15 +226,11 @@ public class TrackerDao {
     
     while (resultSet.next()) {
       User author;
-      try {
-        int author_id = resultSet.getInt("author");
-        if (author_id != 0) {
-          author = userDao.getUserCached(author_id);
-        } else {
-          author = null;
-        }
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
+      int author_id = resultSet.getInt("author");
+      if (author_id != 0) {
+        author = userDao.getUserCached(author_id);
+      } else {
+        author = null;
       }
       int msgid = resultSet.getInt("id");
       Timestamp lastmod = resultSet.getTimestamp("lastmod");

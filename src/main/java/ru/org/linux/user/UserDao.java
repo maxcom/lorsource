@@ -188,12 +188,7 @@ public class UserDao {
       public BanInfo mapRow(ResultSet resultSet, int i) throws SQLException {
         Timestamp date = resultSet.getTimestamp("bandate");
         String reason = resultSet.getString("reason");
-        User moderator;
-        try {
-          moderator = getUser(resultSet.getInt("ban_by"));
-        } catch (UserNotFoundException exception) {
-          throw new SQLException(exception.getMessage());
-        }
+        User moderator = getUser(resultSet.getInt("ban_by"));
         return new BanInfo(date, reason, moderator);
       }
     }, user.getId());
@@ -470,11 +465,7 @@ public class UserDao {
     List<User> users = new ArrayList<>(ids.size());
 
     for (int id : ids) {
-      try {
-        users.add(getUserCached(id));
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      users.add(getUserCached(id));
     }
 
     return users;
@@ -499,8 +490,6 @@ public class UserDao {
       return getUser(id);
     } catch (EmptyResultDataAccessException ex) {
       return null;
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
     }
   }
 

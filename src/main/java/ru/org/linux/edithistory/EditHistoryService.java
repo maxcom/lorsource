@@ -228,11 +228,7 @@ public class EditHistoryService {
                     new Function<EditHistoryDto, User>() {
                       @Override
                       public User apply(EditHistoryDto input) {
-                        try {
-                          return userDao.getUserCached(input.getEditor());
-                        } catch (UserNotFoundException e) {
-                          throw new RuntimeException(e);
-                        }
+                        return userDao.getUserCached(input.getEditor());
                       }
                     })
     );

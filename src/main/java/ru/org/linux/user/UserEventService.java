@@ -88,11 +88,8 @@ public class UserEventService {
             bonus = deleteInfo.getBonus();
           }
         }
-        try {
-          commentAuthor = userDao.getUserCached(event.getCommentAuthor());
-        } catch (UserNotFoundException e) {
-          throw new RuntimeException(e);
-        }
+
+        commentAuthor = userDao.getUserCached(event.getCommentAuthor());
       } else {
         commentAuthor = null;
         if("DEL".equals(event.getType().getType())) {

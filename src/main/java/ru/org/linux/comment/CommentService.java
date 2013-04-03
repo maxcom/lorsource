@@ -329,26 +329,22 @@ public class CommentService {
 
     /* оповещение об ответе на коммент */
     if (comment.getReplyTo() != 0) {
-      try {
-        Comment parentComment = commentDao.getById(comment.getReplyTo());
+      Comment parentComment = commentDao.getById(comment.getReplyTo());
 
-        if (parentComment.getUserid() != comment.getUserid()) {
-          User parentAuthor = userDao.getUserCached(parentComment.getUserid());
+      if (parentComment.getUserid() != comment.getUserid()) {
+        User parentAuthor = userDao.getUserCached(parentComment.getUserid());
 
-          if (!parentAuthor.isAnonymous()) {
-            Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
+        if (!parentAuthor.isAnonymous()) {
+          Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
 
-            if (!ignoreList.contains(comment.getUserid())) {
-              userEventService.addReplyEvent(
-                parentAuthor,
-                comment.getTopicId(),
-                commentId
-              );
-            }
+          if (!ignoreList.contains(comment.getUserid())) {
+            userEventService.addReplyEvent(
+                    parentAuthor,
+                    comment.getTopicId(),
+                    commentId
+            );
           }
         }
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
       }
     }
 

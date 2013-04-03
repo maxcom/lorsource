@@ -108,11 +108,7 @@ public class UserFilterController {
     Map<Integer, User> ignoreMap = new HashMap<>(ignoreList.size());
 
     for (int id : ignoreList) {
-      try {
-        ignoreMap.put(id, userDao.getUserCached(id));
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      ignoreMap.put(id, userDao.getUserCached(id));
     }
 
     return ignoreMap;
