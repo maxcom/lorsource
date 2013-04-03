@@ -16,14 +16,20 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserLogDao {
@@ -146,6 +152,27 @@ public class UserLogDao {
             user.getId(),
             UserLogAction.SET_PASSWORD.toString(),
             ImmutableMap.of()
+    );
+  }
+
+  @Nonnull
+  public List<UserLogItem> getLogItems(@Nonnull User user) {
+    return jdbcTemplate.query(
+            "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? ORDER BY id DESC",
+            new RowMapper<UserLogItem>() {
+              @Override
+              public UserLogItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new UserLogItem(
+                        rs.getInt("id"),
+                        rs.getInt("userid"),
+                        rs.getInt("action_userid"),
+                        new DateTime(rs.getTimestamp("action_date")),
+                        UserLogAction.valueOf(rs.getString("action").toUpperCase()),
+                        (Map<String, String>) rs.getObject("info")
+                );
+              }
+            },
+            user.getId()
     );
   }
 }
