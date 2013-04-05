@@ -210,19 +210,13 @@
         },
         {
           type: 'img',
-          src: '/adv/selectel/728x90-cloud.gif',
-          href: 'http://selectel.ru/services/cloud-storage/?utm_source=linuxorgru&utm_medium=banner&utm_content=all&utm_campaign=110113'
+          src: '/adv/selectel/dedicated.png',
+          href: 'http://selectel.ru/services/dedicated/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=050413'
         },
         {
           type: 'img',
-          src: '/adv/selectel/728x90-dedic.gif',
-          href: 'http://selectel.ru/services/dedicated/?utm_source=linuxorgru&utm_medium=banner&utm_content=all&utm_campaign=110113'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/linux.png',
-          href: 'http://tehnodom.com/?utm_source=lor&utm_medium=banner&utm_campaign=220213',
-          height: 91
+          src: '/adv/selectel/storage.gif',
+          href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=050413'
         }
       ];
 
