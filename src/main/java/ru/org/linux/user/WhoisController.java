@@ -134,8 +134,8 @@ public class WhoisController {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
 
-    if (tmpl.isModeratorSession()) {
-      List<UserLogItem> logItems = userLogDao.getLogItems(user);
+    if (currentUser || tmpl.isModeratorSession()) {
+      List<UserLogItem> logItems = userLogDao.getLogItems(user, tmpl.isModeratorSession());
 
       if (!logItems.isEmpty()) {
         mv.addObject("userlog", userLogPrepareService.prepare(logItems));

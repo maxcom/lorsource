@@ -159,9 +159,15 @@ public class UserLogDao {
   }
 
   @Nonnull
-  public List<UserLogItem> getLogItems(@Nonnull User user) {
+  public List<UserLogItem> getLogItems(@Nonnull User user, boolean includeSelf) {
+    String sql =
+            includeSelf ?
+            "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? ORDER BY id DESC"
+            :
+            "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? AND userid!=action_userid ORDER BY id DESC";
+
     return jdbcTemplate.query(
-            "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? ORDER BY id DESC",
+            sql,
             new RowMapper<UserLogItem>() {
               @Override
               public UserLogItem mapRow(ResultSet rs, int rowNum) throws SQLException {

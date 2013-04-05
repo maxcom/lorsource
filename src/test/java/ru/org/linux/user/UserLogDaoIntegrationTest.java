@@ -30,7 +30,7 @@ public class UserLogDaoIntegrationTest {
 
     userLogDao.logAcceptNewEmail(user, "test@email");
 
-    List<UserLogItem> logItems = userLogDao.getLogItems(user);
+    List<UserLogItem> logItems = userLogDao.getLogItems(user, true);
 
     Assert.assertEquals(1, logItems.size());
 
