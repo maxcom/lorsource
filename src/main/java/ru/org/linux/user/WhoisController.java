@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -61,6 +62,12 @@ public class WhoisController {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private UserLogDao userLogDao;
+
+  @Autowired
+  private UserLogPrepareService userLogPrepareService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -126,7 +133,17 @@ public class WhoisController {
     if (currentUser || tmpl.isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
+
+    if (currentUser || tmpl.isModeratorSession()) {
+      List<UserLogItem> logItems = userLogDao.getLogItems(user, tmpl.isModeratorSession());
+
+      if (!logItems.isEmpty()) {
+        mv.addObject("userlog", userLogPrepareService.prepare(logItems));
+      }
+    }
+
     response.setDateHeader("Expires", System.currentTimeMillis()+120000);
+
     return mv;
   }
 

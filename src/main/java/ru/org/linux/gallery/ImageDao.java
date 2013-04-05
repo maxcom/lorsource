@@ -118,8 +118,6 @@ public class ImageDao {
                 item,
                 userDao.getUserCached(item.getUserid()),
                 iconInfo, fullInfo));
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
       } catch (FileNotFoundException e) {
         logger.error("Image not found! id={}: {}", item.getImage().getId(), e.getMessage());
       } catch (BadImageException | IOException e) {

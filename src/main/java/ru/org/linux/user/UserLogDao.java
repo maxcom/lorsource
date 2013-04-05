@@ -16,21 +16,30 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserLogDao {
-  private static final String OPTION_OLD_USERPIC = "old_userpic";
-  private static final String OPTION_NEW_USERPIC = "new_userpic";
-  private static final String OPTION_BONUS = "bonus";
-  private static final String OPTION_REASON = "reason";
+  public static final String OPTION_OLD_USERPIC = "old_userpic";
+  public static final String OPTION_NEW_USERPIC = "new_userpic";
+  public static final String OPTION_BONUS = "bonus";
+  public static final String OPTION_REASON = "reason";
+  public static final String OPTION_OLD_EMAIL = "old_email";
+  public static final String OPTION_NEW_EMAIL = "new_email";
+  public static final String OPTION_OLD_INFO = "old_info";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -107,8 +116,8 @@ public class UserLogDao {
             user.getId(),
             UserLogAction.ACCEPT_NEW_EMAIL.toString(),
             ImmutableMap.of(
-                    "old_email", user.getEmail(),
-                    "new_email", newEmail
+                    OPTION_OLD_EMAIL, user.getEmail(),
+                    OPTION_NEW_EMAIL, newEmail
             )
     );
   }
@@ -121,7 +130,7 @@ public class UserLogDao {
             moderator.getId(),
             UserLogAction.RESET_INFO.toString(),
             ImmutableMap.of(
-                    "old_info", userInfo,
+                    OPTION_OLD_INFO, userInfo,
                     OPTION_BONUS, bonus
             )
     );
@@ -146,6 +155,33 @@ public class UserLogDao {
             user.getId(),
             UserLogAction.SET_PASSWORD.toString(),
             ImmutableMap.of()
+    );
+  }
+
+  @Nonnull
+  public List<UserLogItem> getLogItems(@Nonnull User user, boolean includeSelf) {
+    String sql =
+            includeSelf ?
+            "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? ORDER BY id DESC"
+            :
+            "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? AND userid!=action_userid ORDER BY id DESC";
+
+    return jdbcTemplate.query(
+            sql,
+            new RowMapper<UserLogItem>() {
+              @Override
+              public UserLogItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new UserLogItem(
+                        rs.getInt("id"),
+                        rs.getInt("userid"),
+                        rs.getInt("action_userid"),
+                        new DateTime(rs.getTimestamp("action_date")),
+                        UserLogAction.valueOf(rs.getString("action").toUpperCase()),
+                        (Map<String, String>) rs.getObject("info")
+                );
+              }
+            },
+            user.getId()
     );
   }
 }
