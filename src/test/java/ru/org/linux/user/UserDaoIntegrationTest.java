@@ -25,6 +25,7 @@ import org.springframework.cache.Cache;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -32,8 +33,9 @@ import static org.junit.Assert.*;
 
 @ContextConfiguration(classes=UserDaoIntegrationTestConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
+@Transactional
 public class UserDaoIntegrationTest {
-  private static final int TEST_ID = 7806;
+  public static final int TEST_ID = 7806;
 
   @Autowired
   private UserDao userDao;

@@ -16,23 +16,29 @@
 package ru.org.linux.user;
 
 public enum UserLogAction {
-  RESET_USERPIC("reset_userpic"),
-  SET_USERPIC("set_userpic"),
-  BLOCK_USER("block_user"),
-  UNBLOCK_USER("unblock_user"),
-  ACCEPT_NEW_EMAIL("accept_new_email"),
-  RESET_INFO("reset_info"),
-  RESET_PASSWORD("reset_password"),
-  SET_PASSWORD("set_password");
+  RESET_USERPIC("reset_userpic", "Сброшена фотография"),
+  SET_USERPIC("set_userpic", "Установлена фотография"),
+  BLOCK_USER("block_user", "Заблокирован"),
+  UNBLOCK_USER("unblock_user", "Разблокирован"),
+  ACCEPT_NEW_EMAIL("accept_new_email", "Установлен новый email"),
+  RESET_INFO("reset_info", "Сброшен текст информации"),
+  RESET_PASSWORD("reset_password", "Сброшен пароль"),
+  SET_PASSWORD("set_password", "Установлен новый пароль");
 
   private final String name;
+  private final String description;
 
-  UserLogAction(String name) {
+  UserLogAction(String name, String description) {
     this.name = name;
+    this.description = description;
   }
 
   @Override
   public String toString() {
     return name;
+  }
+
+  public String getDescription() {
+    return description;
   }
 }

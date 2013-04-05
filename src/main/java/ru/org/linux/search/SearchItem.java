@@ -78,11 +78,8 @@ public class SearchItem {
       }
       virtualWiki = msgIds[0];
     }
-    try {
-      user = userDao.getUserCached(userid);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+
+    user = userDao.getUserCached(userid);
   }
 
   public int getMsgid() {

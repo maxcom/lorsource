@@ -217,11 +217,7 @@ public class GroupController {
     while (rs.next()) {
       User author;
 
-      try {
-        author = userDao.getUserCached(rs.getInt("userid"));
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      author = userDao.getUserCached(rs.getInt("userid"));
 
       ImmutableList<String> tags = topicTagService.getMessageTagsForTitle(rs.getInt("msgid"));
 

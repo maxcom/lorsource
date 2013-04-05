@@ -31,6 +31,7 @@
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
 <%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
 <%--@elvariable id="sectionStat" type="java.util.List<ru.org.linux.user.PreparedUsersSectionStatEntry>"--%>
+<%--@elvariable id="userlog" type="java.util.List<ru.org.linux.user.PreparedUserLogItem>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -304,6 +305,37 @@
     <a href="/people/${user.nick}/favs">Избранные темы</a>
   </li>
 </ul>
+</c:if>
+
+<c:if test="${not empty userlog}">
+    <h2>Журнал действий</h2>
+
+    <div class=forum>
+    <table class="message-table" width="100%">
+    <tbody>
+
+    <c:forEach items="${userlog}" var="item">
+
+    <tr>
+        <td>
+            <strong>${item.item.action.description}</strong>
+            <c:if test="${not item.self}">
+                &emsp;<img src="/img/tuxlor.png"><lor:user user="${item.actionUser}"/>
+            </c:if><br>
+            <c:if test="${not empty item.item.options}">
+              <c:forEach items="${item.options}" var="option">
+                ${option.key}: ${option.value}<br>
+              </c:forEach>
+            </c:if>
+        </td>
+
+        <td>
+            <lor:dateinterval date="${item.item.actionDate.toDate()}"/>
+        </td>
+    </tr>
+    </c:forEach>
+    </table>
+    </div>
 </c:if>
 
 </div>

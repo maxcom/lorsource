@@ -15,7 +15,7 @@
 
 package ru.org.linux.user;
 
-public class UserNotFoundException extends Exception {
+public class UserNotFoundException extends RuntimeException {
   public UserNotFoundException(String name) {
     super("Пользователь \"" + name + "\" не существует");
   }
