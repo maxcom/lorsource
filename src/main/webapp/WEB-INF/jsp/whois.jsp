@@ -318,7 +318,7 @@
 
     <tr>
         <td>
-            <strong>${item.item.action}</strong>
+            <strong>${item.item.action.description}</strong>
             <c:if test="${not item.self}">
                 &emsp;<img src="/img/tuxlor.png"><lor:user user="${item.actionUser}"/>
             </c:if><br>
