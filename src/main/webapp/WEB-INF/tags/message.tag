@@ -33,25 +33,6 @@
 <article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
-    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
-    <c:if test="${not message.deleted}">
-      <c:if test="${template.moderatorSession}">
-        <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-          [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
-        </c:if>
-        
-        [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
-        [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]
-
-        <c:if test="${preparedMessage.section.premoderated}">
-          [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
-        </c:if>
-
-        <c:if test="${message.commited and not message.expired}">
-          [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
-        </c:if>
-      </c:if>
-    </c:if>
     <c:if test="${message.deleted}">
         <c:if test="${preparedMessage.deleteInfo == null}">
             <strong>Сообщение удалено</strong>
@@ -68,89 +49,124 @@
   </div>
 </c:if>
 
-<c:set var="showPhotos" value="${messageMenu!=null && messageMenu.userpic!=null}"/>
   <header>
+    <div class="msg-top-header">
+    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"></c:if>
+
+    <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
+      <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
+      <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
+      <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+        (не подтверждено)
+      </c:if>
+    </span>
+      <c:if test="${template.moderatorSession and not message.deleted}">
+        &emsp;
+        <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+          [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
+        </c:if>
+
+        [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
+        <c:if test="${preparedMessage.section.premoderated}">
+          [<a href="mt.jsp?msgid=${message.id}">В форум</a>]
+        </c:if>
+        <c:if test="${not preparedMessage.section.premoderated}">
+          [<a href="mt.jsp?msgid=${message.id}">Группа</a>]
+        </c:if>
+
+        <c:if test="${preparedMessage.section.premoderated}">
+          [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
+        </c:if>
+
+        <c:if test="${message.commited and not message.expired}">
+          [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
+        </c:if>
+      </c:if>
+    </span>
+    </div>
+
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
     </h1>
 
     <c:if test="${not empty preparedMessage.tags}">
-      <l:tags list="${preparedMessage.tags}"/>
+      <div class=tags>
+        <i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/>
+      </div>
     </c:if>
   </header>
 
   <div class="msg-container">
-
-  <c:if test="${showPhotos}">
-    <l:userpic userpic="${messageMenu.userpic}"/>
-    <c:set var="msgBodyStyle" value="message-w-userpic"/>
-  </c:if>
 
   <div class="fav-buttons">
     <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
     <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
   </div>
 
-  <div class="msg_body ${msgBodyStyle}">
+  <div class="msg_body">
   <c:if test="${preparedMessage.image != null}">
     <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
 
-  <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
-    ${preparedMessage.processedMessage}
-  </div>
+    <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
+      ${preparedMessage.processedMessage}
 
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
-  </c:if>
-
-    <c:if test="${preparedMessage.section.pollPostAllowed}">
-      <c:choose>
+      <c:if test="${preparedMessage.section.pollPostAllowed}">
+        <c:choose>
           <c:when test="${not message.commited}">
-              <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
+            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
-              <lor:poll poll="${preparedMessage.poll}"/>
+            <lor:poll poll="${preparedMessage.poll}"/>
 
-              <c:if test="${preparedMessage.poll.poll.current}">
-                <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
-              </c:if>
+            <c:if test="${preparedMessage.poll.poll.current}">
+              <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+            </c:if>
           </c:otherwise>
-      </c:choose>
-    </c:if>
+        </c:choose>
+      </c:if>
 
-    <c:if test="${message.haveLink and not empty message.url}">
-      <p <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
-    <%
-    out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
-%>
-      </p>
-    </c:if>
+      <c:if test="${message.haveLink and not empty message.url}">
+        <p>
+          <%
+            out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
+          %>
+        </p>
+      </c:if>
+
+        <c:if test="${preparedMessage.image != null}">
+          <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+        </c:if>
+    </div>
 <footer>
-<div class=sign>
-  <lor:sign
-          postdate="${message.postdate}"
-          user="${preparedMessage.author}"
-          shortMode="false"
-          timeprop="dateCreated"
-          author="true"
-  />
+
+<c:if test="${messageMenu!=null && messageMenu.userpic!=null}">
+  <l:userpic userpic="${messageMenu.userpic}"/>
+</c:if>
+
+<div class=sign <c:if test="${messageMenu==null || messageMenu.userpic==null}">style="margin-left: 0"</c:if>>
+  <lor:user rel="author" itemprop="creator" link="true" user="${preparedMessage.author}"/>
+
+  <c:if test="${not preparedMessage.author.anonymous}">
+    <c:out value=" "/>${preparedMessage.author.stars}
+
+    <c:if test="${template.moderatorSession && preparedMessage.author.score<50}">
+      (Score: ${preparedMessage.author.score} MaxScore: ${preparedMessage.author.maxScore})
+    </c:if>
+  </c:if>
 
   <c:if test="${preparedMessage.remark != null}">
-    <span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/> </span>
+    &emsp;<span class="user-remark"><c:out value="${preparedMessage.remark.text}" escapeXml="true"/></span>
   </c:if>
  
-  <c:if test="${template.moderatorSession}">
+  <br>
+  <lor:date date="${message.postdate}" itemprop="dateCreated"/>
+
+  <c:if test="${template.moderatorSession and not empty message.postIP}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
 
   <span class="sign_more">
-  <c:if test="${template.moderatorSession}">
-    <c:if test="${messageMenu.userAgent!=null}">
-      <br>
-      <c:out value="${messageMenu.userAgent}" escapeXml="true"/>
-    </c:if>
-  </c:if>
   <c:if test="${preparedMessage.section.premoderated and message.commited}">
     <c:if test="${preparedMessage.commiter != preparedMessage.author}">
       <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>
@@ -173,23 +189,25 @@
     </c:if>
    </span>
 </div>
+</footer>
+
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
           <div class="social-buttons">
             <a target="_blank" style="text-decoration: none"
                href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+ ' '+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-              <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
+              <img src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
             </a>
 
             <a target="_blank" style="text-decoration: none"
                href="https://twitter.com/intent/tweet?text=<%= URLEncoder.encode(message.getTitle()) %>&amp;url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>&amp;hashtags=<%= URLEncoder.encode("лор") %>">
-              <img border="0" src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
+              <img src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
             </a>
 
             <a target="_blank" style="text-decoration: none"
                href="https://plus.google.com/share?url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-              <img border="0" src="/img/google-plus-icon.png" width=16 height=16 alt="Share on Google Plus" title="Share on Google Plus">
+              <img src="/img/google-plus-icon.png" width=16 height=16 alt="Share on Google Plus" title="Share on Google Plus">
             </a>
           </div>
           </c:if>
@@ -213,13 +231,14 @@
                 <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a></li>
             </c:if>
         </c:if>
+            <li><a href="${message.link}">Ссылка</a></li>
           </ul>
         <c:if test="${template.sessionAuthorized and not message.expired}">
           <br>${preparedMessage.postscoreInfo}
         </c:if>
         </div>
       </c:if>
-</footer>
+
   </div>
 </div>
 </article>

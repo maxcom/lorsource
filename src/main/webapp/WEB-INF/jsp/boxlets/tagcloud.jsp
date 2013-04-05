@@ -1,5 +1,5 @@
 <%@ page import="ru.org.linux.tag.TagCloudDao" %>
-<%@ page import="ru.org.linux.topic.TopicListController" %>
+<%@ page import="ru.org.linux.topic.TagTopicListController" %>
 <%--
 ~ Copyright 1998-2012 Linux.org.ru
 ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@
         <%
           TagCloudDao.TagDTO tag = (TagCloudDao.TagDTO) pageContext.getAttribute("tag");
         %>
-        <c:url value="<%= TopicListController.tagListUrl(tag.getValue()) %>" var="tag_url"/>
+        <c:url value="<%= TagTopicListController.tagListUrl(tag.getValue()) %>" var="tag_url"/>
         <a class="cloud${tag.weight}" href="${fn:escapeXml(tag_url)}">${tag.value}</a>
       </c:forEach>
     </div>

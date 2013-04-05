@@ -49,6 +49,18 @@ a {
 	color: #fcaf3e;
 }
 
+#bd header a:visited {
+    color: #729fcf;
+}
+
+#bd header h1 a {
+    color: #babdb6;
+}
+
+#bd header h1 a:visited {
+    color: #babdb6;
+}
+
 #bd a.tag {
 	color: #fcaf3e;
 }

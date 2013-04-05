@@ -39,7 +39,7 @@ public class PollVariant implements Serializable {
   }
 
   public static SortedMap<Integer, String> toMap(List<PollVariant> list) {
-    SortedMap<Integer, String> map = new TreeMap<Integer, String>();
+    SortedMap<Integer, String> map = new TreeMap<>();
 
     for (PollVariant v : list) {
       if (v.getId()!=0) {

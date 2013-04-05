@@ -15,7 +15,7 @@
 
 package ru.org.linux.section;
 
-import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import ru.org.linux.topic.TopicPermissionService;
 
 import java.io.Serializable;
@@ -40,12 +40,12 @@ public class Section implements Serializable {
   public static final int SECTION_NEWS = 1;
   public static final int SECTION_POLLS = 5;
 
-  private static final ImmutableBiMap<String, Integer> sections
-          = ImmutableBiMap.of(
-          "news", SECTION_NEWS,
-          "forum", SECTION_FORUM,
-          "gallery", SECTION_GALLERY,
-          "polls", SECTION_POLLS
+  private static final ImmutableMap<Integer, String> sections
+          = ImmutableMap.of(
+          SECTION_NEWS, "news",
+          SECTION_FORUM, "forum",
+          SECTION_GALLERY, "gallery",
+          SECTION_POLLS, "polls"
   );
 
   public Section(ResultSet rs) throws SQLException {
@@ -107,7 +107,7 @@ public class Section implements Serializable {
 
   public static int getCommentPostscore(int id) {
     //TODO move this to database
-    if (id==1 || id==2) {
+    if (id==SECTION_NEWS || id==SECTION_FORUM) {
       return TopicPermissionService.POSTSCORE_UNRESTRICTED;
     } else {
       return 50;
@@ -124,22 +124,20 @@ public class Section implements Serializable {
   }
 
   private static String getSectionLinkInternal(int section) {
-    return "/"+ getUrlName(section) +"/";
+    return '/' + getUrlName(section) + '/';
   }
 
-  public static String getNewsViewerLink(int section) throws SectionNotFoundException {
-    String urlName = getUrlName(section);
-
-    switch (section) {
+  public String getNewsViewerLink() throws SectionNotFoundException {
+    switch (id) {
       case SECTION_FORUM:
         return "/forum/lenta/";
       default:
-        return "/"+urlName+"/";
+        return '/' + getUrlName(id) + '/';
     }
   }
 
   private static String getUrlName(int section) {
-    String name = sections.inverse().get(section);
+    String name = sections.get(section);
 
     if (name!=null) {
       return name;
@@ -153,29 +151,15 @@ public class Section implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+year+ '/' +month+ '/';
+    return getArchiveLink()+year+ '/' +month+ '/';
   }
 
   public String getArchiveLink() {
-    return getArchiveLink(id);
-  }
-
-  public static String getArchiveLink(int id) {
     if (id==SECTION_FORUM) {
       return null;
     }
     
     return getSectionLink(id)+"archive/";
-  }
-
-  public static int getSection(String name) throws SectionNotFoundException {
-    Integer v = sections.get(name);
-
-    if (v==null) {
-      throw new SectionNotFoundException();
-    }
-
-    return v;
   }
 
   public int getTopicsRestriction() {

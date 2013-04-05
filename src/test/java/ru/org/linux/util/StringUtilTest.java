@@ -14,7 +14,7 @@
  */
 package ru.org.linux.util;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -41,6 +41,6 @@ public class StringUtilTest {
     String actualResult = StringUtil.makeTitle("\"Test of \"quotes '' \"in quotes\" in title\"\"");
 
     // then
-    Assert.assertEquals("&laquo;Test of &bdquo;quotes &quot; &bdquo;in quotes&ldquo; in title&ldquo;&raquo;", actualResult);
+    Assert.assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8221; in title&#8221;&#187;", actualResult);
   }
 }

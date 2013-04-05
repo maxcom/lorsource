@@ -25,7 +25,7 @@ public class TestSectionDaoImpl implements SectionDao {
 
   @Override
   public List<Section> getAllSections() {
-    List<Section> sectionList = new ArrayList<Section>();
+    List<Section> sectionList = new ArrayList<>();
 
     sectionList.add(new Section("Section 1", false, true, 1, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
     sectionList.add(new Section("Section 2", false, true, 2, false, "GROUP", TopicPermissionService.POSTSCORE_UNRESTRICTED));

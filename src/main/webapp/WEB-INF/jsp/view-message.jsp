@@ -29,6 +29,7 @@
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
+<%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -73,16 +74,6 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class=messages itemscope itemtype="http://schema.org/Article">
-
-<div class=nav>
-  <div id="navPath" itemprop="articleSection">
-    <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
-    <a href="${group.url}">${group.title}</a>
-    <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-      (не подтверждено)
-    </c:if>
-  </div>
-</div>
 
 <c:set var="scroller"><c:if test="${topScroller}">
   <div class="nav grid-row">
@@ -166,62 +157,32 @@
   </div>
 </c:if></c:set>
 
-<c:if test="${pages > 1 and not showDeleted}">
-    <c:set var="urlAdd" value='' />
-    <c:set var="bufInfo" value='' />
-    <c:set var="filterAdd" value='' />
-
-    <c:if test="${not message.expired}">
-        <c:set var="urlAdd" value="?lastmod=${message.lastModified.time}" />
+<c:set var="bufInfo">
+<c:if test="${pages!=null}">
+    <c:if test="${pages.hasPrevious}">
+        &emsp;<a class='page-number' href='${pages.previous}#comments'>←</a>
+    </c:if>
+    <c:if test="${not pages.hasPrevious}">
+        &emsp;<span class='page-number'>←</span>
     </c:if>
 
-    <c:if test="${filterMode != defaultFilterMode}">
-        <c:choose>
-            <c:when test="${empty urlAdd}">
-                <c:set var="urlAdd" value="?" />
-            </c:when>
-            <c:otherwise>
-                <c:set var="urlAdd" value="${urlAdd}&" />
-            </c:otherwise>
-        </c:choose>
-        <c:set var="filterAdd" value="?filter=${filterMode}" />
-        <c:set var="urlAdd" value="${urlAdd}filter=${filterMode}" />
-    </c:if>
-    <c:if test="${page != -1 and page != 0}">
-        <c:set var="bufInfo" value="&emsp;<a class='page-number' href='${message.getLinkPage(page-1)}${filterAdd}#comments'>←</a>" />
-    </c:if>
-    <c:if test="${page == -1 or page == 0}">
-        <c:set var="bufInfo" value="&emsp;<span class='page-number'>←</span>" />
-    </c:if>
-
-    <c:forEach var="i" begin="0" end="${pages-1}">
-        <c:set var="bufInfo" value="${bufInfo} " />
-        <c:if test="${i != page}">
-            <c:if test="${i == pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${urlAdd}#comments'" />
-            </c:if>
-            <c:if test="${i != pages-1}">
-                <c:set var="bufInfo" value="${bufInfo}<a class='page-number' href='${message.getLinkPage(i)}${filterAdd}#comments'" />
-            </c:if>
-            <c:set var="bufInfo" value="${bufInfo}>${i + 1}</a>" />
+    <c:forEach var="i" items="${pages.pageLinks}">
+        <c:if test="${not i.current}">
+            <a class='page-number' href='${i.url}#comments'>${i.index + 1}</a>
         </c:if>
-        <c:if test="${i == page}">
-            <c:set var="bufInfo" value="${bufInfo}<strong class='page-number'>${i + 1}</strong>" />
+        <c:if test="${i.current}">
+            <strong class='page-number'>${i.index + 1}</strong>
         </c:if>
     </c:forEach>
 
-    <c:if test="${page != -1 and page + 1 != pages}">
-        <c:if test="${page + 1 == pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${urlAdd}#comments'>→</a>" />
-        </c:if>
-        <c:if test="${page + 1 != pages - 1}">
-            <c:set var="bufInfo" value="${bufInfo} <a class='page-number' href='${message.getLinkPage(page+1)}${filterAdd}#comments'>→</a>" />
-        </c:if>
+    <c:if test="${pages.hasNext}">
+      <a class='page-number' href='${pages.next}#comments'>→</a>
     </c:if>
-    <c:if test="${page == -1 or page + 1 == pages}">
-        <c:set var="bufInfo" value="${bufInfo} <span class='page-number'>→</span>" />
+    <c:if test="${not pages.hasNext}">
+        <span class='page-number'>→</span>
     </c:if>
 </c:if>
+</c:set>
 
 <lor:message
         messageMenu="${messageMenu}"
@@ -234,7 +195,7 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <div style="text-align: center; margin-top: 0.5em; height: 90px" id="interpage-adv">
+  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
 <%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
 --%>
@@ -256,6 +217,12 @@
           type: 'img',
           src: '/adv/selectel/728x90-dedic.gif',
           href: 'http://selectel.ru/services/dedicated/?utm_source=linuxorgru&utm_medium=banner&utm_content=all&utm_campaign=110113'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/linux.png',
+          href: 'http://tehnodom.com/?utm_source=lor&utm_medium=banner&utm_campaign=220213',
+          height: 91
         }
       ];
 
@@ -280,7 +247,12 @@
         var img = $('<img>');
         img.attr('src', ad.src);
         img.attr('width', 728);
-        img.attr('height', 90);
+
+        if ('height' in ad) {
+          img.attr('height', ad.height);
+        } else {
+          img.attr('height', 90);
+        }
 
         anchor.append(img);
         $('#interpage-adv').append(anchor);

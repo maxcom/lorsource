@@ -27,6 +27,7 @@ import ru.org.linux.tag.ITagActionHandler;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagService;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
@@ -121,6 +122,7 @@ public class TopicTagService {
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
+  @Nonnull
   public ImmutableList<String> getMessageTags(int msgId) {
     return topicTagDao.getTags(msgId);
   }
@@ -132,6 +134,7 @@ public class TopicTagService {
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
+  @Nonnull
   public ImmutableList<String> getMessageTagsForTitle(int msgId) {
     ImmutableList<String> tags = topicTagDao.getTags(msgId);
     return tags.subList(0, Math.min(tags.size(), MAX_TAGS_IN_TITLE));
@@ -145,7 +148,7 @@ public class TopicTagService {
    * @return список тегов
    */
   public ImmutableList<String> parseTags(String tags, Errors errors) {
-    Set<String> tagSet = new HashSet<String>();
+    Set<String> tagSet = new HashSet<>();
 
     // Теги разделяютчя пайпом или запятой
     tags = tags.replaceAll("\\|", ",");

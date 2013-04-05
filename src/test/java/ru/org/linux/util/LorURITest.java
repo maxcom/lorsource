@@ -22,9 +22,6 @@ import org.junit.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.user.User;
-
-import java.net.URLEncoder;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -378,12 +375,6 @@ public class LorURITest {
     assertEquals(80, uri5.formatUrlBody(80).length());
   }
   
-  @Test
-  public void testUrlEncode() throws Exception {
-    assertEquals(User.EMPTY_GRAVATAR_SECURE_URL,  URLEncoder.encode("https://www.linux.org.ru/img/p.gif", "UTF-8"));
-    assertEquals(User.EMPTY_GRAVATAR_URL,  URLEncoder.encode("http://www.linux.org.ru/img/p.gif", "UTF-8"));
-  }
-
   @Test
   public void testBadId() throws Exception {
     LorURL uri = new LorURL(mainLORURI, "http://www.linux.org.ru/forum/talks/12345678910");

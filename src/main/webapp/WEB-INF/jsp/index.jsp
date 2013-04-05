@@ -40,35 +40,22 @@
 <div class="newsblog">
   <div class="newsblog-in">
 
-<c:if test="${showAdsense}">
 <c:if test="${template.style != 'black'}">
-<div align="center">
-  <script type="text/javascript"><!--
-  google_ad_client = "ca-pub-6069094673001350";
-
-  if ($(window).width()<728) {
-    /* lor-main-mobile */
-    google_ad_slot = "2628258430";
-    google_ad_width = 320;
-    google_ad_height = 50;
-  } else if ($(window).width()>1000) {
-    /* lor-main-wide */
-    google_ad_slot = "4104991635";
-    google_ad_width = 728;
-    google_ad_height = 90;
-  } else {
-    /* lor-main */
-    google_ad_slot = "1151525234";
-    google_ad_width = 468;
-    google_ad_height = 60;
-  }
-  //-->
-  </script>
-  <script type="text/javascript"
-  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-  </script>
+<div class="infoblock" style="border: 1px solid #777; text-align: justify;">
+  <a rel="nofollow" href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0; padding-right: 5px"></a>
+  <div id="samsung_text">
+    Samsung Electronics Co., Ltd. приглашает инженеров-программистов
+    (System- and Platform-Level Security, Cryptography, AES&nbsp;/ RSA Encryption,
+    Application&nbsp;/ Embedded&nbsp;/ System Software, Cloud Computing, Android, Linux Kernel, Python, C/C++,
+    Java, LTE&nbsp;/ CDMA Design, Modem, DSP, Crest Factor Reduction [CFR], Digital Pre-Distorter [DPD]),
+    а&nbsp;также профессоров и&nbsp;доцентов (д.ф.-м.н., д.т.н., к.ф.-м.н., к.т.н.) в&nbsp;области разработки
+    программного обеспечения (Open OS: Linux, Android; Software Algorithms, Multimedia, and Graphics)
+    на&nbsp;работу в&nbsp;Samsung R&amp;D Center и&nbsp;Samsung Advanced Technology Center (Республика Корея).
+    Дополнительная информация:
+    <a href="http://job.samsung.ru/" rel="nofollow" style="color: white" target="_blank">http://job.samsung.ru</a>
+    (вакансии: <a href="http://job.samsung.ru/vacancies.aspx" rel="nofollow" target="_blank" style="color: white">http://job.samsung.ru/vacancies.aspx</a>)
+  </div>
 </div>
-</c:if>
 </c:if>
 
 <c:if test="${template.moderatorSession or template.correctorSession}">
@@ -98,7 +85,7 @@
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]
-  [<a href="view-all.jsp?section=1">непроверенные новости</a>]
+  [<a href="view-all.jsp?section=1">неподтвержденные новости</a>]
   [<a href="section-rss.jsp?section=1">RSS</a>]
 </div>
 </div>
@@ -128,7 +115,7 @@
     </div>
   </c:if>
 
-  <lor:boxlets object="main2" var="boxes">
+  <lor:boxlets var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
             <c:import url="/${boxlet}.boxlet"/>

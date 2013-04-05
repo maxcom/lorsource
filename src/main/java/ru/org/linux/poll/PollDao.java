@@ -38,7 +38,6 @@ public class PollDao {
   private static final String queryPoolIdByTopicId = "SELECT polls.id FROM polls,topics WHERE topics.id=? AND polls.topic=topics.id";
   private static final String queryCurrentPollId = "SELECT polls.id FROM polls,topics WHERE topics.id=polls.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
   private static final String queryPool = "SELECT topic, multiselect FROM polls WHERE id=?";
-  private static final String queryMaxVotes = "SELECT max(votes) FROM polls_variants WHERE vote=?";
   private static final String queryPollVariantsOrderById = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY id";
   private static final String queryPollVariantsOrderByVotes = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY votes DESC, id";
   private static final String queryPollUserVote = "select count(vote) from vote_users where userid=? and variant_id=?";
@@ -189,21 +188,6 @@ public class PollDao {
   }
 
   /**
-   * максимальное число голосов в голосовании.
-   *
-   * @param poll объект голосования
-   * @return максимальное кол-во голосов
-   */
-  public int getMaxVote(Poll poll) {
-    int max = jdbcTemplate.queryForInt(queryMaxVotes, poll.getId());
-    if(max == 0){
-      return 1;
-    } else {
-      return max;
-    }
-  }
-
-  /**
    * Варианты опроса для ананимного пользователя
    *
    * @param poll опрос
@@ -222,7 +206,7 @@ public class PollDao {
    * @return неизменяемый список вариантов опроса
    */
   public ImmutableList<PollVariantResult> getPollVariants(Poll poll, int order, final User user) {
-    final List<PollVariantResult> variants = new ArrayList<PollVariantResult>();
+    final List<PollVariantResult> variants = new ArrayList<>();
     
     String query;
     

@@ -134,6 +134,27 @@
     </div>
   </c:if>
 
+<c:if test="${fn:length(favoriteTags)>0}">
+  <b>Избранные теги:</b>
+      <c:forEach var="tagName" items="${favoriteTags}">
+        <spring:url value="/tag/{tag}" var="tagLink">
+          <spring:param name="tag" value="${tagName}" />
+        </spring:url>
+        <a class="tag" href="${tagLink}">${tagName}</a>
+      </c:forEach>
+  <br>
+</c:if>
+<c:if test="${moderatorOrCurrentUser && fn:length(ignoreTags)>0}">
+  <b>Игнорированные теги:</b>
+      <c:forEach var="tagName" items="${ignoreTags}">
+        <spring:url value="/tag/{tag}" var="tagLink">
+          <spring:param name="tag" value="${tagName}" />
+        </spring:url>
+        <a class="tag" href="${tagLink}">${tagName}</a>
+      </c:forEach>
+  <br>
+</c:if>
+
   <c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
     <c:if test="${ignored}">
       <form name='i_unblock' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
@@ -164,7 +185,7 @@
         <input type='submit' name='action' value='unblock'>
       </c:if>
       <c:if test="${not user.blocked}">
-        Причина: <input type="text" name="reason" size="40">
+        <label>Причина: <input type="text" name="reason" size="40" required></label>
         <input type='submit' name='action' value='block'><br>
 
         [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
@@ -208,32 +229,6 @@
         </form>
       </c:if>
   </c:if>
-  <c:if test="${fn:length(favoriteTags)>0}">
-    <fieldset>
-    <legend>Избранные теги</legend>
-      <ul>
-        <c:forEach var="tagName" items="${favoriteTags}">
-          <spring:url value="/tag/{tag}" var="tagLink">
-            <spring:param name="tag" value="${tagName}" />
-          </spring:url>
-          <li><a class="tag" href="${tagLink}">${tagName}</a></li>
-        </c:forEach>
-      </ul>
-    </fieldset>
-  </c:if>
-  <c:if test="${moderatorOrCurrentUser && fn:length(ignoreTags)>0}">
-    <fieldset>
-    <legend>Игнорированные теги</legend>
-      <ul>
-        <c:forEach var="tagName" items="${ignoreTags}">
-          <spring:url value="/tag/{tag}" var="tagLink">
-            <spring:param name="tag" value="${tagName}" />
-          </spring:url>
-          <li><a class="tag" href="${tagLink}">${tagName}</a></li>
-        </c:forEach>
-      </ul>
-    </fieldset>
-  </c:if>
 
   <c:if test="${currentUser}">
     <h2>Действия</h2>
@@ -259,7 +254,7 @@
   <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
 </c:if>
 <c:if test="${not user.anonymous}">
-  <b>Число комментариев: ${userStat.commentCount}</b>
+  <b>Число комментариев:</b> <c:if test="${not userStat.exactCommentCount}">приблизительно </c:if> ${userStat.commentCount}
 </c:if>
 <p>
 

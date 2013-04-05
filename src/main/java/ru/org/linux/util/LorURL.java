@@ -18,7 +18,6 @@ import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
@@ -38,20 +37,17 @@ public class LorURL extends URI {
   private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");
   private static final Pattern requestOldJumpQueryPattern = Pattern.compile("^msgid=(\\d+)&amp;cid=(\\d+)");
   
+  private boolean _true_lor_url = false;
 
-  protected boolean _true_lor_url = false;
-  protected char[] _main_host = null;
-  protected int _main_port = -1;
-  protected final char[] _http_scheme = "http".toCharArray();
-  protected final char[] _https_scheme = "https".toCharArray();
-  
-  protected int _topic_id = -1;
-  protected int _comment_id = -1;
-
-  protected boolean _escaped = true;
+  private int _topic_id = -1;
+  private int _comment_id = -1;
 
   public LorURL(URI mainURI, String url) throws URIException {
     protocolCharset = "UTF-8";
+    char[] _https_scheme = "https".toCharArray();
+    char[] _http_scheme = "http".toCharArray();
+    int _main_port = -1;
+    char[] _main_host = null;
     try {
       parseUriReference(url, true);
       if(_host == null) {
@@ -89,7 +85,6 @@ public class LorURL extends URI {
           && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
 
       findURLIds();
-      _escaped = false;
     }
   }
   
@@ -123,7 +118,7 @@ public class LorURL extends URI {
             }
           }
         }
-        if(path.endsWith("/history")) {
+        if(path.endsWith("/history") || path.endsWith("/comments")) {
           _topic_id = -1;
         }
       }
@@ -213,8 +208,26 @@ public class LorURL extends URI {
     return _comment_id;
   }
 
+  /**
+   * Ищет в стороке символ который полчается если строка однобайтовая вместо предполагаемого utf8
+   * @param str строка для проверки
+   * @return флажок
+   */
+  private boolean isContainReplacementCharset(String str) {
+    for(char c : str.toCharArray()) {
+      if(c == 65533) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public String formatUrlBody(int maxLength) throws URIException {
     String all = getURIReference();
+    // Костыль для однобайтовых неудачников
+    if(isContainReplacementCharset(all)) {
+      all = getEscapedURIReference();
+    }
     String scheme = getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
     int trueMaxLength = maxLength - 3; // '...'
@@ -275,13 +288,8 @@ public class LorURL extends URI {
   public String formatJump(TopicDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
     if(_topic_id != -1) {
       Topic message = messageDao.getById(_topic_id);
-      Group group = null;
 
-      try {
-        group = messageDao.getGroup(message);
-      } catch (BadGroupException e) {
-        throw new RuntimeException("Invalid group id msgid="+_topic_id, e);
-      }
+      Group group = messageDao.getGroup(message);
 
       String scheme;
       if(secure) {

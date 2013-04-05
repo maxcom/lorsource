@@ -161,7 +161,7 @@ public class UserTagService {
    * @return список тегов
    */
   public ImmutableList<String> parseTags(String tags, Errors errors) {
-    Set<String> tagSet = new HashSet<String>();
+    Set<String> tagSet = new HashSet<>();
 
     // Теги разделяются пайпом или запятой
     tags = tags.replaceAll("\\|", ",");
@@ -249,7 +249,7 @@ public class UserTagService {
    * @return массив строк, содержащий описания ошибок
    */
   private static List<String> errorsToStringList(Errors errors) {
-    List<String> strErrors = new ArrayList<String>();
+    List<String> strErrors = new ArrayList<>();
 
     if (errors.hasErrors()) {
       for (ObjectError objectError : errors.getAllErrors()) {

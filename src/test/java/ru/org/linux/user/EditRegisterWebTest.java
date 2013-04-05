@@ -40,9 +40,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 public class EditRegisterWebTest {
-
   private static String MAXCOM_NAME = "Максим Валянский";
   private static String MAXCOM_URL = "http://maxcom.pp.ru/";
   private static String MAXCOM_EMAIL = "max.valjanski+test93@gmail.com";
@@ -73,7 +72,7 @@ public class EditRegisterWebTest {
         MAXCOM_PASS,
         MAXCOM_INFO
     );
-    userDao.acceptNewEmail(user);
+    userDao.acceptNewEmail(user, MAXCOM_EMAIL);
   }
 
   private void rescueJB() throws Exception {
@@ -87,8 +86,8 @@ public class EditRegisterWebTest {
         JB_PASS,
         JB_INFO
     );
-    userDao.acceptNewEmail(user);
-    userDao.unblock(user);
+    userDao.acceptNewEmail(user, JB_EMAIL);
+    userDao.unblock(user, user);
   }
 
   @Before

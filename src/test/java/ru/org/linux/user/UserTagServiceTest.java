@@ -33,7 +33,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -123,9 +122,9 @@ public class UserTagServiceTest {
 
   @Test
   public void getUserIdListByTagsTest() {
-    List<Integer> etalon = new ArrayList<Integer>();
+    List<Integer> etalon = new ArrayList<>();
     etalon.add(123);
-    List<String> tags = new ArrayList<String>();
+    List<String> tags = new ArrayList<>();
     tags.add("tag1");
     when(userTagDao.getUserIdListByTags(1, tags)).thenReturn(etalon);
 

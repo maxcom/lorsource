@@ -74,7 +74,7 @@ public class DeleteCommentController {
           HttpServletRequest request,
           @RequestParam("msgid") int msgid
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -151,32 +151,28 @@ public class DeleteCommentController {
       bonus = 0;
     }
 
-    StringBuilder out = new StringBuilder();
-
     List<Integer> deleted;
 
     if (user.isModerator()) {
       deleted = commentService.deleteWithReplys(msgid, reason, user, bonus);
-      if (!deleted.isEmpty()) {
-        out.append("Удаленные комментарии: ").append(deleted).append("<br>");
-      } else {
-        out.append("Ничего не удалено");
-      }
     } else {
       if (commentService.deleteComment(msgid, reason, user, 0)) {
-        out.append("Сообщение ").append(msgid).append(" удалено");
+        deleted = ImmutableList.of(msgid);
       } else {
-        out.append("Сообщение ").append(msgid).append(" уже было удалено");
+        deleted = ImmutableList.of();
       }
-
-      deleted = ImmutableList.of(msgid);
     }
 
     searchQueueSender.updateComment(deleted);
 
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("message", "Удалено успешно");
-    params.put("bigMessage", out.toString());
+    Map<String, Object> params = new HashMap<>();
+
+    if (!deleted.isEmpty()) {
+      params.put("message", "Удалено успешно");
+      params.put("bigMessage", "Удаленные комментарии: "+deleted);
+    } else {
+      params.put("message", "Сообщение уже удалено");
+    }
 
     params.put("link", topic.getLink());
 

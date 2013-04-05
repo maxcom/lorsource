@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
@@ -47,6 +49,9 @@ public class UserEventService {
   @Autowired
   private DeleteInfoDao deleteInfoDao;
 
+  @Autowired
+  private GroupDao groupDao;
+
 
   /**
    * @param events      список событий
@@ -55,7 +60,7 @@ public class UserEventService {
    * @return
    */
   public List<PreparedUserEvent> prepare(List<UserEvent> events, boolean readMessage, boolean secure) {
-    List<PreparedUserEvent> prepared = new ArrayList<PreparedUserEvent>(events.size());
+    List<PreparedUserEvent> prepared = new ArrayList<>(events.size());
 
     for (UserEvent event : events) {
       String text;
@@ -99,7 +104,9 @@ public class UserEventService {
         }
       }
 
-      prepared.add(new PreparedUserEvent(event, text, commentAuthor, bonus));
+      Group group = groupDao.getGroup(event.getGroupId());
+
+      prepared.add(new PreparedUserEvent(event, text, commentAuthor, bonus, group));
     }
 
     return prepared;

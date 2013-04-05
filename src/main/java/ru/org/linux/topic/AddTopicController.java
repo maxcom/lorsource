@@ -38,7 +38,6 @@ import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.Screenshot;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -151,7 +150,7 @@ public class AddTopicController {
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -211,7 +210,7 @@ public class AddTopicController {
           BindingResult errors,
           @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -296,14 +295,26 @@ public class AddTopicController {
         );
       }
 
-      params.put("message", prepareService.prepareTopicPreview(
+      PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
               tagService.parseSanitizeTags(form.getTags()),
               poll,
               request.isSecure(),
               message,
               imageObject
-      ));
+      );
+
+      params.put("message", preparedTopic);
+
+      TopicMenu topicMenu = prepareService.getTopicMenu(
+              preparedTopic,
+              tmpl.getCurrentUser(),
+              request.isSecure(),
+              tmpl.getProf(),
+              true
+      );
+
+      params.put("topicMenu", topicMenu);
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors()) {
@@ -355,7 +366,7 @@ public class AddTopicController {
   }
   
   private static Poll preparePollPreview(AddTopicRequest form) {
-    List<PollVariant> variants = new ArrayList<PollVariant>(form.getPoll().length);
+    List<PollVariant> variants = new ArrayList<>(form.getPoll().length);
 
     for (String item : form.getPoll()) {
       if (!Strings.isNullOrEmpty(item)) {
@@ -368,7 +379,7 @@ public class AddTopicController {
 
   @RequestMapping("/add-section.jsp")
   public ModelAndView showForm(@RequestParam("section") int sectionId) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     params.put("sectionId", sectionId);
 
@@ -388,11 +399,7 @@ public class AddTopicController {
     binder.registerCustomEditor(Group.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
-        try {
-          setValue(groupDao.getGroup(Integer.parseInt(text)));
-        } catch (BadGroupException e) {
-          throw new IllegalArgumentException(e);
-        }
+        setValue(groupDao.getGroup(Integer.parseInt(text)));
       }
 
       @Override
@@ -432,7 +439,7 @@ public class AddTopicController {
           HttpSession session,
           String image,
           Errors errors
-  ) throws IOException, UtilException {
+  ) throws IOException {
     if (session==null) {
       return null;
     }

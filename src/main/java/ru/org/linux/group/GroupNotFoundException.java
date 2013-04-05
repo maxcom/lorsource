@@ -13,10 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.group;
 
-public class StorageBadMsgidException extends StorageException {
-  public StorageBadMsgidException(String msgid) {
-    super("Некорректный идентификатор объекта " + msgid);
+public class GroupNotFoundException extends RuntimeException {
+  public GroupNotFoundException(String info) {
+    super(info);
+  }
+
+  public GroupNotFoundException(String info, Exception cause) {
+    super(info, cause);
   }
 }

@@ -29,7 +29,6 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -44,7 +43,6 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -86,9 +84,6 @@ public class TopicPrepareService {
 
   @Autowired
   private Configuration configuration;
-
-  @Autowired
-  private UserAgentDao userAgentDao;
 
   @Autowired
   private MemoriesDao memoriesDao;
@@ -270,11 +265,7 @@ public class TopicPrepareService {
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(message.getPostScore()),
               remark);
-    } catch (BadGroupException e) {
-      throw new RuntimeException(e);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (PollNotFoundException e) {
+    } catch (UserNotFoundException | PollNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -320,10 +311,10 @@ public class TopicPrepareService {
           List<Topic> messages,
           boolean secure,
           User user,
-          ProfileProperties profileProperties,
+          Profile profile,
           boolean loadUserpics
   ) {
-    List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
+    List<PersonalizedPreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
     ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
@@ -344,7 +335,7 @@ public class TopicPrepareService {
               preparedMessage,
               user,
               secure,
-              profileProperties,
+              profile,
               loadUserpics
       );
 
@@ -375,7 +366,7 @@ public class TopicPrepareService {
    * @return список подготовленных топиков
    */
   public List<PreparedTopic> prepareMessages(List<Topic> messages, boolean secure) {
-    List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
+    List<PreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
     ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
@@ -403,7 +394,7 @@ public class TopicPrepareService {
           @Nonnull PreparedTopic message,
           @Nullable User currentUser,
           boolean secure,
-          ProfileProperties profileProperties,
+          Profile profile,
           boolean loadUserpics
   ) {
     boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
@@ -431,20 +422,18 @@ public class TopicPrepareService {
 
     Userpic userpic = null;
 
-    if (loadUserpics && profileProperties.isShowPhotos()) {
+    if (loadUserpics && profile.isShowPhotos()) {
+      String avatarMode = profile.getAvatarMode();
+
+      if ("empty".equals(avatarMode)) {
+        avatarMode = "mm";
+      }
+
       userpic = userService.getUserpic(
               message.getAuthor(),
               secure,
-              profileProperties.getAvatarMode()
+              avatarMode
       );
-    }
-
-    String userAgent;
-
-    if (currentUser!=null && currentUser.isModerator()) {
-      userAgent = userAgentDao.getUserAgentById(message.getMessage().getUserAgent());
-    } else {
-      userAgent = null;
     }
 
     return new TopicMenu(
@@ -457,8 +446,7 @@ public class TopicPrepareService {
             topicStats.get(1),
             topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser),
             deletable,
-            userpic,
-            userAgent
+            userpic
     );
   }
 }

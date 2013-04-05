@@ -16,8 +16,8 @@
 package ru.org.linux.gallery;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -34,6 +34,7 @@ import ru.org.linux.util.ImageInfo;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +42,7 @@ import java.util.List;
 
 @Repository
 public class ImageDao {
-  private static final Log logger = LogFactory.getLog(ImageDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(ImageDao.class);
 
   @Autowired
   private SectionService sectionService;
@@ -119,10 +120,10 @@ public class ImageDao {
                 iconInfo, fullInfo));
       } catch (UserNotFoundException e) {
         throw new RuntimeException(e);
-      } catch (BadImageException e) {
-        logger.error("Bad image id="+item.getImage().getId(), e);
-      } catch (IOException e) {
-        logger.error("Bad image id=" + item.getImage().getId(), e);
+      } catch (FileNotFoundException e) {
+        logger.error("Image not found! id={}: {}", item.getImage().getId(), e.getMessage());
+      } catch (BadImageException | IOException e) {
+        logger.error("Bad image id={}", item.getImage().getId(), e);
       }
     }
 

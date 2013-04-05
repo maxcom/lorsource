@@ -21,7 +21,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
@@ -33,9 +32,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
 @Repository
 public class TrackerDao {
   private NamedParameterJdbcTemplate jdbcTemplate;
@@ -47,9 +43,6 @@ public class TrackerDao {
 
   @Autowired
   private UserDao userDao;
-
-  @Autowired
-  private TagService tagService;
 
   @Autowired
   private TopicTagService topicTagService;
@@ -96,6 +89,7 @@ public class TrackerDao {
       "WHERE g.section=sections.id AND not t.deleted AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
         "AND t.lastmod > :interval " +
+        "%s" + /* noUncommited */
         "%s" + /* user!=null ? queryPartIgnored*/
         "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
      "UNION ALL " +
@@ -116,6 +110,7 @@ public class TrackerDao {
           "t.moderate " +
       "FROM topics AS t, groups AS g, sections " +
       "WHERE sections.id=g.section AND not t.deleted AND t.postdate > :interval " +
+          "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           " AND t.stat1=0 AND g.id=t.groupid " +
@@ -170,6 +165,8 @@ public class TrackerDao {
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
 
+  private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
+
   public List<TrackerItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Timestamp interval,
                                        int topics, int offset, final int messagesInPage) {
 
@@ -211,17 +208,21 @@ public class TrackerDao {
         partFilter = "";
     }
 
+    boolean showUncommited = currentUser!=null && (currentUser.isModerator() || currentUser.isCorrector());
+
+    String partUncommited = showUncommited ? "" : noUncommited;
+
     String query;
 
     if(filter != TrackerFilterEnum.ZERO) {
-      query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter, partWiki);
+      query = String.format(queryTrackerMain, partUncommited, partIgnored, partFilter, partUncommited, partIgnored, partFilter, partWiki);
     } else {
       query = String.format(queryTrackerZeroMain, partIgnored);
     }
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
-    List<TrackerItem> res = new ArrayList<TrackerItem>(topics);
+    List<TrackerItem> res = new ArrayList<>(topics);
     
     while (resultSet.next()) {
       User author;

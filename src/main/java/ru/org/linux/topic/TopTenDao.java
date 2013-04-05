@@ -15,23 +15,23 @@
 
 package ru.org.linux.topic;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import ru.org.linux.section.SectionService;
+
+import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-
-import org.springframework.stereotype.Repository;
-import ru.org.linux.section.Section;
-
-import javax.sql.DataSource;
-
 @Repository
 public class TopTenDao {
+  @Autowired
+  private SectionService sectionService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -47,20 +47,19 @@ public class TopTenDao {
         "join groups on groups.id = topics.groupid" +
       " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
       " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
+
     return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDTO>() {
       @Override
       public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
         TopTenMessageDTO result = new TopTenMessageDTO();
-        result.setUrl(Section.getSectionLink(rs.getInt("section"))+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
+        result.setUrl(sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
         result.setTitle(rs.getString("title"));
         result.setLastmod(rs.getTimestamp("lastmod"));
         result.setAnswers(rs.getInt("c"));
         return result;
       }
     });
-
   }
-
 
   public static class TopTenMessageDTO implements Serializable{
     private String url;

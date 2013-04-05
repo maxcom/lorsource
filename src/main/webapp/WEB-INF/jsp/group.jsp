@@ -98,7 +98,7 @@
 
 <c:if test="${!empty groupImagePath}">
     <div align=center>
-        <img src="${groupImagePath}" ${groupImageInfo.code} border="0" alt="Группа ${group.title}" />
+        <img src="${groupImagePath}" ${groupImageInfo.code} alt="Группа ${group.title}" />
     </div>
 </c:if>
 <c:if test="${year == null && offset==0}">
@@ -142,10 +142,10 @@
     <c:if test="${topic.deleted}">
       <c:choose>
         <c:when test="${template.moderatorSession}">
-          <a href="/undelete.jsp?msgid=${topic.msgid}"><img src="/img/del.png" border="0" alt="[X]" width="15" height="15"></a>
+          <a href="/undelete.jsp?msgid=${topic.msgid}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
         </c:when>
         <c:otherwise>
-          <img src="/img/del.png" border="0" alt="[X]" width="15" height="15">
+          <img src="/img/del.png" alt="[X]" width="15" height="15">
         </c:otherwise>
       </c:choose>
     </c:if>

@@ -19,12 +19,12 @@
   --%>
 <%--@elvariable id="counter" type="java.lang.Integer"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
+<%--@elvariable id="sectionList" type="java.util.List<ru.org.linux.section.Section>"--%>
+<%--@elvariable id="tag" type="java.lang.String"--%>
+<%--@elvariable id="offset" type="java.lang.Integer"--%>
+<%--@elvariable id="section" type="java.lang.Integer"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-	<title>${ptitle}</title>
-
-<c:if test="${rssLink != null}">
-  <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
-</c:if>
+<title>${ptitle}</title>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
   <div class=nav>
@@ -36,7 +36,7 @@
         <c:if test="${isShowIgnoreTagButton}">
           <li>
           <c:url var="tagIgnUrl" value="/user-filter">
-            <c:param name="newIgnoredTagName" value="${topicListRequest.tag}"/>
+            <c:param name="newIgnoredTagName" value="${tag}"/>
           </c:url>
 
           <a id="tagIgnAdd" href="${tagIgnUrl}">Игнорировать тег</a>
@@ -50,19 +50,17 @@
           </li>
         </c:if>
 
-      <c:if test="${rssLink != null}">
-        <li><a href="${rssLink}">RSS</a></li>
-      </c:if>
+        <c:if test="${counter>10}">
+          <li><a href="${url}" <c:if test="${section == 0}">class="current"</c:if>>Все</a></li>
+
+          <c:forEach items="${sectionList}" var="cursection">
+            <li>
+              <a href="${url}?section=${cursection.id}"
+                 <c:if test="${section == cursection.id}">class="current"</c:if>>${cursection.name}</a>
+            </li>
+          </c:forEach>
+        </c:if>
       </ul>
-      <c:if test="${sectionList != null}">
-        <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
-          <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
-            <form:option value="0" label="Все" />
-            <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
-          </form:select>
-          <noscript><input type='submit' value='&gt;'></noscript>
-        </form:form>
-      </c:if>
     </div>
 </div>
 
@@ -70,7 +68,7 @@
   <div class="fav-buttons">
   <c:if test="${isShowFavoriteTagButton}">
       <c:url var="tagFavUrl" value="/user-filter">
-        <c:param name="newFavoriteTagName" value="${topicListRequest.tag}"/>
+        <c:param name="newFavoriteTagName" value="${tag}"/>
       </c:url>
 
       <a id="tagFavAdd" href="${tagFavUrl}" title="В избранное"><i class="icon-eye"></i></a>
@@ -91,33 +89,19 @@
 </div>
 
 <c:forEach var="msg" items="${messages}">
-  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==null && group==null}" moderateMode="false"/>
+  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==0}" moderateMode="false"/>
 </c:forEach>
-
-<c:if test="${params !=null}">
-  <c:set var="aparams" value="${params}&"/>
-</c:if>
 
 <table class="nav">
   <tr>
-    <c:if test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
+    <c:if test="${not empty prevLink}">
       <td align="left" width="35%">
-        <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">← предыдущие</a>
+        <a href="${prevLink}">← назад</a>
       </td>
     </c:if>
-    <c:if test="${topicListRequest.offset > 20}">
+    <c:if test="${not empty nextLink}">
       <td width="35%" align="right">
-        <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">следующие →</a>
-      </td>
-    </c:if>
-    <c:if test="${topicListRequest.offset == 20}">
-      <td width="35%" align="right">
-        <c:if test="${params!=null}">
-          <a href="${url}?${params}">следующие →</a>
-        </c:if>
-        <c:if test="${params==null}">
-          <a href="${url}">следующие →</a>
-        </c:if>
+        <a href="${nextLink}">вперед →</a>
       </td>
     </c:if>
   </tr>
@@ -144,7 +128,7 @@
   function tag_filter(event) {
     event.preventDefault();
 
-    var data = { tagName: "${topicListRequest.tag}"};
+    var data = { tagName: "${tag}"};
 
     var el = $('#tagFavAdd');
     var add = !el.hasClass("selected");

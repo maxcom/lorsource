@@ -29,6 +29,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
+import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -37,16 +38,13 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
-import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class TopicController {
@@ -78,133 +76,43 @@ public class TopicController {
   @Autowired
   private TopicPermissionService permissionService;
 
-  @RequestMapping("/forum/{group}/{id}")
-  public ModelAndView getMessageNewForum(
+  @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
+  public ModelAndView getMessageNewMain(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "filter", required = false) String filter,
     @RequestParam(value = "cid" , required = false) Integer cid,
+    @PathVariable("section") String sectionName,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
+
+    Section section = sectionService.getSectionByName(sectionName);
+
+    return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
-  @RequestMapping("/news/{group}/{id}")
-  public ModelAndView getMessageNewNews(
+  @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}/page{page}")
+  public ModelAndView getMessageNewPage(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
-  ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, msgid, cid);
-    }
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/polls/{group}/{id}")
-  public ModelAndView getMessageNewPolls(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
-  ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, msgid, cid);
-    }
-    return getMessageNew(
-      Section.SECTION_POLLS,
-      webRequest,
-      request,
-      response,
-      0,
-      filter,
-      groupName,
-      msgid);
-  }
-
-  @RequestMapping("/gallery/{group}/{id}")
-  public ModelAndView getMessageNewGallery(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
-  ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, msgid, cid);
-    }
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/forum/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewForumPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("section") String sectionName,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
+    Section section = sectionService.getSectionByName(sectionName);
+
+    return getMessageNew(section, webRequest, request, response, page, filter, groupName, msgid);
   }
 
-  @RequestMapping("/news/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewNewsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
-  ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/polls/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewPollsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
-  ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
-  }
-
-  @RequestMapping("/gallery/{group}/{id}/page{page}")
-  public ModelAndView getMessageNewGalleryPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
-  ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
-  }
-
-  private static int getDefaultFilter(ProfileProperties prof, boolean emptyIgnoreList) {
+  private static int getDefaultFilter(Profile prof, boolean emptyIgnoreList) {
     int filterMode = CommentFilter.FILTER_IGNORED;
 
     if (!prof.isShowAnonymous()) {
@@ -218,8 +126,24 @@ public class TopicController {
     return filterMode;
   }
 
+  private static PagesInfo buildPages(Topic topic, int messagesPerPage, int filterMode, int defaultFilterMode, int currentPage) {
+    TopicLinkBuilder base = TopicLinkBuilder.baseLink(topic).lastmod(messagesPerPage);
+
+    if (filterMode!=defaultFilterMode) {
+      base = base.filter(filterMode);
+    }
+
+    List<String> out = new ArrayList<>();
+
+    for (int i=0; i<topic.getPageCount(messagesPerPage); i++) {
+      out.add(base.page(i).build());
+    }
+
+    return new PagesInfo(out, currentPage);
+  }
+
   private ModelAndView getMessageNew(
-    int section,
+    Section section,
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
@@ -233,11 +157,11 @@ public class TopicController {
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
-    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
+    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {
@@ -258,6 +182,16 @@ public class TopicController {
 
     if (page == -1 && !tmpl.isSessionAuthorized()) {
       return new ModelAndView(new RedirectView(topic.getLink()));
+    }
+
+    int pages = topic.getPageCount(tmpl.getProf().getMessages());
+
+    if (page >= pages && (page > 0 || pages > 0)) {
+      if (pages==0) {
+        return new ModelAndView(new RedirectView(topic.getLink()));
+      } else {
+        return new ModelAndView(new RedirectView(topic.getLinkPage(pages - 1)));
+      }
     }
 
     if (showDeleted) {
@@ -295,7 +229,7 @@ public class TopicController {
       params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
 
       if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-        String etag = getEtag(topic, tmpl);
+        String etag = getEtag(topic);
         response.setHeader("Etag", etag);
 
         if (request.getHeader("If-None-Match") != null) {
@@ -337,7 +271,6 @@ public class TopicController {
         filterMode = defaultFilterMode;
       }
 
-      params.put("pages", topic.getPageCount(tmpl.getProf().getMessages()));
       params.put("filterMode", CommentFilter.toString(filterMode));
       params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
 
@@ -366,6 +299,10 @@ public class TopicController {
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
       params.put("ipBlockInfo", ipBlockInfo);
+
+      if (pages>1 && !showDeleted) {
+        params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
+      }
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
@@ -473,16 +410,8 @@ public class TopicController {
     }
   }
 
-  private static String getEtag(Topic message, Template tmpl) {
-    String nick = tmpl.getNick();
-
-    String userAddon = nick!=null?('-' +nick):"";
-
-    if (!tmpl.isUsingDefaultProfile()) {
-      userAddon+=tmpl.getProf().getTimestamp();
-    }
-
-    return "msg-"+message.getId()+ '-' +message.getLastModified().getTime()+userAddon;
+  private static String getEtag(Topic message) {
+    return "msg-"+message.getId()+ '-' +message.getLastModified().getTime();
   }
 
   private ModelAndView jumpMessage(
@@ -509,15 +438,15 @@ public class TopicController {
 
     int pagenum = deleted?0:comments.getCommentPage(node.getComment(), tmpl.getProf());
 
-    TopicLinkBuilder redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum);
+    TopicLinkBuilder redirectUrl =
+            TopicLinkBuilder
+                    .pageLink(topic, pagenum)
+                    .lastmod(tmpl.getProf().getMessages())
+                    .comment(cid);
 
     if (deleted) {
-      redirectUrl.showDeleted();
+      redirectUrl = redirectUrl.showDeleted();
     }
-
-    redirectUrl.lastmod(tmpl.getProf().getMessages());
-
-    redirectUrl.comment(cid);
 
     if (tmpl.isSessionAuthorized() && !deleted) {
       Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
@@ -529,7 +458,7 @@ public class TopicController {
       );
 
       if (hideSet.contains(node.getComment().getId())) {
-        redirectUrl.filter(CommentFilter.FILTER_NONE);
+        redirectUrl = redirectUrl.filter(CommentFilter.FILTER_NONE);
       }
     }
 

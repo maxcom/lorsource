@@ -15,21 +15,19 @@
 
 package ru.org.linux.auth;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.user.Profile;
-import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- */
 public class AuthUtil {
-
   public static void updateLastLogin(Authentication authentication, UserDao userDao) {
     if(authentication != null && (authentication.isAuthenticated())) {
       Object principal = authentication.getPrincipal();
@@ -62,14 +60,13 @@ public class AuthUtil {
     return isSessionAuthorized() && hasAuthority("ROLE_CORRECTOR");
   }
 
-  public static boolean hasAuthority(String authName) {
+  private static boolean hasAuthority(String authName) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if(authentication == null) {
       return false;
     }
 
     for (GrantedAuthority auth : authentication.getAuthorities()) {
-
       if (auth.getAuthority().equals(authName)) {
         return true;
       }
@@ -104,35 +101,24 @@ public class AuthUtil {
   }
 
   @Nonnull
-  public static Profile getCurrentProfile() {
+  public static Profile getProfile() {
     if (!isSessionAuthorized()) {
-      return Profile.getDefaultProfile();
+      return getDefaultProfile();
     }
+
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principal instanceof UserDetailsImpl) {
       return ((UserDetailsImpl) principal).getProfile();
     } else {
-      return Profile.getDefaultProfile();
+      return getDefaultProfile();
     }
   }
 
-  public static boolean isUsingDefaultProfile() {
-    return getCurrentProfile().isDefault();
+  public static Profile getDefaultProfile() {
+    return Profile.createDefault();
   }
 
-  public static ProfileProperties getProf() {
-    return getCurrentProfile().getProperties();
-  }
-
-  public static String getFormatMode() {
-    return getProf().getFormatMode();
-  }
-
-  public static String getStyle() {
-    if (isSessionAuthorized()) {
-      return getCurrentUser().getStyle();
-    } else {
-      return "tango";
-    }
+  public static ImmutableMap<String, Object> getDefaults() {
+    return DefaultProfile.getDefaultProfile();
   }
 }

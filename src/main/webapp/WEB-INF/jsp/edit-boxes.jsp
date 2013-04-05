@@ -30,8 +30,7 @@
       <h3>Левая колонка</h3>
 
       <div class=column>
-        <c:set var="boxvar">main2</c:set>
-        <lor:boxlets object="${boxvar}" var="boxes">
+        <lor:boxlets var="boxes">
           <c:forEach items="${boxes}" var="box" varStatus="status">
             <div class="boxlet">
               <c:import url="/${box}.boxlet"/>
@@ -57,7 +56,7 @@
       </div>
     </td>
     <td valign="top"><h1>Редактирование</h1>
-      Чтобы добавить или удалить Boxlet, выберете соответствующий пункт в меню
+      Чтобы добавить или удалить Boxlet, выберите соответствующий пункт в меню
       редактирования внизу каждой коробочки.
     </td>
   </tr>

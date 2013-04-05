@@ -23,18 +23,17 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ImageInfo2;
+import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.sql.Timestamp;
 
 @Service
 public class UserService {
-  private final static Logger logger = LoggerFactory.getLogger(UserService.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-  public static final int MAX_USERPIC_FILESIZE = 32000;
+  public static final int MAX_USERPIC_FILESIZE = 35000;
   public static final int MIN_IMAGESIZE = 50;
   public static final int MAX_IMAGESIZE = 150;
 
@@ -125,9 +124,9 @@ public class UserService {
             info.getWidth(),
             info.getHeight()
         );
-      } catch (BadImageException e) {
-        logger.warn("Bad userpic for {}", user.getNick(), e);
-      } catch (IOException e) {
+      } catch (FileNotFoundException e) {
+        logger.warn("Userpic not found for {}: {}", user.getNick(), e.getMessage());
+      } catch (BadImageException | IOException e) {
         logger.warn("Bad userpic for {}", user.getNick(), e);
       }
     }
@@ -141,5 +140,9 @@ public class UserService {
     }
 
     return new Userpic("/img/p.gif", 1, 1);
+  }
+
+  public static String getResetCode(String base, String nick, String email, Timestamp tm) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + Long.toString(tm.getTime()) + ":reset");
   }
 }

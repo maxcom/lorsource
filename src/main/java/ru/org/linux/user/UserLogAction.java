@@ -13,18 +13,26 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.user;
 
-public class StorageException extends Exception {
-  public StorageException() {
-    super("неизвестная ошибка хранилища");
+public enum UserLogAction {
+  RESET_USERPIC("reset_userpic"),
+  SET_USERPIC("set_userpic"),
+  BLOCK_USER("block_user"),
+  UNBLOCK_USER("unblock_user"),
+  ACCEPT_NEW_EMAIL("accept_new_email"),
+  RESET_INFO("reset_info"),
+  RESET_PASSWORD("reset_password"),
+  SET_PASSWORD("set_password");
+
+  private final String name;
+
+  UserLogAction(String name) {
+    this.name = name;
   }
 
-  public StorageException(String info) {
-    super(info);
-  }
-
-  public StorageException(String info, Exception e) {
-    super(info, e);
+  @Override
+  public String toString() {
+    return name;
   }
 }

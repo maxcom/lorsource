@@ -28,7 +28,7 @@ public class SectionService {
   private ImmutableList<Section> sectionList;
 
   @Autowired
-  SectionDao sectionDao;
+  private SectionDao sectionDao;
 
   /**
    * Инициализация списка секций из БД.
@@ -43,21 +43,19 @@ public class SectionService {
   }
 
   /**
-   * Получить идентификатор секции по названию.
+   * Получить идентификатор секции по url-имени.
    *
-   * @param SectionName название секции
+   * @param sectionName название секции
    * @return идентификатор секции
    * @throws SectionNotFoundException если секция не найдена
    */
-  public int getSectionIdByName(String SectionName) throws SectionNotFoundException {
-    if (sectionList == null) {
-      initializeSectionList();
-    }
+  public Section getSectionByName(String sectionName) throws SectionNotFoundException {
     for (Section section : sectionList) {
-      if (section.getName().equals(SectionName)) {
-        return section.getId();
+      if (section.getUrlName().equals(sectionName)) {
+        return section;
       }
     }
+
     throw new SectionNotFoundException();
   }
 

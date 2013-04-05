@@ -25,7 +25,6 @@ import java.util.List;
  */
 public class PreparedPoll {
   private final Poll poll;
-  private final int maximumValue;
   private final int totalOfVotesPerson;
   private final int totalVotes;
   private final ImmutableList<PreparedPollVariantResult> variants;
@@ -33,29 +32,47 @@ public class PreparedPoll {
   /**
    * Конструктор
    * @param poll опрос
-   * @param maximumValue вариант опроса с самым большим кол-вом голосов(?)
    * @param totalOfVotesPerson кол-во проголосовавших пользователей
    * @param variants1 варианты опроса
    */
-  public PreparedPoll(Poll poll, int maximumValue, int totalOfVotesPerson, List<PollVariantResult> variants1) {
+  public PreparedPoll(Poll poll, int totalOfVotesPerson, List<PollVariantResult> variants1) {
     this.poll = poll;
-    this.maximumValue = maximumValue;
     this.totalOfVotesPerson = totalOfVotesPerson;
-    ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<PreparedPollVariantResult>();
+    ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<>();
     int total=0;
+    int max=0;
     for(PollVariantResult variant : variants1) {
       total += variant.getVotes();
+      if(max < variant.getVotes()) {
+        max = variant.getVotes();
+      }
     }
     totalVotes = total;
+    // В старых опросах нет информации о голосовавших
+    int divisor = totalOfVotesPerson != 0 ? totalOfVotesPerson : totalVotes;
     for(PollVariantResult variant : variants1) {
-      int variantWidth = 20*variant.getVotes()/maximumValue;
+      int variantWidth; // пингвин 20 штук 16px
+      int variantPercent; // пингвин 16px
+      int percentage;
+
+      if (divisor!=0) {
+        variantWidth = 320*variant.getVotes()/max;
+        variantPercent = variantWidth / 16 * 16 * 100 / 320;
+        percentage = (int) Math.round(100 * (double) variant.getVotes() / divisor);
+      } else {
+        variantWidth = 0;
+        variantPercent = 0;
+        percentage = 0;
+      }
+
       variantsBuilder.add(new PreparedPollVariantResult(
           variant.getId(),
           variant.getLabel(),
           variant.getVotes(),
           variant.getUserVoted(),
-          (int)Math.round(100 * (double)variant.getVotes() / totalVotes),
-          variantWidth*16,  // пингвин 16px
+          percentage,
+          variantWidth,
+          variantPercent,
           StringUtil.repeat("*", variantWidth)
           ));
     }
@@ -64,10 +81,6 @@ public class PreparedPoll {
 
   public Poll getPoll() {
     return poll;
-  }
-
-  public int getMaximumValue() {
-    return maximumValue;
   }
 
   public ImmutableList<PreparedPollVariantResult> getVariants() {

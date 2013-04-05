@@ -42,7 +42,7 @@ public class ReplyFeedView extends AbstractRomeView {
       lastModified = new Date(timestamp.getTime());
     }
     feed.setPublishedDate(lastModified);
-    List<SyndEntry> entries = new ArrayList<SyndEntry>();
+    List<SyndEntry> entries = new ArrayList<>();
     feed.setEntries(entries);
     for (PreparedUserEvent preparedUserEvent : list) {
       UserEvent item = preparedUserEvent.getEvent();

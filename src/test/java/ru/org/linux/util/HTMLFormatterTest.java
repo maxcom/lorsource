@@ -95,6 +95,7 @@ public class HTMLFormatterTest {
   private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
   private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
   private static final String QP = "http://www.ozon.ru/?context=search&text=%D8%E8%EB%E4%F2";
+  private static final String QP2= "http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0";
   private static final String EMPTY_ANCHOR = "http://www.google.com/#";
   private static final String SLASH_AFTER_AMP = "http://extensions.joomla.org/extensions/communities-&-groupware/ratings-&-reviews/5483/details";
 
@@ -103,11 +104,12 @@ public class HTMLFormatterTest {
   private ToLorCodeFormatter toLorCodeFormatter;
   private LorCodeService lorCodeService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
+  private URI mainURI;
 
   @Before
   public void init() throws Exception {
 
-    URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
+    mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao messageDao = mock(TopicDao.class);
     Topic message1 = mock(Topic.class);
@@ -208,6 +210,16 @@ public class HTMLFormatterTest {
   }
 
   @Test
+  public void testUrlParse() throws Exception {
+    assertEquals("<a href=\"http://el.wikipedia.org/wiki/%CE%AC%CE%BB%CE%BB%CE%B5%CF%82\">http://el.wikipedia.org/wiki/άλλες</a>", toHtmlFormatter.format(greek, false, false));
+    assertEquals("<a href=\"http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;%D0%9C%D0%B0%D0%BC%D0%B0_%D0%BC%D1%8B%D0%BB%D0%B0_%D1%80%D0%B0%D0%BC%D1%83&amp;$-_.+!*'(,)=$-_.+!*'(),#anchor\">http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;Мама...</a>", toHtmlFormatter.format(RFC1738, false, false));
+    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D0%BD%D1%8B%D0%B9_'%D0%BD%D0%B5%D0%B3%D1%80'(Fran%C3%87ais%C5%92uvre_%D7%90)?%D0%BD%D0%B5%D0%B3%D1%80=%D1%8D%D1%84%D0%B8%D0%BE%D0%BF&amp;%D1%8D%D1%84%D0%B8%D0%BE%D0%BF\">http://ru.wikipedia.org/wiki/Литературный_'негр'(FranÇaisŒuvre_א)?негр=эфиоп&...</a>", toHtmlFormatter.format(CYR_LINK, false, false));
+    assertEquals("<a href=\"http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&amp;cd=1&amp;hl=en&amp;ct=clnk&amp;gl=us\">http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showt...</a>", toHtmlFormatter.format(GOOGLE_CACHE, false, false));
+    assertEquals("<a href=\"http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2\">http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2</a>", toHtmlFormatter.format(QP, false, false));
+    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0\">http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0</a>", toHtmlFormatter.format(QP2, false, false));
+  }
+
+  @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
@@ -221,6 +233,8 @@ public class HTMLFormatterTest {
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
         toHtmlFormatter.format(urlHistory, true, false));
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/lor-source/6992532/comments\">www.linux.org.ru/forum/lor-source/6992532/comments</a>",
+        toHtmlFormatter.format("www.linux.org.ru/forum/lor-source/6992532/comments", true, false));
   }
 
 
@@ -582,7 +596,7 @@ public class HTMLFormatterTest {
         lorCodeService.parseForOgDescription("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
     assertEquals(
-        "",
+        "&amp;#9618;",
         lorCodeService.parseForOgDescription("[code]&#9618;[/code]")
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
@@ -618,7 +632,7 @@ public class HTMLFormatterTest {
   @Test
   public void testInCodeQuotes() {
     assertEquals(
-        "<p>Smth about &laquo;quotes&raquo;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
+        "<p>Smth about &#171;quotes&#187;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
         lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", true, false)
     );
   }
@@ -626,9 +640,38 @@ public class HTMLFormatterTest {
   @Test
   public void testLocalBuffer() {
     assertEquals(
-        "<p>This is simple &laquo;local <u>buffer</u>&raquo; test </p>",
+        "<p>This is simple &#171;local <u>buffer</u>&#187; test </p>",
         lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", true, false)
     );
+  }
+
+  @Test
+  public void testUrlQuotes() {
+    assertEquals("<p><a href=\"https://www.linux.org.ru/search.jsp?q=&quot;100%25&quot;\">www.linux.org.ru/search.jsp?q=&quot;100%&quot;</a></p>",
+        lorCodeService.parseComment("www.linux.org.ru/search.jsp?q=\"100%\"", true, false));
+    assertEquals("<p><a href=\"http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;\">http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;</a></p>",
+        lorCodeService.parseComment("http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;", true, false));
+    assertEquals("<p><a href=\"http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&amp;oldQ=&amp;range=ALL&amp;interval=ALL&amp;user=&amp;_usertopic=on&amp;csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D\">http://127.0.0.1:8080/search.jsp?q=\"тест-тост-холокост\"&amp;oldQ=&amp;range=A...</a></p>",
+        lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", true, false));
+  }
+
+  @Test
+  public void testEmpty() {
+    assertTrue(lorCodeService.isEmptyTextComment("[br]"));
+    assertTrue(lorCodeService.isEmptyTextComment("[br] "));
+    assertTrue(lorCodeService.isEmptyTextComment("[b] [br][/b][u] "));
+    assertTrue(lorCodeService.isEmptyTextComment("[list][*][br][br][*][u][/u][/list]"));
+    assertTrue(lorCodeService.isEmptyTextComment("[url]   [/url][list][*][br][br][*][u][/u][/list][/url]"));
+    assertFalse(lorCodeService.isEmptyTextComment("[code]text[/code]"));
+  }
+
+  @Test
+  public void testQuotes() {
+    assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+    assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+
   }
 
 }

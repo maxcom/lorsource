@@ -37,7 +37,7 @@
   </c:if>
   
   <c:if test="${not empty preparedMessage.tags}">
-    <p>
+    <p class="tags"><i class="icon-tag"></i>&nbsp;
       <l:tags list="${preparedMessage.tags}"/>
     </p>
   </c:if>  

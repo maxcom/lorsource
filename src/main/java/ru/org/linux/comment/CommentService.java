@@ -108,7 +108,7 @@ public class CommentService {
   private TopicDao topicDao;
 
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new CommentRequestValidator());
+    binder.setValidator(new CommentRequestValidator(lorCodeService));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 
@@ -382,7 +382,7 @@ public class CommentService {
 
     MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
     Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
-    Set<User> userRefs = new HashSet<User>();
+    Set<User> userRefs = new HashSet<>();
     /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
     for (User user : newUserRefs) {
       if (!oldUserRefs.contains(user)) {
@@ -598,7 +598,7 @@ public class CommentService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
-    userDao.blockWithoutTransaction(user, moderator, reason);
+    userDao.block(user, moderator, reason);
 
     List<Integer> deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
 
@@ -657,7 +657,7 @@ public class CommentService {
       return ImmutableSet.of();
     }
 
-    Set<Integer> hideSet = new HashSet<Integer>();
+    Set<Integer> hideSet = new HashSet<>();
 
     /* hide anonymous */
     if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {

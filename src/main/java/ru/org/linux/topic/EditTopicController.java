@@ -50,7 +50,10 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.*;
+import ru.org.linux.user.Profile;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
@@ -178,9 +181,9 @@ public class EditTopicController {
     EditTopicRequest form,
     User currentUser,
     boolean secure,
-    ProfileProperties profileProperties
+    Profile profile
   ) throws PollNotFoundException {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     final Topic message = preparedTopic.getMessage();
 
@@ -198,7 +201,7 @@ public class EditTopicController {
             preparedTopic,
             currentUser,
             secure,
-            profileProperties,
+            profile,
             true
     );
 
@@ -208,7 +211,7 @@ public class EditTopicController {
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
-      ImmutableSet<User> editors = getEditors(message, editInfoList);
+      ImmutableSet<User> editors = editHistoryService.getEditors(message, editInfoList);
 
       ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
       for (User editor : editors) {
@@ -253,28 +256,6 @@ public class EditTopicController {
     return new ModelAndView("edit", params);
   }
 
-  private ImmutableSet<User> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
-    return ImmutableSet.copyOf(
-            Iterables.transform(
-                    Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
-                      @Override
-                      public boolean apply(EditHistoryDto input) {
-                        return input.getEditor() != message.getUid();
-                      }
-                    }),
-                    new Function<EditHistoryDto, User>() {
-                      @Override
-                      public User apply(EditHistoryDto input) {
-                        try {
-                          return userDao.getUserCached(input.getEditor());
-                        } catch (UserNotFoundException e) {
-                          throw new RuntimeException(e);
-                        }
-                      }
-                    })
-    );
-  }
-
   @ModelAttribute("ipBlockInfo")
   private IPBlockInfo loadIPBlock(HttpServletRequest request) {
     return ipBlockDao.getBlockInfo(request.getRemoteAddr());
@@ -296,7 +277,7 @@ public class EditTopicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     final Topic message = messageDao.getById(msgid);
     PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
@@ -429,7 +410,7 @@ public class EditTopicController {
     if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      List<PollVariant> newVariants = new ArrayList<PollVariant>();
+      List<PollVariant> newVariants = new ArrayList<>();
 
       for (PollVariant v : poll.getVariants()) {
         String label = form.getPoll().get(v.getId());

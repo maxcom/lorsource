@@ -117,7 +117,7 @@ class CommentDaoImpl implements CommentDao {
 
   @Override
   public List<Comment> getCommentList(int topicId, boolean showDeleted) {
-    final List<Comment> comments = new ArrayList<Comment>();
+    final List<Comment> comments = new ArrayList<>();
 
     if (showDeleted) {
       jdbcTemplate.query(queryCommentListByTopicId, new RowCallbackHandler() {
@@ -187,7 +187,7 @@ class CommentDaoImpl implements CommentDao {
    */
   private List<Integer> doDeleteReplys(int msgid, User user, boolean score, int depth) {
     List<Integer> replys = getReplysForUpdate(msgid);
-    List<Integer> deleted = new LinkedList<Integer>();
+    List<Integer> deleted = new LinkedList<>();
     for (Integer r : replys) {
       deleted.addAll(doDeleteReplys(r, user, score, depth + 1));
 
@@ -238,7 +238,7 @@ class CommentDaoImpl implements CommentDao {
 
   @Override
   public List<Integer> deleteAllByUser(User user, final User moderator) {
-    final List<Integer> deletedCommentIds = new ArrayList<Integer>();
+    final List<Integer> deletedCommentIds = new ArrayList<>();
 
     // Удаляем все комментарии
     List<Integer> commentIds = jdbcTemplate.queryForList("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
@@ -260,9 +260,9 @@ class CommentDaoImpl implements CommentDao {
 
   @Override
   public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
-    final List<Integer> deletedCommentIds = new ArrayList<Integer>();
+    final List<Integer> deletedCommentIds = new ArrayList<>();
 
-    final Map<Integer, String> deleteInfo = new HashMap<Integer, String>();
+    final Map<Integer, String> deleteInfo = new HashMap<>();
 
     List<Integer> topicIds = jdbcTemplate.queryForList("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
             Integer.class,

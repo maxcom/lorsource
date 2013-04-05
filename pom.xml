@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dependency.spring.version>3.1.3.RELEASE</dependency.spring.version>
+        <dependency.spring.version>3.2.1.RELEASE</dependency.spring.version>
         <spring.security.version>3.1.3.RELEASE</spring.security.version>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     </properties>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.4</version>
+            <version>1.7</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -36,13 +36,13 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <version>1.2.17</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.4</version>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -73,18 +73,23 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>8.4-702.jdbc4</version>
+            <version>9.2-1002.jdbc4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <version>${dependency.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
             <version>${dependency.spring.version}</version>
         </dependency>
         <dependency>
@@ -104,6 +109,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${dependency.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${dependency.spring.version}</version>
         </dependency>
@@ -111,11 +121,6 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
             <version>1.0.0.GA</version>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>2.2.2</version>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>
@@ -310,6 +315,12 @@
           <artifactId>spring-jade4j</artifactId>
           <version>0.3.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.imgscalr</groupId>
+            <artifactId>imgscalr-lib</artifactId>
+            <version>4.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -326,11 +337,32 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.lesscss</groupId>
+                <artifactId>lesscss-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <configuration>
+                    <sourceDirectory>${project.basedir}/src/main/webapp/less</sourceDirectory>
+                    <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+                    <compress>true</compress>
+                    <includes>
+                        <include>common.less</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -339,7 +371,7 @@
                 <artifactId>yuicompressor-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>process-resources</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>compress</goal>
                         </goals>
@@ -368,11 +400,14 @@
                             <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/common.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
+
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/reset-fonts-grids.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/responsive.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                             </includes>
                         </aggregation>
@@ -382,6 +417,7 @@
                             <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/common.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
@@ -394,6 +430,7 @@
                             <output>${project.build.directory}/${project.build.finalName}/white/combined.css</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/common.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/white/style.css</include>
@@ -406,10 +443,12 @@
                             <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/common.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/responsive.css</include>
                             </includes>
                         </aggregation>
                     </aggregations>
@@ -574,7 +613,7 @@
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>8.1.3.v20120416</version>
+                        <version>8.1.9.v20130131</version>
                         <executions>
                              <execution>
                                  <id>start-jetty</id>
@@ -601,6 +640,7 @@
 
                             <webAppConfig>
                                 <jettyEnvXml>${project.build.directory}/test-classes/jetty-env.xml</jettyEnvXml>
+                                <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
                             </webAppConfig>
 
                             <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
@@ -617,7 +657,6 @@
                                     <extraClasspath>${project.build.directory}/test-classes;${project.build.directory}/test-wars/postgresql.jar</extraClasspath>
                                 </contextHandler>
                             </contextHandlers>
-
                             <useTestClasspath>true</useTestClasspath>
                             <systemProperties>
                                 <systemProperty>
@@ -746,6 +785,11 @@
         <repository>
           <id>spring-jade4j-releases</id>
           <url>https://raw.github.com/neuland/spring-jade4j/master/releases</url>
+        </repository>
+
+	<repository>
+	  <id>typesafe</id>
+	  <url>http://repo.typesafe.com/typesafe/repo/</url>
         </repository>
     </repositories>
 

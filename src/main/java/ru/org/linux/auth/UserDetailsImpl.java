@@ -17,7 +17,6 @@ package ru.org.linux.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
@@ -27,17 +26,14 @@ import java.util.Collection;
 /**
  */
 public class UserDetailsImpl implements UserDetails {
-
   private final User user;
   private final Collection<GrantedAuthority> authorities;
   private final Profile profile;
-  private final Configuration configuration;
 
-  public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1, Profile profile, Configuration configuration) {
-    this.user = user1;
-    this.authorities = new ArrayList<GrantedAuthority>(authorities1);
+  public UserDetailsImpl(User user1, Collection<GrantedAuthority> authorities1, Profile profile) {
+    user = user1;
+    authorities = new ArrayList<>(authorities1);
     this.profile = profile;
-    this.configuration = configuration;
   }
 
   public User getUser() {
@@ -48,39 +44,38 @@ public class UserDetailsImpl implements UserDetails {
     return profile;
   }
 
+  @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return authorities;
   }
 
+  @Override
   public String getPassword() {
     return user.getPassword();
   }
 
+  @Override
   public String getUsername() {
     return user.getNick();
   }
 
+  @Override
   public boolean isAccountNonExpired() {
     return true;
   }
 
+  @Override
   public boolean isAccountNonLocked() {
     return !user.isBlocked();
   }
 
+  @Override
   public boolean isCredentialsNonExpired() {
     return true;
   }
 
+  @Override
   public boolean isEnabled() {
     return !user.isBlocked();
-  }
-
-  public String getStyle() {
-    return user.getStyle();
-  }
-
-  public Configuration getConfiguration() {
-    return configuration;
   }
 }

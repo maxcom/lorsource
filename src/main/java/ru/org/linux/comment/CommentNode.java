@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CommentNode implements Serializable {
-  private final LinkedList<CommentNode> childs = new LinkedList<CommentNode>();
+  private final LinkedList<CommentNode> childs = new LinkedList<>();
   private Comment comment = null;
 
   public CommentNode() {

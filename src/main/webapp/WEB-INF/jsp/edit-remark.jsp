@@ -1,6 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.user.ProfileProperties" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +30,7 @@
 <form method=POST id="remarkForm" action="/people/${nick}/remark">
 <lor:csrf/>
 
-<textarea id="text" name="text" cols="60" rows="4"><c:out value="${remark.text}" escapeXml="true"/></textarea>
+<textarea autofocus id="text" name="text" cols="60" rows="4"><c:out value="${remark.text}" escapeXml="true"/></textarea>
 <br>
 <input type=submit value="Установить">
 </form>

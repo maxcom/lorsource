@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 public class UserTagDaoIntegrationTest {
   private static final String QUERY_COUNT_FAVORITE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?";
   private static final String QUERY_COUNT_IGNORE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?";
@@ -234,7 +233,7 @@ public class UserTagDaoIntegrationTest {
   public void getUserIdListByTagsTest() {
     prepareUserTags();
     List<Integer> userIdList;
-    List<String> tags = new ArrayList<String>();
+    List<String> tags = new ArrayList<>();
     tags.add("UserTagDaoIntegrationTest_tag1");
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
     Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());

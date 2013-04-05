@@ -95,7 +95,7 @@ public class VoteController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     Topic msg = messageDao.getById(msgid);
     params.put("message", msg);

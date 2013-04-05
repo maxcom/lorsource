@@ -214,7 +214,7 @@ public class EditRegisterController {
       }
 
       if (emailChanged) {
-        emailService.sendEmail(user.getNick(), mail.getAddress(), false);
+        emailService.sendEmail(user.getNick(), newEmail, false);
       }
     } else {
       return new ModelAndView("edit-reg");

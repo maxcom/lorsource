@@ -30,7 +30,7 @@ public class TestTopicListDaoImpl implements TopicListDao {
   @Override
   public List<Topic> getTopics(TopicListDto topicListDto) {
     this.topicListDto.copy(topicListDto);
-    return new ArrayList<Topic>();
+    return new ArrayList<>();
   }
 
   @Override

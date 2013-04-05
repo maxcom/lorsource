@@ -18,6 +18,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="bonus" type="java.lang.Boolean"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
+<%--@elvariable id="author" type="ru.org.linux.user.User"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -35,49 +36,65 @@ function change(dest,source)
 <h1>Удаление сообщения</h1>
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
-<form method=POST action="delete.jsp">
+<form method=POST action="delete.jsp" class="form-horizontal">
 <lor:csrf/>
-<table>
-<tr>
-<td>Причина удаления
-<td>
-<c:if test="${template.moderatorSession}">
-<select name=reason_select onChange="change(reason,reason_select);">
-<option value="">
-<option value="3.1 Дубль">3.1 Дубль
-<option value="3.2 Неверная кодировка">3.2 Неверная кодировка
-<option value="3.3 Некорректное форматирование">3.3 Некорректное форматирование
-<option value="3.4 Пустое сообщение">3.4 Пустое сообщение
-<option value="4.1 Offtopic">4.1 Offtopic
-<option value="4.2 Вызывающе неверная информация">4.2 Вызывающе неверная информация
-<option value="4.3 Провокация flame">4.3 Провокация flame
-<option value="4.4 Обсуждение действий модераторов">4.4 Обсуждение действий модераторов
-<option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
-<option value="4.6 Спам">4.6 Спам
-<option value="4.7 Флуд">4.7 Флуд
-<option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
-<option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
-<option value="5.3 Национальные/политические/религиозные споры">5.3 Национальные/политические/религиозные споры
-<option value="5.4 Личная переписка">5.4 Личная переписка
-<option value="5.5 Преднамеренное нарушение правил русского языка">5.5 Преднамеренное нарушение правил русского языка
-<option value="6 Нарушение copyright">6 Нарушение copyright
-<option value="6.2 Warez">6.2 Warez
-<option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
-</select>
-</c:if>
-</td>
-<tr><td></td>
-<td><input type=text name=reason size=40></td>
-</tr>
-  <c:if test="${template.moderatorSession and bonus}">
-  <tr>
-    <td>Штраф score (от 0 до 20)</td>
-    <td><input type=text name=bonus size=40 value="7"></td>
-  </tr>
-</c:if>
+  <div class="control-group">
+    <label class="control-label" for="reason-input">
+      Причина удаления
+    </label>
 
-</table>
-<input type=hidden name=msgid value="${msgid}">
-<input type=submit value="Удалить">
+    <div class="controls">
+      <c:if test="${template.moderatorSession}">
+        <select name=reason_select onChange="change(reason,reason_select);">
+          <option value="">
+          <option value="3.1 Дубль">3.1 Дубль
+          <option value="3.2 Неверная кодировка">3.2 Неверная кодировка
+          <option value="3.3 Некорректное форматирование">3.3 Некорректное форматирование
+          <option value="3.4 Пустое сообщение">3.4 Пустое сообщение
+          <option value="4.1 Offtopic">4.1 Offtopic
+          <option value="4.2 Вызывающе неверная информация">4.2 Вызывающе неверная информация
+          <option value="4.3 Провокация flame">4.3 Провокация flame
+          <option value="4.4 Обсуждение действий модераторов">4.4 Обсуждение действий модераторов
+          <option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
+          <option value="4.6 Спам">4.6 Спам
+          <option value="4.7 Флуд">4.7 Флуд
+          <option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
+          <option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
+          <option value="5.3 Национальные/политические/религиозные споры">5.3 Национальные/политические/религиозные
+            споры
+          <option value="5.4 Личная переписка">5.4 Личная переписка
+          <option value="5.5 Преднамеренное нарушение правил русского языка">5.5 Преднамеренное нарушение правил
+            русского
+            языка
+          <option value="6 Нарушение copyright">6 Нарушение copyright
+          <option value="6.2 Warez">6.2 Warez
+          <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
+        </select><br>
+      </c:if>
+
+      <input id="reason-input" type=text name=reason>
+    </div>
+  </div>
+
+  <c:if test="${template.moderatorSession and bonus}">
+  <div class="control-group">
+    <label class="control-label" for="bonus-input">
+      Штраф<br>
+      score автора: ${author.score}
+    </label>
+    <div class="controls">
+      <input id="bonus-input" type=number name=bonus value="7" min="0" max="20">
+      <span class="help-inline">(от 0 до 20)</span>
+    </div>
+  </div>
+  </c:if>
+
+  <input type=hidden name=msgid value="${msgid}">
+
+  <div class="control-group">
+    <div class="controls">
+      <button type=submit>Удалить</button>
+    </div>
+  </div>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

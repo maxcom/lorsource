@@ -14,7 +14,6 @@
  */
 package ru.org.linux.gallery;
 
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = ImageDaoIntegrationTestConfiguration.class)
 public class ImageDaoIntegrationTest {
 
   @Autowired
@@ -37,6 +38,6 @@ public class ImageDaoIntegrationTest {
   @Test
   public void getGalleryItemsTest() {
     List<GalleryItem> galleryDtoList = imageDao.getGalleryItems(3);
-    Assert.assertEquals(3, galleryDtoList.size());
+    assertEquals(3, galleryDtoList.size());
   }
 }

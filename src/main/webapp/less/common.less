@@ -13,6 +13,25 @@
  *    limitations under the License.
  */
 
+/* mixins */
+// Clearfix
+// --------
+// For clearing floats like a boss h5bp.com/q
+.clearfix {
+  *zoom: 1;
+  &:before,
+  &:after {
+    display: table;
+    content: "";
+    // Fixes Opera/contenteditable bug:
+    // http://nicolasgallagher.com/micro-clearfix-hack/#comment-36952
+    line-height: 0;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
 /* document wide styles */
 
 html {
@@ -29,11 +48,6 @@ body {
 
 H1 {
   margin-top: 0; margin-bottom: 5px
-}
-
-code {
-    padding: 0.5em;
-    display: block;
 }
 
 pre {
@@ -66,6 +80,12 @@ textarea {
     font-family: "Droid Sans Mono", sans-serif;
     font-size: 1rem;
     max-width: 100%;
+}
+
+/* common parts */
+
+#bd, #ft {
+  .clearfix;
 }
 
 /* specific styles */
@@ -163,31 +183,58 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   word-wrap: break-word;
-  padding: 0.25em 0.5em 1em 0.5em;
+  padding: 0.25em 1em 1em 1em;
+}
+
+.msg_header, .msg_footer {
+  padding-left: 0.5em;
 }
 
 .msg_body, .msg_header, .msg_footer {
-  padding-left: 0.5em;
   padding-right: 0.5em;
+}
+
+div[itemprop="articleBody"] {
+    margin-right: 4em;
+    margin-bottom: .5em;
+    margin-top: .5em;
+}
+
+.msg header h1 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .msg-container {
   margin-top: 0.5em;
-  *zoom: 1;  /* for IE7; part of clearfix */
-}
-
-/* clearfix */
-.msg-container:before,
-.msg-container:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
-.msg-container:after {
-    clear: both;
+  .clearfix
 }
 
 .msg header {
     margin-bottom: 0.7em;
+    margin-top: .5em;
+}
+
+.msg footer {
+    padding-top: .5em;
+    padding-bottom: 0.5em;
+    .clearfix
+}
+
+.msg footer .sign {
+    margin-left: 115px;
+    margin-top: 0;
+}
+
+.msg footer .userpic {
+    width: 100px;
+}
+
+.msg footer .userpic img {
+    max-width: 100px;
+    max-height: 100px;
+    height: auto;
+    width: auto;
 }
 
 .messages .msg:target {
@@ -238,16 +285,21 @@ div.quote h3 {
   font-style: normal;
 }
 
-.code, code {
+code {
   border: 0;
-  margin: 0.5em 0.5em 0.5em 5px;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
   font-family: "Droid Sans Mono", monospace, sans-serif;
   white-space: pre;
   font-size: 1em;
 }
 
+.code {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
 .error {
-    font-weight: bold;
     border: 1px dotted;
     margin: 1em;
     padding: 1em;
@@ -350,10 +402,6 @@ label.error {
     padding-top: 5px;
 }
 
-table.poll td {
-    padding-right: 1em;
-}
-
 .nav li {
     display: inline-block;
     margin-left: 0 !important;
@@ -383,17 +431,23 @@ table.poll td {
     margin-left: 0 !important;
 }
 
-.tags {
-    font-size: smaller;
-}
-
 .tag {
     white-space: nowrap;
 }
 
 .msg h1 {
-    font-size: 1.6em;
+    font-size: 2em;
+    line-height: 1.2;
 }
+
+.msg h1 a {
+    text-decoration: none;
+}
+
+.msg h1 a:hover {
+    text-decoration: underline;
+}
+
 
 .sign_more {
     font-size: smaller;
@@ -411,17 +465,62 @@ table.poll td {
     margin: 0;
 }
 
-/*результаты опроса в топике, размер пингвина 19px*/
-table.poll-result td {
-    padding: 0 5px;
-    height: 21px;
+table.poll td {
+  padding-right: 1em;
 }
 
-table.poll-result .penguin {
+
+.penguin_label {
+    font-size: 0.9em;
+    float: left;
     display: block;
+    padding-right: 1em;
+    width: 200px;
+    padding-bottom: 0.5em;
+}
+
+.penguin_percent {
+    font-size: 0.9em;
+    float: left;
+    padding-right: 1em;
+    width: 100px;
+}
+
+.poll-result {
+    .clearfix;
+}
+
+.poll-result ol {
+    list-style: none;
+}
+
+.poll-result li {
+    clear: both;
+}
+
+.poll-result p {
     margin: 0;
-    padding: 0;
+}
+
+.penguin_progress {
+    width: 320px;
+    display: inline-block;
+}
+
+.penguin_progress span {
+    background-repeat: repeat-x;
+    background-color: transparent !important;
+    background-image: url("/tango/img/votes.png") !important;
+    display: block;
     height: 19px;
+}
+
+.penguin_progress span span {
+    display: none;
+}
+
+.poll-sum p {
+    margin: 0;
 }
 
 .none {
@@ -539,6 +638,4 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     margin-right: 0;
 }
 
-div[itemprop="articleBody"] {
-    margin-right: 4em;
-}
+a img { border: none; }

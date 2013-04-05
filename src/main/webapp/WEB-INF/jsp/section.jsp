@@ -26,6 +26,7 @@
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
+<meta name="format-detection" content="telephone=no">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>${section.name}</h1>

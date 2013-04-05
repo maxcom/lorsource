@@ -35,14 +35,12 @@ import java.util.Map;
 @Controller
 @RequestMapping("/people/{nick}/settings")
 public class EditProfileController {
+  @Autowired
   private UserDao userDao;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private ProfileDao profileDao;
 
-  
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -55,7 +53,7 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("stylesList", DefaultProfile.getStyleList());
     params.put("avatarsList", DefaultProfile.getAvatars());
 
@@ -66,7 +64,6 @@ public class EditProfileController {
   @RequestMapping(method=RequestMethod.POST)
   public ModelAndView editProfile(
           ServletRequest request,
-          @RequestParam("tags") int tags,
           @RequestParam("topics") int topics,
           @RequestParam("messages") int messages,
           @PathVariable String nick
@@ -89,17 +86,12 @@ public class EditProfileController {
       throw new BadInputException("некорректное число сообщений");
     }
 
-    if (tags<=0 || tags>100) {
-      throw new BadInputException("некорректное число меток в облаке");
-    }
-
     if(!DefaultProfile.getStyleList().contains(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы");
     }
 
     tmpl.getProf().setTopics(topics);
     tmpl.getProf().setMessages(messages);
-    tmpl.getProf().setTags(tags);
     tmpl.getProf().setShowNewFirst("on".equals(request.getParameter("newfirst")));
     tmpl.getProf().setShowPhotos("on".equals(request.getParameter("photos")));
     tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hideAdsense")));
@@ -121,7 +113,7 @@ public class EditProfileController {
     tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
     tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
 
-    tmpl.writeProfile(nick);
+    profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProf());
 
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }

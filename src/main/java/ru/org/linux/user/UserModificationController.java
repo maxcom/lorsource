@@ -99,7 +99,7 @@ public class UserModificationController {
       throw new UserErrorException("Пользователь уже блокирован");
     }
 
-    userDao.blockWithResetPassword(user, moderator, reason);
+    userDao.block(user, moderator, reason);
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
     return redirectToProfile(user);
   }
@@ -121,7 +121,7 @@ public class UserModificationController {
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
     }
-    userDao.unblock(user);
+    userDao.unblock(user, moderator);
     logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
     return redirectToProfile(user);
   }
@@ -152,7 +152,7 @@ public class UserModificationController {
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("message", "Удалено");
     DeleteCommentResult deleteCommentResult = commentService.deleteAllCommentsAndBlock(user, moderator, reason);
 
@@ -208,7 +208,7 @@ public class UserModificationController {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
     }
 
-    userDao.resetPassword(user);
+    userDao.resetPassword(user, moderator);
 
     logger.info("Пароль "+user.getNick()+" сброшен модератором "+moderator.getNick());
 
@@ -233,7 +233,7 @@ public class UserModificationController {
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
-    userDao.removeUserInfo(user);
+    userDao.removeUserInfo(user, moderator);
     logger.info("Clearing " + user.getNick() + " userinfo by " + moderator.getNick());
 
     return redirectToProfile(user);
@@ -257,7 +257,7 @@ public class UserModificationController {
       throw new AccessViolationException("Not permitted");
     }
 
-    if (user.getPhoto() != null && userDao.removePhoto(user, currentUser)) {
+    if (user.getPhoto() != null && userDao.resetUserpic(user, currentUser)) {
       logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
     } else {
       logger.debug("SKIP Clearing " + user.getNick() + " userpic by " + currentUser.getNick());

@@ -67,7 +67,7 @@ public class RootNode extends Node {
     super(parserParameters);
     cutCount = -1;
     cutType = CutType.INCOMMENT;
-    replier = new HashSet<User>();
+    replier = new HashSet<>();
     secure = false;
   }
 

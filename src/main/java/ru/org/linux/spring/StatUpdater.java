@@ -18,9 +18,12 @@ package ru.org.linux.spring;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.user.UserEventService;
 
 import javax.sql.DataSource;
@@ -30,9 +33,15 @@ public class StatUpdater {
   private static final Log logger = LogFactory.getLog(StatUpdater.class);
   private static final int MAX_EVENTS = 1000;
 
+  private static final int FIVE_MINS = 5 * 60 * 1000;
+  private static final int TEN_MINS = 10 * 60 * 1000;
+  private static final int HOUR = 60 * 60 * 1000;
+
   private SimpleJdbcCall statUpdate;
   private SimpleJdbcCall statUpdate2;
   private SimpleJdbcCall statMonthly;
+
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
   UserEventService userEventService;
@@ -42,9 +51,10 @@ public class StatUpdater {
     statUpdate = new SimpleJdbcCall(dataSource).withFunctionName("stat_update");
     statUpdate2 = new SimpleJdbcCall(dataSource).withFunctionName("stat_update2");
     statMonthly = new SimpleJdbcCall(dataSource).withFunctionName("update_monthly_stats");
+    jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  @Scheduled(fixedDelay=10*60*1000)
+  @Scheduled(fixedDelay=TEN_MINS, initialDelay = FIVE_MINS)
   public void updateStats() {
     logger.debug("Updating statistics");
 
@@ -52,15 +62,24 @@ public class StatUpdater {
     statMonthly.execute();
   }
 
-  @Scheduled(fixedDelay=60*60*1000)
+  @Scheduled(fixedDelay=HOUR, initialDelay = FIVE_MINS)
   public void updateGroupStats() {
     logger.debug("Updating group statistics");
 
     statUpdate2.execute();
   }
 
-  @Scheduled(fixedDelay = 60*60*1000)
+  @Scheduled(fixedDelay=HOUR, initialDelay = FIVE_MINS)
   public void cleanEvents() {
     userEventService.cleanupOldEvents(MAX_EVENTS);
   }
+
+  @Scheduled(cron="0 30 */6 * * *")
+  //@Scheduled(fixedDelay = 1000L)
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void updateUserCounters() {
+    jdbcTemplate.update("DELETE FROM user_comment_counts");
+    jdbcTemplate.update("INSERT INTO user_comment_counts (SELECT userid, count(*) FROM comments WHERE NOT deleted GROUP BY userid HAVING count(*)>1000)");
+  }
+
 }

@@ -15,6 +15,7 @@
   --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -22,58 +23,29 @@
 <script type="text/javascript">
 $script.ready('plugins', function() {
   $(function() {
-    $("#profileForm").validate({
-    rules: {
-      topics: {
-        required: true,
-        range: [ 1, 500 ]
-      },
-      messages: {
-        required: true,
-        range: [ 1, 1000 ]
-      },
-      tags: {
-        required: true,
-        range: [ 1, 100 ]
-      }
-    }
-    });
+    $("#profileForm").validate();
   });
 });
 </script>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class=nav>
-    <div id="navPath">
-      Настройки профиля
-    </div>
-
-    <div class="nav-buttons">
-      <ul>
-        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
-      </ul>
-     </div>
- </div>
-
-<h2>Параметры профиля</h2>
+<h1>Параметры профиля</h1>
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>
-<tr><td colspan=2><hr></td></tr>
 <tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
 <td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
-<tr><td>Новые комментарии в начале</td>
-<td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
+<c:if test="${template.prof.showNewFirst}">
+  <tr><td>Новые комментарии в начале</td>
+  <td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
+</c:if>
 <tr><td>Показывать фотографии</td>
 <td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="topics">Число тем форума на странице</label> </td>
-<td><input type=text size="5" id="topics" name="topics" value="${template.prof.topics}" ></td></tr>
+<td><input type=number min=1 max=500 size="5" id="topics" name="topics" value="${template.prof.topics}" required></td></tr>
 <tr><td><label for="messages">Число комментариев на странице</label></td>
-<td><input type=text size="5" id="messages" name="messages" value="${template.prof.messages}" ></td></tr>
-<tr><td><label for="tags">Число меток в облаке</label></td>
-<td><input type=text size="5" id="tags" name="tags" value="${template.prof.tags}" ></td></tr>
+<td><input type=number min=1 max=1000 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>
@@ -121,21 +93,20 @@ $script.ready('plugins', function() {
   <td>
     <input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> ><label for="format-quot">TeX paragraphs (default)</label><br>
     <input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> ><label for="format-ntobr">User line break</label><br>
-<%--
-    <input type=radio name=format_mode id="format-lorcode" value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>><label for="format-lorcode">LORCODE</label><br>
---%>
   </td>
 </tr>
 
 </table>
 
-<input type=submit value="Установить">
+<button type=submit>Установить</button>
 </form>
 
 <h2>Другие настройки</h2>
 <ul>
-<li><a href="/edit-boxes.jsp">настройка главной страницы</a>
-<li><a href="<c:url value="/user-filter"/>">настройка фильтрации сообщений</a>
+<li><a href="/addphoto.jsp">Добавить фотографию</a></li>
+<li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
+<li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
+<li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
 </ul>
 
 <p><b>Внимание!</b> Настройки на некоторых уже посещенных страницах могут

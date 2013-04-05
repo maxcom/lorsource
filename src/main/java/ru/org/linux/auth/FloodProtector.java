@@ -27,7 +27,7 @@ public class FloodProtector {
   private static final int THRESHOLD = 30000;
   private static final int THRESHOLD_TRUSTED = 3000;
   
-  private final Map<String,Long> hash = new HashMap<String,Long>();
+  private final Map<String,Long> hash = new HashMap<>();
   public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
 
   private synchronized boolean check(String ip, boolean trusted) {

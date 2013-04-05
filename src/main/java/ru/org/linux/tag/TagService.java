@@ -42,7 +42,7 @@ public class TagService {
   @Autowired
   private TagDao tagDao;
 
-  private final List<ITagActionHandler> actionHandlers = new ArrayList<ITagActionHandler>();
+  private final List<ITagActionHandler> actionHandlers = new ArrayList<>();
 
   public List<ITagActionHandler> getActionHandlers() {
     return actionHandlers;
@@ -89,7 +89,7 @@ public class TagService {
       return ImmutableList.of();
     }
 
-    Set<String> tagSet = new HashSet<String>();
+    Set<String> tagSet = new HashSet<>();
 
     // Теги разделяютчя пайпом или запятой
     tags = tags.replaceAll("\\|", ",");

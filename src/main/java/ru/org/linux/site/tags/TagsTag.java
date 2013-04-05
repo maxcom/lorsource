@@ -15,7 +15,7 @@
 package ru.org.linux.site.tags;
 
 import ru.org.linux.tag.TagService;
-import ru.org.linux.topic.TopicListController;
+import ru.org.linux.topic.TagTopicListController;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.jsp.JspException;
@@ -48,7 +48,7 @@ public class TagsTag extends TagSupport {
           if (TagService.isGoodTag(el)) {
             buf
                 .append("<a class=tag rel=tag href=\"")
-                .append(TopicListController.tagListUrl(el))
+                .append(TagTopicListController.tagListUrl(el))
                 .append("\">")
                 .append(StringUtil.escapeHtml(el))
                 .append("</a>");
@@ -56,10 +56,7 @@ public class TagsTag extends TagSupport {
             buf.append(StringUtil.escapeHtml(el));
           }
         }
-        out
-            .append("<p class=\"tags\"><i class=\"icon-tag\"></i>&nbsp;")
-            .append(buf)
-            .append("</p>");
+        out.append(buf);
       } catch (IOException e) {
         throw new JspException("Error:" + e.getMessage());
       }

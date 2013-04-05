@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 @ContextConfiguration(classes=UserDaoIntegrationTestConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -102,7 +102,7 @@ public class UserDaoIntegrationTest {
   public void testBlock() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
 
-    userDao.blockWithoutTransaction(user, user, "");
+    userDao.block(user, user, "");
 
     User userAfter = userDao.getUser(TEST_ID);
 
@@ -113,7 +113,7 @@ public class UserDaoIntegrationTest {
   public void testCacheResetOnBlock() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
 
-    userDao.blockWithoutTransaction(user, user, "");
+    userDao.block(user, user, "");
 
     User userAfter = userDao.getUserCached(TEST_ID);
 

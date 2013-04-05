@@ -137,13 +137,13 @@
   <td align="center">
     <c:choose>
       <c:when test="${topic.event.type == 'DELETED'}">
-        <img src="/img/del.png" border="0" alt="[X]" title="Сообщение удалено" width="15" height="15">
+        <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
       <c:when test="${topic.event.type == 'ANSWERS'}">
-        <img src="/img/mail_reply.png" border="0" title="Ответ" alt="[R]" width="16" height="16">
+        <img src="/img/mail_reply.png" title="Ответ" alt="[R]" width="16" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'REFERENCE'}">
-        <img src="/img/tuxlor.png" border="0" title="Упоминание" alt="[U]" width="7" height="16">
+        <img src="/img/tuxlor.png" title="Упоминание" alt="[U]" width="7" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
         <i class="icon-tag" title="Избранный тег"></i>
@@ -158,12 +158,12 @@
       <c:if test="${topic.event.cid==0}">
         <a href="jump-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
       </c:if>
-      (<a class="secondary" href="${topic.event.groupUrl}">${topic.event.groupTitle}</a>)
+      (<a class="secondary" href="${topic.group.url}">${topic.group.title}</a>)
     </c:if>
 
     <c:if test="${topic.event.type == 'DELETED'}">
       <a href="view-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
-      (<a class="secondary" href="${topic.event.groupUrl}">${topic.event.groupTitle}</a>)
+      (<a class="secondary" href="${topic.group.url}">${topic.group.title}</a>)
       <br>
       <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
     </c:if>

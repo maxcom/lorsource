@@ -28,6 +28,11 @@
         <function-class>ru.org.linux.util.DateUtil</function-class>
         <function-signature>java.lang.String getMonth(int)</function-signature>
     </function>
+    <function>
+        <name>escapeHtml</name>
+        <function-class>ru.org.linux.util.StringUtil</function-class>
+        <function-signature>java.lang.String escapeHtml(java.lang.String)</function-signature>
+    </function>
 
     <tag>
         <description>Boxlet container</description>
@@ -35,11 +40,6 @@
         <name>boxlets</name>
         <tag-class>ru.org.linux.site.tags.BoxListTag</tag-class>
         <body-content>JSP</body-content>
-        <attribute>
-            <name>object</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
         <attribute>
             <description>Variable to export boxlet names</description>
             <name>var</name>

@@ -31,7 +31,7 @@ h1,h2 {
     margin-bottom: 0.5em;
 }
 
-#bd .messages h1, .messages h2 {
+#bd .messages h2 {
     margin-top: 0;
     margin-bottom: 0;
 }
@@ -291,12 +291,6 @@ input[type="checkbox"] {
     margin-bottom: 5px;
 }
 
-table.poll-result .penguin{
-    background-repeat: repeat-x;
-    background-color: transparent !important;
-    background-image: url("/tango/img/votes.png") !important;
-}
-
 div.quote {
     margin: 0;
     border: 0 solid #555753;
@@ -348,162 +342,6 @@ figure.medium-image {
     text-align: center;
 }
 
-.visible-phone {
-    display: none;
-}
-
-/* Very wide screens */
-@media screen and (min-width: 90em) {
-    html {
-        font-size: 1.125em;
-    }
-}
-
-/* tablet */
-@media screen and (max-width: 800px) {
-    figure.medium-image {
-        float: none;
-        margin-left: inherit;
-    }
-
-    .hideon-tablet {
-        display: none;
-    }
-
-    span.hideon-desktop {
-        display: inline;
-    }
-
-    .hideon-desktop {
-        display: inherit;
-    }
-
-    div.newsblog {
-        float: none;
-        margin-left: 0;
-    }
-
-    .newsblog-in {
-        margin-left: 0;
-    }
-
-    .column {
-        width: 100%;
-        float: none;
-    }
-
-    #bd .column {
-	    font-size: inherit;
-    }
-
-
-    div.boxlet {
-        width: 100%;
-    }
-
-    div.boxlet h2 {
-        width: auto;
-    }
-
-    #bd {
-        padding-left: 0.5em;
-        padding-right: 0.5em;
-    }
-
-    #hd {
-        padding-left: 0.5em;
-    }
-
-    #commentForm textarea {
-        width: 100%;
-    }
-
-    #commentForm input[type='text'] {
-        width: 100%;
-    }
-
-    .userpic {
-        width: 100px;
-    }
-
-    .message-w-userpic {
-        padding-left: 115px;
-    }
-
-    img.photo {
-        max-width: 100%;
-        height: auto;
-    }
-}
-
 .photo {
     border-radius: 5px;
-}
-
-/* phone */
-@media screen and (max-width: 640px) {
-    .hideon-phone {
-        display: none;
-    }
-
-    .visible-phone {
-        display: inherit;
-    }
-
-    div.entry-userpic {
-        float: right;
-    }
-
-    div.entry-body {
-        margin-left: 0;
-    }
-
-    #bd {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    #hd {
-        padding-left: 0;
-    }
-
-    img.photo {
-        max-width: 100%;
-        height: auto;
-    }
-
-    img.medium-image {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .userpic {
-        width: 50px;
-    }
-
-    .message-w-userpic {
-        padding-left: 60px;
-    }
-
-    #navPath {
-        float: none;
-    }
-
-    .nav-buttons {
-        float: none;
-        text-align: left;
-    }
-
-    #sitetitle {
-        font-size: 1.6em;
-        float: none;
-    }
-
-    #commentForm textarea {
-        height: 10em;
-    }
-
-    div[itemprop="articleBody"] {
-        margin-right: 0;
-    }
 }

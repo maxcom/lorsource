@@ -16,7 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.user.ProfileProperties;
+import ru.org.linux.user.Profile;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ import java.util.Map;
 public class CommentList implements Serializable {
   private final ImmutableList<Comment> comments;
   private final CommentNode root = new CommentNode();
-  private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
+  private final Map<Integer, CommentNode> treeHash = new HashMap<>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
 
   private final long lastmod;
 
@@ -81,7 +81,7 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(@Nonnull Comment comment, @Nonnull ProfileProperties profile) {
+  public int getCommentPage(@Nonnull Comment comment, @Nonnull Profile profile) {
     int messages = profile.getMessages();
     boolean reverse = profile.isShowNewFirst();
 

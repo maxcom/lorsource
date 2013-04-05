@@ -30,6 +30,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,14 +42,21 @@ public class DeleteTopicController {
 
   @Autowired
   private SearchQueueSender searchQueueSender;
+
   @Autowired
   private SectionService sectionService;
+
   @Autowired
   private TopicDao messageDao;
+
   @Autowired
   private TopicPrepareService prepareService;
+
   @Autowired
   private GroupPermissionService permissionService;
+
+  @Autowired
+  private UserDao userDao;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -73,8 +81,10 @@ public class DeleteTopicController {
 
     Section section = sectionService.getSection(msg.getSectionId());
 
-    HashMap<String, Object> params = new HashMap<String, Object>();
+    HashMap<String, Object> params = new HashMap<>();
     params.put("bonus", !section.isPremoderated());
+
+    params.put("author", userDao.getUser(msg.getUid()));
 
     params.put("msgid", msgid);
 
@@ -100,7 +110,7 @@ public class DeleteTopicController {
 
     Topic message = messageDao.getById(msgid);
 
-    if(message.isDeleted()) {
+    if (message.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");
     }
 

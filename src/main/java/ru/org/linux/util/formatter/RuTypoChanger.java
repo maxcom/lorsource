@@ -15,6 +15,10 @@
 
 package ru.org.linux.util.formatter;
 
+import com.google.common.collect.ImmutableCollection;
+
+import java.util.Collection;
+
 public class RuTypoChanger {
 
   /*
@@ -28,10 +32,10 @@ public class RuTypoChanger {
   public static final char QUOTE_IN_OPEN = '„';
   public static final char QUOTE_IN_CLOSE = '“';
 
-  public static final String QUOTE_OUT_OPEN_HTML = "&laquo;";
-  public static final String QUOTE_OUT_CLOSE_HTML = "&raquo;";
-  public static final String QUOTE_IN_OPEN_HTML = "&bdquo;";
-  public static final String QUOTE_IN_CLOSE_HTML = "&ldquo;";
+  public static final String QUOTE_OUT_OPEN_HTML = "&#171;"; // "&laquo;";
+  public static final String QUOTE_OUT_CLOSE_HTML = "&#187;";// "&raquo;";
+  public static final String QUOTE_IN_OPEN_HTML = "&#8222;"; //"&bdquo;";
+  public static final String QUOTE_IN_CLOSE_HTML = "&#8221;";// "&ldquo;";
 
   private static final char[] PUNCTUATION = {'.', ',', ':', ';', '-', '!', '?', '(', ')'};
 
@@ -82,7 +86,7 @@ public class RuTypoChanger {
 
     after = lastNonQuote(buff, position);
 
-    if (Character.isWhitespace(after) || (after != '.' && isPunctuation(after)))
+    if (Character.isWhitespace(after) || isPunctuation(after))
       return false;
 
     if (Character.isLetterOrDigit(before))

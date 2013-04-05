@@ -56,7 +56,7 @@ public class UserEventController {
   private static final Set<String> filterValues;
 
   static {
-    filterValues = new HashSet<String>();
+    filterValues = new HashSet<>();
     for (UserEventFilterEnum eventFilter : UserEventFilterEnum.values()) {
       filterValues.add(eventFilter.getValue());
     }
@@ -101,7 +101,7 @@ public class UserEventController {
     User currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("nick", nick);
     params.put("forceReset", forceReset);
     if (eventFilter != UserEventFilterEnum.ALL) {
@@ -179,7 +179,7 @@ public class UserEventController {
       }
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("nick", nick);
 
     if (offset < 0) {

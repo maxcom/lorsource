@@ -155,11 +155,6 @@ DIV.notes {
     background: #defefc;
 }
 
-table.poll-result .penguin {
-    background-repeat: repeat-x;
-    background-color: transparent !important;
-    background-image: url("/white/img/votes.png") !important;
-}
 
 .code code {
     background-color: #dadada;

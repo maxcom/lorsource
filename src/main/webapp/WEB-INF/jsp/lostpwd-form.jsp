@@ -13,19 +13,38 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="error" type="java.lang.String"--%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Получить забытый пароль</title>
+<title>Сбросить забытый пароль</title>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<H1>Получить забытый пароль</H1>
-<form method=POST action="/lostpwd.jsp">
+<H1>Сбросить забытый пароль</H1>
+<form method=POST action="/lostpwd.jsp" class="form-horizontal">
 <lor:csrf/>
-<label>Email:
-<input type=email name=email size=40></label><br>
-<input type=submit value="Получить">
+
+  <c:if test="${not empty error}">
+    <div class="error">
+      <strong>Ошибка!</strong> <c:out escapeXml="true" value="${error}"/>
+    </div>
+  </c:if>
+
+  <div class="control-group">
+    <label class="control-label" for="email-input">Email</label>
+    <div class="controls">
+      <input id="email-input" type=email name=email size=40 autofocus="autofocus" required="required">
+      <span class="help-block">Инструкция по сбросу пароля будет отправлена на этот адрес</span>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class="controls">
+      <button type=submit>Сбросить</button>
+    </div>
+  </div>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

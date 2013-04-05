@@ -19,7 +19,6 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.UtilException;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class Screenshot {
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
 
-  public static Screenshot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException, UtilException {
+  public static Screenshot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException {
     boolean error = false;
 
     if (!file.isFile()) {
@@ -110,7 +109,7 @@ public class Screenshot {
     return dest;
   }
 
-  private void doResize(File uploadedFile) throws IOException, UtilException {
+  private void doResize(File uploadedFile) throws IOException {
     if (mainFile.exists()) {
       mainFile.delete();
     }
@@ -123,8 +122,6 @@ public class Screenshot {
       ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
       ImageInfo.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
       error = false;
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
     } finally {
       if (error) {
         if (mainFile.exists()) {

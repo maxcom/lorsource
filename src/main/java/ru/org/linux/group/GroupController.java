@@ -19,12 +19,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -110,7 +109,7 @@ public class GroupController {
     }
   }
 
-  @RequestMapping("/forum/{group}/{year}/{month}")
+  @RequestMapping("/forum/{group}/{year:\\d+}/{month:\\d+}")
   public ModelAndView forumArchive(
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
@@ -213,7 +212,7 @@ public class GroupController {
           SqlRowSet rs,
           int messagesInPage
   ) {
-    List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
+    List<TopicsListItem> topicsList = new ArrayList<>();
 
     while (rs.next()) {
       User author;
@@ -243,7 +242,7 @@ public class GroupController {
     Integer year,
     Integer month
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     Template tmpl = Template.getTemplate(request);
 
     boolean showDeleted = request.getParameter("deleted") != null;
@@ -369,5 +368,11 @@ public class GroupController {
     } else {
       return 0;
     }
+  }
+
+  @ExceptionHandler(GroupNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleNotFoundException() {
+    return new ModelAndView("errors/code404");
   }
 }

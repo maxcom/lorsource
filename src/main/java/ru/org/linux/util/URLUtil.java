@@ -132,6 +132,8 @@ public final class URLUtil {
     return isUrl.matcher(x).matches();
   }
 
+  @Deprecated
+  // Use UriComponentsBuilder
   public static class QueryString {
     private String query = "";
 

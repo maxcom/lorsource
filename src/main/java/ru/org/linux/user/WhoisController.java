@@ -86,13 +86,13 @@ public class WhoisController {
       mv.getModel().put("banInfo", userDao.getBanInfoClass(user));
     }
 
+    boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
+
     if (!user.isAnonymous()) {
-      UserStatistics userStat = userDao.getUserStatisticsClass(user);
+      UserStatistics userStat = userDao.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
       mv.getModel().put("userStat", userStat);
       mv.getModel().put("sectionStat", prepareSectionStats(userStat));
     }
-
-    boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
     mv.getModel().put("currentUser", currentUser);
@@ -167,7 +167,7 @@ public class WhoisController {
     ModelAndView mv = new ModelAndView("wipe-user");
     mv.getModel().put("user", user);
 
-    mv.getModel().put("userStat", userDao.getUserStatisticsClass(user));
+    mv.getModel().put("userStat", userDao.getUserStatisticsClass(user, true));
 
     return mv;
   }

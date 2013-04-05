@@ -13,10 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.user;
 
-public class StorageNotImplException extends StorageException {
-  public StorageNotImplException() {
-    super("данный метод доступа к хранилищу не реализован драйвером");
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+
+@Configuration
+@ImportResource("classpath:database.xml")
+public class ProfileDaoIntegrationTestConfiguration {
+  @Bean
+  public ProfileDao profileDao() {
+    return new ProfileDao();
   }
 }

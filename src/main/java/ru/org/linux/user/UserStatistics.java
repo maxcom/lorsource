@@ -21,6 +21,7 @@ import java.util.List;
 public class UserStatistics {
   private final int ignoreCount;
   private final int commentCount;
+  private final boolean exactCommentCount;
 
   private final Timestamp firstComment;
   private final Timestamp lastComment;
@@ -30,11 +31,12 @@ public class UserStatistics {
   private final List<UsersSectionStatEntry> topicsBySection;
 
   public UserStatistics(int ignoreCount, int commentCount,
-                        Timestamp firstComment, Timestamp lastComment,
+                        boolean exactCommentCount, Timestamp firstComment, Timestamp lastComment,
                         Timestamp firstTopic, Timestamp lastTopic,
                         List<UsersSectionStatEntry> topicsBySection) {
     this.ignoreCount = ignoreCount;
     this.commentCount = commentCount;
+    this.exactCommentCount = exactCommentCount;
     this.firstComment = firstComment;
     this.lastComment = lastComment;
     this.firstTopic = firstTopic;
@@ -68,5 +70,9 @@ public class UserStatistics {
 
   public List<UsersSectionStatEntry> getTopicsBySection() {
     return topicsBySection;
+  }
+
+  public boolean isExactCommentCount() {
+    return exactCommentCount;
   }
 }

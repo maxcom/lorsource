@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchViewer.SearchInterval;
@@ -160,7 +159,7 @@ public class SearchController {
       long current = System.currentTimeMillis();
 
       SolrDocumentList list = response.getResults();
-      Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
+      Collection<SearchItem> res = new ArrayList<>(list.size());
 
       for (SolrDocument doc : list) {
         res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
@@ -224,7 +223,7 @@ public class SearchController {
     return builder.build();
   }
 
-  private Map<Integer, String> buildGroupFacet(String section, FacetField groupFacet) throws BadGroupException {
+  private Map<Integer, String> buildGroupFacet(String section, FacetField groupFacet) {
     Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
     if (section == null || section.isEmpty() || "wiki".equals(section)) {
       return null;

@@ -30,7 +30,7 @@ public class TopicListDto {
 
   private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
 
-  private final Set<Integer> sections = new HashSet<Integer>();
+  private final Set<Integer> sections = new HashSet<>();
   private int userId = 0;
   private boolean userFavs = false;
   private boolean userWatches = false;
