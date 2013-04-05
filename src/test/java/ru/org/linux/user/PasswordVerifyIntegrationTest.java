@@ -26,8 +26,8 @@ import static junit.framework.Assert.assertFalse;
 
 /**
  */
-@ContextConfiguration("integration-tests-context.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = PasswordVerifyIntegrationTestConfiguration.class)
 public class PasswordVerifyIntegrationTest {
 
   @Autowired
