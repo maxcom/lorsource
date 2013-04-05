@@ -323,7 +323,9 @@
                 &emsp;<img src="/img/tuxlor.png"><lor:user user="${item.actionUser}"/>
             </c:if><br>
             <c:if test="${not empty item.item.options}">
-                <c:out escapeXml="true" value="${item.item.options}"/>
+              <c:forEach items="${item.options}" var="option">
+                ${option.key}: ${option.value}<br>
+              </c:forEach>
             </c:if>
         </td>
 
