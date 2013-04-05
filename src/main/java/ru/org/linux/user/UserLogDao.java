@@ -33,10 +33,13 @@ import java.util.Map;
 
 @Repository
 public class UserLogDao {
-  private static final String OPTION_OLD_USERPIC = "old_userpic";
-  private static final String OPTION_NEW_USERPIC = "new_userpic";
-  private static final String OPTION_BONUS = "bonus";
-  private static final String OPTION_REASON = "reason";
+  public static final String OPTION_OLD_USERPIC = "old_userpic";
+  public static final String OPTION_NEW_USERPIC = "new_userpic";
+  public static final String OPTION_BONUS = "bonus";
+  public static final String OPTION_REASON = "reason";
+  public static final String OPTION_OLD_EMAIL = "old_email";
+  public static final String OPTION_NEW_EMAIL = "new_email";
+  public static final String OPTION_OLD_INFO = "old_info";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -113,8 +116,8 @@ public class UserLogDao {
             user.getId(),
             UserLogAction.ACCEPT_NEW_EMAIL.toString(),
             ImmutableMap.of(
-                    "old_email", user.getEmail(),
-                    "new_email", newEmail
+                    OPTION_OLD_EMAIL, user.getEmail(),
+                    OPTION_NEW_EMAIL, newEmail
             )
     );
   }
@@ -127,7 +130,7 @@ public class UserLogDao {
             moderator.getId(),
             UserLogAction.RESET_INFO.toString(),
             ImmutableMap.of(
-                    "old_info", userInfo,
+                    OPTION_OLD_INFO, userInfo,
                     OPTION_BONUS, bonus
             )
     );
