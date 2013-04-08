@@ -137,11 +137,11 @@
 
 <c:if test="${fn:length(favoriteTags)>0}">
   <b>Избранные теги:</b>
-      <c:forEach var="tagName" items="${favoriteTags}">
+      <c:forEach var="tagName" items="${favoriteTags}" varStatus="status">
         <spring:url value="/tag/{tag}" var="tagLink">
           <spring:param name="tag" value="${tagName}" />
         </spring:url>
-        <a class="tag" href="${tagLink}">${tagName}</a>
+        <a class="tag" href="${tagLink}">${tagName}</a><c:if test="${not status.last}">, </c:if>
       </c:forEach>
   <br>
 </c:if>
@@ -151,7 +151,7 @@
         <spring:url value="/tag/{tag}" var="tagLink">
           <spring:param name="tag" value="${tagName}" />
         </spring:url>
-        <a class="tag" href="${tagLink}">${tagName}</a>
+          <a class="tag" href="${tagLink}">${tagName}</a><c:if test="${not status.last}">, </c:if>
       </c:forEach>
   <br>
 </c:if>
