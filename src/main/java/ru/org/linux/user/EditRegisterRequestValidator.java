@@ -24,6 +24,14 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 public class EditRegisterRequestValidator extends RegisterRequestValidator {
+
+  private final String nick;
+
+  public EditRegisterRequestValidator(PasswordVerify passwordVerify1, String nick) {
+    super(passwordVerify1);
+    this.nick = nick;
+  }
+
   @Override
   public boolean supports(Class aClass) {
     return EditRegisterRequest.class.equals(aClass);
@@ -42,15 +50,20 @@ public class EditRegisterRequestValidator extends RegisterRequestValidator {
       errors.rejectValue("url", null, "Некорректный URL");
     }
 
-    if (form.getPassword2() != null &&
-        form.getPassword() != null &&
-        !form.getPassword().equals(form.getPassword2())) {
-      errors.reject(null, "введенные пароли не совпадают");
+    if (form.getPassword()!=null && form.getPassword().equalsIgnoreCase(nick)) {
+      errors.reject(form.getPassword(), null, "пароль не может совпадать с логином");
     }
 
-    if (!Strings.isNullOrEmpty(form.getPassword()) && form.getPassword().length()< MIN_PASSWORD_LEN) {
-      errors.reject(null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
+    if (form.getPassword2() != null &&
+        form.getPassword() != null) {
+      if(!form.getPassword().equals(form.getPassword2())) {
+        errors.reject(null, "введенные пароли не совпадают");
+      } else {
+        checkPassword(form.getPassword(), errors);
+      }
     }
+
+
 
     if (Strings.isNullOrEmpty(form.getEmail())) {
       errors.rejectValue("email", null, "Не указан e-mail");

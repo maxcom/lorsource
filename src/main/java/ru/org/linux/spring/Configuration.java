@@ -154,4 +154,12 @@ public class Configuration {
     }
     return Integer.valueOf(property);
   }
+
+  public String getCrackDictionaryPath() {
+    String property = properties.getProperty("crack.dictionary.path");
+    if(property == null || property.isEmpty()) {
+      return null;
+    }
+    return property;
+  }
 }

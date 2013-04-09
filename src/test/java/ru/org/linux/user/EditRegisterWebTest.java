@@ -188,8 +188,8 @@ public class EditRegisterWebTest {
     formData.add("info", info);
     formData.add("csrf", "csrf");
     formData.add("oldpass", "passwd");
-    formData.add("password", "passwd2");
-    formData.add("password2", "passwd2");
+    formData.add("password", "passwd2P");
+    formData.add("password2", "passwd2P");
 
     ClientResponse cr2 = resource
             .path("people/maxcom/edit")
@@ -217,9 +217,9 @@ public class EditRegisterWebTest {
     formData2.add("town", town);
     formData2.add("info", info);
     formData2.add("csrf", "csrf");
-    formData2.add("oldpass", "passwd2");
-    formData2.add("password", "passwd");
-    formData2.add("password2", "passwd");
+    formData2.add("oldpass", "passwd2P");
+    formData2.add("password", "passwdP2");
+    formData2.add("password2", "passwdP2");
 
     ClientResponse cr4 = resource
             .path("people/maxcom/edit")

@@ -252,6 +252,11 @@
             <artifactId>joda-time</artifactId>
             <version>2.1</version>
         </dependency>
+        <dependency>
+            <groupId>edu.vt.middleware</groupId>
+            <artifactId>vt-password</artifactId>
+            <version>3.1.1</version>
+        </dependency>
 
         <!-- Spring Security -->
         <dependency>
