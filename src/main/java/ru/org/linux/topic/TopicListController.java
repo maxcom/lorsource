@@ -36,6 +36,7 @@ import ru.org.linux.util.*;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Controller
@@ -305,10 +306,9 @@ public class TopicListController {
         .append('/');
     }
 
-    URLUtil.QueryString queryString = new URLUtil.QueryString();
-    queryString.add("offset", topicListForm.getOffset());
-
-    String queryStr = queryString.toString();
+    String queryStr = topicListForm.getOffset() == null ?
+        "" :
+        URLEncoder.encode("offset=" + topicListForm.getOffset(), "UTF-8");
     if (!queryStr.isEmpty()) {
       redirectLink
         .append('?')
