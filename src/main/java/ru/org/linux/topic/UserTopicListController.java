@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -17,6 +18,7 @@ import ru.org.linux.util.URLUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.List;
 
 @Controller
@@ -50,8 +52,10 @@ public class UserTopicListController {
 
     User user = getUserByNickname(modelAndView, nick);
 
-    modelAndView.addObject("url", "/people/" + nick + "/favs");
-    modelAndView.addObject("whoisLink", "/people/" + nick + '/' + "profile");
+    modelAndView.addObject("url",
+        UriComponentsBuilder.fromUriString("/people/{nick}/favs").buildAndExpand(nick).encode().toUriString());
+    modelAndView.addObject("whoisLink",
+        UriComponentsBuilder.fromUriString("/people/{nick}/profile").buildAndExpand(nick).encode().toUriString());
 
     modelAndView.addObject("ptitle", "Избранные сообщения " + user.getNick());
     modelAndView.addObject("navtitle", "Избранные сообщения " + user.getNick());
@@ -91,15 +95,18 @@ public class UserTopicListController {
     UserInfo userInfo = userDao.getUserInfoClass(user);
     modelAndView.addObject("meLink", userInfo.getUrl());
 
-    modelAndView.addObject("url", "/people/" + nick + '/');
-    modelAndView.addObject("whoisLink", "/people/" + nick + '/' + "profile");
+    modelAndView.addObject("url",
+        UriComponentsBuilder.fromUriString("/people/{nick}/").buildAndExpand(nick).encode().toUriString());
+    modelAndView.addObject("whoisLink",
+        UriComponentsBuilder.fromUriString("/people/{nick}/profile").buildAndExpand(nick).encode().toUriString());
     // TODO: modelAndView.addObject("archiveLink", "/people/"+nick+"/archive/");
 
 
     modelAndView.addObject("ptitle", "Сообщения " + user.getNick());
     modelAndView.addObject("navtitle", "Сообщения " + user.getNick());
 
-    modelAndView.addObject("rssLink", "/people/" + nick + "/?output=rss");
+    modelAndView.addObject("rssLink",
+        UriComponentsBuilder.fromUriString("/people/{nick}/?output=rss").buildAndExpand(nick).encode().toUriString());
 
     topicListForm.setOffset(
       topicListService.fixOffset(topicListForm.getOffset())
@@ -127,9 +134,7 @@ public class UserTopicListController {
     if (Integer.valueOf(0).equals(topicListForm.getSection())) {
       topicListForm.setSection(null);
     }
-    URLUtil.QueryString queryString = new URLUtil.QueryString();
-    queryString.add("section", topicListForm.getSection());
-    modelAndView.addObject("params", queryString.toString());
+    modelAndView.addObject("params", topicListForm.getSection() == null ? "" : URLEncoder.encode("section=" + topicListForm.getSection(), "UTF-8"));
 
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
 
@@ -153,8 +158,10 @@ public class UserTopicListController {
 
     User user = getUserByNickname(modelAndView, nick);
 
-    modelAndView.addObject("url", "/people/" + nick + "/tracked");
-    modelAndView.addObject("whoisLink", "/people/" + nick + '/' + "profile");
+    modelAndView.addObject("url",
+        UriComponentsBuilder.fromUriString("/people/{nick}/tracked").buildAndExpand(nick).encode().toUriString());
+    modelAndView.addObject("whoisLink",
+        UriComponentsBuilder.fromUriString("/people/{nick}/profile").buildAndExpand(nick).encode().toUriString());
 
     modelAndView.addObject("ptitle", "Отслеживаемые сообщения " + user.getNick());
     modelAndView.addObject("navtitle", "Отслеживаемые сообщения " + user.getNick());

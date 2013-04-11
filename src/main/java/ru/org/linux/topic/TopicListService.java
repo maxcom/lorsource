@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.spring.commons.CacheProvider;
@@ -361,30 +362,31 @@ public class TopicListService {
    */
   private String makeCacheKey(TopicListDto topicListDto)
     throws UnsupportedEncodingException {
-    URLUtil.QueryString queryString = new URLUtil.QueryString();
-    queryString.add("tg", topicListDto.getTag());
-    queryString.add("cm", topicListDto.getCommitMode());
+    UriComponentsBuilder builder = UriComponentsBuilder.fromPath("view-news");
+
+    builder.queryParam("tg", topicListDto.getTag());
+    builder.queryParam("cm", topicListDto.getCommitMode());
 
 
     for (int section : topicListDto.getSections()) {
-      queryString.add("sec", section);
+      builder.queryParam("sec", section);
     }
-    queryString.add("grp", topicListDto.getGroup());
+    builder.queryParam("grp", topicListDto.getGroup());
 
-    queryString.add("dlmtType", topicListDto.getDateLimitType());
-    queryString.add("dlmt1", topicListDto.getFromDate());
-    queryString.add("dlmt2", topicListDto.getToDate());
+    builder.queryParam("dlmtType", topicListDto.getDateLimitType());
+    builder.queryParam("dlmt1", topicListDto.getFromDate());
+    builder.queryParam("dlmt2", topicListDto.getToDate());
     if (topicListDto.getUserId() != 0) {
-      queryString.add("u", topicListDto.getUserId());
+      builder.queryParam("u", topicListDto.getUserId());
     }
 
-    queryString.add("f", topicListDto.isUserFavs());
-    queryString.add("lmt", topicListDto.getLimit());
-    queryString.add("offst", topicListDto.getOffset());
-    queryString.add("notalks", topicListDto.isNotalks());
-    queryString.add("tech", topicListDto.isTech());
+    builder.queryParam("f", topicListDto.isUserFavs());
+    builder.queryParam("lmt", topicListDto.getLimit());
+    builder.queryParam("offst", topicListDto.getOffset());
+    builder.queryParam("notalks", topicListDto.isNotalks());
+    builder.queryParam("tech", topicListDto.isTech());
 
-    return "view-news?" + queryString.toString();
+    return builder.build().encode().toUriString();
   }
 
   /**
