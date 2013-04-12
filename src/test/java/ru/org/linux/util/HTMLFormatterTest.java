@@ -235,6 +235,10 @@ public class HTMLFormatterTest {
         toHtmlFormatter.format(urlHistory, true, false));
     assertEquals("<a href=\"https://www.linux.org.ru/forum/lor-source/6992532/comments\">www.linux.org.ru/forum/lor-source/6992532/comments</a>",
         toHtmlFormatter.format("www.linux.org.ru/forum/lor-source/6992532/comments", true, false));
+    assertEquals("<a href=\"http://russian_argo.academic.ru/11696/\">http://russian_argo.academic.ru/11696/</a>",
+        toHtmlFormatter.format("http://russian_argo.academic.ru/11696/", false, false));
+    assertEquals("<a href=\"http://a.russian_argo.academic.ru/11696/\">http://a.russian_argo.academic.ru/11696/</a>",
+        toHtmlFormatter.format("http://a.russian_argo.academic.ru/11696/", false, false));
   }
 
 
