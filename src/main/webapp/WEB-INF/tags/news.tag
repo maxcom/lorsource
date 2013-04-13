@@ -187,7 +187,7 @@
   
 </div>
 <div class="nav">
-<c:if test="${not moderateMode and messageMenu.commentsAllowed}">
+<c:if test="${not moderateMode and messageMenu.commentsAllowed and message.commentCount == 0}">
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
   <c:if test="${moderateMode and template.sessionAuthorized}">
