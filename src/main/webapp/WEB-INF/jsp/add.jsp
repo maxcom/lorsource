@@ -103,10 +103,10 @@
   <c:if test="${not template.sessionAuthorized}">
     <label>
         Имя:<br> <input type=text required value="anonymous" name="nick" style="width: 40em">
-    </label><br>
+    </label>
     <label>
         Пароль:<br> <input type=password name=password style="width: 40em">
-    </label><br>
+    </label>
   </c:if>
 
   <form:hidden path="group"/>
@@ -117,7 +117,7 @@
    </label>
 
   <c:if test="${imagepost}">
-    <label>Изображение: <input type="file" name="image"></label><br>
+    <label>Изображение: <input type="file" name="image"></label>
   </c:if>
 
   <c:if test="${section.pollPostAllowed}">
@@ -139,17 +139,17 @@
 <form:select path="mode" items="${modes}"/></label><br>
 </c:if>
 
-<label for="form_msg">Сообщение:</label><br>
+<label for="form_msg">Сообщение:</label>
 <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
 <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
 <c:if test="${group!=null and group.linksAllowed}">
 <label>
 Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
-</label><br>
+</label>
 <label>
 Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
-</label><br>
+</label>
 </c:if>
 
 <label>
@@ -162,7 +162,7 @@
 </c:if>
 
     <form:input data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
-    </label><p>
+    </label>
     Популярные теги:
      <c:forEach items="${topTags}" var="topTag" varStatus = "status">
 ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>

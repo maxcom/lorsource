@@ -28,8 +28,8 @@
 
 <form method=POST action="/login_process">
   <lor:csrf/>
-  <label>Имя:<br><input autofocus type=text name=nick size=40 placeholder="nick или email"></label><br>
-  <label>Пароль:<br><input type=password name=passwd size=40></label><br>
+  <label>Имя:<br><input autofocus type=text name=nick size=40 placeholder="nick или email"></label>
+  <label>Пароль:<br><input type=password name=passwd size=40></label>
   <input type=submit value="Вход">
 </form>
 

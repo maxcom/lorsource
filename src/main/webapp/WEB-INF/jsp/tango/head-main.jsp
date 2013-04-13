@@ -62,8 +62,8 @@
 
               <form method=POST action="/ajax_login_process" style="display: none" id="regform">
                 <lor:csrf/>
-                <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label><br>
-                <label>Пароль: <input type=password name=passwd size=15></label><br>
+                <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
+                <label>Пароль: <input type=password name=passwd size=15></label>
                 <input type=submit value="Вход">
                 <input id="hide_loginbutton" type="button" value="Отмена">
               </form>

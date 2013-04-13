@@ -55,10 +55,10 @@
   </select>  <br>
   </c:if>
 
-  <label for="title">Заглавие:</label><br>
+  <label for="title">Заглавие:</label>
   <input type=text id="title" name=title value="<%= StringUtil.escapeHtml(title) %>"><br>
 
-  <label for="msg">Сообщение:</label><br>
+  <label for="msg">Сообщение:</label>
 
   <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
   <font size="2">Пустая строка (два раза Enter) начинает новый абзац.<br>

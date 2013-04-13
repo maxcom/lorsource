@@ -19,7 +19,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-        <title>Настройки профиля</title>
+<title>Настройки профиля</title>
 <script type="text/javascript">
 $script.ready('plugins', function() {
   $(function() {
@@ -62,10 +62,10 @@ $script.ready('plugins', function() {
 
     <c:forEach var="s" items="${stylesList}">
       <c:if test="${s == style}">
-        <input type=radio name=style value="${s}" id="style-${s}" checked><label for="style-${s}">${s}</label><br>
+          <label><input type=radio name=style value="${s}" checked>${s}</label>
       </c:if>
       <c:if test="${s != style && s!='white'}">
-        <input type=radio name=style id="style-${s}" value="${s}"><label for="style-${s}">${s}</label><br>
+          <label><input type=radio name=style value="${s}">${s}</label>
       </c:if>
     </c:forEach>
   </td>
@@ -78,10 +78,10 @@ $script.ready('plugins', function() {
 
       <c:forEach var="s" items="${avatarsList}">
         <c:if test="${s == avatar}">
-          <input type=radio name=avatar value="${s}" checked id="avatar-${s}"><label for="avatar-${s}">${s}</label><br>
+            <label><input type=radio name=avatar value="${s}" checked>${s}</label>
         </c:if>
         <c:if test="${s != avatar}">
-          <input type=radio name=avatar value="${s}" id="avatar-${s}"><label for="avatar-${s}">${s}</label><br>
+            <label><input type=radio name=avatar value="${s}">${s}</label>
         </c:if>
       </c:forEach>
     </td>
@@ -91,8 +91,8 @@ $script.ready('plugins', function() {
 <tr>
   <td valign=top>Форматирование по умолчанию</td>
   <td>
-    <input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> ><label for="format-quot">TeX paragraphs (default)</label><br>
-    <input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> ><label for="format-ntobr">User line break</label><br>
+      <label><input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> >TeX paragraphs (default)</label>
+      <label><input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> >User line break</label>
   </td>
 </tr>
 

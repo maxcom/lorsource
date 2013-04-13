@@ -36,7 +36,7 @@
         </c:otherwise>
       </c:choose>
         ${fn:escapeXml(variant.label)}
-    </label><br>
+    </label>
   </c:forEach>
 
 <c:if test="${enabled}">

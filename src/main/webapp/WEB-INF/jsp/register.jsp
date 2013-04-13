@@ -60,7 +60,7 @@
         <dt><label>Защита от роботов</label></dt>
         <dd><lor:captcha/></dd>
 
-        <dt class="button"><label for="rules">С <a href="/rules.jsp" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился:</label><form:checkbox path="rules" value="okay" required="required" cssErrorClass="error"/><form:errors path="rules" element="label" cssClass="error" for="rules"/></dd></dt>
+        <dt class="button"><label for="rules">С <a href="/rules.jsp" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился: <form:checkbox path="rules" value="okay" required="required" cssErrorClass="error"/><form:errors path="rules" element="label" cssClass="error" for="rules"/></label></dd></dt>
         <dd class="button"><input type=submit value="Зарегистрироваться"></dd>
     </dl>
 </form:form>

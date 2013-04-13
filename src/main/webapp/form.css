@@ -1,3 +1,7 @@
+label {
+    display: block;
+}
+
 .form-horizontal .control-label {
     float: left;
     width: 16rem;
