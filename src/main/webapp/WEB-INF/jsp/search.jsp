@@ -57,10 +57,10 @@
 
   <label>За:
     <form:select path="interval" items="${intervals}"/>
-  </label><br>
+  </label>
 
     <label>Пользователь: <form:input path="user" TYPE="text" SIZE="20"/></label>
-    <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
+    <label>В темах пользователя <form:checkbox path="usertopic"/></label>
 
   <form:errors element="div" cssClass="error" path="*"/>
 
@@ -79,8 +79,10 @@
         <div>
           Раздел:
           <c:forEach items="${sectionFacet}" var="facet">
-            <form:radiobutton path="section" onchange="submit()" value="${facet.key}"
-                              label="${facet.value}"/>
+            <label style="display: inline">
+                <form:radiobutton path="section" onchange="submit()" value="${facet.key}"/>
+                ${facet.value}
+            </label>
           </c:forEach>
         </div>
       </c:when>
