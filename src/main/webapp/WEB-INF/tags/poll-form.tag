@@ -26,17 +26,27 @@
 </c:if>
 
   <c:forEach var="variant" items="${poll.variants}">
-    <label>
-      <c:choose>
-        <c:when test="${poll.multiSelect}">
-          <input type="checkbox" <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
-        </c:when>
-        <c:otherwise>
-          <input type="radio" <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
-        </c:otherwise>
-      </c:choose>
-        ${fn:escapeXml(variant.label)}
-    </label>
+      <c:set var="lineClass">
+          <c:choose>
+              <c:when test="${poll.multiSelect}">checkbox</c:when>
+              <c:otherwise>radio</c:otherwise>
+          </c:choose>
+      </c:set>
+      <div class="${lineClass}">
+          <label>
+              <c:choose>
+                  <c:when test="${poll.multiSelect}">
+                      <input type="checkbox"
+                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                  </c:when>
+                  <c:otherwise>
+                      <input type="radio"
+                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                  </c:otherwise>
+              </c:choose>
+                  ${fn:escapeXml(variant.label)}
+          </label>
+      </div>
   </c:forEach>
 
 <c:if test="${enabled}">
