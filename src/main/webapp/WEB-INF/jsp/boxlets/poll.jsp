@@ -27,7 +27,6 @@
 
     <lor:poll-form poll="${poll}" enabled="true"/>
 
-    <br>
     <c:url value="/view-vote.jsp" var="vote_url">
       <c:param name="vote" value="${poll.id}"/>
     </c:url>

@@ -20,7 +20,7 @@
 <%@ attribute name="enabled" required="true" type="java.lang.Boolean" %>
 
 <c:if test="${enabled}">
-  <form action="/vote.jsp" method="POST">
+  <form action="/vote.jsp" method="POST" style="margin-bottom: 1em">
     <lor:csrf/>
     <input type="hidden" name="voteid" value="${poll.id}">
 </c:if>
