@@ -50,6 +50,7 @@ public class RegisterRequestValidator implements Validator {
           "rtrtr.com",
           "mailmetrash.com",
           "getairmail.com",
+          "sharklasers.com",
           "mailseal.de"
   );
 
