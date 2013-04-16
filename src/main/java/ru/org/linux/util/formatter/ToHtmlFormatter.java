@@ -28,7 +28,6 @@ import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.Parser;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -205,7 +204,7 @@ public class ToHtmlFormatter {
       if (linktext!=null) {
         out.append(simpleFormat(linktext));
       } else {
-        out.append(fixedUrlBody);
+        out.append(simpleFormat(fixedUrlBody));
       }
 
       out.append("</a>");
