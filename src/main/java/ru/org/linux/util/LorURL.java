@@ -156,19 +156,6 @@ public class LorURL extends URI {
   }
 
   /**
-   * Пытается вернуть unescaped URL если не получится то возвращает escaped
-   * @return url
-   */
-  public String toUnEscapedString() {
-    try {
-      return getURIReference();
-    } catch (URIException e) {
-      return toString();
-    }
-  }
-
-
-  /**
    * Ссылка является ссылкой на внтренности lorsource
    * @return true если lorsource ссылка
    */
