@@ -27,7 +27,7 @@ import java.util.Map;
 import static ru.org.linux.user.Profile.*;
 
 public final class DefaultProfile {
-  private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm", "tshirt"};
+  private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
   private static final ImmutableSet<String> BOX_SET = ImmutableSet.copyOf(BOXLIST);
 
   private static final String[] STYLES = { "black", "white", "white2", "tango" };
@@ -38,7 +38,7 @@ public final class DefaultProfile {
   private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
     @Override
     public boolean apply(String s) {
-      return DefaultProfile.isBox(s);
+      return isBox(s);
     }
   };
 
@@ -79,7 +79,7 @@ public final class DefaultProfile {
 
 // main page settings
     ImmutableList<String> boxes = ImmutableList.of(
-      "ibm", "poll", "top10", "gallery", "tagcloud", "archive", "tshirt"
+      "ibm", "poll", "top10", "gallery", "tagcloud", "archive"
     );
 
     defaults.put(BOXES_MAIN2_PROPERTY, boxes);
