@@ -34,8 +34,8 @@ import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
 /**
  * Операции над комментариями
@@ -48,9 +48,8 @@ class CommentDaoImpl implements CommentDao {
   private static final String queryCommentById = "SELECT " +
     "postdate, topic, userid, comments.id as msgid, comments.title, " +
     "deleted, replyto, edit_count, edit_date, editor_id, " +
-    "user_agents.name AS useragent, comments.postip " +
+    "ua_id, comments.postip " +
     "FROM comments " +
-    "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
     "WHERE comments.id=?";
 
   /**
@@ -59,9 +58,8 @@ class CommentDaoImpl implements CommentDao {
   private static final String queryCommentListByTopicId = "SELECT " +
     "comments.title, topic, postdate, userid, comments.id as msgid, " +
     "replyto, edit_count, edit_date, editor_id, deleted, " +
-    "user_agents.name AS useragent, comments.postip " +
+    "ua_id, comments.postip " +
     "FROM comments " +
-    "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
     "WHERE topic=? ORDER BY msgid ASC";
 
   /**
@@ -70,9 +68,8 @@ class CommentDaoImpl implements CommentDao {
   private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
     "comments.title, topic, postdate, userid, comments.id as msgid, " +
     "replyto, edit_count, edit_date, editor_id, deleted, " +
-    "user_agents.name AS useragent, comments.postip " +
+    "ua_id, comments.postip " +
     "FROM comments " +
-    "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
     "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 
   private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
@@ -303,9 +300,9 @@ class CommentDaoImpl implements CommentDao {
 
   @Override
   public int saveNewMessage(
-    final Comment comment,
-    String message
-  ) {
+          final Comment comment,
+          String message,
+          final String userAgent) {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
     jdbcTemplate.execute(
@@ -318,7 +315,7 @@ class CommentDaoImpl implements CommentDao {
           pst.setString(3, comment.getTitle());
           pst.setInt(5, comment.getTopicId());
           pst.setString(6, comment.getPostIP());
-          pst.setString(7, comment.getUserAgent());
+          pst.setString(7, userAgent);
 
           if (comment.getReplyTo() != 0) {
             pst.setInt(4, comment.getReplyTo());

@@ -141,16 +141,18 @@ public interface CommentDao {
   /**
    * Добавить новый комментарий.
    *
+   *
    * @param comment данные комментария
    * @param message текст комментария
+   * @param userAgent
    * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
   int saveNewMessage
   (
-    final Comment comment,
-    String message
-  );
+          final Comment comment,
+          String message,
+          String userAgent);
 
   /**
    * Редактирование комментария.
@@ -222,7 +224,7 @@ public interface CommentDao {
   /**
    * DTO-класс, описывающий данные удалённого комментария
    */
-  public static class DeletedListItem {
+  class DeletedListItem {
     private final String ptitle;
     private final String gtitle;
     private final int msgid;
@@ -276,7 +278,7 @@ public interface CommentDao {
     }
   }
 
-  public static class CommentsListItem {
+  class CommentsListItem {
     private String sectionTitle;
     private String groupTitle;
     private int topicId;

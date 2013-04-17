@@ -33,7 +33,7 @@ public class Comment implements Serializable {
   private final int topic;
   private final boolean deleted;
   private final Timestamp postdate;
-  private final String userAgent;
+  private final int userAgentId;
   private final String postIP;
   private final int editorId;
   private final Timestamp editDate;
@@ -48,7 +48,7 @@ public class Comment implements Serializable {
     deleted=rs.getBoolean("deleted");
     postdate=rs.getTimestamp("postdate");
     userid=rs.getInt("userid");
-    userAgent=rs.getString("useragent");
+    userAgentId=rs.getInt("ua_id");
     postIP=rs.getString("postip");
     editCount = rs.getInt("edit_count");
     editorId = rs.getInt("editor_id");
@@ -61,7 +61,6 @@ public class Comment implements Serializable {
           int topic,
           int msgid,
           int userid,
-          String userAgent,
           String postIP
   ) {
     this.msgid = msgid;
@@ -80,7 +79,7 @@ public class Comment implements Serializable {
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;
-    this.userAgent=userAgent;
+    userAgentId =0;
     this.postIP=postIP;
   }
 
@@ -120,8 +119,8 @@ public class Comment implements Serializable {
     return userid;
   }
 
-  public String getUserAgent() {
-    return userAgent;
+  public int getUserAgentId() {
+    return userAgentId;
   }
 
   public String getPostIP() {

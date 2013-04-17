@@ -28,6 +28,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
@@ -57,6 +58,9 @@ public class CommentPrepareService {
 
   @Autowired
   private DeleteInfoDao deleteInfoDao;
+
+  @Autowired
+  private UserAgentDao userAgentDao;
 
   private PreparedComment prepareComment(
           @Nonnull Comment comment,
@@ -161,7 +165,7 @@ public class CommentPrepareService {
 
     if (tmpl!=null && tmpl.isModeratorSession()) {
       postIP = comment.getPostIP();
-      userAgent = comment.getUserAgent();
+      userAgent = userAgentDao.getUserAgentById(comment.getUserAgentId());
     }
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,

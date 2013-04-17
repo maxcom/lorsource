@@ -117,13 +117,11 @@ public class AddCommentController {
       add.setMode(tmpl.getFormatMode());
     }
 
-    ModelAndView modelAndView = new ModelAndView(
+    return new ModelAndView(
       "comment-message",
       "preparedMessage",
       messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser())
     );
-
-    return modelAndView;
   }
 
   /**
@@ -171,7 +169,8 @@ public class AddCommentController {
       comment,
       msg,
       request.getRemoteAddr(),
-      request.getHeader("X-Forwarded-For")
+      request.getHeader("X-Forwarded-For"),
+      request.getHeader("user-agent")
     );
     searchQueueSender.updateComment(msgid);
 

@@ -253,7 +253,6 @@ public class CommentService {
         commentRequest.getTopic().getId(),
         commentId,
         user.getId(),
-        request.getHeader("user-agent"),
         request.getRemoteAddr()
       );
     }
@@ -306,22 +305,24 @@ public class CommentService {
   /**
    * Создание нового комментария.
    *
+   *
    * @param comment        объект комментария
    * @param commentBody    текст комментария
    * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
+   * @param header
    * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int create(
-    Comment comment,
-    String commentBody,
-    String remoteAddress,
-    String xForwardedFor
-  ) throws MessageNotFoundException {
+          Comment comment,
+          String commentBody,
+          String remoteAddress,
+          String xForwardedFor,
+          String userAgent) throws MessageNotFoundException {
 
-    int commentId = commentDao.saveNewMessage(comment, commentBody);
+    int commentId = commentDao.saveNewMessage(comment, commentBody, userAgent);
 
     /* кастование пользователей */
     Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
