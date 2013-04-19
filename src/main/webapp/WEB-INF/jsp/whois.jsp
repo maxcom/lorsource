@@ -266,7 +266,7 @@
       <thead>
       <tr>
         <th>Раздел</th>
-        <th>Число сообщений (тем)</th>
+        <th>Число тем</th>
       </tr>
       <tbody>
       <c:forEach items="${sectionStat}" var="i">
