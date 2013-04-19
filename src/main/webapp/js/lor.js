@@ -149,6 +149,9 @@ $(document).ready(function() {
     var options = {
       type:"post",
       dataType:"json",
+      xhrFields: {
+        withCredentials: true
+      },
       success:function (response, status) {
         if (response.loggedIn) {
           window.location.reload();
@@ -165,7 +168,7 @@ $(document).ready(function() {
 
     $('#regform').ajaxForm(options);
 
-    if (navigator.userAgent.indexOf('Opera Mini') == -1) {
+    if (location.protocol === 'https:' || jQuery.support.cors) {
       $('#loginbutton').bind('click', function(e) {
         $("#regmenu").fadeOut("fast", function() {
           $("#regform").fadeIn("fast", function() {

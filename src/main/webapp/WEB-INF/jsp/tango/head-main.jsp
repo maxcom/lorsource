@@ -60,7 +60,7 @@
                 <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
               </div>
 
-              <form method=POST action="/ajax_login_process" style="display: none" id="regform">
+              <form method=POST action="${template.secureMainUrl}/ajax_login_process" style="display: none" id="regform">
                 <lor:csrf/>
                 <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
                 <label>Пароль: <input type=password name=passwd size=15></label>

@@ -17,6 +17,8 @@ package ru.org.linux.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 
@@ -38,7 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
-
   public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
 
   @Autowired
@@ -53,6 +55,9 @@ public class LoginController {
   @Autowired
   @Qualifier("authenticationManager")
   private AuthenticationManager authenticationManager;
+
+  @Autowired
+  private Configuration configuration;
 
   @RequestMapping(value = "/login_process", method = RequestMethod.POST)
   public ModelAndView loginProcess(
@@ -78,8 +83,7 @@ public class LoginController {
   }
 
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
-  @ResponseBody
-  public LoginStatus loginAjax(
+  public HttpEntity<LoginStatus> loginAjax(
       @RequestParam("nick") final String username,
       @RequestParam("passwd") final String password,
       HttpServletRequest request, HttpServletResponse response) {
@@ -90,19 +94,28 @@ public class LoginController {
       Authentication auth = authenticationManager.authenticate(token);
       UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
       if(!userDetails.getUser().isActivated()) {
-        return new LoginStatus(false, "User not activated");
+        return entity(new LoginStatus(false, "User not activated"));
       }
       SecurityContextHolder.getContext().setAuthentication(auth);
       rememberMeServices.loginSuccess(request, response, auth);
       AuthUtil.updateLastLogin(auth, userDao);
-      return new LoginStatus(auth.isAuthenticated(), auth.getName());
+
+      return entity(new LoginStatus(auth.isAuthenticated(), auth.getName()));
     } catch (LockedException e) {
-      return new LoginStatus(false, "User locked");
+      return entity(new LoginStatus(false, "User locked"));
     } catch (UsernameNotFoundException e) {
-      return new LoginStatus(false, "Bad credentials");
+      return entity(new LoginStatus(false, "Bad credentials"));
     } catch (BadCredentialsException e) {
-      return new LoginStatus(false, e.getMessage());
+      return entity(new LoginStatus(false, e.getMessage()));
     }
+  }
+
+  private HttpEntity<LoginStatus> entity(LoginStatus status) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Access-Control-Allow-Origin", configuration.getMainUrlWithoutSlash());
+    headers.add("Access-Control-Allow-Credentials", "true");
+
+    return new HttpEntity<>(status, headers);
   }
 
   public class LoginStatus {
