@@ -48,8 +48,10 @@ $script.ready('plugins', function() {
 <td><input type=number min=1 max=1000 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
+<c:if test="${template.prof.useHover}">
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>
 <td><input type="checkbox" name="hover" <c:if test="${template.prof.useHover}">checked</c:if> ></td></tr>
+</c:if>
 <tr><td>Показывать меньше рекламы</td>
 <td><input type="checkbox" name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
