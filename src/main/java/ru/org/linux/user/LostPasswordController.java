@@ -105,7 +105,7 @@ public class LostPasswordController {
     msg.setSentDate(new Date());
     msg.setText(
       "Здравствуйте!\n\n" +
-      "Для сброса вашего пароля перейдите по ссылке http://www.linux.org.ru/reset-password\n\n" +
+      "Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password\n\n" +
       "Ваш ник "+user.getNick()+", код подтверждения: " + resetCode + "\n\n" +
       "Удачи!"
     );

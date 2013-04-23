@@ -61,7 +61,7 @@ public class EmailService {
 
     String regcode = User.getActivationCode(configuration.getSecret(), nick, email);
 
-    text.append("Для активации перейдите по ссылке http://www.linux.org.ru/activate.jsp\n\n");
+    text.append("Для активации перейдите по ссылке https://www.linux.org.ru/activate.jsp\n\n");
     text.append("Код активации: ").append(regcode).append("\n\n");
     text.append("Благодарим за регистрацию!\n");
 
