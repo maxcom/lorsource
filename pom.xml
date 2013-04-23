@@ -762,12 +762,6 @@
         </repository>
 
         <repository>
-            <id>net.tanesha</id>
-            <name>net.tanesha</name>
-            <url>http://tanesha.net/maven2</url>
-        </repository>
-
-        <repository>
             <id>spymemcached</id>
             <name>spymemcached</name>
             <url>http://files.couchbase.com/maven2/</url>
