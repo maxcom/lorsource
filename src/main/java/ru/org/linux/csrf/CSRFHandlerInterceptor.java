@@ -47,7 +47,7 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
         if ((handler instanceof HandlerMethod)) {
           logger.warn("Missing CSRF field for " + request.getRequestURI()+ ' ' +((HandlerMethod) handler).getBeanType().getName()+ '.' +((HandlerMethod) handler).getMethod().getName());
         } else {
-          logger.warn("Missing CSRF field for " + request.getRequestURI());
+          logger.warn("Missing CSRF field for " + request.getRequestURI()+" handler="+handler.getClass().toString()+" ip="+request.getRemoteAddr());
         }
       }
 
