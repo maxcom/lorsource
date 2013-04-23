@@ -15,11 +15,10 @@
 
 package ru.org.linux.spring.commons;
 
-import ru.org.linux.site.MemCachedSettings;
-
 import net.spy.memcached.OperationTimeoutException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.site.MemCachedSettings;
 
 public class MemCachedProvider implements CacheProvider {
   private static final Log logger = LogFactory.getLog(MemCachedProvider.class);
@@ -33,10 +32,7 @@ public class MemCachedProvider implements CacheProvider {
       }
 
       return MemCachedSettings.getMemCachedClient().get(s);
-    } catch (IllegalStateException ex) {
-      logger.info("Memcached GET failed", ex);
-      return null;
-    } catch (OperationTimeoutException ex) {
+    } catch (RuntimeException ex) {
       logger.info("Memcached GET failed", ex);
       return null;
     }
@@ -51,11 +47,7 @@ public class MemCachedProvider implements CacheProvider {
       }
 
       MemCachedSettings.getMemCachedClient().set(s, expire/1000, value);
-    } catch (IllegalArgumentException ex) {
-      logger.info("Memcached SET failed", ex);
-    } catch (IllegalStateException ex) {
-      logger.info("Memcached SET failed", ex);
-    } catch (OperationTimeoutException ex) {
+    } catch (IllegalArgumentException | IllegalStateException | OperationTimeoutException ex) {
       logger.info("Memcached SET failed", ex);
     }
   }
