@@ -101,7 +101,7 @@
         </c:when>
         <c:otherwise>
           <c:if test="${archiveLink != null}">
-            <li><a href="${archiveLink}">Архив</a></li>
+            <a href="${archiveLink}">Архив</a>
           </c:if>
         </c:otherwise>
       </c:choose>
