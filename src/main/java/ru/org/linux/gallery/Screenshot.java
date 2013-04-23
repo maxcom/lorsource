@@ -109,7 +109,7 @@ public class Screenshot {
     return dest;
   }
 
-  private void doResize(File uploadedFile) throws IOException {
+  private void doResize(File uploadedFile) throws IOException, BadImageException {
     if (mainFile.exists()) {
       mainFile.delete();
     }

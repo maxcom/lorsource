@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imgscalr.Scalr;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -257,9 +258,13 @@ public class ImageInfo{
     return "width=" + width + " height=" + height;
   }
 
-  public static void resizeImage(String filename, String iconname, int size) throws IOException {
-    BufferedImage source = ImageIO.read(new File(filename));
-    BufferedImage destination = Scalr.resize(source, size);
-    ImageIO.write(destination, "JPEG", new File(iconname));
+  public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
+    try {
+      BufferedImage source = ImageIO.read(new File(filename));
+      BufferedImage destination = Scalr.resize(source, size);
+      ImageIO.write(destination, "JPEG", new File(iconname));
+    } catch (IIOException ex) {
+      throw new BadImageException("Can't resize image", ex);
+    }
   }
 }

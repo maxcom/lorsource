@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import javax.imageio.IIOException;
+
 public class BadImageException extends Exception {
   public BadImageException() {
     super("Некорректное изображение");
@@ -22,5 +24,9 @@ public class BadImageException extends Exception {
 
   public BadImageException(String info) {
     super(info);
+  }
+
+  public BadImageException(String info, IIOException ex) {
+    super(info, ex);
   }
 }
