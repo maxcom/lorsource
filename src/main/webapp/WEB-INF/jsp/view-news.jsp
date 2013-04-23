@@ -93,11 +93,18 @@
 
   <table class="nav">
     <tr>
-      <c:if test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
-        <td align="left" width="35%">
-          <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">← предыдущие</a>
-        </td>
-      </c:if>
+      <c:choose>
+        <c:when test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
+          <td align="left" width="35%">
+            <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">← предыдущие</a>
+          </td>
+        </c:when>
+        <c:otherwise>
+          <c:if test="${archiveLink != null}">
+            <li><a href="${archiveLink}">Архив</a></li>
+          </c:if>
+        </c:otherwise>
+      </c:choose>
       <c:if test="${topicListRequest.offset > 20}">
         <td width="35%" align="right">
           <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">следующие →</a>

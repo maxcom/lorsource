@@ -224,6 +224,9 @@
 
     <a rel="next" href="${nextUrl}">вперед →</a>
   </c:if>
+  <c:if test="${not hasNext}">
+    <a href="${group.url}archive/">архив</a>
+  </c:if>
 </div>
 </tfoot>
 </table>
