@@ -482,7 +482,7 @@ public class UserDao {
         );
       } else {
         id = jdbcTemplate.queryForInt(
-                "SELECT id FROM users WHERE email=? AND not blocked",
+                "SELECT id FROM users WHERE email=? AND NOT blocked ORDER BY id DESC LIMIT 1",
                 email.toLowerCase()
         );
       }
