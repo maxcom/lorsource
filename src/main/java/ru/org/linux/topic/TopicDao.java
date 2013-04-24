@@ -35,37 +35,35 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
-import ru.org.linux.gallery.ImageDao;
-import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
-import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.*;
-import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserNotFoundException;
 
 import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Операции над сообщениями
@@ -88,13 +86,7 @@ public class TopicDao {
   private TopicTagService topicTagService;
 
   @Autowired
-  private UserEventService userEventService;
-
-  @Autowired
   private SectionService sectionService;
-
-  @Autowired
-  private Configuration configuration;
 
   @Autowired
   private MsgbaseDao msgbaseDao;
@@ -103,13 +95,7 @@ public class TopicDao {
   private DeleteInfoDao deleteInfoDao;
 
   @Autowired
-  private UserTagService userTagService;
-
-  @Autowired
   private EditHistoryService editHistoryService;
-
-  @Autowired
-  private ImageDao imageDao;
 
   /**
    * Запрос получения полной информации о топике
@@ -316,23 +302,18 @@ public class TopicDao {
   /**
    * Сохраняем новое сообщение
    *
-   *
    * @param msg
-   * @param request
    * @param user
-   * @return
-   * @throws IOException
-   * @throws ScriptErrorException
+   * @return msgid
    */
-// call in @Transactional environment
-  private int saveNewMessage(
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public int saveNewMessage(
           final Topic msg,
-          final HttpServletRequest request,
           final User user,
-          String text
+          String text,
+          final String userAgent,
+          final Group group
   ) {
-    final Group group = groupDao.getGroup(msg.getGroupId());
-
     final int msgid = allocateMsgid();
 
     String url = msg.getUrl();
@@ -351,7 +332,7 @@ public class TopicDao {
                 pst.setString(4, finalUrl);
                 pst.setInt(5, msgid);
                 pst.setString(6, finalLinktext);
-                pst.setString(7, request.getHeader("User-Agent"));
+                pst.setString(7, userAgent);
                 pst.setString(8, msg.getPostIP());
                 pst.executeUpdate();
 
@@ -365,80 +346,6 @@ public class TopicDao {
             "INSERT INTO msgbase (id, message, bbcode) values (?,?, ?)",
             msgid, text, true
     );
-
-    String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
-    logger.info(logmessage);
-
-    return msgid;
-  }
-
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(
-          HttpServletRequest request,
-          AddTopicRequest form,
-          String message,
-          Group group,
-          User user,
-          Screenshot scrn,
-          Topic previewMsg,
-          Set<User> userRefs
-  ) throws IOException, ScriptErrorException {
-    final int msgid = saveNewMessage(
-            previewMsg,
-            request,
-            user,
-            message
-    );
-
-    Section section = sectionService.getSection(group.getSectionId());
-
-    if (section.isImagepost() && scrn == null) {
-      throw new ScriptErrorException("scrn==null!?");
-    }
-
-    if (scrn!=null) {
-      Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
-
-      imageDao.saveImage(
-              msgid,
-              "gallery/" + screenShot.getMainFile().getName(),
-              "gallery/" + screenShot.getIconFile().getName()
-      );
-    }
-
-    if (section.isPollPostAllowed()) {
-      pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
-    }
-
-    if (!userRefs.isEmpty()) {
-      userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
-    }
-
-    if (form.getTags() != null) {
-      List<String> tags = tagService.parseSanitizeTags(form.getTags());
-
-      topicTagService.updateTags(msgid, tags);
-      tagService.updateCounters(Collections.<String>emptyList(), tags);
-
-      // оповещение пользователей по тегам
-      List<Integer> userIdListByTags = userTagService.getUserIdListByTags(user, tags);
-
-      List<Integer> userRefIds = new ArrayList<>();
-      for (User userRef: userRefs) {
-        userRefIds.add(userRef.getId());
-      }
-
-      // не оповещать пользователей. которые ранее были оповещены через упоминание
-      Iterator<Integer> userTagIterator = userIdListByTags.iterator();
-
-      while (userTagIterator.hasNext()) {
-        Integer userId = userTagIterator.next();
-        if (userRefIds.contains(userId)) {
-          userTagIterator.remove();
-        }
-      }
-      userEventService.addUserTagEvent(userIdListByTags, msgid);
-    }
 
     return msgid;
   }

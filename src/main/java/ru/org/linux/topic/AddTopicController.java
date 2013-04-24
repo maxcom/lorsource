@@ -105,6 +105,9 @@ public class AddTopicController {
   @Autowired
   private AddTopicRequestValidator addTopicRequestValidator;
 
+  @Autowired
+  private TopicService topicService;
+
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
   public static final int MAX_MESSAGE_LENGTH = 32768;
 
@@ -335,7 +338,7 @@ public class AddTopicController {
 
       Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
 
-      int msgid = messageDao.addMessage(
+      int msgid = topicService.addMessage(
               request,
               form,
               message,
