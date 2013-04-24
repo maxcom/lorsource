@@ -310,7 +310,7 @@ public class CommentService {
    * @param commentBody    текст комментария
    * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
-   * @param header
+   * @param userAgent      заголовок User-Agent запроса
    * @return идентификационный номер нового комментария
    * @throws MessageNotFoundException
    */
@@ -326,7 +326,7 @@ public class CommentService {
 
     /* кастование пользователей */
     Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
-    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), commentId);
+    userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
 
     /* оповещение об ответе на коммент */
     if (comment.getReplyTo() != 0) {
@@ -387,7 +387,7 @@ public class CommentService {
       }
     }
 
-    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), oldComment.getTopicId(), oldComment.getId());
+    userEventService.addUserRefEvent(userRefs, oldComment.getTopicId(), oldComment.getId());
 
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
     topicDao.updateLastModifiedToCurrentTime(oldComment.getTopicId());

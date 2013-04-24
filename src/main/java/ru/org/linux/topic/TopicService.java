@@ -1,5 +1,7 @@
 package ru.org.linux.topic;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,9 +96,7 @@ public class TopicService {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
-    if (!userRefs.isEmpty()) {
-      userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
-    }
+    userEventService.addUserRefEvent(userRefs, msgid);
 
     if (form.getTags() != null) {
       List<String> tags = tagService.parseSanitizeTags(form.getTags());
@@ -107,21 +107,18 @@ public class TopicService {
       // оповещение пользователей по тегам
       List<Integer> userIdListByTags = userTagService.getUserIdListByTags(user, tags);
 
-      List<Integer> userRefIds = new ArrayList<>();
+      final Set<Integer> userRefIds = new HashSet<>();
       for (User userRef: userRefs) {
         userRefIds.add(userRef.getId());
       }
 
       // не оповещать пользователей. которые ранее были оповещены через упоминание
-      Iterator<Integer> userTagIterator = userIdListByTags.iterator();
+      Iterable<Integer> tagUsers = Iterables.filter(
+              userIdListByTags,
+              Predicates.not(Predicates.in(userRefIds))
+      );
 
-      while (userTagIterator.hasNext()) {
-        Integer userId = userTagIterator.next();
-        if (userRefIds.contains(userId)) {
-          userTagIterator.remove();
-        }
-      }
-      userEventService.addUserTagEvent(userIdListByTags, msgid);
+      userEventService.addUserTagEvent(tagUsers, msgid);
     }
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);

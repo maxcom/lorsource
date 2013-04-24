@@ -116,7 +116,7 @@ public class UserEventService {
    * @param topicId   идентификационный номер топика
    * @param commentId идентификационный номер комментария
    */
-  public void addUserRefEvent(User[] users, int topicId, int commentId) {
+  public void addUserRefEvent(Iterable<User> users, int topicId, int commentId) {
     for (User user : users) {
       userEventDao.addEvent(
         UserEventFilterEnum.REFERENCE.getType(),
@@ -135,7 +135,7 @@ public class UserEventService {
    * @param users   список пользователей. которых надо оповестить
    * @param topicId идентификационный номер топика
    */
-  public void addUserRefEvent(User[] users, int topicId) {
+  public void addUserRefEvent(Iterable<User> users, int topicId) {
     for (User user : users) {
       userEventDao.addEvent(
         UserEventFilterEnum.REFERENCE.getType(),
@@ -172,8 +172,8 @@ public class UserEventService {
    * @param userIdList  список ID пользователей, которых надо оповестить
    * @param topicId     идентификационный номер топика
    */
-  public void addUserTagEvent(List<Integer> userIdList, int topicId) {
-    for (Integer userId : userIdList) {
+  public void addUserTagEvent(Iterable<Integer> userIdList, int topicId) {
+    for (int userId : userIdList) {
       userEventDao.addEvent(
         UserEventFilterEnum.TAG.getType(),
         userId,
