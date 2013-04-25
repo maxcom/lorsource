@@ -234,7 +234,7 @@ public class UserTagService {
           ignoreAdd(user, tag);
         }
       } catch (TagNotFoundException e) {
-        errors.reject(e.getMessage() + ": '" + tag);
+        errors.reject(e.getMessage() + ": '" + tag + "'");
       } catch (DuplicateKeyException e) {
         errors.reject("Тег уже добавлен: '" + tag);
       }
