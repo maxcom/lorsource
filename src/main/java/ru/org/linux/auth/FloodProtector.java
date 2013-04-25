@@ -15,28 +15,31 @@
 
 package ru.org.linux.auth;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class FloodProtector {
   private static final int THRESHOLD = 30000;
   private static final int THRESHOLD_TRUSTED = 3000;
   
-  private final Map<String,DateTime> hash = new HashMap<>();
+  private final Cache<String,DateTime> hash =
+          CacheBuilder.newBuilder()
+                  .expireAfterWrite(30, TimeUnit.MINUTES)
+                  .maximumSize(100000)
+                  .build();
+
   public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
 
-  private synchronized boolean check(String ip, boolean trusted) {
-    cleanup();
+  private boolean check(String ip, boolean trusted) {
+    DateTime date = hash.getIfPresent(ip);
 
-    if (hash.containsKey(ip)) {
-      DateTime date = hash.get(ip);
-
+    if (date!=null) {
       if (date.plusMillis((trusted?THRESHOLD_TRUSTED:THRESHOLD)).isAfterNow()) {
         return false;
       }
@@ -50,16 +53,6 @@ public class FloodProtector {
   public void checkDuplication(String ip,boolean trusted, Errors errors) {
     if (!check(ip,trusted)) {
       errors.reject(null, MESSAGE);
-    }
-  }
-
-  private synchronized void cleanup() {
-    for (Iterator<DateTime> i = hash.values().iterator(); i.hasNext(); ) {
-      DateTime date = i.next();
-
-      if (date.plusMillis(THRESHOLD).isBeforeNow()) {
-        i.remove();
-      }
     }
   }
 }
