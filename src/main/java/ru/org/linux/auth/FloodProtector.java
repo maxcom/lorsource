@@ -15,6 +15,7 @@
 
 package ru.org.linux.auth;
 
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
@@ -27,23 +28,21 @@ public class FloodProtector {
   private static final int THRESHOLD = 30000;
   private static final int THRESHOLD_TRUSTED = 3000;
   
-  private final Map<String,Long> hash = new HashMap<>();
+  private final Map<String,DateTime> hash = new HashMap<>();
   public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
 
   private synchronized boolean check(String ip, boolean trusted) {
     cleanup();
 
-    long current = System.currentTimeMillis();
-
     if (hash.containsKey(ip)) {
-      long date = hash.get(ip);
+      DateTime date = hash.get(ip);
 
-      if ((current-date)<(trusted?THRESHOLD_TRUSTED:THRESHOLD)) {
+      if (date.plusMillis((trusted?THRESHOLD_TRUSTED:THRESHOLD)).isAfterNow()) {
         return false;
       }
     }
 
-    hash.put(ip, current);
+    hash.put(ip, new DateTime());
 
     return true;
   }
@@ -55,12 +54,10 @@ public class FloodProtector {
   }
 
   private synchronized void cleanup() {
-    long current = System.currentTimeMillis();
+    for (Iterator<DateTime> i = hash.values().iterator(); i.hasNext(); ) {
+      DateTime date = i.next();
 
-    for (Iterator<Long> i = hash.values().iterator(); i.hasNext(); ) {
-      long date = i.next();
-
-      if ((current-date)>THRESHOLD) {
+      if (date.plusMillis(THRESHOLD).isBeforeNow()) {
         i.remove();
       }
     }
