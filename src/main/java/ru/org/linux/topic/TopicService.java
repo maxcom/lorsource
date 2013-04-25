@@ -16,10 +16,9 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserEventService;
-import ru.org.linux.user.UserTagService;
+import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +55,12 @@ public class TopicService {
 
   @Autowired
   private UserTagService userTagService;
+
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
+  private DeleteInfoDao deleteInfoDao;
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int addMessage(
@@ -125,5 +130,29 @@ public class TopicService {
     logger.info(logmessage);
 
     return msgid;
+  }
+
+  /**
+   * Удаление топика и если удаляет модератор изменить автору score
+   * @param message удаляемый топик
+   * @param user удаляющий пользователь
+   * @param reason прчина удаления
+   * @param bonus дельта изменения score автора топика
+   * @throws UserErrorException генерируется если некорректная делта score
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void deleteWithBonus(Topic message, User user, String reason, int bonus) throws UserErrorException {
+    topicDao.delete(message);
+
+    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
+      if (bonus>20 || bonus<0) {
+        throw new UserErrorException("Некорректное значение bonus");
+      }
+      userDao.changeScore(message.getUid(), -bonus);
+    }
+
+    deleteInfoDao.insert(message.getId(), user, reason, -bonus);
+
+    userEventService.processTopicDeleted(message);
   }
 }

@@ -127,8 +127,6 @@ public class TopicDao {
 
   private static final String updateLastmodToCurrentTime = "UPDATE topics SET lastmod=now() WHERE id=?";
 
-
-
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
 
@@ -262,25 +260,8 @@ public class TopicDao {
     return tags.build();
   }
 
-  /**
-   * Удаление топика и если удаляет модератор изменить автору score
-   * @param message удаляемый топик
-   * @param user удаляющий пользователь
-   * @param reason прчина удаления
-   * @param bonus дельта изменения score автора топика
-   * @throws UserErrorException генерируется если некорректная делта score
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Topic message, User user, String reason, int bonus) throws UserErrorException {
+  public void delete(Topic message) throws UserErrorException {
     jdbcTemplate.update(updateDeleteMessage, message.getId());
-    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
-      if (bonus>20 || bonus<0) {
-        throw new UserErrorException("Некорректное значение bonus");
-      }
-      userDao.changeScore(message.getUid(), -bonus);
-    }
-
-    deleteInfoDao.insert(message.getId(), user, reason, -bonus);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)

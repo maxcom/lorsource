@@ -50,6 +50,9 @@ public class DeleteTopicController {
   private TopicDao messageDao;
 
   @Autowired
+  private TopicService topicService;
+
+  @Autowired
   private TopicPrepareService prepareService;
 
   @Autowired
@@ -118,7 +121,7 @@ public class DeleteTopicController {
       throw new AccessViolationException("Вы не можете удалить это сообщение");
     }
 
-    messageDao.deleteWithBonus(message, user, reason, bonus);
+    topicService.deleteWithBonus(message, user, reason, bonus);
     logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
 
     // Delete msgs from search index

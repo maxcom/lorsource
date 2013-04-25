@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,5 +220,16 @@ public class UserEventDao {
                 groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
       }
     }, userId, topics, offset);
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void deleteTopicEvents(int topicId, ImmutableSet<String> types) {
+    for (String type : types) {
+      jdbcTemplate.update(
+              "DELETE FROM user_events WHERE message_id=? AND type=?::event_type",
+              topicId,
+              type
+      );
+    }
   }
 }

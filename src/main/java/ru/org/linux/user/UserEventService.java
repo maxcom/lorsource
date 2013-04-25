@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,13 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.org.linux.user.UserEventFilterEnum.*;
 
 @Service
 public class UserEventService {
@@ -119,7 +123,7 @@ public class UserEventService {
   public void addUserRefEvent(Iterable<User> users, int topicId, int commentId) {
     for (User user : users) {
       userEventDao.addEvent(
-        UserEventFilterEnum.REFERENCE.getType(),
+        REFERENCE.getType(),
         user.getId(),
         false,
         topicId,
@@ -138,7 +142,7 @@ public class UserEventService {
   public void addUserRefEvent(Iterable<User> users, int topicId) {
     for (User user : users) {
       userEventDao.addEvent(
-        UserEventFilterEnum.REFERENCE.getType(),
+        REFERENCE.getType(),
         user.getId(),
         false,
         topicId,
@@ -157,7 +161,7 @@ public class UserEventService {
    */
   public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
     userEventDao.addEvent(
-      UserEventFilterEnum.ANSWERS.getType(),
+      ANSWERS.getType(),
       parentAuthor.getId(),
       false,
       topicId,
@@ -175,7 +179,7 @@ public class UserEventService {
   public void addUserTagEvent(Iterable<Integer> userIdList, int topicId) {
     for (int userId : userIdList) {
       userEventDao.addEvent(
-        UserEventFilterEnum.TAG.getType(),
+        TAG.getType(),
         userId,
         false,
         topicId,
@@ -212,7 +216,7 @@ public class UserEventService {
   public List<UserEvent> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
                                            UserEventFilterEnum eventFilter) {
     String eventFilterType = null;
-    if (eventFilter != UserEventFilterEnum.ALL) {
+    if (eventFilter != ALL) {
       eventFilterType = eventFilter.getType();
     }
     return userEventDao.getRepliesForUser(user.getId(), showPrivate, topics, offset, eventFilterType);
@@ -225,5 +229,16 @@ public class UserEventService {
    */
   public void resetUnreadReplies(User user) {
     userEventDao.resetUnreadReplies(user.getId());
+  }
+
+  public void processTopicDeleted(Topic topic) {
+    userEventDao.deleteTopicEvents(topic.getId(),
+            ImmutableSet.of(
+                    TAG.getType(),
+                    REFERENCE.getType(),
+                    ANSWERS.getType(),
+                    FAVORITES.getType()
+            )
+    );
   }
 }
