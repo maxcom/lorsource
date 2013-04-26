@@ -330,7 +330,7 @@ public class AddTopicController {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors()) {
-      dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
+      dupeProtector.checkDuplication(FloodProtector.Action.ADD_TOPIC, request.getRemoteAddr(), user.getScore() >= 100, errors);
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null && section!=null) {

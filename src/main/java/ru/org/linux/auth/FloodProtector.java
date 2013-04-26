@@ -25,34 +25,56 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class FloodProtector {
-  private static final int THRESHOLD = 30000;
-  private static final int THRESHOLD_TRUSTED = 3000;
-  
   private final Cache<String,DateTime> hash =
           CacheBuilder.newBuilder()
                   .expireAfterWrite(30, TimeUnit.MINUTES)
                   .maximumSize(100000)
                   .build();
 
-  public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
+  public enum Action {
+    ADD_COMMENT(30000, 3000) , ADD_TOPIC(600000, 30000);
 
-  private boolean check(String ip, boolean trusted) {
-    DateTime date = hash.getIfPresent(ip);
+    private final int threshold;
+    private final int thresholdTrusted;
+
+    private Action(int threshold, int thresholdTrusted) {
+      this.threshold = threshold;
+      this.thresholdTrusted = thresholdTrusted;
+    }
+
+    public int getThreshold() {
+      return threshold;
+    }
+
+    public int getThresholdTrusted() {
+      return thresholdTrusted;
+    }
+  }
+
+  private boolean check(Action action, String ip, int threshold) {
+    String key = action.toString() + ':' + ip;
+
+    DateTime date = hash.getIfPresent(key);
 
     if (date!=null) {
-      if (date.plusMillis((trusted?THRESHOLD_TRUSTED:THRESHOLD)).isAfterNow()) {
+      if (date.plusMillis(threshold).isAfterNow()) {
         return false;
       }
     }
 
-    hash.put(ip, new DateTime());
+    hash.put(key, new DateTime());
 
     return true;
   }
 
-  public void checkDuplication(String ip,boolean trusted, Errors errors) {
-    if (!check(ip,trusted)) {
-      errors.reject(null, MESSAGE);
+  public void checkDuplication(Action action, String ip, boolean trusted, Errors errors) {
+    int threshold = trusted?action.getThresholdTrusted():action.getThreshold();
+
+    if (!check(action, ip, threshold)) {
+      errors.reject(
+              null,
+              String.format("Следующее сообщение может быть записано не менее чем через %d секунд после предыдущего", threshold/1000)
+      );
     }
   }
 }
