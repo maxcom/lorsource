@@ -138,21 +138,43 @@ public class TopicService {
    * @param user удаляющий пользователь
    * @param reason прчина удаления
    * @param bonus дельта изменения score автора топика
-   * @throws UserErrorException генерируется если некорректная делта score
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Topic message, User user, String reason, int bonus) throws UserErrorException {
-    topicDao.delete(message);
-
-    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
-      if (bonus>20 || bonus<0) {
-        throw new UserErrorException("Некорректное значение bonus");
-      }
-      userDao.changeScore(message.getUid(), -bonus);
+  public void deleteWithBonus(Topic message, User user, String reason, int bonus) {
+    if (bonus>20 || bonus<0) {
+      throw new IllegalArgumentException("Некорректное значение bonus");
     }
 
-    deleteInfoDao.insert(message.getId(), user, reason, -bonus);
+    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
+      deleteTopic(message.getId(), user, reason, -bonus);
+      userDao.changeScore(message.getUid(), -bonus);
+    } else {
+      deleteTopic(message.getId(), user, reason, 0);
+    }
+  }
 
-    userEventService.processTopicDeleted(message);
+  private void deleteTopic(int mid, User moderator, String reason, int bonus) {
+    topicDao.delete(mid);
+    deleteInfoDao.insert(mid, moderator, reason, bonus);
+    userEventService.processTopicDeleted(mid);
+  }
+
+  /**
+   * Массовое удаление всех топиков пользователя.
+   *
+   * @param user      пользователь для экзекуции
+   * @param moderator экзекутор-модератор
+   * @return список удаленных топиков
+   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteAllByUser(User user, User moderator) {
+    List<Integer> topics = topicDao.getUserTopicForUpdate(user);
+
+    for (int mid : topics) {
+      deleteTopic(mid, moderator, "Блокировка пользователя с удалением сообщений", 0);
+    }
+
+    return topics;
   }
 }

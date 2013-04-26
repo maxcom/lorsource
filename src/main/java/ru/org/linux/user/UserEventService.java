@@ -26,7 +26,6 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.topic.Topic;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
@@ -231,8 +230,8 @@ public class UserEventService {
     userEventDao.resetUnreadReplies(user.getId());
   }
 
-  public void processTopicDeleted(Topic topic) {
-    userEventDao.deleteTopicEvents(topic.getId(),
+  public void processTopicDeleted(int msgid) {
+    userEventDao.deleteTopicEvents(msgid,
             ImmutableSet.of(
                     TAG.getType(),
                     REFERENCE.getType(),

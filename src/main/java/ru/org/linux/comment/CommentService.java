@@ -43,6 +43,7 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
@@ -70,6 +71,9 @@ public class CommentService {
 
   @Autowired
   private TopicDao messageDao;
+
+  @Autowired
+  private TopicService topicService;
 
   @Autowired
   private UserDao userDao;
@@ -597,7 +601,7 @@ public class CommentService {
   public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
     userDao.block(user, moderator, reason);
 
-    List<Integer> deletedTopicIds = messageDao.deleteAllByUser(user, moderator);
+    List<Integer> deletedTopicIds = topicService.deleteAllByUser(user, moderator);
 
     List<Integer> deletedCommentIds = commentDao.deleteAllByUser(user, moderator);
 
