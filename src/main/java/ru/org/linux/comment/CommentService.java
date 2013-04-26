@@ -192,7 +192,7 @@ public class CommentService {
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (!commentRequest.isPreviewMode() && !errors.hasErrors()) {
-      floodProtector.checkDuplication(FloodProtector.Action.ADD_TOPIC, request.getRemoteAddr(), user.getScore() >= 100, errors);
+      floodProtector.checkDuplication(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr(), user.getScore() >= 100, errors);
     }
   }
 
