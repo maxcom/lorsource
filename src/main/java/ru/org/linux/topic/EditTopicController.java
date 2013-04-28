@@ -229,7 +229,7 @@ public class EditTopicController {
       params.put("topTags", tagService.getTopTags());
     }
 
-    if (message.isHaveLink()) {
+    if (group.isLinksAllowed()) {
       form.setLinktext(message.getLinktext());
       form.setUrl(message.getUrl());
     }
@@ -369,7 +369,7 @@ public class EditTopicController {
       modified = true;
     }
 
-    if (message.isHaveLink()) {
+    if (group.isLinksAllowed()) {
       if (message.getUrl() == null) {
         if (newMsg.getUrl() != null) {
           modified = true;

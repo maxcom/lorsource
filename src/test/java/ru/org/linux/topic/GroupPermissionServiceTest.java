@@ -26,9 +26,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -60,7 +58,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt(anyString())).thenReturn(13);
     // gtitle, urlname, message, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
 
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
@@ -98,7 +96,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt(anyString())).thenReturn(13);
     // gtitle, urlname, message, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
 
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
@@ -137,7 +135,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt(anyString())).thenReturn(13);
     // gtitle, urlname, message, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
 
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
@@ -176,7 +174,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt(anyString())).thenReturn(13);
     // gtitle, urlname, message, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
 
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
@@ -222,7 +220,7 @@ public class GroupPermissionServiceTest {
     when(resultSetModerateOld.getInt("section")).thenReturn(1);    
     // gtitle, urlname, message, postip,
     when(resultSetModerateOld.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetModerateOld.getBoolean(anyString())).thenReturn(false);
     when(resultSetModerateOld.getBoolean("moderate")).thenReturn(true);
     when(resultSetModerateOld.getTimestamp("postdate")).thenReturn(new Timestamp(oldTime));
@@ -237,7 +235,7 @@ public class GroupPermissionServiceTest {
     when(resultSetNotModerateOld.getInt(anyString())).thenReturn(2);
     // gtitle, urlname, message, postip,
     when(resultSetNotModerateOld.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetNotModerateOld.getBoolean(anyString())).thenReturn(false);
     when(resultSetNotModerateOld.getBoolean("moderate")).thenReturn(false);
     when(resultSetNotModerateOld.getTimestamp("postdate")).thenReturn(new Timestamp(oldTime));
@@ -252,7 +250,7 @@ public class GroupPermissionServiceTest {
     when(resultSetModerateNew.getInt(anyString())).thenReturn(1);
     // gtitle, urlname, message, postip,
     when(resultSetModerateNew.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetModerateNew.getBoolean(anyString())).thenReturn(false);
     when(resultSetModerateNew.getBoolean("moderate")).thenReturn(true);
     when(resultSetModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
@@ -267,7 +265,7 @@ public class GroupPermissionServiceTest {
     when(resultSetNotModerateNew.getInt(anyString())).thenReturn(1);
     // gtitle, urlname, message, postip,
     when(resultSetNotModerateNew.getString(anyString())).thenReturn("any");
-    // vote, sticky, expired, havelink, bbcode, resolved, minor
+    // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetNotModerateNew.getBoolean(anyString())).thenReturn(false);
     when(resultSetNotModerateNew.getBoolean("moderate")).thenReturn(false);
     when(resultSetNotModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));

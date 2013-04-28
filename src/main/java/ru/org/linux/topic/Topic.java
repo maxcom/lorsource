@@ -41,7 +41,6 @@ public class Topic implements Serializable {
   private final boolean deleted;
   private final boolean expired;
   private final int commitby;
-  private final boolean havelink;
   private final Timestamp postdate;
   private final Timestamp commitDate;
   private final String groupUrl;
@@ -60,32 +59,31 @@ public class Topic implements Serializable {
   private static final long serialVersionUID = 807240555706110851L;
   private static final String UTF8 = "UTF-8";
 
-  public Topic(int msgId,
-               int postScore,
-               boolean sticky,
-               String linkText,
-               String url,
-               String title,
-               int userId,
-               int groupId,
-               boolean deleted,
-               boolean expired,
-               int commitBy,
-               boolean haveLink,
-               Timestamp postdate,
-               Timestamp commitDate,
-               String groupUrl,
-               Timestamp lastModified,
-               int sectionId,
-               int commentCount,
-               boolean moderate,
-               boolean noTop,
-               int userAgent,
-               String postIP,
-               boolean resolved,
-               int groupCommentsRestriction,
-               int sectionCommentsRestriction,
-               boolean minor
+  private Topic(int msgId,
+                int postScore,
+                boolean sticky,
+                String linkText,
+                String url,
+                String title,
+                int userId,
+                int groupId,
+                boolean deleted,
+                boolean expired,
+                int commitBy,
+                Timestamp postdate,
+                Timestamp commitDate,
+                String groupUrl,
+                Timestamp lastModified,
+                int sectionId,
+                int commentCount,
+                boolean moderate,
+                boolean noTop,
+                int userAgent,
+                String postIP,
+                boolean resolved,
+                int groupCommentsRestriction,
+                int sectionCommentsRestriction,
+                boolean minor
   ) {
     msgid = msgId;
     postscore = postScore;
@@ -99,7 +97,6 @@ public class Topic implements Serializable {
     this.deleted = deleted;
     this.expired = expired;
     commitby = commitBy;
-    havelink = haveLink;
     this.postdate = postdate;
     this.commitDate = commitDate;
     this.groupUrl = groupUrl;
@@ -131,8 +128,7 @@ public class Topic implements Serializable {
       rs.getBoolean("deleted"),
       !rs.getBoolean("sticky") && rs.getBoolean("expired"),
       rs.getInt("commitby"),
-      rs.getBoolean("havelink"),
-      rs.getTimestamp("postdate"),
+            rs.getTimestamp("postdate"),
       rs.getTimestamp("commitdate"),
       rs.getString("urlname"),
       rs.getTimestamp("lastmod"),
@@ -179,8 +175,6 @@ public class Topic implements Serializable {
       title = null;
     }
 
-    havelink = !Strings.isNullOrEmpty(form.getUrl()) && !Strings.isNullOrEmpty(form.getLinktext());
-
     sectionid = group.getSectionId();
     // Defaults
     msgid = 0;
@@ -210,13 +204,13 @@ public class Topic implements Serializable {
 
     groupCommentsRestriction = group.getCommentsRestriction();
 
-    if (form.getLinktext() != null && original.havelink) {
+    if (form.getLinktext() != null && group.isLinksAllowed()) {
       linktext = form.getLinktext();
     } else {
       linktext = original.linktext;
     }
 
-    if (form.getUrl() != null && original.havelink) {
+    if (form.getUrl() != null && group.isLinksAllowed()) {
       url = URLUtil.fixURL(form.getUrl());
     } else {
       url = original.url;
@@ -229,8 +223,6 @@ public class Topic implements Serializable {
     }
 
     resolved = original.resolved;
-
-    havelink = original.havelink;
 
     sectionid = group.getSectionId();
 
@@ -346,10 +338,6 @@ public class Topic implements Serializable {
 
   public boolean isNotop() {
     return notop;
-  }
-
-  public boolean isHaveLink() {
-    return havelink;
   }
 
   public int getId() {

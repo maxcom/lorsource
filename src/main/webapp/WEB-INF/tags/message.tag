@@ -126,7 +126,7 @@
         </c:choose>
       </c:if>
 
-      <c:if test="${message.haveLink and not empty message.url}">
+      <c:if test="${preparedMessage.group.linksAllowed and not empty message.url}">
         <p>
           <%
             out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
