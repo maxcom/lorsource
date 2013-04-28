@@ -90,7 +90,6 @@ public class AddTopicController {
   @Autowired
   private TopicPrepareService prepareService;
 
-  private TopicDao messageDao;
   private ToLorCodeFormatter toLorCodeFormatter;
 
   @Autowired
@@ -134,11 +133,6 @@ public class AddTopicController {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
   }
 
   @Autowired
@@ -351,12 +345,10 @@ public class AddTopicController {
 
       searchQueueSender.updateMessageOnly(msgid);
 
-      Random random = new Random();
-
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
       if (!section.isPremoderated()) {
-        return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
+        return new ModelAndView(new RedirectView(messageUrl));
       }
 
       params.put("moderated", section.isPremoderated());
