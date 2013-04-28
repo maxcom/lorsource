@@ -169,8 +169,9 @@ ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
      </c:forEach>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
-<br>
-<button type=submit>Поместить</button>
-<button type=submit name=preview>Предпросмотр</button>
+<div class="form-actions">
+  <button type=submit>Поместить</button>
+  <button type=submit name=preview>Предпросмотр</button>
+</div>
 </form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

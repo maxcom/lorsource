@@ -80,7 +80,7 @@
   </c:if>
 
   <c:if test="${topicMenu.topicEditable}">
-  <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br><br>
+  <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br>
 
   <c:if test="${group.pollPostAllowed and template.moderatorSession}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
@@ -100,8 +100,8 @@
   <form:textarea path="msg" style="width: 40em" rows="20"/>
   <br><br>
     <c:if test="${preparedMessage.group.linksAllowed}">
-      <label>Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/></label><br>
-      <label>Ссылка:<br> <form:input path="url" type="url" style="width: 40em"/></label><br>
+      <label>Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/></label>
+      <label>Ссылка:<br> <form:input path="url" type="url" style="width: 40em"/></label>
     </c:if>
   </c:if>
 
@@ -118,18 +118,18 @@
   </c:if>
 
   <c:if test="${group.premoderated and template.moderatorSession}">
-    <label>Мини-новость: <form:checkbox path="minor"/></label><br>
+    <label>Мини-новость: <form:checkbox path="minor"/></label>
   </c:if>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 
-  <br>
-
-  <input type="submit" value="Отредактировать">
+  <div class="form-actions">
+  <button type="submit">Отредактировать</button>
   &nbsp;
-  <input type=submit name=preview value="Предпросмотр">
+  <button type=submit name=preview>Предпросмотр</button>
+  </div>
+
   <c:if test="${commit}">
-    <br><br>
     <label>Группа:
     <select name="chgrp">
       <c:forEach var="group" items="${groups}">
@@ -140,14 +140,16 @@
           <option value="${group.id}" selected="selected">${group.title}</option>
         </c:if>
       </c:forEach>
-    </select></label><br>
-    <label>Бонус автору (<lor:user user="${preparedMessage.author}"/>): <form:input path="bonus" size="5" cssClass="number" type="number" min="0" max="20"/> (от 0 до 20; текущий score=${preparedMessage.author.score})</label><br>
+    </select></label>
+    <label>Бонус автору (<lor:user user="${preparedMessage.author}"/>): <form:input path="bonus" size="5" cssClass="number" type="number" min="0" max="20"/> (от 0 до 20; текущий score=${preparedMessage.author.score})</label>
 
     <c:forEach items="${editors}" var="editor">
-      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label><br>
+      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label>
     </c:forEach>
 
-    <input type=submit name=commit value="Подтвердить">
+    <div class="form-actions">
+        <button type=submit name=commit>Подтвердить</button>
+    </div>
   </c:if>
 </form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
