@@ -34,8 +34,6 @@ public class TagDao {
 
   private static final int TOP_TAGS_COUNT = 50;
 
-  private static final String QUERY_ALL_TAGS = "SELECT counter,value FROM tags_values WHERE counter>0";
-
   private static final String QUERY_TAG_ID_BY_NAME = "SELECT id FROM tags_values WHERE value=?";
 
   private JdbcTemplate jdbcTemplate;
@@ -140,22 +138,6 @@ public class TagDao {
       firstLetter
     );
 
-    return builder.build();
-  }
-
-  /**
-   * Получить только те теги, которые используются.
-   *
-   * @return список тегов
-   */
-  public Map<String, Integer> getAllTags() {
-    final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
-    jdbcTemplate.query(QUERY_ALL_TAGS, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
-      }
-    });
     return builder.build();
   }
 

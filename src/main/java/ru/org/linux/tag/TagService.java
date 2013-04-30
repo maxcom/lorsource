@@ -51,15 +51,6 @@ public class TagService {
   }
 
   /**
-   * Получить все тэги со счетчиком
-   *
-   * @return список всех тегов
-   */
-  public Map<String, Integer> getAllTags() {
-    return tagDao.getAllTags();
-  }
-
-  /**
    * Получение идентификационного номера тега по названию. Тег должен использоваться.
    *
    * @param tag название тега
@@ -191,25 +182,6 @@ public class TagService {
   }
 
   /**
-   * Создать новый тег с проверкой на существующий.
-   *
-   * @param tagName название нового тега
-   * @param errors  обработчик ошибок ввода для формы
-   */
-  public void create(String tagName, Errors errors) {
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
-    try {
-      checkTag(tagName);
-      int tagId = tagDao.getTagId(tagName);
-      errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
-    } catch (TagNotFoundException ignored) {
-      create(tagName);
-    } catch (UserErrorException e) {
-      errors.rejectValue("tagName", "", e.getMessage());
-    }
-  }
-
-  /**
    * Изменить название существующего тега.
    *
    * @param oldTagName старое название тега
@@ -222,7 +194,7 @@ public class TagService {
       checkTag(tagName);
       int oldTagId = tagDao.getTagId(oldTagName);
       try {
-        int tagId = tagDao.getTagId(tagName);
+        tagDao.getTagId(tagName);
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
       } catch (TagNotFoundException ignored) {
         tagDao.changeTag(oldTagId, tagName);
