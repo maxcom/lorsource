@@ -56,7 +56,6 @@ import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
-import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +64,10 @@ import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class AddTopicController {
@@ -91,9 +93,6 @@ public class AddTopicController {
   private TopicPrepareService prepareService;
 
   private ToLorCodeFormatter toLorCodeFormatter;
-
-  @Autowired
-  private LorCodeService lorCodeService;
 
   @Autowired
   private GroupPermissionService groupPermissionService;
@@ -330,8 +329,6 @@ public class AddTopicController {
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null && section!=null) {
       session.removeAttribute("image");
 
-      Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
-
       int msgid = topicService.addMessage(
               request,
               form,
@@ -339,8 +336,7 @@ public class AddTopicController {
               group,
               user,
               scrn,
-              previewMsg,
-              userRefs
+              previewMsg
       );
 
       searchQueueSender.updateMessageOnly(msgid);

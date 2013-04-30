@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -84,7 +86,8 @@ public class TagService {
    * @param tags список тегов через запятую
    * @return список тегов
    */
-  public ImmutableList<String> parseSanitizeTags(String tags) {
+  @Nonnull
+  public ImmutableList<String> parseSanitizeTags(@Nullable String tags) {
     if (tags == null) {
       return ImmutableList.of();
     }

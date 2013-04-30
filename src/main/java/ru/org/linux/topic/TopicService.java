@@ -1,6 +1,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,10 +21,14 @@ import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class TopicService {
@@ -62,6 +67,9 @@ public class TopicService {
   @Autowired
   private DeleteInfoDao deleteInfoDao;
 
+  @Autowired
+  private LorCodeService lorCodeService;
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int addMessage(
           HttpServletRequest request,
@@ -70,8 +78,7 @@ public class TopicService {
           Group group,
           User user,
           Screenshot scrn,
-          Topic previewMsg,
-          Set<User> userRefs
+          Topic previewMsg
   ) throws IOException, ScriptErrorException {
     final int msgid = topicDao.saveNewMessage(
             previewMsg,
@@ -101,35 +108,46 @@ public class TopicService {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
-    userEventService.addUserRefEvent(userRefs, msgid);
+    List<String> tags = tagService.parseSanitizeTags(form.getTags());
 
-    if (form.getTags() != null) {
-      List<String> tags = tagService.parseSanitizeTags(form.getTags());
-
-      topicTagService.updateTags(msgid, tags);
-      tagService.updateCounters(Collections.<String>emptyList(), tags);
-
-      // оповещение пользователей по тегам
-      List<Integer> userIdListByTags = userTagService.getUserIdListByTags(user, tags);
-
-      final Set<Integer> userRefIds = new HashSet<>();
-      for (User userRef: userRefs) {
-        userRefIds.add(userRef.getId());
-      }
-
-      // не оповещать пользователей. которые ранее были оповещены через упоминание
-      Iterable<Integer> tagUsers = Iterables.filter(
-              userIdListByTags,
-              Predicates.not(Predicates.in(userRefIds))
-      );
-
-      userEventService.addUserTagEvent(tagUsers, msgid);
-    }
+    sendEvents(message, msgid, tags, user);
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
 
     return msgid;
+  }
+
+  /**
+   * Отправляет уведомления типа REF (ссылка на пользователя) и TAG (уведомление по тегу)
+   *
+   * @param message текст сообщения
+   * @param msgid идентификатор сообщения
+   * @param author автор сообщения (ему не будет отправлено уведомление)
+   */
+  private void sendEvents(String message, int msgid, List<String> tags, User author) {
+    Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+
+    userEventService.addUserRefEvent(userRefs, msgid);
+
+    topicTagService.updateTags(msgid, tags);
+    tagService.updateCounters(ImmutableList.<String>of(), tags);
+
+    // оповещение пользователей по тегам
+    List<Integer> userIdListByTags = userTagService.getUserIdListByTags(author, tags);
+
+    final Set<Integer> userRefIds = new HashSet<>();
+    for (User userRef : userRefs) {
+      userRefIds.add(userRef.getId());
+    }
+
+    // не оповещать пользователей. которые ранее были оповещены через упоминание
+    Iterable<Integer> tagUsers = Iterables.filter(
+            userIdListByTags,
+            Predicates.not(Predicates.in(userRefIds))
+    );
+
+    userEventService.addUserTagEvent(tagUsers, msgid);
   }
 
   /**
