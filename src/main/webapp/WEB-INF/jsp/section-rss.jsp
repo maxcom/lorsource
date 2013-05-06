@@ -35,7 +35,7 @@
       <author>${msg.author.nick}</author>
       <link>${template.mainUrlNoSlash}${msg.message.link}</link>
       <guid>${template.mainUrlNoSlash}${msg.message.link}</guid>
-      <title>${l:escapeHtml(msg.message.title)}</title>
+      <title>${l:escapeXml(msg.message.title)}</title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
       </c:if>

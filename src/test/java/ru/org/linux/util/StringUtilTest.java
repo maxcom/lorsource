@@ -14,8 +14,9 @@
  */
 package ru.org.linux.util;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Тесты для {@link StringUtil}.
@@ -29,7 +30,7 @@ public class StringUtilTest {
     String actualResult = StringUtil.processTitle("one -- two --- three -- four-- five --six --");
 
     // then
-    Assert.assertEquals("one&nbsp;&mdash; two --- three&nbsp;&mdash; four-- five --six --", actualResult);
+    assertEquals("one&nbsp;&mdash; two --- three&nbsp;&mdash; four-- five --six --", actualResult);
   }
 
 
@@ -41,6 +42,11 @@ public class StringUtilTest {
     String actualResult = StringUtil.makeTitle("\"Test of \"quotes '' \"in quotes\" in title\"\"");
 
     // then
-    Assert.assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8221; in title&#8221;&#187;", actualResult);
+    assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8221; in title&#8221;&#187;", actualResult);
+  }
+
+  @Test
+  public void escapeXml() {
+    assertEquals("test&#160;test&amp;", StringUtil.escapeXml("test&nbsp;test&amp;"));
   }
 }

@@ -146,6 +146,59 @@ public final class StringUtil {
 
     return res.toString();
   }
+
+  /**
+   * Экранируем управляющие html символьные последовательности, кроме &#NNNN;
+   * преобразует некоторые entity в цифровые
+   *
+   * @param str сырая строка
+   * @return отэкранированная строка
+   */
+  public static String escapeXml(String str) {
+    StringBuilder res = new StringBuilder();
+
+    for (int i = 0; i < str.length(); i++) {
+      switch (str.charAt(i)) {
+        case '<':
+          res.append("&lt;");
+          break;
+        case '>':
+          res.append("&gt;");
+          break;
+        case '\"':
+          res.append("&quot;");
+          break;
+        case '&':
+          Matcher m = uniRE.matcher(str.substring(i));
+          if (m.find()) {
+            String s = m.group();
+
+            switch (s) {
+              case "&nbsp;":
+                res.append("&#160;");
+                break;
+              default:
+                res.append(s);
+                break;
+            }
+
+            i += s.length() - 1;
+
+            continue;
+          } else {
+            res.append("&amp;");
+          }
+
+          break;
+        default:
+          res.append(str.charAt(i));
+      }
+
+    }
+
+    return res.toString();
+  }
+
   /**
    * Экранируем управляющие html символьные последовательности, в отличии от
    * escapeHtml &#NNN; тоже экранируем
