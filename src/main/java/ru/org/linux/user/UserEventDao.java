@@ -141,7 +141,7 @@ public class UserEventDao {
                       @Nullable
                       @Override
                       public Map<String, Object> apply(Integer userId) {
-                        return ImmutableMap.<String, Object>of("topic", topicId, "user", userId);
+                        return ImmutableMap.<String, Object>of("topic", topicId, "userid", userId);
                       }
                     }
             ), Map.class);

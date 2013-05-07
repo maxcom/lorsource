@@ -1,9 +1,11 @@
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,17 @@ public class UserEventDaoIntegrationTest {
     List<UserEvent> events = userEventDao.getRepliesForUser(TEST_USER_ID, true, 50, 0, null);
 
     assertEquals(1, events.size());
+  }
+
+  @Test
+  public void testInsertTopicUserNotification() {
+    userEventDao.insertTopicNotification(TEST_TOPIC_ID, ImmutableList.of(TEST_USER_ID));
+  }
+
+  @Test(expected = DuplicateKeyException.class)
+  public void testInsertTopicUserNotificationDup() {
+    userEventDao.insertTopicNotification(TEST_TOPIC_ID, ImmutableList.of(TEST_USER_ID));
+    userEventDao.insertTopicNotification(TEST_TOPIC_ID, ImmutableList.of(TEST_USER_ID));
   }
 
   private void createSimpleEvent() {
