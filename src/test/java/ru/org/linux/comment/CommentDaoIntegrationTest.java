@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -34,7 +35,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = CommentDaoIntegrationTestConfiguration.class)
+@Transactional
 public class CommentDaoIntegrationTest {
   private int topicId;
 
@@ -73,12 +75,6 @@ public class CommentDaoIntegrationTest {
 
   }
 
-  private void delComment(int commentId) {
-    jdbcTemplate.update("DELETE FROM msgbase WHERE id=?", commentId);
-    jdbcTemplate.update("DELETE FROM user_events WHERE comment_id=?", commentId);
-    jdbcTemplate.update("DELETE FROM comments WHERE id=?", commentId);
-  }
-
   private List<Map<String, Object>> getComment(int commentId) {
     return jdbcTemplate.queryForList(
       "SELECT *, editors.nick as edit_nick FROM comments " +
@@ -90,100 +86,88 @@ public class CommentDaoIntegrationTest {
   @Test
   public void editCommentTest() {
     int commentId = jdbcTemplate.queryForInt("select nextval('s_msgid')");
-    try {
-      addComment(
-        commentId,
-        null,
-        "CommentDaoIntegrationTest.editCommentTest()",
-        "CommentDaoIntegrationTest.editCommentTest(): comment body"
-      );
+
+    addComment(
+            commentId,
+            null,
+            "CommentDaoIntegrationTest.editCommentTest()",
+            "CommentDaoIntegrationTest.editCommentTest(): comment body"
+    );
 
 
-      Comment oldComment = mock(Comment.class);
-      when(oldComment.getId()).thenReturn(commentId);
+    Comment oldComment = mock(Comment.class);
+    when(oldComment.getId()).thenReturn(commentId);
 
-      Comment newComment = mock(Comment.class);
-      when(newComment.getTitle()).thenReturn("CommentDaoIntegrationTest.editCommentTest(): new title");
+    Comment newComment = mock(Comment.class);
+    when(newComment.getTitle()).thenReturn("CommentDaoIntegrationTest.editCommentTest(): new title");
 
-      commentDao.edit(oldComment, newComment, "test body");
+    commentDao.edit(oldComment, newComment, "test body");
 
-      List<Map<String, Object>> rows = getComment(commentId);
-      assertFalse("No any records", rows.isEmpty());
-      Map<String, Object> row = rows.get(0);
-      assertEquals("CommentDaoIntegrationTest.editCommentTest(): new title", row.get("title"));
+    List<Map<String, Object>> rows = getComment(commentId);
+    assertFalse("No any records", rows.isEmpty());
+    Map<String, Object> row = rows.get(0);
+    assertEquals("CommentDaoIntegrationTest.editCommentTest(): new title", row.get("title"));
 
-      rows = jdbcTemplate.queryForList(
-        "SELECT * FROM msgbase WHERE id=?", commentId
-      );
+    rows = jdbcTemplate.queryForList(
+            "SELECT * FROM msgbase WHERE id=?", commentId
+    );
 
-      assertFalse("No any records", rows.isEmpty());
-      row = rows.get(0);
-      assertEquals("test body", row.get("message"));
-    } finally {
-      delComment(commentId);
-    }
+    assertFalse("No any records", rows.isEmpty());
+    row = rows.get(0);
+    assertEquals("test body", row.get("message"));
   }
 
   @Test
   public void updateLatestEditorInfoTest() {
     int commentId = jdbcTemplate.queryForInt("select nextval('s_msgid')");
-    try {
-      addComment(
-        commentId,
-        null,
-        "CommentDaoIntegrationTest.updateLatestEditorInfoTest()",
-        "comment body"
-      );
 
-      List<Map<String, Object>> rows = getComment(commentId);
-      assertFalse("No any records", rows.isEmpty());
-      Map<String, Object> row = rows.get(0);
+    addComment(
+            commentId,
+            null,
+            "CommentDaoIntegrationTest.updateLatestEditorInfoTest()",
+            "comment body"
+    );
 
-      assertNull(row.get("edit_nick"));
-      assertNull(row.get("edit_date"));
-      assertEquals(0, row.get("edit_count"));
+    List<Map<String, Object>> rows = getComment(commentId);
+    assertFalse("No any records", rows.isEmpty());
+    Map<String, Object> row = rows.get(0);
 
-      Date commentEditDate = new Date();
-      commentDao.updateLatestEditorInfo(commentId, 1, commentEditDate, 1234);
+    assertNull(row.get("edit_nick"));
+    assertNull(row.get("edit_date"));
+    assertEquals(0, row.get("edit_count"));
 
-      rows = getComment(commentId);
-      assertFalse("No any records", rows.isEmpty());
-      row = rows.get(0);
-      Timestamp rowTimestamp = (Timestamp) row.get("edit_date");
-      assertEquals("maxcom", row.get("edit_nick"));
-      assertEquals(rowTimestamp.getTime(), commentEditDate.getTime());
-      assertEquals(1234, row.get("edit_count"));
-    } finally {
-      delComment(commentId);
-    }
+    Date commentEditDate = new Date();
+    commentDao.updateLatestEditorInfo(commentId, 1, commentEditDate, 1234);
+
+    rows = getComment(commentId);
+    assertFalse("No any records", rows.isEmpty());
+    row = rows.get(0);
+    Timestamp rowTimestamp = (Timestamp) row.get("edit_date");
+    assertEquals("maxcom", row.get("edit_nick"));
+    assertEquals(rowTimestamp.getTime(), commentEditDate.getTime());
+    assertEquals(1234, row.get("edit_count"));
   }
 
   @Test
   public void isHaveAnswersTest() {
     int commentId1 = jdbcTemplate.queryForInt("select nextval('s_msgid')");
     int commentId2 = jdbcTemplate.queryForInt("select nextval('s_msgid')");
-    try {
-      addComment(
-        commentId1,
-        null,
-        "CommentDaoIntegrationTest.isHaveAnswersTest() - 1",
-        "comment body"
-      );
+    addComment(
+            commentId1,
+            null,
+            "CommentDaoIntegrationTest.isHaveAnswersTest() - 1",
+            "comment body"
+    );
 
-      assertFalse(commentDao.isHaveAnswers(commentId1));
+    assertFalse(commentDao.isHaveAnswers(commentId1));
 
-      addComment(
-        commentId2,
-        commentId1,
-        "CommentDaoIntegrationTest.isHaveAnswersTest() - 2",
-        "comment body"
-      );
+    addComment(
+            commentId2,
+            commentId1,
+            "CommentDaoIntegrationTest.isHaveAnswersTest() - 2",
+            "comment body"
+    );
 
-      assertTrue(commentDao.isHaveAnswers(commentId1));
-
-    } finally {
-      delComment(commentId2);
-      delComment(commentId1);
-    }
+    assertTrue(commentDao.isHaveAnswers(commentId1));
   }
 }
