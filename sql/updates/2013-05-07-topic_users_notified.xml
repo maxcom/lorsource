@@ -1,0 +1,35 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2013050701" author="Maxim Valyanskiy">
+        <createTable tableName="topic_users_notified">
+            <column name="topic" type="integer">
+                <constraints
+                        foreignKeyName="topic_users_notified_topic_fkey"
+                        references="topics(id)"
+                        nullable="false"
+                />
+            </column>
+
+            <column name="userid" type="integer">
+                <constraints
+                        foreignKeyName="topic_users_notified_user_fkey"
+                        references="users(id)"
+                        nullable="false"
+                />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2013050702" author="Maxim Valynskiy">
+        <sql>
+            CREATE UNIQUE INDEX topic_users_notified_idx ON topic_users_notified (topic, userid);
+        </sql>
+        <rollback>
+            DROP INDEX topic_users_notified_idx;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

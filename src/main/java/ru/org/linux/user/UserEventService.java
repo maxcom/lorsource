@@ -20,6 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.DeleteInfo;
@@ -138,11 +140,14 @@ public class UserEventService {
    * @param users   список пользователей. которых надо оповестить
    * @param topicId идентификационный номер топика
    */
-  public void addUserRefEvent(Iterable<User> users, int topicId) {
-    for (User user : users) {
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void addUserRefEvent(Iterable<Integer> users, int topicId) {
+    userEventDao.insertTopicNotification(topicId, users);
+
+    for (int user : users) {
       userEventDao.addEvent(
         REFERENCE.getType(),
-        user.getId(),
+        user,
         false,
         topicId,
         null,
@@ -175,7 +180,10 @@ public class UserEventService {
    * @param userIdList  список ID пользователей, которых надо оповестить
    * @param topicId     идентификационный номер топика
    */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void addUserTagEvent(Iterable<Integer> userIdList, int topicId) {
+    userEventDao.insertTopicNotification(topicId, userIdList);
+
     for (int userId : userIdList) {
       userEventDao.addEvent(
         TAG.getType(),

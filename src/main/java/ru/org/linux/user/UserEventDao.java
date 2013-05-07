@@ -15,9 +15,10 @@
 
 package ru.org.linux.user;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,8 +39,6 @@ import java.util.Map;
 
 @Repository
 public class UserEventDao {
-  private static final Log logger = LogFactory.getLog(UserEventDao.class);
-
   private static final String UPDATE_RESET_UNREAD_REPLIES = "UPDATE users SET unread_events=0 where id=?";
 
   private static final String QUERY_ALL_REPLIES_FOR_USER =
@@ -80,6 +80,7 @@ public class UserEventDao {
       " OFFSET ?";
 
   private SimpleJdbcInsert insert;
+  private SimpleJdbcInsert insertTopicUsersNotified;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -89,6 +90,10 @@ public class UserEventDao {
 
     insert.setTableName("user_events");
     insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message");
+
+    insertTopicUsersNotified = new SimpleJdbcInsert(ds);
+    insertTopicUsersNotified.setTableName("topic_users_notified");
+    insertTopicUsersNotified.usingColumns("topic", "userid");
 
     jdbcTemplate = new JdbcTemplate(ds);
   }
@@ -126,6 +131,22 @@ public class UserEventDao {
     }
 
     insert.execute(params);
+  }
+
+  public void insertTopicNotification(final int topicId, Iterable<Integer> userIds) {
+    @SuppressWarnings("unchecked") Map<String, Object>[] batch = Iterables.toArray(
+            Iterables.transform(
+                    userIds,
+                    new Function<Integer, Map<String, Object>>() {
+                      @Nullable
+                      @Override
+                      public Map<String, Object> apply(Integer userId) {
+                        return ImmutableMap.<String, Object>of("topic", topicId, "user", userId);
+                      }
+                    }
+            ), Map.class);
+
+    insertTopicUsersNotified.executeBatch(batch);
   }
 
   /**

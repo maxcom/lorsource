@@ -110,6 +110,9 @@ public class TopicService {
 
     List<String> tags = tagService.parseSanitizeTags(form.getTags());
 
+    topicTagService.updateTags(msgid, tags);
+    tagService.updateCounters(ImmutableList.<String>of(), tags);
+
     sendEvents(message, msgid, tags, user);
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
@@ -128,11 +131,6 @@ public class TopicService {
   private void sendEvents(String message, int msgid, List<String> tags, User author) {
     Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
 
-    userEventService.addUserRefEvent(userRefs, msgid);
-
-    topicTagService.updateTags(msgid, tags);
-    tagService.updateCounters(ImmutableList.<String>of(), tags);
-
     // оповещение пользователей по тегам
     List<Integer> userIdListByTags = userTagService.getUserIdListByTags(author, tags);
 
@@ -147,6 +145,7 @@ public class TopicService {
             Predicates.not(Predicates.in(userRefIds))
     );
 
+    userEventService.addUserRefEvent(userRefIds, msgid);
     userEventService.addUserTagEvent(tagUsers, msgid);
   }
 
