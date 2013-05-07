@@ -28,10 +28,10 @@
             <value>jdbc:postgresql://127.0.0.1:5432/lor</value>
         </property>
         <property name="username">
-            <value>maxcom</value>
+            <value>linuxweb</value>
         </property>
         <property name="password">
-            <value>maxcom</value>
+            <value>linuxweb</value>
         </property>
     </bean>
 

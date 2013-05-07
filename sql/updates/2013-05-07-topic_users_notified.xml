@@ -32,4 +32,10 @@
             DROP INDEX topic_users_notified_idx;
         </rollback>
     </changeSet>
+
+    <changeSet id="2013050703" author="Maxim Valynskiy">
+        <sql>
+            GRANT SELECT, INSERT ON topic_users_notified TO linuxweb;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
