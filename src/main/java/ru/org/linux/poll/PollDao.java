@@ -276,18 +276,6 @@ public class PollDao {
   }
 
   /**
-   * Удалить голосование.
-   *
-   * @param poll объект голосования
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deletePoll(Poll poll) {
-    jdbcTemplate.update(deletePoll1, poll.getId());
-    jdbcTemplate.update(deletePoll2, poll.getId());
-    jdbcTemplate.update(deletePoll3, poll.getId());
-  }
-
-  /**
    * Добавить новый вариант ответа в голосование.
    *
    * @param poll  объект голосования

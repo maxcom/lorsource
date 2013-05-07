@@ -15,18 +15,20 @@
 package ru.org.linux.poll;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("integration-tests-context.xml")
+@ContextConfiguration(classes = PollDaoIntegrationTestConfiguration.class)
 public class PollDaoIntegrationTest {
   private static final Integer TEST_TOPIC_ID = 1937504;
 
@@ -38,10 +40,11 @@ public class PollDaoIntegrationTest {
       throws Exception {
     int currentPollId = pollDao.getCurrentPollId();
     Poll poll = pollDao.getCurrentPoll();
-    Assert.assertEquals(currentPollId, poll.getId());
+    assertEquals(currentPollId, poll.getId());
   }
 
   @Test
+  @Transactional
   public void voteCreateAndRunningPollTest()
       throws Exception {
     List <String> pollList = new ArrayList<>();
@@ -49,30 +52,21 @@ public class PollDaoIntegrationTest {
     pollList.add("Case 2");
     pollList.add("Case 3");
 
-    try {
-      pollDao.createPoll(pollList, true, TEST_TOPIC_ID);
-      Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID);
+    pollDao.createPoll(pollList, true, TEST_TOPIC_ID);
+    Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID);
 
       /* Проверяем правильность сохранения вариантов голосования */
-      ImmutableList<PollVariantResult> pollVariants = pollDao.getPollVariants(poll);
-      Assert.assertEquals(3, pollVariants.size());
+    ImmutableList<PollVariantResult> pollVariants = pollDao.getPollVariants(poll);
+    assertEquals(3, pollVariants.size());
 
       /* Проверяем изменения по вариантам голосования */
-      pollDao.addNewVariant(poll, "Case 4");
-      pollVariants = pollDao.getPollVariants(poll);
-      Assert.assertEquals(4, pollVariants.size());
+    pollDao.addNewVariant(poll, "Case 4");
+    pollVariants = pollDao.getPollVariants(poll);
+    assertEquals(4, pollVariants.size());
 
-      PollVariantResult next = pollVariants.iterator().next();
-      pollDao.removeVariant(new PollVariant(next.getId(), next.getLabel()));
-      pollVariants = pollDao.getPollVariants(poll);
-      Assert.assertEquals(3, pollVariants.size());
-
-    } finally {
-      Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID);
-      pollDao.deletePoll(poll);
-    }
-
+    PollVariantResult next = pollVariants.iterator().next();
+    pollDao.removeVariant(new PollVariant(next.getId(), next.getLabel()));
+    pollVariants = pollDao.getPollVariants(poll);
+    assertEquals(3, pollVariants.size());
   }
-
-
 }
