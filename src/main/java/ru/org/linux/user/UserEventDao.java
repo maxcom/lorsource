@@ -149,6 +149,10 @@ public class UserEventDao {
     insertTopicUsersNotified.executeBatch(batch);
   }
 
+  public List<Integer> getNotifiedUsers(int topicId) {
+    return jdbcTemplate.queryForList("SELECT userid FROM topic_users_notified WHERE topic=?", Integer.class, topicId);
+  }
+
   /**
    * Сброс уведомлений.
    *

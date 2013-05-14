@@ -32,6 +32,7 @@ import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static ru.org.linux.user.UserEventFilterEnum.*;
 
@@ -154,6 +155,10 @@ public class UserEventService {
         null
       );
     }
+  }
+
+  public Set<Integer> getNotifiedUsers(int topicId) {
+    return ImmutableSet.copyOf(userEventDao.getNotifiedUsers(topicId));
   }
 
   /**

@@ -1,6 +1,5 @@
 package ru.org.linux.topic;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.apache.commons.logging.Log;
@@ -29,6 +28,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.google.common.base.Predicates.*;
 
 @Service
 public class TopicService {
@@ -129,6 +130,8 @@ public class TopicService {
    * @param author автор сообщения (ему не будет отправлено уведомление)
    */
   private void sendEvents(String message, int msgid, List<String> tags, User author) {
+    Set<Integer> notifiedUsers = userEventService.getNotifiedUsers(msgid);
+
     Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
 
     // оповещение пользователей по тегам
@@ -136,13 +139,15 @@ public class TopicService {
 
     final Set<Integer> userRefIds = new HashSet<>();
     for (User userRef : userRefs) {
-      userRefIds.add(userRef.getId());
+      if (!notifiedUsers.contains(userRef.getId())) {
+        userRefIds.add(userRef.getId());
+      }
     }
 
     // не оповещать пользователей. которые ранее были оповещены через упоминание
     Iterable<Integer> tagUsers = Iterables.filter(
             userIdListByTags,
-            Predicates.not(Predicates.in(userRefIds))
+            not(or(in(userRefIds), in(notifiedUsers)))
     );
 
     userEventService.addUserRefEvent(userRefIds, msgid);
