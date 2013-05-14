@@ -153,7 +153,7 @@ public class TopicService {
    * Удаление топика и если удаляет модератор изменить автору score
    * @param message удаляемый топик
    * @param user удаляющий пользователь
-   * @param reason прчина удаления
+   * @param reason причина удаления
    * @param bonus дельта изменения score автора топика
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
