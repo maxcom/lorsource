@@ -12,6 +12,8 @@ import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
@@ -24,10 +26,7 @@ import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Predicates.*;
 
@@ -198,5 +197,62 @@ public class TopicService {
     }
 
     return topics;
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public boolean updateAndCommit(
+          Topic newMsg,
+          Topic oldMsg,
+          User user,
+          List<String> newTags,
+          String newText,
+          boolean commit,
+          Integer changeGroupId,
+          int bonus,
+          List<PollVariant> pollVariants,
+          boolean multiselect,
+          Map<Integer, Integer> editorBonus
+  )  {
+    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText);
+
+    try {
+      if (pollVariants!=null && pollDao.updatePoll(oldMsg, pollVariants, multiselect)) {
+        modified = true;
+      }
+    } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    if (commit) {
+      if (changeGroupId != null) {
+        if (oldMsg.getGroupId() != changeGroupId) {
+          topicDao.changeGroup(oldMsg, changeGroupId);
+        }
+      }
+
+      commit(oldMsg, user, bonus, editorBonus);
+    }
+
+    if (modified) {
+      logger.info("сообщение " + oldMsg.getId() + " исправлено " + user.getNick());
+    }
+
+    return modified;
+  }
+
+  private void commit(Topic msg, User commiter, int bonus, Map<Integer, Integer> editorBonus) {
+    if (bonus < 0 || bonus > 20) {
+      throw new IllegalStateException("Неверное значение bonus");
+    }
+
+    topicDao.commit(msg, commiter);
+
+    userDao.changeScore(msg.getUid(), bonus);
+
+    if (editorBonus!=null) {
+      for (Map.Entry<Integer, Integer> entry : editorBonus.entrySet()) {
+        userDao.changeScore(entry.getKey(), entry.getValue());
+      }
+    }
   }
 }

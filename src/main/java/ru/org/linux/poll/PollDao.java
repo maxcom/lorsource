@@ -15,6 +15,7 @@
 
 package ru.org.linux.poll;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,6 +26,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 
 import javax.sql.DataSource;
@@ -32,6 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class PollDao {
@@ -48,10 +52,6 @@ public class PollDao {
   private static final String updateVote = "UPDATE polls_variants SET votes=votes+1 WHERE id=? AND vote=?";
   private static final String insertVoteUser = "INSERT INTO vote_users VALUES(?, ?, ?)";
   private static final String insertPoll = "INSERT INTO polls (id, multiselect, topic) values (?,?,?)";
-  
-  private static final String deletePoll1 = "DELETE FROM vote_users     WHERE vote = ?";
-  private static final String deletePoll2 = "DELETE FROM polls          WHERE id   = ?";
-  private static final String deletePoll3 = "DELETE FROM polls_variants WHERE vote = ?";
   
   private static final String queryNextPollId = "select nextval('vote_id') as voteid";
   
@@ -295,7 +295,7 @@ public class PollDao {
    * @param var   объект варианта голосования
    * @param label новое содержимое
    */
-  public void updateVariant(PollVariant var, String label) {
+  private void updateVariant(PollVariant var, String label) {
     if (var.getLabel().equals(label)) {
       return;
     }
@@ -308,17 +308,56 @@ public class PollDao {
    *
    * @param variant объект варианта голосования
    */
-  public void removeVariant(PollVariant variant) {
+  void removeVariant(PollVariant variant) {
     jdbcTemplate.update(deleteVariant, variant.getId());
   }
 
   /**
    * Обновить признак мультивыбора для опроса
-   * ALERT: не Transactional метод, использовать только внтури Transactional метода
    * @param poll опрос
    * @param multiselect признак мультивыбора
    */
-  public void updateMultiselect(Poll poll, boolean multiselect) {
+  private void updateMultiselect(Poll poll, boolean multiselect) {
     jdbcTemplate.update(updateMultiselect, multiselect, poll.getId());
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public boolean updatePoll(Topic message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
+    boolean modified = false;
+
+    final Poll poll = getPollByTopicId(message.getId());
+
+    ImmutableList<PollVariant> oldVariants = poll.getVariants();
+
+    Map<Integer, String> newMap = PollVariant.toMap(newVariants);
+
+    for (final PollVariant var : oldVariants) {
+      final String label = newMap.get(var.getId());
+
+      if (!TopicDao.equalStrings(var.getLabel(), label)) {
+        modified = true;
+      }
+
+      if (Strings.isNullOrEmpty(label)) {
+        removeVariant(var);
+      } else {
+        updateVariant(var, label);
+      }
+    }
+
+    for (final PollVariant var : newVariants) {
+      if (var.getId()==0 && !Strings.isNullOrEmpty(var.getLabel())) {
+        modified = true;
+
+        addNewVariant(poll, var.getLabel());
+      }
+    }
+
+    if (poll.isMultiSelect()!=multiselect) {
+      modified = true;
+      updateMultiselect(poll, multiselect);
+    }
+
+    return modified;
   }
 }

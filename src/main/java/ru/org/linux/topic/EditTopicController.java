@@ -52,7 +52,6 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
@@ -76,6 +75,9 @@ public class EditTopicController {
   private TopicDao messageDao;
 
   @Autowired
+  private TopicService topicService;
+
+  @Autowired
   private TopicPrepareService prepareService;
 
   @Autowired
@@ -93,9 +95,6 @@ public class EditTopicController {
   @Autowired
   private MsgbaseDao msgbaseDao;
   
-  @Autowired
-  private UserDao userDao;
-
   @Autowired
   private EditHistoryService editHistoryService;
 
@@ -464,7 +463,7 @@ public class EditTopicController {
     }
 
     if (!preview && !errors.hasErrors()) {
-      boolean changed = messageDao.updateAndCommit(
+      boolean changed = topicService.updateAndCommit(
               newMsg,
               message,
               user,

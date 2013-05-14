@@ -37,10 +37,6 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.poll.Poll;
-import ru.org.linux.poll.PollDao;
-import ru.org.linux.poll.PollNotFoundException;
-import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -61,7 +57,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Операции над сообщениями
@@ -73,9 +68,6 @@ public class TopicDao {
 
   @Autowired
   private GroupDao groupDao;
-
-  @Autowired
-  private PollDao pollDao;
 
   @Autowired
   private TagService tagService;
@@ -275,7 +267,7 @@ public class TopicDao {
   }
 
   private int allocateMsgid() {
-    return jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
+    return jdbcTemplate.queryForObject("select nextval('s_msgid') as msgid", Integer.class);
   }
 
   /**
@@ -329,7 +321,8 @@ public class TopicDao {
     return msgid;
   }
 
-  private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
     List<String> oldTags = topicTagService.getMessageTags(msg.getId());
 
     EditHistoryDto editHistoryDto = new EditHistoryDto();
@@ -405,7 +398,7 @@ public class TopicDao {
     return modified;
   }
 
-  private static boolean equalStrings(String s1, String s2) {
+  public static boolean equalStrings(String s1, String s2) {
     if (Strings.isNullOrEmpty(s1)) {
       return Strings.isNullOrEmpty(s2);
     }
@@ -413,105 +406,12 @@ public class TopicDao {
     return s1.equals(s2);
   }
 
-  private boolean updatePoll(Topic message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
-    boolean modified = false;
-
-    final Poll poll = pollDao.getPollByTopicId(message.getId());
-
-    ImmutableList<PollVariant> oldVariants = poll.getVariants();
-
-    Map<Integer, String> newMap = PollVariant.toMap(newVariants);
-
-    for (final PollVariant var : oldVariants) {
-      final String label = newMap.get(var.getId());
-
-      if (!equalStrings(var.getLabel(), label)) {
-        modified = true;
-      }
-
-      if (Strings.isNullOrEmpty(label)) {
-        pollDao.removeVariant(var);
-      } else {
-        pollDao.updateVariant(var, label);
-      }
-    }
-
-    for (final PollVariant var : newVariants) {
-      if (var.getId()==0 && !Strings.isNullOrEmpty(var.getLabel())) {
-        modified = true;
-
-        pollDao.addNewVariant(poll, var.getLabel());
-      }
-    }
-
-    if (poll.isMultiSelect()!=multiselect) {
-      modified = true;
-      pollDao.updateMultiselect(poll, multiselect);
-    }
-
-    return modified;
-  }
-
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updateAndCommit(
-          Topic newMsg,
-          Topic oldMsg,
-          User user,
-          List<String> newTags,
-          String newText,
-          boolean commit,
-          Integer changeGroupId,
-          int bonus,
-          List<PollVariant> pollVariants,
-          boolean multiselect,
-          Map<Integer, Integer> editorBonus
-  )  {
-    boolean modified = updateMessage(oldMsg, newMsg, user, newTags, newText);
-
-    try {
-      if (pollVariants!=null && updatePoll(oldMsg, pollVariants, multiselect)) {
-        modified = true;
-      }
-    } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
-    if (commit) {
-      if (changeGroupId != null) {
-        if (oldMsg.getGroupId() != changeGroupId) {
-          jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, oldMsg.getId());
-          jdbcTemplate.update("UPDATE groups SET stat3=stat3+1 WHERE id=? or id=?", oldMsg.getGroupId(), changeGroupId);
-        }
-      }
-
-      commit(oldMsg, user, bonus, editorBonus);
-    }
-
-    if (modified) {
-      logger.info("сообщение " + oldMsg.getId() + " исправлено " + user.getNick());
-    }
-
-    return modified;
-  }
-
-  private void commit(Topic msg, User commiter, int bonus, Map<Integer, Integer> editorBonus) {
-    if (bonus < 0 || bonus > 20) {
-      throw new IllegalStateException("Неверное значение bonus");
-    }
-
+  public void commit(Topic msg, User commiter) {
     jdbcTemplate.update(
             "UPDATE topics SET moderate='t', commitby=?, commitdate='now' WHERE id=?",
             commiter.getId(),
             msg.getId()
     );
-
-    userDao.changeScore(msg.getUid(), bonus);
-
-    if (editorBonus!=null) {
-      for (Map.Entry<Integer, Integer> entry : editorBonus.entrySet()) {
-        userDao.changeScore(entry.getKey(), entry.getValue());
-      }
-    }
   }
 
   public void uncommit(Topic msg) {
@@ -681,11 +581,15 @@ public class TopicDao {
     );
   }
 
+  public void changeGroup(Topic msg, int changeGroupId) {
+    jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", changeGroupId, msg.getId());
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void moveTopic(Topic msg, Group newGrp, User moveBy) {
     String url = msg.getUrl();
 
-    int oldId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id=? FOR UPDATE", msg.getId());
+    int oldId = jdbcTemplate.queryForObject("SELECT groupid FROM topics WHERE id=? FOR UPDATE", Integer.class, msg.getId());
 
     if (oldId==newGrp.getId()) {
       return;
@@ -693,7 +597,7 @@ public class TopicDao {
 
     boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
 
-    jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
+    changeGroup(msg, newGrp.getId());
 
     if (!newGrp.isLinksAllowed()) {
       jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
