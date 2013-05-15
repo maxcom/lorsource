@@ -407,25 +407,7 @@ public class EditTopicController {
     Poll newPoll = null;
 
     if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
-      Poll poll = pollDao.getPollByTopicId(message.getId());
-
-      List<PollVariant> newVariants = new ArrayList<>();
-
-      for (PollVariant v : poll.getVariants()) {
-        String label = form.getPoll().get(v.getId());
-
-        if (!Strings.isNullOrEmpty(label)) {
-          newVariants.add(new PollVariant(v.getId(), label));
-        }
-      }
-
-      for (String label : form.getNewPoll()) {
-        if (!Strings.isNullOrEmpty(label)) {
-          newVariants.add(new PollVariant(0, label));
-        }
-      }
-      
-      newPoll = poll.createNew(newVariants);
+      newPoll = buildNewPoll(message, form);
     }
 
     String newText;
@@ -505,6 +487,28 @@ public class EditTopicController {
     );
 
     return new ModelAndView("edit", params);
+  }
+
+  private Poll buildNewPoll(Topic message, EditTopicRequest form) throws PollNotFoundException {
+    Poll poll = pollDao.getPollByTopicId(message.getId());
+
+    List<PollVariant> newVariants = new ArrayList<>();
+
+    for (PollVariant v : poll.getVariants()) {
+      String label = form.getPoll().get(v.getId());
+
+      if (!Strings.isNullOrEmpty(label)) {
+        newVariants.add(new PollVariant(v.getId(), label));
+      }
+    }
+
+    for (String label : form.getNewPoll()) {
+      if (!Strings.isNullOrEmpty(label)) {
+        newVariants.add(new PollVariant(0, label));
+      }
+    }
+
+    return poll.createNew(newVariants);
   }
 
   @InitBinder("form")
