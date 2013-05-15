@@ -150,8 +150,8 @@ public class UserTagService {
    * @param tags список фаворитных тегов
    * @return список ID пользователей
    */
-  public List<Integer> getUserIdListByTags(User user, List<String> tags) {
-    return userTagDao.getUserIdListByTags(user.getId(), tags);
+  public List<Integer> getUserIdListByTags(int userid, List<String> tags) {
+    return userTagDao.getUserIdListByTags(userid, tags);
   }
 
   /**

@@ -113,7 +113,7 @@ public class TopicService {
     topicTagService.updateTags(msgid, tags);
     tagService.updateCounters(ImmutableList.<String>of(), tags);
 
-    sendEvents(message, msgid, tags, user);
+    sendEvents(message, msgid, tags, user.getId());
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
@@ -128,7 +128,7 @@ public class TopicService {
    * @param msgid идентификатор сообщения
    * @param author автор сообщения (ему не будет отправлено уведомление)
    */
-  private void sendEvents(String message, int msgid, List<String> tags, User author) {
+  private void sendEvents(String message, int msgid, List<String> tags, int author) {
     Set<Integer> notifiedUsers = userEventService.getNotifiedUsers(msgid);
 
     Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
@@ -214,6 +214,10 @@ public class TopicService {
           Map<Integer, Integer> editorBonus
   )  {
     boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText);
+
+    if (modified) {
+      sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
+    }
 
     try {
       if (pollVariants!=null && pollDao.updatePoll(oldMsg, pollVariants, multiselect)) {
