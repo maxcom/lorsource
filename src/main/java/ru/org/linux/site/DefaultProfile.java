@@ -27,7 +27,7 @@ import java.util.Map;
 import static ru.org.linux.user.Profile.*;
 
 public final class DefaultProfile {
-  private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
+  private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm", "lastMiniNews"};
   private static final ImmutableSet<String> BOX_SET = ImmutableSet.copyOf(BOXLIST);
 
   private static final String[] STYLES = { "black", "white", "white2", "tango" };
