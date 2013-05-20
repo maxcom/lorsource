@@ -320,6 +320,11 @@ public class TopicPrepareService {
     ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
 
     for (Topic message : messages) {
+
+      if(profile.isHideMiniNews() && message.isMinor()){
+        continue;
+      }
+
       PreparedTopic preparedMessage = prepareMessage(
               message,
               tags.get(message.getId()),
