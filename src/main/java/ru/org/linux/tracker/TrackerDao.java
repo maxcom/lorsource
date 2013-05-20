@@ -26,6 +26,7 @@ import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -237,7 +238,7 @@ public class TrackerDao {
       int stat1 = resultSet.getInt("stat1");
       int groupId = resultSet.getInt("gid");
       String groupTitle = resultSet.getString("gtitle");
-      String title = resultSet.getString("title");
+      String title = StringUtil.makeTitle(resultSet.getString("title"));
       int cid = resultSet.getInt("cid");
       User lastCommentBy;
       try {
