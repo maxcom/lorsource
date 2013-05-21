@@ -101,6 +101,10 @@
         height: 19px;
     }
 
+    code, .code, pre {
+        margin: 0;
+    }
+
 }
 
 /* phone */
@@ -212,5 +216,10 @@
         display: block;
         height: 19px;
     }
+
+    code, .code, pre {
+        margin: 0;
+    }
+
 
 }
