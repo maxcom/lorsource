@@ -1,0 +1,29 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2013052101" author="hizel">
+        <sql>CREATE TYPE markup_type AS ENUM ('PLAIN','BBCODE_TEX','BBCODE_ULB','MARKDOWN')</sql>
+    </changeSet>
+
+
+    <changeSet id="2013052202" author="hizel">
+        <addColumn tableName="msgbase">
+            <column name="markup" type="markup_type" defaultValue='BBCODE_TEX'>
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2013052103" author="hizel">
+        <sql>UPDATE msgbase SET markup='PLAIN' where bbcode IS NULL or not bbcode</sql>
+    </changeSet>
+
+    <changeSet id="2013052104" author="hizel">
+        <dropColumn columnName="bbcode" tableName="msgbase"/>
+    </changeSet>
+
+
+</databaseChangeLog>
