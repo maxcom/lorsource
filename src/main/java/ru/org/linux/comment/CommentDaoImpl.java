@@ -88,7 +88,7 @@ class CommentDaoImpl implements CommentDao {
 
     insertMsgbase = new SimpleJdbcInsert(dataSource);
     insertMsgbase.setTableName("msgbase");
-    insertMsgbase.usingColumns("id", "message", "bbcode");
+    insertMsgbase.usingColumns("id", "message");
   }
 
   @Autowired
@@ -332,8 +332,7 @@ class CommentDaoImpl implements CommentDao {
 
     insertMsgbase.execute(ImmutableMap.<String, Object>of(
       "id", msgid,
-      "message", message,
-      "bbcode", true)
+      "message", message)
     );
 
     return msgid;
