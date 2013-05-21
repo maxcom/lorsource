@@ -35,7 +35,7 @@ public class MsgbaseDao {
   /**
    * Запрос тела сообщения и признака bbcode для сообщения
    */
-  private static final String QUERY_MESSAGE_TEXT = "SELECT message, bbcode FROM msgbase WHERE id=?";
+  private static final String QUERY_MESSAGE_TEXT = "SELECT message, markup FROM msgbase WHERE id=?";
   private static final String QUERY_MESSAGE_TEXT_FROM_WIKI =
       "    select jam_topic_version.version_content " +
           "    from jam_topic, jam_topic_version " +
@@ -60,7 +60,8 @@ public class MsgbaseDao {
       @Override
       public MessageText mapRow(ResultSet resultSet, int i) throws SQLException {
         String text = resultSet.getString("message");
-        boolean lorcode = resultSet.getBoolean("bbcode");
+        String markup = resultSet.getString("markup");
+        boolean lorcode = !"PLAIN".equals(markup);
         
         return new MessageText(text, lorcode);
       }
@@ -75,13 +76,14 @@ public class MsgbaseDao {
     final Map<Integer, MessageText> out = Maps.newHashMapWithExpectedSize(msgids.size());
 
     namedJdbcTemplate.query(
-            "SELECT message, bbcode, id FROM msgbase WHERE id IN (:list)",
+            "SELECT message, markup, id FROM msgbase WHERE id IN (:list)",
             ImmutableMap.of("list", msgids),
             new RowCallbackHandler() {
               @Override
               public void processRow(ResultSet resultSet) throws SQLException {
                 String text = resultSet.getString("message");
-                boolean lorcode = resultSet.getBoolean("bbcode");
+                String markup = resultSet.getString("markup");
+                boolean lorcode = !"PLAIN".equals(markup);
 
                 out.put(resultSet.getInt("id"), new MessageText(text, lorcode));
               }

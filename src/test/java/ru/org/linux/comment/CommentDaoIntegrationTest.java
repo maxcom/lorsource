@@ -68,7 +68,7 @@ public class CommentDaoIntegrationTest {
       "Integration test User Agent"
     );
     jdbcTemplate.update(
-      "INSERT INTO msgbase (id, message, bbcode) VALUES (?, ?, true)",
+      "INSERT INTO msgbase (id, message) VALUES (?, ?)",
       commentId,
       body
     );
