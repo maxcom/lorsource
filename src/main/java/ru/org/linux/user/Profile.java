@@ -40,6 +40,7 @@ public class Profile {
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
+  public static final String HIDE_MINI_NEWS_PROPERTY = "hideMiniNews";
 
   private String style;
   private String formatMode;
@@ -53,6 +54,7 @@ public class Profile {
   private String avatarMode;
   private boolean showAnonymous;
   private boolean showSocial;
+  private boolean hideMiniNews;
 
   private List<String> boxes;
 
@@ -69,6 +71,7 @@ public class Profile {
     avatarMode = p.getString(AVATAR_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
+    hideMiniNews = p.getBoolean(HIDE_MINI_NEWS_PROPERTY);
 
     this.boxes = boxes;
   }
@@ -88,6 +91,7 @@ public class Profile {
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
+    p.setBoolean(HIDE_MINI_NEWS_PROPERTY, hideMiniNews);
 
     return p.getSettings();
   }
@@ -224,6 +228,14 @@ public class Profile {
 
   public void setShowSocial(boolean showSocial) {
     this.showSocial = showSocial;
+  }
+
+  public boolean isHideMiniNews() {
+    return hideMiniNews;
+  }
+
+  public void setHideMiniNews(boolean hideMiniNews) {
+    this.hideMiniNews = hideMiniNews;
   }
 
   public static Profile createDefault() {

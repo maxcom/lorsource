@@ -101,6 +101,7 @@ public class EditProfileController {
     userDao.setStyle(tmpl.getCurrentUser(), request.getParameter("style"));
     
     tmpl.getProf().setShowSocial("on".equals(request.getParameter("showSocial")));
+    tmpl.getProf().setHideMiniNews("on".equals(request.getParameter("hideMiniNews")));
 
     String avatar = request.getParameter("avatar");
 

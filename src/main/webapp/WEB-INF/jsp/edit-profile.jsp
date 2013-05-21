@@ -54,6 +54,8 @@ $script.ready('plugins', function() {
 </c:if>
 <tr><td>Показывать меньше рекламы</td>
 <td><input type="checkbox" name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
+<tr><td>Не показывать мининовости</td>
+<td><input type="checkbox" name="hideMiniNews" <c:if test="${template.prof.hideMiniNews}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
 <td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
   <tr><td colspan=2><hr></td></tr>
