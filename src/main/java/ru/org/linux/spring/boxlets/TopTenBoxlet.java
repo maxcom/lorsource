@@ -49,7 +49,6 @@ public class TopTenBoxlet extends AbstractBoxlet {
   protected ModelAndView getData(HttpServletRequest request) {
     Profile profile = Template.getTemplate(request).getProf();
     final int itemsPerPage = profile.getMessages();
-    String style = profile.getStyle();
 
     List<TopTenMessageDTO> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {
@@ -64,7 +63,6 @@ public class TopTenBoxlet extends AbstractBoxlet {
 
     Map<String, Object> params = new HashMap<>();
     params.put("messages", list);
-    params.put("style", style);
 
     return new ModelAndView("boxlets/top10", params);
   }

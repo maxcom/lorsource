@@ -300,11 +300,26 @@ public class TopicPrepareService {
     }
   }
 
+  public List<PersonalizedPreparedTopic> prepareMessagesForUser(
+      List<Topic> messages,
+      boolean secure,
+      User user,
+      Profile profile,
+      boolean loadUserpics
+  ) {
+    return prepareMessagesForUser(messages, secure, user, profile, loadUserpics, false);
+  }
+
+
   /**
-   * Подготовка ленты топиков, используется в TopicListController например
+   * Подготовка ленты топиков для пользователя
    * сообщения рендерятся со свернутым cut
    * @param messages список топиков
    * @param secure является ли соединение https
+   * @param user пользователь
+   * @param profile профиль пользователя
+   * @param loadUserpics флаг загрузки аватар
+   * @param mainPage флаг главной страницы
    * @return список подготовленных топиков
    */
   public List<PersonalizedPreparedTopic> prepareMessagesForUser(
@@ -312,7 +327,8 @@ public class TopicPrepareService {
           boolean secure,
           User user,
           Profile profile,
-          boolean loadUserpics
+          boolean loadUserpics,
+          boolean mainPage
   ) {
     List<PersonalizedPreparedTopic> pm = new ArrayList<>(messages.size());
 
@@ -320,6 +336,11 @@ public class TopicPrepareService {
     ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
 
     for (Topic message : messages) {
+
+      if(mainPage && profile.isMiniNewsBoxletOnMainPage() && message.isMinor()) {
+        continue;
+      }
+
       PreparedTopic preparedMessage = prepareMessage(
               message,
               tags.get(message.getId()),

@@ -23,7 +23,18 @@
     <ul>
         <c:forEach items="${topics}" var="topic">
             <li>
-                <a href="${fn:escapeXml(topic.url)}"><l:title>${topic.title}</l:title></a>
+                <c:url value="${topic.url}" var="msg_link">
+                    <c:if test="${topic.pages == 1}">
+                        <c:param name="lastmod" value="${topic.lastmod.time}"/>
+                    </c:if>
+                </c:url>
+                <a href="${fn:escapeXml(msg_link)}"><l:title>${topic.title}</l:title></a>
+                <c:if test="${topic.pages gt 1}">
+                    <c:url value="${topic.url}/page${topic.pages-1}" var="page_link">
+                        <c:param name="lastmod" value="${topic.lastmod.time}"/>
+                    </c:url>
+                    (стр. <a href="${fn:escapeXml(page_link)}">${topic.pages}</a>)
+                </c:if>
                 (${topic.answers})
             </li>
         </c:forEach>

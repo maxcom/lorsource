@@ -57,7 +57,8 @@ public class MainPageController {
             request.isSecure(),
             tmpl.getCurrentUser(),
             tmpl.getProf(),
-            false
+            false,
+            true // isMainPage
     ));
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {

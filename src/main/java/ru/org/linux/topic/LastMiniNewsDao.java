@@ -37,7 +37,7 @@ public class LastMiniNewsDao {
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
-  public List<LastMiniNews> getTopics() {
+  public List<LastMiniNews> getTopics(final int perPage) {
     String sql =
         "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
             "from topics " +
@@ -51,11 +51,16 @@ public class LastMiniNewsDao {
     return jdbcTemplate.query(sql, new RowMapper<LastMiniNews>() {
       @Override
       public LastMiniNews mapRow(ResultSet rs, int i) throws SQLException {
+        final int answers = rs.getInt("c");
+        final int answers0 = (answers == 0) ? 1 : answers;
+        final int tmp = answers0 / perPage;
+        final int pages = (answers0 % perPage > 0) ? tmp + 1 : tmp;
         LastMiniNews result = new LastMiniNews(
             sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"),
             rs.getTimestamp("lastmod"),
             rs.getString("title"),
-            rs.getInt("c")
+            answers,
+            pages
         );
         return result;
       }
@@ -69,12 +74,14 @@ public class LastMiniNewsDao {
     private final Timestamp lastmod;
     private final String title;
     private final int answers;
+    private final int pages;
 
-    public LastMiniNews(String url, Timestamp lastmod, String title, int answers) {
+    public LastMiniNews(String url, Timestamp lastmod, String title, int answers, int pages) {
       this.url = url;
       this.lastmod = lastmod;
       this.title = title;
       this.answers = answers;
+      this.pages = pages;
     }
 
     public String getUrl() {
@@ -91,6 +98,10 @@ public class LastMiniNewsDao {
 
     public Integer getAnswers() {
       return answers;
+    }
+
+    public int getPages() {
+      return pages;
     }
   }
 

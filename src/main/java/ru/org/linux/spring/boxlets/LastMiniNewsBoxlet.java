@@ -39,11 +39,9 @@ public class LastMiniNewsBoxlet extends AbstractBoxlet{
   @RequestMapping("/lastMiniNews.boxlet")
   protected ModelAndView getData(HttpServletRequest request) {
     Profile profile = Template.getTemplate(request).getProf();
-    String style = profile.getStyle();
 
     Map<String, Object> params = new HashMap<>();
-    params.put("topics", lastMiniNewsDao.getTopics());
-    params.put("style", style);
+    params.put("topics", lastMiniNewsDao.getTopics(profile.getMessages()));
 
     return new ModelAndView("boxlets/lastMiniNews", params);
   }
