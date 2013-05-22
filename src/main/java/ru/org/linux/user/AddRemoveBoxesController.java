@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Controller
@@ -95,7 +96,7 @@ public class AddRemoveBoxesController {
   }
 
   @ModelAttribute("allboxes")
-  public Set<String> getAllBoxes() {
+  public Map<String, String> getAllBoxes() {
     return DefaultProfile.getAllBoxes();
   }
 
