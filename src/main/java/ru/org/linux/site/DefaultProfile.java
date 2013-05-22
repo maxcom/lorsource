@@ -36,7 +36,7 @@ public final class DefaultProfile {
       .put("tagcloud", "Облако тэгов")
       .put("archive", "Архив Новостей")
       .put("ibm", "IBM developerWorks")
-      .put("lastMiniNews", "Посление мининовости(При включении мининовости не будут отобраатся в ленте на главной странице)").build();
+      .put("lastMiniNews", "Посление мининовости(не будут отображатся в ленте новостей на главной странице)").build();
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
