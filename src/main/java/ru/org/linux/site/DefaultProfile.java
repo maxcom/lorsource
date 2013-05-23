@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +28,17 @@ import java.util.Map;
 import static ru.org.linux.user.Profile.*;
 
 public final class DefaultProfile {
-  private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
-  private static final ImmutableSet<String> BOX_SET = ImmutableSet.copyOf(BOXLIST);
+
+  private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
+      .put("poll", "Опрос")
+      .put("top10", "Наиболее обсуждаемые темы этого месяца")
+      .put("gallery", "Галлерея")
+      .put("tagcloud", "Облако тэгов")
+      .put("archive", "Архив Новостей")
+      .put("ibm", "IBM developerWorks")
+      .put("lastMiniNews", "Посление мининовости(не будут отображатся в ленте новостей на главной странице)").build();
+
+  private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
   private static final String[] STYLES = { "black", "white", "white2", "tango" };
   private static final ImmutableList<String> STYLE_LIST = ImmutableList.copyOf(STYLES);
@@ -47,8 +57,8 @@ public final class DefaultProfile {
   private DefaultProfile() {
   }
 
-  public static ImmutableSet<String> getAllBoxes() {
-    return BOX_SET;
+  public static ImmutableMap<String, String> getAllBoxes() {
+    return BOX_LEGEND;
   }
 
   public static boolean isBox(String name) {

@@ -180,6 +180,10 @@ public class Profile {
     this.showAnonymous = showAnonymous;
   }
 
+  public boolean isMiniNewsBoxletOnMainPage() {
+    return getBoxlets().contains("lastMiniNews");
+  }
+
   private static String fixFormat(String mode) {
     if (!"quot".equals(mode) &&
         !"ntobr".equals(mode) &&
