@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.TopicPrepareService;
+import ru.org.linux.user.Profile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
@@ -44,6 +46,18 @@ public class MainPageController {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
+  private List<Topic> filterMiniNews(List<Topic> messages) {
+    ImmutableList.Builder<Topic> filtred = new ImmutableList.Builder<Topic>();
+
+    for (Topic message : messages) {
+      if(message.isMinor()) {
+        continue;
+      }
+      filtred.add(message);
+    }
+    return filtred.build();
+  }
+
   @RequestMapping({"/", "/index.jsp"})
   public ModelAndView mainPage(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
@@ -52,11 +66,13 @@ public class MainPageController {
 
     ModelAndView mv = new ModelAndView("index");
 
+    Profile profile = tmpl.getProf();
+
     mv.getModel().put("news", prepareService.prepareMessagesForUser(
-            messages,
+            profile.isMiniNewsBoxletOnMainPage() ? filterMiniNews(messages) : messages,
             request.isSecure(),
             tmpl.getCurrentUser(),
-            tmpl.getProf(),
+            profile,
             false
     ));
 
