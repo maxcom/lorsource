@@ -181,7 +181,7 @@ public class Profile {
   }
 
   public boolean isMiniNewsBoxletOnMainPage() {
-    return boxes.contains("lastMiniNews");
+    return getBoxlets().contains("lastMiniNews");
   }
 
   private static String fixFormat(String mode) {
