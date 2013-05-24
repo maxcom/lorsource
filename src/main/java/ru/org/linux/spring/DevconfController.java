@@ -27,6 +27,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserInfo;
+import ru.org.linux.csrf.CSRFNoAuto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
@@ -46,6 +47,7 @@ public class DevconfController {
   }
 
   @RequestMapping(value = "/devconf2013", method = RequestMethod.POST)
+  @CSRFNoAuto
   public ModelAndView add(HttpServletRequest request, @RequestParam("msg") String msg) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
