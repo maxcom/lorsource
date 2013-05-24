@@ -34,9 +34,9 @@ public final class DefaultProfile {
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
       .put("gallery", "Галлерея")
       .put("tagcloud", "Облако тэгов")
-      .put("archive", "Архив Новостей")
+      .put("archive", "Архив новостей")
       .put("ibm", "IBM developerWorks")
-      .put("lastMiniNews", "Посление мининовости (не будут отображатся в ленте новостей на главной странице)").build();
+      .put("lastMiniNews", "Последние мининовости (не будут отображатся в ленте новостей на главной странице)").build();
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
