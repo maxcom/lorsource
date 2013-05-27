@@ -138,4 +138,32 @@ public class MemoriesDao {
   public void delete(int id) {
     jdbcTemplate.update("DELETE FROM memories WHERE id=?", id);
   }
+
+  /**
+   * get number of watch memories for user
+   * @param user user
+   * @return count memories
+   */
+  public int getWatchCountForUser(User user) {
+    List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='t'", Integer.class, user.getId());
+    if(ret == null || ret.size() == 0) {
+      return 0;
+    } else {
+      return ret.get(0);
+    }
+  }
+
+  /**
+   * get number of favorite memories for user
+   * @param user user
+   * @return count memories
+   */
+  public int getFavCountForUser(User user) {
+    List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='f'", Integer.class, user.getId());
+    if(ret == null || ret.size() == 0) {
+      return 0;
+    } else {
+      return ret.get(0);
+    }
+  }
 }

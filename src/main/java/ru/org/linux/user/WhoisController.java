@@ -69,6 +69,9 @@ public class WhoisController {
   @Autowired
   private UserLogPrepareService userLogPrepareService;
 
+  @Autowired
+  private MemoriesDao memoriesDao;
+
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -99,6 +102,8 @@ public class WhoisController {
       UserStatistics userStat = userDao.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
       mv.getModel().put("userStat", userStat);
       mv.getModel().put("sectionStat", prepareSectionStats(userStat));
+      mv.getModel().put("countWatch", memoriesDao.getWatchCountForUser(user));
+      mv.getModel().put("countFav", memoriesDao.getFavCountForUser(user));
     }
 
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());

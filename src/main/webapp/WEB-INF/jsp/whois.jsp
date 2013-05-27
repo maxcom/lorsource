@@ -306,13 +306,17 @@
         <li>
             <a href="show-replies.jsp?nick=${user.nick}">Уведомления</a>
         </li>
+        <c:if test="${countWatch>0}">
+            <li>
+                <a href="/people/${user.nick}/tracked">Отслеживаемые темы</a>
+            </li>
+        </c:if>
+    </c:if>
+    <c:if test="${countFav>0}">
         <li>
-            <a href="/people/${user.nick}/tracked">Отслеживаемые темы</a>
+            <a href="/people/${user.nick}/favs">Избранные темы</a>
         </li>
     </c:if>
-    <li>
-        <a href="/people/${user.nick}/favs">Избранные темы</a>
-    </li>
 </ul>
 </c:if>
 
