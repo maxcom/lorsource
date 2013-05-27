@@ -52,13 +52,14 @@
     <div style="clear: both">
     </div>
     <c:if test="${user.photo !=null && moderatorOrCurrentUser}">
-        <p>
-
-        <form style="text-align: center" name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
+        <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             <input type='submit' value='Удалить'>
         </form>
+        <c:if test="${currentUser}">
+            <form method="get" action="addphoto.jsp"><button type="submit">Изменить</button></form>
+        </c:if>
     </c:if>
 
 </div>
