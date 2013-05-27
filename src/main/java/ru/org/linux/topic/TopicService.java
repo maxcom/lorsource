@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.Group;
@@ -48,6 +49,7 @@ import static com.google.common.base.Predicates.*;
 @Service
 public class TopicService {
   private static final Log logger = LogFactory.getLog(TopicService.class);
+  private static final int MAX_BONUS_VALUE = 20;
 
   @Autowired
   private TopicDao topicDao;
@@ -214,18 +216,33 @@ public class TopicService {
    * @param user удаляющий пользователь
    * @param reason причина удаления
    * @param bonus дельта изменения score автора топика
+   * @throws AccessViolationException если пользователь пытается удалить чужой топик
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Topic message, User user, String reason, int bonus) {
-    if (bonus>20 || bonus<0) {
-      throw new IllegalArgumentException("Некорректное значение bonus");
+  public void deleteWithBonus(Topic message, User user, String reason, int bonus)
+          throws AccessViolationException {
+    checkBonus(bonus);
+    if (!user.isModerator() && user.getId() != message.getUid()) {
+      throw new AccessViolationException("Вы не можете удалить чужое сообщение");
     }
 
-    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
-      deleteTopic(message.getId(), user, reason, -bonus);
-      userDao.changeScore(message.getUid(), -bonus);
+    bonus = prepareBonusForDelete(message, user, bonus);
+    deleteTopic(message.getId(), user, reason, bonus);
+  }
+
+  private int prepareBonusForDelete(Topic message, User user, int bonus) {
+    if (user.isModerator() && bonus != 0 && user.getId() != message.getUid()) {
+      bonus *= -1;
+      userDao.changeScore(message.getUid(), bonus);
     } else {
-      deleteTopic(message.getId(), user, reason, 0);
+      bonus = 0;
+    }
+    return bonus;
+  }
+
+  private void checkBonus(int bonus) {
+    if (bonus > MAX_BONUS_VALUE || bonus < 0) {
+      throw new IllegalArgumentException("Некорректное значение bonus");
     }
   }
 
@@ -300,9 +317,7 @@ public class TopicService {
   }
 
   private void commit(Topic msg, User commiter, int bonus, Map<Integer, Integer> editorBonus) {
-    if (bonus < 0 || bonus > 20) {
-      throw new IllegalStateException("Неверное значение bonus");
-    }
+    checkBonus(bonus);
 
     topicDao.commit(msg, commiter);
 

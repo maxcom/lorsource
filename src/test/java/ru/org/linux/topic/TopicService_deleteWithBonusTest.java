@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -60,7 +61,8 @@ public class TopicService_deleteWithBonusTest {
    * Score меньше нуля.
    */
   @Test(expected = IllegalArgumentException.class)
-  public void InvalidScoreMin() {
+  public void InvalidScoreMin()
+          throws Exception {
     // given
 
     // when
@@ -72,7 +74,8 @@ public class TopicService_deleteWithBonusTest {
    * Максимальное значение score превышено.
    */
   @Test(expected = IllegalArgumentException.class)
-  public void InvalidScoreMax() {
+  public void InvalidScoreMax()
+          throws Exception {
     // given
     when(user.isModerator()).thenReturn(true);
 
@@ -85,7 +88,8 @@ public class TopicService_deleteWithBonusTest {
    * Модератор пытается удалить собственное сообщение со снятием score.
    */
   @Test
-  public void userIsModeratorAndBonusNotZeroAndItsOwnTopic() {
+  public void userIsModeratorAndBonusNotZeroAndItsOwnTopic()
+          throws Exception {
     // given
     when(user.isModerator()).thenReturn(true);
     when(user.getId()).thenReturn(1234);
@@ -107,7 +111,8 @@ public class TopicService_deleteWithBonusTest {
    * Пользователь каким-то образом умудрился удалять собственное сообщение со снятием score
    */
   @Test
-  public void userIsNotModeratorAndBonusNotZeroAndItsOwnTopic() {
+  public void userIsNotModeratorAndBonusNotZeroAndItsOwnTopic()
+          throws Exception {
     // given
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(1234);
@@ -129,7 +134,8 @@ public class TopicService_deleteWithBonusTest {
    * Модератор пытается удалить чужое сообщение со снятием score.
    */
   @Test
-  public void userIsModeratorAndBonusNotZeroAndItsNotOwnTopic() {
+  public void userIsModeratorAndBonusNotZeroAndItsNotOwnTopic()
+          throws Exception {
     // given
     when(user.isModerator()).thenReturn(true);
     when(user.getId()).thenReturn(1234);
@@ -149,10 +155,10 @@ public class TopicService_deleteWithBonusTest {
 
   /**
    * Пользователь пытается удалить чужое сообщение со снятием score
-   * FIXME: и у пользователя  получается удалить, хоть и без score!
    */
-  @Test
-  public void userIsNotModeratorAndBonusNotZeroAndItsNotOwnTopic() {
+  @Test(expected = AccessViolationException.class)
+  public void userIsNotModeratorAndBonusNotZeroAndItsNotOwnTopic()
+          throws Exception {
     // given
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(1234);
@@ -164,10 +170,6 @@ public class TopicService_deleteWithBonusTest {
     topicService.deleteWithBonus(message, user, "reason", 20);
 
     // then
-    verifyZeroInteractions(userDao);
-    verify(topicDao).delete(eq(11112234));
-    verify(deleteInfoDao).insert(eq(11112234), eq(user), eq("reason"), eq(0));
-    verify(userEventService).processTopicDeleted(eq(11112234));
   }
 
 }
