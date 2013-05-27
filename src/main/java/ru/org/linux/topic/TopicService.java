@@ -85,6 +85,46 @@ public class TopicService {
   @Autowired
   private LorCodeService lorCodeService;
 
+  /**
+   * Конструктор по умолчанию для CGLib.
+   */
+  public TopicService() {
+
+  }
+  /**
+   * Конструктор для DI из тестов
+   *
+   * @param topicDao
+   * @param sectionService
+   * @param configuration
+   * @param imageDao
+   * @param pollDao
+   * @param userEventService
+   * @param tagService
+   * @param topicTagService
+   * @param userTagService
+   * @param userDao
+   * @param deleteInfoDao
+   * @param lorCodeService
+   */
+  public TopicService(TopicDao topicDao, SectionService sectionService, Configuration configuration, ImageDao imageDao,
+                      PollDao pollDao,UserEventService userEventService, TagService tagService,
+                      TopicTagService topicTagService, UserTagService userTagService, UserDao userDao,
+                      DeleteInfoDao deleteInfoDao, LorCodeService lorCodeService) {
+    this.topicDao = topicDao;
+    this.sectionService = sectionService;
+    this.configuration = configuration;
+    this.imageDao = imageDao;
+    this.pollDao = pollDao;
+    this.userEventService = userEventService;
+    this.tagService = tagService;
+    this.topicTagService = topicTagService;
+    this.userTagService = userTagService;
+    this.userDao = userDao;
+    this.deleteInfoDao = deleteInfoDao;
+    this.lorCodeService = lorCodeService;
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int addMessage(
           HttpServletRequest request,
