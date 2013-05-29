@@ -150,7 +150,8 @@ public class CommentPrepareService {
       userpic = userService.getUserpic(
               author,
               secure,
-              tmpl.getProf().getAvatarMode()
+              tmpl.getProf().getAvatarMode(),
+              false
       );
     }
 

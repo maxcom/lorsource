@@ -100,7 +100,14 @@ public class UserService {
     );
   }
 
-  public Userpic getUserpic(User user, boolean secure, String avatarStyle) {
+  public Userpic getUserpic(User user, boolean secure, String avatarStyle, boolean misteryMan) {
+    String avatarMode = avatarStyle;
+
+    if (misteryMan && "empty".equals(avatarMode)) {
+      avatarMode = "mm";
+    }
+
+
     if (user.getPhoto() != null) {
       try {
         ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
@@ -119,7 +126,7 @@ public class UserService {
 
     if (user.hasGravatar()) {
       return new Userpic(
-          user.getGravatar(avatarStyle, 150, secure),
+          user.getGravatar(avatarMode, 150, secure),
           150,
           150
       );

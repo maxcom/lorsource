@@ -89,7 +89,8 @@ public class WhoisController {
     mv.getModel().put("userpic", userService.getUserpic(
             user,
             request.isSecure(),
-            tmpl.getProf().getAvatarMode()
+            tmpl.getProf().getAvatarMode(),
+            true
     ));
 
     if (user.isBlocked()) {
