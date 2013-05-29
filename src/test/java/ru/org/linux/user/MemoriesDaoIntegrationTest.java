@@ -39,9 +39,10 @@ public class MemoriesDaoIntegrationTest {
   public void test1() {
     User maxcom = userDao.getUser(1);
     assertTrue(memoriesDao.getWatchCountForUser(maxcom) > 0);
+    assertTrue(memoriesDao.isWatchPresetForUser(maxcom));
     User anonymous = userDao.getUser(2);
     assertTrue(memoriesDao.getWatchCountForUser(anonymous) == 0);
-
+    assertFalse(memoriesDao.isFavPresetForUser(anonymous));
   }
 
 }

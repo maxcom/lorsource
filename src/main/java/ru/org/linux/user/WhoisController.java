@@ -102,8 +102,8 @@ public class WhoisController {
       UserStatistics userStat = userDao.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
       mv.getModel().put("userStat", userStat);
       mv.getModel().put("sectionStat", prepareSectionStats(userStat));
-      mv.getModel().put("countWatch", memoriesDao.getWatchCountForUser(user));
-      mv.getModel().put("countFav", memoriesDao.getFavCountForUser(user));
+      mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
+      mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(user));
     }
 
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());

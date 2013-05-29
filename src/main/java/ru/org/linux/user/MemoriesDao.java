@@ -139,6 +139,15 @@ public class MemoriesDao {
     jdbcTemplate.update("DELETE FROM memories WHERE id=?", id);
   }
 
+  public boolean isWatchPresetForUser(User user) {
+    return checkMemoriesPresent(user, true);
+  }
+
+  public boolean isFavPresetForUser(User user) {
+    return checkMemoriesPresent(user, false);
+  }
+
+
   private boolean checkMemoriesPresent(User user, boolean watch) {
     List<Integer> present = jdbcTemplate.queryForList("select id from memories where userid=? and watch=? limit 1", Integer.class, user.getId(), watch);
     if(present == null || present.size() == 0) {
@@ -154,9 +163,6 @@ public class MemoriesDao {
    * @return count memories
    */
   public int getWatchCountForUser(User user) {
-    if(!checkMemoriesPresent(user, true)) {
-      return 0;
-    }
     List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='t'", Integer.class, user.getId());
     if(ret == null || ret.size() == 0) {
       return 0;
@@ -171,9 +177,6 @@ public class MemoriesDao {
    * @return count memories
    */
   public int getFavCountForUser(User user) {
-    if(!checkMemoriesPresent(user, false)) {
-      return 0;
-    }
     List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='f'", Integer.class, user.getId());
     if(ret == null || ret.size() == 0) {
       return 0;

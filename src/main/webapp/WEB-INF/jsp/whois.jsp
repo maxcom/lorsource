@@ -49,19 +49,22 @@
 
 <div id="whois_userpic">
     <l:userpic userpic="${userpic}"/>
-    <div style="clear: both">
-    </div>
-    <c:if test="${user.photo !=null && moderatorOrCurrentUser}">
-        <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
-            <lor:csrf/>
-            <input type='hidden' name='id' value='${user.id}'>
-            <button type="submit" class="delete">Удалить</button>
-        </form>
-        <c:if test="${currentUser}">
-            <form method="get" action="addphoto.jsp"><button type="submit">Изменить</button></form>
+    <c:if test="${moderatorOrCurrentUser}">
+        <span>
+        <c:if test="${user.photo != null}">
+            <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
+                <lor:csrf/>
+                <input type='hidden' name='id' value='${user.id}'>
+                <button type="submit" class="delete">Удалить</button>
+            </form>
         </c:if>
+        <c:if test="${currentUser}">
+            <form method="get" action="addphoto.jsp">
+                <button type="submit">Изменить</button>
+            </form>
+        </c:if>
+        </span>
     </c:if>
-
 </div>
 <div>
 <h2>Регистрация</h2>
@@ -307,13 +310,13 @@
         <li>
             <a href="show-replies.jsp?nick=${user.nick}">Уведомления</a>
         </li>
-        <c:if test="${countWatch>0}">
+        <c:if test="${watchPresent}">
             <li>
                 <a href="/people/${user.nick}/tracked">Отслеживаемые темы</a>
             </li>
         </c:if>
     </c:if>
-    <c:if test="${countFav>0}">
+    <c:if test="${favPresent}">
         <li>
             <a href="/people/${user.nick}/favs">Избранные темы</a>
         </li>
