@@ -128,7 +128,11 @@ public class TopicService {
     topicTagService.updateTags(msgid, tags);
     tagService.updateCounters(ImmutableList.<String>of(), tags);
 
-    sendEvents(message, msgid, tags, user.getId());
+    if (section.isPremoderated()) {
+      sendEvents(message, msgid, ImmutableList.<String>of(), user.getId());
+    } else {
+      sendEvents(message, msgid, tags, user.getId());
+    }
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
@@ -230,8 +234,14 @@ public class TopicService {
   )  {
     boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText);
 
-    if (modified) {
-      sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
+    if (modified || commit) {
+      Section section = sectionService.getSection(oldMsg.getSectionId());
+
+      if (section.isPremoderated() && !oldMsg.isCommited() && !commit) {
+        sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
+      } else {
+        sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
+      }
     }
 
     try {

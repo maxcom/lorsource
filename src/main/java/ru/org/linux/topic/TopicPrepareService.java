@@ -427,16 +427,11 @@ public class TopicPrepareService {
     Userpic userpic = null;
 
     if (loadUserpics && profile.isShowPhotos()) {
-      String avatarMode = profile.getAvatarMode();
-
-      if ("empty".equals(avatarMode)) {
-        avatarMode = "mm";
-      }
-
       userpic = userService.getUserpic(
               message.getAuthor(),
               secure,
-              avatarMode
+              profile.getAvatarMode(),
+              true
       );
     }
 
