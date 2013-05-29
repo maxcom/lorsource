@@ -141,7 +141,8 @@ public class UserTagDao {
 
     return jdbcTemplate.queryForList(
       "select distinct user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) "
-        + "AND is_favorite = true AND user_id <> :user_id",
+        + "AND is_favorite = true "
+        + "AND user_id not in (select userid from ignore_list where ignored=:user_id union select :user_id)",
       parameters,
       Integer.class
     );
