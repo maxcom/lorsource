@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-    <changeSet id="2013052801" author="Slava Zanko">
+    <changeSet id="2013052801" author="Slava Zanko" runOnChange="true">
         <sql splitStatements="false" stripComments="false"><![CDATA[
 CREATE OR REPLACE FUNCTION public.del_event()
 RETURNS trigger
@@ -14,7 +14,7 @@ BEGIN
     UPDATE users
         SET unread_events = CASE WHEN unread_events > 0 THEN unread_events-1 ELSE 0 END
         WHERE users.id = OLD.userid;
-    RETURN NULL;
+    RETURN OLD;
 END;
 $function$
         ]]></sql>
