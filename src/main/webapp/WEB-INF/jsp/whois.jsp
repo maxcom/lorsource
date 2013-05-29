@@ -55,7 +55,7 @@
         <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
-            <input type='submit' value='Удалить'>
+            <button type="submit" class="delete">Удалить</button>
         </form>
         <c:if test="${currentUser}">
             <form method="get" action="addphoto.jsp"><button type="submit">Изменить</button></form>
