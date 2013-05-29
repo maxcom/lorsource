@@ -1,0 +1,13 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2013052803" author="Slava Zanko">
+        <createIndex tableName="ignore_list" indexName="ignore_list_ignored_key" unique="false">
+            <column name="ignored"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
