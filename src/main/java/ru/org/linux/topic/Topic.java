@@ -170,7 +170,7 @@ public class Topic implements Serializable {
 
     // Setting Message fields
     if (form.getTitle()!=null) {
-      title = StringUtil.escapeHtml(form.getTitle());
+      title = StringUtil.makeTitle(StringUtil.escapeHtml(form.getTitle()));
     } else {
       title = null;
     }
