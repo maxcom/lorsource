@@ -3,7 +3,7 @@
     "api_version": 1,
 
     "layout": {
-        "logo": "tango/img/ya-widget.png",
+        "logo": "/tango/img/ya-widget.png",
         "color": "#2e3436",
         "show_title": false
     }
