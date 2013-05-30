@@ -37,6 +37,7 @@
   </script>
   </c:if>
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
+<link rel="yandex-tableau-widget" href="/tango/manifest.json" />
 <meta name = "viewport" content = "initial-scale=1.0">
 </head>
 <body>
