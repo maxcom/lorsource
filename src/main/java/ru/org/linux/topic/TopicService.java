@@ -186,17 +186,25 @@ public class TopicService {
     }
 
     if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
-      deleteTopic(message.getId(), user, reason, -bonus);
-      userDao.changeScore(message.getUid(), -bonus);
+      boolean deleted = deleteTopic(message.getId(), user, reason, -bonus);
+
+      if (deleted) {
+        userDao.changeScore(message.getUid(), -bonus);
+      }
     } else {
       deleteTopic(message.getId(), user, reason, 0);
     }
   }
 
-  private void deleteTopic(int mid, User moderator, String reason, int bonus) {
-    topicDao.delete(mid);
-    deleteInfoDao.insert(mid, moderator, reason, bonus);
-    userEventService.processTopicDeleted(mid);
+  private boolean deleteTopic(int mid, User moderator, String reason, int bonus) {
+    boolean deleted = topicDao.delete(mid);
+
+    if (deleted) {
+      deleteInfoDao.insert(mid, moderator, reason, bonus);
+      userEventService.processTopicDeleted(mid);
+    }
+
+    return deleted;
   }
 
   /**

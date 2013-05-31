@@ -250,8 +250,8 @@ public class TopicDao {
     return tags.build();
   }
 
-  public void delete(int msgid) {
-    jdbcTemplate.update(updateDeleteMessage, msgid);
+  public boolean delete(int msgid) {
+    return jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=? AND NOT deleted", msgid)>0;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
