@@ -417,10 +417,4 @@ class CommentDaoImpl implements CommentDao {
       userId
     );
   }
-
-  @Override
-  public boolean isHaveAnswers(int commentId) {
-    int answersCount = jdbcTemplate.queryForInt("select count (id) from comments where replyto = ?",commentId);
-    return answersCount != 0;
-  }
 }
