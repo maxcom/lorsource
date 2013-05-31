@@ -211,17 +211,6 @@ public interface CommentDao {
    );
 
   /**
-   * Проверить, имеет ли комментарий ответы.
-   *
-   * @param commentId идентификационный номер комментария
-   * @return true если у комментария есть ответы, иначе false
-   */
-  boolean isHaveAnswers
-  (
-    int commentId
-  );
-
-  /**
    * DTO-класс, описывающий данные удалённого комментария
    */
   class DeletedListItem {

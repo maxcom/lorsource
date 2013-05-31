@@ -408,7 +408,7 @@ public class CommentService {
    * @return true если есть ответы, иначе false
    */
   public boolean isHaveAnswers(@Nonnull Comment comment) {
-    return commentDao.isHaveAnswers(comment.getId());
+    return commentDao.getReplaysCount(comment.getId())>0;
   }
 
   /**

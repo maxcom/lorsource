@@ -159,7 +159,7 @@ public class CommentDaoIntegrationTest {
             "comment body"
     );
 
-    assertFalse(commentDao.isHaveAnswers(commentId1));
+    assertEquals(0, commentDao.getReplaysCount(commentId1));
 
     addComment(
             commentId2,
@@ -168,6 +168,6 @@ public class CommentDaoIntegrationTest {
             "comment body"
     );
 
-    assertTrue(commentDao.isHaveAnswers(commentId1));
+    assertTrue(commentDao.getReplaysCount(commentId1)>0);
   }
 }
