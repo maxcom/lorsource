@@ -104,8 +104,6 @@ public class TopicDao {
   /**
    * Удаление топика
    */
-  private static final String updateDeleteMessage = "UPDATE topics SET deleted='t',sticky='f' WHERE id=?";
-
   private static final String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
 
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
@@ -636,5 +634,14 @@ public class TopicDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public List<Integer> getUserTopicForUpdate(User user) {
     return jdbcTemplate.queryForList("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE", Integer.class, user.getId());
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public List<Integer> getAllByIPForUpdate(String ip, Timestamp startTime) {
+    return jdbcTemplate.queryForList("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
+            Integer.class,
+            ip,
+            startTime
+    );
   }
 }

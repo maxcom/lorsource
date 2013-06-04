@@ -15,6 +15,8 @@
 
 package ru.org.linux.comment;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
@@ -122,23 +124,6 @@ public interface CommentDao {
   );
 
   /**
-   * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
-   *
-   * @param ip        ip для которых удаляем сообщения (не проверяется на корректность)
-   * @param timedelta врменной промежуток удаления (не проверяется на корректность)
-   * @param moderator экзекутор-можератор
-   * @param reason    причина удаления, которая будет вписана для удаляемых топиков
-   * @return список id удаленных сообщений
-   */
-  DeleteCommentResult deleteCommentsByIPAddress
-  (
-    String ip,
-    Timestamp timedelta,
-    final User moderator,
-    final String reason
-  );
-
-  /**
    * Добавить новый комментарий.
    *
    *
@@ -209,6 +194,9 @@ public interface CommentDao {
    (
      int userId
    );
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  List<Integer> getCommentsByIPAddressForUpdate(String ip, Timestamp timedelta);
 
   /**
    * DTO-класс, описывающий данные удалённого комментария

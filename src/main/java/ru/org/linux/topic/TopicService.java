@@ -41,6 +41,7 @@ import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static com.google.common.base.Predicates.*;
@@ -205,6 +206,17 @@ public class TopicService {
     }
 
     return deleted;
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteByIPAddress(String ip, Timestamp startTime, User moderator, String reason) {
+    List<Integer> topicIds = topicDao.getAllByIPForUpdate(ip, startTime);
+
+    for (int msgid : topicIds) {
+      deleteTopic(msgid, moderator, reason, 0);
+    }
+
+    return topicIds;
   }
 
   /**

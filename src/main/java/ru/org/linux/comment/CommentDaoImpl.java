@@ -27,6 +27,8 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
@@ -34,8 +36,10 @@ import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Операции над комментариями
@@ -256,46 +260,11 @@ class CommentDaoImpl implements CommentDao {
   }
 
   @Override
-  public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
-    final List<Integer> deletedCommentIds = new ArrayList<>();
-
-    final Map<Integer, String> deleteInfo = new HashMap<>();
-
-    List<Integer> topicIds = jdbcTemplate.queryForList("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
-            Integer.class,
-            ip,
-            timedelta
-    );
-
-    for (int msgid : topicIds) {
-      deleteInfo.put(msgid, "Топик " + msgid + " удален");
-      jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", msgid);
-      deleteInfoDao.insert(msgid, moderator, reason, 0);
-    }
-
-    // Удаляем комментарии если на них нет ответа
-    List<Integer> commentIds = jdbcTemplate.queryForList("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public List<Integer> getCommentsByIPAddressForUpdate(String ip, Timestamp timedelta) {
+    return jdbcTemplate.queryForList("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
             Integer.class,
             ip, timedelta);
-
-    for (int msgid : commentIds) {
-      if (getReplaysCount(msgid) == 0) {
-        if (deleteComment(msgid, reason, moderator, 0)) {
-          deletedCommentIds.add(msgid);
-          deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
-        } else {
-          deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
-        }
-      } else {
-        deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
-      }
-    }
-
-    for (int msgid : deletedCommentIds) {
-      updateStatsAfterDelete(msgid, 1);
-    }
-
-    return new DeleteCommentResult(topicIds, deletedCommentIds, deleteInfo);
   }
 
   @Override

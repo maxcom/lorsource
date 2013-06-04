@@ -57,10 +57,7 @@ import java.beans.PropertyEditorSupport;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CommentService {
@@ -563,8 +560,39 @@ public class CommentService {
     String ip,
     Timestamp timeDelta,
     final User moderator,
-    final String reason) {
-    return commentDao.deleteCommentsByIPAddress(ip, timeDelta, moderator, reason);
+    final String reason)
+  {
+    List<Integer> deletedTopics = topicService.deleteByIPAddress(ip, timeDelta, moderator, reason);
+
+    Map<Integer, String> deleteInfo = new HashMap<>();
+
+    for (int msgid : deletedTopics) {
+      deleteInfo.put(msgid, "Топик " + msgid + " удален");
+    }
+
+    // Удаляем комментарии если на них нет ответа
+    List<Integer> commentIds = commentDao.getCommentsByIPAddressForUpdate(ip, timeDelta);
+
+    List<Integer> deletedCommentIds = new ArrayList<>();
+
+    for (int msgid : commentIds) {
+      if (commentDao.getReplaysCount(msgid) == 0) {
+        if (commentDao.deleteComment(msgid, reason, moderator, 0)) {
+          deletedCommentIds.add(msgid);
+          deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
+        } else {
+          deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
+        }
+      } else {
+        deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
+      }
+    }
+
+    for (int msgid : deletedCommentIds) {
+      commentDao.updateStatsAfterDelete(msgid, 1);
+    }
+
+    return new DeleteCommentResult(deletedTopics, deletedCommentIds, deleteInfo);
   }
 
   /**
