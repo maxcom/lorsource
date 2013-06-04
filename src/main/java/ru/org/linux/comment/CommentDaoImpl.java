@@ -173,63 +173,54 @@ class CommentDaoImpl implements CommentDao {
   }
 
   @Override
-  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
-    return doDeleteReplys(msgid, user, score, 0);
+  public List<Integer> deleteReplys(CommentNode node, User user, boolean score) {
+    return doDeleteReplys(node, user, score, 0);
   }
 
   /**
    * Помощник по рекурсивному удалению комментариев
    *
-   * @param msgid  идентификационнай номер комментария
+   * @param node   CommentNode удаляемого комментария
    * @param user   пользователь, удаляющий комментарий
    * @param score  снимать ли скор у автора комментария
    * @param depth  текущий уровень ответов
    * @return список идентификационных номеров удалённых комментариев
    */
-  private List<Integer> doDeleteReplys(int msgid, User user, boolean score, int depth) {
-    List<Integer> replys = getReplysForUpdate(msgid);
+  private List<Integer> doDeleteReplys(CommentNode node, User user, boolean score, int depth) {
     List<Integer> deleted = new LinkedList<>();
-    for (Integer r : replys) {
+    for (CommentNode r : node.childs()) {
       deleted.addAll(doDeleteReplys(r, user, score, depth + 1));
 
       boolean del;
 
+      int childId = r.getComment().getId();
+
       switch (depth) {
         case 0:
           if (score) {
-            del = deleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
+            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
           } else {
-            del = deleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
           }
           break;
         case 1:
           if (score) {
-            del = deleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
+            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
           } else {
-            del = deleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
           }
           break;
         default:
-          del = deleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
+          del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
           break;
       }
 
       if (del) {
-        deleted.add(r);
+        deleted.add(childId);
       }
     }
 
     return deleted;
-  }
-
-  /**
-   * Какие ответы на комментарий
-   *
-   * @param msgid id комментария
-   * @return список ответов на комментарий
-   */
-  private List<Integer> getReplysForUpdate(int msgid) {
-    return jdbcTemplate.queryForList(replysForComment, Integer.class, msgid);
   }
 
   @Override
@@ -248,12 +239,11 @@ class CommentDaoImpl implements CommentDao {
     );
 
     for (int msgid : commentIds) {
-      List<Integer> deletedReplys = deleteReplys(msgid, moderator, false);
-      deletedCommentIds.addAll(deletedReplys);
-
-      deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
-      updateStatsAfterDelete(msgid, 1 + deletedReplys.size());
-      deletedCommentIds.add(msgid);
+      if (getReplaysCount(msgid) == 0) {
+        deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+        updateStatsAfterDelete(msgid, 1);
+        deletedCommentIds.add(msgid);
+      }
     }
 
     return deletedCommentIds;

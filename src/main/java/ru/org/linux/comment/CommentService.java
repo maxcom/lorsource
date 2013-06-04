@@ -530,8 +530,12 @@ public class CommentService {
    * @return список идентификационных номеров удалённых комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteWithReplys(int msgid, String reason, User user, int scoreBonus) {
-    List<Integer> deleted = commentDao.deleteReplys(msgid, user, scoreBonus > 2);
+  public List<Integer> deleteWithReplys(Topic topic, int msgid, String reason, User user, int scoreBonus) {
+    CommentList commentList = getCommentList(topic, false);
+
+    CommentNode node = commentList.getNode(msgid);
+
+    List<Integer> deleted = commentDao.deleteReplys(node, user, scoreBonus > 2);
 
     boolean deletedMain = commentDao.deleteComment(msgid, reason, user, -scoreBonus);
 

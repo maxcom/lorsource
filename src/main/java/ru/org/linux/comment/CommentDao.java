@@ -87,14 +87,14 @@ public interface CommentDao {
   /**
    * Удалить рекурсивно ответы на комментарий
    *
-   * @param msgid идентификационнай номер комментария
+   * @param node  CommentNode удаляемого комментария
    * @param user  пользователь, удаляющий комментарий
    * @param score сколько снять скора у автора комментария
    * @return список идентификационных номеров удалённых комментариев
    */
   List<Integer> deleteReplys
   (
-          int msgid,
+          CommentNode node,
           User user,
           boolean score
   );

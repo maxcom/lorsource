@@ -21,6 +21,7 @@ import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,10 @@ public class CommentNode implements Serializable {
 
   public void addChild(CommentNode child) {
     childs.add(child);
+  }
+
+  public List<CommentNode> childs() {
+    return Collections.unmodifiableList(childs);
   }
 
   public boolean isHaveAnswers() {
