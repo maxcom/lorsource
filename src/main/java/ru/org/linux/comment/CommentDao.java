@@ -75,7 +75,6 @@ public class CommentDao {
     "FROM comments " +
     "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 
-  private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
 
@@ -155,10 +154,10 @@ public class CommentDao {
      * @param msgid      идентификационнай номер комментария
      * @param reason     причина удаления
      * @param user       пользователь, удаляющий комментарий
-     * @param scoreBonus сколько снять скора у автора комментария
+     * @param scoreBonus сколько снято скора у автора комментария
      * @return true если комментарий был удалён, иначе false
      */
-  private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
+  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {
@@ -176,33 +175,13 @@ public class CommentDao {
   /**
      * Удалить комментарий.
      *
-     * @param comment    удаляемый комментарий
-     * @param reason     причина удаления
-     * @param user       пользователь, удаляющий комментарий
-     * @param scoreBonus сколько снять скора у автора комментария
-     * @return true если комментарий был удалён, иначе false
-     */
-  public boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
-    boolean del = doDeleteComment(comment.getId(), reason, user, scoreBonus);
-
-    if (del && scoreBonus!=0) {
-      // TODO move to CommentService & use UserDao to modify score
-      jdbcTemplate.update("UPDATE users SET score=score+? WHERE id=?", scoreBonus, comment.getUserid());
-    }
-
-    return del;
-  }
-
-  /**
-     * Удалить комментарий.
-     *
      * @param msgid      идентификационнай номер комментария
      * @param reason     причина удаления
      * @param user       пользователь, удаляющий комментарий
      * @return true если комментарий был удалён, иначе false
      */
   public boolean deleteComment(int msgid, String reason, User user) {
-    return doDeleteComment(msgid, reason, user, 0);
+    return deleteComment(msgid, reason, user, 0);
   }
 
   /**
@@ -221,68 +200,6 @@ public class CommentDao {
 
     int groupId = jdbcTemplate.queryForObject("SELECT groupid FROM topics WHERE id = ?", Integer.class, topicId);
     jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
-  }
-
-  /**
-     * Удалить рекурсивно ответы на комментарий
-     *
-     * @param replys список ответов
-     * @param user  пользователь, удаляющий комментарий
-     * @param score сколько снять скора у автора комментария
-     * @return список идентификационных номеров удалённых комментариев
-     */
-  public List<Integer> deleteReplys(List<CommentAndDepth> replys, User user, boolean score) {
-    List<Integer> deleted = new ArrayList<>(replys.size());
-
-    for (CommentAndDepth cur : replys) {
-      boolean del;
-
-      Comment child = cur.getComment();
-
-      switch (cur.getDepth()) {
-        case 0:
-          if (score) {
-            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
-          } else {
-            del = deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
-          }
-          break;
-        case 1:
-          if (score) {
-            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
-          } else {
-            del = deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
-          }
-          break;
-        default:
-          del = deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user);
-          break;
-      }
-
-      if (del) {
-        deleted.add(child.getId());
-      }
-    }
-
-    return deleted;
-  }
-
-  public static class CommentAndDepth {
-    private final Comment comment;
-    private final int depth;
-
-    public CommentAndDepth(Comment comment, int depth) {
-      this.comment = comment;
-      this.depth = depth;
-    }
-
-    private Comment getComment() {
-      return comment;
-    }
-
-    private int getDepth() {
-      return depth;
-    }
   }
 
   /**

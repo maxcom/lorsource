@@ -535,11 +535,11 @@ public class CommentService {
 
     CommentNode node = commentList.getNode(comment.getId());
 
-    List<CommentDao.CommentAndDepth> replys = getAllReplys(node, 0);
+    List<CommentAndDepth> replys = getAllReplys(node, 0);
 
-    List<Integer> deleted = commentDao.deleteReplys(replys, user, scoreBonus > 2);
+    List<Integer> deleted = deleteReplys(replys, user, scoreBonus > 2);
 
-    boolean deletedMain = commentDao.deleteComment(comment, reason, user, -scoreBonus);
+    boolean deletedMain = deleteComment(comment, reason, user, -scoreBonus);
 
     if (deletedMain) {
       deleted.add(comment.getId());
@@ -551,6 +551,70 @@ public class CommentService {
 
     return deleted;
   }
+
+  /**
+     * Удалить рекурсивно ответы на комментарий
+     *
+     * @param replys список ответов
+     * @param user  пользователь, удаляющий комментарий
+     * @param score сколько снять скора у автора комментария
+     * @return список идентификационных номеров удалённых комментариев
+     */
+  private List<Integer> deleteReplys(List<CommentAndDepth> replys, User user, boolean score) {
+    List<Integer> deleted = new ArrayList<>(replys.size());
+
+    for (CommentAndDepth cur : replys) {
+      boolean del;
+
+      Comment child = cur.getComment();
+
+      switch (cur.getDepth()) {
+        case 0:
+          if (score) {
+            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
+          } else {
+            del = commentDao.deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
+          }
+          break;
+        case 1:
+          if (score) {
+            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
+          } else {
+            del = commentDao.deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
+          }
+          break;
+        default:
+          del = commentDao.deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user);
+          break;
+      }
+
+      if (del) {
+        deleted.add(child.getId());
+      }
+    }
+
+    return deleted;
+  }
+
+  /**
+     * Удалить комментарий.
+     *
+     * @param comment    удаляемый комментарий
+     * @param reason     причина удаления
+     * @param user       пользователь, удаляющий комментарий
+     * @param scoreBonus сколько снять скора у автора комментария
+     * @return true если комментарий был удалён, иначе false
+     */
+  private boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
+    boolean del = commentDao.deleteComment(comment.getId(), reason, user, scoreBonus);
+
+    if (del && scoreBonus!=0) {
+      userDao.changeScore(comment.getUserid(), scoreBonus);
+    }
+
+    return del;
+  }
+
 
   /**
    * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
@@ -733,14 +797,32 @@ public class CommentService {
     return hideSet;
   }
 
-  private List<CommentDao.CommentAndDepth> getAllReplys(CommentNode node, int depth) {
-    List<CommentDao.CommentAndDepth> replys = new LinkedList<>();
+  private List<CommentAndDepth> getAllReplys(CommentNode node, int depth) {
+    List<CommentAndDepth> replys = new LinkedList<>();
 
     for (CommentNode r : node.childs()) {
       replys.addAll(getAllReplys(r, depth + 1));
-      replys.add(new CommentDao.CommentAndDepth(r.getComment(), depth));
+      replys.add(new CommentAndDepth(r.getComment(), depth));
     }
 
     return replys;
+  }
+
+  private static class CommentAndDepth {
+    private final Comment comment;
+    private final int depth;
+
+    public CommentAndDepth(Comment comment, int depth) {
+      this.comment = comment;
+      this.depth = depth;
+    }
+
+    public Comment getComment() {
+      return comment;
+    }
+
+    public int getDepth() {
+      return depth;
+    }
   }
 }
