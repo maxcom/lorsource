@@ -38,7 +38,6 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -200,34 +199,20 @@ public class CommentDao {
   /**
      * Удалить рекурсивно ответы на комментарий
      *
-     * @param node  CommentNode удаляемого комментария
+     * @param replys список ответов
      * @param user  пользователь, удаляющий комментарий
      * @param score сколько снять скора у автора комментария
      * @return список идентификационных номеров удалённых комментариев
      */
-  public List<Integer> deleteReplys(CommentNode node, User user, boolean score) {
-    return doDeleteReplys(node, user, score, 0);
-  }
+  public List<Integer> deleteReplys(List<CommentAndDepth> replys, User user, boolean score) {
+    List<Integer> deleted = new ArrayList<>(replys.size());
 
-  /**
-   * Помощник по рекурсивному удалению комментариев
-   *
-   * @param node   CommentNode удаляемого комментария
-   * @param user   пользователь, удаляющий комментарий
-   * @param score  снимать ли скор у автора комментария
-   * @param depth  текущий уровень ответов
-   * @return список идентификационных номеров удалённых комментариев
-   */
-  private List<Integer> doDeleteReplys(CommentNode node, User user, boolean score, int depth) {
-    List<Integer> deleted = new LinkedList<>();
-    for (CommentNode r : node.childs()) {
-      deleted.addAll(doDeleteReplys(r, user, score, depth + 1));
-
+    for (CommentAndDepth cur : replys) {
       boolean del;
 
-      int childId = r.getComment().getId();
+      int childId = cur.getComment().getId();
 
-      switch (depth) {
+      switch (cur.getDepth()) {
         case 0:
           if (score) {
             del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
@@ -253,6 +238,24 @@ public class CommentDao {
     }
 
     return deleted;
+  }
+
+  public static class CommentAndDepth {
+    private final Comment comment;
+    private final int depth;
+
+    public CommentAndDepth(Comment comment, int depth) {
+      this.comment = comment;
+      this.depth = depth;
+    }
+
+    private Comment getComment() {
+      return comment;
+    }
+
+    private int getDepth() {
+      return depth;
+    }
   }
 
   /**
@@ -385,30 +388,30 @@ public class CommentDao {
      */
   public List<CommentsListItem> getUserComments(int userId, int limit, int offset) {
     return jdbcTemplate.query(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
-        "topics.id as topicid, comments.id as msgid, comments.postdate " +
-        "FROM sections, groups, topics, comments " +
-        "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
-        "AND comments.topic=topics.id " +
-        "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT ? OFFSET ?",
-      new RowMapper<CommentsListItem>() {
-        @Override
-        public CommentsListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-          CommentsListItem item = new CommentsListItem();
+            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
+                    "topics.id as topicid, comments.id as msgid, comments.postdate " +
+                    "FROM sections, groups, topics, comments " +
+                    "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
+                    "AND comments.topic=topics.id " +
+                    "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT ? OFFSET ?",
+            new RowMapper<CommentsListItem>() {
+              @Override
+              public CommentsListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+                CommentsListItem item = new CommentsListItem();
 
-          item.setSectionTitle(rs.getString("ptitle"));
-          item.setGroupTitle(rs.getString("gtitle"));
-          item.setTopicId(rs.getInt("topicid"));
-          item.setCommentId(rs.getInt("msgid"));
-          item.setTitle(StringUtil.makeTitle(rs.getString("title")));
-          item.setPostdate(rs.getTimestamp("postdate"));
+                item.setSectionTitle(rs.getString("ptitle"));
+                item.setGroupTitle(rs.getString("gtitle"));
+                item.setTopicId(rs.getInt("topicid"));
+                item.setCommentId(rs.getInt("msgid"));
+                item.setTitle(StringUtil.makeTitle(rs.getString("title")));
+                item.setPostdate(rs.getTimestamp("postdate"));
 
-          return item;
-        }
-      },
-      userId,
-      limit,
-      offset
+                return item;
+              }
+            },
+            userId,
+            limit,
+            offset
     );
   }
 

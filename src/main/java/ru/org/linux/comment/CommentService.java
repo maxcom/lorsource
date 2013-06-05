@@ -535,7 +535,9 @@ public class CommentService {
 
     CommentNode node = commentList.getNode(msgid);
 
-    List<Integer> deleted = commentDao.deleteReplys(node, user, scoreBonus > 2);
+    List<CommentDao.CommentAndDepth> replys = getAllReplys(node, 0);
+
+    List<Integer> deleted = commentDao.deleteReplys(replys, user, scoreBonus > 2);
 
     boolean deletedMain = commentDao.deleteComment(msgid, reason, user, -scoreBonus);
 
@@ -729,5 +731,16 @@ public class CommentService {
     }
 
     return hideSet;
+  }
+
+  private List<CommentDao.CommentAndDepth> getAllReplys(CommentNode node, int depth) {
+    List<CommentDao.CommentAndDepth> replys = new LinkedList<>();
+
+    for (CommentNode r : node.childs()) {
+      replys.addAll(getAllReplys(r, depth + 1));
+      replys.add(new CommentDao.CommentAndDepth(r.getComment(), depth));
+    }
+
+    return replys;
   }
 }
