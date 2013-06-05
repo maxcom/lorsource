@@ -217,6 +217,12 @@
           type: 'img',
           src: '/adv/selectel/storage.gif',
           href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=050413'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/auction-15-729.png',
+          href: 'https://tehnodom.com/auction/?utm_source=lor&utm_medium=banner&utm_campaign=050613',
+          width: 729
         }
       ];
 
@@ -240,7 +246,11 @@
 
         var img = $('<img>');
         img.attr('src', ad.src);
-        img.attr('width', 728);
+        if ('width' in ad) {
+          img.attr('width', ad.width);
+        } else {
+          img.attr('width', 728);
+        }
 
         if ('height' in ad) {
           img.attr('height', ad.height);
