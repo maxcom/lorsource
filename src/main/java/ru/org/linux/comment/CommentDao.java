@@ -78,7 +78,6 @@ public class CommentDao {
   private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
-  private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
   private JdbcTemplate jdbcTemplate;
   private DeleteInfoDao deleteInfoDao;
@@ -159,15 +158,11 @@ public class CommentDao {
      * @param scoreBonus сколько снять скора у автора комментария
      * @return true если комментарий был удалён, иначе false
      */
-  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) {
+  private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {
       deleteInfoDao.insert(msgid, user, reason, scoreBonus);
-
-      if (scoreBonus != 0) {
-        jdbcTemplate.update(updateScore, scoreBonus, msgid);
-      }
 
       logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
 
@@ -179,20 +174,52 @@ public class CommentDao {
   }
 
   /**
+     * Удалить комментарий.
+     *
+     * @param comment    удаляемый комментарий
+     * @param reason     причина удаления
+     * @param user       пользователь, удаляющий комментарий
+     * @param scoreBonus сколько снять скора у автора комментария
+     * @return true если комментарий был удалён, иначе false
+     */
+  public boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
+    boolean del = doDeleteComment(comment.getId(), reason, user, scoreBonus);
+
+    if (del && scoreBonus!=0) {
+      // TODO move to CommentService & use UserDao to modify score
+      jdbcTemplate.update("UPDATE users SET score=score+? WHERE id=?", scoreBonus, comment.getUserid());
+    }
+
+    return del;
+  }
+
+  /**
+     * Удалить комментарий.
+     *
+     * @param msgid      идентификационнай номер комментария
+     * @param reason     причина удаления
+     * @param user       пользователь, удаляющий комментарий
+     * @return true если комментарий был удалён, иначе false
+     */
+  public boolean deleteComment(int msgid, String reason, User user) {
+    return doDeleteComment(msgid, reason, user, 0);
+  }
+
+  /**
      * Обновляет статистику после удаления комментариев в одном топике.
      *
      * @param commentId идентификатор любого из удаленных комментариев (обычно корневой в цепочке)
      * @param count     количество удаленных комментариев
      */
   public void updateStatsAfterDelete(int commentId, int count) {
-    int topicId = jdbcTemplate.queryForInt("SELECT topic FROM comments WHERE id=?", commentId);
+    int topicId = jdbcTemplate.queryForObject("SELECT topic FROM comments WHERE id=?", Integer.class, commentId);
 
     jdbcTemplate.update("UPDATE topics SET stat1=stat1-?, lastmod=CURRENT_TIMESTAMP WHERE id = ?", count, topicId);
     jdbcTemplate.update("UPDATE topics SET stat2=stat1 WHERE id=? AND stat2 > stat1", topicId);
     jdbcTemplate.update("UPDATE topics SET stat3=stat1 WHERE id=? AND stat3 > stat1", topicId);
     jdbcTemplate.update("UPDATE topics SET stat4=stat1 WHERE id=? AND stat4 > stat1", topicId);
 
-    int groupId = jdbcTemplate.queryForInt("SELECT groupid FROM topics WHERE id = ?", topicId);
+    int groupId = jdbcTemplate.queryForObject("SELECT groupid FROM topics WHERE id = ?", Integer.class, topicId);
     jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
   }
 
@@ -210,30 +237,30 @@ public class CommentDao {
     for (CommentAndDepth cur : replys) {
       boolean del;
 
-      int childId = cur.getComment().getId();
+      Comment child = cur.getComment();
 
       switch (cur.getDepth()) {
         case 0:
           if (score) {
-            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
+            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
           } else {
-            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            del = deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
           }
           break;
         case 1:
           if (score) {
-            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
+            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
           } else {
-            del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            del = deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
           }
           break;
         default:
-          del = deleteComment(childId, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
+          del = deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user);
           break;
       }
 
       if (del) {
-        deleted.add(childId);
+        deleted.add(child.getId());
       }
     }
 

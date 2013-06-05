@@ -154,9 +154,9 @@ public class DeleteCommentController {
     List<Integer> deleted;
 
     if (user.isModerator()) {
-      deleted = commentService.deleteWithReplys(topic, msgid, reason, user, bonus);
+      deleted = commentService.deleteWithReplys(topic, comment, reason, user, bonus);
     } else {
-      if (commentService.deleteComment(msgid, reason, user, 0)) {
+      if (commentService.deleteComment(msgid, reason, user)) {
         deleted = ImmutableList.of(msgid);
       } else {
         deleted = ImmutableList.of();

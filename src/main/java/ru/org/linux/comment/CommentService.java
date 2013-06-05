@@ -473,19 +473,19 @@ public class CommentService {
   /**
    * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
    *
+   *
    * @param msgid      id удаляемого сообщения
    * @param reason     причина удаления
    * @param user       модератор который удаляет
-   * @param scoreBonus кол-во отрезаемого шкворца
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
+  public boolean deleteComment(int msgid, String reason, User user) throws ScriptErrorException {
     if (commentDao.getReplaysCount(msgid) != 0) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
 
-    boolean deleted = commentDao.deleteComment(msgid, reason, user, scoreBonus);
+    boolean deleted = commentDao.deleteComment(msgid, reason, user);
 
     if (deleted) {
       commentDao.updateStatsAfterDelete(msgid, 1);
@@ -524,29 +524,29 @@ public class CommentService {
   /**
    * Удаление ответов на комментарии.
    *
-   * @param msgid  идентификационнай номер комментария
+   * @param comment удаляемый комментарий
    * @param user   пользователь, удаляющий комментарий
    * @param scoreBonus  сколько снять скора у автора комментария
    * @return список идентификационных номеров удалённых комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteWithReplys(Topic topic, int msgid, String reason, User user, int scoreBonus) {
+  public List<Integer> deleteWithReplys(Topic topic, Comment comment, String reason, User user, int scoreBonus) {
     CommentList commentList = getCommentList(topic, false);
 
-    CommentNode node = commentList.getNode(msgid);
+    CommentNode node = commentList.getNode(comment.getId());
 
     List<CommentDao.CommentAndDepth> replys = getAllReplys(node, 0);
 
     List<Integer> deleted = commentDao.deleteReplys(replys, user, scoreBonus > 2);
 
-    boolean deletedMain = commentDao.deleteComment(msgid, reason, user, -scoreBonus);
+    boolean deletedMain = commentDao.deleteComment(comment, reason, user, -scoreBonus);
 
     if (deletedMain) {
-      deleted.add(msgid);
+      deleted.add(comment.getId());
     }
 
     if (!deleted.isEmpty()) {
-      commentDao.updateStatsAfterDelete(msgid, deleted.size());
+      commentDao.updateStatsAfterDelete(comment.getId(), deleted.size());
     }
 
     return deleted;
@@ -583,7 +583,7 @@ public class CommentService {
 
     for (int msgid : commentIds) {
       if (commentDao.getReplaysCount(msgid) == 0) {
-        if (commentDao.deleteComment(msgid, reason, moderator, 0)) {
+        if (commentDao.deleteComment(msgid, reason, moderator)) {
           deletedCommentIds.add(msgid);
           deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
         } else {
@@ -657,7 +657,7 @@ public class CommentService {
 
     for (int msgid : commentIds) {
       if (commentDao.getReplaysCount(msgid) == 0) {
-        commentDao.deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+        commentDao.deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator);
         commentDao.updateStatsAfterDelete(msgid, 1);
         deletedCommentIds.add(msgid);
       }
