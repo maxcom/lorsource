@@ -635,9 +635,33 @@ public class CommentService {
 
     List<Integer> deletedTopicIds = topicService.deleteAllByUser(user, moderator);
 
-    List<Integer> deletedCommentIds = commentDao.deleteAllByUser(user, moderator);
+    List<Integer> deletedCommentIds = deleteAllCommentsByUser(user, moderator);
 
     return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
+  }
+
+  /**
+     * Массовое удаление комментариев пользователя со всеми ответами на комментарии.
+     *
+     * @param user      пользователь для экзекуции
+     * @param moderator экзекутор-модератор
+     * @return список удаленных комментариев
+     */
+  private List<Integer> deleteAllCommentsByUser(User user, final User moderator) {
+    final List<Integer> deletedCommentIds = new ArrayList<>();
+
+    // Удаляем все комментарии
+    List<Integer> commentIds = commentDao.getAllByUserForUpdate(user);
+
+    for (int msgid : commentIds) {
+      if (commentDao.getReplaysCount(msgid) == 0) {
+        commentDao.deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+        commentDao.updateStatsAfterDelete(msgid, 1);
+        deletedCommentIds.add(msgid);
+      }
+    }
+
+    return deletedCommentIds;
   }
 
   /**

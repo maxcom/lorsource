@@ -262,34 +262,21 @@ public class CommentDao {
      * @return число ответов на комментарий
      */
   public int getReplaysCount(int msgid) {
-    return jdbcTemplate.queryForInt(replysForCommentCount, msgid);
+    return jdbcTemplate.queryForObject(replysForCommentCount, Integer.class, msgid);
   }
 
   /**
-     * Массовое удаление комментариев пользователя со всеми ответами на комментарии.
-     *
-     * @param user      пользователь для экзекуции
-     * @param moderator экзекутор-модератор
-     * @return список удаленных комментариев
-     */
-  public List<Integer> deleteAllByUser(User user, final User moderator) {
-    final List<Integer> deletedCommentIds = new ArrayList<>();
-
-    // Удаляем все комментарии
-    List<Integer> commentIds = jdbcTemplate.queryForList("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
+   * Массовое удаление комментариев пользователя со всеми ответами на комментарии.
+   *
+   * @param user пользователь для экзекуции
+   * @return список удаленных комментариев
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public List<Integer> getAllByUserForUpdate(User user) {
+    return jdbcTemplate.queryForList("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
             Integer.class,
             user.getId()
     );
-
-    for (int msgid : commentIds) {
-      if (getReplaysCount(msgid) == 0) {
-        deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
-        updateStatsAfterDelete(msgid, 1);
-        deletedCommentIds.add(msgid);
-      }
-    }
-
-    return deletedCommentIds;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
