@@ -18,7 +18,7 @@ public class CommentDaoIntegrationTestConfiguration {
 
   @Bean
   public CommentDao commentDao() {
-    return new CommentDaoImpl();
+    return new CommentDao();
   }
 
   @Bean
