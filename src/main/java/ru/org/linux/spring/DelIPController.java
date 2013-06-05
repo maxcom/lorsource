@@ -22,11 +22,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentService;
-import ru.org.linux.site.Template;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
@@ -44,9 +43,6 @@ public class DelIPController {
 
   @Autowired
   private CommentService commentService;
-
-  @Autowired
-  private CommentDao commentDao;
 
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
