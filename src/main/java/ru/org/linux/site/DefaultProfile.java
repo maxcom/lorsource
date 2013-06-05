@@ -32,11 +32,11 @@ public final class DefaultProfile {
   private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
       .put("poll", "Текущий опрос")
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
-      .put("gallery", "Галлерея")
+      .put("gallery", "Галерея")
       .put("tagcloud", "Облако тэгов")
       .put("archive", "Архив новостей")
       .put("ibm", "IBM developerWorks")
-      .put("lastMiniNews", "Последние мининовости (не будут отображатся в ленте новостей на главной странице)").build();
+      .put("lastMiniNews", "Последние мининовости (не будут отображаться в ленте новостей на главной странице)").build();
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
