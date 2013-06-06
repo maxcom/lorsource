@@ -15,7 +15,9 @@
 
 package ru.org.linux.spring.dao;
 
+import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -23,7 +25,9 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.DeleteInfoStat;
 import ru.org.linux.user.User;
 
+import javax.annotation.Nonnull;
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -86,6 +90,8 @@ public class DeleteInfoDao {
   }
 
   public void insert(int msgid, User deleter, String reason, int scoreBonus) {
+    Preconditions.checkArgument(scoreBonus <= 0, "Score bonus on delete must be non-positive");
+
     jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
   }
 
@@ -99,5 +105,60 @@ public class DeleteInfoDao {
               }
             }
     );
+  }
+
+  public void insert(final List<InsertDeleteInfo> deleteInfos) {
+    if (deleteInfos.isEmpty()) {
+      return;
+    }
+
+    jdbcTemplate.batchUpdate(INSERT_DELETE_INFO, new BatchPreparedStatementSetter() {
+      @Override
+      public void setValues(PreparedStatement ps, int i) throws SQLException {
+        InsertDeleteInfo info = deleteInfos.get(i);
+
+        ps.setInt(1, info.getMsgid());
+        ps.setInt(2, info.getDeleteUser());
+        ps.setString(3, info.getReason());
+        ps.setInt(4, info.getBonus());
+      }
+
+      @Override
+      public int getBatchSize() {
+        return deleteInfos.size();
+      }
+    });
+  }
+
+  public static class InsertDeleteInfo {
+    private final int msgid;
+    private final String reason;
+    private final int bonus;
+    private final int deleteUser;
+
+    public InsertDeleteInfo(int msgid, @Nonnull String reason, int bonus, int deleteUser) {
+      Preconditions.checkArgument(bonus <= 0, "Score bonus on delete must be non-positive");
+
+      this.msgid = msgid;
+      this.reason = reason;
+      this.bonus = bonus;
+      this.deleteUser = deleteUser;
+    }
+
+    public int getMsgid() {
+      return msgid;
+    }
+
+    public String getReason() {
+      return reason;
+    }
+
+    public int getBonus() {
+      return bonus;
+    }
+
+    public int getDeleteUser() {
+      return deleteUser;
+    }
   }
 }

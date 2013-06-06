@@ -16,6 +16,7 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -526,11 +527,9 @@ public class CommentService {
    * @return true если комментарий был удалён, иначе false
    */
   private boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
-    boolean del = commentDao.deleteComment(comment.getId(), reason, user);
+    Preconditions.checkArgument(scoreBonus<=0, "Score bonus on delete must be non-positive");
 
-    if (del) {
-      deleteInfoDao.insert(comment.getId(), user, reason, scoreBonus);
-    }
+    boolean del = commentDao.deleteComment(comment.getId(), reason, user);
 
     if (del && scoreBonus!=0) {
       userDao.changeScore(comment.getUserid(), scoreBonus);
@@ -582,19 +581,7 @@ public class CommentService {
 
     List<CommentAndDepth> replys = getAllReplys(node, 0);
 
-    List<Integer> deleted = deleteReplys(replys, user, scoreBonus > 2);
-
-    boolean deletedMain = deleteComment(comment, reason, user, -scoreBonus);
-
-    if (deletedMain) {
-      deleted.add(comment.getId());
-    }
-
-    if (!deleted.isEmpty()) {
-      commentDao.updateStatsAfterDelete(comment.getId(), deleted.size());
-    }
-
-    return deleted;
+    return deleteReplys(comment, reason, replys, user, -scoreBonus);
   }
 
   /**
@@ -602,40 +589,39 @@ public class CommentService {
      *
      * @param replys список ответов
      * @param user  пользователь, удаляющий комментарий
-     * @param score сколько снять скора у автора комментария
+     * @param rootBonus сколько снять скора у автора корневого комментария
      * @return список идентификационных номеров удалённых комментариев
      */
-  private List<Integer> deleteReplys(List<CommentAndDepth> replys, User user, boolean score) {
+  private List<Integer> deleteReplys(Comment root, String rootReason, List<CommentAndDepth> replys, User user, int rootBonus) {
+    boolean score = rootBonus < -2;
+
     List<Integer> deleted = new ArrayList<>(replys.size());
+    List<DeleteInfoDao.InsertDeleteInfo> deleteInfos = new ArrayList<>(replys.size());
 
     for (CommentAndDepth cur : replys) {
-      boolean del;
-
       Comment child = cur.getComment();
 
-      switch (cur.getDepth()) {
-        case 0:
-          if (score) {
-            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
-          } else {
-            del = doDeleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
-          }
-          break;
-        case 1:
-          if (score) {
-            del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
-          } else {
-            del = doDeleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
-          }
-          break;
-        default:
-          del = doDeleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user);
-          break;
-      }
+      DeleteInfoDao.InsertDeleteInfo info = cur.deleteInfo(score, user);
+
+      boolean del = deleteComment(child, info.getReason(), user, info.getBonus());
 
       if (del) {
+        deleteInfos.add(info);
         deleted.add(child.getId());
       }
+    }
+
+    boolean deletedMain = deleteComment(root, rootReason, user, rootBonus);
+
+    if (deletedMain) {
+      deleteInfos.add(new DeleteInfoDao.InsertDeleteInfo(root.getId(), rootReason, rootBonus, user.getId()));
+      deleted.add(root.getId());
+    }
+
+    deleteInfoDao.insert(deleteInfos);
+
+    if (!deleted.isEmpty()) {
+      commentDao.updateStatsAfterDelete(root.getId(), deleted.size());
     }
 
     return deleted;
@@ -848,6 +834,33 @@ public class CommentService {
 
     public int getDepth() {
       return depth;
+    }
+
+    private DeleteInfoDao.InsertDeleteInfo deleteInfo(boolean score, User user) {
+      int bonus;
+      String reason;
+
+      if (score) {
+        switch (depth) {
+          case 0:
+            reason = "7.1 Ответ на некорректное сообщение (авто, уровень 0)";
+            bonus = -2;
+            break;
+          case 1:
+            reason = "7.1 Ответ на некорректное сообщение (авто, уровень 1)";
+            bonus = -1;
+            break;
+          default:
+            reason = "7.1 Ответ на некорректное сообщение (авто, уровень >1)";
+            bonus = 0;
+            break;
+        }
+      } else {
+        reason = "7.1 Ответ на некорректное сообщение (авто)";
+        bonus = 0;
+      }
+
+      return new DeleteInfoDao.InsertDeleteInfo(comment.getId(), reason, bonus, user.getId());
     }
   }
 }
