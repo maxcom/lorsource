@@ -39,6 +39,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -107,6 +108,9 @@ public class CommentService {
 
   @Autowired
   private TopicDao topicDao;
+
+  @Autowired
+  private DeleteInfoDao deleteInfoDao;
 
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new CommentRequestValidator(lorCodeService));
@@ -485,13 +489,54 @@ public class CommentService {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
 
-    boolean deleted = commentDao.deleteComment(msgid, reason, user);
+    boolean deleted = doDeleteComment(msgid, reason, user);
 
     if (deleted) {
       commentDao.updateStatsAfterDelete(msgid, 1);
     }
 
     return deleted;
+  }
+
+  /**
+   * Удалить комментарий.
+   *
+   * @param msgid      идентификационнай номер комментария
+   * @param reason     причина удаления
+   * @param user       пользователь, удаляющий комментарий
+   * @return true если комментарий был удалён, иначе false
+   */
+  private boolean doDeleteComment(int msgid, String reason, User user) {
+    boolean deleted = commentDao.deleteComment(msgid, reason, user);
+
+    if (deleted) {
+      deleteInfoDao.insert(msgid, user, reason, 0);
+    }
+
+    return deleted;
+  }
+
+  /**
+   * Удалить комментарий.
+   *
+   * @param comment    удаляемый комментарий
+   * @param reason     причина удаления
+   * @param user       пользователь, удаляющий комментарий
+   * @param scoreBonus сколько снять скора у автора комментария
+   * @return true если комментарий был удалён, иначе false
+   */
+  private boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
+    boolean del = commentDao.deleteComment(comment.getId(), reason, user);
+
+    if (del) {
+      deleteInfoDao.insert(comment.getId(), user, reason, scoreBonus);
+    }
+
+    if (del && scoreBonus!=0) {
+      userDao.changeScore(comment.getUserid(), scoreBonus);
+    }
+
+    return del;
   }
 
   /**
@@ -573,18 +618,18 @@ public class CommentService {
           if (score) {
             del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
           } else {
-            del = commentDao.deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
+            del = doDeleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
           }
           break;
         case 1:
           if (score) {
             del = deleteComment(child, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
           } else {
-            del = commentDao.deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
+            del = doDeleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто)", user);
           }
           break;
         default:
-          del = commentDao.deleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user);
+          del = doDeleteComment(child.getId(), "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user);
           break;
       }
 
@@ -595,26 +640,6 @@ public class CommentService {
 
     return deleted;
   }
-
-  /**
-     * Удалить комментарий.
-     *
-     * @param comment    удаляемый комментарий
-     * @param reason     причина удаления
-     * @param user       пользователь, удаляющий комментарий
-     * @param scoreBonus сколько снять скора у автора комментария
-     * @return true если комментарий был удалён, иначе false
-     */
-  private boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
-    boolean del = commentDao.deleteComment(comment.getId(), reason, user, scoreBonus);
-
-    if (del && scoreBonus!=0) {
-      userDao.changeScore(comment.getUserid(), scoreBonus);
-    }
-
-    return del;
-  }
-
 
   /**
    * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
@@ -647,7 +672,7 @@ public class CommentService {
 
     for (int msgid : commentIds) {
       if (commentDao.getReplaysCount(msgid) == 0) {
-        if (commentDao.deleteComment(msgid, reason, moderator)) {
+        if (doDeleteComment(msgid, reason, moderator)) {
           deletedCommentIds.add(msgid);
           deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
         } else {
@@ -721,7 +746,7 @@ public class CommentService {
 
     for (int msgid : commentIds) {
       if (commentDao.getReplaysCount(msgid) == 0) {
-        commentDao.deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator);
+        doDeleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator);
         commentDao.updateStatsAfterDelete(msgid, 1);
         deletedCommentIds.add(msgid);
       }
@@ -797,7 +822,7 @@ public class CommentService {
     return hideSet;
   }
 
-  private List<CommentAndDepth> getAllReplys(CommentNode node, int depth) {
+  private static List<CommentAndDepth> getAllReplys(CommentNode node, int depth) {
     List<CommentAndDepth> replys = new LinkedList<>();
 
     for (CommentNode r : node.childs()) {
@@ -812,7 +837,7 @@ public class CommentService {
     private final Comment comment;
     private final int depth;
 
-    public CommentAndDepth(Comment comment, int depth) {
+    private CommentAndDepth(Comment comment, int depth) {
       this.comment = comment;
       this.depth = depth;
     }

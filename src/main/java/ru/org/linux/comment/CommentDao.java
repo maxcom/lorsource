@@ -30,7 +30,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
@@ -79,7 +78,6 @@ public class CommentDao {
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
 
   private JdbcTemplate jdbcTemplate;
-  private DeleteInfoDao deleteInfoDao;
 
   private SimpleJdbcInsert insertMsgbase;
 
@@ -92,17 +90,12 @@ public class CommentDao {
     insertMsgbase.usingColumns("id", "message", "bbcode");
   }
 
-  @Autowired
-  public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
-    this.deleteInfoDao = deleteInfoDao;
-  }
-
   /**
      * Получить комментарий по id
      *
      * @param id id нужного комментария
      * @return нужный комментарий
-     * @throws ru.org.linux.site.MessageNotFoundException при отсутствии сообщения
+     * @throws MessageNotFoundException при отсутствии сообщения
      */
   public Comment getById(int id) throws MessageNotFoundException {
     Comment comment;
@@ -151,18 +144,16 @@ public class CommentDao {
   /**
      * Удалить комментарий.
      *
-     * @param msgid      идентификационнай номер комментария
-     * @param reason     причина удаления
-     * @param user       пользователь, удаляющий комментарий
-     * @param scoreBonus сколько снято скора у автора комментария
-     * @return true если комментарий был удалён, иначе false
+     *
+   * @param msgid      идентификационнай номер комментария
+   * @param reason     причина удаления
+   * @param user       пользователь, удаляющий комментарий
+   * @return true если комментарий был удалён, иначе false
      */
-  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) {
+  public boolean deleteComment(int msgid, String reason, User user) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {
-      deleteInfoDao.insert(msgid, user, reason, scoreBonus);
-
       logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
 
       return true;
@@ -170,18 +161,6 @@ public class CommentDao {
       logger.info("Пропускаем удаление уже удаленного " + msgid);
       return false;
     }
-  }
-
-  /**
-     * Удалить комментарий.
-     *
-     * @param msgid      идентификационнай номер комментария
-     * @param reason     причина удаления
-     * @param user       пользователь, удаляющий комментарий
-     * @return true если комментарий был удалён, иначе false
-     */
-  public boolean deleteComment(int msgid, String reason, User user) {
-    return deleteComment(msgid, reason, user, 0);
   }
 
   /**
@@ -241,13 +220,13 @@ public class CommentDao {
      * @param message текст комментария
      * @param userAgent
      * @return идентификационный номер нового комментария
-     * @throws ru.org.linux.site.MessageNotFoundException
+     * @throws MessageNotFoundException
      */
   public int saveNewMessage(
           final Comment comment,
           String message,
           final String userAgent) {
-    final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
+    final int msgid = jdbcTemplate.queryForObject("select nextval('s_msgid') as msgid", Integer.class);
 
     jdbcTemplate.execute(
       "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
@@ -444,7 +423,7 @@ public class CommentDao {
     }
   }
 
-  public class CommentsListItem {
+  public static class CommentsListItem {
     private String sectionTitle;
     private String groupTitle;
     private int topicId;
