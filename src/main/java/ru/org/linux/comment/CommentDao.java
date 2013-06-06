@@ -390,7 +390,7 @@ public class CommentDao {
   /**
    * DTO-класс, описывающий данные удалённого комментария
    */
-  class DeletedListItem {
+  public static class DeletedListItem {
     private final String ptitle;
     private final String gtitle;
     private final int msgid;

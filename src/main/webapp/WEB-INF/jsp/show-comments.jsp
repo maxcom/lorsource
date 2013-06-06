@@ -23,7 +23,7 @@
 <%--@elvariable id="topics" type="Integer"--%>
 <%--@elvariable id="offset" type="Integer"--%>
 <%--@elvariable id="list" type="java.util.List<ru.org.linux.spring.ShowCommentsController.CommentsListItem>"--%>
-<%--@elvariable id="deletedList" type="java.util.List<ru.org.linux.spring.dao.CommentDao.DeletedListItem>"--%>
+<%--@elvariable id="deletedList" type="java.util.List<ru.org.linux.comment.CommentDao.DeletedListItem>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
