@@ -39,6 +39,7 @@
     height="31" width="88" alt="Рейтинг@Mail.ru"></a>
     <!-- //Rating@Mail.ru logo -->
 </c:if>
+<%--
   <c:if test="${template.style == 'tango'}"><br>
   <div id="styleswitch">
            Стиль: <a href="javascript: void(0)" id="tango-dark">Dark</a> -
@@ -56,6 +57,7 @@
     });
   </script>
   </c:if>
+--%>
 </div>
 
 <script type="text/javascript">
