@@ -205,10 +205,6 @@
     $(function() {
       var ads = [
         {
-          type: 'flash',
-          src: '/adv/selectel/728x90-vds.swf'
-        },
-        {
           type: 'img',
           src: '/adv/selectel/dedicated.png',
           href: 'http://selectel.ru/services/dedicated/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=050413'
