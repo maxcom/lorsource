@@ -78,6 +78,45 @@ function initStarPopovers() {
   });
 }
 
+function init_interpage_adv(ads) {
+    $(function() {
+        var ad = ads[Math.floor(Math.random() * ads.length)];
+
+        if (ad.type=='flash') {
+            $script('/js/jquery.swfobject.1-1-1.min.js', function() {
+                $('#interpage-adv').flash({
+                    "swf": ad.src,
+                    "width": 728,
+                    "height": 90
+                });
+            });
+        }
+
+        if (ad.type=='img') {
+            var anchor = $('<a>');
+            anchor.attr('href', ad.href);
+            anchor.attr('target', '_blank');
+
+            var img = $('<img>');
+            img.attr('src', ad.src);
+            if ('width' in ad) {
+                img.attr('width', ad.width);
+            } else {
+                img.attr('width', 728);
+            }
+
+            if ('height' in ad) {
+                img.attr('height', ad.height);
+            } else {
+                img.attr('height', 90);
+            }
+
+            anchor.append(img);
+            $('#interpage-adv').append(anchor);
+        }
+    });
+}
+
 function topic_memories_form_setup(memId, watch, msgid, csrf) {
   function memories_add(event) {
     event.preventDefault();
