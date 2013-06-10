@@ -20,7 +20,7 @@
 
 <title>Удаление метки</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
+<script src="/js/jqueryui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
       $( "#tagName" )
@@ -53,7 +53,7 @@
         });
     });
  </script>
-<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
+<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class="nav">

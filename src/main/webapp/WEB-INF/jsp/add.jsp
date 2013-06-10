@@ -53,12 +53,12 @@
     });
   });
 
-  $script("/js/jqueryui/jquery-ui-1.8.18.custom.min.js", "jqueryui");
+  $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
   $script.ready("jqueryui", function() {
     $script("/js/tagsAutocomplete.js");
   });
 </script>
-<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
+<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
   <jsp:include page="/WEB-INF/jsp/header.jsp"/>
   <c:if test="${not form.noinfo}">
       ${addportal}
