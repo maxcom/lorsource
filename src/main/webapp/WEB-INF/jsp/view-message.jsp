@@ -202,66 +202,28 @@
   </div>
 
   <script type="text/javascript">
-    $(function() {
-      var ads = [
-        {
-          type: 'flash',
-          src: '/adv/selectel/728x90-vds.swf'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/dedicated.png',
-          href: 'http://selectel.ru/services/dedicated/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=050413'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/storage.gif',
-          href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=050413'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/auction-15-729.png',
-          href: 'https://tehnodom.com/auction/?utm_source=lor&utm_medium=banner&utm_campaign=050613',
-          width: 729
-        }
-      ];
+      $script.ready('lorjs', function() {
+          var ads = [
+              {
+                  type: 'img',
+                  src: '/adv/selectel/dedicated.png',
+                  href: 'http://selectel.ru/services/dedicated/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=050413'
+              },
+              {
+                  type: 'img',
+                  src: '/adv/selectel/storage.gif',
+                  href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=050413'
+              },
+              {
+                  type: 'img',
+                  src: '/adv/selectel/auction-15-729.png',
+                  href: 'https://tehnodom.com/auction/?utm_source=lor&utm_medium=banner&utm_campaign=050613',
+                  width: 729
+              }
+          ];
 
-      var ad = ads[Math.floor(Math.random() * ads.length)];
-
-      if (ad.type=='flash') {
-        $script('/js/jquery.swfobject.1-1-1.min.js', function() {
-
-          $('#interpage-adv').flash({
-            "swf": ad.src,
-            "width": 728,
-            "height": 90
-          });
-        });
-      }
-
-      if (ad.type=='img') {
-        var anchor = $('<a>');
-        anchor.attr('href', ad.href);
-        anchor.attr('target', '_blank');
-
-        var img = $('<img>');
-        img.attr('src', ad.src);
-        if ('width' in ad) {
-          img.attr('width', ad.width);
-        } else {
-          img.attr('width', 728);
-        }
-
-        if ('height' in ad) {
-          img.attr('height', ad.height);
-        } else {
-          img.attr('height', 90);
-        }
-
-        anchor.append(img);
-        $('#interpage-adv').append(anchor);
-      }
-    });
+          init_interpage_adv(ads);
+      });
   </script>
   <br>
 </c:if>
