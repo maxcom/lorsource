@@ -47,16 +47,16 @@
 <![endif]-->
 
 <c:if test="${not pageContext.request.secure}">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
 </c:if>
 
 <c:if test="${pageContext.request.secure}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
 </c:if>
 
 <script type="text/javascript">
   if (typeof jQuery == 'undefined') {
-      document.write(unescape("%3Cscript src='/js/jquery-1.7.2.min.js' type='text/javascript'%3E%3C/script%3E"));
+      document.write(unescape("%3Cscript src='/js/jquery-1.8.3.min.js' type='text/javascript'%3E%3C/script%3E"));
   }
 </script>
 
