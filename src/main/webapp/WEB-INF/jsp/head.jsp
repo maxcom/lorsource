@@ -60,8 +60,6 @@
   }
 </script>
 
-<script src="/js/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
-
 <script type="text/javascript">
   $script('/js/plugins.js', 'plugins');
   $script.ready('plugins', function() {
