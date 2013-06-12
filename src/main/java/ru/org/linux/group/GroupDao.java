@@ -96,7 +96,12 @@ public class GroupDao {
    */
   public Group getGroup(Section section, String name) throws GroupNotFoundException {
     try {
-      int id = jdbcTemplate.queryForInt("SELECT id FROM groups WHERE section=? AND urlname=?", section.getId(), name);
+      int id = jdbcTemplate.queryForObject(
+              "SELECT id FROM groups WHERE section=? AND urlname=?",
+              Integer.class,
+              section.getId(),
+              name
+      );
 
       return getGroup(id);
     } catch (EmptyResultDataAccessException ex) {
@@ -111,8 +116,8 @@ public class GroupDao {
    * @param title      Заголовок группы
    * @param info       дополнительная информация
    * @param longInfo   расширенная дополнительная информация
-   * @param resolvable м ожно ли ставить темам признак "тема решена"
-   * @param urlName
+   * @param resolvable можно ли ставить темам признак "тема решена"
+   * @param urlName    имя группы в URL
    */
   @CacheEvict(value="Groups", key="#group.id")
   public void setParams(final Group group, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
