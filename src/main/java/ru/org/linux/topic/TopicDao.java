@@ -644,4 +644,20 @@ public class TopicDao {
             startTime
     );
   }
+
+  public int getUncommitedCount() {
+    return jdbcTemplate.queryForObject(
+            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+            Integer.class
+    );
+  }
+
+  public int getUncommitedCount(int section) {
+    return jdbcTemplate.queryForObject(
+            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+            Integer.class,
+            section
+    );
+
+  }
 }

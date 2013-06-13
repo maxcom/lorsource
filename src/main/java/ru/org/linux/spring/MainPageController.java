@@ -17,19 +17,19 @@ package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.section.Section;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.Profile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import java.util.List;
 
 @Controller
@@ -40,12 +40,8 @@ public class MainPageController {
   @Autowired
   private TopicListService topicListService;
 
-  private JdbcTemplate jdbcTemplate;
-
   @Autowired
-  public void setDataSource(DataSource ds) {
-    jdbcTemplate = new JdbcTemplate(ds);
-  }
+  private TopicDao topicDao;
 
   private List<Topic> filterMiniNews(List<Topic> messages) {
     ImmutableList.Builder<Topic> filtred = new ImmutableList.Builder<Topic>();
@@ -81,20 +77,14 @@ public class MainPageController {
     ));
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
-      int uncommited = jdbcTemplate.queryForObject(
-              "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
-              Integer.class
-      );
+      int uncommited = topicDao.getUncommitedCount();
 
       mv.getModel().put("uncommited", uncommited);
 
       int uncommitedNews = 0;
 
       if (uncommited > 0) {
-        uncommitedNews = jdbcTemplate.queryForObject(
-                "select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
-                Integer.class
-        );
+        uncommitedNews = topicDao.getUncommitedCount(Section.SECTION_NEWS);
       }
 
       mv.getModel().put("uncommitedNews", uncommitedNews);
