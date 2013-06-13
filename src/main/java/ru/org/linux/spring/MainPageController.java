@@ -28,6 +28,7 @@ import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.Profile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -59,8 +60,11 @@ public class MainPageController {
   }
 
   @RequestMapping({"/", "/index.jsp"})
-  public ModelAndView mainPage(HttpServletRequest request) {
+  public ModelAndView mainPage(HttpServletRequest request, HttpServletResponse response) {
     Template tmpl = Template.getTemplate(request);
+
+    response.setDateHeader("Expires", System.currentTimeMillis() - 20 * 3600 * 1000);
+    response.setDateHeader("Last-Modified", System.currentTimeMillis() - 2 * 1000);
 
     List<Topic> messages = topicListService.getMainPageFeed(tmpl.getProf().isShowGalleryOnMain());
 
@@ -77,14 +81,20 @@ public class MainPageController {
     ));
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
-      int uncommited = jdbcTemplate.queryForInt("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+      int uncommited = jdbcTemplate.queryForObject(
+              "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+              Integer.class
+      );
 
       mv.getModel().put("uncommited", uncommited);
 
       int uncommitedNews = 0;
 
       if (uncommited > 0) {
-        uncommitedNews = jdbcTemplate.queryForInt("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+        uncommitedNews = jdbcTemplate.queryForObject(
+                "select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+                Integer.class
+        );
       }
 
       mv.getModel().put("uncommitedNews", uncommitedNews);
