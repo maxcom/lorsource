@@ -14,8 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<!-- head-main -->
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body style="margin-top: 0">
@@ -32,10 +31,10 @@
 <tr>
   <td><a href="/gallery/">Галерея</a></td>
   <td><a href="/forum/">Форум</a></td>
-  <td><a href="/wiki">Wiki</a></td>
+  <td><lor:events/></td>
 </tr>
 <tr>
-  <td></td>
+  <td><a href="/wiki">Wiki</a></td>
   <td></td>
   <td><a href="search.jsp">Поиск</a></td>
 </tr>
