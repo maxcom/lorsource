@@ -102,10 +102,6 @@
           <li><a href="/people/${template.nick}/">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
-          <c:set var="events">
-             <lorDir:events/>
-          </c:set>
-          <li>${fn:trim(events)}</li>
         </ul>
         <ul>
           <li><a href="/people/${template.nick}/settings">Настройки</a></li>
