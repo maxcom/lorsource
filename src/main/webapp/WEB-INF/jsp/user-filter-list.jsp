@@ -32,7 +32,7 @@
     $script("/js/tagsAutocomplete.js");
   });
 </script>
-<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.css">
+<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Фильтрация сообщений</h1>
