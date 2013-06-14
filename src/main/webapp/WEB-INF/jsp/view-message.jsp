@@ -234,12 +234,6 @@
   </div>
 </c:if>
 
-<c:if test="${fn:length(commentsPrepared)!=unfilteredCount}">
-  <div class=nav>
-    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="${message.getLinkPage(page)}?filter=show">все</a>.
-  </div>
-</c:if>
-
 <c:if test="${filterMode!=defaultFilterMode}">
   <div class=nav>
     Показаны все комментарии. <a href="${message.getLinkPage(page)}">Скрыть</a> игнорируемые.
@@ -267,6 +261,12 @@
   <c:out value="${bottomScroller}" escapeXml="false"/>
 </c:if>
 </div>
+
+<c:if test="${fn:length(commentsPrepared)!=unfilteredCount}">
+  <div class=nav>
+    Показано ${fn:length(commentsPrepared)} сообщений из ${unfilteredCount}. Показать <a href="${message.getLinkPage(page)}?filter=show">все</a>.
+  </div>
+</c:if>
 
 <c:if test="${template.sessionAuthorized && (!message.expired || template.moderatorSession) && !showDeleted}">
     <hr>
