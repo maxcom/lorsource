@@ -30,6 +30,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +50,7 @@ public class VoteController {
   @RequestMapping(value="/vote.jsp", method= RequestMethod.POST)
   public ModelAndView vote(
     ServletRequest request,
-    @RequestParam("vote") int[] votes,
+    @RequestParam(value="vote", required = false) int[] votes,
     @RequestParam("voteid") int voteid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -68,7 +69,7 @@ public class VoteController {
     }
 
     if (votes==null || votes.length==0) {
-      throw new BadVoteException("ничего не выбрано");
+      throw new UserErrorException("ничего не выбрано");
     }
 
     if (!poll.isMultiSelect() && votes.length!=1) {
