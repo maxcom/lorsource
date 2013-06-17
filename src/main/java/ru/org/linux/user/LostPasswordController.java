@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.Properties;
 
 @Controller
-@RequestMapping(value="/lostpwd.jsp")
+@RequestMapping("/lostpwd.jsp")
 public class LostPasswordController {
   @Autowired
   private UserDao userDao;
@@ -81,7 +81,7 @@ public class LostPasswordController {
     Timestamp now = new Timestamp(System.currentTimeMillis());
 
     try {
-      sendEmail(user, email, now);
+      sendEmail(user, now);
       userDao.updateResetDate(user, now);
 
       return new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email");
@@ -90,7 +90,7 @@ public class LostPasswordController {
     }
   }
 
-  private void sendEmail(User user, String email, Timestamp resetDate) throws MessagingException {
+  private void sendEmail(User user, Timestamp resetDate) throws MessagingException {
     Properties props = new Properties();
     props.put("mail.smtp.host", "localhost");
     Session mailSession = Session.getDefaultInstance(props, null);
@@ -98,9 +98,9 @@ public class LostPasswordController {
     MimeMessage msg = new MimeMessage(mailSession);
     msg.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
-    String resetCode = UserService.getResetCode(configuration.getSecret(), user.getNick(), email, resetDate);
+    String resetCode = UserService.getResetCode(configuration.getSecret(), user.getNick(), user.getEmail(), resetDate);
 
-    msg.addRecipient(RecipientType.TO, new InternetAddress(email));
+    msg.addRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
     msg.setSubject("Your password @linux.org.ru");
     msg.setSentDate(new Date());
     msg.setText(
