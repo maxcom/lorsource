@@ -1,6 +1,8 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,8 +17,10 @@ import ru.org.linux.util.StringUtil;
 import java.sql.Timestamp;
 
 @Controller
-@RequestMapping(value="/reset-password")
+@RequestMapping("/reset-password")
 public class ResetPasswordController {
+  private static final Logger logger = LoggerFactory.getLogger(ResetPasswordController.class);
+
   @Autowired
   private UserDao userDao;
 
@@ -47,6 +51,8 @@ public class ResetPasswordController {
     String resetCode = UserService.getResetCode(configuration.getSecret(), user.getNick(), user.getEmail(), resetDate);
 
     if (!resetCode.equals(formCode)) {
+      logger.warn("Код проверки не совпадает; login={} formCode={} resetCode={}", nick, formCode, resetCode);
+
       throw new UserErrorException("Код не совпадает");
     }
 
