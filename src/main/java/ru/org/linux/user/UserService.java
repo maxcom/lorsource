@@ -135,7 +135,9 @@ public class UserService {
     return new Userpic("/img/p.gif", 1, 1);
   }
 
-  public static String getResetCode(String base, String nick, String email, Timestamp tm) {
+  public String getResetCode(String nick, String email, Timestamp tm) {
+    String base = configuration.getSecret();
+
     return StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + Long.toString(tm.getTime()) + ":reset");
   }
 }

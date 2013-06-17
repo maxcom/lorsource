@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.StringUtil;
 
 import java.sql.Timestamp;
@@ -25,7 +24,7 @@ public class ResetPasswordController {
   private UserDao userDao;
 
   @Autowired
-  private Configuration configuration;
+  private UserService userService;
 
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showCodeForm() {
@@ -48,7 +47,7 @@ public class ResetPasswordController {
 
     Timestamp resetDate = userDao.getResetDate(user);
 
-    String resetCode = UserService.getResetCode(configuration.getSecret(), user.getNick(), user.getEmail(), resetDate);
+    String resetCode = userService.getResetCode(user.getNick(), user.getEmail(), resetDate);
 
     if (!resetCode.equals(formCode)) {
       logger.warn("Код проверки не совпадает; login={} formCode={} resetCode={}", nick, formCode, resetCode);

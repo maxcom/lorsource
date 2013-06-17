@@ -26,7 +26,6 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -47,7 +46,7 @@ public class LostPasswordController {
   private UserDao userDao;
 
   @Autowired
-  private Configuration configuration;
+  private UserService userService;
 
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm() {
@@ -98,7 +97,7 @@ public class LostPasswordController {
     MimeMessage msg = new MimeMessage(mailSession);
     msg.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
-    String resetCode = UserService.getResetCode(configuration.getSecret(), user.getNick(), user.getEmail(), resetDate);
+    String resetCode = userService.getResetCode(user.getNick(), user.getEmail(), resetDate);
 
     msg.addRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
     msg.setSubject("Your password @linux.org.ru");
