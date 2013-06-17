@@ -118,12 +118,12 @@
   <a href="${group.url}">
   <%
     try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + image);
+      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "tango" + image);
       out.append("<img src=\"/").append(tmpl.getStyle()).append(image).append("\" ").append(info.getCode()).append(" alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
     }
 %>
     </a>

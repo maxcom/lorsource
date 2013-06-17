@@ -35,7 +35,6 @@ import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ServletParameterBadValueException;
@@ -290,8 +289,8 @@ public class GroupController {
 
     if(group.getImage() != null) {
       try {
-        params.put("groupImagePath", '/' + tmpl.getStyle() + group.getImage());
-        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
+        params.put("groupImagePath", '/' + "tango" + group.getImage());
+        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "tango" + group.getImage());
         params.put("groupImageInfo", info);
       } catch (BadImageException ex) {
         params.put("groupImagePath", null);
