@@ -246,7 +246,7 @@ public class GroupPermissionService {
       return true;
     }
 
-    if (by.canCorrect() && section.isPremoderated()) {
+    if (by.canCorrect()) {
       return true;
     }
 
