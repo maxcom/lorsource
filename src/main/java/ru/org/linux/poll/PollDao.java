@@ -91,7 +91,7 @@ public class PollDao {
    * @return кол-во проголосвавших пользователей
    */
   public int getCountUsers(Poll poll) {
-    return jdbcTemplate.queryForInt(queryCountVotesPool, poll.getId());
+    return jdbcTemplate.queryForObject(queryCountVotesPool, Integer.class, poll.getId());
   }
 
   /**
@@ -100,8 +100,8 @@ public class PollDao {
    * @param pollId идентификатор голосвания
    * @return кол-во голосов всего (несколько вариантов от одного пользователя суммируется"
    */
-  public int getVotersCount(Integer pollId) {
-    return jdbcTemplate.queryForInt(queryCountVotes, pollId);
+  public int getVotersCount(int pollId) {
+    return jdbcTemplate.queryForObject(queryCountVotes, Integer.class, pollId);
   }
 
   /**
@@ -115,7 +115,7 @@ public class PollDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateVotes(int pollId, int[] votes, User user) throws BadVoteException {
-    if(jdbcTemplate.queryForInt(queryCountVotesUser, pollId, user.getId()) == 0){
+    if(jdbcTemplate.queryForObject(queryCountVotesUser, Integer.class, pollId, user.getId()) == 0){
       for(int vote : votes) {
         if(jdbcTemplate.update(updateVote, vote, pollId) == 0) {
           throw new BadVoteException();
@@ -131,7 +131,7 @@ public class PollDao {
    */
   public int getCurrentPollId() {
     try {
-      return jdbcTemplate.queryForInt(queryCurrentPollId);
+      return jdbcTemplate.queryForObject(queryCurrentPollId, Integer.class);
     } catch (EmptyResultDataAccessException exception) {
       return 0;
     }
@@ -181,7 +181,7 @@ public class PollDao {
    */
   public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
     try {
-      return getPoll(jdbcTemplate.queryForInt(queryPoolIdByTopicId, topicId));
+      return getPoll(jdbcTemplate.queryForObject(queryPoolIdByTopicId, Integer.class, topicId));
     } catch (EmptyResultDataAccessException exception) {
       throw new PollNotFoundException();
     }
@@ -228,7 +228,7 @@ public class PollDao {
         String label = resultSet.getString("label");
         int votes = resultSet.getInt("votes");
         boolean voted = false;
-        if(user != null && jdbcTemplate.queryForInt(queryPollUserVote, user.getId(), resultSet.getInt("id")) !=0) {
+        if(user != null && jdbcTemplate.queryForObject(queryPollUserVote, Integer.class, user.getId(), resultSet.getInt("id")) !=0) {
           voted = true;
         }
         variants.add(new PollVariantResult(id, label, votes, voted));
@@ -272,7 +272,7 @@ public class PollDao {
    * @return идентификатор будущего голосования
    */
   private int getNextPollId() {
-    return jdbcTemplate.queryForInt(queryNextPollId);
+    return jdbcTemplate.queryForObject(queryNextPollId, Integer.class);
   }
 
   /**
