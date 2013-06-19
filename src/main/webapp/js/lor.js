@@ -270,9 +270,29 @@ $(document).ready(function() {
     $('#ft').prepend(backButton);
   }
 
+  function initUpdateEventsCount() {
+    function update_count() {
+      $.ajax({
+        url: "/notifications-count",
+        cache: false
+      }).success(function(data) {
+        var value = data==0 ? "" : ("("+data+")" );
+
+        $('#main_events_count').text(value);
+      });
+    }
+
+    $(function() {
+      if ($('#main_events_count').length>0) {
+        update_count();
+      }
+    });
+  }
+
   initLoginForm();
   initCtrlEnter();
   initCommentFormValidation();
+  initUpdateEventsCount();
 
   // remove hidden quote elements
   $(".none").remove();

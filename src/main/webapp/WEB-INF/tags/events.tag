@@ -16,9 +16,14 @@
 <%--@elvariable id="disable_event_header" type="java.lang.Boolean"--%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
-<c:if test="${template.currentUser.unreadEvents > 0 and not disable_event_header}">
-  <a href="notifications">Уведомления (${template.currentUser.unreadEvents})</a>
+<c:if test="${not disable_event_header}">
+  <c:if test="${template.currentUser.unreadEvents > 0}">
+    <a href="notifications">Уведомления <span id="main_events_count">(${template.currentUser.unreadEvents})</span></a>
+  </c:if>
+  <c:if test="${template.currentUser.unreadEvents == 0}">
+    <a href="notifications">Уведомления <span id="main_events_count"></span></a>
+  </c:if>
 </c:if>
-<c:if test="${template.currentUser.unreadEvents == 0 || disable_event_header}">
-  <a href="notifications">Уведомления</a>
+<c:if test="${disable_event_header}">
+    <a href="notifications">Уведомления</a>
 </c:if>
