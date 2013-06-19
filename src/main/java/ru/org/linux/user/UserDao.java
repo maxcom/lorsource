@@ -222,7 +222,7 @@ public class UserDao {
     boolean exactCommentCount = false;
     if (commentCount == 0) {
       try {
-        commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
+        commentCount = jdbcTemplate.queryForObject(queryCommentStat, Integer.class, user.getId());
       } catch (EmptyResultDataAccessException exception) {
       }
 
@@ -476,13 +476,15 @@ public class UserDao {
       int id;
 
       if (searchBlocked) {
-        id = jdbcTemplate.queryForInt(
+        id = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE email=? ORDER BY blocked ASC, id DESC LIMIT 1",
+                Integer.class,
                 email.toLowerCase()
         );
       } else {
-        id = jdbcTemplate.queryForInt(
+        id = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE email=? AND NOT blocked ORDER BY id DESC LIMIT 1",
+                Integer.class,
                 email.toLowerCase()
         );
       }
@@ -538,7 +540,7 @@ public class UserDao {
   public int createUser(String name, String nick, String password, String url, InternetAddress mail, String town, String info) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
-    int userid = jdbcTemplate.queryForInt("select nextval('s_uid') as userid");
+    int userid = jdbcTemplate.queryForObject("select nextval('s_uid') as userid", Integer.class);
 
     jdbcTemplate.update(
             "INSERT INTO users " +
@@ -670,6 +672,4 @@ public class UserDao {
       jdbcTemplate.update("UPDATE user_remarks SET remark_text=? WHERE id=?", text, id);
     }
   }
-
-
 }
