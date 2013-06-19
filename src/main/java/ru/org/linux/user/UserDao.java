@@ -563,7 +563,7 @@ public class UserDao {
   }
 
   public boolean isUserExists(String nick) {
-    int c = jdbcTemplate.queryForInt("SELECT count(*) as c FROM users WHERE nick=?", nick);
+    int c = jdbcTemplate.queryForObject("SELECT count(*) as c FROM users WHERE nick=?", Integer.class, nick);
 
     return c>0;
   }
@@ -614,9 +614,13 @@ public class UserDao {
   }
 
   public int getRemarkCount(User user) {
-    return jdbcTemplate.queryForInt(
-      "SELECT count(*) as c FROM user_remarks WHERE user_id=?", user.getId() );
+    return jdbcTemplate.queryForObject(
+            "SELECT count(*) as c FROM user_remarks WHERE user_id=?",
+            Integer.class,
+            user.getId()
+    );
   }
+
   /**
    * Получить комментарии пользователя user
    * @param user logged user

@@ -188,6 +188,6 @@ public class TagDao {
   }
 
   public int getCounter(int tagId) {
-    return jdbcTemplate.queryForInt("SELECT counter FROM tags_values WHERE id=?", tagId);
+    return jdbcTemplate.queryForObject("SELECT counter FROM tags_values WHERE id=?", Integer.class, tagId);
   }
 }

@@ -172,9 +172,10 @@ public class UserTagDao {
    * @return
    */
   public int countFavs(int tagId) {
-    return jdbcTemplate.queryForInt(
+    return jdbcTemplate.queryForObject(
             "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND is_favorite",
-            ImmutableMap.of("tagId", tagId)
+            ImmutableMap.of("tagId", tagId),
+            Integer.class
     );
   }
 }

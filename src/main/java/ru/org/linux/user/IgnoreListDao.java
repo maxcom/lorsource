@@ -79,6 +79,6 @@ public class IgnoreListDao {
   }
 
   public int getIgnoreStat(User ignoredUser) {
-    return jdbcTemplate.queryForInt(queryIgnoreStat, ignoredUser.getId());
+    return jdbcTemplate.queryForObject(queryIgnoreStat, Integer.class, ignoredUser.getId());
   }
 }
