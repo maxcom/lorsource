@@ -337,14 +337,8 @@ public class TopicListService {
       return topicListDao.getTopics(topicListDto);
     }
 
-    String cacheKey = null;
-    try {
-      cacheKey = makeCacheKey(topicListDto);
-      logger.trace("cacheKey=" + cacheKey);
-    } catch (UnsupportedEncodingException e) {
-      logger.error("Fail to create cache key", e);
-      return topicListDao.getTopics(topicListDto);
-    }
+    String cacheKey = makeCacheKey(topicListDto);
+    logger.trace("cacheKey=" + cacheKey);
 
     List<Topic> result = (List<Topic>) cacheProvider.getFromCache(cacheKey);
     if (result == null) {
@@ -361,7 +355,7 @@ public class TopicListService {
    * @return Строка, содержащая уникальный ключ кэша
    * @throws UnsupportedEncodingException
    */
-  private String makeCacheKey(TopicListDto topicListDto) {
+  private static String makeCacheKey(TopicListDto topicListDto) {
     UriComponentsBuilder builder = UriComponentsBuilder.fromPath("view-news");
 
     builder.queryParam("tg", topicListDto.getTag());
@@ -395,7 +389,7 @@ public class TopicListService {
    * @param topicListDto объект, содержащий условия выборки
    * @return количество миллисекунд.
    */
-  private int getCacheAge(TopicListDto topicListDto) {
+  private static int getCacheAge(TopicListDto topicListDto) {
     if (topicListDto.getLimit() == null || topicListDto.getLimit().equals(0)) {
       return 10 * 60 * 1000;
     }
