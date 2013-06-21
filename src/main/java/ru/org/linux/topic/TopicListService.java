@@ -26,7 +26,6 @@ import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.util.URLUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
@@ -257,7 +256,7 @@ public class TopicListService {
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
     topicListDto.setFromDate(fromDate);
 
-    return getCachedFeed(topicListDto);
+    return topicListDao.getTopics(topicListDto);
   }
 
   /**
@@ -298,7 +297,7 @@ public class TopicListService {
     if (isShowGalleryOnMain) {
       topicListDto.getSections().add(Section.SECTION_GALLERY);
     }
-    return getCachedFeed(topicListDto);
+    return topicListDao.getTopics(topicListDto);
   }
 
 
