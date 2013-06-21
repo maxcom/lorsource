@@ -83,7 +83,7 @@ public class TopicListService {
     TopicListDto topicListDto = new TopicListDto();
 
     if (section != null) {
-      topicListDto.getSections().add(section.getId());
+      topicListDto.setSection(section.getId());
       if (section.isPremoderated()) {
         topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
       } else {
@@ -163,7 +163,7 @@ public class TopicListService {
     topicListDto.setUserFavs(favorites);
     topicListDto.setUserWatches(watches);
     if (section != null) {
-      topicListDto.getSections().add(section.getId());
+      topicListDto.setSection(section.getId());
     }
     if (group != null) {
       topicListDto.setGroup(group.getId());
@@ -207,7 +207,7 @@ public class TopicListService {
     TopicListDto topicListDto = new TopicListDto();
 
     if (section != null) {
-      topicListDto.getSections().add(section.getId());
+      topicListDto.setSection(section.getId());
     }
     if (group != null) {
       topicListDto.setGroup(group.getId());
@@ -250,7 +250,7 @@ public class TopicListService {
     TopicListDto topicListDto = new TopicListDto();
     topicListDto.setCommitMode(TopicListDao.CommitMode.UNCOMMITED_ONLY);
     if (section != null) {
-      topicListDto.getSections().add(section.getId());
+      topicListDto.setSection(section.getId());
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
@@ -284,7 +284,6 @@ public class TopicListService {
 
     TopicListDto topicListDto = new TopicListDto();
 
-    topicListDto.getSections().add(Section.SECTION_NEWS);
     topicListDto.setLimit(20);
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
 
@@ -295,8 +294,11 @@ public class TopicListService {
     topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
 
     if (isShowGalleryOnMain) {
-      topicListDto.getSections().add(Section.SECTION_GALLERY);
+      topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY);
+    } else {
+      topicListDto.setSection(Section.SECTION_NEWS);
     }
+
     return topicListDao.getTopics(topicListDto);
   }
 
@@ -359,8 +361,7 @@ public class TopicListService {
    * @return Строка, содержащая уникальный ключ кэша
    * @throws UnsupportedEncodingException
    */
-  private String makeCacheKey(TopicListDto topicListDto)
-    throws UnsupportedEncodingException {
+  private String makeCacheKey(TopicListDto topicListDto) {
     UriComponentsBuilder builder = UriComponentsBuilder.fromPath("view-news");
 
     builder.queryParam("tg", topicListDto.getTag());

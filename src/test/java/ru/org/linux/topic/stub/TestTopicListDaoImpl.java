@@ -15,27 +15,21 @@
 
 package ru.org.linux.topic.stub;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.google.common.collect.ImmutableList;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicListDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TestTopicListDaoImpl implements TopicListDao {
-  @Autowired
-  TopicListDto topicListDto;
-
   @Override
   public List<Topic> getTopics(TopicListDto topicListDto) {
-    this.topicListDto.copy(topicListDto);
-    return new ArrayList<>();
+    return ImmutableList.of();
   }
 
   @Override
   public List<TopicListDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
-
     return null;
   }
 }

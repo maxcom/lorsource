@@ -15,11 +15,11 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class TopicListDto {
   public enum DateLimitType {
@@ -30,7 +30,7 @@ public class TopicListDto {
 
   private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
 
-  private final Set<Integer> sections = new HashSet<>();
+  private ImmutableSet<Integer> sections = ImmutableSet.of();
   private int userId = 0;
   private boolean userFavs = false;
   private boolean userWatches = false;
@@ -44,9 +44,12 @@ public class TopicListDto {
   private boolean notalks = false;
   private boolean tech = false;
 
-
-  public Set<Integer> getSections() {
+  public ImmutableSet<Integer> getSections() {
     return sections;
+  }
+
+  public void setSection(Integer... sections) {
+    this.sections = ImmutableSet.copyOf(sections);
   }
 
   public TopicListDao.CommitMode getCommitMode() {
@@ -172,23 +175,6 @@ public class TopicListDto {
       .append("; tech=").append(tech)
       .append(']')
       .toString();
-  }
-
-  public void copy (TopicListDto topicListDto) {
-    sections.clear();
-    sections.addAll(topicListDto.getSections());
-    userId = topicListDto.getUserId();
-    userFavs = topicListDto.isUserFavs();
-    group = topicListDto.getGroup();
-    tag = topicListDto.getTag();
-    limit = topicListDto.getLimit();
-    offset = topicListDto.getOffset();
-    dateLimitType = topicListDto.getDateLimitType();
-    fromDate = topicListDto.getFromDate();
-    toDate = topicListDto.getToDate();
-    notalks = topicListDto.isNotalks();
-    tech = topicListDto.isTech();
-    commitMode = topicListDto.getCommitMode();
   }
 
   public static class DeletedTopic {
