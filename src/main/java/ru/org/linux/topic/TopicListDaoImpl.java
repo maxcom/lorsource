@@ -73,7 +73,7 @@ public class TopicListDaoImpl implements TopicListDao {
       .append(sort)
       .append(limit);
 
-    logger.trace("SQL query: " + query.toString());
+    logger.trace("SQL query: " + query);
 
     return jdbcTemplate.query(
       query.toString(),
