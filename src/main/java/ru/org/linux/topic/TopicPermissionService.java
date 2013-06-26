@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -24,13 +25,11 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class TopicPermissionService {
@@ -121,8 +120,8 @@ public class TopicPermissionService {
     }
   }
 
-  private int getCommentCountRestriction(Topic topic) {
-    int commentCountPS = TopicPermissionService.POSTSCORE_UNRESTRICTED;
+  private static int getCommentCountRestriction(Topic topic) {
+    int commentCountPS = POSTSCORE_UNRESTRICTED;
 
     if (!topic.isSticky()) {
       int commentCount = topic.getCommentCount();
@@ -202,23 +201,20 @@ public class TopicPermissionService {
   /**
    * Проверка на права редактирования комментария.
    *
-   *
-   *
-   *
-   * @param request        данные запроса от web-клиента
    * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
   public boolean isCommentsEditingAllowed(
           @Nonnull Comment comment,
           @Nonnull Topic topic,
-          HttpServletRequest request
+          @Nullable User currentUser
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Preconditions.checkNotNull(comment);
+    Preconditions.checkNotNull(topic);
 
     final boolean haveAnswers = commentService.isHaveAnswers(comment);
     return isCommentEditableNow(
         comment,
-        tmpl.getCurrentUser(),
+        currentUser,
         haveAnswers,
         topic
     );
