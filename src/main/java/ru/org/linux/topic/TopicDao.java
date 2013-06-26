@@ -96,7 +96,7 @@ public class TopicDao {
         "urlname, section, topics.sticky, topics.postip, " +
         "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
-        "topics.resolved, restrict_comments, minor " +
+        "topics.resolved, minor " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +

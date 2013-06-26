@@ -93,7 +93,9 @@ public class AddCommentController {
 
     commentService.prepareReplyto(add, params, request);
 
-    params.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
+    int postscore = topicPermissionService.getPostscore(add.getTopic());
+
+    params.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore));
 
     return new ModelAndView("add_comment", params);
   }
@@ -153,7 +155,8 @@ public class AddCommentController {
     Comment comment = commentService.getComment(add, user, request);
 
     if (add.getTopic() != null) {
-      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
+      int postscore = topicPermissionService.getPostscore(add.getTopic());
+      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore));
 
       topicPermissionService.checkCommentsAllowed(add.getTopic(), user, errors);
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));

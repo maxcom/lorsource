@@ -52,8 +52,6 @@ public class Topic implements Serializable {
   private final int userAgent;
   private final String postIP;
   private final boolean resolved;
-  private final int groupCommentsRestriction;
-  private final int sectionCommentsRestriction;
   private final boolean minor;
 
   private static final long serialVersionUID = 807240555706110851L;
@@ -81,8 +79,6 @@ public class Topic implements Serializable {
                 int userAgent,
                 String postIP,
                 boolean resolved,
-                int groupCommentsRestriction,
-                int sectionCommentsRestriction,
                 boolean minor
   ) {
     msgid = msgId;
@@ -108,8 +104,6 @@ public class Topic implements Serializable {
     this.userAgent = userAgent;
     this.postIP = postIP;
     this.resolved = resolved;
-    this.groupCommentsRestriction = groupCommentsRestriction;
-    this.sectionCommentsRestriction = sectionCommentsRestriction;
     this.minor = minor;
   }
 
@@ -139,9 +133,7 @@ public class Topic implements Serializable {
       rs.getInt("ua_id"),
       rs.getString("postip"),
       rs.getBoolean("resolved"),
-      rs.getInt("restrict_comments"),
-      Section.getCommentPostscore(rs.getInt("section")),
-      rs.getBoolean("minor")
+            rs.getBoolean("minor")
     );
   }
 
@@ -152,8 +144,6 @@ public class Topic implements Serializable {
     guid = form.getGroup().getId();
 
     Group group = form.getGroup();
-
-    groupCommentsRestriction = group.getCommentsRestriction();
 
     if (form.getLinktext()!=null) {
       linktext = StringUtil.escapeHtml(form.getLinktext());
@@ -193,16 +183,12 @@ public class Topic implements Serializable {
     userid = user.getId();
     resolved = false;
     minor = false;
-
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
   public Topic(Group group, Topic original, EditTopicRequest form) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;
-
-    groupCommentsRestriction = group.getCommentsRestriction();
 
     if (form.getLinktext() != null && group.isLinksAllowed()) {
       linktext = form.getLinktext();
@@ -227,7 +213,7 @@ public class Topic implements Serializable {
     sectionid = group.getSectionId();
 
     msgid = original.msgid;
-    postscore = original.getPostScore();
+    postscore = original.getPostscore();
     sticky = original.sticky;
     deleted = original.deleted;
     expired = original.expired;
@@ -246,8 +232,6 @@ public class Topic implements Serializable {
     } else {
       minor = original.minor;
     }
-
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
   public boolean isExpired() {
@@ -282,34 +266,12 @@ public class Topic implements Serializable {
     return commentCount;
   }
 
-  private int getCommentCountRestriction() {
-    int commentCountPS = TopicPermissionService.POSTSCORE_UNRESTRICTED;
-
-    if (!sticky) {
-      if (commentCount > 3000) {
-        commentCountPS = 200;
-      } else if (commentCount > 2000) {
-        commentCountPS = 100;
-      } else if (commentCount > 1000) {
-        commentCountPS = 50;
-      }
-    }
-
-    return commentCountPS;
-  }
-
-  public int getPostScore() {
-    int effective = Math.max(postscore, groupCommentsRestriction);
-
-    effective = Math.max(effective, sectionCommentsRestriction);
-
-    effective = Math.max(effective, getCommentCountRestriction());
-
-    return effective;
-  }
-
   public boolean isCommited() {
     return moderate;
+  }
+
+  public int getPostscore() {
+    return postscore;
   }
 
   public int getPageCount(int messages) {

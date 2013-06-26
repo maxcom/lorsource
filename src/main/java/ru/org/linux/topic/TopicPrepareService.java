@@ -246,6 +246,8 @@ public class TopicPrepareService {
         remark = userDao.getRemark(user, author);
       }
 
+      int postscore = topicPermissionService.getPostscore(group, message);
+
       return new PreparedTopic(
               message, 
               author, 
@@ -263,7 +265,7 @@ public class TopicPrepareService {
               editCount,
               text.isLorcode(),
               preparedImage, 
-              TopicPermissionService.getPostScoreInfo(message.getPostScore()),
+              TopicPermissionService.getPostScoreInfo(postscore),
               remark);
     } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
@@ -443,7 +445,7 @@ public class TopicPrepareService {
             favsId,
             topicStats.get(0),
             topicStats.get(1),
-            topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser),
+            topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             userpic
     );

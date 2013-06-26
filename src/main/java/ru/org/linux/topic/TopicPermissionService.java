@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
+import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
@@ -44,6 +47,9 @@ public class TopicPermissionService {
 
   @Autowired
   private Configuration configuration;
+
+  @Autowired
+  private GroupDao groupDao;
 
   public static String getPostScoreInfo(int postscore) {
     switch (postscore) {
@@ -108,12 +114,48 @@ public class TopicPermissionService {
       return;
     }
 
-    if (!isCommentsAllowed(topic, user)) {
+    Group group = groupDao.getGroup(topic.getGroupId());
+
+    if (!isCommentsAllowed(group, topic, user)) {
       errors.reject(null, "Вы не можете добавлять комментарии в эту тему");
     }
   }
-  
-  public boolean isCommentsAllowed(Topic topic, User user) {
+
+  private int getCommentCountRestriction(Topic topic) {
+    int commentCountPS = TopicPermissionService.POSTSCORE_UNRESTRICTED;
+
+    if (!topic.isSticky()) {
+      int commentCount = topic.getCommentCount();
+
+      if (commentCount > 3000) {
+        commentCountPS = 200;
+      } else if (commentCount > 2000) {
+        commentCountPS = 100;
+      } else if (commentCount > 1000) {
+        commentCountPS = 50;
+      }
+    }
+
+    return commentCountPS;
+  }
+
+  public int getPostscore(Group group, Topic topic) {
+    int effective = Math.max(topic.getPostscore(), group.getCommentsRestriction());
+
+    effective = Math.max(effective, Section.getCommentPostscore(topic.getSectionId()));
+
+    effective = Math.max(effective, getCommentCountRestriction(topic));
+
+    return effective;
+  }
+
+  public int getPostscore(Topic topic) {
+    Group group = groupDao.getGroup(topic.getGroupId());
+
+    return getPostscore(group, topic);
+  }
+
+  public boolean isCommentsAllowed(Group group, Topic topic, User user) {
     if (user != null && user.isBlocked()) {
       return false;
     }
@@ -122,7 +164,7 @@ public class TopicPermissionService {
       return false;
     }
 
-    int score = topic.getPostScore();
+    int score = getPostscore(group, topic);
 
     if (score == POSTSCORE_UNRESTRICTED) {
       return true;

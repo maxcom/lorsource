@@ -106,7 +106,7 @@ public class TopicModificationController {
 
     StringBuilder out = new StringBuilder();
 
-    if (msg.getPostScore() != postscore) {
+    if (msg.getPostscore() != postscore) {
       out.append("Установлен новый уровень записи: ").append(getPostScoreInfoFull(postscore)).append("<br>");
       logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
     }

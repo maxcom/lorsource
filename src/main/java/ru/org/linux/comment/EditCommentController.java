@@ -132,7 +132,9 @@ public class EditCommentController extends ApplicationObjectSupport {
     Comment comment = commentService.getComment(commentRequest, user, request);
 
     if (commentRequest.getTopic() != null) {
-      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(commentRequest.getTopic().getPostScore()));
+      int postscore = topicPermissionService.getPostscore(commentRequest.getTopic());
+
+      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore));
       topicPermissionService.checkCommentsAllowed(commentRequest.getTopic(), user, errors);
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
     }
