@@ -27,7 +27,7 @@
 <%
   Topic msg = (Topic) request.getAttribute("message");
 
-  int postscore = msg.getPostScore();
+  int postscore = msg.getPostscore();
   boolean sticky = msg.isSticky();
   boolean notop = msg.isNotop();
 %>
