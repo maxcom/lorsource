@@ -88,6 +88,7 @@ public class TopicApiController {
             topic.getId(),
             topic.getLink(),
             permissionService.isCommentsAllowed(
+                    group,
                     topic,
                     AuthUtil.getCurrentUser())
     )

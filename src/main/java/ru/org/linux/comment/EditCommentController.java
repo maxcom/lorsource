@@ -31,6 +31,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.TopicPermissionService;
@@ -132,15 +133,19 @@ public class EditCommentController extends ApplicationObjectSupport {
     Comment comment = commentService.getComment(commentRequest, user, request);
 
     if (commentRequest.getTopic() != null) {
-      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(commentRequest.getTopic().getPostScore()));
+      int postscore = topicPermissionService.getPostscore(commentRequest.getTopic());
+
+      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore));
       topicPermissionService.checkCommentsAllowed(commentRequest.getTopic(), user, errors);
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
     }
 
+    Template tmpl = Template.getTemplate(request);
+
     boolean editable = topicPermissionService.isCommentsEditingAllowed(
             commentRequest.getOriginal(),
             commentRequest.getTopic(),
-            request
+            tmpl.getCurrentUser()
     );
 
     if (!editable) {
