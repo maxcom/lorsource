@@ -291,7 +291,7 @@ public class TopicDao {
     final String finalUrl = url;
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
-            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet)",
+            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
             new PreparedStatementCallback<String>() {
               @Override
               public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
@@ -303,6 +303,7 @@ public class TopicDao {
                 pst.setString(6, finalLinktext);
                 pst.setString(7, userAgent);
                 pst.setString(8, msg.getPostIP());
+                pst.setBoolean(9, msg.isDraft());
                 pst.executeUpdate();
 
                 return null;

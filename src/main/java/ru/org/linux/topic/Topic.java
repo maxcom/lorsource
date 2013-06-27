@@ -187,7 +187,7 @@ public class Topic implements Serializable {
     userid = user.getId();
     resolved = false;
     minor = false;
-    draft = form.isDraft();
+    draft = form.isDraftMode();
   }
 
   public Topic(Group group, Topic original, EditTopicRequest form) {

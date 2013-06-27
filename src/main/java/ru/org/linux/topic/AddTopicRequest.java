@@ -141,7 +141,7 @@ public class AddTopicRequest {
     this.draft = draft;
   }
 
-  public boolean isDraft() {
+  public boolean isDraftMode() {
     return draft!=null;
   }
 
