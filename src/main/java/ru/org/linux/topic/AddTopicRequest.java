@@ -35,6 +35,7 @@ public class AddTopicRequest {
   private String password;
 
   private String preview;
+  private String draft;
 
   public String getTitle() {
     return title;
@@ -130,6 +131,18 @@ public class AddTopicRequest {
 
   public boolean isPreviewMode() {
     return preview!=null;
+  }
+
+  public String getDraft() {
+    return draft;
+  }
+
+  public void setDraft(String draft) {
+    this.draft = draft;
+  }
+
+  public boolean isDraft() {
+    return draft!=null;
   }
 
   public String[] getPoll() {
