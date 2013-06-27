@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
@@ -204,15 +203,7 @@ public class TopicController {
 
     User currentUser = AuthUtil.getCurrentUser();
 
-    if (topic.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(topic.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
-    }
-
-    permissionService.checkView(topic, currentUser);
-
-    if (group.getCommentsRestriction() == -1 && !tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("Это сообщение нельзя посмотреть");
-    }
+    permissionService.checkView(group, topic, currentUser, showDeleted);
 
     params.put("message", topic);
     params.put("preparedMessage", preparedMessage);
