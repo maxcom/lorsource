@@ -32,8 +32,7 @@
       </div>
       <i>
         ${item.fullInfo.width}x${item.fullInfo.height}
-        <c:url value="/people/${item.user.nick}/profile" var="nickurl"/>
-      </i> ${item.item.title} от <a href="${nickurl}">${item.user.nick}</a> (${item.item.stat})
+      </i> <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
       </div>
     </c:forEach>
     <a href="/gallery/">другие скриншоты...</a>
