@@ -59,7 +59,7 @@ public class TopicApiController {
       throw new MessageNotFoundException(msgid);
     }
 
-    permissionService.checkView(topic, AuthUtil.getCurrentUser());
+    permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
 
     CommentList comments = commentService.getCommentList(topic, false);
 

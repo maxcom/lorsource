@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
@@ -76,29 +77,44 @@ public class TopicPermissionService {
   }
 
   public void checkView(
+          @Nonnull Group group,
           @Nonnull Topic message,
-          @Nullable User currentUser
-  ) throws MessageNotFoundException {
+          @Nullable User currentUser,
+          boolean showDeleted
+  ) throws MessageNotFoundException, AccessViolationException {
+    Preconditions.checkArgument(message.getGroupId()==group.getId());
+
     if (currentUser!=null && currentUser.isModerator()) {
       return;
     }
+
+    if (message.isExpired() && showDeleted) {
+      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+    }
+
+    boolean unauthorized = currentUser == null || currentUser.isAnonymous();
+    boolean topicAuthor = currentUser!=null && currentUser.getId() == message.getUid();
 
     if (message.isDeleted()) {
       if (message.isExpired()) {
         throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
       }
 
-      if (currentUser==null || currentUser.isAnonymous()) {
+      if (unauthorized) {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
 
-      if (currentUser.getId() == message.getUid()) {
+      if (topicAuthor) {
         return;
       }
 
       if (currentUser.getScore() < VIEW_DELETED_SCORE) {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
+    }
+
+    if (group.getCommentsRestriction() == -1 && unauthorized) {
+      throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
   }
 
