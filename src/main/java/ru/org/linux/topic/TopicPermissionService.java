@@ -113,6 +113,16 @@ public class TopicPermissionService {
       }
     }
 
+    if (message.isDraft()) {
+      if (message.isExpired()) {
+        throw new MessageNotFoundException(message.getId(), "Черновик устарел");
+      }
+
+      if (!topicAuthor) {
+        throw new MessageNotFoundException(message.getId(), "Нельзя посмотреть чужой черновик");
+      }
+    }
+
     if (group.getCommentsRestriction() == -1 && unauthorized) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
