@@ -87,6 +87,7 @@
 
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
+      <c:if test="${message.draft}"><span style="color:red">(черновик)</span></c:if>
     </h1>
 
     <c:if test="${not empty preparedMessage.tags}">
