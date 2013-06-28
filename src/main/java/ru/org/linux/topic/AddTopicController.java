@@ -343,7 +343,7 @@ public class AddTopicController {
 
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
-      if (!section.isPremoderated()) {
+      if (!section.isPremoderated() || previewMsg.isDraft()) {
         return new ModelAndView(new RedirectView(messageUrl));
       }
 
