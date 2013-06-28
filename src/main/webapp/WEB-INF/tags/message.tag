@@ -32,8 +32,8 @@
   <!-- ${message.id}  -->
 <article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
-  <div class=title>
-    <c:if test="${message.deleted}">
+  <c:if test="${message.deleted}">
+    <div class=title>
         <c:if test="${preparedMessage.deleteInfo == null}">
             <strong>Сообщение удалено</strong>
         </c:if>
@@ -45,8 +45,8 @@
         <c:if test="${template.moderatorSession and not message.expired}">
             [<a href="/undelete.jsp?msgid=${message.id}">восстановить</a>]
         </c:if>
-    </c:if>
-  </div>
+    </div>
+  </c:if>
 </c:if>
 
   <header>

@@ -313,8 +313,8 @@ public class TopicDao {
 
     // insert message text
     jdbcTemplate.update(
-            "INSERT INTO msgbase (id, message, bbcode) values (?,?, ?)",
-            msgid, text, true
+            "INSERT INTO msgbase (id, message) values (?,?)",
+            msgid, text
     );
 
     return msgid;
