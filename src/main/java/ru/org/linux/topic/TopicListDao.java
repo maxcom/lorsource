@@ -215,6 +215,13 @@ public class TopicListDao {
         .append(topicListDto.getTag())
         .append(')');
     }
+
+    if (!topicListDto.isShowDraft()) {
+      where.append(" AND NOT topics.draft ");
+    } else {
+      where.append(" AND topics.draft ");
+    }
+
     return where.toString();
   }
 
