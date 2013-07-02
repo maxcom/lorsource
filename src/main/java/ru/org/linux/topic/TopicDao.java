@@ -659,6 +659,15 @@ public class TopicDao {
             Integer.class,
             section
     );
+  }
 
+  public boolean hasDrafts(User author) {
+    List<Integer> res = jdbcTemplate.queryForList(
+            "select id FROM topics WHERE draft AND userid=? LIMIT 1",
+            Integer.class,
+            author.getId()
+    );
+
+    return !res.isEmpty();
   }
 }
