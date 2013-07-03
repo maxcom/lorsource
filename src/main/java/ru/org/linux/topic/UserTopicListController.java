@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -62,6 +63,47 @@ public class UserTopicListController {
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, false);
+    prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+
+    modelAndView.setViewName("user-topics");
+
+    return modelAndView;
+  }
+
+  @RequestMapping(value="drafts")
+  public ModelAndView showUserDrafts(
+          HttpServletRequest request,
+          TopicListRequest topicListForm,
+          @PathVariable String nick,
+          HttpServletResponse response
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    TopicListController.setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
+
+    ModelAndView modelAndView = new ModelAndView();
+
+    User user = getUserByNickname(modelAndView, nick);
+
+    if (!tmpl.isModeratorSession() && !user.equals(tmpl.getCurrentUser())) {
+      throw new AccessViolationException("Вы не можете смотреть черновики другого пользователя");
+    }
+
+    modelAndView.addObject("url",
+            UriComponentsBuilder.fromUriString("/people/{nick}/drafts").buildAndExpand(nick).encode().toUriString());
+    modelAndView.addObject("whoisLink",
+            UriComponentsBuilder.fromUriString("/people/{nick}/profile").buildAndExpand(nick).encode().toUriString());
+
+    modelAndView.addObject("ptitle", "Черновики " + user.getNick());
+    modelAndView.addObject("navtitle", "Черновики " + user.getNick());
+
+    topicListForm.setOffset(
+            topicListService.fixOffset(topicListForm.getOffset())
+    );
+    modelAndView.addObject("offsetNavigation", true);
+    modelAndView.addObject("topicListForm", topicListForm);
+
+    List<Topic> messages = topicListService.getDrafts(user, topicListForm.getOffset());
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
 
     modelAndView.setViewName("user-topics");
