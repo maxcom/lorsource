@@ -53,6 +53,7 @@ public class Topic implements Serializable {
   private final String postIP;
   private final boolean resolved;
   private final boolean minor;
+  private final boolean draft;
 
   private static final long serialVersionUID = 807240555706110851L;
   private static final String UTF8 = "UTF-8";
@@ -79,7 +80,8 @@ public class Topic implements Serializable {
                 int userAgent,
                 String postIP,
                 boolean resolved,
-                boolean minor
+                boolean minor,
+                boolean draft
   ) {
     msgid = msgId;
     postscore = postScore;
@@ -105,6 +107,7 @@ public class Topic implements Serializable {
     this.postIP = postIP;
     this.resolved = resolved;
     this.minor = minor;
+    this.draft = draft;
   }
 
   public Topic(ResultSet rs) throws SQLException {
@@ -133,7 +136,8 @@ public class Topic implements Serializable {
       rs.getInt("ua_id"),
       rs.getString("postip"),
       rs.getBoolean("resolved"),
-            rs.getBoolean("minor")
+      rs.getBoolean("minor"),
+      rs.getBoolean("draft")
     );
   }
 
@@ -183,9 +187,10 @@ public class Topic implements Serializable {
     userid = user.getId();
     resolved = false;
     minor = false;
+    draft = form.isDraftMode();
   }
 
-  public Topic(Group group, Topic original, EditTopicRequest form) {
+  public Topic(Group group, Topic original, EditTopicRequest form, boolean publish) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;
@@ -226,6 +231,12 @@ public class Topic implements Serializable {
     moderate = original.moderate;
     notop = original.notop;
     userid = original.userid;
+
+    if (publish) {
+      draft = false;
+    } else {
+      draft = original.draft;
+    }
 
     if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
       minor = form.getMinor();
@@ -356,5 +367,9 @@ public class Topic implements Serializable {
 
   public String getGroupUrl() {
     return groupUrl;
+  }
+
+  public boolean isDraft() {
+    return draft;
   }
 }

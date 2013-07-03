@@ -44,6 +44,8 @@ public class TopicListDto {
   private boolean notalks = false;
   private boolean tech = false;
 
+  private boolean showDraft = false;
+
   public ImmutableSet<Integer> getSections() {
     return sections;
   }
@@ -154,6 +156,14 @@ public class TopicListDto {
 
   public void setTech(boolean tech) {
     this.tech = tech;
+  }
+
+  public boolean isShowDraft() {
+    return showDraft;
+  }
+
+  public void setShowDraft(boolean showDraft) {
+    this.showDraft = showDraft;
   }
 
   public String toString() {

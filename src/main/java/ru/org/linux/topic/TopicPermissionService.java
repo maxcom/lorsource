@@ -113,6 +113,16 @@ public class TopicPermissionService {
       }
     }
 
+    if (message.isDraft()) {
+      if (message.isExpired()) {
+        throw new MessageNotFoundException(message.getId(), "Черновик устарел");
+      }
+
+      if (!topicAuthor) {
+        throw new MessageNotFoundException(message.getId(), "Нельзя посмотреть чужой черновик");
+      }
+    }
+
     if (group.getCommentsRestriction() == -1 && unauthorized) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
@@ -121,6 +131,11 @@ public class TopicPermissionService {
   public void checkCommentsAllowed(Topic topic, User user, Errors errors) {
     if (topic.isDeleted()) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
+      return;
+    }
+
+    if (topic.isDraft()) {
+      errors.reject(null, "Нельзя добавлять комментарии к черновику");
       return;
     }
 
@@ -175,7 +190,7 @@ public class TopicPermissionService {
       return false;
     }
 
-    if (topic.isDeleted() || topic.isExpired()) {
+    if (topic.isDeleted() || topic.isExpired() || topic.isDraft()) {
       return false;
     }
 

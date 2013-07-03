@@ -22,7 +22,7 @@
 <%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
 <%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
-
+<%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -97,6 +97,11 @@
           <li><a href="/people/${template.nick}/">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
+          <c:if test="${hasDrafts}">
+              <li>
+                  <a href="/people/${template.nick}/drafts">Черновики</a>
+              </li>
+          </c:if>
         </ul>
         <ul>
           <li><a href="/people/${template.nick}/settings">Настройки</a></li>

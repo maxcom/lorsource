@@ -172,6 +172,10 @@ ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
 <div class="form-actions">
   <button type=submit>Поместить</button>
   <button type=submit name=preview>Предпросмотр</button>
+<c:if test="${template.moderatorSession && section.premoderated}">
+  <button type=submit name=draft>Сохранить в черновики</button>
+</c:if>
+
 </div>
 </form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

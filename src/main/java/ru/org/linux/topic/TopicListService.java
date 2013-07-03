@@ -172,6 +172,26 @@ public class TopicListService {
     return getCachedFeed(topicListDto);
   }
 
+  /**
+   * Получение списка черновиков пользователя.
+   *
+   * @param user       объект пользователя
+   * @param section    секция, из которой выбрать сообщения
+   * @param offset     смещение в результатах выборки
+   * @param favorites true если нужно выбрать избранные сообщения пользователя
+   * @return список топиков пользователя
+   */
+  public List<Topic> getDrafts(User user, Integer offset) {
+    TopicListDto topicListDto = new TopicListDto();
+    topicListDto.setLimit(20);
+    topicListDto.setOffset(offset);
+    topicListDto.setCommitMode(TopicListDao.CommitMode.ALL);
+    topicListDto.setUserId(user.getId());
+    topicListDto.setShowDraft(true);
+
+    return topicListDao.getTopics(topicListDto);
+  }
+
 
   /**
    * Получение списка топиков для RSS-ленты.

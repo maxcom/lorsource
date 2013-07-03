@@ -190,7 +190,7 @@
 <c:if test="${not moderateMode and messageMenu.commentsAllowed and message.commentCount == 0}">
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
-  <c:if test="${moderateMode and template.sessionAuthorized}">
+  <c:if test="${moderateMode}">
     <c:if test="${template.moderatorSession}">
       [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
     </c:if>
@@ -198,7 +198,8 @@
     <c:if test="${messageMenu.deletable}">
        [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
     </c:if>
-
+  </c:if>
+  <c:if test="${moderateMode || message.draft}">
     <c:if test="${messageMenu.editable}">
        [<a href="edit.jsp?msgid=${message.id}">Править</a>]
     </c:if>
