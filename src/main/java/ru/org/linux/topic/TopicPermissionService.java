@@ -190,7 +190,7 @@ public class TopicPermissionService {
       return false;
     }
 
-    if (topic.isDeleted() || topic.isExpired()) {
+    if (topic.isDeleted() || topic.isExpired() || topic.isDraft()) {
       return false;
     }
 
