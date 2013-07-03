@@ -12,9 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
-import ru.org.linux.util.URLUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,9 +27,6 @@ public class UserTopicListController {
 
   @Autowired
   private UserDao userDao;
-
-  @Autowired
-  private TagService tagService;
 
   @Autowired
   private SectionService sectionService;
