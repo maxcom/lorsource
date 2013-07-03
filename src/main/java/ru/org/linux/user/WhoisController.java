@@ -29,6 +29,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -72,6 +73,9 @@ public class WhoisController {
   @Autowired
   private MemoriesDao memoriesDao;
 
+  @Autowired
+  private TopicDao topicDao;
+
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -105,6 +109,10 @@ public class WhoisController {
       mv.getModel().put("sectionStat", prepareSectionStats(userStat));
       mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
       mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(user));
+
+      if (currentUser || tmpl.isModeratorSession()) {
+        mv.getModel().put("hasDrafts", topicDao.hasDrafts(user));
+      }
     }
 
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
