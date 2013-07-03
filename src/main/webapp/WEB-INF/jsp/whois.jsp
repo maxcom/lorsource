@@ -321,6 +321,11 @@
             <a href="/people/${user.nick}/favs">Избранные темы</a>
         </li>
     </c:if>
+    <c:if test="${hasDrafts}">
+        <li>
+            <a href="/people/${user.nick}/drafts">Черновики</a>
+        </li>
+    </c:if>
 </ul>
 </c:if>
 

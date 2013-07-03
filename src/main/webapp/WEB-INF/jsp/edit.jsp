@@ -127,6 +127,10 @@
   <button type="submit">Отредактировать</button>
   &nbsp;
   <button type=submit name=preview>Предпросмотр</button>
+  <c:if test="${message.draft}">
+    &nbsp;
+    <button type=submit name=publish>Опубликовать</button>
+  </c:if>
   </div>
 
   <c:if test="${commit}">
@@ -148,7 +152,12 @@
     </c:forEach>
 
     <div class="form-actions">
+      <c:if test="${message.draft}">
+        <button type=submit name=commit>Опубликовать и Подтвердить</button>
+      </c:if>
+      <c:if test="${not message.draft}">
         <button type=submit name=commit>Подтвердить</button>
+      </c:if>
     </div>
   </c:if>
 </form:form>

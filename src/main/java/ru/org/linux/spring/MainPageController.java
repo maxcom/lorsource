@@ -76,6 +76,10 @@ public class MainPageController {
             false
     ));
 
+    if (tmpl.isSessionAuthorized()) {
+      mv.getModel().put("hasDrafts", topicDao.hasDrafts(tmpl.getCurrentUser()));
+    }
+
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
       int uncommited = topicDao.getUncommitedCount();
 

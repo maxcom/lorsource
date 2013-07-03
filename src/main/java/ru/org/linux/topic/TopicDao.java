@@ -96,7 +96,7 @@ public class TopicDao {
         "urlname, section, topics.sticky, topics.postip, " +
         "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
-        "topics.resolved, minor " +
+        "topics.resolved, minor, draft " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
@@ -291,7 +291,7 @@ public class TopicDao {
     final String finalUrl = url;
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
-            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet)",
+            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
             new PreparedStatementCallback<String>() {
               @Override
               public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
@@ -303,6 +303,7 @@ public class TopicDao {
                 pst.setString(6, finalLinktext);
                 pst.setString(7, userAgent);
                 pst.setString(8, msg.getPostIP());
+                pst.setBoolean(9, msg.isDraft());
                 pst.executeUpdate();
 
                 return null;
@@ -408,6 +409,13 @@ public class TopicDao {
     jdbcTemplate.update(
             "UPDATE topics SET moderate='t', commitby=?, commitdate='now' WHERE id=?",
             commiter.getId(),
+            msg.getId()
+    );
+  }
+
+  public void publish(Topic msg) {
+    jdbcTemplate.update(
+            "UPDATE topics SET draft='f',postdate='now' WHERE id=? AND draft",
             msg.getId()
     );
   }
@@ -647,17 +655,26 @@ public class TopicDao {
 
   public int getUncommitedCount() {
     return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
             Integer.class
     );
   }
 
   public int getUncommitedCount(int section) {
     return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
             Integer.class,
             section
     );
+  }
 
+  public boolean hasDrafts(User author) {
+    List<Integer> res = jdbcTemplate.queryForList(
+            "select id FROM topics WHERE draft AND userid=? LIMIT 1",
+            Integer.class,
+            author.getId()
+    );
+
+    return !res.isEmpty();
   }
 }

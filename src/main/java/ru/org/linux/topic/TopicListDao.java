@@ -59,7 +59,7 @@ public class TopicListDao {
       .append("urlname, section, topics.sticky, topics.postip, ")
       .append("postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
       .append("commitdate, topics.stat1, postscore, topics.moderate, notop, ")
-      .append("topics.resolved, minor ")
+      .append("topics.resolved, minor, draft ")
       .append("FROM topics ")
       .append("INNER JOIN groups ON (groups.id=topics.groupid) ")
       .append("INNER JOIN sections ON (sections.id=groups.section) ");
@@ -215,6 +215,13 @@ public class TopicListDao {
         .append(topicListDto.getTag())
         .append(')');
     }
+
+    if (!topicListDto.isShowDraft()) {
+      where.append(" AND NOT topics.draft ");
+    } else {
+      where.append(" AND topics.draft ");
+    }
+
     return where.toString();
   }
 

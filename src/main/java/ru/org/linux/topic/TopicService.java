@@ -272,6 +272,10 @@ public class TopicService {
       throw new RuntimeException(e);
     }
 
+    if (oldMsg.isDraft() && !newMsg.isDraft()) {
+      topicDao.publish(newMsg);
+    }
+
     if (commit) {
       if (changeGroupId != null) {
         if (oldMsg.getGroupId() != changeGroupId) {
@@ -292,6 +296,10 @@ public class TopicService {
   private void commit(Topic msg, User commiter, int bonus, Map<Integer, Integer> editorBonus) {
     if (bonus < 0 || bonus > 20) {
       throw new IllegalStateException("Неверное значение bonus");
+    }
+
+    if (msg.isDraft()) {
+      topicDao.publish(msg);
     }
 
     topicDao.commit(msg, commiter);
