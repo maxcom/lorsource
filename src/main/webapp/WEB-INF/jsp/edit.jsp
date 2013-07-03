@@ -127,6 +127,10 @@
   <button type="submit">Отредактировать</button>
   &nbsp;
   <button type=submit name=preview>Предпросмотр</button>
+  <c:if test="${message.draft}">
+    &nbsp;
+    <button type=submit name=publish>Опубликовать</button>
+  </c:if>
   </div>
 
   <c:if test="${commit}">

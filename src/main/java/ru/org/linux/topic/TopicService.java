@@ -272,6 +272,10 @@ public class TopicService {
       throw new RuntimeException(e);
     }
 
+    if (oldMsg.isDraft() && !newMsg.isDraft()) {
+      topicDao.publish(newMsg);
+    }
+
     if (commit) {
       if (changeGroupId != null) {
         if (oldMsg.getGroupId() != changeGroupId) {

@@ -324,6 +324,8 @@ public class EditTopicController {
       params.put("info", "Предпросмотр");
     }
 
+    boolean publish = request.getParameter("publish") != null;
+
     if (!editInfoList.isEmpty()) {
       EditHistoryDto editHistoryDto = editInfoList.get(0);
       params.put("editInfo", editHistoryDto);
@@ -344,7 +346,7 @@ public class EditTopicController {
 
     params.put("commit", !message.isCommited() && preparedTopic.getSection().isPremoderated() && user.isModerator());
 
-    Topic newMsg = new Topic(group, message, form);
+    Topic newMsg = new Topic(group, message, form, publish);
 
     boolean modified = false;
 
@@ -459,14 +461,21 @@ public class EditTopicController {
               form.getEditorBonus()
       );
 
-      if (changed || commit) {
+      if (changed || commit || publish) {
         searchQueueSender.updateMessageOnly(newMsg.getId());
 
         if (commit) {
           feedPinger.pingFeedburner();
         }
 
-        return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build()));
+        if (!publish) {
+          return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build()));
+        } else {
+          params.put("moderated", true);
+          params.put("url", TopicLinkBuilder.baseLink(message).forceLastmod().build());
+
+          return new ModelAndView("add-done-moderated", params);
+        }
       } else {
         errors.reject(null, "Нет изменений");
       }

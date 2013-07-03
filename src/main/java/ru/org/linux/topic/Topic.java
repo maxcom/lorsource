@@ -190,7 +190,7 @@ public class Topic implements Serializable {
     draft = form.isDraftMode();
   }
 
-  public Topic(Group group, Topic original, EditTopicRequest form) {
+  public Topic(Group group, Topic original, EditTopicRequest form, boolean publish) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;
@@ -231,7 +231,12 @@ public class Topic implements Serializable {
     moderate = original.moderate;
     notop = original.notop;
     userid = original.userid;
-    draft = original.draft;
+
+    if (publish) {
+      draft = false;
+    } else {
+      draft = original.draft;
+    }
 
     if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
       minor = form.getMinor();
