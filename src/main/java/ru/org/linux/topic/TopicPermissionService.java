@@ -134,6 +134,11 @@ public class TopicPermissionService {
       return;
     }
 
+    if (topic.isDraft()) {
+      errors.reject(null, "Нельзя добавлять комментарии к черновику");
+      return;
+    }
+
     if (topic.isExpired()) {
       errors.reject(null, "Сообщение уже устарело");
       return;
