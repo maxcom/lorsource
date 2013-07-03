@@ -25,11 +25,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.PreparedTopic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.User;
@@ -112,8 +114,14 @@ public class AddCommentController {
   public ModelAndView showFormTopic(
     @ModelAttribute("add") @Valid CommentRequest add,
     HttpServletRequest request
-  ) {
+  ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
+
+    PreparedTopic preparedTopic = messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser());
+
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.getGroup(), add.getTopic(), tmpl.getCurrentUser())) {
+      throw new AccessViolationException("Это сообщение нельзя комментировать");
+    }
 
     if (add.getMode() == null) {
       add.setMode(tmpl.getFormatMode());
@@ -122,7 +130,7 @@ public class AddCommentController {
     return new ModelAndView(
       "comment-message",
       "preparedMessage",
-      messagePrepareService.prepareTopic(add.getTopic(), request.isSecure(), tmpl.getCurrentUser())
+            preparedTopic
     );
   }
 
