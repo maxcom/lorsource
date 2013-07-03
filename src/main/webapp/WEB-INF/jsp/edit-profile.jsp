@@ -66,7 +66,7 @@ $script.ready('plugins', function() {
       <c:if test="${s == style}">
           <label><input type=radio name=style value="${s}" checked>${s}</label>
       </c:if>
-      <c:if test="${s != style && s!='white'}">
+      <c:if test="${s != style}">
           <label><input type=radio name=style value="${s}">${s}</label>
       </c:if>
     </c:forEach>
