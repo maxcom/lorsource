@@ -294,6 +294,10 @@ public class TopicService {
       throw new IllegalStateException("Неверное значение bonus");
     }
 
+    if (msg.isDraft()) {
+      topicDao.publish(msg);
+    }
+
     topicDao.commit(msg, commiter);
 
     userDao.changeScore(msg.getUid(), bonus);

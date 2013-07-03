@@ -148,7 +148,12 @@
     </c:forEach>
 
     <div class="form-actions">
+      <c:if test="${message.draft}">
+        <button type=submit name=commit>Опубликовать и Подтвердить</button>
+      </c:if>
+      <c:if test="${not message.draft}">
         <button type=submit name=commit>Подтвердить</button>
+      </c:if>
     </div>
   </c:if>
 </form:form>

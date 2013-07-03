@@ -413,6 +413,13 @@ public class TopicDao {
     );
   }
 
+  public void publish(Topic msg) {
+    jdbcTemplate.update(
+            "UPDATE topics SET draft='f',postdate='now' WHERE id=? AND draft",
+            msg.getId()
+    );
+  }
+
   public void uncommit(Topic msg) {
     jdbcTemplate.update("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?", msg.getId());
   }
