@@ -22,8 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
+import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicPermissionService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -39,6 +43,12 @@ public class EditHistoryController {
   @Autowired
   private CommentService commentService;
 
+  @Autowired
+  private TopicPermissionService topicPermissionService;
+
+  @Autowired
+  private GroupDao groupDao;
+
   @RequestMapping({
     "/news/{group}/{id}/history",
     "/forum/{group}/{id}/history",
@@ -50,6 +60,10 @@ public class EditHistoryController {
     @PathVariable("id") int msgid
   ) throws Exception {
     Topic message = messageDao.getById(msgid);
+    Template tmpl = Template.getTemplate(request);
+    Group group = groupDao.getGroup(message.getGroupId());
+
+    topicPermissionService.checkView(group, message, tmpl.getCurrentUser(), false);
 
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message, request.isSecure());
 
