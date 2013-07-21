@@ -15,7 +15,10 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.BadParameterException;
+import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
@@ -112,6 +116,21 @@ public class DeleteCommentController {
     return new ModelAndView("delete_comment", params);
   }
 
+  private Optional<Comment> findNextComment(final Comment comment) throws MessageNotFoundException {
+    Topic updatedTopic = messageDao.getById(comment.getTopicId());
+    CommentList commentList = commentService.getCommentList(updatedTopic, false);
+
+    return Iterables.tryFind(
+            commentList.getList(),
+            new Predicate<Comment>() {
+              @Override
+              public boolean apply(Comment input) {
+                return input.getId() >= comment.getId();
+              }
+            }
+    );
+  }
+
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.POST)
   public ModelAndView deleteComments(
           @RequestParam("msgid") int msgid,
@@ -163,6 +182,8 @@ public class DeleteCommentController {
       }
     }
 
+    Optional<Comment> nextComment = findNextComment(comment);
+
     searchQueueSender.updateComment(deleted);
 
     Map<String, Object> params = new HashMap<>();
@@ -174,7 +195,11 @@ public class DeleteCommentController {
       params.put("message", "Сообщение уже удалено");
     }
 
-    params.put("link", topic.getLink());
+    if (nextComment.isPresent()) {
+      params.put("link", topic.getLink()+"?cid="+nextComment.get().getId()+"&lastmod=");
+    } else {
+      params.put("link", topic.getLink());
+    }
 
     return new ModelAndView("action-done", params);
   }
