@@ -457,21 +457,21 @@ public class TopicDao {
       case GROUP:
         if (currentUser == null || currentUser.isAnonymous()) {
           res = jdbcTemplate.queryForList(
-                  "SELECT max(topics.id) as msgid " +
+                  "SELECT topics.id " +
                           "FROM topics " +
-                          "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky",
+                          "WHERE topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate DESC LIMIT 1",
                   Integer.class,
-                  message.getId(),
+                  message.getPostdate(),
                   message.getGroupId()
           );
         } else {
             res = jdbcTemplate.queryForList(
-                    "SELECT max(topics.id) as msgid " +
+                    "SELECT topics.id as msgid " +
                             "FROM topics " +
-                            "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
-                            "AND userid NOT IN (select ignored from ignore_list where userid=?)",
+                            "WHERE topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
+                            "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate DESC LIMIT 1",
                     Integer.class,
-                    message.getId(),
+                    message.getPostdate(),
                     message.getGroupId(),
                     currentUser.getId()
             );
@@ -530,21 +530,21 @@ public class TopicDao {
       case GROUP:
         if (currentUser == null || currentUser.isAnonymous()) {
           res = jdbcTemplate.queryForList(
-                  "SELECT min(topics.id) as msgid " +
+                  "SELECT topics.id as msgid " +
                           "FROM topics " +
-                          "WHERE topics.id>? AND topics.groupid=? AND NOT deleted AND NOT sticky",
+                          "WHERE topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate ASC LIMIT 1",
                   Integer.class,
-                  message.getId(),
+                  message.getPostdate(),
                   message.getGroupId()
           );
         } else {
           res = jdbcTemplate.queryForList(
-                  "SELECT min(topics.id) as msgid " +
+                  "SELECT topics.id as msgid " +
                           "FROM topics " +
-                          "WHERE topics.id>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
-                          "AND userid NOT IN (select ignored from ignore_list where userid=?)",
+                          "WHERE topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
+                          "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate ASC LIMIT 1",
                   Integer.class,
-                  message.getId(),
+                  message.getPostdate(),
                   message.getGroupId(),
                   currentUser.getId()
           );
