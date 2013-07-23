@@ -17,25 +17,6 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <LINK REL="stylesheet" TYPE="text/css" ID="theme" HREF="/tango/tango-dark.css">
-<c:if test="${template.style == 'tango'}">
-  <script type="text/javascript">
-	function readCookie(name) {
-		var nameEQ = name + "=";
-		var ca = document.cookie.split(';');
-		for(var i=0;i < ca.length;i++) {
-			var c = ca[i];
-			while (c.charAt(0)==' ') c = c.substring(1,c.length);
-			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-		}
-		return null;
-	}
-    var isCookie = readCookie("style_selected");
-    if(isCookie){
-        var newStyle = "/tango/" + isCookie + ".css";
-        $("link[id=theme]").attr("href",newStyle);
-    }
-  </script>
-  </c:if>
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <link rel="yandex-tableau-widget" href="/tango/manifest.json" />
 <meta name = "viewport" content = "initial-scale=1.0">
