@@ -168,7 +168,7 @@ public class GroupController {
    String delq = showDeleted ? "" : " AND NOT deleted ";
 
     String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
-            "FROM topics WHERE NOT draft NOT sticky AND topics.groupid=" + group.getId() + delq;
+            "FROM topics WHERE NOT draft AND NOT sticky AND topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
       q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
