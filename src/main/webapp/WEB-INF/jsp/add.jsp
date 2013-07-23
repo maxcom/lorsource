@@ -172,7 +172,7 @@ ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
 <div class="form-actions">
   <button type=submit>Поместить</button>
   <button type=submit name=preview>Предпросмотр</button>
-<c:if test="${template.sessionAuthorized && !section.pollPostAllowed && section.premoderated}">
+<c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
   <button type=submit name=draft>Сохранить в черновики</button>
 </c:if>
 
