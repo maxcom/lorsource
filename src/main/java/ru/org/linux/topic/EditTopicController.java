@@ -468,7 +468,7 @@ public class EditTopicController {
           feedPinger.pingFeedburner();
         }
 
-        if (!publish) {
+        if (!publish || !preparedTopic.getSection().isPremoderated()) {
           return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build()));
         } else {
           params.put("moderated", true);
