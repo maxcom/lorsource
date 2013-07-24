@@ -446,7 +446,7 @@ public class TopicDao {
                 "SELECT topics.id as msgid " +
                         "FROM topics " +
                         "WHERE topics.commitdate=" +
-                        "(SELECT commitdate FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky ORDER BY commitdate DESC LIMIT 1)",
+                        "(SELECT commitdate FROM topics, groups, sections WHERE NOT draft AND sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky ORDER BY commitdate DESC LIMIT 1)",
                         //"(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND not sticky)",
                 Integer.class,
                 message.getCommitDate(),
@@ -459,7 +459,7 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT topics.id " +
                           "FROM topics " +
-                          "WHERE topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate DESC LIMIT 1",
+                          "WHERE NOT draft AND topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate DESC LIMIT 1",
                   Integer.class,
                   message.getPostdate(),
                   message.getGroupId()
@@ -468,7 +468,7 @@ public class TopicDao {
             res = jdbcTemplate.queryForList(
                     "SELECT topics.id as msgid " +
                             "FROM topics " +
-                            "WHERE topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
+                            "WHERE NOT draft AND topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
                             "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate DESC LIMIT 1",
                     Integer.class,
                     message.getPostdate(),
@@ -519,7 +519,7 @@ public class TopicDao {
                 "SELECT topics.id as msgid " +
                         "FROM topics " +
                         "WHERE topics.commitdate=" +
-                        "(SELECT commitdate FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky ORDER BY commitdate ASC LIMIT 1)",
+                        "(SELECT commitdate FROM topics, groups, sections WHERE NOT draft AND sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky ORDER BY commitdate ASC LIMIT 1)",
 //                        "(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky)",
                 Integer.class,
                 message.getCommitDate(),
@@ -532,7 +532,7 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT topics.id as msgid " +
                           "FROM topics " +
-                          "WHERE topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate ASC LIMIT 1",
+                          "WHERE NOT draft AND topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate ASC LIMIT 1",
                   Integer.class,
                   message.getPostdate(),
                   message.getGroupId()
@@ -541,7 +541,7 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT topics.id as msgid " +
                           "FROM topics " +
-                          "WHERE topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
+                          "WHERE NOT draft AND topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
                           "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate ASC LIMIT 1",
                   Integer.class,
                   message.getPostdate(),
