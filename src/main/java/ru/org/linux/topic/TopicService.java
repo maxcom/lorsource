@@ -129,10 +129,12 @@ public class TopicService {
     topicTagService.updateTags(msgid, tags);
     tagService.updateCounters(ImmutableList.<String>of(), tags);
 
-    if (section.isPremoderated()) {
-      sendEvents(message, msgid, ImmutableList.<String>of(), user.getId());
-    } else {
-      sendEvents(message, msgid, tags, user.getId());
+    if (!previewMsg.isDraft()) {
+      if (section.isPremoderated()) {
+        sendEvents(message, msgid, ImmutableList.<String>of(), user.getId());
+      } else {
+        sendEvents(message, msgid, tags, user.getId());
+      }
     }
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
