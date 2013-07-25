@@ -440,19 +440,6 @@
                         <aggregation>
                             <removeIncluded>false</removeIncluded>
                             <insertNewLine>true</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/white/combined.css</output>
-                            <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/common.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
-
-                                <include>${project.build.directory}/${project.build.finalName}/white/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
-                            </includes>
-                        </aggregation>
-                        <aggregation>
-                            <removeIncluded>false</removeIncluded>
-                            <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/common.css</include>
@@ -460,7 +447,7 @@
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/responsive.css</include>
                             </includes>
                         </aggregation>
