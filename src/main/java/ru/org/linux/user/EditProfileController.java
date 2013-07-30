@@ -78,11 +78,11 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (topics <= 0 || topics > 500) {
+    if (topics < 10 || topics > 500) {
       throw new BadInputException("некорректное число тем");
     }
 
-    if (messages <= 0 || messages > 1000) {
+    if (messages < 10 || messages > 500) {
       throw new BadInputException("некорректное число сообщений");
     }
 

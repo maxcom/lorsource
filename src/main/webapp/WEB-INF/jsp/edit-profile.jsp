@@ -43,9 +43,9 @@ $script.ready('plugins', function() {
 <tr><td>Показывать фотографии</td>
 <td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="topics">Число тем форума на странице</label> </td>
-<td><input type=number min=1 max=500 size="5" id="topics" name="topics" value="${template.prof.topics}" required></td></tr>
+<td><input type=number min=10 max=500 size="5" id="topics" name="topics" value="${template.prof.topics}" required></td></tr>
 <tr><td><label for="messages">Число комментариев на странице</label></td>
-<td><input type=number min=1 max=1000 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
+<td><input type=number min=10 max=500 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <c:if test="${template.prof.useHover}">
