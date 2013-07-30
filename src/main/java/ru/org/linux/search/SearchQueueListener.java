@@ -70,7 +70,7 @@ public class SearchQueueListener {
   private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
     Topic msg = topicDao.getById(msgid);
 
-    if (!msg.isDeleted()) {
+    if (!msg.isDeleted() && !msg.isDraft()) {
       updateMessage(msg);
     } else {
       //logger.info("Deleting message "+msgid+" from solr");      

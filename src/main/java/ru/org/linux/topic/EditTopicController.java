@@ -462,7 +462,9 @@ public class EditTopicController {
       );
 
       if (changed || commit || publish) {
-        searchQueueSender.updateMessageOnly(newMsg.getId());
+        if (!newMsg.isDraft()) {
+          searchQueueSender.updateMessageOnly(newMsg.getId());
+        }
 
         if (commit) {
           feedPinger.pingFeedburner();

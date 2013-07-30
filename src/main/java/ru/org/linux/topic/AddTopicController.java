@@ -339,7 +339,9 @@ public class AddTopicController {
               previewMsg
       );
 
-      searchQueueSender.updateMessageOnly(msgid);
+      if (!previewMsg.isDraft())  {
+        searchQueueSender.updateMessageOnly(msgid);
+      }
 
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
