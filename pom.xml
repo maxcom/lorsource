@@ -422,6 +422,7 @@
                                 <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/responsive.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/tango/tango-dark.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
