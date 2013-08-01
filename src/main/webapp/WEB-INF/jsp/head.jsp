@@ -40,7 +40,10 @@
   <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
 </c:if>
 
-<script src="/js/script.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  <c:import url="/js/script.min.js" var="scriptminjs"/>
+  <c:out escapeXml="true" value="${scriptminjs}"/>
+</script>
 
   <!--[if lt IE 9]>
 <script src="/js/html5.js" type="text/javascript"></script>
