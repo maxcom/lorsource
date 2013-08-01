@@ -54,7 +54,7 @@
    }
   %>
   </c:set>
-  <c:out escapeXml="true" value="${scriptminjs}"/>
+  <c:out value="${scriptminjs}"/>
 </script>
 
   <!--[if lt IE 9]>
