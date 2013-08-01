@@ -1,3 +1,5 @@
+<%@ page import="org.apache.commons.io.IOUtils" %>
+<%@ page import="java.io.InputStream" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -41,7 +43,17 @@
 </c:if>
 
 <script type="text/javascript">
-  <c:import url="/js/script.min.js" var="scriptminjs"/>
+  <c:set var="scriptminjs">
+  <%
+   InputStream reader = request.getServletContext().getResourceAsStream("/js/script.min.js");
+
+   try {
+     IOUtils.copy(reader, out);
+   } finally{
+     IOUtils.closeQuietly(reader);
+   }
+  %>
+  </c:set>
   <c:out escapeXml="true" value="${scriptminjs}"/>
 </script>
 
