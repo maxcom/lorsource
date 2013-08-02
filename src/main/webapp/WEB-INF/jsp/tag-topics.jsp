@@ -89,7 +89,12 @@
 </div>
 
 <c:forEach var="msg" items="${messages}">
-  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==0}" moderateMode="false"/>
+  <lor:news
+          preparedMessage="${msg.preparedTopic}"
+          messageMenu="${msg.topicMenu}"
+          multiPortal="${section==0}"
+          minorAsMajor="true"
+          moderateMode="false"/>
 </c:forEach>
 
 <table class="nav">

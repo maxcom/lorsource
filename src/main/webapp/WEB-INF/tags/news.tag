@@ -10,6 +10,7 @@
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="minorAsMajor" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -91,7 +92,7 @@
   </c:if>
 </c:set>
 
-<c:if test="${not message.minor}">
+<c:if test="${not message.minor || minorAsMajor}">
 <article class=news id="topic-${message.id}">
 <%
   String url = message.getUrl();
@@ -210,7 +211,7 @@
 </article>
 </c:if>
 
-<c:if test="${message.minor}">
+<c:if test="${message.minor && !minorAsMajor}">
 <article class="infoblock mini-news" id="topic-${message.id}">
 Мини-новость:
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>

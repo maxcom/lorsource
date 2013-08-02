@@ -57,7 +57,13 @@
     </div>
 </div>
 <c:forEach var="msg" items="${messages}">
-  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==null && group==null}" moderateMode="false"/>
+  <lor:news
+          preparedMessage="${msg.preparedTopic}"
+          messageMenu="${msg.topicMenu}"
+          multiPortal="${section==null && group==null}"
+          moderateMode="false"
+          minorAsMajor="true"
+  />
 </c:forEach>
 
 <c:if test="${offsetNavigation}">
