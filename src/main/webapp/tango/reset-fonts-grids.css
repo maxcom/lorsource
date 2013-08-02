@@ -45,25 +45,8 @@ q:before, q:after {
     content: '';
 }
 
-abbr, acronym {
-    border: 0;
-    font-variant: normal;
-}
-
-sup {
-    vertical-align: text-top;
-}
-
-sub {
-    vertical-align: text-bottom;
-}
-
 input, textarea, select {
     font-weight: inherit;
-}
-
-legend {
-    color: #000;
 }
 
 table {
