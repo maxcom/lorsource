@@ -1,5 +1,7 @@
 language: java
-script: unset GEM_PATH && mvn install
+env:
+ - GEM_PATH=""
+script: mvn install
 jdk:
   - oraclejdk7
   - openjdk7
