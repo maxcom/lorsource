@@ -16,6 +16,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="groups" type="java.util.List<Group>"--%>
+<%--@elvariable id="author" type="ru.org.linux.user.User"--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -37,4 +38,8 @@
 </select>
 <input type='submit' name='move' value='move'>
 </form>
+
+сообщение написано
+<lor:user user="${author}"/>, score=${author.score}
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

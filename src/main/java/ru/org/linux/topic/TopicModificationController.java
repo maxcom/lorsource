@@ -31,6 +31,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.ServletRequest;
@@ -51,6 +52,9 @@ public class TopicModificationController {
 
   @Autowired
   private GroupDao groupDao;
+
+  @Autowired
+  private UserDao userDao;
 
   @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -129,29 +133,6 @@ public class TopicModificationController {
     return mv;
   }
 
-  @RequestMapping(value="/mtn.jsp", method=RequestMethod.GET)
-  public ModelAndView moveTopicForm(
-    ServletRequest request,
-    @RequestParam int msgid
-  ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isModeratorSession()) {
-      throw new AccessViolationException("Not authorized");
-    }
-
-    ModelAndView mv = new ModelAndView("mtn");
-
-    Topic message = messageDao.getById(msgid);
-    Section section = sectionService.getSection(message.getSectionId());
-
-    mv.getModel().put("message", message);
-
-    mv.getModel().put("groups", groupDao.getGroups(section));
-
-    return mv;
-  }
-
   @RequestMapping(value="/mt.jsp", method=RequestMethod.POST)
   public RedirectView moveTopic(
     ServletRequest request,
@@ -174,7 +155,7 @@ public class TopicModificationController {
 
     if (msg.getGroupId()!=newGrp.getId()) {
       messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
-   }
+    }
 
     return new RedirectView(TopicLinkBuilder.baseLink(msg).forceLastmod().build());
   }
@@ -192,13 +173,35 @@ public class TopicModificationController {
 
     ModelAndView mv = new ModelAndView("mtn");
 
-    Topic message = messageDao.getById(msgid);
-
-    mv.getModel().put("message", message);
-
+    Topic topic = messageDao.getById(msgid);
     Section section = sectionService.getSection(Section.SECTION_FORUM);
 
+    mv.getModel().put("message", topic);
     mv.getModel().put("groups", groupDao.getGroups(section));
+    mv.getModel().put("author", userDao.getUserCached(topic.getUid()));
+
+    return mv;
+  }
+
+  @RequestMapping(value="/mtn.jsp", method=RequestMethod.GET)
+  public ModelAndView moveTopicForm(
+          ServletRequest request,
+          @RequestParam int msgid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    ModelAndView mv = new ModelAndView("mtn");
+
+    Topic topic = messageDao.getById(msgid);
+    Section section = sectionService.getSection(topic.getSectionId());
+
+    mv.getModel().put("message", topic);
+    mv.getModel().put("groups", groupDao.getGroups(section));
+    mv.getModel().put("author", userDao.getUserCached(topic.getUid()));
 
     return mv;
   }
