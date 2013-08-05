@@ -1,6 +1,6 @@
 language: java
 env:
- - GEM_PATH=""
+ - GEM_PATH=
 script: mvn install
 jdk:
   - oraclejdk7
