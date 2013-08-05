@@ -1,6 +1,4 @@
 language: java
-env:
- - GEM_PATH=
 script: mvn install
 jdk:
   - oraclejdk7
@@ -12,5 +10,7 @@ before_script:
   - createdb -U maxcom lor
   - psql -f sql/demo.db -U maxcom lor
   - psql -c 'create extension hstore;' -U postgres lor
+  - unset GEM_PATH
 before_install:
   - mvn -T 2C dependency:go-offline
+  - unset GEM_PATH
