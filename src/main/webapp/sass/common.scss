@@ -13,22 +13,20 @@
  *    limitations under the License.
  */
 
-/* mixins */
-// Clearfix
-// --------
-// For clearing floats like a boss h5bp.com/q
-.clearfix {
-  *zoom: 1;
+@mixin clearfix {
+// For modern browsers
   &:before,
   &:after {
-    display: table;
-    content: "";
-    // Fixes Opera/contenteditable bug:
-    // http://nicolasgallagher.com/micro-clearfix-hack/#comment-36952
-    line-height: 0;
+    content:"";
+    display:table;
   }
   &:after {
-    clear: both;
+    clear:both;
+  }
+
+  // For IE 6/7 (trigger hasLayout)
+  & {
+    zoom:1;
   }
 }
 
@@ -86,7 +84,7 @@ textarea {
 /* common parts */
 
 #bd, #ft {
-  .clearfix;
+  @include clearfix;
 }
 
 /* specific styles */
@@ -208,7 +206,7 @@ div[itemprop="articleBody"] {
 
 .msg-container {
   margin-top: 0.5em;
-  .clearfix
+  @include clearfix;
 }
 
 .msg header {
@@ -219,7 +217,7 @@ div[itemprop="articleBody"] {
 .msg footer {
     padding-top: .5em;
     padding-bottom: 0.5em;
-    .clearfix
+    @include clearfix;
 }
 
 .msg footer .sign {
@@ -507,7 +505,7 @@ table.poll td {
 }
 
 .poll-result {
-    .clearfix;
+    @include clearfix;
 }
 
 .poll-result ol {

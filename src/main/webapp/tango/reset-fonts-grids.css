@@ -59,19 +59,3 @@ body {
     min-width: 300px;
     width: auto;
 }
-
-#ft {
-    clear: both;
-}
-
-#bd:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
-#bd {
-    zoom: 1;
-}

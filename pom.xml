@@ -358,6 +358,7 @@
                 </configuration>
             </plugin>
 
+<!--
             <plugin>
                 <groupId>org.lesscss</groupId>
                 <artifactId>lesscss-maven-plugin</artifactId>
@@ -378,8 +379,36 @@
                     </execution>
                 </executions>
             </plugin>
+-->
 
-            <plugin>
+          <plugin>
+            <groupId>org.jasig.maven</groupId>
+            <artifactId>sass-maven-plugin</artifactId>
+            <version>1.1.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>update-stylesheets</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <resources>
+                <resource>
+                  <source>
+                    <directory>${basedir}/src/main/webapp/sass</directory>
+                    <includes>
+                      <include>**/scss</include>
+                    </includes>
+                  </source>
+                  <destination>${project.build.directory}/${project.build.finalName}</destination>
+                  <relativeOutputDirectory>..</relativeOutputDirectory>
+                </resource>
+              </resources>
+            </configuration>
+          </plugin>
+
+          <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <version>1.2</version>
                 <artifactId>yuicompressor-maven-plugin</artifactId>
