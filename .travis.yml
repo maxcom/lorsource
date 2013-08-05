@@ -13,4 +13,4 @@ before_script:
   - psql -f sql/demo.db -U maxcom lor
   - psql -c 'create extension hstore;' -U postgres lor
 before_install:
-  - mvn dependency:go-offline
+  - mvn -T 2C dependency:go-offline
