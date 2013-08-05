@@ -54,11 +54,13 @@
     <option <%= postscore== TopicPermissionService.POSTSCORE_MODERATORS_ONLY?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MODERATORS_ONLY%>">только для модераторов</option>
   </select>
     </label>
-    <br>
+
   <c:if test="${not group.premoderated}">
-    <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
+    <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label>
   </c:if>
-  <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label><br>
-  <input type=submit value="Изменить">
+  <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label>
+  <div class="form-actions">
+    <button type=submit>Изменить</button>
+  </div>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
