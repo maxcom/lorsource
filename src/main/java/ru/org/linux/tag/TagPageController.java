@@ -1,5 +1,6 @@
 package ru.org.linux.tag;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,25 +53,29 @@ public class TagPageController {
 
     Section newsSection = sectionService.getSection(Section.SECTION_NEWS);
 
-    List<Topic> topics = topicListService.getTopicsFeed(
+    List<Topic> newsTopics = topicListService.getTopicsFeed(
             newsSection,
             null,
             tag,
             0,
             null,
             null,
-            1
+            21
     );
 
-    List<PersonalizedPreparedTopic> preparedTopics = prepareService.prepareMessagesForUser(
-            topics,
+    List<Topic> fullNewsTopics = newsTopics.isEmpty() ? ImmutableList.<Topic>of() : newsTopics.subList(0, 1);
+    List<Topic> briefNewsTopics = newsTopics.size() <= 1 ? ImmutableList.<Topic>of() : newsTopics.subList(1, newsTopics.size());
+
+    List<PersonalizedPreparedTopic> fullNews = prepareService.prepareMessagesForUser(
+            fullNewsTopics,
             request.isSecure(),
             tmpl.getCurrentUser(),
             tmpl.getProf(),
             false
     );
 
-    mv.addObject("fullNews", preparedTopics);
+    mv.addObject("fullNews", fullNews);
+    mv.addObject("briefNews", briefNewsTopics);
 
     return mv;
   }
