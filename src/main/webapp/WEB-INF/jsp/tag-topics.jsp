@@ -23,6 +23,8 @@
 <%--@elvariable id="tag" type="java.lang.String"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="section" type="java.lang.Integer"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
+
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${ptitle}</title>
 

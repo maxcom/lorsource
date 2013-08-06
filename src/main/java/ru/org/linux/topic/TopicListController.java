@@ -31,7 +31,10 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.util.*;
+import ru.org.linux.util.BadDateException;
+import ru.org.linux.util.DateUtil;
+import ru.org.linux.util.ServletParameterException;
+import ru.org.linux.util.ServletParameterMissingException;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -93,7 +96,8 @@ public class TopicListController {
       null,
       topicListForm.getOffset(),
       topicListForm.getYear(),
-      topicListForm.getMonth()
+      topicListForm.getMonth(),
+      20
     );
 
     modelAndView.addObject(

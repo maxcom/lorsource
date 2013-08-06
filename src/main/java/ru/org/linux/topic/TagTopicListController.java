@@ -95,7 +95,8 @@ public class TagTopicListController {
             tag,
             offset,
             null,
-            null
+            null,
+            20
     );
 
     Template tmpl = Template.getTemplate(request);

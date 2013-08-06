@@ -65,7 +65,8 @@ public class TopicListService {
     String tag,
     Integer offset,
     Integer year,
-    Integer month
+    Integer month,
+    int count
   )
     throws UserErrorException, TagNotFoundException {
     logger.debug(
@@ -109,8 +110,7 @@ public class TopicListService {
       calendar.add(Calendar.MONTH, 1);
       topicListDto.setToDate(calendar.getTime());
     } else {
-
-      topicListDto.setLimit(20);
+      topicListDto.setLimit(count);
       topicListDto.setOffset(offset > 0 ? offset : null);
       if (tag == null && group == null && !section.isPremoderated()) {
         topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
@@ -176,9 +176,7 @@ public class TopicListService {
    * Получение списка черновиков пользователя.
    *
    * @param user       объект пользователя
-   * @param section    секция, из которой выбрать сообщения
    * @param offset     смещение в результатах выборки
-   * @param favorites true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
   public List<Topic> getDrafts(User user, Integer offset) {
