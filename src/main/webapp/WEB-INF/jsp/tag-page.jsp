@@ -19,7 +19,8 @@
   --%>
 <%--@elvariable id="tag" type="java.lang.String"--%>
 <%--@elvariable id="fullNews" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
-<%--@elvariable id="briefNews" type="java.util.List<ru.org.linux.topic.Topic>"--%>
+<%--@elvariable id="briefNews1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
+<%--@elvariable id="briefNews2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${tag}</title>
@@ -42,10 +43,15 @@
 <section class="infoblock">
    <h2>Еще новости</h2>
    <ul>
-       <c:forEach var="msg" items="${briefNews}">
+       <c:forEach var="msg" items="${briefNews1}">
            <li><lor:dateinterval date="${msg.postdate}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a> </li>
        </c:forEach>
    </ul>
+    <ul>
+        <c:forEach var="msg" items="${briefNews2}">
+            <li><lor:dateinterval date="${msg.postdate}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a> </li>
+        </c:forEach>
+    </ul>
 </section>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

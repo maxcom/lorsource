@@ -1,6 +1,5 @@
 package ru.org.linux.tag;
 
-import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +17,8 @@ import ru.org.linux.topic.TopicPrepareService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static ru.org.linux.util.ListUtil.*;
 
 @Controller
 @RequestMapping(value = "/tag/{tag}/bigpage")
@@ -63,8 +64,8 @@ public class TagPageController {
             21
     );
 
-    List<Topic> fullNewsTopics = newsTopics.isEmpty() ? ImmutableList.<Topic>of() : newsTopics.subList(0, 1);
-    List<Topic> briefNewsTopics = newsTopics.size() <= 1 ? ImmutableList.<Topic>of() : newsTopics.subList(1, newsTopics.size());
+    List<Topic> fullNewsTopics = headOrEmpty(newsTopics);
+    List<Topic> briefNewsTopics = tailOrEmpty(newsTopics);
 
     List<PersonalizedPreparedTopic> fullNews = prepareService.prepareMessagesForUser(
             fullNewsTopics,
@@ -75,8 +76,11 @@ public class TagPageController {
     );
 
     mv.addObject("fullNews", fullNews);
-    mv.addObject("briefNews", briefNewsTopics);
+    mv.addObject("briefNews1", firstHalf(briefNewsTopics));
+    mv.addObject("briefNews2", secondHalf(briefNewsTopics));
 
     return mv;
   }
+
+
 }
