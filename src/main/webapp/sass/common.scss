@@ -13,6 +13,10 @@
  *    limitations under the License.
  */
 
+@import "grid";
+
+$total_width: 100%;
+
 @import "clearfix";
 
 /* document wide styles */
@@ -638,3 +642,16 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 a img { border: none; }
+
+.container {
+  @include container();
+  @include clearfix();
+
+  .col-first-half {
+    @include column(6, 0);
+  }
+
+  .col-second-half {
+    @include column(6, 6);
+  }
+}

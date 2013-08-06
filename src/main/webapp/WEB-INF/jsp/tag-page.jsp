@@ -42,16 +42,19 @@
 
 <section class="infoblock">
    <h2>Еще новости</h2>
-   <ul>
+
+   <div class="container">
+   <ul class="col-first-half">
        <c:forEach var="msg" items="${briefNews1}">
            <li><lor:dateinterval date="${msg.postdate}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a> </li>
        </c:forEach>
    </ul>
-    <ul>
+    <ul class="col-second-half">
         <c:forEach var="msg" items="${briefNews2}">
             <li><lor:dateinterval date="${msg.postdate}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a> </li>
         </c:forEach>
     </ul>
+   </div>
 </section>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
