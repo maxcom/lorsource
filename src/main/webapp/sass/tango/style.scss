@@ -13,9 +13,7 @@
  *    limitations under the License.
  */
 
-.news {
-	border-top: none;
-}
+@import "../clearfix";
 
 .newsblog .nav {
     border: none;
@@ -44,10 +42,6 @@ h2 {
     font-size: 1.3em;
 }
 
-em {
-	font-style: italic;
-}
-
 strong {
 	font-weight: bold;
 }
@@ -65,15 +59,6 @@ p {
     margin-bottom: 0.5em;
 }
 
-#hd:after {
-	content: ".";
-	display: block;
-	clear: both;
-	visibility: hidden;
-	line-height: 0;
-	height: 0;
-}
-
 #sitetitle {
 	font-size: 2em;
 	font-weight: bold;
@@ -85,21 +70,14 @@ p {
 
 #hd .menu {
     font-size: 1.1em;
-}
 
-#hd .menu:after {
-    content: ".";
-    display: block;
-    clear: both;
-    visibility: hidden;
-    line-height: 0;
-    height: 0;
-}
+    @include clearfix;
 
-#hd .menu li {
-    float: left;
-    margin-right: 0.5em;
-    margin-top: 0.5em;
+    li {
+        float: left;
+        margin-right: 0.5em;
+        margin-top: 0.5em;
+    }
 }
 
 #bd {
@@ -110,20 +88,25 @@ p {
 
 #bd .news {
 	margin-bottom: 2em;
-}
+    border-top: none;
 
-#bd .news h2 {
-	font-size: 1.6em;
-	margin-top: 0.25em;
-    margin-bottom: 0;
-}
+    h2 {
+        font-size: 1.6em;
+        margin-top: 0.25em;
+        margin-bottom: 0;
+    }
 
-.news .entry-body {
-    padding-top: 0.5em;
-}
+    .entry-body {
+        padding-top: 0.5em;
+    }
 
-.news .entry-userpic {
-    padding-top: 0.5em;
+    .entry-userpic {
+        padding-top: 0.5em;
+    }
+
+    .nav {
+        text-align: left;
+    }
 }
 
 .mini-news {
@@ -150,10 +133,6 @@ p {
 	margin-bottom: 0.5em;
 }
 
-#bd .news .nav {
-	text-align: left;
-}
-
 #bd .column {
 	font-size: 0.8em;
 	text-align: left;
@@ -162,39 +141,48 @@ p {
 .boxlet {
 	padding-bottom: 1em;
     margin-bottom: 1em;
+    border-radius: 1em;
+
+    h2 {
+        font-weight: bold;
+        padding: 0.25em;
+        margin-bottom: 0.25em;
+        font-size: 1.5em;
+        margin-top: 0;
+    }
+
+    p.image {
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    h3 {
+        margin-bottom: 0.5em;
+    }
 }
 
-.boxlet h2 {
-	font-weight: bold;
-	padding: 0.25em;
-	margin-bottom: 0.25em;
-    font-size: 1.5em;
-    margin-top: 0;
-}
+#bd .forum {
+    h1 {
+        font-size: 1.5em;
+    }
 
-.boxlet p.image {
-	text-align: center;
-	margin-bottom: 0;
-}
+    table {
+        th {
+            border: 1px solid;
+        }
 
-#bd .forum h1 {
-	font-size: 1.5em;
-}
+        tbody td {
+            border: 1px solid;
 
-#bd .forum table tbody td {
-    border: 1px solid;
-}
+            a {
+                text-decoration: none;
+            }
 
-#bd .forum table th {
-    border: 1px solid;
-}
-
-#bd .forum table tbody td a {
-	text-decoration: none;
-}
-
-#bd .forum table tbody td s {
-	text-decoration: line-through;
+            s {
+                text-decoration: line-through;
+            }
+        }
+    }
 }
 
 #ft {
@@ -202,25 +190,24 @@ p {
 	border-top: 1px dashed;
 }
 
-div.msg_body h1 {
-    font-size: 1.6em;
-}
+div.msg_body {
+    h1 {
+        font-size: 1.6em;
+    }
 
-div.msg_body h2 {
-    font-size: 1em;
-    font-weight: 600;
-    font-family: "Open Sans", sans-serif;
+    h2 {
+        font-size: 1em;
+        font-weight: 600;
+        font-family: "Open Sans", sans-serif;
+    }
 }
 
 .msg {
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
     border-radius: 1em;
-}
 
-.msg .code .title {
-    margin-left: inherit;
+    .code .title {
+        margin-left: inherit;
+    }
 }
 
 .code {
@@ -230,23 +217,16 @@ div.msg_body h2 {
     overflow: auto;
 }
 
-.boxlet {
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
-    border-radius: 1em;
-}
-
 #navPath {
     font-size: 1.5em;
-}
 
-#navPath a {
-    text-decoration: underline;
-}
+    a {
+        text-decoration: underline;
 
-#navPath a:visited {
-    text-decoration: underline;
+        &:visited {
+            text-decoration: underline;
+        }
+    }
 }
 
 #loginGreating {
@@ -267,28 +247,14 @@ input[type="checkbox"] {
 }
 
 #whois_userpic {
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
     border-radius: 1em;
     padding: 1em;
 }
 
-.boxlet h3 {
-    margin-bottom: 0.5em;
-}
-
 .infoblock {
-    -moz-border-radius: 1em;
-    -webkit-border-radius: 1em;
-    -khtml-border-radius: 1em;
     border-radius: 1em;
     border: 0;
     margin-bottom: 1em;
-}
-
-.boxlet H3 {
-    margin-bottom: 5px;
 }
 
 div.quote {
@@ -320,20 +286,20 @@ div.quote {
     font-size: smaller;
     white-space: nowrap;
     outline: none;
-    -webkit-border-radius: 0.2em;
-    -moz-border-radius: 0.2em;
     border-radius: 0.2em;
     zoom: 1;
 }
 
-.message-table .tag {
-    border-radius: 3px;
-    font-size: 0.8em;
-    padding: 1px 4px 2px;
-}
+.message-table {
+    .tag {
+        border-radius: 3px;
+        font-size: 0.8em;
+        padding: 1px 4px 2px;
+    }
 
-.message-table a.secondary {
-    text-decoration: underline !important;
+    a.secondary {
+        text-decoration: underline !important;
+    }
 }
 
 figure.medium-image {
