@@ -370,6 +370,13 @@
               </execution>
             </executions>
             <configuration>
+		<sassOptions>
+			<unix_newlines>true</unix_newlines>
+			<cache>true</cache>
+			<always_update>true</always_update>
+			<cache_location>'${project.build.directory}/sass_cache'</cache_location>
+			<style>:compressed</style>
+		</sassOptions>
               <resources>
                 <resource>
                   <source>
