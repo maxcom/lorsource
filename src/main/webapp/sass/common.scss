@@ -29,10 +29,6 @@ body {
    line-height: 1.4;
 }
 
-H1 {
-  margin-top: 0; margin-bottom: 5px
-}
-
 pre {
     overflow: auto;
     overflow-y: hidden;
@@ -438,19 +434,19 @@ label.error {
     white-space: nowrap;
 }
 
-.msg h1 {
+h1 {
     font-size: 2em;
     line-height: 1.2;
+    margin-top: 0;
+    margin-bottom: 5px
 }
 
 .msg h1 a {
     text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
 }
-
-.msg h1 a:hover {
-    text-decoration: underline;
-}
-
 
 .sign_more {
     font-size: smaller;
