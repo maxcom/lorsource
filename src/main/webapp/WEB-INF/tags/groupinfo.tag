@@ -21,7 +21,7 @@
 </c:if>
 
 <c:if test="${not empty group.longInfo}">
-  <div class="infoblock">
+  <div class="infoblock infoblock-small">
   ${group.longInfo}
   <sec:authorize access="hasRole('ROLE_MODERATOR')">
     <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>

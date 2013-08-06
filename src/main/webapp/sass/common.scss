@@ -457,21 +457,23 @@ h1 {
 }
 
 .infoblock {
-    font-size: smaller;
     padding: .5em;
     border: 1px solid;
     margin-bottom: 1em;
+
+    h2 {
+        font-size: larger; font-weight: bold;
+        margin: 0;
+    }
 }
 
-.infoblock h2 {
-    font-size: larger; font-weight: bold;
-    margin: 0;
+.infoblock-small {
+    font-size: smaller;
 }
 
 table.poll td {
   padding-right: 1em;
 }
-
 
 .penguin_label {
     font-size: 0.9em;
