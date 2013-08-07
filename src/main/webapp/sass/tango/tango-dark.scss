@@ -67,6 +67,10 @@ a {
 	color: $text_color;
 }
 
+#bd h3 * {
+  color: $text_color;
+}
+
 #bd .tags a {
   color: $tag_color;
   &:visited {
