@@ -15,6 +15,8 @@
 
 package ru.org.linux.gallery;
 
+import java.util.Date;
+
 public class GalleryItem {
   private int msgid;
   private int userid;
@@ -22,6 +24,7 @@ public class GalleryItem {
   private int stat;
   private String link;
   private Image image;
+  private Date commitDate;
 
   public Image getImage() {
     return image;
@@ -69,5 +72,13 @@ public class GalleryItem {
 
   public void setStat(int stat) {
     this.stat = stat;
+  }
+
+  public Date getCommitDate() {
+    return commitDate;
+  }
+
+  public void setCommitDate(Date commitDate) {
+    this.commitDate = commitDate;
   }
 }

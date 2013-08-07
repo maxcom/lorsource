@@ -42,7 +42,8 @@
     </c:forEach>
 </section>
 
-<section class="infoblock">
+<c:if test="${not empty briefNews1}">
+<section>
    <h2>Еще новости</h2>
 
    <div class="container">
@@ -58,8 +59,9 @@
     </ul>
    </div>
 </section>
+</c:if>
 
-<section>
+<section class="infoblock">
   <h2>Галерея</h2>
 
   <div id="tag-page-gallery">
@@ -70,6 +72,7 @@
         <a href="${url}">
           <img src="${item.item.image.medium}" alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a><br>
+        <lor:dateinterval date="${item.item.commitDate}"/>
       </article>
     </c:forEach>
   </div>

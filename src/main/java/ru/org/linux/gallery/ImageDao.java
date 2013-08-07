@@ -72,8 +72,8 @@ public class ImageDao {
   public List<GalleryItem> getGalleryItems(int countItems) {
     final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
 
-    String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid " +
-            "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname " +
+    String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid, t.commitdate " +
+            "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate " +
             "FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate AND section="+Section.SECTION_GALLERY+ " " +
             "AND NOT topics.deleted AND commitdate IS NOT NULL ORDER BY commitdate DESC LIMIT ?) " +
             "as t JOIN images ON t.msgid = images.topic";
@@ -102,8 +102,8 @@ public class ImageDao {
 
     int tagId = tagService.getTagId(tag);
 
-    String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid " +
-            "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname " +
+    String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid, t.commitdate " +
+            "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate " +
             "FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate AND section="+Section.SECTION_GALLERY+ " " +
             "AND NOT topics.deleted AND commitdate IS NOT NULL AND topics.id IN (SELECT msgid FROM tags WHERE tagid=?) ORDER BY commitdate DESC LIMIT ?) " +
             "as t JOIN images ON t.msgid = images.topic";
@@ -194,6 +194,7 @@ public class ImageDao {
       item.setMsgid(rs.getInt("msgid"));
       item.setStat(rs.getInt("stat1"));
       item.setTitle(rs.getString("title"));
+      item.setCommitDate(rs.getTimestamp("commitdate"));
 
       Image image = new Image(
               rs.getInt("imageid"),
