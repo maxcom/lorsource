@@ -25,6 +25,8 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
@@ -46,6 +48,9 @@ public class ImageDao {
   @Autowired
   private SectionService sectionService;
 
+  @Autowired
+  private TagService tagService;
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -60,7 +65,7 @@ public class ImageDao {
   private UserDao userDao;
 
   /**
-   * Возвращает три последних объекта галереи.
+   * Возвращает последние объекты галереи.
    *
    * @return список GalleryDto объектов
    */
@@ -84,33 +89,26 @@ public class ImageDao {
       " WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
       " AND NOT topics.deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
 */
-    return jdbcTemplate.query(sql,
-      new RowMapper<GalleryItem>() {
-        @Override
-        public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-          GalleryItem item = new GalleryItem();
-          item.setMsgid(rs.getInt("msgid"));
-          item.setStat(rs.getInt("stat1"));
-          item.setTitle(rs.getString("title"));
+    return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), countItems);
+  }
 
-          Image image = new Image(
-                  rs.getInt("imageid"),
-                  rs.getInt("msgid"),
-                  rs.getString("original"),
-                  rs.getString("icon")
-          );
+  /**
+   * Возвращает последние объекты галереи.
+   *
+   * @return список GalleryDto объектов
+   */
+  public List<GalleryItem> getGalleryItems(int countItems, String tag) throws TagNotFoundException {
+    final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
 
-          item.setImage(image);
+    int tagId = tagService.getTagId(tag);
 
-          item.setUserid(rs.getInt("userid"));
-          item.setStat(rs.getInt("stat1"));
-          item.setLink(gallery.getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
+    String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid " +
+            "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname " +
+            "FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate AND section="+Section.SECTION_GALLERY+ " " +
+            "AND NOT topics.deleted AND commitdate IS NOT NULL AND topics.id IN (SELECT msgid FROM tags WHERE tagid=?) ORDER BY commitdate DESC LIMIT ?) " +
+            "as t JOIN images ON t.msgid = images.topic";
 
-          return item;
-        }
-      },
-      countItems
-    );
+    return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), tagId, countItems);
   }
 
   public List<PreparedGalleryItem> prepare(List<GalleryItem> items) {
@@ -181,5 +179,36 @@ public class ImageDao {
 
   public void deleteImage(Image image) {
     jdbcTemplate.update("UPDATE images SET deleted='true' WHERE id=?", image.getId());
+  }
+
+  private static class GalleryItemRowMapper implements RowMapper<GalleryItem> {
+    private final Section gallery;
+
+    private GalleryItemRowMapper(Section gallery) {
+      this.gallery = gallery;
+    }
+
+    @Override
+    public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+      GalleryItem item = new GalleryItem();
+      item.setMsgid(rs.getInt("msgid"));
+      item.setStat(rs.getInt("stat1"));
+      item.setTitle(rs.getString("title"));
+
+      Image image = new Image(
+              rs.getInt("imageid"),
+              rs.getInt("msgid"),
+              rs.getString("original"),
+              rs.getString("icon")
+      );
+
+      item.setImage(image);
+
+      item.setUserid(rs.getInt("userid"));
+      item.setStat(rs.getInt("stat1"));
+      item.setLink(gallery.getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
+
+      return item;
+    }
   }
 }

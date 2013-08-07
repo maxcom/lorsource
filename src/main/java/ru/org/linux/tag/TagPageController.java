@@ -1,5 +1,6 @@
 package ru.org.linux.tag;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.PreparedGalleryItem;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -17,11 +20,12 @@ import ru.org.linux.topic.TopicPrepareService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 import static ru.org.linux.util.ListUtil.*;
 
 @Controller
-@RequestMapping(value = "/tag/{tag}/bigpage")
+@RequestMapping("/tag/{tag}/bigpage")
 public class TagPageController {
   @Autowired
   private TagService tagService;
@@ -34,6 +38,9 @@ public class TagPageController {
 
   @Autowired
   private SectionService sectionService;
+
+  @Autowired
+  private ImageDao imageDao;
 
   @RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView tagPage(
@@ -51,6 +58,15 @@ public class TagPageController {
     ModelAndView mv = new ModelAndView("tag-page");
 
     mv.addObject("tag", tag);
+
+    mv.addAllObjects(getNewsSection(request, tag));
+    mv.addAllObjects(getGallerySection(tag));
+
+    return mv;
+  }
+
+  private Map<String, Object> getNewsSection(HttpServletRequest request, String tag) throws TagNotFoundException {
+    Template tmpl = Template.getTemplate(request);
 
     Section newsSection = sectionService.getSection(Section.SECTION_NEWS);
 
@@ -75,12 +91,18 @@ public class TagPageController {
             false
     );
 
-    mv.addObject("fullNews", fullNews);
-    mv.addObject("briefNews1", firstHalf(briefNewsTopics));
-    mv.addObject("briefNews2", secondHalf(briefNewsTopics));
-
-    return mv;
+    return ImmutableMap.<String, Object>of(
+            "fullNews", fullNews,
+            "briefNews1", firstHalf(briefNewsTopics),
+            "briefNews2", secondHalf(briefNewsTopics)
+    );
   }
 
+  private Map<String, Object> getGallerySection(String tag) throws TagNotFoundException {
+    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(3, tag));
 
+    return ImmutableMap.<String, Object>of(
+            "gallery", list
+    );
+  }
 }

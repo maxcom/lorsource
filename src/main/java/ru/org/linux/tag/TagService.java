@@ -55,12 +55,9 @@ public class TagService {
    *
    * @param tag название тега
    * @return идентификационный номер
-   * @throws UserErrorException
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag)
-    throws UserErrorException, TagNotFoundException {
-    checkTag(tag);
+  public int getTagId(String tag) throws TagNotFoundException {
     return tagDao.getTagId(tag, true);
   }
 

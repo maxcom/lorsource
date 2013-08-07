@@ -68,7 +68,7 @@ public class TopicListService {
     Integer month,
     int count
   )
-    throws UserErrorException, TagNotFoundException {
+    throws TagNotFoundException {
     logger.debug(
       new StringBuilder()
         .append("TopicListService.getTopicsFeed()")

@@ -3,6 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +20,7 @@
   --%>
 <%--@elvariable id="tag" type="java.lang.String"--%>
 <%--@elvariable id="fullNews" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
+<%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 <%--@elvariable id="briefNews2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 
@@ -55,6 +57,22 @@
         </c:forEach>
     </ul>
    </div>
+</section>
+
+<section>
+  <h2>Галерея</h2>
+
+  <div id="tag-page-gallery">
+    <c:forEach var="item" items="${gallery}">
+      <article>
+        <c:url var="url" value="${item.item.link}"/>
+        <h3><a href="${url}">${item.item.title}</a></h3>
+        <a href="${url}">
+          <img src="${item.item.image.medium}" alt="Скриншот: <l:title>${item.item.title}</l:title>">
+        </a><br>
+      </article>
+    </c:forEach>
+  </div>
 </section>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

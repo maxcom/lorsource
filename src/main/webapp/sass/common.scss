@@ -16,6 +16,7 @@
 @import "grid";
 
 $total_width: 100%;
+$gutter_width: 3%;
 
 @import "clearfix";
 
@@ -477,7 +478,7 @@ h1 {
     margin-bottom: 1em;
 
     h2 {
-        font-size: larger; font-weight: bold;
+        font-weight: bold;
         margin: 0;
     }
 }
@@ -651,5 +652,25 @@ a img { border: none; }
 
   .col-second-half {
     @include column(6, 6);
+  }
+}
+
+#tag-page-gallery {
+  @include clearfix();
+  @include container();
+
+  @include generate_grid_positions('article', 4);
+
+  article {
+    @include column(4);
+  }
+
+  article img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  article h3 {
+    font-size: 1.2em;
   }
 }
