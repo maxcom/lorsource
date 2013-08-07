@@ -61,6 +61,7 @@
 </section>
 </c:if>
 
+<c:if test="${not empty gallery}">
 <section class="infoblock">
   <h2>Галерея</h2>
 
@@ -77,5 +78,6 @@
     </c:forEach>
   </div>
 </section>
+</c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
