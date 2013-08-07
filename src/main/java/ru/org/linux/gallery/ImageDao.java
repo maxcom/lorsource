@@ -26,7 +26,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.tag.TagNotFoundException;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
@@ -47,9 +46,6 @@ public class ImageDao {
 
   @Autowired
   private SectionService sectionService;
-
-  @Autowired
-  private TagService tagService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -97,10 +93,8 @@ public class ImageDao {
    *
    * @return список GalleryDto объектов
    */
-  public List<GalleryItem> getGalleryItems(int countItems, String tag) throws TagNotFoundException {
+  public List<GalleryItem> getGalleryItems(int countItems, int tagId) throws TagNotFoundException {
     final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
-
-    int tagId = tagService.getTagId(tag);
 
     String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid, t.commitdate " +
             "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate " +

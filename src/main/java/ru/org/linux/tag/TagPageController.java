@@ -99,7 +99,9 @@ public class TagPageController {
   }
 
   private Map<String, Object> getGallerySection(String tag) throws TagNotFoundException {
-    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(3, tag));
+    int tagId = tagService.getTagId(tag);
+
+    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(3, tagId));
 
     return ImmutableMap.<String, Object>of(
             "gallery", list
