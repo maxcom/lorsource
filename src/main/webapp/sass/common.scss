@@ -128,6 +128,23 @@ DIV.newsblog {
   margin-bottom: 1em;
   margin-top: 5px;
   padding: 2px;
+
+  li {
+    display: inline-block;
+    margin-left: 0 !important;
+  }
+
+  ul {
+    margin-top: inherit !important;
+    margin-bottom: inherit !important;
+    display: inline-block;
+  }
+
+  form {
+    display: inline;
+  }
+
+  @include clearfix;
 }
 
 table.nav {
@@ -137,26 +154,26 @@ table.nav {
 
 .msg .reply {
   font-size: smaller;
-}
 
-.msg .reply ul {
-  display: inline;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-left: 0;
-}
+  ul {
+    display: inline;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+  }
 
-.msg .reply li {
-  display: inline;
-  margin-left: 0 !important;
-}
+  li {
+    display: inline;
+    margin-left: 0 !important;
+  }
 
-.msg .reply li:after {
-	content: "]";
-}
+  li:after {
+    content: "]";
+  }
 
-.msg .reply li:before {
-	content: "[";
+  li:before {
+    content: "[";
+  }
 }
 
 DIV.sign {
@@ -184,41 +201,41 @@ div[itemprop="articleBody"] {
     margin-top: .5em;
 }
 
-.msg header h1 {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
 .msg-container {
   margin-top: 0.5em;
   @include clearfix;
 }
 
 .msg header {
-    margin-bottom: 0.7em;
-    margin-top: .5em;
+  margin-bottom: 0.7em;
+  margin-top: .5em;
+
+  h1 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .msg footer {
-    padding-top: .5em;
-    padding-bottom: 0.5em;
-    @include clearfix;
-}
+  padding-top: .5em;
+  padding-bottom: 0.5em;
+  @include clearfix;
 
-.msg footer .sign {
+  .sign {
     margin-left: 115px;
     margin-top: 0;
-}
+  }
 
-.msg footer .userpic {
+  .userpic {
     width: 100px;
-}
 
-.msg footer .userpic img {
-    max-width: 100px;
-    max-height: 100px;
-    height: auto;
-    width: auto;
+    img {
+      max-width: 100px;
+      max-height: 100px;
+      height: auto;
+      width: auto;
+    }
+  }
 }
 
 .messages .msg:target {
@@ -237,22 +254,27 @@ div[itemprop="articleBody"] {
 .cloud9 { font-size: 1.4em; }
 .cloud10 { font-size: 1.5em; }
 
-DIV.boxlet H2 {
-  width: 228px;
-  padding: 5px;
-}
+.boxlet {
+  width: 238px;
 
-DIV.boxlet {
-  width: 238px;   
+  H2 {
+    width: 228px;
+    padding: 5px;
+  }
+
+  li {
+    list-style: inside !important;
+    margin-left: 0 !important;
+  }
 }
 
 .boxlet_content {
   padding-left: 0.5em;
   padding-right: 0.5em;
-}
 
-.boxlet_content ul {
+  ul {
     padding-left: 0;
+  }
 }
 
 div.quote {
@@ -260,13 +282,17 @@ div.quote {
   margin: 0.5em 0.5em 0.5em 5px;
   font-style: italic;
   padding: 5px;
-}
 
-div.quote h3 {
-  margin-top: 0;
-  margin-bottom: 0;
-  font-size: 100%;
-  font-style: normal;
+  h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 100%;
+    font-style: normal;
+  }
+
+  p cite {
+    text-decoration: underline;
+  }
 }
 
 code {
@@ -289,22 +315,26 @@ code {
     padding: 1em;
 }
 
-.message-table td {
-    padding: 4px 5px 4px 5px;
-}
+.message-table {
+  width: 100%;
 
-.message-table th {
+  td {
+    padding: 4px 5px 4px 5px;
+  }
+
+  td.dateinterval {
+    text-align: right;
+  }
+
+  td.numbers {
+    text-align: center;
+  }
+
+  th {
     padding: 4px 4px 5px;
     vertical-align: top;
     text-align: left;
-}
-
-.message-table td.dateinterval {
-    text-align: right;
-}
-
-.message-table td.numbers {
-    text-align: center;
+  }
 }
 
 .userpic {
@@ -353,72 +383,62 @@ label.error {
 }
 
 #commentForm {
-    margin-top: 0.5em;
-    font-size: 1rem;
-}
+  margin-top: 0.5em;
+  font-size: 1rem;
 
-#commentForm textarea {
+  textarea {
     width: 40em;
     height: 20em;
-}
+  }
 
-#commentForm input[type="text"] {
+  input[type="text"] {
     width: 40em;
-}
+  }
 
-#commentForm input[type="password"] {
+  input[type="password"] {
     width: 40em;
+  }
 }
 
 .message-w-userpic {
     padding-left: 170px;
 }
 
-.news .group {
+.news {
+  .group {
     font-size: smaller;
-}
+  }
 
-.news .entry-body {
+  .entry-body {
     padding-top: 5px;
-}
+  }
 
-.news .entry-userpic {
+  .entry-userpic {
     padding-top: 5px;
-}
-
-.nav li {
-    display: inline-block;
-    margin-left: 0 !important;
-}
-
-.nav ul {
-    margin-top: inherit !important;
-    margin-bottom: inherit !important;
-    display: inline-block;
+  }
 }
 
 #whois_userpic {
-    float: right;
-    text-align: center;
-}
+  float: right;
+  text-align: center;
 
-#whois_userpic .userpic {
+  .userpic {
     float: none;
     display: inline-block;
-}
+  }
 
-#whois_userpic form {
+  form {
     display: inline;
-}
 
-#whois_userpic form .delete {
-    border: 2px solid #ff0000;
-}
+    .delete {
+      border: 2px solid #ff0000;
+    }
+  }
 
-#whois_userpic span {
+  span {
     display: block;
+  }
 }
-
 
 #ft {
     font-size: smaller;
@@ -427,11 +447,6 @@ label.error {
 
 #ft-back-button {
     float: right;
-}
-
-.boxlet li {
-    list-style: inside !important;
-    margin-left: 0 !important;
 }
 
 .tag {
@@ -492,36 +507,36 @@ table.poll td {
 }
 
 .poll-result {
-    @include clearfix;
-}
+  @include clearfix;
 
-.poll-result ol {
+  ol {
     list-style: none;
-}
+  }
 
-.poll-result li {
+  li {
     clear: both;
-}
+  }
 
-.poll-result p {
+  p {
     margin: 0;
+  }
 }
 
 .penguin_progress {
-    width: 320px;
-    display: inline-block;
-}
+  width: 320px;
+  display: inline-block;
 
-.penguin_progress span {
+  span {
     background-repeat: repeat-x;
     background-color: transparent !important;
     background-image: url("/tango/img/votes.png") !important;
     display: block;
     height: 19px;
-}
+  }
 
-.penguin_progress span span {
+  span span {
     display: none;
+  }
 }
 
 .poll-sum p {
@@ -536,10 +551,6 @@ table.poll-result img {
     visibility: hidden;
     margin: 0;
     padding: 0;
-}
-
-div.quote p cite {
-    text-decoration: underline;
 }
 
 .difference-insert,  .difference-insert * {
@@ -565,24 +576,9 @@ div.quote p cite {
     float: left;
 }
 
-.nav:after {
-    clear: both;
-    display: table;
-    content: "";
-}
-
-.nav form {
-    display: inline;
-}
-
 .social-buttons {
     float: right;
     margin-right: 1em;
-}
-
-
-.message-table {
-    width: 100%;
 }
 
 /* HTML5 for FF3 & etc */
@@ -623,20 +619,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .fav-buttons {
-    float: right;
-    margin-right: 0.5em;
-    margin-left: 0.4em;
-    text-align: center;
-    line-height: 1;
-}
+  float: right;
+  margin-right: 0.5em;
+  margin-left: 0.4em;
+  text-align: center;
+  line-height: 1;
 
-.fav-buttons a {
+  a {
     font-size: 200%;
     text-decoration: none;
-}
+  }
 
-.fav-buttons span {
+  span {
     font-size: smaller;
+  }
 }
 
 .fav-buttons [class^="icon-"] {
