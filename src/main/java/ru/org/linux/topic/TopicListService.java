@@ -18,16 +18,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -41,10 +38,6 @@ public class TopicListService {
 
   @Autowired
   private TopicListDao topicListDao;
-
-  @Autowired
-  private CacheProvider cacheProvider;
-
 
   /**
    * Получение списка топиков.
@@ -120,7 +113,7 @@ public class TopicListService {
         topicListDto.setFromDate(calendar.getTime());
       }
     }
-    return getCachedFeed(topicListDto);
+    return topicListDao.getTopics(topicListDto);
   }
 
   /**
@@ -169,7 +162,7 @@ public class TopicListService {
       topicListDto.setGroup(group.getId());
     }
 
-    return getCachedFeed(topicListDto);
+    return topicListDao.getTopics(topicListDto);
   }
 
   /**
@@ -245,7 +238,7 @@ public class TopicListService {
     }
     return (feedBurner)
       ? topicListDao.getTopics(topicListDto)
-      : getCachedFeed(topicListDto);
+      : topicListDao.getTopics(topicListDto);
   }
 
   /**
@@ -342,85 +335,4 @@ public class TopicListService {
       return 0;
     }
   }
-
-  /**
-   * Получение списка топиков из кэша или из СУБД.
-   *
-   * @param topicListDto объект, содержащий условия выборки
-   * @return список топиков
-   */
-  private List<Topic> getCachedFeed(TopicListDto topicListDto) {
-    int cacheAge = getCacheAge(topicListDto);
-    if (cacheAge == 0) {
-      return topicListDao.getTopics(topicListDto);
-    }
-
-    String cacheKey = makeCacheKey(topicListDto);
-    logger.trace("cacheKey=" + cacheKey);
-
-    List<Topic> result = (List<Topic>) cacheProvider.getFromCache(cacheKey);
-    if (result == null) {
-      result = topicListDao.getTopics(topicListDto);
-      cacheProvider.storeToCache(cacheKey, result, cacheAge);
-    }
-    return result;
-  }
-
-  /**
-   * Создание уникального ключа для кэша согласно условиям выборки.
-   *
-   * @param topicListDto объект, содержащий условия выборки
-   * @return Строка, содержащая уникальный ключ кэша
-   * @throws UnsupportedEncodingException
-   */
-  private static String makeCacheKey(TopicListDto topicListDto) {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromPath("view-news");
-
-    builder.queryParam("tg", topicListDto.getTag());
-    builder.queryParam("cm", topicListDto.getCommitMode());
-
-
-    for (int section : topicListDto.getSections()) {
-      builder.queryParam("sec", section);
-    }
-    builder.queryParam("grp", topicListDto.getGroup());
-
-    builder.queryParam("dlmtType", topicListDto.getDateLimitType());
-    builder.queryParam("dlmt1", topicListDto.getFromDate());
-    builder.queryParam("dlmt2", topicListDto.getToDate());
-    if (topicListDto.getUserId() != 0) {
-      builder.queryParam("u", topicListDto.getUserId());
-    }
-
-    builder.queryParam("f", topicListDto.isUserFavs());
-    builder.queryParam("lmt", topicListDto.getLimit());
-    builder.queryParam("offst", topicListDto.getOffset());
-    builder.queryParam("notalks", topicListDto.isNotalks());
-    builder.queryParam("tech", topicListDto.isTech());
-
-    return builder.build().encode().toUriString();
-  }
-
-  /**
-   * Получение "времени жизни" данных в кэше.
-   *
-   * @param topicListDto объект, содержащий условия выборки
-   * @return количество миллисекунд.
-   */
-  private static int getCacheAge(TopicListDto topicListDto) {
-    if (topicListDto.getLimit() == null || topicListDto.getLimit().equals(0)) {
-      return 10 * 60 * 1000;
-    }
-
-    if (topicListDto.getCommitMode() == TopicListDao.CommitMode.COMMITED_ONLY) {
-      return 0;
-    }
-
-    if (topicListDto.getUserId()!=0) {
-      return 0;
-    }
-
-    return 30 * 1000;
-  }
-
 }
