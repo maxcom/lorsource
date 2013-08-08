@@ -27,6 +27,8 @@ import static ru.org.linux.util.ListUtil.*;
 @Controller
 @RequestMapping("/tag/{tag}/bigpage")
 public class TagPageController {
+  public static final int TOTAL_NEWS_COUNT = 21;
+  public static final int FORUM_TOPIC_COUNT = 20;
   @Autowired
   private TagService tagService;
 
@@ -61,6 +63,7 @@ public class TagPageController {
 
     mv.addAllObjects(getNewsSection(request, tag));
     mv.addAllObjects(getGallerySection(tag));
+    mv.addAllObjects(getForumSection(tag));
 
     return mv;
   }
@@ -77,7 +80,7 @@ public class TagPageController {
             0,
             null,
             null,
-            21
+            TOTAL_NEWS_COUNT
     );
 
     List<Topic> fullNewsTopics = headOrEmpty(newsTopics);
@@ -105,6 +108,25 @@ public class TagPageController {
 
     return ImmutableMap.<String, Object>of(
             "gallery", list
+    );
+  }
+
+  private Map<String, List<Topic>> getForumSection(String tag) throws TagNotFoundException {
+    Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
+
+    List<Topic> forumTopics = topicListService.getTopicsFeed(
+            forumSection,
+            null,
+            tag,
+            0,
+            null,
+            null,
+            FORUM_TOPIC_COUNT
+    );
+
+    return ImmutableMap.of(
+            "forum1", firstHalf(forumTopics),
+            "forum2", secondHalf(forumTopics)
     );
   }
 }

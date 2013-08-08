@@ -23,6 +23,8 @@
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 <%--@elvariable id="briefNews2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
+<%--@elvariable id="forum1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
+<%--@elvariable id="forum2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${tag}</title>
@@ -78,6 +80,31 @@
     </c:forEach>
   </div>
 </section>
+</c:if>
+
+<c:if test="${not empty forum1}">
+  <section>
+    <h2>Форум</h2>
+
+    <div class="container">
+      <ul class="col-first-half">
+        <c:forEach var="msg" items="${forum1}">
+          <li>
+              <lor:dateinterval date="${msg.lastModified}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a>
+              <c:if test="${msg.commentCount>0}">(${msg.commentCount} комментариев)</c:if>
+          </li>
+        </c:forEach>
+      </ul>
+      <ul class="col-second-half">
+        <c:forEach var="msg" items="${forum2}">
+          <li>
+              <lor:dateinterval date="${msg.lastModified}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a>
+            <c:if test="${msg.commentCount>0}">(${msg.commentCount} комментариев)</c:if>
+          </li>
+        </c:forEach>
+      </ul>
+    </div>
+  </section>
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
