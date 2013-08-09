@@ -132,8 +132,7 @@ DIV.messages .title {
 
 .messages .msg {
     background: #f0f0f0;
-    padding: 0;
-    width: 100%;
+    padding: 0.25em 1em 1em;
 }
 
 /* comment signature */
@@ -225,7 +224,6 @@ div.quote {
 #hd .menu li {
     float: left;
     margin-right: 0.5em;
-    margin-top: 0.5em;
     list-style: none;
 }
 
@@ -258,7 +256,6 @@ textarea {
     margin: 0;
 }
 
-article header {
-    margin-left: .75em;
+.grid-row {
+    width: auto;
 }
-
