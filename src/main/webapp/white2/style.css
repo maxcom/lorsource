@@ -132,7 +132,7 @@ DIV.messages .title {
 
 .messages .msg {
     background: #f0f0f0;
-    padding: 0;
+    padding: 0.25em 1em 1em;
     width: 100%;
 }
 
@@ -256,8 +256,3 @@ textarea {
 .msg-container {
     margin: 0;
 }
-
-article header {
-    margin-left: .75em;
-}
-
