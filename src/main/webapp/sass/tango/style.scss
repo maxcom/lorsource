@@ -15,6 +15,13 @@
 
 @import "../clearfix";
 
+@import "tango-dark";
+
+body {
+  font-family: "Arial", sans-serif;
+  color: $text_color;
+}
+
 .newsblog .nav {
     border: none;
 }
@@ -42,26 +49,31 @@ strong {
 	font-weight: bold;
 }
 
-body {
-	font-family: "Arial", sans-serif;
-}
-
 p {
 	margin-bottom: 1em;
 }
 
 #hd {
-    padding-left: 1em;
-    margin-bottom: 0.5em;
+  padding-left: 1em;
+  margin-bottom: 0.5em;
+
+  h1 {
+    color: $header_color;
+  }
+
+  .menu a {
+    color: $main_menu_color;
+  }
 }
 
 #sitetitle {
-	font-size: 2em;
-	font-weight: bold;
-    margin-right: 1em;
-    text-decoration: none;
-    display: block;
-    float: left;
+  font-size: 2em;
+  font-weight: bold;
+  margin-right: 1em;
+  text-decoration: none;
+  display: block;
+  float: left;
+  color: $header_color;
 }
 
 #hd .menu {
@@ -120,9 +132,16 @@ p {
 }
 
 #bd .sign {
-    font-style: normal;
-	text-align: left;
-	margin-bottom: 0.5em;
+  font-style: normal;
+  text-align: left;
+  margin-bottom: 0.5em;
+
+  a {
+    color: $signature_user_color;
+    &:visited {
+      color: $signature_user_color;
+    }
+  }
 }
 
 #bd .column {
@@ -131,50 +150,68 @@ p {
 }
 
 .boxlet {
-	padding-bottom: 1em;
-    margin-bottom: 1em;
-    border-radius: 1em;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  border-radius: 1em;
+  background-color: $article_background;
 
-    h2 {
-        font-weight: bold;
-        padding: 0.25em;
-        margin-bottom: 0.25em;
-        font-size: 1.5em;
-        margin-top: 0;
-    }
+  h2 {
+    font-weight: bold;
+    padding: 0.25em;
+    margin-bottom: 0.25em;
+    font-size: 1.5em;
+    margin-top: 0;
+  }
 
-    p.image {
-        text-align: center;
-        margin-bottom: 0;
-    }
+  p.image {
+    text-align: center;
+    margin-bottom: 0;
+  }
 
-    h3 {
-        margin-bottom: 0.5em;
-    }
+  h3 {
+    margin-bottom: 0.5em;
+  }
 }
 
 #bd .forum {
-    h1 {
-        font-size: 1.5em;
+  h1 {
+    font-size: 1.5em;
+  }
+
+  table {
+    th {
+      border: 1px solid;
+      border-color: $table_border_color;
     }
 
-    table {
-        th {
-            border: 1px solid;
+    tbody td {
+      border: 1px solid;
+      border-color: $table_border_color;
+
+      a {
+        text-decoration: none;
+        color: $table_link_color;
+        &:visited {
+          color: $text_color;
         }
+      }
 
-        tbody td {
-            border: 1px solid;
-
-            a {
-                text-decoration: none;
-            }
-
-            s {
-                text-decoration: line-through;
-            }
-        }
+      s {
+        text-decoration: line-through;
+      }
     }
+
+    thead {
+      background-color: $table_header_background;
+      a {
+        color: $text_color;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: $table_hover_background;
+    }
+  }
 }
 
 #ft {
@@ -195,11 +232,15 @@ div.msg_body {
 }
 
 .msg {
-    border-radius: 1em;
+  border-radius: 1em;
 
-    .code .title {
-        margin-left: inherit;
-    }
+  .code .title {
+    margin-left: inherit;
+  }
+
+  h1 a {
+    color: $text_color;
+  }
 }
 
 .code {
@@ -210,22 +251,27 @@ div.msg_body {
 }
 
 #navPath {
-    font-size: 1.5em;
+  font-size: 1.5em;
 
-    a {
-        text-decoration: underline;
+  a {
+    text-decoration: underline;
 
-        &:visited {
-            text-decoration: underline;
-        }
+    &:visited {
+      text-decoration: underline;
+      color: $link_color;
     }
+  }
 }
 
 #loginGreating {
-    text-align: right; 
-    float: right !important;
-    padding-left: 1em;
-    margin-right: 0.75em;
+  text-align: right;
+  float: right !important;
+  padding-left: 1em;
+  margin-right: 0.75em;
+
+  a {
+    color: $link_color !important;
+  }
 }
 
 input[type="radio"] {
@@ -239,14 +285,16 @@ input[type="checkbox"] {
 }
 
 #whois_userpic {
-    border-radius: 1em;
-    padding: 1em;
+  border-radius: 1em;
+  padding: 1em;
+  background: $article_background;
 }
 
 .infoblock {
-    border-radius: 1em;
-    border: 0;
-    margin-bottom: 1em;
+  border-radius: 1em;
+  border: 0;
+  margin-bottom: 1em;
+  background-color: $article_background;
 }
 
 div.quote {
@@ -257,14 +305,15 @@ div.quote {
 }
 
 .page-number {
-    padding: 5px;
-    text-decoration: none;
-    border: solid 1px;
-    border-radius: 5px;
-    display: inline-block;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    min-width: 1.1em;
+  padding: 5px;
+  text-decoration: none;
+  border: solid 1px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  min-width: 1.1em;
+  background-color: $article_background;
 }
 
 .nav li a {
@@ -283,15 +332,17 @@ div.quote {
 }
 
 .message-table {
-    .tag {
-        border-radius: 3px;
-        font-size: 0.8em;
-        padding: 1px 4px 2px;
-    }
+  .tag {
+    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 1px 4px 2px;
+    background-color: $table_border_color;
+  }
 
-    a.secondary {
-        text-decoration: underline !important;
-    }
+  a.secondary {
+    text-decoration: underline !important;
+    color: $text_color !important;
+  }
 }
 
 figure.medium-image {
@@ -302,4 +353,104 @@ figure.medium-image {
 
 .photo {
     border-radius: 5px;
+}
+
+html, body {
+  background-color: $main_background;
+}
+
+a {
+  color: $link_color;
+}
+
+#bd h2 * {
+  color: $text_color;
+}
+
+#bd h3 * {
+  color: $text_color;
+}
+
+#bd .tags a {
+  color: $tag_color;
+  &:visited {
+    color: $tag_color;
+  }
+}
+
+#bd header {
+  a:visited {
+    color: $link_color;
+  }
+
+  h1 a {
+    color: $text_color;
+    &:visited {
+      color: $text_color;
+    }
+  }
+}
+
+#bd a.tag {
+  color: $tag_color;
+  &.tag:visited {
+    color: $tag_color;
+  }
+}
+
+.messages .msg {
+  background:  $article_background;
+}
+
+#bd a:visited {
+  color: $text_color;
+}
+
+#bd a.navLink:visited {
+  color: $link_color;
+}
+
+#bd .nav a:visited {
+  color: $link_color;
+}
+
+fieldset {
+  border: 1px solid $table_border_color;
+  padding: 5px;
+}
+
+fieldset legend {
+  padding-left: 5px;
+  padding-right: 5px;
+  color:$text_color;
+}
+
+#bd .nav li a {
+  border-color: $button_border_color;
+  background-color: $button_background;
+  color: $text_color;
+
+  &:visited {
+    color: $text_color;
+  }
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
+  }
+  &.current {
+    background-color: $button_selected_background;
+    color: $button_selected_text_color !important;
+  }
+}
+
+.fav-buttons {
+  .selected [class^="icon-"] {
+    color: $icon_button_active_color;
+  }
+  a {
+    color: $text_color;
+  }
+}
+
+.user-remark {
+  color: $signature_remark_color;
 }

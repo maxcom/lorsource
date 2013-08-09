@@ -1,6 +1,8 @@
 package ru.org.linux.tag;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.PreparedGalleryItem;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -42,7 +46,16 @@ public class TagPageController {
   private SectionService sectionService;
 
   @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
   private ImageDao imageDao;
+  private final Function<Topic,ForumItem> forumPrepareFunction = new Function<Topic, ForumItem>() {
+    @Override
+    public ForumItem apply(Topic input) {
+      return new ForumItem(input, groupDao.getGroup(input.getGroupId()));
+    }
+  };
 
   @RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView tagPage(
@@ -111,7 +124,7 @@ public class TagPageController {
     );
   }
 
-  private Map<String, List<Topic>> getForumSection(String tag) throws TagNotFoundException {
+  private Map<String, List<ForumItem>> getForumSection(String tag) throws TagNotFoundException {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
     List<Topic> forumTopics = topicListService.getTopicsFeed(
@@ -125,8 +138,26 @@ public class TagPageController {
     );
 
     return ImmutableMap.of(
-            "forum1", firstHalf(forumTopics),
-            "forum2", secondHalf(forumTopics)
+            "forum1", Lists.transform(firstHalf(forumTopics), forumPrepareFunction),
+            "forum2", Lists.transform(secondHalf(forumTopics), forumPrepareFunction)
     );
+  }
+
+  public static class ForumItem {
+    private final Topic topic;
+    private final Group group;
+
+    public ForumItem(Topic topic, Group group) {
+      this.topic = topic;
+      this.group = group;
+    }
+
+    public Topic getTopic() {
+      return topic;
+    }
+
+    public Group getGroup() {
+      return group;
+    }
   }
 }

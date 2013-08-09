@@ -23,8 +23,8 @@
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 <%--@elvariable id="briefNews2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
-<%--@elvariable id="forum1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
-<%--@elvariable id="forum2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
+<%--@elvariable id="forum1" type="java.util.List<ru.org.linux.tag.TagPageController.ForumItem>"--%>
+<%--@elvariable id="forum2" type="java.util.List<ru.org.linux.tag.TagPageController.ForumItem>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${tag}</title>
@@ -90,16 +90,16 @@
       <ul class="col-first-half">
         <c:forEach var="msg" items="${forum1}">
           <li>
-              <lor:dateinterval date="${msg.lastModified}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a>
-              <c:if test="${msg.commentCount>0}">(${msg.commentCount} комментариев)</c:if>
+              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;${msg.group.title} <a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
+              <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
           </li>
         </c:forEach>
       </ul>
       <ul class="col-second-half">
         <c:forEach var="msg" items="${forum2}">
           <li>
-              <lor:dateinterval date="${msg.lastModified}"/>&emsp;<a href="${msg.link}"><c:out escapeXml="true" value="${msg.title}"/></a>
-            <c:if test="${msg.commentCount>0}">(${msg.commentCount} комментариев)</c:if>
+              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;${msg.group.title} <a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
+            <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
           </li>
         </c:forEach>
       </ul>
