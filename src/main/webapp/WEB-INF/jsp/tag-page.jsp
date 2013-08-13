@@ -86,11 +86,11 @@
   <section>
     <h2>Форум</h2>
 
-    <div class="container">
+    <div class="container" id="tag-page-forum">
       <ul class="col-first-half">
         <c:forEach var="msg" items="${forum1}">
           <li>
-              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;${msg.group.title} <a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
+              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;<span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
               <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
           </li>
         </c:forEach>
@@ -98,7 +98,7 @@
       <ul class="col-second-half">
         <c:forEach var="msg" items="${forum2}">
           <li>
-              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;${msg.group.title} <a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
+              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;<span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
             <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
           </li>
         </c:forEach>

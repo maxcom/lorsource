@@ -454,3 +454,13 @@ fieldset legend {
 .user-remark {
   color: $signature_remark_color;
 }
+
+#tag-page-forum {
+  .group-label {
+    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 1px 4px 2px;
+    background-color: $tagpage_group_label_background;
+    color: $tagpage_group_label_color;
+  }
+}
