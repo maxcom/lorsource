@@ -653,6 +653,10 @@ a img { border: none; }
   .col-second-half {
     @include column(6, 6);
   }
+
+  ul.col-first-half, ul.col-second-half {
+    margin-top: 0 !important;
+  }
 }
 
 #tag-page-gallery {
