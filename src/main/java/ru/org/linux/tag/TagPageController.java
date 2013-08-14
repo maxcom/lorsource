@@ -21,6 +21,7 @@ import ru.org.linux.topic.PersonalizedPreparedTopic;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.TopicPrepareService;
+import ru.org.linux.user.UserTagService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -49,6 +50,9 @@ public class TagPageController {
   private GroupDao groupDao;
 
   @Autowired
+  private UserTagService userTagService;
+
+  @Autowired
   private ImageDao imageDao;
   private final Function<Topic,ForumItem> forumPrepareFunction = new Function<Topic, ForumItem>() {
     @Override
@@ -74,8 +78,24 @@ public class TagPageController {
 
     mv.addObject("tag", tag);
 
+    if (tmpl.isSessionAuthorized()) {
+      mv.addObject(
+              "showFavoriteTagButton",
+              !userTagService.hasFavoriteTag(tmpl.getCurrentUser(), tag)
+      );
+
+      mv.addObject(
+              "showUnFavoriteTagButton",
+              userTagService.hasFavoriteTag(tmpl.getCurrentUser(), tag)
+      );
+    }
+
+    int tagId = tagService.getTagId(tag);
+
+    mv.addObject("favsCount", userTagService.countFavs(tagId));
+
     mv.addAllObjects(getNewsSection(request, tag));
-    mv.addAllObjects(getGallerySection(tag));
+    mv.addAllObjects(getGallerySection(tagId));
     mv.addAllObjects(getForumSection(tag));
 
     return mv;
@@ -114,9 +134,7 @@ public class TagPageController {
     );
   }
 
-  private Map<String, Object> getGallerySection(String tag) throws TagNotFoundException {
-    int tagId = tagService.getTagId(tag);
-
+  private Map<String, Object> getGallerySection(int tagId) throws TagNotFoundException {
     List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(3, tagId));
 
     return ImmutableMap.<String, Object>of(
