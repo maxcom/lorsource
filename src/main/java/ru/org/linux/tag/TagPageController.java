@@ -1,8 +1,13 @@
 package ru.org.linux.tag;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Multimaps;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +29,7 @@ import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.UserTagService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +40,16 @@ import static ru.org.linux.util.ListUtil.*;
 public class TagPageController {
   public static final int TOTAL_NEWS_COUNT = 21;
   public static final int FORUM_TOPIC_COUNT = 20;
+
+  private static final DateTimeFormatter THIS_YEAR_FORMAT = DateTimeFormat.forPattern("MMMMMMMM YYYY");
+  private static final DateTimeFormatter OLD_YEAR_FORMAT = DateTimeFormat.forPattern("YYYY");
+  public static final Function<Topic,DateTime> LASTMOD_EXTRACTOR = new Function<Topic, DateTime>() {
+    @Override
+    public DateTime apply(Topic input) {
+      return new DateTime(input.getLastModified());
+    }
+  };
+
   @Autowired
   private TagService tagService;
 
@@ -142,7 +158,7 @@ public class TagPageController {
     );
   }
 
-  private Map<String, List<ForumItem>> getForumSection(String tag) throws TagNotFoundException {
+  private Map<String, Map<String, Collection<ForumItem>>> getForumSection(String tag) throws TagNotFoundException {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
     List<Topic> forumTopics = topicListService.getTopicsFeed(
@@ -155,10 +171,37 @@ public class TagPageController {
             FORUM_TOPIC_COUNT
     );
 
+    ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, LASTMOD_EXTRACTOR);
+
     return ImmutableMap.of(
-            "forum1", Lists.transform(firstHalf(forumTopics), forumPrepareFunction),
-            "forum2", Lists.transform(secondHalf(forumTopics), forumPrepareFunction)
+            "forum", Multimaps.transformValues(sections, forumPrepareFunction).asMap()
     );
+  }
+
+  private static ImmutableListMultimap<String, Topic> datePartition(
+          Iterable<Topic> topics,
+          final Function<Topic, DateTime> dateExtractor
+  ) {
+    final DateMidnight startOfToday = new DateMidnight();
+    final DateMidnight startOfYesterday = startOfToday.minusDays(1);
+    final DateMidnight startOfYear = startOfToday.withDayOfYear(1);
+
+    return Multimaps.index(topics, new Function<Topic, String>() {
+      @Override
+      public String apply(Topic input) {
+        DateTime date = dateExtractor.apply(input);
+
+        if (date.isAfter(startOfToday)) {
+          return "Сегодня";
+        } else if (date.isAfter(startOfYesterday)) {
+          return "Вчера";
+        } else if (date.isAfter(startOfYear)) {
+          return THIS_YEAR_FORMAT.print(date);
+        } else {
+          return OLD_YEAR_FORMAT.print(date);
+        }
+      }
+    });
   }
 
   public static class ForumItem {

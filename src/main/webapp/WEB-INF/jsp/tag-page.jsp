@@ -23,8 +23,7 @@
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 <%--@elvariable id="briefNews2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
-<%--@elvariable id="forum1" type="java.util.List<ru.org.linux.tag.TagPageController.ForumItem>"--%>
-<%--@elvariable id="forum2" type="java.util.List<ru.org.linux.tag.TagPageController.ForumItem>"--%>
+<%--@elvariable id="forum" type="java.util.Map<java.lang.String, java.util.collection<ru.org.linux.tag.TagPageController.ForumItem>>"--%>
 <%--@elvariable id="showFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
@@ -106,27 +105,23 @@
 </section>
 </c:if>
 
-<c:if test="${not empty forum1}">
+<c:if test="${not empty forum}">
   <section>
     <h2>Форум</h2>
 
     <div class="container" id="tag-page-forum">
-      <ul class="col-first-half">
-        <c:forEach var="msg" items="${forum1}">
-          <li>
-              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;<span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
+      <c:forEach var="entry" items="${forum}">
+        <h3>${entry.key}</h3>
+        <ul>
+          <c:forEach var="msg" items="${entry.value}">
+            <li>
+                <span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out
+                    escapeXml="true" value="${msg.topic.title}"/></a>
               <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
-          </li>
-        </c:forEach>
-      </ul>
-      <ul class="col-second-half">
-        <c:forEach var="msg" items="${forum2}">
-          <li>
-              <lor:dateinterval date="${msg.topic.lastModified}"/>&emsp;<span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out escapeXml="true" value="${msg.topic.title}"/></a>
-            <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
-          </li>
-        </c:forEach>
-      </ul>
+            </li>
+          </c:forEach>
+        </ul>
+      </c:forEach>
     </div>
   </section>
 </c:if>
