@@ -77,7 +77,7 @@
           <h3>${entry.key}</h3>
           <ul>
             <c:forEach var="msg" items="${entry.value}">
-              <li><lor:dateinterval date="${msg.commitDate}"/>&emsp;<a href="${msg.link}">${msg.title}</a> </li>
+              <li><a href="${msg.link}">${msg.title}</a> </li>
             </c:forEach>
           </ul>
         </c:forEach>
@@ -118,7 +118,7 @@
             <ul>
               <c:forEach var="msg" items="${entry.value}">
                 <li>
-                  <span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out
+                  <span class="group-label">${msg.group.title}</span> <a href="${msg.topic.link}"><c:out
                         escapeXml="true" value="${msg.topic.title}"/></a>
                   <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
                 </li>
