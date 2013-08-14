@@ -22,7 +22,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import java.util.Locale;
 
 public class DateFormats {
-  private static final Locale RUSSIAN_LOCALE = new Locale("ru");
+  public static final Locale RUSSIAN_LOCALE = new Locale("ru");
 
   private static final DateTimeFormatter DEFAULT =
           DateTimeFormat.forStyle("MM").withLocale(RUSSIAN_LOCALE);

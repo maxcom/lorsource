@@ -19,6 +19,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.site.DateFormats;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.PersonalizedPreparedTopic;
 import ru.org.linux.topic.Topic;
@@ -40,7 +41,7 @@ public class TagPageController {
   public static final int TOTAL_NEWS_COUNT = 21;
   public static final int FORUM_TOPIC_COUNT = 20;
 
-  private static final DateTimeFormatter THIS_YEAR_FORMAT = DateTimeFormat.forPattern("MMMMMMMM YYYY");
+  private static final DateTimeFormatter THIS_YEAR_FORMAT = DateTimeFormat.forPattern("MMMMMMMM YYYY").withLocale(DateFormats.RUSSIAN_LOCALE);
   private static final DateTimeFormatter OLD_YEAR_FORMAT = DateTimeFormat.forPattern("YYYY");
 
   private static final Function<Topic,DateTime> LASTMOD_EXTRACTOR = new Function<Topic, DateTime>() {
