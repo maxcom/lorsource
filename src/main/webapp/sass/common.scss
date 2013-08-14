@@ -20,6 +20,15 @@ $gutter_width: 3%;
 
 @import "clearfix";
 
+@mixin respond-to($media) {
+  @if $media == desktops {
+    @media only screen and (min-width: 60em) { @content; }
+  }
+  @else if $media == tablet-and-desktops {
+    @media only screen and (min-width: 40em) { @content; }
+  }
+}
+
 /* document wide styles */
 
 html {
@@ -646,16 +655,18 @@ a img { border: none; }
   @include container();
   @include clearfix();
 
-  .col-first-half {
-    @include column(6, 0);
-  }
+  @include respond-to(desktops) {
+    .col-first-half {
+      @include column(6, 0);
+    }
 
-  .col-second-half {
-    @include column(6, 6);
-  }
+    .col-second-half {
+      @include column(6, 6);
+    }
 
-  ul.col-first-half, ul.col-second-half {
-    margin-top: 0 !important;
+    ul.col-first-half, ul.col-second-half {
+      margin-top: 0 !important;
+    }
   }
 }
 
@@ -663,10 +674,12 @@ a img { border: none; }
   @include clearfix();
   @include container();
 
-  @include generate_grid_positions('article', 4);
+  @include respond-to(tablet-and-desktops) {
+    @include generate_grid_positions('article', 4);
 
-  article {
-    @include column(4);
+    article {
+      @include column(4);
+    }
   }
 
   article img {
