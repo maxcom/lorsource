@@ -6,7 +6,7 @@
 }
 
 /* tablet */
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 60em) {
     #interpage-adv img {
         max-width: 100%;
         height: auto;
@@ -113,7 +113,7 @@
 }
 
 /* phone */
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 40em) {
     .hideon-phone {
         display: none;
     }
@@ -225,6 +225,4 @@
     code, .code, pre {
         margin: 0;
     }
-
-
 }
