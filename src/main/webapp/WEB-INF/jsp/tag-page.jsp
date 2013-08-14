@@ -21,9 +21,8 @@
 <%--@elvariable id="tag" type="java.lang.String"--%>
 <%--@elvariable id="fullNews" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
-<%--@elvariable id="briefNews1" type="java.util.List<ru.org.linux.topic.Topic>"--%>
-<%--@elvariable id="briefNews2" type="java.util.List<ru.org.linux.topic.Topic>"--%>
-<%--@elvariable id="forum" type="java.util.Map<java.lang.String, java.util.collection<ru.org.linux.tag.TagPageController.ForumItem>>"--%>
+<%--@elvariable id="briefNews" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>"--%>
+<%--@elvariable id="forum" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.tag.TagPageController.ForumItem>>>"--%>
 <%--@elvariable id="showFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
@@ -67,22 +66,24 @@
     </c:forEach>
 </section>
 
-<c:if test="${not empty briefNews1}">
+<c:if test="${not empty briefNews}">
 <section>
    <h2>Еще новости</h2>
 
-   <div class="container">
-   <ul class="col-first-half">
-       <c:forEach var="msg" items="${briefNews1}">
-           <li><lor:dateinterval date="${msg.commitDate}"/>&emsp;<a href="${msg.link}">${msg.title}</a> </li>
-       </c:forEach>
-   </ul>
-    <ul class="col-second-half">
-        <c:forEach var="msg" items="${briefNews2}">
-            <li><lor:dateinterval date="${msg.commitDate}"/>&emsp;<a href="${msg.link}">${msg.title}</a> </li>
+  <div class="container" id="tag-page-news">
+    <c:forEach var="map" items="${briefNews}">
+      <section>
+        <c:forEach var="entry" items="${map}">
+          <h3>${entry.key}</h3>
+          <ul>
+            <c:forEach var="msg" items="${entry.value}">
+              <li><lor:dateinterval date="${msg.commitDate}"/>&emsp;<a href="${msg.link}">${msg.title}</a> </li>
+            </c:forEach>
+          </ul>
         </c:forEach>
-    </ul>
-   </div>
+      </section>
+    </c:forEach>
+  </div>
 </section>
 </c:if>
 
@@ -110,17 +111,21 @@
     <h2>Форум</h2>
 
     <div class="container" id="tag-page-forum">
-      <c:forEach var="entry" items="${forum}">
-        <h3>${entry.key}</h3>
-        <ul>
-          <c:forEach var="msg" items="${entry.value}">
-            <li>
-                <span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out
-                    escapeXml="true" value="${msg.topic.title}"/></a>
-              <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
-            </li>
+      <c:forEach var="map" items="${forum}">
+        <section>
+          <c:forEach var="entry" items="${map}">
+            <h3>${entry.key}</h3>
+            <ul>
+              <c:forEach var="msg" items="${entry.value}">
+                <li>
+                  <span class="group-label">${msg.group.title}</span>&emsp;<a href="${msg.topic.link}"><c:out
+                        escapeXml="true" value="${msg.topic.title}"/></a>
+                  <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
+                </li>
+              </c:forEach>
+            </ul>
           </c:forEach>
-        </ul>
+        </section>
       </c:forEach>
     </div>
   </section>

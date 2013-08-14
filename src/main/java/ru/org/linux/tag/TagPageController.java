@@ -1,9 +1,7 @@
 package ru.org.linux.tag;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimaps;
+import com.google.common.collect.*;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -33,7 +31,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static ru.org.linux.util.ListUtil.*;
+import static ru.org.linux.util.ListUtil.headOrEmpty;
+import static ru.org.linux.util.ListUtil.tailOrEmpty;
 
 @Controller
 @RequestMapping("/tag/{tag}/bigpage")
@@ -43,10 +42,18 @@ public class TagPageController {
 
   private static final DateTimeFormatter THIS_YEAR_FORMAT = DateTimeFormat.forPattern("MMMMMMMM YYYY");
   private static final DateTimeFormatter OLD_YEAR_FORMAT = DateTimeFormat.forPattern("YYYY");
-  public static final Function<Topic,DateTime> LASTMOD_EXTRACTOR = new Function<Topic, DateTime>() {
+
+  private static final Function<Topic,DateTime> LASTMOD_EXTRACTOR = new Function<Topic, DateTime>() {
     @Override
     public DateTime apply(Topic input) {
       return new DateTime(input.getLastModified());
+    }
+  };
+
+  private static final Function<Topic,DateTime> COMMITDATE_EXTRACTOR = new Function<Topic, DateTime>() {
+    @Override
+    public DateTime apply(Topic input) {
+      return new DateTime(input.getCommitDate());
     }
   };
 
@@ -143,10 +150,11 @@ public class TagPageController {
             false
     );
 
+    ImmutableListMultimap<String, Topic> briefNews = datePartition(briefNewsTopics, COMMITDATE_EXTRACTOR);
+
     return ImmutableMap.<String, Object>of(
             "fullNews", fullNews,
-            "briefNews1", firstHalf(briefNewsTopics),
-            "briefNews2", secondHalf(briefNewsTopics)
+            "briefNews", split(briefNews)
     );
   }
 
@@ -158,7 +166,7 @@ public class TagPageController {
     );
   }
 
-  private Map<String, Map<String, Collection<ForumItem>>> getForumSection(String tag) throws TagNotFoundException {
+  private ImmutableMap<String, ImmutableList<ImmutableMap<String, List<ForumItem>>>> getForumSection(String tag) throws TagNotFoundException {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
     List<Topic> forumTopics = topicListService.getTopicsFeed(
@@ -174,7 +182,7 @@ public class TagPageController {
     ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, LASTMOD_EXTRACTOR);
 
     return ImmutableMap.of(
-            "forum", Multimaps.transformValues(sections, forumPrepareFunction).asMap()
+            "forum", split(Multimaps.transformValues(sections, forumPrepareFunction))
     );
   }
 
@@ -202,6 +210,33 @@ public class TagPageController {
         }
       }
     });
+  }
+
+  private static <T> ImmutableList<ImmutableMap<String, List<T>>> split(ListMultimap<String, T> topics) {
+    if (topics.isEmpty()) {
+      return ImmutableList.of();
+    }
+
+    int split = topics.size() / 2 + (topics.size() % 2);
+
+    ImmutableMap.Builder<String, List<T>> first = ImmutableMap.builder();
+    ImmutableMap.Builder<String, List<T>> second = ImmutableMap.builder();
+
+    int total = 0;
+
+    for (Map.Entry<String, Collection<T>> entry : topics.asMap().entrySet()) {
+      int currentSize = entry.getValue().size();
+
+      if (total+(currentSize/2)<=split) {
+        first.put(entry.getKey(), ImmutableList.copyOf(entry.getValue()));
+      } else {
+        second.put(entry.getKey(), ImmutableList.copyOf(entry.getValue()));
+      }
+
+      total += currentSize;
+    }
+
+    return ImmutableList.of(first.build(), second.build());
   }
 
   public static class ForumItem {

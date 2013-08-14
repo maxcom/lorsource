@@ -656,20 +656,6 @@ a img { border: none; }
 .container {
   @include container();
   @include clearfix();
-
-  @include respond-to(desktops) {
-    .col-first-half {
-      @include column(6, 0);
-    }
-
-    .col-second-half {
-      @include column(6, 6);
-    }
-
-    ul.col-first-half, ul.col-second-half {
-      margin-top: 0 !important;
-    }
-  }
 }
 
 #tag-page-gallery {
@@ -691,5 +677,18 @@ a img { border: none; }
 
   article h3 {
     font-size: 1.2em;
+  }
+}
+
+#tag-page-forum, #tag-page-news {
+  @include clearfix();
+  @include container();
+
+  @include respond-to(tablet-and-desktops) {
+    @include generate_grid_positions('section', 6);
+
+    section {
+      @include column(6);
+    }
   }
 }
