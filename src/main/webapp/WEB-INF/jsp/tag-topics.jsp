@@ -87,7 +87,6 @@
   </div>
 
   Всего сообщений: ${counter}
-  <br><br>
 </div>
 
 <c:forEach var="msg" items="${messages}">

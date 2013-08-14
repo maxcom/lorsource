@@ -482,14 +482,16 @@ h1 {
 }
 
 .infoblock {
-    padding: .5em;
-    border: 1px solid;
-    margin-bottom: 1em;
+  @include clearfix();
 
-    h2 {
-        font-weight: bold;
-        margin: 0;
-    }
+  padding: .5em;
+  border: 1px solid;
+  margin-bottom: 1em;
+
+  h2 {
+    font-weight: bold;
+    margin: 0;
+  }
 }
 
 .infoblock-small {
