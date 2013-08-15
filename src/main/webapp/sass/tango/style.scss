@@ -316,21 +316,6 @@ div.quote {
   background-color: $article_background;
 }
 
-.nav li a {
-    margin-left: 0 !important;
-    position: relative;
-    overflow: visible;
-    display: inline-block;
-    padding: 1px 5px;
-    border: 1px solid;
-    margin: 0;
-    font-size: smaller;
-    white-space: nowrap;
-    outline: none;
-    border-radius: 0.2em;
-    zoom: 1;
-}
-
 .message-table {
   .tag {
     border-radius: 3px;
@@ -426,6 +411,19 @@ fieldset legend {
 }
 
 #bd .nav li a {
+  margin-left: 0 !important;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid;
+  margin: 0;
+  font-size: smaller;
+  white-space: nowrap;
+  outline: none;
+  border-radius: 0.2em;
+  zoom: 1;
+
   border-color: $button_border_color;
   background-color: $button_background;
   color: $text_color;
@@ -439,6 +437,29 @@ fieldset legend {
   &.current {
     background-color: $button_selected_background;
     color: $button_selected_text_color !important;
+  }
+}
+
+#bd .btn {
+  display: inline-block;
+  text-align: center;
+  padding: 6px 12px;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: .2em;
+  white-space: nowrap;
+
+  border-color: $button_border_color;
+  background-color: $button_background;
+  color: $button_text_color;
+  text-decoration: none;
+
+  &:visited {
+    color: $button_text_color;
+  }
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
   }
 }
 
