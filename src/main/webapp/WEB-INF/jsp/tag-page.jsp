@@ -19,6 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="tag" type="java.lang.String"--%>
+<%--@elvariable id="title" type="java.lang.String"--%>
 <%--@elvariable id="fullNews" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>"--%>
@@ -28,11 +29,11 @@
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<title>${tag}</title>
+<title>${title}</title>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1><i class="icon-tag"></i> ${tag}</h1>
+<h1><i class="icon-tag"></i> ${title}</h1>
 
 <div class="container" style="font-size: medium">
     <div class="fav-buttons">

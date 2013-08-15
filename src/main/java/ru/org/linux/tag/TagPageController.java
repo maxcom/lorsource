@@ -2,6 +2,7 @@ package ru.org.linux.tag;
 
 import com.google.common.base.Function;
 import com.google.common.collect.*;
+import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -101,6 +102,7 @@ public class TagPageController {
     ModelAndView mv = new ModelAndView("tag-page");
 
     mv.addObject("tag", tag);
+    mv.addObject("title", WordUtils.capitalize(tag));
 
     if (tmpl.isSessionAuthorized()) {
       mv.addObject(
