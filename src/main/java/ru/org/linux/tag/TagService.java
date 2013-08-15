@@ -61,7 +61,7 @@ public class TagService {
     return tagDao.getTagId(tag, true);
   }
 
-  public void checkTag(String tag) throws UserErrorException {
+  public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!isGoodTag(tag)) {
       throw new UserErrorException("Некорректный тег: '" + tag + '\'');

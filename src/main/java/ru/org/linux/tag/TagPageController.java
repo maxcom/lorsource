@@ -22,10 +22,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DateFormats;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.PersonalizedPreparedTopic;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.topic.TopicListService;
-import ru.org.linux.topic.TopicPrepareService;
+import ru.org.linux.topic.*;
 import ru.org.linux.user.UserTagService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -156,10 +153,18 @@ public class TagPageController {
 
     ImmutableListMultimap<String, Topic> briefNews = datePartition(briefNewsTopics, COMMITDATE_EXTRACTOR);
 
-    return ImmutableMap.<String, Object>of(
-            "fullNews", fullNews,
-            "briefNews", split(briefNews)
-    );
+    ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
+
+    out.put("addNews", AddTopicController.getAddUrl(newsSection, tag));
+
+    if (newsTopics.size()==TOTAL_NEWS_COUNT) {
+      out.put("moreNews", TagTopicListController.tagListUrl(tag, newsSection));
+    }
+
+    out.put("fullNews", fullNews);
+    out.put("briefNews", split(briefNews));
+
+    return out.build();
   }
 
   private Map<String, Object> getGallerySection(int tagId) throws TagNotFoundException {

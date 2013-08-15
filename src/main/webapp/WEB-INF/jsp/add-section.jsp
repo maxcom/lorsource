@@ -31,10 +31,14 @@
 
 Доступные группы:
 <ul>
-<c:forEach var="group"
-           items="${groups}">
+<c:forEach var="group" items="${groups}">
   <li>
-    <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="${group.url}">просмотр...</a>)
+    <c:if test="${not empty tag}">
+      <a href="add.jsp?group=${group.id}&amp;tags=${tag}&amp;noinfo=1">${group.title}</a> (<a href="${group.url}">просмотр...</a>)
+    </c:if>
+    <c:if test="${empty tag}">
+      <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="${group.url}">просмотр...</a>)
+    </c:if>
 
     <c:if test="${group.info != null}">
       - <em><c:out value="${group.info}" escapeXml="false"/></em>

@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
@@ -52,6 +53,7 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -145,16 +147,18 @@ public class AddTopicController {
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
-    Map<String, Object> params = new HashMap<>();
-
+  public ModelAndView add(
+          @Valid @ModelAttribute("form") AddTopicRequest form,
+          HttpServletRequest request
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
     }
 
-    prepareModel(form, params, tmpl.getCurrentUser());
+    Map<String, Object> params = new HashMap<>();
+    params.putAll(prepareModel(form, tmpl.getCurrentUser()));
 
     Group group = form.getGroup();
 
@@ -181,7 +185,9 @@ public class AddTopicController {
     }
   }
 
-  private void prepareModel(AddTopicRequest form, Map<String, Object> params, User currentUser) {
+  private ImmutableMap<String, Object> prepareModel(AddTopicRequest form, User currentUser) {
+    ImmutableMap.Builder<String, Object> params = ImmutableMap.builder();
+
     Group group = form.getGroup();
 
     if (group!=null) {
@@ -196,6 +202,8 @@ public class AddTopicController {
     }
 
     params.put("topTags", tagService.getTopTags());
+
+    return params.build();
   }
 
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
@@ -206,8 +214,6 @@ public class AddTopicController {
           BindingResult errors,
           @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
-    Map<String, Object> params = new HashMap<>();
-
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
@@ -215,7 +221,9 @@ public class AddTopicController {
 
     Group group = form.getGroup();
 
-    prepareModel(form, params, tmpl.getCurrentUser());
+    Map<String, Object> params = new HashMap<>();
+
+    params.putAll(prepareModel(form, tmpl.getCurrentUser()));
 
     Section section = null;
 
@@ -371,8 +379,16 @@ public class AddTopicController {
   }
 
   @RequestMapping("/add-section.jsp")
-  public ModelAndView showForm(@RequestParam("section") int sectionId) {
+  public ModelAndView showForm(
+          @RequestParam("section") int sectionId,
+          @RequestParam(value="tag", required = false) String tag
+  ) throws UserErrorException {
     Map<String, Object> params = new HashMap<>();
+
+    if (tag!=null) {
+      TagService.checkTag(tag);
+      params.put("tag", tag);
+    }
 
     params.put("sectionId", sectionId);
 
@@ -489,5 +505,13 @@ public class AddTopicController {
     }
 
     return null;
+  }
+
+  public static String getAddUrl(Section section, String tag) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/add-section.jsp");
+    builder.queryParam("section", section.getId());
+    builder.queryParam("tag", tag);
+
+    return builder.build().toUriString();
   }
 }

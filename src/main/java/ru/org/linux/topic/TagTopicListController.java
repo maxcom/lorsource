@@ -27,6 +27,7 @@ import java.util.List;
 @Controller
 public class TagTopicListController {
   private static final UriTemplate TAG_URI_TEMPLATE = new UriTemplate("/tag/{tag}");
+  private static final UriTemplate TAG_URI_SECTION_TEMPLATE = new UriTemplate("/tag/{tag}?section={section}");
   private static final UriTemplate TAGS_URI_TEMPLATE = new UriTemplate("/tags/{tag}");
   @Autowired
   private UserTagService userTagService;
@@ -47,6 +48,10 @@ public class TagTopicListController {
     return TAG_URI_TEMPLATE.expand(tag).toString();
   }
 
+  public static String tagListUrl(String tag, Section section) {
+    return TAG_URI_SECTION_TEMPLATE.expand(tag, section.getId()).toString();
+  }
+
   public static String tagsUrl(char letter) {
     return TAGS_URI_TEMPLATE.expand(letter).toString();
   }
@@ -55,7 +60,7 @@ public class TagTopicListController {
     if (section==null) {
       return WordUtils.capitalize(tag);
     } else {
-      return WordUtils.capitalize(tag) + " (" + section.getName() + ")";
+      return WordUtils.capitalize(tag) + " (" + section.getName() + ')';
     }
   }
 
@@ -160,7 +165,7 @@ public class TagTopicListController {
     return modelAndView;
   }
 
-  private String buildTagUri(String tag, int section, int offset) {
+  private static String buildTagUri(String tag, int section, int offset) {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUri(TAG_URI_TEMPLATE.expand(tag));
 
     if (section!=0) {
@@ -178,6 +183,6 @@ public class TagTopicListController {
   public View tagFeedOld(
           @RequestParam String tag
   ) {
-    return new RedirectView(TagTopicListController.tagListUrl(tag));
+    return new RedirectView(tagListUrl(tag));
   }
 }

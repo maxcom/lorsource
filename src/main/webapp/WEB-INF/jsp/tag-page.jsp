@@ -20,6 +20,8 @@
 <%--@elvariable id="tag" type="java.lang.String"--%>
 <%--@elvariable id="title" type="java.lang.String"--%>
 <%--@elvariable id="fullNews" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
+<%--@elvariable id="addNews" type="java.lang.String"--%>
+<%--@elvariable id="moreNews" type="java.lang.String"--%>
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>"--%>
 <%--@elvariable id="forum" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.tag.TagPageController.ForumItem>>>"--%>
@@ -74,7 +76,7 @@
    <h2>Еще новости</h2>
 
   <div class="container" id="tag-page-news">
-    <c:forEach var="map" items="${briefNews}">
+    <c:forEach var="map" items="${briefNews}" varStatus="iter">
       <section>
         <c:forEach var="entry" items="${map}">
           <h3>${entry.key}</h3>
@@ -85,7 +87,12 @@
           </ul>
         </c:forEach>
 
-          <a href="" class="btn btn-primary">Добавить новость</a>
+        <c:if test="${iter.last}">
+          <a href="${addNews}" class="btn btn-primary">Добавить</a>
+          <c:if test="${not empty moreNews}">
+            <a href="${moreNews}" class="btn btn-default">Все новости</a>
+          </c:if>
+        </c:if>
       </section>
     </c:forEach>
   </div>

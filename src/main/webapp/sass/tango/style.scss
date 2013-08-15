@@ -466,6 +466,10 @@ fieldset legend {
   background-color: $button_primary_background;
 }
 
+#bd .btn-default {
+  background-color: $button_background;
+}
+
 .fav-buttons {
   .selected [class^="icon-"] {
     color: $icon_button_active_color;
