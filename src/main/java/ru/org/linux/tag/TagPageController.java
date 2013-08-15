@@ -103,6 +103,7 @@ public class TagPageController {
 
     mv.addObject("tag", tag);
     mv.addObject("title", WordUtils.capitalize(tag));
+    mv.addObject("counter", tagService.getCounter(tag));
 
     if (tmpl.isSessionAuthorized()) {
       mv.addObject(

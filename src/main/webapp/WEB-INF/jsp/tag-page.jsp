@@ -2,7 +2,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -27,6 +26,7 @@
 <%--@elvariable id="showFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
+<%--@elvariable id="counter" type="java.lang.Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${title}</title>
@@ -35,7 +35,7 @@
 
 <h1><i class="icon-tag"></i> ${title}</h1>
 
-<div class="container" style="font-size: medium">
+<div class="infoblock" style="font-size: medium">
     <div class="fav-buttons">
         <c:if test="${showFavoriteTagButton}">
             <c:url var="tagFavUrl" value="/user-filter">
@@ -54,6 +54,8 @@
         </c:if>
         <br><span id="favsCount" title="Кол-во пользователей, добавивших в избранное">${favsCount}</span>
     </div>
+
+    Всего сообщений: ${counter}
 </div>
 
 <section>
