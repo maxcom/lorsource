@@ -85,7 +85,7 @@
           </ul>
         </c:forEach>
 
-          <a href="" class="btn">Добавить новость</a>
+          <a href="" class="btn btn-primary">Добавить новость</a>
       </section>
     </c:forEach>
   </div>

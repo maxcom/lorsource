@@ -451,7 +451,6 @@ fieldset legend {
   white-space: nowrap;
 
   border-color: $button_border_color;
-  background-color: $button_background;
   color: $button_text_color;
   text-decoration: none;
 
@@ -461,6 +460,10 @@ fieldset legend {
   &:hover {
     box-shadow: 0 0 1px 1px $link_color;
   }
+}
+
+#bd .btn-primary {
+  background-color: $button_primary_background;
 }
 
 .fav-buttons {
