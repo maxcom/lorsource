@@ -702,6 +702,7 @@ a img { border: none; }
 
     section {
       @include column(6);
+      margin-bottom: 0 !important;
     }
   }
 }
