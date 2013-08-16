@@ -15,6 +15,7 @@ import org.springframework.web.util.UriTemplate;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.tag.TagPageController;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.UserTagService;
 
@@ -43,6 +44,9 @@ public class TagTopicListController {
 
   @Autowired
   private TopicPrepareService prepareService;
+
+  @Autowired
+  private TagPageController tagPageController;
 
   public static String tagListUrl(String tag) {
     return TAG_URI_TEMPLATE.expand(tag).toString();
@@ -85,6 +89,12 @@ public class TagTopicListController {
 
     tagService.checkTag(tag);
 
+    Template tmpl = Template.getTemplate(request);
+
+    if (tmpl.isSessionAuthorized() && tmpl.getCurrentUser().getId()==1 && offset==0 && sectionId==0) {
+      return tagPageController.tagPage(request, tag);
+    }
+
     TopicListController.setExpireHeaders(response, null, null);
 
     String title = getTitle(tag, section);
@@ -103,8 +113,6 @@ public class TagTopicListController {
             null,
             20
     );
-
-    Template tmpl = Template.getTemplate(request);
 
     List<PersonalizedPreparedTopic> preparedTopics = prepareService.prepareMessagesForUser(
             topics,
