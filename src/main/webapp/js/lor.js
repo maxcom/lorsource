@@ -183,6 +183,63 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
   });
 }
 
+function tag_memories_form_setup(tag, csrf_token) {
+  $script.ready('plugins', function() {
+    $(function() {
+      $("#tagFavNoth").click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $("#tagFavNoth").popover('show');
+      });
+      $("#tagFavNoth").popover({
+        content: "Для добавления в избранное надо залогиниться!"
+      });
+    });
+  });
+
+  $(function() {
+    function tag_filter(event) {
+      event.preventDefault();
+
+      var data = { tagName: tag};
+
+      var el = $('#tagFavAdd');
+      var add = !el.hasClass("selected");
+
+      if (add) {
+        data['add'] = 'add';
+      } else {
+        data['del'] = 'del';
+      }
+
+      data['csrf'] = csrf_token;
+
+      $.ajax({
+        url: "/user-filter/favorite-tag",
+        type: "POST",
+        dataType: "json",
+        data: data
+      }).done(function (t) {
+            if (t.error) {
+              alert(t.error);
+            } else {
+              el.attr('title', add ? "Удалить из избранного" : "В избранное");
+
+              $('#favsCount').text(t['count']);
+
+              if (add) {
+                el.addClass("selected");
+              } else {
+                el.removeClass("selected");
+              }
+            }
+          });
+    }
+
+    $("#tagFavAdd").bind("click", tag_filter);
+  });
+}
+
 $(document).ready(function() {
   function initLoginForm() {
     var options = {

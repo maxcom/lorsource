@@ -157,4 +157,10 @@
   </section>
 </c:if>
 
+<script type="text/javascript">
+  $script.ready('lorjs', function() {
+    tag_memories_form_setup("${tag}", "${fn:escapeXml(csrfToken)}");
+  });
+</script>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

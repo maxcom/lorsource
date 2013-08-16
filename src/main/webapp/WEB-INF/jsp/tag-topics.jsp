@@ -112,66 +112,9 @@
     </c:if>
   </tr>
 </table>
-<c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
-  $script.ready('plugins', function() {
-    $(function() {
-        $("#tagFavNoth").click(function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            $("#tagFavNoth").popover('show');
-        });
-        $("#tagFavNoth").popover({
-            content: "Для добавления в избранное надо залогиниться!"
-        });
-    });
+  $script.ready('lorjs', function() {
+    tag_memories_form_setup("${tag}", "${fn:escapeXml(csrfToken)}");
   });
 </script>
-</c:if>
-
-<c:if test="${template.sessionAuthorized}">
-<script type="text/javascript">
-  function tag_filter(event) {
-    event.preventDefault();
-
-    var data = { tagName: "${tag}"};
-
-    var el = $('#tagFavAdd');
-    var add = !el.hasClass("selected");
-
-    if (add) {
-      data['add'] = 'add';
-    } else {
-      data['del'] = 'del';
-    }
-
-    data['csrf'] = "${fn:escapeXml(csrfToken)}";
-
-    $.ajax({
-      url: "/user-filter/favorite-tag",
-      type: "POST",
-      dataType: "json",
-      data: data
-    }).done(function(t) {
-      if (t.error) {
-        alert(t.error);
-      } else {
-        el.attr('title', add?"Удалить из избранного":"В избранное");
-
-        $('#favsCount').text(t['count']);
-
-        if (add) {
-          el.addClass("selected");
-        } else {
-          el.removeClass("selected");
-        }
-      }
-    });
-  }
-
-  $(document).ready(function() {
-    $("#tagFavAdd").bind("click", tag_filter);
-  });
-</script>
-</c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
