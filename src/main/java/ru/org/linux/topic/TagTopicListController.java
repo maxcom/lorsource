@@ -91,7 +91,7 @@ public class TagTopicListController {
 
     Template tmpl = Template.getTemplate(request);
 
-    if (tmpl.isSessionAuthorized() && tmpl.getCurrentUser().getId()==1 && offset==0 && sectionId==0) {
+    if (tmpl.isModeratorSession() && tmpl.getStyle().equals("tango") && offset==0 && sectionId==0) {
       return tagPageController.tagPage(request, tag);
     }
 
