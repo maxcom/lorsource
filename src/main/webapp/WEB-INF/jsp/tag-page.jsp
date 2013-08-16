@@ -143,8 +143,7 @@
             <ul>
               <c:forEach var="msg" items="${entry.value}">
                 <li>
-                  <span class="group-label">${msg.group.title}</span> <a href="${msg.topic.link}"><c:out
-                        escapeXml="true" value="${msg.topic.title}"/></a>
+                  <span class="group-label">${msg.group.title}</span> <a href="${msg.topic.link}">${msg.topic.title}</a>
                   <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
                 </li>
               </c:forEach>
