@@ -91,7 +91,7 @@ public class TagPageController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    if (!tmpl.isSessionAuthorized() || tmpl.getCurrentUser().getScore()<500) {
       throw new AccessViolationException("Forbidden");
     }
 
