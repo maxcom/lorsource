@@ -88,15 +88,17 @@
             </c:forEach>
           </ul>
         </c:forEach>
-
-        <c:if test="${iter.last}">
-          <a href="${addNews}" class="btn btn-primary">Добавить</a>
-          <c:if test="${not empty moreNews}">
-            <a href="${moreNews}" class="btn btn-default">Все новости</a>
-          </c:if>
-        </c:if>
       </section>
     </c:forEach>
+  </div>
+
+  <div id="tag-page-news-buttons">
+    <div>
+        <a href="${addNews}" class="btn btn-primary">Добавить</a>
+        <c:if test="${not empty moreNews}">
+          <a href="${moreNews}" class="btn btn-default">Все новости</a>
+        </c:if>
+    </div>
   </div>
 </section>
 </c:if>

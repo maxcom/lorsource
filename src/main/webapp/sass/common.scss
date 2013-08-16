@@ -681,7 +681,7 @@ a img { border: none; }
   }
 }
 
-#tag-page-gallery-buttons {
+#tag-page-gallery-buttons, #tag-page-news-buttons {
   @include clearfix();
   @include container();
 
@@ -690,6 +690,7 @@ a img { border: none; }
   }
 
   margin-bottom: 1em;
+  margin-top: 1em;
 }
 
 #tag-page-forum, #tag-page-news {
