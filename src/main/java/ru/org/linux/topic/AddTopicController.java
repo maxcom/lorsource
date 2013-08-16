@@ -197,7 +197,12 @@ public class AddTopicController {
 
       params.put("section", section);
 
-      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+      String addInfo = sectionService.getAddInfo(group.getSectionId());
+
+      if (addInfo!=null) {
+        params.put("addportal", addInfo);
+      }
+
       params.put("imagepost", groupPermissionService.isImagePostingAllowed(section, currentUser));
     }
 

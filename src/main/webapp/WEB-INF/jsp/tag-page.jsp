@@ -22,6 +22,8 @@
 <%--@elvariable id="fullNews" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="addNews" type="java.lang.String"--%>
 <%--@elvariable id="moreNews" type="java.lang.String"--%>
+<%--@elvariable id="addGallery" type="java.lang.String"--%>
+<%--@elvariable id="moreGallery" type="java.lang.String"--%>
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>"--%>
 <%--@elvariable id="forum" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.tag.TagPageController.ForumItem>>>"--%>
@@ -114,6 +116,17 @@
         <lor:dateinterval date="${item.item.commitDate}"/>
       </article>
     </c:forEach>
+  </div>
+
+  <div id="tag-page-gallery-buttons">
+    <div>
+      <c:if test="${not empty addGallery}">
+        <a href="${addGallery}" class="btn btn-primary">Добавить</a>
+      </c:if>
+      <c:if test="${not empty moreGallery}">
+        <a href="${moreGallery}" class="btn btn-default">Все изображения</a>
+      </c:if>
+    </div>
   </div>
 </section>
 </c:if>

@@ -681,6 +681,17 @@ a img { border: none; }
   }
 }
 
+#tag-page-gallery-buttons {
+  @include clearfix();
+  @include container();
+
+  div {
+    @include column(12);
+  }
+
+  margin-bottom: 1em;
+}
+
 #tag-page-forum, #tag-page-news {
   @include clearfix();
   @include container();

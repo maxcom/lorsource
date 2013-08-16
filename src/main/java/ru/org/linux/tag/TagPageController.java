@@ -55,6 +55,7 @@ public class TagPageController {
       return new DateTime(input.getCommitDate());
     }
   };
+  public static final int GALLERY_COUNT = 3;
 
   @Autowired
   private TagService tagService;
@@ -119,7 +120,7 @@ public class TagPageController {
     mv.addObject("favsCount", userTagService.countFavs(tagId));
 
     mv.addAllObjects(getNewsSection(request, tag));
-    mv.addAllObjects(getGallerySection(tagId));
+    mv.addAllObjects(getGallerySection(tag, tagId, tmpl));
     mv.addAllObjects(getForumSection(tag));
 
     return mv;
@@ -167,12 +168,23 @@ public class TagPageController {
     return out.build();
   }
 
-  private Map<String, Object> getGallerySection(int tagId) throws TagNotFoundException {
-    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(3, tagId));
+  private Map<String, Object> getGallerySection(String tag, int tagId, Template tmpl) throws TagNotFoundException {
+    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(GALLERY_COUNT, tagId));
 
-    return ImmutableMap.<String, Object>of(
-            "gallery", list
-    );
+    ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
+    Section section = sectionService.getSection(Section.SECTION_GALLERY);
+
+    if (tmpl.isSessionAuthorized()) {
+      out.put("addGallery", AddTopicController.getAddUrl(section, tag));
+    }
+
+    if (list.size()==GALLERY_COUNT) {
+      out.put("moreGallery", TagTopicListController.tagListUrl(tag, section));
+    }
+
+    out.put("gallery", list);
+
+    return out.build();
   }
 
   private ImmutableMap<String, ImmutableList<ImmutableMap<String, List<ForumItem>>>> getForumSection(String tag) throws TagNotFoundException {
