@@ -132,6 +132,11 @@ DIV.messages .title {
 
 .messages .msg {
     background: #f0f0f0;
+    padding: 0;
+}
+
+.messages > .msg {
+    background: #f0f0f0;
     padding: 0.25em 1em 1em;
 }
 
