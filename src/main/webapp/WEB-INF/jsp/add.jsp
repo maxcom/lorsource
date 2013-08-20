@@ -127,7 +127,7 @@
 
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
-                <form:input path="poll[${i.index}]" size="40"/></label><br>
+                <form:input path="poll[${i.index}]" size="40"/></label>
       </c:forEach>
       <p>
         <label>Мультивыбор: <form:checkbox path="multiSelect" size="40"/></label>
