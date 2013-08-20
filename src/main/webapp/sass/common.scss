@@ -681,7 +681,7 @@ a img { border: none; }
   }
 }
 
-#tag-page-gallery-buttons, #tag-page-news-buttons {
+.tag-page-buttons {
   @include clearfix();
   @include container();
 

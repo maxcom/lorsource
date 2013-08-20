@@ -187,7 +187,7 @@ public class TagPageController {
     return out.build();
   }
 
-  private ImmutableMap<String, ImmutableList<ImmutableMap<String, List<ForumItem>>>> getForumSection(String tag) throws TagNotFoundException {
+  private ImmutableMap<String, Object> getForumSection(String tag) throws TagNotFoundException {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
     List<Topic> forumTopics = topicListService.getTopicsFeed(
@@ -202,9 +202,17 @@ public class TagPageController {
 
     ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, LASTMOD_EXTRACTOR);
 
-    return ImmutableMap.of(
-            "forum", split(Multimaps.transformValues(sections, forumPrepareFunction))
-    );
+    ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
+
+    if (forumTopics.size()==FORUM_TOPIC_COUNT) {
+      out.put("moreForum", TagTopicListController.tagListUrl(tag, forumSection));
+    }
+
+    out.put("addForum", AddTopicController.getAddUrl(forumSection, tag));
+
+    out.put("forum", split(Multimaps.transformValues(sections, forumPrepareFunction)));
+
+    return out.build();
   }
 
   private static ImmutableListMultimap<String, Topic> datePartition(

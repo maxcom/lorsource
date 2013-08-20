@@ -92,7 +92,7 @@
     </c:forEach>
   </div>
 
-  <div id="tag-page-news-buttons">
+  <div class="tag-page-buttons">
     <div>
         <a href="${addNews}" class="btn btn-primary">Добавить</a>
         <c:if test="${not empty moreNews}">
@@ -120,7 +120,7 @@
     </c:forEach>
   </div>
 
-  <div id="tag-page-gallery-buttons">
+  <div class="tag-page-buttons">
     <div>
       <c:if test="${not empty addGallery}">
         <a href="${addGallery}" class="btn btn-primary">Добавить</a>
@@ -153,6 +153,17 @@
           </c:forEach>
         </section>
       </c:forEach>
+    </div>
+
+    <div class="tag-page-buttons">
+      <div>
+        <c:if test="${not empty addGallery}">
+          <a href="${addForum}" class="btn btn-primary">Добавить</a>
+        </c:if>
+        <c:if test="${not empty moreGallery}">
+          <a href="${moreForum}" class="btn btn-default">Все темы</a>
+        </c:if>
+      </div>
     </div>
   </section>
 </c:if>
