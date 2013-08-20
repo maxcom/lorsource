@@ -46,7 +46,7 @@ public class LastMiniNewsDao {
             "  topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and " + // За последнйи месяйц
             "  not deleted and " +                                                   // Неудаленные
             "  groups.section = 1 and topics.moderate and commitdate is not null and not draft " + // Новости
-            "  minor order by topics.commitdate desc limit 10";                        // 10 штук
+            "  and minor order by topics.commitdate desc limit 10";                        // 10 штук
 
     return jdbcTemplate.query(sql, new RowMapper<LastMiniNews>() {
       @Override
