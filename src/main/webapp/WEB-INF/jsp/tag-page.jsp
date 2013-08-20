@@ -146,7 +146,7 @@
               <c:forEach var="msg" items="${entry.value}">
                 <li>
                   <span class="group-label">${msg.group.title}</span> <a href="${msg.topic.link}">${msg.topic.title}</a>
-                  <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
+                  <c:if test="${msg.topic.commentCount>0}">(<lor:comment-count count="${msg.topic.commentCount}"/>)</c:if>
                 </li>
               </c:forEach>
             </ul>

@@ -40,32 +40,7 @@
 
 <c:set var="commentsLinks">
   <c:if test="${message.commentCount > 0}">
-  <%
-      out.append(" [<a href=\"");
-      out.append(message.getLink());
-      out.append("#comments\">");
-
-      int stat1 = message.getCommentCount();
-      out.append(Integer.toString(stat1));
-
-      if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-        out.append("&nbsp;комментариев</a>");
-      } else {
-        switch (stat1 % 10) {
-          case 1:
-            out.append("&nbsp;комментарий</a>");
-            break;
-          case 2:
-          case 3:
-          case 4:
-            out.append("&nbsp;комментария</a>");
-            break;
-          default:
-            out.append("&nbsp;комментариев</a>");
-            break;
-        }
-      }
-
+  [<a href="${message.link}#comments"><lor:comment-count count="${message.commentCount}"/></a><%
       if (pages != 1) {
         int PG_COUNT=3;
 
