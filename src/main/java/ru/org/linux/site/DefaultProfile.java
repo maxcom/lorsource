@@ -39,7 +39,7 @@ public final class DefaultProfile {
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
-  private static final String[] STYLES = { "black", "white2", "tango" };
+  private static final String[] STYLES = { "black", "white2", "tango", "waltz" };
   private static final ImmutableList<String> STYLE_LIST = ImmutableList.copyOf(STYLES);
   private static final ImmutableSet<String> STYLE_SET = ImmutableSet.copyOf(STYLES);
 
