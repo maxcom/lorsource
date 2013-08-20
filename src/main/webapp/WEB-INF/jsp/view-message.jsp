@@ -206,19 +206,13 @@
           var ads = [
               {
                   type: 'img',
-                  src: '/adv/selectel/dedicated.png',
-                  href: 'http://selectel.ru/services/dedicated/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=050413'
+                  src: '/adv/selectel/selectel_728-90.gif',
+                  href: 'http://selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=080813'
               },
               {
                   type: 'img',
-                  src: '/adv/selectel/storage.gif',
-                  href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=050413'
-              },
-              {
-                  type: 'img',
-                  src: '/adv/selectel/auction-15-729.png',
-                  href: 'https://tehnodom.com/auction/?utm_source=lor&utm_medium=banner&utm_campaign=050613',
-                  width: 729
+                  src: '/adv/selectel/storage_728-90.gif',
+                  href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=080813'
               }
           ];
 
