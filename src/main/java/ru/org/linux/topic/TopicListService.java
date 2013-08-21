@@ -335,4 +335,8 @@ public class TopicListService {
       return 0;
     }
   }
+
+  public List<Topic> getTopics(TopicListDto topicListDto) {
+    return topicListDao.getTopics(topicListDto);
+  }
 }

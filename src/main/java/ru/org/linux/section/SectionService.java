@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
@@ -66,6 +67,7 @@ public class SectionService {
    * @return объект секции
    * @throws SectionNotFoundException если секция не найдена
    */
+  @Nonnull
   public Section getSection(int sectionId) throws SectionNotFoundException {
     for (Section section : sectionList) {
       if (section.getId() == sectionId) {

@@ -25,6 +25,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.*;
 import ru.org.linux.user.UserTagService;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
@@ -121,7 +122,7 @@ public class TagPageController {
 
     mv.addAllObjects(getNewsSection(request, tag));
     mv.addAllObjects(getGallerySection(tag, tagId, tmpl));
-    mv.addAllObjects(getForumSection(tag));
+    mv.addAllObjects(getForumSection(tag, tagId));
 
     return mv;
   }
@@ -187,18 +188,20 @@ public class TagPageController {
     return out.build();
   }
 
-  private ImmutableMap<String, Object> getForumSection(String tag) throws TagNotFoundException {
+  private ImmutableMap<String, Object> getForumSection(@Nonnull String tag, int tagId) throws TagNotFoundException {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
-    List<Topic> forumTopics = topicListService.getTopicsFeed(
-            forumSection,
-            null,
-            tag,
-            0,
-            null,
-            null,
-            FORUM_TOPIC_COUNT
-    );
+    TopicListDto topicListDto = new TopicListDto();
+
+    topicListDto.setSection(forumSection.getId());
+    topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
+
+    topicListDto.setTag(tagId);
+
+    topicListDto.setLimit(FORUM_TOPIC_COUNT);
+    topicListDto.setLastmodSort(true);
+
+    List<Topic> forumTopics = topicListService.getTopics(topicListDto);
 
     ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, LASTMOD_EXTRACTOR);
 

@@ -232,6 +232,10 @@ public class TopicListDao {
    * @return строка, содержащая условия сортировки
    */
   private static String makeSortOrder(TopicListDto topicListDto) {
+    if (topicListDto.isLastmodSort()) {
+      return "ORDER BY lastmod DESC";
+    }
+
     if (topicListDto.isUserFavs()) {
       return "ORDER BY memories.id DESC";
     }
@@ -266,7 +270,7 @@ public class TopicListDao {
     return limitStr;
   }
 
-  enum CommitMode {
+  public enum CommitMode {
     COMMITED_ONLY(" AND sections.moderate AND commitdate is not null "),
     UNCOMMITED_ONLY(" AND (NOT topics.moderate) AND sections.moderate "),
     POSTMODERATED_ONLY(" AND NOT sections.moderate"),

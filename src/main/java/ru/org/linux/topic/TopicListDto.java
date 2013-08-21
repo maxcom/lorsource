@@ -45,6 +45,7 @@ public class TopicListDto {
   private boolean tech = false;
 
   private boolean showDraft = false;
+  private boolean lastmodSort = false;
 
   public ImmutableSet<Integer> getSections() {
     return sections;
@@ -164,6 +165,14 @@ public class TopicListDto {
 
   public void setShowDraft(boolean showDraft) {
     this.showDraft = showDraft;
+  }
+
+  public boolean isLastmodSort() {
+    return lastmodSort;
+  }
+
+  public void setLastmodSort(boolean lastmodSort) {
+    this.lastmodSort = lastmodSort;
   }
 
   public String toString() {
