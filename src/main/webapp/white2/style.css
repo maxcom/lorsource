@@ -260,3 +260,5 @@ textarea {
 .msg-container {
     margin: 0;
 }
+
+.stars { color: black; font-size: 1em; }
