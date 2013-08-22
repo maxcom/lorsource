@@ -521,3 +521,5 @@ fieldset legend {
 .messages .msg:target {
   border: 2px solid $targeted_message_border_color;
 }
+
+@import "../responsive";
