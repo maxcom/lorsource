@@ -1,0 +1,523 @@
+/*
+ * Copyright 1998-2012 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+@import "../clearfix";
+
+@import "colors";
+
+body {
+  font-family: "Arial", sans-serif;
+  color: $text_color;
+}
+
+.newsblog {
+    .nav {
+        border: none;
+        margin-top: 0;
+        padding: 0;
+    }
+    .newsblog-in {
+        margin-left: 255px;
+    }
+}
+
+h1,h2,h3 {
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
+}
+
+#bd h1,h2 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#bd .messages h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-size: 1.6em;
+}
+
+strong {
+	font-weight: bold;
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+#hd {
+  padding-left: 1em;
+  margin-bottom: 0.5em;
+
+  h1 {
+    color: $header_color;
+  }
+
+  .menu a {
+    color: $main_menu_color;
+  }
+}
+
+#sitetitle {
+  font-size: 2em;
+  font-weight: bold;
+  margin-right: 1em;
+  text-decoration: none;
+  display: block;
+  float: left;
+  color: $header_color;
+}
+
+#hd .menu {
+    font-size: 1.1em;
+
+    @include clearfix;
+
+    li {
+        float: left;
+        margin-right: 0.5em;
+        margin-top: 0.5em;
+    }
+}
+
+#bd {
+	margin-bottom: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+#bd .news {
+	margin-bottom: 1em;
+    border-top: none;
+    padding: .5em;
+    border: 1px solid $article_border_color;
+    border-radius: .5em;
+    background: $article_background;
+
+    h2 {
+        font-size: 1.6em;
+        margin-top: 0.25em;
+        margin-bottom: 0;
+    }
+
+    .entry-body {
+        padding-top: 0.5em;
+    }
+
+    .entry-userpic {
+        padding-top: 0.5em;
+    }
+
+    .nav {
+        text-align: left;
+    }
+}
+
+#bd ul, #bd ol {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+#bd ul *, #bd ol * {
+	margin: 0;
+}
+
+#bd li {
+	margin-left: 2em;
+	list-style: inherit;
+}
+
+#bd .sign {
+  font-style: normal;
+  text-align: left;
+  margin-bottom: 0.5em;
+
+  a {
+    color: $signature_user_color;
+    &:visited {
+      color: $signature_user_color;
+    }
+  }
+}
+
+#bd .column {
+	font-size: 0.8em;
+	text-align: left;
+}
+
+.boxlet {
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  border-radius: .5em;
+  border: 1px solid $article_border_color;
+  background-color: $article_background;
+
+  h2 {
+    font-weight: bold;
+    padding: 0.25em;
+    margin-bottom: 0.25em;
+    font-size: 1.5em;
+    margin-top: 0;
+  }
+
+  p.image {
+    text-align: center;
+    margin-bottom: 0;
+  }
+
+  h3 {
+    margin-bottom: 0.5em;
+  }
+}
+
+#bd .forum {
+  h1 {
+    font-size: 1.5em;
+  }
+
+  table {
+    th {
+      border-top: 1px solid $table_border_color;
+      border-bottom: 1px solid $table_border_color;
+      border-left: 1px solid $table_body_background_color;
+      &:first-child {
+        border-left: 1px solid $table_border_color;
+      }
+      &:last-child {
+        border-right: 1px solid $table_border_color;
+      }
+    }
+
+    tbody {
+      background: $table_body_background_color;
+    }
+    tbody td {
+      border: 1px solid;
+      border-color: $table_border_color;
+
+      a {
+        text-decoration: none;
+        color: $table_link_color;
+        &:visited {
+          color: $text_color;
+        }
+      }
+
+      s {
+        text-decoration: line-through;
+      }
+    }
+
+    thead {
+      background-color: $table_header_background;
+      a {
+        color: $text_color;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: $table_hover_background;
+    }
+  }
+}
+
+#ft {
+    padding: 1em;
+	border-top: 1px dashed;
+}
+
+div.msg_body {
+    h1 {
+        font-size: 1.6em;
+    }
+
+    h2 {
+        font-size: 1em;
+        font-weight: 600;
+        font-family: "Open Sans", sans-serif;
+    }
+}
+
+.msg {
+  border-radius: .5em;
+
+  .code .title {
+    margin-left: inherit;
+  }
+
+  h1 a {
+    color: $text_color;
+  }
+}
+
+.code {
+    border-radius: 3px;
+    border: 1px dashed #777;
+    overflow: auto;
+}
+
+#navPath {
+  font-size: 1.5em;
+
+  a {
+    text-decoration: underline;
+
+    &:visited {
+      text-decoration: underline;
+      color: $link_color;
+    }
+  }
+}
+
+#loginGreating {
+  text-align: right;
+  float: right !important;
+  padding-left: 1em;
+  margin-right: 0.75em;
+
+  a {
+    color: $link_color !important;
+    &.do-logout {
+      color: $logout_link_color !important;
+      text-decoration: none
+    }
+  }
+}
+
+input[type="radio"] {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+input[type="checkbox"] {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#whois_userpic {
+  padding: 1em;
+  background: $article_background;
+}
+
+.infoblock {
+  border-radius: .5em;
+  border: 1px solid $article_border_color;
+  margin-bottom: 1em;
+  background-color: $article_background;
+}
+
+div.quote {
+    margin: 0;
+    border: 0 solid #555753;
+    border-left-width: 5px;
+    padding: 0 0.5em 0;
+}
+
+.page-number {
+  padding: 5px;
+  text-decoration: none;
+  border: solid 1px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  min-width: 1.1em;
+  background-color: $article_background;
+}
+
+.message-table {
+  .tag {
+    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 2px 4px;
+    background-color: $table_border_color;
+  }
+
+  a.secondary {
+    text-decoration: underline !important;
+    color: $text_color !important;
+  }
+  td.dateinterval {
+    text-align: left;
+  }
+}
+
+figure.medium-image {
+    float: right;
+    margin-left: 1em;
+    text-align: center;
+}
+
+html, body {
+  background-color: $main_background;
+}
+
+a {
+  color: $link_color;
+}
+
+#bd h2 * {
+  color: $text_color;
+}
+
+#bd h3 * {
+  color: $text_color;
+}
+
+#bd .tags a {
+  color: $tag_color;
+  &:visited {
+    color: $tag_color;
+  }
+}
+
+#bd header {
+  a:visited {
+    color: $link_color;
+  }
+
+  h1 a {
+    color: $text_color;
+    &:visited {
+      color: $text_color;
+    }
+  }
+}
+
+#bd a.tag {
+  color: $tag_color;
+  &.tag:visited {
+    color: $tag_color;
+  }
+}
+
+.messages .msg {
+  background:  $article_background;
+  border: 1px solid $article_border_color;
+}
+
+#bd a:visited {
+  color: $text_color;
+}
+
+#bd a.navLink:visited {
+  color: $link_color;
+}
+
+#bd .nav a:visited {
+  color: $link_color;
+}
+
+fieldset {
+  border: 1px solid $table_border_color;
+  padding: 5px;
+}
+
+fieldset legend {
+  padding-left: 5px;
+  padding-right: 5px;
+  color:$text_color;
+}
+
+#bd .nav li a {
+  margin-left: 0 !important;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid;
+  margin: 0;
+  font-size: smaller;
+  white-space: nowrap;
+  outline: none;
+  border-radius: 0.2em;
+  zoom: 1;
+
+  border-color: $button_border_color;
+  background-color: $button_background;
+  color: $text_color;
+
+  &:visited {
+    color: $text_color;
+  }
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
+  }
+  &.current {
+    background-color: $button_selected_background;
+    color: $button_selected_text_color !important;
+  }
+}
+
+#bd .btn {
+  display: inline-block;
+  text-align: center;
+  padding: 6px 12px;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: .2em;
+  white-space: nowrap;
+
+  border-color: $button_border_color;
+  color: $button_text_color;
+  text-decoration: none;
+
+  &:visited {
+    color: $button_text_color;
+  }
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
+  }
+}
+
+#bd .btn-primary {
+  background-color: $button_primary_background;
+}
+
+#bd .btn-default {
+  background-color: $button_background;
+}
+
+.fav-buttons {
+  .selected [class^="icon-"] {
+    color: $icon_button_active_color;
+  }
+  a {
+    color: $text_color;
+  }
+}
+
+.user-remark {
+  color: $signature_remark_color;
+}
+
+#tag-page-forum {
+  .group-label {
+    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 2px 4px;
+    background-color: $tagpage_group_label_background;
+    color: $tagpage_group_label_color;
+    white-space: nowrap;
+  }
+}
+
+.messages .msg:target {
+  border: 2px solid $targeted_message_border_color;
+}
