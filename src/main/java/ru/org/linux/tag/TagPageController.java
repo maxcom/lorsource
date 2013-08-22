@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.PreparedGalleryItem;
 import ru.org.linux.group.Group;
@@ -91,10 +90,6 @@ public class TagPageController {
           @PathVariable String tag
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isSessionAuthorized() || tmpl.getCurrentUser().getScore()<100) {
-      throw new AccessViolationException("Forbidden");
-    }
 
     tagService.checkTag(tag);
 
