@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2013 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -45,6 +45,7 @@ public class TopicListDto {
   private boolean tech = false;
 
   private boolean showDraft = false;
+  private boolean lastmodSort = false;
 
   public ImmutableSet<Integer> getSections() {
     return sections;
@@ -164,6 +165,14 @@ public class TopicListDto {
 
   public void setShowDraft(boolean showDraft) {
     this.showDraft = showDraft;
+  }
+
+  public boolean isLastmodSort() {
+    return lastmodSort;
+  }
+
+  public void setLastmodSort(boolean lastmodSort) {
+    this.lastmodSort = lastmodSort;
   }
 
   public String toString() {

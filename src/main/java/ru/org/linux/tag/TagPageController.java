@@ -1,3 +1,18 @@
+/*
+ * Copyright 1998-2013 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.tag;
 
 import com.google.common.base.Function;
@@ -13,7 +28,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.PreparedGalleryItem;
 import ru.org.linux.group.Group;
@@ -25,6 +39,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.*;
 import ru.org.linux.user.UserTagService;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
@@ -91,10 +106,6 @@ public class TagPageController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isSessionAuthorized() || tmpl.getCurrentUser().getScore()<500) {
-      throw new AccessViolationException("Forbidden");
-    }
-
     tagService.checkTag(tag);
 
     ModelAndView mv = new ModelAndView("tag-page");
@@ -121,7 +132,7 @@ public class TagPageController {
 
     mv.addAllObjects(getNewsSection(request, tag));
     mv.addAllObjects(getGallerySection(tag, tagId, tmpl));
-    mv.addAllObjects(getForumSection(tag));
+    mv.addAllObjects(getForumSection(tag, tagId));
 
     return mv;
   }
@@ -187,24 +198,34 @@ public class TagPageController {
     return out.build();
   }
 
-  private ImmutableMap<String, ImmutableList<ImmutableMap<String, List<ForumItem>>>> getForumSection(String tag) throws TagNotFoundException {
+  private ImmutableMap<String, Object> getForumSection(@Nonnull String tag, int tagId) throws TagNotFoundException {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
-    List<Topic> forumTopics = topicListService.getTopicsFeed(
-            forumSection,
-            null,
-            tag,
-            0,
-            null,
-            null,
-            FORUM_TOPIC_COUNT
-    );
+    TopicListDto topicListDto = new TopicListDto();
+
+    topicListDto.setSection(forumSection.getId());
+    topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
+
+    topicListDto.setTag(tagId);
+
+    topicListDto.setLimit(FORUM_TOPIC_COUNT);
+    topicListDto.setLastmodSort(true);
+
+    List<Topic> forumTopics = topicListService.getTopics(topicListDto);
 
     ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, LASTMOD_EXTRACTOR);
 
-    return ImmutableMap.of(
-            "forum", split(Multimaps.transformValues(sections, forumPrepareFunction))
-    );
+    ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
+
+    if (forumTopics.size()==FORUM_TOPIC_COUNT) {
+      out.put("moreForum", TagTopicListController.tagListUrl(tag, forumSection));
+    }
+
+    out.put("addForum", AddTopicController.getAddUrl(forumSection, tag));
+
+    out.put("forum", split(Multimaps.transformValues(sections, forumPrepareFunction)));
+
+    return out.build();
   }
 
   private static ImmutableListMultimap<String, Topic> datePartition(

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2013 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -280,13 +280,17 @@ public class User implements Serializable {
     int stars = getGreenStars(score);
     int greyStars = getGreyStars(score, maxScore);
 
+    out.append("<span class=\"stars\">");
+
     for (int i = 0; i < stars; i++) {
-      out.append("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">");
+      out.append("★");
     }
 
     for (int i = 0; i < greyStars; i++) {
-      out.append("<img src=\"/img/grey-star.gif\" width=9 height=9 alt=\"#\">");
+      out.append("☆");
     }
+
+    out.append("</span>");
 
     return out.toString();
   }

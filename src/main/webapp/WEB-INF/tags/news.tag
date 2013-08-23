@@ -16,7 +16,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--
-  ~ Copyright 1998-2012 Linux.org.ru
+  ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -40,32 +40,7 @@
 
 <c:set var="commentsLinks">
   <c:if test="${message.commentCount > 0}">
-  <%
-      out.append(" [<a href=\"");
-      out.append(message.getLink());
-      out.append("#comments\">");
-
-      int stat1 = message.getCommentCount();
-      out.append(Integer.toString(stat1));
-
-      if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-        out.append("&nbsp;комментариев</a>");
-      } else {
-        switch (stat1 % 10) {
-          case 1:
-            out.append("&nbsp;комментарий</a>");
-            break;
-          case 2:
-          case 3:
-          case 4:
-            out.append("&nbsp;комментария</a>");
-            break;
-          default:
-            out.append("&nbsp;комментариев</a>");
-            break;
-        }
-      }
-
+  [<a href="${message.link}#comments"><lor:comment-count count="${message.commentCount}"/></a><%
       if (pages != 1) {
         int PG_COUNT=3;
 

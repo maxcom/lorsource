@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2012 Linux.org.ru
+  ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -206,19 +206,13 @@
           var ads = [
               {
                   type: 'img',
-                  src: '/adv/selectel/dedicated.png',
-                  href: 'http://selectel.ru/services/dedicated/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=050413'
+                  src: '/adv/selectel/selectel_728-90.gif',
+                  href: 'http://selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=080813'
               },
               {
                   type: 'img',
-                  src: '/adv/selectel/storage.gif',
-                  href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=050413'
-              },
-              {
-                  type: 'img',
-                  src: '/adv/selectel/auction-15-729.png',
-                  href: 'https://tehnodom.com/auction/?utm_source=lor&utm_medium=banner&utm_campaign=050613',
-                  width: 729
+                  src: '/adv/selectel/storage_728-90.gif',
+                  href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=080813'
               }
           ];
 

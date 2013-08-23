@@ -681,7 +681,7 @@ a img { border: none; }
   }
 }
 
-#tag-page-gallery-buttons, #tag-page-news-buttons {
+.tag-page-buttons {
   @include clearfix();
   @include container();
 
@@ -706,3 +706,12 @@ a img { border: none; }
     }
   }
 }
+
+.stars {
+  color: #01F814;
+  font-size: 0.7rem;
+  vertical-align: middle;
+  letter-spacing: 0.1rem;
+}
+
+@import "form";

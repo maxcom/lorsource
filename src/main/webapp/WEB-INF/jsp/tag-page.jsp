@@ -4,7 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2012 Linux.org.ru
+  ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -92,7 +92,7 @@
     </c:forEach>
   </div>
 
-  <div id="tag-page-news-buttons">
+  <div class="tag-page-buttons">
     <div>
         <a href="${addNews}" class="btn btn-primary">Добавить</a>
         <c:if test="${not empty moreNews}">
@@ -120,7 +120,7 @@
     </c:forEach>
   </div>
 
-  <div id="tag-page-gallery-buttons">
+  <div class="tag-page-buttons">
     <div>
       <c:if test="${not empty addGallery}">
         <a href="${addGallery}" class="btn btn-primary">Добавить</a>
@@ -146,13 +146,24 @@
               <c:forEach var="msg" items="${entry.value}">
                 <li>
                   <span class="group-label">${msg.group.title}</span> <a href="${msg.topic.link}">${msg.topic.title}</a>
-                  <c:if test="${msg.topic.commentCount>0}">(${msg.topic.commentCount} комментариев)</c:if>
+                  <c:if test="${msg.topic.commentCount>0}">(<lor:comment-count count="${msg.topic.commentCount}"/>)</c:if>
                 </li>
               </c:forEach>
             </ul>
           </c:forEach>
         </section>
       </c:forEach>
+    </div>
+
+    <div class="tag-page-buttons">
+      <div>
+        <c:if test="${not empty addGallery}">
+          <a href="${addForum}" class="btn btn-primary">Добавить</a>
+        </c:if>
+        <c:if test="${not empty moreGallery}">
+          <a href="${moreForum}" class="btn btn-default">Все темы</a>
+        </c:if>
+      </div>
     </div>
   </section>
 </c:if>

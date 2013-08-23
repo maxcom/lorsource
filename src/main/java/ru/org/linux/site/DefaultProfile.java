@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2013 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,7 +39,7 @@ public final class DefaultProfile {
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
-  private static final String[] STYLES = { "black", "white2", "tango" };
+  private static final String[] STYLES = { "black", "white2", "tango", "waltz" };
   private static final ImmutableList<String> STYLE_LIST = ImmutableList.copyOf(STYLES);
   private static final ImmutableSet<String> STYLE_SET = ImmutableSet.copyOf(STYLES);
 

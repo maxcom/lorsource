@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
 <%@ page import="ru.org.linux.topic.TopicTagService"%>
 <%--
-  ~ Copyright 1998-2012 Linux.org.ru
+  ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -127,7 +127,7 @@
 
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
-                <form:input path="poll[${i.index}]" size="40"/></label><br>
+                <form:input path="poll[${i.index}]" size="40"/></label>
       </c:forEach>
       <p>
         <label>Мультивыбор: <form:checkbox path="multiSelect" size="40"/></label>

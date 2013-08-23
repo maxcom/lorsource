@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2013 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -45,8 +45,8 @@ public class LastMiniNewsDao {
             " where " +
             "  topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and " + // За последнйи месяйц
             "  not deleted and " +                                                   // Неудаленные
-            "  groups.section = 1 and " +                                            // Новости
-            "  minor order by topics.postdate desc limit 10";                        // 10 штук
+            "  groups.section = 1 and topics.moderate and commitdate is not null and not draft " + // Новости
+            "  and minor order by topics.commitdate desc limit 10";                        // 10 штук
 
     return jdbcTemplate.query(sql, new RowMapper<LastMiniNews>() {
       @Override
@@ -67,7 +67,6 @@ public class LastMiniNewsDao {
     });
 
   }
-
 
   public static class LastMiniNews implements Serializable {
     private final String url;

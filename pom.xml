@@ -425,16 +425,21 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/common.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
-
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
-
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/tango/reset-fonts-grids.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/responsive.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                            </includes>
+                        </aggregation>
+                        <aggregation>
+                            <removeIncluded>false</removeIncluded>
+                            <insertNewLine>true</insertNewLine>
+                            <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
+                            <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/waltz/popover.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
@@ -442,10 +447,7 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/common.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
-
                                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
                             </includes>
@@ -455,13 +457,9 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/common.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/form.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
-
                                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/responsive.css</include>
                             </includes>
                         </aggregation>
                     </aggregations>
