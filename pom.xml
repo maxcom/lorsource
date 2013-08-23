@@ -431,7 +431,6 @@
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/tango/reset-fonts-grids.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                             </includes>
@@ -447,7 +446,6 @@
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
 
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/waltz/reset-fonts-grids.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/popover.css</include>
                             </includes>
