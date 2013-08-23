@@ -66,7 +66,11 @@ public class UserTest {
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
-    Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus());
+    Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
@@ -170,7 +174,11 @@ public class UserTest {
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
-    Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus());
+    Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
@@ -225,7 +233,11 @@ public class UserTest {
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
-    Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus());
+    Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
+                        "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
@@ -280,7 +292,7 @@ public class UserTest {
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
-    Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus());
+    Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
     Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
