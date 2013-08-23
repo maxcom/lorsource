@@ -33,12 +33,11 @@ mixin sign(user, shortMode, author, postdate, timeprop)
     | #{' '}
 
     if !shortMode && user.stars!=null
-        span(class="stars")
-            each item in user.stars
-                if item
-                    | ★
-                else
-                    | ☆
+        each item in user.stars
+            if item
+                img(src="/img/normal-star.gif",width=9,height=9,alt="*")
+            else
+                img(src="/img/grey-star.gif",width=9,height=9,alt="*")
     if !shortMode && user.score!=null
         |  (Score: #{user.score} MaxScore: #{user.maxScore})
 

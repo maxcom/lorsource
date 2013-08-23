@@ -280,17 +280,13 @@ public class User implements Serializable {
     int stars = getGreenStars(score);
     int greyStars = getGreyStars(score, maxScore);
 
-    out.append("<span class=\"stars\">");
-
     for (int i = 0; i < stars; i++) {
-      out.append("★");
+      out.append("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">");
     }
 
     for (int i = 0; i < greyStars; i++) {
-      out.append("☆");
+      out.append("<img src=\"/img/grey-star.gif\" width=9 height=9 alt=\"#\">");
     }
-
-    out.append("</span>");
 
     return out.toString();
   }

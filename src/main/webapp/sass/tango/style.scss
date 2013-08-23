@@ -271,10 +271,6 @@ div.msg_body {
 
   a {
     color: $link_color !important;
-    &.do-logout {
-      color: $logout_link_color !important;
-      text-decoration: none
-    }
   }
 }
 
