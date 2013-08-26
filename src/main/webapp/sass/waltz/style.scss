@@ -526,4 +526,8 @@ fieldset legend {
   border: 2px solid $targeted_message_border_color;
 }
 
+.stars {
+  color: $stars_color;
+}
+
 @import "../responsive";
