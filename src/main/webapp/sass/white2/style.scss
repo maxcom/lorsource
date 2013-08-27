@@ -15,42 +15,45 @@
 
 @import "../common";
 
+$a_color: #00A;
+$a_visit_color: #A0A;
+$back_color: #B0B0B0;
+$header_color: #aea6f2;
+$boxlet_back_color: #defefc;
+$nav_back: #f0f0f0;
+$main_color: white;
+$code_color: #DADADA;
+$group_label_color: $code_color;
+$site_title_color: #786AF2;
+$message_tr_color: #d8d8d8;
+
 body {
     font-family: sans-serif;
 }
 
 a {
-    color: #0000AA;
+    color: $a_color;
     text-decoration: none;
 }
 
 a:visited {
-    color: #0000AA;
+    color: $a_color;
 }
 
 .message-table a:visited {
-    color: #AA00AA;
+    color: $a_visit_color;
 }
 
 a:hover {
     text-decoration: underline;
 }
 
-.hr {
-    background: #B0B0B0;
-}
-
-hr {
-    color: #B0B0B0;
-}
-
 /* info boxes on columns */
 DIV.boxlet H2 {
     text-align: center;
-    color: white;
+    color: $main_color;
     font-size: medium;
-    font-family: sans-serif;
-    background-color: #aea6f2;
+    background-color: $header_color;
     border: 1px;
     font-weight: bold;
     margin-top: 0;
@@ -62,24 +65,21 @@ DIV.boxlet H3 {
 
 DIV.boxlet {
     font-size: small;
-    font-family: sans-serif;
     margin-bottom: 30px;
     padding-bottom: 5px;
     text-align: left;
-    background-color: #defefc;
+    background-color: $boxlet_back_color;
     border: 1px;
 }
 
 DIV.columnimg {
     font-size: small;
-    font-family: sans-serif;
     margin-top: 30px;
     text-align: center;
 }
 
 /* news items */
 .news H2 {
-    font-family: sans-serif;
     margin-bottom: 5px;
     margin-top: 5px;
 }
@@ -89,56 +89,47 @@ DIV.columnimg {
     margin-top: 1em;
 }
 
-/* view-forum */
-.color1 {
-    background: #aea6f2;
-}
-
 .nav {
-    background: #f0f0f0;
+    background: $nav_back;
     padding: 0;
 }
 
 .newsblog .nav {
-    background-color: white;
+    background-color: $main_color;
 }
 
 .entry-body .nav {
-    background-color: white;
+    background-color: $main_color;
 }
 
 table.nav>tbody>tr>td {
-    border: #aea6f2 1px solid;
-}
-
-TR.color2 {
-    background: #f0f0f0;
+    border: $header_color 1px solid;
 }
 
 .message-table {
-    background: #aea6f2;
+    background: $header_color;
     border-spacing: 1px;
 }
 
 .message-table tbody {
-    background: #f0f0f0;
+    background: $nav_back;
 }
 
 DIV.messages .title {
-    background: #aea6f2;
+    background: $header_color;
 }
 
 .messages .comment .title {
-    background: #defefc;
+    background: $boxlet_back_color;
 }
 
 .messages .msg {
-    background: #f0f0f0;
+    background: $nav_back;
     padding: 0;
 }
 
 .messages > .msg {
-    background: #f0f0f0;
+    background: $nav_back;
     padding: 0.25em 1em 1em;
 }
 
@@ -158,12 +149,11 @@ DIV.notes {
 }
 
 .bluehead {
-    background: #defefc;
+    background: $boxlet_back_color;
 }
 
-
 .code code {
-    background-color: #dadada;
+    background-color: $code_color;
     font-family: monospace !important;
 }
 
@@ -176,7 +166,7 @@ div.quote {
 }
 
 .message-table tbody tr:hover {
-    background: #d8d8d8;
+    background: $message_tr_color;
 }
 
 .nav li:after {
@@ -194,7 +184,7 @@ div.quote {
     display: block;
     float: left;
     text-decoration: none;
-    color: #786AF2 !important;
+    color: $site_title_color !important;
 }
 
 #loginGreating {
@@ -205,21 +195,13 @@ div.quote {
 }
 
 #hd {
-    background-color: #defefc;
+    background-color: $boxlet_back_color;
     margin-bottom: 0.4em;
 }
 
 #hd .menu {
     margin-bottom: 0.5em;
-}
-
-#hd .menu:after {
-    content: ".";
-    display: block;
-    clear: both;
-    visibility: hidden;
-    line-height: 0;
-    height: 0;
+    @include clearfix;
 }
 
 #hdtux {
@@ -262,5 +244,27 @@ textarea {
 .msg-container {
     margin: 0;
 }
+
+#bd .btn {
+    color: black;
+    border: 1px solid black;
+    padding: 6px;
+    &:hover,
+    &:focus {
+        background-color: $site_title_color;
+        border: 1px solid $site_title_color;
+        color: white;
+    }
+}
+
+#tag-page-forum {
+    .group-label {
+        padding: 2px;
+        background-color: $group_label_color;
+        font-size: 0.8em;
+    }
+}
+
+
 
 @import "../responsive";

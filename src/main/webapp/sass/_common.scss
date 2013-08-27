@@ -714,4 +714,15 @@ a img { border: none; }
   letter-spacing: 0.1rem;
 }
 
+#bd .btn {
+    display: inline-block;
+    text-align: center;
+    padding: 6px 12px;
+    vertical-align: middle;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+
 @import "form";
