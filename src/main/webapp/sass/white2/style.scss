@@ -24,6 +24,7 @@ $nav_back: #f0f0f0;
 $main_color: white;
 $code_color: #DADADA;
 $site_title_color: #786AF2;
+$message_tr_color: #d8d8d8;
 
 body {
     font-family: sans-serif;
@@ -45,7 +46,6 @@ a:visited {
 a:hover {
     text-decoration: underline;
 }
-
 
 /* info boxes on columns */
 DIV.boxlet H2 {
@@ -151,7 +151,6 @@ DIV.notes {
     background: $boxlet_back_color;
 }
 
-
 .code code {
     background-color: $code_color;
     font-family: monospace !important;
@@ -166,7 +165,7 @@ div.quote {
 }
 
 .message-table tbody tr:hover {
-    background: #d8d8d8;
+    background: $message_tr_color;
 }
 
 .nav li:after {
@@ -244,5 +243,18 @@ textarea {
 .msg-container {
     margin: 0;
 }
+
+#bd .btn {
+    color: black;
+    border: 1px solid black;
+    &:hover,
+    &:focus {
+        background-color: $site_title_color;
+        border: 1px solid $site_title_color;
+        color: white;
+    }
+}
+
+
 
 @import "../responsive";
