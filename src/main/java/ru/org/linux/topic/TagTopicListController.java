@@ -106,7 +106,7 @@ public class TagTopicListController {
 
     Template tmpl = Template.getTemplate(request);
 
-    if ((tmpl.getStyle().equals("tango")||tmpl.getStyle().equals("waltz")) && offset==0 && sectionId==0) {
+    if (offset==0 && sectionId==0) {
       return tagPageController.tagPage(request, tag);
     }
 
