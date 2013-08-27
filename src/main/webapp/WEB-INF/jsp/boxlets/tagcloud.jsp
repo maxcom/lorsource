@@ -22,7 +22,7 @@
   <h2>Облако Меток</h2>
 
   <div class="boxlet_content">
-    <div align="center">
+    <p align="center">
       <c:forEach var="tag" items="${tags}">
         <%
           TagCloudDao.TagDTO tag = (TagCloudDao.TagDTO) pageContext.getAttribute("tag");
@@ -30,7 +30,7 @@
         <c:url value="<%= TagTopicListController.tagListUrl(tag.getValue()) %>" var="tag_url"/>
         <a class="cloud${tag.weight}" href="${fn:escapeXml(tag_url)}">${tag.value}</a>
       </c:forEach>
-    </div>
+    </p>
     <p>
       <a href="/tags/">все метки...</a>
     </p>
