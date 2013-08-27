@@ -71,6 +71,6 @@
   <button type=submit>Поместить</button>
   <button type=submit name=preview>Предпросмотр</button>
   <c:if test="${cancel!=null && cancel}">
-    <button type=reset name=cancel id="cancelButton">Отменить</button>
+    <button type=reset name=cancel id="cancelButton">Отменить изменения</button>
   </c:if>
 </form>
