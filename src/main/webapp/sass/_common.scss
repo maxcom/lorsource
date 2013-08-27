@@ -602,28 +602,22 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .grid-row {
-    display: table;
-    width: 100%;
-}
+  @include clearfix;
+  @include container;
 
-.grid-3-1 {
+  .grid-3-1 {
     vertical-align: middle;
-    width: 35%;
-    display: table-cell;
-}
+    @include column(4);
+  }
 
-.grid-3-2 {
-    vertical-align: middle;
-    width: 30%;
-    display: table-cell;
+  .grid-3-2 {
+    @include column(4, 4);
     text-align: center;
-}
+  }
 
-.grid-3-3 {
-    vertical-align: middle;
-    width: 35%;
-    display: table-cell;
-    text-align: right;
+  .grid-3-3 {
+    @include column(4, 8);
+  }
 }
 
 #bd li {
