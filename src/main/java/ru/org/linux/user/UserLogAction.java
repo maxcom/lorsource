@@ -23,7 +23,8 @@ public enum UserLogAction {
   ACCEPT_NEW_EMAIL("accept_new_email", "Установлен новый email"),
   RESET_INFO("reset_info", "Сброшен текст информации"),
   RESET_PASSWORD("reset_password", "Сброшен пароль"),
-  SET_PASSWORD("set_password", "Установлен новый пароль");
+  SET_PASSWORD("set_password", "Установлен новый пароль"),
+  REGISTER("register", "Зарегистрирован");
 
   private final String name;
   private final String description;

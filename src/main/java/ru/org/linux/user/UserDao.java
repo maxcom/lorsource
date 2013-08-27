@@ -537,7 +537,15 @@ public class UserDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int createUser(String name, String nick, String password, String url, InternetAddress mail, String town, String info) {
+  public int createUser(
+          String name,
+          String nick,
+          String password,
+          String url,
+          InternetAddress mail,
+          String town,
+          String ip
+  ) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
     int userid = jdbcTemplate.queryForObject("select nextval('s_uid') as userid", Integer.class);
@@ -555,9 +563,7 @@ public class UserDao {
             town
     );
 
-    if (info != null) {
-      setUserInfo(userid, info);
-    }
+    userLogDao.logRegister(userid, ip);
 
     return userid;
   }

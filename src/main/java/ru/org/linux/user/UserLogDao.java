@@ -40,6 +40,7 @@ public class UserLogDao {
   public static final String OPTION_OLD_EMAIL = "old_email";
   public static final String OPTION_NEW_EMAIL = "new_email";
   public static final String OPTION_OLD_INFO = "old_info";
+  public static final String OPTION_IP = "ip";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -182,6 +183,17 @@ public class UserLogDao {
               }
             },
             user.getId()
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logRegister(int userid, @Nonnull String ip) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            userid,
+            userid,
+            UserLogAction.REGISTER.toString(),
+            ImmutableMap.of(OPTION_IP, ip)
     );
   }
 }

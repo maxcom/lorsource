@@ -61,7 +61,6 @@ public class RegisterController {
   @Autowired
   private UserDetailsServiceImpl userDetailsService;
 
-
   @Autowired
   private UserDao userDao;
 
@@ -122,7 +121,7 @@ public class RegisterController {
     if (!errors.hasErrors()) {
       InternetAddress mail = new InternetAddress(form.getEmail().toLowerCase());
 
-      int userid = userDao.createUser("", form.getNick(), form.getPassword(), "", mail, "", "");
+      int userid = userDao.createUser("", form.getNick(), form.getPassword(), "", mail, "", request.getRemoteAddr());
 
       String logmessage = "Зарегистрирован пользователь " + form.getNick() + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
       logger.info(logmessage);
