@@ -21,7 +21,6 @@
   <h2><a href="/gallery/">Галерея</a></h2>
 
   <div class="boxlet_content">
-    <h3>Последние скриншоты</h3>
     <c:forEach var="item" items="${items}">
       <div style="margin-bottom: 1em">
       <div align="center">

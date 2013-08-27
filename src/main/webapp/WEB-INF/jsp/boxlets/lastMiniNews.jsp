@@ -19,7 +19,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <h2>Мининовости</h2>
 <div class="boxlet_content">
-    <h3>Последние мининовости</h3>
+    Последние мининовости:
     <ul>
         <c:forEach items="${topics}" var="topic">
             <li>

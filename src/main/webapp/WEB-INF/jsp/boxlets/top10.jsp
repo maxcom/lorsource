@@ -20,7 +20,7 @@
 <h2>Top 10</h2>
 
 <div class="boxlet_content">
-  <h3>Наиболее обсуждаемые темы этого месяца</h3>
+  Наиболее обсуждаемые темы этого месяца:
   <ul>
     <c:forEach items="${messages}" var="message">
       <li>
