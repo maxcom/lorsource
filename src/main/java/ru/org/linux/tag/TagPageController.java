@@ -49,7 +49,7 @@ import static ru.org.linux.util.ListUtil.headOrEmpty;
 import static ru.org.linux.util.ListUtil.tailOrEmpty;
 
 @Controller
-@RequestMapping("/tag/{tag}/bigpage")
+@RequestMapping(value="/tag/{tag}", params = "!section")
 public class TagPageController {
   public static final int TOTAL_NEWS_COUNT = 21;
   public static final int FORUM_TOPIC_COUNT = 20;

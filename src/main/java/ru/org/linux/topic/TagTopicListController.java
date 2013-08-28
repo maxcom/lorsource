@@ -30,7 +30,6 @@ import org.springframework.web.util.UriTemplate;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.tag.TagPageController;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.UserTagService;
 
@@ -60,9 +59,6 @@ public class TagTopicListController {
   @Autowired
   private TopicPrepareService prepareService;
 
-  @Autowired
-  private TagPageController tagPageController;
-
   public static String tagListUrl(String tag) {
     return TAG_URI_TEMPLATE.expand(tag).toString();
   }
@@ -83,7 +79,7 @@ public class TagTopicListController {
     }
   }
 
-  @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD})
+  @RequestMapping(value = "/tag/{tag}", method = {RequestMethod.GET, RequestMethod.HEAD}, params = "section")
   public ModelAndView tagFeed(
     HttpServletRequest request,
     HttpServletResponse response,
@@ -105,10 +101,6 @@ public class TagTopicListController {
     tagService.checkTag(tag);
 
     Template tmpl = Template.getTemplate(request);
-
-    if (offset==0 && sectionId==0) {
-      return tagPageController.tagPage(request, tag);
-    }
 
     TopicListController.setExpireHeaders(response, null, null);
 
