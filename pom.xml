@@ -427,7 +427,7 @@
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                             </includes>
                         </aggregation>

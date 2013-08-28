@@ -13,14 +13,6 @@
  *    limitations under the License.
  */
 
-@import "../common";
-
-@import "reset";
-
-@import "../clearfix";
-
-@import "tango-dark";
-
 body {
   font-family: "Arial", sans-serif;
   color: $text_color;
@@ -490,5 +482,3 @@ fieldset legend {
     white-space: nowrap;
   }
 }
-
-@import "../responsive";
