@@ -71,6 +71,15 @@
   <button type=submit>Поместить</button>
   <button type=submit name=preview>Предпросмотр</button>
   <c:if test="${cancel!=null && cancel}">
-    <button type=reset name=cancel id="cancelButton">Отменить</button>
+    <c:choose>
+      <%-- Для режима редактирования --%>
+      <c:when test="${original != null}">
+        <button type=reset name=cancel id="cancelButton">Отменить изменения</button>
+      </c:when>
+      <%-- Для всех остальных режимов --%>
+      <c:otherwise>
+        <button type=reset name=cancel id="cancelButton">Отменить</button>
+      </c:otherwise>
+    </c:choose>
   </c:if>
 </form>
