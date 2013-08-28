@@ -71,6 +71,9 @@ public class UserLogPrepareService {
             case UserLogDao.OPTION_NEW_USERPIC:
               value = "<a href=\"/photos/" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
               break;
+            case UserLogDao.OPTION_IP:
+              value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
+              break;
             default:
               value = escapeHtml(option.getValue());
               break;
