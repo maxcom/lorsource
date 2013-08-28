@@ -67,8 +67,8 @@
   $script.ready('lorjs', function() { initNextPrevKeys(); });
   <c:if test="${not message.expired and template.sessionAuthorized}">
     $script('/js/addComments.js');
-  </script>
-</c:if>
+  </c:if>
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class=messages itemscope itemtype="http://schema.org/Article">
