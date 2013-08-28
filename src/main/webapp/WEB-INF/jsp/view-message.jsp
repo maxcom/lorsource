@@ -74,7 +74,7 @@
 <div class=messages itemscope itemtype="http://schema.org/Article">
 
 <c:set var="scroller"><c:if test="${topScroller}">
-  <div class="nav grid-row">
+  <div class="grid-row">
     <div class="grid-3-1">
       <table>
         <tr valign=middle>
@@ -113,7 +113,7 @@
 </c:if></c:set>
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
-  <div class="nav grid-row">
+  <div class="grid-row">
     <div class="grid-3-1">
       <table>
         <tr valign=middle>
