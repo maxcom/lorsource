@@ -32,49 +32,53 @@ function initTopTagSelection() {
 }
 
 function initNextPrevKeys() {
-  $(function() {
-    function jump(link) {
-      if (link && link.href) {
-        document.location = link.href;
+  $script.ready('plugins', function () {
+    $(function () {
+      function jump(link) {
+        if (link && link.href) {
+          document.location = link.href;
+        }
       }
-    }
 
-    if (typeof  jQuery.hotkeys !== 'undefined') {
-      $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function() {
-        jump(document.getElementById('PrevLink'))
-      });
-      $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function() {
-        jump(document.getElementById('NextLink'))
-      });
-    }
+      if (typeof  jQuery.hotkeys !== 'undefined') {
+        $(document).bind('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
+          jump(document.getElementById('PrevLink'))
+        });
+        $(document).bind('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
+          jump(document.getElementById('NextLink'))
+        });
+      }
+    })
   });
 }
 
 function initStarPopovers() {
-  $(function() {
-      $("#favs_button").click(function(event) {
-          event.preventDefault();
-          event.stopPropagation();
-          $("#memories_button").popover('hide');
-          $("#favs_button").popover('show');
+  $script.ready('plugins', function () {
+    $(function () {
+      $("#favs_button").click(function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $("#memories_button").popover('hide');
+        $("#favs_button").popover('show');
       });
       $("#favs_button").popover({
-          content: "Для добавления в избранное надо залогиниться!",
-          autoReposition: false,
-          trigger: 'manual'
+        content: "Для добавления в избранное надо залогиниться!",
+        autoReposition: false,
+        trigger: 'manual'
       });
 
-      $("#memories_button").click(function(event) {
-           event.preventDefault();
-           event.stopPropagation();
-           $("#favs_button").popover('hide');
-           $("#memories_button").popover('show');
+      $("#memories_button").click(function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $("#favs_button").popover('hide');
+        $("#memories_button").popover('show');
       });
       $("#memories_button").popover({
-          content: "Для добавления в отслеживаемое надо залогиниться!",
-          autoReposition: false,
-          trigger: 'manual'
+        content: "Для добавления в отслеживаемое надо залогиниться!",
+        autoReposition: false,
+        trigger: 'manual'
       });
+    })
   });
 }
 
@@ -178,7 +182,7 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
     }
   }
 
-  $().ready(function () {
+  $(function () {
     form_setup(memId, watch);
   });
 }
@@ -240,7 +244,7 @@ function tag_memories_form_setup(tag, csrf_token) {
   });
 }
 
-$(document).ready(function() {
+$script.ready('plugins', function() {
   function initLoginForm() {
     var options = {
       type:"post",
@@ -283,6 +287,22 @@ $(document).ready(function() {
     }
   }
 
+  function initCommentFormValidation() {
+    $("#commentForm").validate({
+      messages : {
+        msg :  "Введите сообщение",
+        title : "Введите заголовок"
+      }
+    });
+  }
+
+  $(function() {
+    initLoginForm();
+    initCommentFormValidation();
+  });
+});
+
+$(document).ready(function() {
   function initCtrlEnter() {
     function ctrl_enter(e, form) {
         if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey)) {
@@ -296,15 +316,6 @@ $(document).ready(function() {
 
     $('textarea').bind('keypress', function(e) {
       ctrl_enter(e, e.target.form);
-    });
-  }
-
-  function initCommentFormValidation() {
-    $("#commentForm").validate({
-      messages : {
-        msg :  "Введите сообщение",
-        title : "Введите заголовок"
-      }
     });
   }
 
@@ -346,9 +357,7 @@ $(document).ready(function() {
     });
   }
 
-  initLoginForm();
   initCtrlEnter();
-  initCommentFormValidation();
   initUpdateEventsCount();
 
   // remove hidden quote elements
