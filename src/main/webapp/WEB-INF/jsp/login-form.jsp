@@ -26,11 +26,11 @@
     <div class="error">Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.</div>
 </c:if>
 
-<form method=POST action="/login_process">
+<form method=POST action="${template.secureMainUrl}/login_process">
   <lor:csrf/>
   <label>Имя:<br><input autofocus type=text name=nick size=40 placeholder="nick или email"></label>
   <label>Пароль:<br><input type=password name=passwd size=40></label>
-  <input type=submit value="Вход">
+  <button type=submit>Вход</button>
 </form>
 
 <div style="font-size: smaller">
