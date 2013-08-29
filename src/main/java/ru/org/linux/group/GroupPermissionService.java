@@ -133,7 +133,11 @@ public class GroupPermissionService {
     calendar.add(Calendar.HOUR_OF_DAY, -1);
     Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
 
-    return (topic.getPostdate().compareTo(hourDeltaTime) >= 0 && topic.getUid() == user.getId());
+    return (
+        topic.getPostdate().compareTo(hourDeltaTime) >= 0 && //
+        topic.getUid() == user.getId() &&
+        topic.getCommentCount() == 0
+    );
   }
 
   /**
