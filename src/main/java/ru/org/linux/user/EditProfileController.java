@@ -54,7 +54,7 @@ public class EditProfileController {
     }
 
     Map<String, Object> params = new HashMap<>();
-    params.put("stylesList", DefaultProfile.getStyleList());
+    params.put("stylesList", DefaultProfile.getStyles());
     params.put("avatarsList", DefaultProfile.getAvatars());
 
 
@@ -86,7 +86,7 @@ public class EditProfileController {
       throw new BadInputException("некорректное число сообщений");
     }
 
-    if(!DefaultProfile.getStyleList().contains(request.getParameter("style"))) {
+    if(!DefaultProfile.getStyles().contains(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы");
     }
 

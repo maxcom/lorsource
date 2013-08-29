@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import java.util.Map;
 import static ru.org.linux.user.Profile.*;
 
 public final class DefaultProfile {
-
   private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
       .put("poll", "Текущий опрос")
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
@@ -39,9 +39,7 @@ public final class DefaultProfile {
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
-  private static final String[] STYLES = { "black", "white2", "tango", "waltz" };
-  private static final ImmutableList<String> STYLE_LIST = ImmutableList.copyOf(STYLES);
-  private static final ImmutableSet<String> STYLE_SET = ImmutableSet.copyOf(STYLES);
+  private static final ImmutableSet<String> STYLES = ImmutableSet.of("black", "white2", "tango", "waltz");
 
   private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
   private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
@@ -101,11 +99,11 @@ public final class DefaultProfile {
   }
 
   public static boolean isStyle(String style) {
-    return STYLE_SET.contains(style);
+    return STYLES.contains(style);
   }
 
-  public static List<String> getStyleList() {
-    return STYLE_LIST;
+  public static Collection<String> getStyles() {
+    return STYLES;
   }
 
   public static List<String> getAvatars() {
