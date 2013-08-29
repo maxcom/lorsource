@@ -21,7 +21,7 @@ public class Theme {
   private static final Theme BLACK = new Theme("black", "black/head.jsp", "black/head-main.jsp");
   private static final Theme WHITE2 = new Theme("white2", "white2/head-main.jsp", "white2/head-main.jsp");
   private static final Theme TANGO = new Theme("tango", "tango/head-main.jsp", "tango/head-main.jsp");
-  private static final Theme WALTZ = new Theme("waltz", "waltz/head-main.jsp", "waltz/head-main.jsp");
+  private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp");
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(
           TANGO,

@@ -439,7 +439,6 @@
                                 <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/waltz/popover.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
