@@ -94,6 +94,12 @@ DIV.columnimg {
     padding: 0;
 }
 
+.messages .grid-row {
+    width: 100%;
+    margin: 0;
+    background-color: $nav_back;
+}
+
 .newsblog .nav {
     background-color: $main_color;
 }
