@@ -41,12 +41,22 @@ public final class Template {
     this(WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()));
   }
 
+  @Deprecated
   public String getStyle() {
     User user = getCurrentUser();
     if(user == null) {
-      return "tango"; // TODO move to properties?
+      return DefaultProfile.getDefaultTheme().getId();
     } else {
       return user.getStyle();
+    }
+  }
+
+  public Theme getTheme() {
+    User user = getCurrentUser();
+    if(user == null) {
+      return DefaultProfile.getDefaultTheme();
+    } else {
+      return DefaultProfile.getTheme(user.getStyle());
     }
   }
 

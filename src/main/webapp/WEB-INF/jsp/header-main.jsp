@@ -27,7 +27,7 @@
   <base href="${fn:escapeXml(template.mainUrl)}">
 </c:if>
 
-<jsp:include page="${template.style}/head-main.jsp"/>
+<jsp:include page="${template.theme.headMain}"/>
 
 <c:if test="${not pageContext.request.secure}">
     <!-- Rating@Mail.ru counter -->

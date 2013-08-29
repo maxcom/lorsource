@@ -15,11 +15,14 @@
 
 package ru.org.linux.site;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +42,14 @@ public final class DefaultProfile {
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
-  private static final ImmutableSet<String> STYLES = ImmutableSet.of("black", "white2", "tango", "waltz");
+  private static final ImmutableMap<String, Theme> THEMES = Maps.uniqueIndex(Theme.THEMES, new Function<Theme, String>() {
+    @Override
+    public String apply(Theme input) {
+      return input.getId();
+    }
+  });
+
+  private static final ImmutableSet<String> STYLE_NAMES = ImmutableSet.copyOf(THEMES.keySet());
 
   private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
   private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
@@ -99,14 +109,31 @@ public final class DefaultProfile {
   }
 
   public static boolean isStyle(String style) {
-    return STYLES.contains(style);
+    return THEMES.containsKey(style);
   }
 
+  @Deprecated
   public static Collection<String> getStyles() {
-    return STYLES;
+    return STYLE_NAMES;
   }
 
   public static List<String> getAvatars() {
     return AVATAR_TYPES;
+  }
+
+  @Nonnull
+  public static Theme getTheme(String id) {
+    Theme theme = THEMES.get(id);
+
+    if (theme==null) {
+      return getDefaultTheme();
+    }
+
+    return theme;
+  }
+
+  @Nonnull
+  public static Theme getDefaultTheme() {
+    return Theme.THEMES.get(0);
   }
 }

@@ -28,7 +28,7 @@
 </c:if>
 
 <c:if test="${template != null}">
-<jsp:include page="${template.style}/head.jsp"/>
+<jsp:include page="${template.theme.head}"/>
 </c:if>
 
 <c:if test="${not pageContext.request.secure}">
