@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="example" version="1.2">
+<schema name="lor" version="1.3">
 
     <types>
         <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
@@ -47,6 +47,7 @@
             <analyzer type="index">
                 <tokenizer class="solr.UAX29URLEmailTokenizerFactory"/>
                 <charFilter class="solr.HTMLStripCharFilterFactory"/>
+                <filter class="ru.org.linux.solr.URLFilterFactory" />
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.PatternReplaceFilterFactory"
                         pattern="\[\/?(?:b|i|u|url|quote|code|img|color|size)*?.*?\]"
@@ -58,7 +59,8 @@
                         words="stopwords.txt"
                         enablePositionIncrements="true"
                         />
-                <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+                <filter class="solr.EnglishMinimalStemFilterFactory" />
+                <filter class="solr.RussianLightStemFilterFactory" />
                 <filter class="solr.LengthFilterFactory" min="2" max="50"/>
             </analyzer>
             <analyzer type="query">
@@ -76,7 +78,8 @@
                         words="stopwords.txt"
                         enablePositionIncrements="true"
                         />
-                <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+                <filter class="solr.EnglishMinimalStemFilterFactory" />
+                <filter class="solr.RussianLightStemFilterFactory" />
                 <filter class="solr.LengthFilterFactory" min="2" max="50"/>
             </analyzer>
         </fieldType>
