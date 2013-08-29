@@ -22,6 +22,7 @@ import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Userpic;
+import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
 import java.util.Date;
@@ -54,6 +55,9 @@ public class PreparedComment {
 
   @Nullable
   private final String title;
+
+  @Nullable
+  private final String quotedTitle;
 
   @Nullable
   private final String postIP;
@@ -90,8 +94,10 @@ public class PreparedComment {
 
     if (encodedTitle!=null) {
       title = StringEscapeUtils.unescapeHtml(encodedTitle);
+      quotedTitle = StringUtil.makeTitle(StringUtil.escapeHtml(encodedTitle));
     } else {
       title = null;
+      quotedTitle = null;
     }
 
     deleted = comment.isDeleted();
@@ -145,6 +151,11 @@ public class PreparedComment {
   @Nullable
   public String getTitle() {
     return title;
+  }
+
+  @Nullable
+  public String getQuotedTitle() {
+    return quotedTitle;
   }
 
   public boolean isDeleted() {
