@@ -33,6 +33,7 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.image.ImageParam;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -50,6 +51,9 @@ public class AddPhotoController {
 
   @Autowired
   private Configuration configuration;
+
+  @Autowired
+  private UserService userService;
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
@@ -70,8 +74,8 @@ public class AddPhotoController {
 
       file.transferTo(uploadedFile);
 
-      UserService.checkUserpic(uploadedFile);
-      String extension = ImageInfo.detectImageType(uploadedFile);
+      ImageParam param = userService.checkUserPic(uploadedFile);
+      String extension = param.getExtension();
 
       Random random = new Random();
 
