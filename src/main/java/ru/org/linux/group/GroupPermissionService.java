@@ -127,6 +127,14 @@ public class GroupPermissionService {
    * @return признак возможности удаления
    */
   private static boolean isDeletableByUser(Topic topic, User user) {
+    if (topic.getUid() != user.getId()) {
+      return false;
+    }
+
+    if (topic.isDraft()) {
+      return true;
+    }
+
     Calendar calendar = Calendar.getInstance();
 
     calendar.setTime(new Date());
@@ -134,8 +142,7 @@ public class GroupPermissionService {
     Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
 
     return (
-        topic.getPostdate().compareTo(hourDeltaTime) >= 0 && //
-        topic.getUid() == user.getId() &&
+        topic.getPostdate().compareTo(hourDeltaTime) >= 0 &&
         topic.getCommentCount() == 0
     );
   }
