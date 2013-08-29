@@ -85,7 +85,7 @@ public class AddPhotoWebTest {
     ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/ROOT.xml", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
-    assertEquals("Ошибка! Unsupported format: null", doc.select(".error").text()); // сообщение об ошипке
+    assertEquals("Ошибка! Invalid image", doc.select(".error").text()); // сообщение об ошипке
 
   }
 
@@ -141,5 +141,17 @@ public class AddPhotoWebTest {
     assertTrue("у nocache должен быть апгумент", redirect.length() > url.length() + val.length());
   }
 
+  @Test
+  /**
+   * Тест с apng анимацией и поней
+   * image source via http://tamalesyatole.deviantart.com/art/I-want-to-be-a-Hero-APNG-Animated-332248278
+   */
+  public void testAPNGImage() throws IOException {
+    String auth = WebHelper.doLogin(resource, "JB", "passwd");
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/images/i_want_to_be_a_hero__apng_animated__by_tamalesyatole-d5ht8eu.png", auth);
+    assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
+    Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+    assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке
+  }
 
 }
