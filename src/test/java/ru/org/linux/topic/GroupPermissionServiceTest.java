@@ -63,6 +63,7 @@ public class GroupPermissionServiceTest {
 
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
+    when(resultSet.getInt("stat1")).thenReturn(0);
 
     User user = mock(User.class);
     when(user.isModerator()).thenReturn(false);
