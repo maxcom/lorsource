@@ -25,6 +25,8 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ImageInfo2;
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.image.ImageParam;
+import ru.org.linux.util.image.ImageUtil;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -41,45 +43,31 @@ public class UserService {
   @Autowired
   private Configuration configuration;
 
-  public static void checkUserpic(File file) throws UserErrorException, IOException, BadImageException {
+  public ImageParam checkUserPic(File file) throws UserErrorException, IOException, BadImageException {
     if (!file.isFile()) {
       throw new UserErrorException("Сбой загрузки изображения: не файл");
     }
 
-    if (file.length() > MAX_USERPIC_FILESIZE) {
+    ImageParam param = ImageUtil.imageCheck(file);
+
+    if(param.isAnimated()) {
+      throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
+    }
+
+    if(param.getSize() > MAX_USERPIC_FILESIZE) {
       throw new UserErrorException("Сбой загрузки изображения: слишком большой файл");
     }
 
-    String extension = ImageInfo.detectImageType(file);
 
-    ImageInfo info = new ImageInfo(file.getPath(), extension);
-
-    if (info.getHeight()<MIN_IMAGESIZE || info.getHeight() > MAX_IMAGESIZE) {
+    if (param.getHeight()<MIN_IMAGESIZE || param.getHeight() > MAX_IMAGESIZE) {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
     }
 
-    if (info.getWidth()<MIN_IMAGESIZE || info.getWidth() > MAX_IMAGESIZE) {
+    if (param.getWidth()<MIN_IMAGESIZE || param.getWidth() > MAX_IMAGESIZE) {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
     }
 
-    ImageInfo2 ii = new ImageInfo2();
-    InputStream is = null;
-    try {
-      is = new FileInputStream(file);
-
-      ii.setInput(is);
-      ii.setDetermineImageNumber(true);
-
-      ii.check();
-
-      if (ii.getNumberOfImages()>1) {
-        throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
-      }
-    } finally {
-      if (is!=null) {
-        is.close();
-      }
-    }
+    return param;
   }
 
   private ImmutableList<Boolean> getStars(User user) {
