@@ -19,6 +19,8 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.image.ImageParam;
+import ru.org.linux.util.image.ImageUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,16 +56,14 @@ public class Screenshot {
       error = true;
     }
 
-    String extension = ImageInfo.detectImageType(file);
+    ImageParam imageParam = ImageUtil.imageCheck(file);
 
-    ImageInfo info = new ImageInfo(file, extension);
-
-    if (info.getHeight()< MIN_SCREENSHOT_SIZE || info.getHeight() > MAX_SCREENSHOT_SIZE) {
+    if (imageParam.getHeight()< MIN_SCREENSHOT_SIZE || imageParam.getHeight() > MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
       error = true;
     }
 
-    if (info.getWidth()<MIN_SCREENSHOT_SIZE || info.getWidth() > MAX_SCREENSHOT_SIZE) {
+    if (imageParam.getWidth()<MIN_SCREENSHOT_SIZE || imageParam.getWidth() > MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
       error = true;
     }
@@ -74,7 +74,7 @@ public class Screenshot {
       try {
         String name = tempFile.getName();
 
-        Screenshot scrn = new Screenshot(name, dir, extension);
+        Screenshot scrn = new Screenshot(name, dir, imageParam.getExtension());
 
         scrn.doResize(file);
 
