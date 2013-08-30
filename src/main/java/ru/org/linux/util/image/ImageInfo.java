@@ -13,11 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.util;
+package ru.org.linux.util.image;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imgscalr.Scalr;
+import ru.org.linux.util.BadImageException;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -51,39 +52,6 @@ public class ImageInfo{
     }
 
     System.out.println(info.width + " " + info.height);
-  }
-
-  public static String detectImageType(File file) throws BadImageException, IOException {
-    logger.debug("Detecting image type for: " + file+ " ("+file.length()+" bytes)");
-
-    ImageInfo2 ii = new ImageInfo2();
-
-    FileInputStream is = null;
-
-    try {
-      is = new FileInputStream(file);
-
-      ii.setInput(is);
-
-      ii.check();
-      
-      int format = ii.getFormat();
-
-      switch (format) {
-        case ImageInfo2.FORMAT_GIF:
-          return "gif";
-        case ImageInfo2.FORMAT_JPEG:
-          return "jpg";
-        case ImageInfo2.FORMAT_PNG:
-          return "png";
-        default:
-          throw new BadImageException("Unsupported format: " + ii.getMimeType());
-      }
-    } finally {
-      if (is != null) {
-        is.close();
-      }
-    }
   }
 
   /**
@@ -120,10 +88,6 @@ public class ImageInfo{
         fileStream.close();
       }
     }
-  }
-
-  public ImageInfo(String filename, String extension) throws BadImageException, IOException {
-    this(new File(filename), extension);
   }
 
   public ImageInfo(File file, String extension) throws BadImageException, IOException {
@@ -258,13 +222,4 @@ public class ImageInfo{
     return "width=" + width + " height=" + height;
   }
 
-  public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
-    try {
-      BufferedImage source = ImageIO.read(new File(filename));
-      BufferedImage destination = Scalr.resize(source, size);
-      ImageIO.write(destination, "JPEG", new File(iconname));
-    } catch (IIOException ex) {
-      throw new BadImageException("Can't resize image", ex);
-    }
-  }
 }
