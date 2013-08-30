@@ -24,9 +24,6 @@ Disallow: /dw.jsp
 Disallow: /activate.jsp
 Disallow: /delete_image
 
-Disallow: /*/*/*/history
-Disallow: /*/*/*/*/history
-
 Disallow: /wiki/en/Special:History
 Disallow: /wiki/en/Special:Diff
 Disallow: /wiki/en/Special:Logout

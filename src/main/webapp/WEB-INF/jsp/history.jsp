@@ -18,7 +18,7 @@
   --%>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="editHistories" type="java.util.List<ru.org.linux.edithistory.PreparedEditHistory>"--%>
-
+<meta name="robots" content="noindex">
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>История изменений</title>
 <script type="text/javascript">
