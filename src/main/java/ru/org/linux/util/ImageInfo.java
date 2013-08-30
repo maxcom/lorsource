@@ -53,39 +53,6 @@ public class ImageInfo{
     System.out.println(info.width + " " + info.height);
   }
 
-  public static String detectImageType(File file) throws BadImageException, IOException {
-    logger.debug("Detecting image type for: " + file+ " ("+file.length()+" bytes)");
-
-    ImageInfo2 ii = new ImageInfo2();
-
-    FileInputStream is = null;
-
-    try {
-      is = new FileInputStream(file);
-
-      ii.setInput(is);
-
-      ii.check();
-      
-      int format = ii.getFormat();
-
-      switch (format) {
-        case ImageInfo2.FORMAT_GIF:
-          return "gif";
-        case ImageInfo2.FORMAT_JPEG:
-          return "jpg";
-        case ImageInfo2.FORMAT_PNG:
-          return "png";
-        default:
-          throw new BadImageException("Unsupported format: " + ii.getMimeType());
-      }
-    } finally {
-      if (is != null) {
-        is.close();
-      }
-    }
-  }
-
   /**
    * constructs image from filename
    * <p/>

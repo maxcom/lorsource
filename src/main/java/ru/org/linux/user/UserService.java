@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.ImageInfo2;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.image.ImageParam;
 import ru.org.linux.util.image.ImageUtil;
