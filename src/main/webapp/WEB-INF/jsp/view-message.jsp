@@ -39,9 +39,11 @@
 
 <c:if test="${preparedMessage.section.imagepost}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
+  <meta name="twitter:card" content="summary_large_image">
 </c:if>
 <c:if test="${not preparedMessage.section.imagepost}">
   <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.jpg">
+  <meta name="twitter:card" content="summary">
 </c:if>
 <c:if test="${not empty preparedMessage.ogDescription}">
   <meta property="og:description" content="${preparedMessage.ogDescription}">
