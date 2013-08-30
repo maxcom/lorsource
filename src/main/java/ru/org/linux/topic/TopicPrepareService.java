@@ -48,6 +48,8 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.image.ImageParam;
+import ru.org.linux.util.image.ImageUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -284,11 +286,7 @@ public class TopicPrepareService {
 
     try {
       ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
-      String fullName = htmlPath + image.getOriginal();
-      ImageInfo fullInfo = new ImageInfo(
-              fullName,
-              ImageInfo.detectImageType(new File(fullName))
-      );
+      ImageInfo fullInfo = new ImageInfo(htmlPath + image.getOriginal());
       LorURL medURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+mediumName);
       LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+image.getOriginal());
 
