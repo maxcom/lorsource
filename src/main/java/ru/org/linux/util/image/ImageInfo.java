@@ -13,11 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.util;
+package ru.org.linux.util.image;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imgscalr.Scalr;
+import ru.org.linux.util.BadImageException;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
@@ -87,10 +88,6 @@ public class ImageInfo{
         fileStream.close();
       }
     }
-  }
-
-  public ImageInfo(String filename, String extension) throws BadImageException, IOException {
-    this(new File(filename), extension);
   }
 
   public ImageInfo(File file, String extension) throws BadImageException, IOException {
@@ -225,13 +222,4 @@ public class ImageInfo{
     return "width=" + width + " height=" + height;
   }
 
-  public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
-    try {
-      BufferedImage source = ImageIO.read(new File(filename));
-      BufferedImage destination = Scalr.resize(source, size);
-      ImageIO.write(destination, "JPEG", new File(iconname));
-    } catch (IIOException ex) {
-      throw new BadImageException("Can't resize image", ex);
-    }
-  }
 }

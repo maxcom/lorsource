@@ -14,9 +14,11 @@
  */
 package ru.org.linux.util.image;
 
+import org.imgscalr.Scalr;
 import org.w3c.dom.Node;
 import ru.org.linux.util.BadImageException;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
@@ -25,6 +27,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -76,6 +79,16 @@ public class ImageUtil {
       throw new IOException(e.getMessage());
     }
     return false;
+  }
+
+  public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
+    try {
+      BufferedImage source = ImageIO.read(new File(filename));
+      BufferedImage destination = Scalr.resize(source, size);
+      ImageIO.write(destination, "JPEG", new File(iconname));
+    } catch (IIOException ex) {
+      throw new BadImageException("Can't resize image", ex);
+    }
   }
 }
 

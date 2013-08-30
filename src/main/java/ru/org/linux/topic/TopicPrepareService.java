@@ -45,11 +45,9 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.image.ImageInfo;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
-import ru.org.linux.util.image.ImageParam;
-import ru.org.linux.util.image.ImageUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
