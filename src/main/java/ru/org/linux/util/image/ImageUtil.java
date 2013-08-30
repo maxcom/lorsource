@@ -38,6 +38,36 @@ import java.util.Iterator;
 public class ImageUtil {
   public static String supportedFormat[] = {"JPEG", "gif", "png"};
 
+  /**
+   * Get image info without animation
+   * @param file
+   * @return
+   * @throws BadImageException
+   * @throws IOException
+   */
+  public static ImageParam imageInfo(File file) throws BadImageException, IOException {
+    long size = file.length();
+    ImageInputStream iis = ImageIO.createImageInputStream(file);
+    if(iis == null) {
+      throw new BadImageException("Invalid image");
+    }
+    Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+    if(!iter.hasNext()) {
+      throw new BadImageException("Invalid image");
+    }
+    ImageReader reader = iter.next();
+    reader.setInput(iis);
+    String formatName = reader.getFormatName();
+    if(!Arrays.asList(supportedFormat).contains(formatName)) {
+      throw new BadImageException("Does unsupported format "+formatName);
+    }
+    boolean animated = false;
+    int height = reader.getHeight(0);
+    int width = reader.getWidth(0);
+    iis.close();
+    return new ImageParam(formatName, animated, height, width, size);
+}
+
   public static ImageParam imageCheck(File file) throws BadImageException, IOException {
     long size = file.length();
     ImageInputStream iis = ImageIO.createImageInputStream(file);
