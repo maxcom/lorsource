@@ -45,6 +45,7 @@
   <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.jpg">
   <meta name="twitter:card" content="summary">
 </c:if>
+<meta name="twitter:site" content="@wwwlinuxorgru">
 <c:if test="${not empty preparedMessage.ogDescription}">
   <meta property="og:description" content="${preparedMessage.ogDescription}">
 </c:if>
