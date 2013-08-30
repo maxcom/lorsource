@@ -50,6 +50,9 @@ public class UserTopicListController {
   @Autowired
   private TopicPrepareService prepareService;
 
+  @Autowired
+  private TopicPermissionService topicPermissionService;
+
   @RequestMapping(value="favs", params="!output")
   public ModelAndView showUserFavs(
     HttpServletRequest request,
@@ -145,7 +148,10 @@ public class UserTopicListController {
     User user = getUserByNickname(modelAndView, nick);
 
     UserInfo userInfo = userDao.getUserInfoClass(user);
-    modelAndView.addObject("meLink", userInfo.getUrl());
+
+    if (topicPermissionService.followAuthorLinks(user)) {
+      modelAndView.addObject("meLink", userInfo.getUrl());
+    }
 
     modelAndView.addObject("url",
         UriComponentsBuilder.fromUriString("/people/{nick}/").buildAndExpand(nick).encode().toUriString());
