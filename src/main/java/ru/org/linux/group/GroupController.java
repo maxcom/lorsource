@@ -36,7 +36,7 @@ import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.image.ImageInfo;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.annotation.Nullable;

@@ -32,7 +32,6 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.image.ImageParam;
 
 import javax.servlet.http.HttpServletResponse;

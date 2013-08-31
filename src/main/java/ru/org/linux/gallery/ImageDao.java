@@ -29,7 +29,7 @@ import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.image.ImageInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
