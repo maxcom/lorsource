@@ -35,8 +35,8 @@
 <div class="newsblog">
   <div class="newsblog-in">
 
+<%--
 <c:if test="${showAdsense}">
-<c:if test="${template.style != 'black'}">
 <div align="center">
   <script type="text/javascript"><!--
   google_ad_client = "ca-pub-6069094673001350";
@@ -64,7 +64,25 @@
   </script>
 </div>
 </c:if>
-</c:if>
+--%>
+
+  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
+  </div>
+
+  <script type="text/javascript">
+    $script.ready('lorjs', function() {
+      var ads = [
+        {
+          type: 'img',
+          src: '/adv/netup/UTM_banner_728x90.gif',
+          href: 'http://www.netup.ru/UTM5/'
+        }
+      ];
+
+      init_interpage_adv(ads);
+    });
+  </script>
+  <br>
 
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
