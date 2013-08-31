@@ -18,7 +18,6 @@ package ru.org.linux.gallery;
 import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.image.ImageParam;
 import ru.org.linux.util.image.ImageUtil;
 
@@ -119,8 +118,8 @@ public class Screenshot {
     boolean error = true;
 
     try {
-      ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
-      ImageInfo.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
       error = false;
     } finally {
       if (error) {
