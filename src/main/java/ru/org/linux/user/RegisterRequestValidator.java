@@ -51,7 +51,8 @@ public class RegisterRequestValidator implements Validator {
           "mailmetrash.com",
           "getairmail.com",
           "sharklasers.com",
-          "mailseal.de"
+          "mailseal.de",
+          "fakeinbox.com"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
