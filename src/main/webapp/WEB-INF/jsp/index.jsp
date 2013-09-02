@@ -82,7 +82,6 @@
       init_interpage_adv(ads);
     });
   </script>
-  <br>
 
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
