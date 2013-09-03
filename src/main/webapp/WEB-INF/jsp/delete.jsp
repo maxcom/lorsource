@@ -19,6 +19,7 @@
 <%--@elvariable id="bonus" type="java.lang.Boolean"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
 <%--@elvariable id="author" type="ru.org.linux.user.User"--%>
+<%--@elvariable id="draft" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -34,8 +35,10 @@ function change(dest,source)
    // -->
 </script>
 <h1>Удаление сообщения</h1>
+<c:if test="${not draft}">
 Вы можете удалить свое сообщение в течении часа с момента
 его помещения.
+</c:if>
 <form method=POST action="delete.jsp" class="form-horizontal">
 <lor:csrf/>
   <div class="control-group">

@@ -188,7 +188,7 @@ public class TopicService {
       throw new IllegalArgumentException("Некорректное значение bonus");
     }
 
-    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
+    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid() && !message.isDraft()) {
       boolean deleted = deleteTopic(message.getId(), user, reason, -bonus);
 
       if (deleted) {

@@ -85,11 +85,10 @@ public class DeleteTopicController {
     Section section = sectionService.getSection(msg.getSectionId());
 
     HashMap<String, Object> params = new HashMap<>();
-    params.put("bonus", !section.isPremoderated());
-
+    params.put("bonus", !section.isPremoderated() && !msg.isDraft());
     params.put("author", userDao.getUser(msg.getUid()));
-
     params.put("msgid", msgid);
+    params.put("draft", msg.isDraft());
 
     return new ModelAndView("delete", params);
   }
