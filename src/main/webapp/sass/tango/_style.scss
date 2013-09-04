@@ -65,20 +65,21 @@ p {
   padding-top: 0.5rem;
   font-size: 2em;
   font-weight: bold;
-  margin-right: 0.5em;
   text-decoration: none;
   display: block;
   float: left;
   color: $header_color;
   padding-left: 1.5rem;
   padding-right: 0.5em;
+  margin-right: 0.5em;
 }
 
 #hd .menu {
   padding-top: 0.5rem;
+  margin-left: 0.5rem;
   font-size: 1.1em;
 
-    @include clearfix;
+  @include clearfix;
 
     li {
         float: left;

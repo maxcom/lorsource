@@ -76,7 +76,7 @@
         padding-right: 0.5em;
     }
 
-    #hd {
+    #sitetitle {
         padding-left: 0.5em;
     }
 
@@ -145,15 +145,6 @@
         margin-left: 0;
     }
 
-    #bd {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    #hd {
-        padding-left: 0;
-    }
-
     img.photo {
         max-width: 100% !important;
         height: auto;
@@ -188,6 +179,7 @@
     #sitetitle {
         font-size: 1.6em;
         float: none;
+        margin-right: 0;
     }
 
     #commentForm textarea {
