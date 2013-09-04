@@ -50,7 +50,6 @@ p {
 }
 
 #hd {
-  padding-left: 1em;
   margin-bottom: 0.5em;
 
   h1 {
@@ -63,6 +62,7 @@ p {
 }
 
 #sitetitle {
+  padding-top: 0.5rem;
   font-size: 2em;
   font-weight: bold;
   margin-right: 1em;
@@ -70,10 +70,13 @@ p {
   display: block;
   float: left;
   color: $header_color;
+  padding-left: 1.5rem;
+  padding-right: 1em;
 }
 
 #hd .menu {
-    font-size: 1.1em;
+  padding-top: 0.5rem;
+  font-size: 1.1em;
 
     @include clearfix;
 
@@ -85,8 +88,8 @@ p {
 }
 
 #bd {
-	margin-bottom: 2em;
-    padding-left: 1em;
+    margin-bottom: 2em;
+    padding-left: 1.5rem;
     padding-right: 1em;
 }
 
@@ -211,8 +214,8 @@ p {
 }
 
 #ft {
-    padding: 1em;
-	border-top: 1px dashed;
+    padding: 1.5em;
+    border-top: 1px dashed;
 }
 
 div.msg_body {
@@ -266,7 +269,7 @@ div.msg_body {
   margin-right: 0.75em;
 
   a {
-    color: $link_color !important;
+    color: $hd_user_color !important;
   }
 }
 
