@@ -247,7 +247,7 @@ div.msg_body {
 }
 
 #navPath {
-  font-size: 1.5em;
+  font-size: 1.6em;
 
   a {
     text-decoration: underline;
@@ -414,7 +414,6 @@ fieldset legend {
   padding: 1px 5px;
   border: 1px solid;
   margin: 0;
-  font-size: smaller;
   white-space: nowrap;
   outline: none;
   border-radius: 0.2em;
@@ -423,6 +422,8 @@ fieldset legend {
   border-color: $button_border_color;
   background-color: $button_background;
   color: $text_color;
+
+  text-decoration: none;
 
   &:visited {
     color: $text_color;
