@@ -453,6 +453,10 @@ fieldset legend {
 
 #bd .btn-primary {
   background-color: $button_primary_background;
+  color: $button_primary_text;
+  &:visited {
+    color: $button_primary_text;
+  }
 }
 
 #bd .btn-default {
