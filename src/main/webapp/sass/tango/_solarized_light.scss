@@ -97,6 +97,16 @@ h1,h2 {
   }
   .tag {
     background-color: $base2 !important;
+    color: $link_color !important;
   }
 }
+
+#bd .forum tbody tr:hover a {
+  color: $base2;
+
+  &:visited {
+    color: $base2;
+  }
+}
+
 
