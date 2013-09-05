@@ -43,10 +43,6 @@
 <H1>Поиск по сайту</h1>
 <form:form method="GET" commandName="query" ACTION="search.jsp">
 
-  <c:if test="${query.initial}">
-  <h2>Поисковая система сайта</h2>
-</c:if>
-
 <form:input path="q" TYPE="search" SIZE="50" maxlength="250" autofocus="autofocus"/>
   <input TYPE="submit" VALUE="Поиск"><BR>
 
@@ -150,10 +146,5 @@
   </p>
 </c:if>
 </form:form>
-
-<c:if test="${query.initial}">
-  <h2>Поиск через Google</h2>
-  <jsp:include page="/WEB-INF/jsp/${template.style}/google-search.jsp"/>
-</c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
