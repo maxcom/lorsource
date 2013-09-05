@@ -32,8 +32,9 @@ $text_color: $base00;
 $link_color: $blue;
 $header_color: $base2;
 
-$table_border_color: $base2;
-$table_header_background: $table_border_color;
+$table_border_color: $base1;
+$table_header_background: $yellow;
+$table_header_color: $base2;
 $table_link_color: $link_color;
 $table_hover_background: $base1;
 
@@ -45,7 +46,7 @@ $signature_remark_color: $text_color;
 $article_background: $base2;
 
 $button_selected_background: $yellow;
-$button_background: $table_border_color;
+$button_background: $base2;
 $button_border_color: $base01;
 $button_selected_text_color: $base3;
 $button_text_color: $table_link_color;
@@ -89,3 +90,8 @@ h1,h2 {
 #comments .msg {
  border: 1px solid $base1;
 }
+
+.message-table .tag {
+  color: $base2;
+}
+

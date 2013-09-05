@@ -203,6 +203,8 @@ p {
 
     thead {
       background-color: $table_header_background;
+      color: $table_header_color;
+
       a {
         color: $text_color;
       }
