@@ -81,3 +81,11 @@ h1,h2 {
 #sitetitle {
   background: $yellow;
 }
+
+.messages .msg {
+ background: $base3 !important;
+}
+
+#comments .msg {
+ border: 1px solid $base1;
+}
