@@ -246,7 +246,7 @@ div.msg_body {
 }
 
 .code {
-    background-color: #2e3436;
+    background-color: $main_background;
     border-radius: 3px;
     border: 1px dashed #777;
     overflow: auto;
