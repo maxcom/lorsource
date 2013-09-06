@@ -33,8 +33,8 @@ $link_color: $blue;
 $header_color: $base2;
 
 $table_border_color: $base2;
-$table_header_background: $yellow;
-$table_header_color: $base2;
+$table_header_background: $base2;
+$table_header_color: $text_color;
 $table_link_color: $link_color;
 $table_hover_background: $base1;
 
@@ -92,9 +92,6 @@ h1,h2 {
 }
 
 .message-table {
-  thead th {
-    border-color: $yellow !important;
-  }
   .tag {
     background-color: $base2 !important;
     color: $link_color !important;
