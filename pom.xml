@@ -437,7 +437,6 @@
                         <output>${project.build.directory}/${project.build.finalName}/solarized-swamp/combined.css</output>
                         <includes>
                           <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
-                          <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                           <include>${project.build.directory}/${project.build.finalName}/solarized-swamp/main.css</include>
                         </includes>
                       </aggregation>
