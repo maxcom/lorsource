@@ -85,17 +85,26 @@ h1,h2 {
 
 .messages .msg {
   background: $base3 !important;
-  margin-left: 0;
-  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 0;
 }
 
 #comments .msg {
- border-top: 1px solid $base2;
- border-radius: 0;
+  border-top: 1px solid $base2;
+  border-radius: 0;
+
+  &:last-child {
+    border-bottom: 1px solid $base2;
+    margin-bottom: 1em;
+  }
 }
 
-#comments .msg:last-child {
-  border-bottom: 1px solid $base2;
+.messages .msg:target {
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background-color: $base2 !important;
 }
 
 .message-table {
