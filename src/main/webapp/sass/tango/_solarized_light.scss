@@ -84,11 +84,18 @@ h1,h2 {
 }
 
 .messages .msg {
- background: $base3 !important;
+  background: $base3 !important;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 #comments .msg {
- border: 1px solid $base1;
+ border-top: 1px solid $base2;
+ border-radius: 0;
+}
+
+#comments .msg:last-child {
+  border-bottom: 1px solid $base2;
 }
 
 .message-table {
