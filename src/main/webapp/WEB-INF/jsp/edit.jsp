@@ -107,7 +107,7 @@
 
   <c:if test="${topicMenu.tagsEditable}">
     <label>Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
-      <form:input data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+      <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
     </label>
     <p>
       Популярные теги:

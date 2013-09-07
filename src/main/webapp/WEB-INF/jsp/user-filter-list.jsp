@@ -76,7 +76,7 @@
 <legend>Список избранных тегов</legend>
 <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
   <lor:csrf/>
-  <label>Тег: <input data-tags-autocomplete="data-tags-autocomplete" type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
+  <label>Тег: <input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${favoriteTagAddError != null}"><div class="error">
   <c:forEach var="tagAddError" items="${favoriteTagAddError}">
@@ -116,7 +116,7 @@
 <c:otherwise>
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
   <lor:csrf/>
-  <label>Тег: <input type="text" name="tagName" data-tags-autocomplete="data-tags-autocomplete" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
+  <label>Тег: <input type="text" name="tagName" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
   <input type="submit" name="add" value="Добавить">
   <c:if test="${ignoreTagAddError != null}"><div class="error">
   <c:forEach var="tagAddError" items="${ignoreTagAddError}">

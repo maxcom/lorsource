@@ -161,7 +161,7 @@
   Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
 </c:if>
 
-    <form:input data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+    <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
     </label>
     Популярные теги:
      <c:forEach items="${topTags}" var="topTag" varStatus = "status">
