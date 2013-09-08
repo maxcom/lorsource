@@ -25,7 +25,7 @@ pre {
 //    background: #000;
 }
 
-pre .shebang, pre .comment, pre .template_comment, pre .javadoc {
+pre .shebang, pre .comment, pre .template_comment, pre .javadoc, pre .diff .header {
     color: #7c7c7c;
 }
 
@@ -33,8 +33,19 @@ pre .keyword, pre .tag, pre .ruby .function .keyword {
     color: #96CBFE;
 }
 
-pre .function .keyword, pre .sub .keyword, pre .method, pre .list .title {
+pre .function .keyword, pre .sub .keyword, pre .method, pre .list .title, pre .addition {
     color: #FFFFB6;
+}
+
+pre .title,
+pre .localvars,
+pre .chunk,
+pre .decorator,
+pre .built_in,
+pre .identifier,
+pre .vhdl .literal,
+pre .id {
+  color: #268bd2;
 }
 
 pre .string, pre .attribute .value, pre .cdata, pre .filter .argument, pre .attr_selector, pre .apache .cbracket, pre .date {
@@ -57,6 +68,8 @@ pre .class .title, pre .smalltalk .class, pre .javadoctag, pre .phpdoc {
     color: #FFFFB6;
 }
 
+pre .preprocessor,
+pre .preprocessor .keyword,
 pre .symbol, pre .number, pre .variable, pre .vbscript, pre .literal {
     color: #C6C5FE;
 }
@@ -79,4 +92,8 @@ pre .hexcolor {
 
 pre .number {
     color:#FF73FD;
+}
+
+pre .deletion {
+  color: #dc322f;
 }

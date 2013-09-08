@@ -1,6 +1,6 @@
 Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
 
-Версия 6.1
+Версия 7.3
 
 Собрано с поддержкой следующих языков:
 * Bash
@@ -29,7 +29,6 @@
 * Delphi
 * Go
 * TeX
-* Django
 * Haskell
 * Nginx
 * CoffeeScript

@@ -717,5 +717,9 @@ a img { border: none; }
     text-decoration: none;
 }
 
+// highlight.js fixes
+pre code .container:before, pre code .container:after {
+  display: inherit;
+}
 
 @import "form";

@@ -57,7 +57,6 @@ import com.google.common.collect.ImmutableMap;
 import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
-import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.util.Set;
 
@@ -88,14 +87,15 @@ public class CodeTag extends Tag {
                   .put("lisp", "language-lisp")
                   .put("scheme", "language-lisp")
                   .put("ruby", "language-ruby")
-                  .put("cs", "language-cs").put("c#", "language-cs")
+                  .put("cs", "language-cs")
+                  .put("c#", "language-cs")
                   .put("sql", "language-sql")
                   .put("ini", "language-ini")
                   .put("cmake", "language-cmake")
                   .put("erlang", "language-erlang")
-                  .put("objectivec", "language-objectivec").put("objc", "language-objectivec")
+                  .put("objectivec", "language-objectivec")
+                  .put("objc", "language-objectivec")
                   .put("scala", "language-scala")
-                  .put("vhdl", "language-vhdl")
                   .put("lua", "language-lua")
                   .put("smalltalk", "language-smalltalk")
                   .put("vala", "language-vala")
