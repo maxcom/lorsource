@@ -53,7 +53,19 @@ public class RegisterRequestValidator implements Validator {
           "sharklasers.com",
           "mailseal.de",
           "fakeinbox.com",
-          "drdrb.com"
+          "drdrb.com",
+          "yopmail.com",
+          "yopmail.net",
+          "cool.fr.nf",
+          "jetable.fr.nf",
+          "nospam.ze.tc",
+          "nomail.xl.cx",
+          "mega.zik.dj",
+          "speed.1s.fr",
+          "courriel.fr.nf",
+          "moncourrier.fr.nf",
+          "monemail.fr.nf",
+          "monmail.fr.nf"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
