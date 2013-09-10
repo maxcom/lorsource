@@ -118,15 +118,17 @@ public class TagDao {
   /**
    * Получение списка тегов по первой букве.
    *
-   * @param firstLetter       фильтр: первая буква для тегов, которые должны быть показаны
+   * @param prefix       фильтр: первая буква для тегов, которые должны быть показаны
    * @return список тегов
    */
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter) {
+  Map<String, Integer> getTagsByPrefix(String prefix, int minCount) {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     StringBuilder query = new StringBuilder();
-    query.append("select counter, value from tags_values where lower(substr(value,1,1)) = ? ");
-    query.append(" and counter > 0 ");
+    query.append("select counter, value from tags_values where value like ?");
+    query.append(" and counter >= ? ");
     query.append(" order by value");
+
+    prefix = prefix.replaceAll("[_%]", "\\\\$0");
 
     jdbcTemplate.query(query.toString(),
       new RowCallbackHandler() {
@@ -135,7 +137,7 @@ public class TagDao {
           builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
         }
       },
-      firstLetter
+            prefix + "%", minCount
     );
 
     return builder.build();

@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2013091001" author="Maxim Valyanskiy">
+        <sql>
+            CREATE INDEX tags_values_prefix_idx ON tags_values (value text_pattern_ops);
+        </sql>
+        <rollback>
+            DROP INDEX tags_values_prefix_idx;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
