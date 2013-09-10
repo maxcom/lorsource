@@ -159,13 +159,13 @@ public class TagService {
   }
 
   /**
-   * Получить список тегов по первому символу.
+   * Получить список тегов по префиксу.
    *
-   * @param firstLetter     первый символ
+   * @param prefix     префикс
    * @return список тегов по первому символу
    */
-  public Map<String, Integer> getTagsByPrefix(String firstLetter, int threshold) {
-    return tagDao.getTagsByPrefix(firstLetter, threshold);
+  public Map<String, Integer> getTagsByPrefix(String prefix, int threshold) {
+    return tagDao.getTagsByPrefix(prefix, threshold);
   }
 
   /**

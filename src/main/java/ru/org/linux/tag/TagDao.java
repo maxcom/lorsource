@@ -116,9 +116,9 @@ public class TagDao {
   }
 
   /**
-   * Получение списка тегов по первой букве.
+   * Получение списка тегов по префиксу.
    *
-   * @param prefix       фильтр: первая буква для тегов, которые должны быть показаны
+   * @param prefix       префикс имени тега
    * @return список тегов
    */
   Map<String, Integer> getTagsByPrefix(String prefix, int minCount) {
