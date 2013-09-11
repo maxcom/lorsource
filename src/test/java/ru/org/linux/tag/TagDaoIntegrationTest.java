@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,6 +40,16 @@ public class TagDaoIntegrationTest {
     tagDao.createTag("zesd");
 
     Map<String,Integer> tags = tagDao.getTagsByPrefix("zest", 0);
+
+    assertEquals(1, tags.size());
+  }
+
+  @Test
+  public void prefixTopSearchExactTest() {
+    tagDao.createTag("zest");
+    tagDao.createTag("zesd");
+
+    Set<String> tags = tagDao.getTopTagsByPrefix("zest", 0, 20);
 
     assertEquals(1, tags.size());
   }

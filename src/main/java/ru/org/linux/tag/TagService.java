@@ -169,6 +169,17 @@ public class TagService {
   }
 
   /**
+   * Получить список популярных тегов по префиксу.
+   *
+   * @param prefix     префикс
+   * @param count      количество тегов
+   * @return список тегов по первому символу
+   */
+  public SortedSet<String> suggestTagsByPrefix(String prefix, int count) {
+    return tagDao.getTopTagsByPrefix(prefix, 2, count);
+  }
+
+  /**
    * Создать новый тег.
    *
    * @param tagName название нового тега

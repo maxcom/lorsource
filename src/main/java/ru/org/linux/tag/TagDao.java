@@ -128,8 +128,6 @@ public class TagDao {
     query.append(" and counter >= ? ");
     query.append(" order by value");
 
-    prefix = prefix.replaceAll("[_%]", "\\\\$0");
-
     jdbcTemplate.query(query.toString(),
       new RowCallbackHandler() {
         @Override
@@ -137,10 +135,41 @@ public class TagDao {
           builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
         }
       },
-            prefix + "%", minCount
+            escapeLikeWildcards(prefix) + "%", minCount
     );
 
     return builder.build();
+  }
+
+  /**
+   * Получение списка тегов по префиксу.
+   *
+   * @param prefix       префикс имени тега
+   * @return список тегов
+   */
+  SortedSet<String> getTopTagsByPrefix(String prefix, int minCount, int count) {
+    final SortedSet<String> res = new TreeSet<>();
+
+    String query = "select counter, value " +
+            "from tags_values " +
+            "where value like ? and counter >= ? " +
+            "order by counter DESC LIMIT ?";
+
+    jdbcTemplate.query(query,
+      new RowCallbackHandler() {
+        @Override
+        public void processRow(ResultSet resultSet) throws SQLException {
+          res.add(resultSet.getString("value"));
+        }
+      },
+            escapeLikeWildcards(prefix) + "%", minCount, count
+    );
+
+    return res;
+  }
+
+  private static String escapeLikeWildcards(String str) {
+    return str.replaceAll("[_%]", "\\\\$0");
   }
 
   /**
