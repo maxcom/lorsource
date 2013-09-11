@@ -27,7 +27,7 @@ import java.util.List;
 
 @Controller
 public class TagCloudBoxlet extends AbstractBoxlet {
-  private static final int TAGS_IN_CLOUD = 50;
+  private static final int TAGS_IN_CLOUD = 75;
   @Autowired
   private TagCloudDao tagDao;
 
