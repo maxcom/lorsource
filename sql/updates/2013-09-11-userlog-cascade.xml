@@ -19,10 +19,16 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-    <changeSet id="2013091101" author="Maxim Valyanskiy">
-        <sql splitStatements="false">
-          alter table user_log DROP CONSTRAINT user_log_action_userid_fkey;
-          alter table user_log ADD CONSTRAINT user_log_action_userid_fkey FOREIGN KEY (action_userid) REFERENCES users(id) ON DELETE CASCADE;
-        </sql>
-    </changeSet>
+  <changeSet id="2013091102" author="Maxim Valyanskiy">
+    <sql splitStatements="false">
+      alter table user_log DROP CONSTRAINT user_log_action_userid_fkey;
+      alter table user_log ADD CONSTRAINT user_log_action_userid_fkey FOREIGN KEY (action_userid) REFERENCES users(id);
+    </sql>
+  </changeSet>
+  <changeSet id="2013091103" author="Maxim Valyanskiy">
+    <sql splitStatements="false">
+      alter table user_log DROP CONSTRAINT user_log_userid_fkey;
+      alter table user_log ADD CONSTRAINT user_log_userid_fkey FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
