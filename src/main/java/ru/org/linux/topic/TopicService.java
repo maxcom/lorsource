@@ -129,7 +129,7 @@ public class TopicService {
     topicTagService.updateTags(msgid, tags);
     tagService.updateCounters(ImmutableList.<String>of(), tags);
 
-    if (!previewMsg.isDraft()) {
+    if (!previewMsg.isDraft() && !user.isAnonymousScore()) {
       if (section.isPremoderated()) {
         sendEvents(message, msgid, ImmutableList.<String>of(), user.getId());
       } else {
@@ -259,7 +259,7 @@ public class TopicService {
     if ((modified || commit) && !newMsg.isDraft()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());
 
-      if (section.isPremoderated() && !oldMsg.isCommited() && !commit) {
+      if (section.isPremoderated() && !oldMsg.isCommited() && !commit && !user.isAnonymousScore()) {
         sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
       } else {
         sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
