@@ -105,7 +105,7 @@ public class TagController {
   List<String> showTagListHandlerJSON(
     @RequestParam("term") final String term
   ) {
-    SortedSet<String> tags = tagService.suggestTagsByPrefix(term, 20);
+    SortedSet<String> tags = tagService.suggestTagsByPrefix(term, 10);
 
     return ImmutableList.copyOf(Iterables.filter(tags, new Predicate<String>() {
       @Override
