@@ -761,7 +761,7 @@
                                             <destFileName>solr.war</destFileName>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>postgresql</groupId>
+                                            <groupId>org.postgresql</groupId>
                                             <artifactId>postgresql</artifactId>
                                             <version>${jdbc.postgresql.version}</version>
                                             <type>jar</type>
