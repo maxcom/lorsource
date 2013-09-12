@@ -77,7 +77,6 @@ public class UserTopicListController {
     topicListForm.setOffset(
       topicListService.fixOffset(topicListForm.getOffset())
     );
-    modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, false);
@@ -118,7 +117,6 @@ public class UserTopicListController {
     topicListForm.setOffset(
             topicListService.fixOffset(topicListForm.getOffset())
     );
-    modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getDrafts(user, topicListForm.getOffset());
@@ -169,7 +167,6 @@ public class UserTopicListController {
     topicListForm.setOffset(
       topicListService.fixOffset(topicListForm.getOffset())
     );
-    modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(
@@ -227,7 +224,6 @@ public class UserTopicListController {
     topicListForm.setOffset(
       topicListService.fixOffset(topicListForm.getOffset())
     );
-    modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, true);

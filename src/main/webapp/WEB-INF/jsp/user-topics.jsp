@@ -66,35 +66,33 @@
   />
 </c:forEach>
 
-<c:if test="${offsetNavigation}">
-  <c:if test="${params !=null}">
-    <c:set var="aparams" value="${params}&"/>
-  </c:if>
-
-  <table class="nav">
-    <tr>
-      <c:if test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
-        <td align="left" width="35%">
-          <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">← предыдущие</a>
-        </td>
-      </c:if>
-      <c:if test="${topicListRequest.offset > 20}">
-        <td width="35%" align="right">
-          <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">следующие →</a>
-        </td>
-      </c:if>
-      <c:if test="${topicListRequest.offset == 20}">
-        <td width="35%" align="right">
-          <c:if test="${params!=null}">
-            <a href="${url}?${params}">следующие →</a>
-          </c:if>
-          <c:if test="${params==null}">
-            <a href="${url}">следующие →</a>
-          </c:if>
-        </td>
-      </c:if>
-    </tr>
-  </table>
+<c:if test="${params !=null}">
+  <c:set var="aparams" value="${params}&"/>
 </c:if>
+
+<table class="nav">
+  <tr>
+    <c:if test="${topicListRequest.offset > 20}">
+      <td width="35%" align="left">
+        <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">← назад</a>
+      </td>
+    </c:if>
+    <c:if test="${topicListRequest.offset == 20}">
+      <td width="35%" align="left">
+        <c:if test="${params!=null}">
+          <a href="${url}?${params}">← назад</a>
+        </c:if>
+        <c:if test="${params==null}">
+          <a href="${url}">← назад</a>
+        </c:if>
+      </td>
+    </c:if>
+    <c:if test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
+      <td align="right" width="35%">
+        <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">вперед →</a>
+      </td>
+    </c:if>
+  </tr>
+</table>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

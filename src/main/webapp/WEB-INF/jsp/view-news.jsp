@@ -93,35 +93,35 @@
 
   <table class="nav">
     <tr>
+      <c:if test="${topicListRequest.offset > 20}">
+        <td width="35%" align="left">
+          <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">← назад</a>
+        </td>
+      </c:if>
+      <c:if test="${topicListRequest.offset == 20}">
+        <td width="35%" align="left">
+          <c:if test="${params!=null}">
+            <a href="${url}?${params}">← назад</a>
+          </c:if>
+          <c:if test="${params==null}">
+            <a href="${url}">← назад</a>
+          </c:if>
+        </td>
+      </c:if>
       <c:choose>
         <c:when test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
-          <td align="left" width="35%">
-            <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">← предыдущие</a>
+          <td align="right" width="35%">
+            <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">вперед →</a>
           </td>
         </c:when>
         <c:otherwise>
           <c:if test="${archiveLink != null}">
-            <td align="left" width="35%">
-              <a href="${archiveLink}">Архив</a>
+            <td align="right" width="35%">
+              <a href="${archiveLink}">архив</a>
             </td>
           </c:if>
         </c:otherwise>
       </c:choose>
-      <c:if test="${topicListRequest.offset > 20}">
-        <td width="35%" align="right">
-          <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">следующие →</a>
-        </td>
-      </c:if>
-      <c:if test="${topicListRequest.offset == 20}">
-        <td width="35%" align="right">
-          <c:if test="${params!=null}">
-            <a href="${url}?${params}">следующие →</a>
-          </c:if>
-          <c:if test="${params==null}">
-            <a href="${url}">следующие →</a>
-          </c:if>
-        </td>
-      </c:if>
     </tr>
   </table>
 </c:if>
