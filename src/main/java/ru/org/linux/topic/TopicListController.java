@@ -128,6 +128,7 @@ public class TopicListController {
 
     modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_GALLERY), topicListForm));
     modelAndView.addObject("url", "/gallery/");
+    modelAndView.addObject("rssLink", "section-rss.jsp?section=3");
 
     return modelAndView;
   }
@@ -142,8 +143,8 @@ public class TopicListController {
     ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
     modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_FORUM), topicListForm));
-
     modelAndView.addObject("url", "/forum/lenta");
+    modelAndView.addObject("rssLink", "section-rss.jsp?section=2");
 
     return modelAndView;
   }
@@ -175,6 +176,7 @@ public class TopicListController {
 
     modelAndView.addObject("url", "/news/");
     modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_NEWS), topicListForm));
+    modelAndView.addObject("rssLink", "section-rss.jsp?section=1");
 
     return modelAndView;
   }
