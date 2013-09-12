@@ -57,7 +57,7 @@
       <li>Apache Tomcat 7</li>
       <li>memcached 1.2</li>
       <li>ActiveMQ 5.8.0</li>
-      <li>Spring 3.1</li>
+      <li>Spring 3.2</li>
       <li>Wiki: JamWiki 1.1.5</li>
       <li>Поиск: Apache Solr 3.5.0</li>
     </ul>
