@@ -481,7 +481,7 @@
 
                 <dependencies>
                     <dependency>
-                        <groupId>postgresql</groupId>
+                        <groupId>org.postgresql</groupId>
                         <artifactId>postgresql</artifactId>
                         <version>${jdbc.postgresql.version}</version>
                     </dependency>
