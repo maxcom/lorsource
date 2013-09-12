@@ -79,7 +79,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${jdbc.postgresql.version}</version>
             <scope>test</scope>
@@ -799,11 +799,6 @@
         <repository>
           <id>spring-jade4j-releases</id>
           <url>https://raw.github.com/neuland/spring-jade4j/master/releases</url>
-        </repository>
-
-	<repository>
-	  <id>typesafe</id>
-	  <url>http://repo.typesafe.com/typesafe/repo/</url>
         </repository>
     </repositories>
 
