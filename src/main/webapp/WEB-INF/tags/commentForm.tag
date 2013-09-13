@@ -63,7 +63,31 @@
   <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
   <font size="2">Пустая строка (два раза Enter) начинает новый абзац.<br>
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
-  <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+  <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank" title="[br] - перевод строки
+
+[b]жирный текст[/b]
+
+[i]курсив[/i]
+
+[u]подчёркнутый текст[/u]
+
+[s]зачёркнутый текст[/s]
+
+[em]emphasis[/em]
+
+[strong]stronger emphasis[/strong]
+
+[pre]preformatted text[/pre]
+
+[user]maxcom[/user] - ссылка на профиль пользователя. При использовании этого тега упомянутому пользователю приходит уведомление
+
+Цитата:
+[quote]цитата[/quote] или
+[quote='название цитаты']цитата[/quote] или
+>>цитата
+
+Ссылка:
+[url]http://www.linux.org.ru/[/url] (можно с параметром, например: [url=http://www.example.com/]Сюда![/url])">прочитайте описание разметки LORCODE</a></font><br>
 
   <br>
   <lor:captcha ipBlockInfo="${ipBlockInfo}" />
