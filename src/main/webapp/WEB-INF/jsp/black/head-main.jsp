@@ -62,7 +62,7 @@
 <c:if test="${template.sessionAuthorized}">
   <c:url var="userUrl" value="/people/${template.nick}/profile"/>
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-  [<a href="logout?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
+  [<a href="logout" title="Выйти">x</a>]
   <%--<br>--%>
   <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
 </c:if>
