@@ -150,7 +150,7 @@ public class UserEventController {
     return new ModelAndView("show-replies", params);
   }
 
-  @RequestMapping(value = "/show-replies.jsp", method = RequestMethod.GET)
+  @RequestMapping(value = "/show-replies.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showReplies(
     HttpServletRequest request,
     HttpServletResponse response,
