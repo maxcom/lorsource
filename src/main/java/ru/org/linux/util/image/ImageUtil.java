@@ -27,6 +27,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +116,14 @@ public class ImageUtil {
     try {
       BufferedImage source = ImageIO.read(new File(filename));
       BufferedImage destination = Scalr.resize(source, size);
-      ImageIO.write(destination, "JPEG", new File(iconname));
+      final int w = destination.getWidth();
+      final int h = destination.getHeight();
+      BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+      Graphics2D g = image.createGraphics();
+      //Color.WHITE estes the background to white. You can use any other color
+      g.drawImage(destination, 0, 0, w, h, Color.WHITE, null);
+      g.dispose();
+      ImageIO.write(image, "JPEG", new File(iconname));
     } catch (IIOException ex) {
       throw new BadImageException("Can't resize image", ex);
     }
