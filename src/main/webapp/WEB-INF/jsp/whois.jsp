@@ -47,7 +47,7 @@
 
 <c:if test="${currentUser}">
   <a href="/people/${user.nick}/edit" class="btn btn-default">Изменить регистрацию</a>
-  <a href="/people/${user.nick}/settings" class="btn btn-default">Изменить настройки</a>
+  <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
   <form action="logout" method="POST" style="display: inline-block">
     <button type="submit" class="btn btn-danger">Выйти</button>
