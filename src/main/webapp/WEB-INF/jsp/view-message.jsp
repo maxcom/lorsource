@@ -250,6 +250,21 @@
       <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
     </c:forEach>
 </div>
+
+<c:if test="${not messageMenu.commentsAllowed}">
+  <div class="infoblock">
+    Вы не можете добавлять комментарии в эту тему.
+    <c:choose>
+      <c:when test="${message.expired}">
+        Тема перемещана в архив.
+      </c:when>
+      <c:otherwise>
+        ${preparedMessage.postscoreInfo}
+      </c:otherwise>
+    </c:choose>
+  </div>
+</c:if>
+
 <c:if test="${fn:length(commentsPrepared) > 0}">
   <c:if test="${ not empty bufInfo }">
     <div class="nav">

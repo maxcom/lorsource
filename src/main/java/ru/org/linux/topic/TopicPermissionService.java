@@ -55,6 +55,8 @@ public class TopicPermissionService {
     switch (postscore) {
       case POSTSCORE_UNRESTRICTED:
         return "";
+      case 50:
+        return "Тема защищена от комментариев недавно зарегистрированных пользователей.";
       case 100:
         return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
       case 200:
