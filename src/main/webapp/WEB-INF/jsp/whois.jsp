@@ -54,7 +54,9 @@
   </form>
 </c:if>
 
+<c:if test="${not currentUser}">
 <h1>Информация о пользователе ${user.nick}</h1>
+</c:if>
 
 <div id="whois_userpic">
     <l:userpic userpic="${userpic}"/>
