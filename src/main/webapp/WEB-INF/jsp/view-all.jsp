@@ -49,7 +49,6 @@
 
     <div class="nav-buttons">
       <ul>
-      <li><a href="rules.jsp">Правила форума</a></li>
       <li><a href="<c:url value="tags"/>">Метки</a></li>
       </ul>
       <select name="section" onChange="submit();" title="Быстрый переход">
