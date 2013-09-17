@@ -704,14 +704,16 @@ a img { border: none; }
 }
 
 #bd .btn {
-    display: inline-block;
-    text-align: center;
-    padding: 6px 12px;
-    vertical-align: middle;
-    cursor: pointer;
-    white-space: nowrap;
-    text-decoration: none;
-    line-height: 1.4;
+  display: inline-block;
+  text-align: center;
+  padding: 6px 12px;
+  vertical-align: middle;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  line-height: 1.4;
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }
 
 // highlight.js fixes
