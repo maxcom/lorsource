@@ -51,8 +51,8 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 17</li>
-      <li>СУБД PostgreSQL 9.1</li>
+      <li>Fedora 18</li>
+      <li>СУБД PostgreSQL 9.2</li>
       <li>OpenJDK 1.7.0</li>
       <li>Apache Tomcat 7</li>
       <li>memcached 1.2</li>
