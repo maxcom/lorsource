@@ -45,6 +45,15 @@
 
 <jsp:include page="header.jsp"/>
 
+<c:if test="${currentUser}">
+  <a href="/people/${user.nick}/edit" class="btn btn-default">Изменить регистрацию</a>
+  <a href="/people/${user.nick}/settings" class="btn btn-default">Изменить настройки</a>
+
+  <form action="logout" method="POST" style="display: inline-block">
+    <button type="submit" class="btn btn-danger">Выйти</button>
+  </form>
+</c:if>
+
 <h1>Информация о пользователе ${user.nick}</h1>
 
 <div id="whois_userpic">
@@ -245,8 +254,6 @@
 <c:if test="${currentUser}">
     <h2>Действия</h2>
     <ul>
-        <li><a href="/people/${user.nick}/edit">Изменить регистрацию</a></li>
-        <li><a href="/people/${user.nick}/settings">Изменить настройки</a></li>
         <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>
         <c:if test="${hasRemarks}">
             <li>

@@ -470,6 +470,10 @@ fieldset legend {
   background-color: $button_background;
 }
 
+#bd .btn-danger {
+  background-color: $button_danger_background;
+}
+
 .fav-buttons {
   .selected [class^="icon-"] {
     color: $icon_button_active_color;
