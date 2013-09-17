@@ -69,10 +69,9 @@
 <c:if test="${template.sessionAuthorized}">
 <h1>Настройки</h1>
 <ul>
-<li><a href="addphoto.jsp">Добавить фотографию</a>
-<li><a href="/people/${template.nick}/edit">Изменение регистрации</a>
+<li><a href="/people/${template.nick}/edit">Изменить регистрации</a>
 <li><a href="lostpwd.jsp">Получить забытый пароль</a>
-<li><a href="/people/${template.nick}/settings">Персональные настройки сайта</a>
+<li><a href="/people/${template.nick}/settings"Настройки</a>
 </ul>
 </c:if>
 
