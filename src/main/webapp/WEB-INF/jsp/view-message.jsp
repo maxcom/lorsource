@@ -253,10 +253,9 @@
 
 <c:if test="${not messageMenu.commentsAllowed}">
   <div class="infoblock">
-    Вы не можете добавлять комментарии в эту тему.
     <c:choose>
       <c:when test="${message.expired}">
-        Тема перемещана в архив.
+        Вы не можете добавлять комментарии в эту тему. Тема перемещана в архив.
       </c:when>
       <c:otherwise>
         ${preparedMessage.postscoreInfo}
