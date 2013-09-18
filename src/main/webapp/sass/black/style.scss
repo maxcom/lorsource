@@ -21,10 +21,15 @@ $text_color: #c8c8c8;
 $link_color: #fefefe;
 
 BODY { 
-	font-family: sans-serif;
-	background: #000000;
-	color: $text_color;
-	max-width: 100%;
+    font-family: sans-serif;
+    background: #000000;
+    color: $text_color;
+    max-width: 100%;
+}
+
+#bd {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
 A {
