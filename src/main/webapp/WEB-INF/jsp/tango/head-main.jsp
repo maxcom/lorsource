@@ -21,46 +21,47 @@
 <meta name = "viewport" content = "initial-scale=1.0">
 </head>
 <body>
-  	<div id="hd">
-        <a id="sitetitle" href="/">LINUX.ORG.RU</a>
+<div id="hd">
+  <a id="sitetitle" href="/">LINUX.ORG.RU</a>
 
-        <ul class="menu">
-          <li id="loginGreating">
-            <c:if test="${template.sessionAuthorized}">
-              <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-              <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-            </c:if>
+  <div class="menu">
+    <div id="loginGreating">
+      <c:if test="${template.sessionAuthorized}">
+        <c:url var="userUrl" value="/people/${template.nick}/profile"/>
+        <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+      </c:if>
 
-            <c:if test="${not template.sessionAuthorized}">
-              <div id="regmenu" class="head">
-                <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
-                <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
-              </div>
+      <c:if test="${not template.sessionAuthorized}">
+        <div id="regmenu" class="head">
+          <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
+          <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
+        </div>
 
-              <form method=POST action="${template.secureMainUrl}/ajax_login_process" style="display: none" id="regform">
-                <lor:csrf/>
-                <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
-                <label>Пароль: <input type=password name=passwd size=15></label>
-                <input type=submit value="Вход">
-                <input id="hide_loginbutton" type="button" value="Отмена">
-              </form>
-            </c:if>
-          </li>
+        <form method=POST action="${template.secureMainUrl}/ajax_login_process" style="display: none" id="regform">
+          <lor:csrf/>
+          <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
+          <label>Пароль: <input type=password name=passwd size=15></label>
+          <input type=submit value="Вход">
+          <input id="hide_loginbutton" type="button" value="Отмена">
+        </form>
+      </c:if>
+    </div>
 
-          <li><a href="/news/">Новости</a></li>
-          <li><a href="/gallery/">Галерея</a></li>
+    <ul>
+      <li><a href="/news/">Новости</a></li>
+      <li><a href="/gallery/">Галерея</a></li>
 
-          <li><a href="/forum/">Форум</a></li>
-          <li><a href="/tracker/">Трекер</a></li>
-          <li><a href="/wiki/">Wiki</a></li>
-          <c:if test="${template.sessionAuthorized}">
-            <li>
-              <lor:events/>
-            </li>
-          </c:if>
+      <li><a href="/forum/">Форум</a></li>
+      <li><a href="/tracker/">Трекер</a></li>
+      <li><a href="/wiki/">Wiki</a></li>
+      <c:if test="${template.sessionAuthorized}">
+        <li>
+          <lor:events/>
+        </li>
+      </c:if>
 
-          <li><a href="/search.jsp">Поиск</a></li>
-
-        </ul>
-      </div>
-      <div style="clear: both"></div>
+      <li><a href="/search.jsp">Поиск</a></li>
+    </ul>
+  </div>
+</div>
+<div style="clear: both"></div>
