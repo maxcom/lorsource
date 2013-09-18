@@ -25,7 +25,6 @@
           <c:if test="${template.sessionAuthorized}">
             <c:url var="userUrl" value="/people/${template.nick}/profile"/>
             добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-            [<a href="logout" title="Выйти">x</a>]
           </c:if>
 
           <c:if test="${not template.sessionAuthorized}">

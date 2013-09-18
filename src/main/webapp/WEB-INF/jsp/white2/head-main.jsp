@@ -31,7 +31,6 @@
               добро пожаловать,&nbsp;
               <c:url var="userUrl" value="/people/${template.nick}/profile"/>
               <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-              [<a href="/logout" title="Выйти">x</a>]
             </c:if>
 
             <c:if test="${not template.sessionAuthorized}">
