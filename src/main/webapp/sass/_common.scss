@@ -434,10 +434,6 @@ label.error {
 
   form {
     display: inline;
-
-    .delete {
-      border: 2px solid #ff0000;
-    }
   }
 
   span {
@@ -714,6 +710,10 @@ a img { border: none; }
   line-height: 1.4;
   margin-top: 0;
   margin-bottom: 0.5em;
+}
+
+#bd .btn-small {
+  padding: 2px 6px;
 }
 
 // highlight.js fixes

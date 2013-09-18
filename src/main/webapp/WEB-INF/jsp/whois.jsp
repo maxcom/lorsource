@@ -66,12 +66,12 @@
             <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
                 <lor:csrf/>
                 <input type='hidden' name='id' value='${user.id}'>
-                <button type="submit" class="delete">Удалить</button>
+                <button type="submit" class="btn btn-danger btn-small">Удалить</button>
             </form>
         </c:if>
         <c:if test="${currentUser}">
             <form method="get" action="addphoto.jsp">
-                <button type="submit">Изменить</button>
+                <button type="submit" class="btn btn-default btn-small">Изменить</button>
             </form>
         </c:if>
         </span>
@@ -135,7 +135,7 @@
             <form action="/lostpwd.jsp" method="POST" style="display: inline">
                 <lor:csrf/>
                 <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
-                <input type="submit" value="Получить забытый пароль">
+                <button type="submit">Получить забытый пароль</button>
             </form>
         </c:if>
 
@@ -144,7 +144,7 @@
                 <lor:csrf/>
                 <input type="hidden" name="id" value="${user.id}">
                 <input type='hidden' name='action' value='reset-password'>
-                <input type="submit" value="Сбросить пароль">
+                <button type="submit">Сбросить пароль</button>
             </form>
         </c:if>
         <br>
@@ -182,7 +182,7 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             Вы игнорируете этого пользователя &nbsp;
-            <input type='submit' name='del' value='не игнорировать'>
+            <button type='submit' name='del'>не игнорировать</button>
         </form>
     </c:if>
 
@@ -191,7 +191,7 @@
             <lor:csrf/>
             <input type='hidden' name='nick' value='${user.nick}'>
             Вы не игнорируете этого пользователя &nbsp;
-            <input type='submit' name='add' value='игнорировать'>
+            <button type='submit' name='add'>игнорировать</button>
         </form>
     </c:if>
 </c:if>
@@ -204,11 +204,11 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             <c:if test="${user.blocked}">
-                <input type='submit' name='action' value='unblock'>
+                <button type='submit' name='action'>unblock</button>
             </c:if>
             <c:if test="${not user.blocked}">
                 <label>Причина: <input type="text" name="reason" size="40" required></label>
-                <input type='submit' name='action' value='block'><br>
+                <button type='submit' name='action'>block</button><br>
 
                 [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
             </c:if>
@@ -230,7 +230,7 @@
     <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='remove_userinfo'>
-    <input type='submit' value='Удалить текст'>
+    <button type='submit'>Удалить текст</button>
 </form>
 
 <p>
@@ -243,10 +243,10 @@
     <input type='hidden' name='action' value='toggle_corrector'>
     <c:choose>
         <c:when test="${user.corrector}">
-            <input type='submit' value='Убрать права корректора'>
+            <button type='submit'>Убрать права корректора</button>
         </c:when>
         <c:otherwise>
-            <input type='submit' value='Сделать корректором'>
+            <button type='submit'>Сделать корректором</button>
         </c:otherwise>
     </c:choose>
 </form>
