@@ -36,11 +36,11 @@ $button_background: $table_border_color;
 $button_border_color: #D4D4D4;
 $button_selected_text_color: black;
 $button_text_color: $table_link_color;
-$button_danger_text: $button_text_color;
 
 $button_primary_background: #204a87;
 $button_primary_text: $button_text_color;
-$button_danger_background: #cc0000;
+$button_danger_background: #a40000;
+$button_danger_text: $button_text_color;
 
 $icon_button_active_color: #c17d11;
 
