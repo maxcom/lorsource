@@ -17,15 +17,18 @@
 
 @import "../common";
 
+$text_color: #c8c8c8;
+$link_color: #fefefe;
+
 BODY { 
 	font-family: sans-serif;
 	background: #000000;
-	color: #c8c8c8;
+	color: $text_color;
 	max-width: 100%;
 }
 
 A {
-	color: #fefefe;
+	color: $link_color;
 }
 
 A:visited {
@@ -206,6 +209,12 @@ div.quote {
 
 .fav-buttons .selected [class^="icon-"] {
     color: orange;
+}
+
+#bd .btn {
+  border: 1px solid darkgray;
+  background: black;
+  color: $link_color;
 }
 
 @media screen and (max-width:360px) {
