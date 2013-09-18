@@ -255,7 +255,7 @@
   <div class="infoblock">
     <c:choose>
       <c:when test="${message.expired}">
-        Вы не можете добавлять комментарии в эту тему. Тема перемещана в архив.
+        Вы не можете добавлять комментарии в эту тему. Тема перемещена в архив.
       </c:when>
       <c:otherwise>
         ${preparedMessage.postscoreInfo}
