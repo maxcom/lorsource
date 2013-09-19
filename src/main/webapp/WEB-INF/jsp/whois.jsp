@@ -204,11 +204,11 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             <c:if test="${user.blocked}">
-                <button type='submit' name='action'>unblock</button>
+                <button type='submit' name='action' value="unblock">unblock</button>
             </c:if>
             <c:if test="${not user.blocked}">
                 <label>Причина: <input type="text" name="reason" size="40" required></label>
-                <button type='submit' name='action'>block</button><br>
+                <button type='submit' name='action' value="block">block</button><br>
 
                 [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
             </c:if>
