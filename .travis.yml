@@ -1,5 +1,5 @@
 language: java
-script: mvn install
+script: mvn -T 2C install
 jdk:
   - oraclejdk7
   - openjdk7
@@ -12,5 +12,4 @@ before_script:
   - psql -c 'create extension hstore;' -U postgres lor
   - unset GEM_PATH
 before_install:
-  - mvn -T 2C dependency:go-offline
   - unset GEM_PATH
