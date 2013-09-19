@@ -157,10 +157,10 @@
 
     <div class="tag-page-buttons">
       <div>
-        <c:if test="${not empty addGallery}">
+        <c:if test="${not empty addForum}">
           <a href="${addForum}" class="btn btn-primary">Добавить</a>
         </c:if>
-        <c:if test="${not empty moreGallery}">
+        <c:if test="${not empty moreForum}">
           <a href="${moreForum}" class="btn btn-default">Все темы</a>
         </c:if>
       </div>
