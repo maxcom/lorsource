@@ -254,6 +254,9 @@
 <c:if test="${not messageMenu.commentsAllowed}">
   <div class="infoblock">
     <c:choose>
+      <c:when test="${message.deleted}">
+        Вы не можете добавлять комментарии в эту тему. Тема удалена.
+      </c:when>
       <c:when test="${message.expired}">
         Вы не можете добавлять комментарии в эту тему. Тема перемещена в архив.
       </c:when>
