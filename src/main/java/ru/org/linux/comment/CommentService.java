@@ -331,7 +331,11 @@ public class CommentService {
 
     /* кастование пользователей */
     Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
-    userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
+    User author = userDao.getUserCached(comment.getUserid());
+    logger.debug("Author is:"+author.getNick());
+    if(!author.isAnonymousScore()) {
+      userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
+    }
 
     /* оповещение об ответе на коммент */
     if (comment.getReplyTo() != 0) {
@@ -378,21 +382,23 @@ public class CommentService {
     String xForwardedFor
   ) {
     commentDao.edit(oldComment, newComment, commentBody);
+    User author = userDao.getUserCached(oldComment.getUserid());
 
-    /* кастование пользователей */
-    Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
+    if(!author.isAnonymousScore()) {
+      /* кастование пользователей */
+      Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
 
-    MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
-    Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
-    Set<User> userRefs = new HashSet<>();
-    /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
-    for (User user : newUserRefs) {
-      if (!oldUserRefs.contains(user)) {
-        userRefs.add(user);
+      MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
+      Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
+      Set<User> userRefs = new HashSet<>();
+      /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
+      for (User user : newUserRefs) {
+        if (!oldUserRefs.contains(user)) {
+          userRefs.add(user);
+        }
       }
+      userEventService.addUserRefEvent(userRefs, oldComment.getTopicId(), oldComment.getId());
     }
-
-    userEventService.addUserRefEvent(userRefs, oldComment.getTopicId(), oldComment.getId());
 
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
     topicDao.updateLastModifiedToCurrentTime(oldComment.getTopicId());
