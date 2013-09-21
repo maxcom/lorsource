@@ -177,6 +177,7 @@ public class AddCommentController {
     }
 
     int msgid = commentService.create(
+      user,
       comment,
       msg,
       request.getRemoteAddr(),

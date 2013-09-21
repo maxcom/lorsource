@@ -165,7 +165,8 @@ public class EditCommentController extends ApplicationObjectSupport {
       comment,
       msg,
       request.getRemoteAddr(),
-      request.getHeader("X-Forwarded-For")
+      request.getHeader("X-Forwarded-For"),
+      user
     );
     searchQueueSender.updateComment(commentRequest.getOriginal().getId());
 

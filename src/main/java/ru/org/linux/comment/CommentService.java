@@ -44,6 +44,7 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -111,6 +112,9 @@ public class CommentService {
 
   @Autowired
   private DeleteInfoDao deleteInfoDao;
+
+  @Autowired
+  private TopicPermissionService permissionService;
 
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new CommentRequestValidator(lorCodeService));
@@ -321,17 +325,21 @@ public class CommentService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int create(
-          Comment comment,
+          @Nonnull User author,
+          @Nonnull Comment comment,
           String commentBody,
           String remoteAddress,
           String xForwardedFor,
           String userAgent) throws MessageNotFoundException {
+    Preconditions.checkArgument(comment.getUserid() == author.getId());
 
     int commentId = commentDao.saveNewMessage(comment, commentBody, userAgent);
 
     /* кастование пользователей */
-    Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
-    userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
+    if (permissionService.isUserCastAllowed(author)) {
+      Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
+      userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
+    }
 
     /* оповещение об ответе на коммент */
     if (comment.getReplyTo() != 0) {
@@ -375,7 +383,8 @@ public class CommentService {
     Comment newComment,
     String commentBody,
     String remoteAddress,
-    String xForwardedFor
+    String xForwardedFor,
+    @Nonnull User editor
   ) {
     commentDao.edit(oldComment, newComment, commentBody);
 
@@ -392,7 +401,9 @@ public class CommentService {
       }
     }
 
-    userEventService.addUserRefEvent(userRefs, oldComment.getTopicId(), oldComment.getId());
+    if (permissionService.isUserCastAllowed(editor)) {
+      userEventService.addUserRefEvent(userRefs, oldComment.getTopicId(), oldComment.getId());
+    }
 
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
     topicDao.updateLastModifiedToCurrentTime(oldComment.getTopicId());

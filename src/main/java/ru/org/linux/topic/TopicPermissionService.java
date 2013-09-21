@@ -355,4 +355,8 @@ public class TopicPermissionService {
   public boolean followInTopic(Topic topic, User author) {
     return topic.isCommited() || followAuthorLinks(author);
   }
+
+  public boolean isUserCastAllowed(User author) {
+    return !author.isAnonymousScore();
+  }
 }
