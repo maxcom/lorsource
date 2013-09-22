@@ -1,5 +1,6 @@
 package ru.org.linux.user;
 
+import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -11,12 +12,27 @@ import javax.sql.DataSource;
 @ImportResource("classpath:database.xml")
 public class UserEventDaoIntegrationTestConfiguration {
   @Bean
-  public UserEventDao userLogDao() {
+  public UserEventDao userEventDao() {
     return new UserEventDao();
   }
 
   @Bean
   public DataSourceTransactionManager transactionManager(DataSource ds) {
     return new DataSourceTransactionManager(ds);
+  }
+
+  @Bean
+  public UserDao userDao() {
+    return new UserDao();
+  }
+
+  @Bean
+  public IgnoreListDao ignoreListDao() {
+    return Mockito.mock(IgnoreListDao.class);
+  }
+
+  @Bean
+  public UserLogDao userLogDao() {
+    return Mockito.mock(UserLogDao.class);
   }
 }

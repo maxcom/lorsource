@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,6 +34,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +84,7 @@ public class UserEventDao {
   private SimpleJdbcInsert insertTopicUsersNotified;
 
   private JdbcTemplate jdbcTemplate;
+  private NamedParameterJdbcTemplate namedJdbcTemplate;
 
   @Autowired
   public void setDataSource(DataSource ds) {
@@ -95,6 +98,7 @@ public class UserEventDao {
     insertTopicUsersNotified.usingColumns("topic", "userid");
 
     jdbcTemplate = new JdbcTemplate(ds);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
   }
 
   /**
@@ -161,6 +165,17 @@ public class UserEventDao {
   public void resetUnreadReplies(int userId) {
     jdbcTemplate.update("UPDATE users SET unread_events=0 where id=?", userId);
     jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread", userId);
+  }
+
+  public void recalcEventCount(Collection<Integer> userids) {
+    if (userids.isEmpty()) {
+      return;
+    }
+
+    namedJdbcTemplate.update(
+            "UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id) WHERE users.id IN (:list)",
+            ImmutableMap.of("list", userids)
+    );
   }
 
   /**

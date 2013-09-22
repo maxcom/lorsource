@@ -20,8 +20,12 @@ import static org.junit.Assert.assertEquals;
 public class UserEventDaoIntegrationTest {
   private static final int TEST_TOPIC_ID = 98075;
   private static final int TEST_USER_ID = 32670;
+
   @Autowired
   private UserEventDao userEventDao;
+
+  @Autowired
+  private UserDao userDao;
 
   @Test
   public void testAdd() {
@@ -77,5 +81,15 @@ public class UserEventDaoIntegrationTest {
                     UserEventFilterEnum.ANSWERS.getType()
             )
     );
+  }
+
+  @Test
+  public void testRecalc() {
+    createSimpleEvent();
+    assertEquals(1, userDao.getUser(TEST_USER_ID).getUnreadEvents());
+    userEventDao.deleteTopicEvents(TEST_TOPIC_ID, ImmutableSet.of(UserEventFilterEnum.TAG.getType()));
+    assertEquals(1, userDao.getUser(TEST_USER_ID).getUnreadEvents());
+    userEventDao.recalcEventCount(ImmutableList.of(TEST_USER_ID));
+    assertEquals(0, userDao.getUser(TEST_USER_ID).getUnreadEvents());
   }
 }
