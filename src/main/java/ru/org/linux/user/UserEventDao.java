@@ -39,7 +39,6 @@ import java.util.Map;
 
 @Repository
 public class UserEventDao {
-  private static final String UPDATE_RESET_UNREAD_REPLIES = "UPDATE users SET unread_events=0 where id=?";
 
   private static final String QUERY_ALL_REPLIES_FOR_USER =
     "SELECT event_date, " +
@@ -160,7 +159,7 @@ public class UserEventDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void resetUnreadReplies(int userId) {
-    jdbcTemplate.update(UPDATE_RESET_UNREAD_REPLIES, userId);
+    jdbcTemplate.update("UPDATE users SET unread_events=0 where id=?", userId);
     jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread", userId);
   }
 
