@@ -271,4 +271,16 @@ public class UserEventDao {
       );
     }
   }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void deleteCommentEvents(Collection<Integer> comments) {
+    if (comments.isEmpty()) {
+      return;
+    }
+
+    namedJdbcTemplate.update(
+            "DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')",
+            ImmutableMap.of("list", comments)
+    );
+  }
 }

@@ -253,4 +253,8 @@ public class UserEventService {
             )
     );
   }
+
+  public void processCommentsDeleted(List<Integer> msgids) {
+    userEventDao.deleteCommentEvents(msgids);
+  }
 }

@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -504,6 +505,7 @@ public class CommentService {
 
     if (deleted) {
       commentDao.updateStatsAfterDelete(msgid, 1);
+      userEventService.processCommentsDeleted(ImmutableList.of(msgid));
     }
 
     return deleted;
@@ -591,7 +593,11 @@ public class CommentService {
 
     List<CommentAndDepth> replys = getAllReplys(node, 0);
 
-    return deleteReplys(comment, reason, replys, user, -scoreBonus);
+    List<Integer> deleted = deleteReplys(comment, reason, replys, user, -scoreBonus);
+
+    userEventService.processCommentsDeleted(deleted);
+
+    return deleted;
   }
 
   /**
@@ -683,6 +689,8 @@ public class CommentService {
       commentDao.updateStatsAfterDelete(msgid, 1);
     }
 
+    userEventService.processCommentsDeleted(deletedCommentIds);
+
     return new DeleteCommentResult(deletedTopics, deletedCommentIds, deleteInfo);
   }
 
@@ -747,6 +755,8 @@ public class CommentService {
         deletedCommentIds.add(msgid);
       }
     }
+
+    userEventService.processCommentsDeleted(deletedCommentIds);
 
     return deletedCommentIds;
   }
