@@ -22,13 +22,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.image.ImageInfo;
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.image.ImageInfo;
 import ru.org.linux.util.image.ImageParam;
 import ru.org.linux.util.image.ImageUtil;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Timestamp;
 
 @Service
@@ -41,6 +43,12 @@ public class UserService {
 
   @Autowired
   private Configuration configuration;
+
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
+  private IgnoreListDao ignoreListDao;
 
   public ImageParam checkUserPic(File file) throws UserErrorException, IOException, BadImageException {
     if (!file.isFile()) {
@@ -141,5 +149,11 @@ public class UserService {
     String base = configuration.getSecret();
 
     return StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + Long.toString(tm.getTime()) + ":reset");
+  }
+
+  public UserStatistics getUserStatisticsClass(User user, boolean exact) {
+    int ignoreCount = ignoreListDao.getIgnoreStat(user);
+
+    return userDao.getUserStatisticsClass(user, exact, ignoreCount);
   }
 }

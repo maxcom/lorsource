@@ -6,7 +6,6 @@ import org.springframework.context.annotation.ImportResource;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionDaoImpl;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserLogDao;
 
@@ -38,10 +37,5 @@ public class ImageDaoIntegrationTestConfiguration {
   @Bean
   public UserLogDao userLogDao() {
     return mock(UserLogDao.class);
-  }
-
-  @Bean
-  public IgnoreListDao ignoreListDao() {
-    return mock(IgnoreListDao.class);
   }
 }

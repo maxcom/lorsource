@@ -48,9 +48,6 @@ public class UserDao {
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  private IgnoreListDao ignoreListDao;
-
-  @Autowired
   private UserLogDao userLogDao;
 
   /**
@@ -206,9 +203,7 @@ public class UserDao {
    * @param exact точная или приблизительная статистика
    * @return статистика
    */
-  public UserStatistics getUserStatisticsClass(User user, boolean exact) {
-    int ignoreCount = ignoreListDao.getIgnoreStat(user);
-
+  public UserStatistics getUserStatisticsClass(User user, boolean exact, int ignoreCount) {
     int commentCount = 0;
 
     if (!exact) {

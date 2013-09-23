@@ -27,11 +27,6 @@ public class UserEventDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public IgnoreListDao ignoreListDao() {
-    return Mockito.mock(IgnoreListDao.class);
-  }
-
-  @Bean
   public UserLogDao userLogDao() {
     return Mockito.mock(UserLogDao.class);
   }

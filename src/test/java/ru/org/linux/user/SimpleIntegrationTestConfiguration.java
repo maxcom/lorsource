@@ -23,11 +23,6 @@ public class SimpleIntegrationTestConfiguration {
   }
 
   @Bean
-  public IgnoreListDao ignoreListDao() {
-    return mock(IgnoreListDao.class);
-  }
-
-  @Bean
   public UserLogDao userLogDao() {
     return mock(UserLogDao.class);
   }

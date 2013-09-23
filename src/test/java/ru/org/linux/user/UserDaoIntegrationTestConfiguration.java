@@ -40,11 +40,6 @@ public class UserDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public IgnoreListDao ignoreListDao() {
-    return new IgnoreListDao();
-  }
-
-  @Bean
   public CacheManager cacheManager() {
     SimpleCacheManager cacheManager = new SimpleCacheManager();
 

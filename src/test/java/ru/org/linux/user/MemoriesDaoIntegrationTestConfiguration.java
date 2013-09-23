@@ -14,13 +14,10 @@
  */
 package ru.org.linux.user;
 
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-/**
- */
 @Configuration
 @ImportResource("classpath:database.xml")
 public class MemoriesDaoIntegrationTestConfiguration {
@@ -32,11 +29,6 @@ public class MemoriesDaoIntegrationTestConfiguration {
   @Bean
   public UserDao userDao() {
     return new UserDao();
-  }
-
-  @Bean
-  public IgnoreListDao ignoreListDao() {
-    return new IgnoreListDao();
   }
 
   @Bean

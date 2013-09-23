@@ -104,7 +104,7 @@ public class WhoisController {
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     if (!user.isAnonymous()) {
-      UserStatistics userStat = userDao.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
+      UserStatistics userStat = userService.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
       mv.getModel().put("userStat", userStat);
       mv.getModel().put("sectionStat", prepareSectionStats(userStat));
       mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
@@ -198,7 +198,7 @@ public class WhoisController {
     ModelAndView mv = new ModelAndView("wipe-user");
     mv.getModel().put("user", user);
 
-    mv.getModel().put("userStat", userDao.getUserStatisticsClass(user, true));
+    mv.getModel().put("userStat", userService.getUserStatisticsClass(user, true));
 
     return mv;
   }
