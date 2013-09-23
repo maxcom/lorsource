@@ -19,8 +19,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -38,7 +38,7 @@ import java.util.SortedSet;
 
 @Controller
 public class TagController {
-  private static final Log logger = LogFactory.getLog(TagController.class);
+  private static final Logger logger = LoggerFactory.getLogger(TagController.class);
 
   private static final String REJECT_REASON = "недостаточно прав доступа";
 
@@ -166,12 +166,12 @@ public class TagController {
     tagService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName(), errors);
 
     if (!errors.hasErrors()) {
-      StringBuilder logStr = new StringBuilder()
-        .append("Тег '")
-        .append(tagRequestChange.getOldTagName())
-        .append("'изменён пользователем ")
-        .append(template.getNick());
-      logger.info(logStr);
+      logger.info(
+              "Тег '{}' изменен пользователем {}",
+              tagRequestChange.getOldTagName(),
+              template.getNick()
+      );
+
       return redirectToListPage(tagRequestChange.getTagName());
     }
 
@@ -231,12 +231,11 @@ public class TagController {
     tagService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
 
     if (!errors.hasErrors()) {
-      StringBuilder logStr = new StringBuilder()
-        .append("Тег '")
-        .append(tagRequestDelete.getOldTagName())
-        .append("'удалён пользователем ")
-        .append(template.getNick());
-      logger.info(logStr);
+      logger.info(
+              "Тег '{}' удален пользователем {}",
+              tagRequestDelete.getOldTagName(),
+              template.getNick()
+      );
       return redirectToListPage(firstLetter);
     }
 

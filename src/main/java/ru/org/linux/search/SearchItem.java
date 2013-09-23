@@ -15,14 +15,13 @@
 
 package ru.org.linux.search;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.solr.common.SolrDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -32,7 +31,7 @@ import java.util.Date;
 import static ru.org.linux.util.URLUtil.buildWikiURL;
 
 public class SearchItem {
-  private static final Log logger = LogFactory.getLog(SearchItem.class);
+  private static final Logger logger = LoggerFactory.getLogger(SearchItem.class);
   private final String msgid;
   private final String title;
   private final String topicTitle;
