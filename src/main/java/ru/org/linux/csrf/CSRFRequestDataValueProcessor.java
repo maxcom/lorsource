@@ -15,8 +15,8 @@
 package ru.org.linux.csrf;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
@@ -31,7 +31,7 @@ import static ru.org.linux.csrf.CSRFProtectionService.CSRF_INPUT_NAME;
 //
 @Component("requestDataValueProcessor")
 public class CSRFRequestDataValueProcessor implements RequestDataValueProcessor {
-  private static final Log logger = LogFactory.getLog(CSRFRequestDataValueProcessor.class);
+  private static final Logger logger = LoggerFactory.getLogger(CSRFRequestDataValueProcessor.class);
 
   @Override
   public String processAction(HttpServletRequest request, String action) {

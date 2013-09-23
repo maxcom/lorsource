@@ -14,8 +14,8 @@
  */
 package ru.org.linux.exception;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
@@ -46,7 +46,7 @@ import java.util.Properties;
 
 @Component
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
-  private static final Log logger = LogFactory.getLog(ExceptionResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(ExceptionResolver.class);
 
   private static final String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";
   private static final String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";

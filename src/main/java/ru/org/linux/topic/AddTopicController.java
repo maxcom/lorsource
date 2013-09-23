@@ -17,8 +17,8 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -73,7 +73,7 @@ import java.util.Map;
 
 @Controller
 public class AddTopicController {
-  private static final Log logger = LogFactory.getLog(AddTopicController.class);
+  private static final Logger logger = LoggerFactory.getLogger(AddTopicController.class);
 
   private SearchQueueSender searchQueueSender;
 

@@ -16,8 +16,8 @@
 package ru.org.linux.comment;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -45,7 +45,7 @@ import java.util.List;
 
 @Repository
 public class CommentDao {
-  private static final Log logger = LogFactory.getLog(CommentDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(CommentDao.class);
 
   private static final String queryCommentById = "SELECT " +
     "postdate, topic, userid, comments.id as msgid, comments.title, " +

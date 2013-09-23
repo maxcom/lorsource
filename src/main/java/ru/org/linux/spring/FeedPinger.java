@@ -15,11 +15,11 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import java.util.Map;
 
 @Service
 public class FeedPinger {
-  private static final Log logger = LogFactory.getLog(FeedPinger.class);
+  private static final Logger logger = LoggerFactory.getLogger(FeedPinger.class);
 
   @Autowired
   private XmlRpcClientConfigImpl config;

@@ -15,19 +15,19 @@
 
 package ru.org.linux.search;
 
-import java.io.IOException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
 public class SolrOptimizer {
-  private static final Log logger = LogFactory.getLog(SolrOptimizer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SolrOptimizer.class);
 
   private SolrServer solrServer;
 

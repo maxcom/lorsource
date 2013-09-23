@@ -16,12 +16,12 @@
 package ru.org.linux.spring.commons;
 
 import net.spy.memcached.OperationTimeoutException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.org.linux.site.MemCachedSettings;
 
 public class MemCachedProvider implements CacheProvider {
-  private static final Log logger = LogFactory.getLog(MemCachedProvider.class);
+  private static final Logger logger = LoggerFactory.getLogger(MemCachedProvider.class);
 
   @Override
   public Object getFromCache(String key) {

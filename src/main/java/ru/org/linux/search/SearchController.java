@@ -18,14 +18,14 @@ package ru.org.linux.search;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,7 +57,7 @@ import java.util.Map;
 
 @Controller
 public class SearchController {
-  private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(SearchQueueListener.class);
   private SolrServer solrServer;
   @Autowired
   private SectionService sectionService;

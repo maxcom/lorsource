@@ -15,17 +15,15 @@
 
 package ru.org.linux.spring;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.io.SyndFeedOutput;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.web.servlet.view.AbstractView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * User: rsvato
@@ -39,8 +37,6 @@ public abstract class AbstractRomeView extends AbstractView {
   private String defaultType;
   private Integer minimalCount;
   private Integer maximalCount;
-
-  private static final Log log = LogFactory.getLog(AbstractRomeView.class);
 
   public Map<String, String> getContentTypes() {
     return contentTypes;

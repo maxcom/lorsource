@@ -18,8 +18,8 @@ package ru.org.linux.tag;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class TagService {
-  private static final Log logger = LogFactory.getLog(TagService.class);
+  private static final Logger logger = LoggerFactory.getLogger(TagService.class);
 
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-.]+)", Pattern.CASE_INSENSITIVE);
 
@@ -123,13 +123,11 @@ public class TagService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
-    StringBuilder logStr = new StringBuilder()
-      .append("Обновление счётчиков тегов; старые теги [")
-      .append(oldTags.toString())
-      .append("]; новые теги [")
-      .append(newTags.toString())
-      .append(']');
-    logger.debug(logStr);
+    logger.debug(
+            "Обновление счётчиков тегов; старые теги [{}]; новые теги [{}]",
+            oldTags,
+            newTags
+    );
 
     for (String tag : newTags) {
       if (!oldTags.contains(tag)) {
@@ -146,7 +144,6 @@ public class TagService {
         tagDao.decreaseCounterById(id, 1);
       }
     }
-    logger.trace("Завершено: " + logStr);
   }
 
   /**
@@ -206,13 +203,11 @@ public class TagService {
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
       } catch (TagNotFoundException ignored) {
         tagDao.changeTag(oldTagId, tagName);
-        StringBuilder logStr = new StringBuilder()
-          .append("Изменено название тега. Старое значение: '")
-          .append(oldTagName)
-          .append("'; новое значение: '")
-          .append(tagName)
-          .append('\'');
-        logger.info(logStr);
+        logger.info(
+                "Изменено название тега. Старое значение: '{}'; новое значение: '{}'",
+                oldTagName,
+                tagName
+        );
       }
     } catch (UserErrorException e) {
       errors.rejectValue("tagName", "", e.getMessage());
@@ -246,13 +241,7 @@ public class TagService {
           for (ITagActionHandler actionHandler : actionHandlers) {
             actionHandler.replaceTag(oldTagId, tagName, newTagId, newTagName);
           }
-          StringBuilder logStr = new StringBuilder()
-            .append("Удаляемый тег '")
-            .append(tagName)
-            .append("' заменён тегом '")
-            .append(newTagName)
-            .append('\'');
-          logger.debug(logStr);
+          logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName);
         }
       }
       for (ITagActionHandler actionHandler : actionHandlers) {

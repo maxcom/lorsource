@@ -18,12 +18,12 @@ package ru.org.linux.search;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.org.linux.comment.Comment;
@@ -46,7 +46,7 @@ import java.util.List;
 
 @Component
 public class SearchQueueListener {
-  private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(SearchQueueListener.class);
   
   @Autowired
   private CommentService commentService;

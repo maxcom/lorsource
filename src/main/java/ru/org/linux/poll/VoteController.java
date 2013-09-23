@@ -15,8 +15,8 @@
 
 package ru.org.linux.poll;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
@@ -39,7 +39,7 @@ import java.util.Map;
 
 @Controller
 public class VoteController {
-  private static final Log logger = LogFactory.getLog(VoteController.class);
+  private static final Logger logger = LoggerFactory.getLogger(VoteController.class);
 
   @Autowired
   private PollDao pollDao;

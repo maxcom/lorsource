@@ -16,8 +16,8 @@
 package ru.org.linux.search;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
@@ -35,7 +35,7 @@ import java.util.List;
 public class SearchQueueSender {
   private JmsTemplate jmsTemplate;
   private Queue queue;
-  private static final Log logger = LogFactory.getLog(SearchQueueSender.class);
+  private static final Logger logger = LoggerFactory.getLogger(SearchQueueSender.class);
 
   @Autowired
   public void setJmsTemplate(JmsTemplate jmsTemplate) {

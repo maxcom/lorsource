@@ -15,8 +15,8 @@
 package ru.org.linux.csrf;
 
 import com.google.common.base.Strings;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import ru.org.linux.auth.AccessViolationException;
@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
-  private static final Log logger = LogFactory.getLog(CSRFHandlerInterceptor.class);
+  private static final Logger logger = LoggerFactory.getLogger(CSRFHandlerInterceptor.class);
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

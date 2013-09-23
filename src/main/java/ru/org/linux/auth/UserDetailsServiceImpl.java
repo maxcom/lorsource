@@ -14,8 +14,8 @@
  */
 package ru.org.linux.auth;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +24,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.ProfileDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -37,14 +36,10 @@ import java.util.Collection;
  */
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
-
-  private static final Log logger = LogFactory.getLog(UserDetailsServiceImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
   @Autowired
   private UserDao userDao;
-
-  @Autowired
-  private Configuration configuration;
 
   @Autowired
   private ProfileDao profileDao;

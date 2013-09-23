@@ -17,8 +17,8 @@ package ru.org.linux.csrf;
 
 import com.google.common.base.Strings;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
 
 import javax.servlet.http.Cookie;
@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
 
 public class CSRFProtectionService {
-  private static final Log logger = LogFactory.getLog(CSRFProtectionService.class);
+  private static final Logger logger = LoggerFactory.getLogger(CSRFProtectionService.class);
 
   public static final String CSRF_COOKIE = "CSRF_TOKEN";
   public static final String CSRF_ATTRIBUTE = "csrfToken";

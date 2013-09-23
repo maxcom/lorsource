@@ -15,8 +15,8 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 
 @Component
 public class StatUpdater {
-  private static final Log logger = LogFactory.getLog(StatUpdater.class);
+  private static final Logger logger = LoggerFactory.getLogger(StatUpdater.class);
   private static final int MAX_EVENTS = 1000;
 
   private static final int FIVE_MINS = 5 * 60 * 1000;

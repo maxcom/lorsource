@@ -18,8 +18,8 @@ package ru.org.linux.auth;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaException;
 import net.tanesha.recaptcha.ReCaptchaResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -28,7 +28,7 @@ import javax.servlet.ServletRequest;
 
 @Component
 public class CaptchaService {
-  private static final Log logger = LogFactory.getLog(CaptchaService.class);
+  private static final Logger logger = LoggerFactory.getLogger(CaptchaService.class);
 
   private ReCaptcha captcha;
 
