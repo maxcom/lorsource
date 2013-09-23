@@ -56,7 +56,7 @@ public class TopicPermissionService {
       case POSTSCORE_UNRESTRICTED:
         return "";
       case 50:
-        return "Тема защищена от комментариев недавно зарегистрированных пользователей.";
+        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей.";
       case 100:
         return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
       case 200:
