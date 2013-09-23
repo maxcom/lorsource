@@ -17,7 +17,10 @@ package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
@@ -31,6 +34,8 @@ import java.util.Set;
 
 @Repository
 public class IgnoreListDao {
+  private static final Logger logger = LoggerFactory.getLogger(IgnoreListDao.class);
+
   private static final String queryIgnoreList = "SELECT a.ignored FROM ignore_list a WHERE a.userid=?";
   private static final String queryIgnoreStat = "SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked";
 
@@ -46,11 +51,15 @@ public class IgnoreListDao {
       throw new AccessViolationException("Нельзя игнорировать модератора");
     }
 
-    jdbcTemplate.update(
-            "INSERT INTO ignore_list (userid,ignored) VALUES(?,?)",
-            listOwner.getId(),
-            userToIgnore.getId()
-    );
+    try {
+      jdbcTemplate.update(
+              "INSERT INTO ignore_list (userid,ignored) VALUES(?,?)",
+              listOwner.getId(),
+              userToIgnore.getId()
+      );
+    } catch (DuplicateKeyException ex) {
+      logger.debug("User was already in ignore list", ex);
+    }
   }
 
   public void remove(User listOwner, User userToIgnore) {
