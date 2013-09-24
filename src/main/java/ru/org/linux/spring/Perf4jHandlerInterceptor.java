@@ -16,7 +16,7 @@
 package ru.org.linux.spring;
 
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -48,7 +48,7 @@ public class Perf4jHandlerInterceptor extends HandlerInterceptorAdapter {
       name = handler.getClass().getSimpleName();
     }
 
-    CommonsLogStopWatch watch = new CommonsLogStopWatch(name);
+    Slf4JStopWatch watch = new Slf4JStopWatch(name);
 
     watch.setTimeThreshold(TIME_THRESHOLD);
 
