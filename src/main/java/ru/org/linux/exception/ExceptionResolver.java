@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.StringUtil;
@@ -153,9 +152,18 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     }
     text.append("\n\n");
 
-    Template tmpl = Template.getTemplate(request);
-//    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
-    String mainUrl = "<unknown>";
+    Object attributeUrl = request.getAttribute("javax.servlet.error.request_uri");
+
+    if (attributeUrl!=null) {
+      text.append("Attribute URL: ").append(attributeUrl).append("\n");
+    }
+
+    Object forwardUrl = request.getAttribute("javax.servlet.forward.request_uri");
+    if (forwardUrl!=null) {
+      text.append("Forward URL: ").append(forwardUrl).append("\n");
+    }
+
+    String mainUrl;
 
     mainUrl = configuration.getMainUrl();
 
