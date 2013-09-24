@@ -20,8 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditHistoryDto;
@@ -59,8 +59,8 @@ import java.util.Map;
 
 @Service
 public class TopicPrepareService {
-  private static final Log logger = LogFactory.getLog(TopicPrepareService.class);
-  
+  private static final Logger logger = LoggerFactory.getLogger(TopicPrepareService.class);
+
   @Autowired
   private TopicDao messageDao;
 
@@ -290,10 +290,10 @@ public class TopicPrepareService {
 
       return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image);
     } catch (BadImageException e) {
-      logger.warn(e);
+      logger.warn("Failed to prepare image", e);
       return null;
     } catch (IOException e) {
-      logger.warn(e);
+      logger.warn("Failed to prepare image", e);
       return null;
     }
   }

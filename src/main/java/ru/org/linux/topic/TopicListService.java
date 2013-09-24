@@ -14,8 +14,8 @@
  */
 package ru.org.linux.topic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.group.Group;
@@ -31,7 +31,7 @@ import java.util.List;
 
 @Service
 public class TopicListService {
-  private static final Log logger = LogFactory.getLog(TopicListService.class);
+  private static final Logger logger = LoggerFactory.getLogger(TopicListService.class);
 
   @Autowired
   private TagService tagService;

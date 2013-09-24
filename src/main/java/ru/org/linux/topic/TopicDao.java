@@ -19,8 +19,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.collect.ImmutableList.Builder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -37,7 +37,6 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
@@ -64,7 +63,7 @@ import java.util.List;
 
 @Repository
 public class TopicDao {
-  private static final Log logger = LogFactory.getLog(TopicDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(TopicDao.class);
 
   @Autowired
   private GroupDao groupDao;
@@ -431,12 +430,7 @@ public class TopicDao {
 
     SectionScrollModeEnum sectionScrollMode;
 
-    try {
-      sectionScrollMode = sectionService.getScrollMode(message.getSectionId());
-    } catch (SectionNotFoundException e) {
-      logger.error(e);
-      return null;
-    }
+    sectionScrollMode = sectionService.getScrollMode(message.getSectionId());
 
     List<Integer> res;
 
@@ -504,12 +498,7 @@ public class TopicDao {
 
     SectionScrollModeEnum sectionScrollMode;
 
-    try {
-      sectionScrollMode = sectionService.getScrollMode(message.getSectionId());
-    } catch (SectionNotFoundException e) {
-      logger.error(e);
-      return null;
-    }
+    sectionScrollMode = sectionService.getScrollMode(message.getSectionId());
 
     List<Integer> res;
 

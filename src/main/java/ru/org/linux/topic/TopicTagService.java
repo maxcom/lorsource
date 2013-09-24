@@ -16,8 +16,8 @@ package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,7 +35,7 @@ import java.util.Set;
 
 @Service
 public class TopicTagService {
-  private static final Log logger = LogFactory.getLog(TopicTagService.class);
+  private static final Logger logger = LoggerFactory.getLogger(TopicTagService.class);
 
   private ITagActionHandler actionHandler = new ITagActionHandler() {
     @Override
@@ -44,18 +44,13 @@ public class TopicTagService {
       topicTagDao.replaceTag(oldTagId, newTagId);
       tagDao.increaseCounterById(newTagId, tagCount);
 
-      StringBuilder logStr = new StringBuilder()
-        .append("Счётчик использование тега '")
-        .append(newTagName)
-        .append("' увеличен на ")
-        .append(tagCount);
-      logger.debug(logStr);
+      logger.debug("Счётчик использование тега '{}' увеличен на {}", newTagName, tagCount);
     }
 
     @Override
     public void deleteTag(int tagId, String tagName) {
       topicTagDao.deleteTag(tagId);
-      logger.debug("Удалено использование тега '" + tagName + "' в топиках");
+      logger.debug("Удалено использование тега '{}' в топиках", tagName);
     }
 
     @Override
@@ -63,7 +58,6 @@ public class TopicTagService {
       topicTagDao.reCalculateAllCounters();
     }
   };
-
 
   public static final int MAX_TAGS_PER_TOPIC = 5;
   public static final int MAX_TAGS_IN_TITLE = 3;

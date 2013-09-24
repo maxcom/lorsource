@@ -15,8 +15,8 @@
 
 package ru.org.linux.topic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,7 +32,7 @@ import java.util.List;
 
 @Repository
 public class TopicListDao {
-  private static final Log logger = LogFactory.getLog(TopicListDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(TopicListDao.class);
 
   private static final RowMapper<TopicListDto.DeletedTopic> rowMapperForDeletedTopics = getRowMapperForDeletedTopics();
 
