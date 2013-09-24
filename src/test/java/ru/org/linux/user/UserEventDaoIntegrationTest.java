@@ -81,7 +81,8 @@ public class UserEventDaoIntegrationTest {
   public void testRecalc() {
     createSimpleEvent();
     assertEquals(1, userDao.getUser(TEST_USER_ID).getUnreadEvents());
-    userEventDao.deleteTopicEvents(ImmutableList.of(TEST_TOPIC_ID));
+    List<Integer> affected = userEventDao.deleteTopicEvents(ImmutableList.of(TEST_TOPIC_ID));
+    assertEquals(1, affected.size());
     assertEquals(1, userDao.getUser(TEST_USER_ID).getUnreadEvents());
     userEventDao.recalcEventCount(ImmutableList.of(TEST_USER_ID));
     assertEquals(0, userDao.getUser(TEST_USER_ID).getUnreadEvents());

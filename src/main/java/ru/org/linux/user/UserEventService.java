@@ -244,11 +244,23 @@ public class UserEventService {
     userEventDao.resetUnreadReplies(user.getId());
   }
 
+  /**
+   * Удаление уведомлений, относящихся к удаленным топикам
+   *
+   * @param msgids идентификаторы топиков
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void processTopicDeleted(Collection<Integer> msgids) {
-    userEventDao.deleteTopicEvents(msgids);
+    userEventDao.recalcEventCount(userEventDao.deleteTopicEvents(msgids));
   }
 
+  /**
+   * Удаление уведомлений, относящихся к удаленным комментариям
+   *
+   * @param msgids идентификаторы комментариев
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void processCommentsDeleted(List<Integer> msgids) {
-    userEventDao.deleteCommentEvents(msgids);
+    userEventDao.recalcEventCount(userEventDao.deleteCommentEvents(msgids));
   }
 }

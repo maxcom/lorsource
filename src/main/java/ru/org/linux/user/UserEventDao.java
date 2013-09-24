@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -261,26 +262,40 @@ public class UserEventDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteTopicEvents(Collection<Integer> topics) {
+  public List<Integer> deleteTopicEvents(Collection<Integer> topics) {
     if (topics.isEmpty()) {
-      return;
+      return ImmutableList.of();
     }
+
+    List<Integer> affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " +
+            "WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')",
+            ImmutableMap.of("list", topics),
+            Integer.class);
 
     namedJdbcTemplate.update(
             "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')",
             ImmutableMap.of("list", topics)
     );
+
+    return affectedUsers;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteCommentEvents(Collection<Integer> comments) {
+  public List<Integer> deleteCommentEvents(Collection<Integer> comments) {
     if (comments.isEmpty()) {
-      return;
+      return ImmutableList.of();
     }
+
+    List<Integer> affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " +
+            "WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')",
+            ImmutableMap.of("list", comments),
+            Integer.class);
 
     namedJdbcTemplate.update(
             "DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')",
             ImmutableMap.of("list", comments)
     );
+
+    return affectedUsers;
   }
 }
