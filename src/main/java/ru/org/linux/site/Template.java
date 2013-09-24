@@ -18,7 +18,7 @@ package ru.org.linux.site;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
@@ -30,10 +30,10 @@ public final class Template {
   @Nonnull
   private final Profile userProfile;
 
-  private final Configuration configuration;
+  private final SiteConfig siteConfig;
 
   public Template(WebApplicationContext ctx) {
-    configuration = (Configuration)ctx.getBean("configuration");
+    siteConfig = (SiteConfig)ctx.getBean("siteConfig");
     userProfile = AuthUtil.getProfile();
   }
 
@@ -70,19 +70,19 @@ public final class Template {
   }
 
   public String getMainUrl() {
-    return configuration.getMainUrl();
+    return siteConfig.getMainUrl();
   }
 
   public String getMainUrlNoSlash() {
-    return configuration.getMainUrlWithoutSlash();
+    return siteConfig.getMainUrlWithoutSlash();
   }
 
   public String getSecureMainUrl() {
-    return configuration.getSecureUrl();
+    return siteConfig.getSecureUrl();
   }
 
-  public Configuration getConfig() {
-    return configuration;
+  public SiteConfig getConfig() {
+    return siteConfig;
   }
 
   public boolean isSessionAuthorized() {

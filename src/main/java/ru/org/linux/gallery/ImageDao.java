@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.UserDao;
@@ -55,7 +55,7 @@ public class ImageDao {
   }
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private UserDao userDao;
@@ -106,7 +106,7 @@ public class ImageDao {
   }
 
   public List<PreparedGalleryItem> prepare(List<GalleryItem> items) {
-    String htmlPath = configuration.getHTMLPathPrefix();
+    String htmlPath = siteConfig.getHTMLPathPrefix();
 
     ImmutableList.Builder<PreparedGalleryItem> builder = ImmutableList.builder();
 

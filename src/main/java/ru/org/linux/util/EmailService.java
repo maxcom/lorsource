@@ -18,7 +18,7 @@ package ru.org.linux.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 
 import javax.mail.MessagingException;
@@ -33,7 +33,7 @@ import java.util.Properties;
 public class EmailService {
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   public void sendEmail(String nick, String email, boolean isNew) throws MessagingException {
     StringBuilder text = new StringBuilder();
@@ -59,7 +59,7 @@ public class EmailService {
       text.append("то вам следует подтвердить свое изменение.\n\n");
     }
 
-    String regcode = User.getActivationCode(configuration.getSecret(), nick, email);
+    String regcode = User.getActivationCode(siteConfig.getSecret(), nick, email);
 
     text.append("Для активации перейдите по ссылке https://www.linux.org.ru/activate.jsp\n\n");
     text.append("Код активации: ").append(regcode).append("\n\n");

@@ -21,7 +21,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorHttpUtils;
 
@@ -44,7 +44,7 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
 
     WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
     HttpServletRequest request = (HttpServletRequest) req;
-    request.setAttribute("configuration", ctx.getBean(Configuration.class));
+    request.setAttribute("configuration", ctx.getBean(SiteConfig.class));
     request.setAttribute("template", new Template(ctx));
     request.setCharacterEncoding("utf-8"); // блядский tomcat
     CSRFManipulation(request, (HttpServletResponse) res);

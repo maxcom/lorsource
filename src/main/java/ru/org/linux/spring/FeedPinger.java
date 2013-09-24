@@ -35,7 +35,7 @@ public class FeedPinger {
   private XmlRpcClientConfigImpl config;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   public void pingFeedburner() {
     try {
@@ -45,7 +45,7 @@ public class FeedPinger {
 
       client.setConfig(config);
 
-      Object[] params = {"Linux.org.ru", configuration.getMainUrl()};
+      Object[] params = {"Linux.org.ru", siteConfig.getMainUrl()};
 
       Map r = (Map) client.execute("weblogUpdates.ping", params);
 

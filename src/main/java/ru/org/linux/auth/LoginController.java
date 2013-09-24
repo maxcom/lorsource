@@ -32,7 +32,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 
@@ -57,7 +57,7 @@ public class LoginController {
   private AuthenticationManager authenticationManager;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @RequestMapping(value = "/login_process", method = RequestMethod.POST)
   public ModelAndView loginProcess(
@@ -112,7 +112,7 @@ public class LoginController {
 
   private HttpEntity<LoginStatus> entity(LoginStatus status) {
     HttpHeaders headers = new HttpHeaders();
-    headers.add("Access-Control-Allow-Origin", configuration.getMainUrlWithoutSlash());
+    headers.add("Access-Control-Allow-Origin", siteConfig.getMainUrlWithoutSlash());
     headers.add("Access-Control-Allow-Credentials", "true");
 
     return new HttpEntity<>(status, headers);

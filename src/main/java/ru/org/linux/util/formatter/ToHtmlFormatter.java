@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
@@ -56,7 +56,7 @@ public class ToHtmlFormatter {
   public static final String MDASH_REGEX = " -- ";
   public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
 
-  private Configuration configuration;
+  private SiteConfig siteConfig;
   private TopicDao messageDao;
 
   @Autowired
@@ -65,8 +65,8 @@ public class ToHtmlFormatter {
   private int maxLength=80;
 
   @Autowired
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
+  public void setSiteConfig(SiteConfig siteConfig) {
+    this.siteConfig = siteConfig;
   }
 
   @Autowired
@@ -127,7 +127,7 @@ public class ToHtmlFormatter {
   }
 
   public String memberURL(User user, boolean secure) throws URIException {
-    URI mainUri = configuration.getMainURI();
+    URI mainUri = siteConfig.getMainURI();
     String scheme;
     if(secure) {
       scheme = "https";
@@ -184,7 +184,7 @@ public class ToHtmlFormatter {
           @Nonnull String urlHref,
           @Nullable String linktext
   ) throws URIException {
-    LorURL url = new LorURL(configuration.getMainURI(), urlHref);
+    LorURL url = new LorURL(siteConfig.getMainURI(), urlHref);
 
     if(url.isMessageUrl()) {
       processMessageUrl(secure, out, url, linktext);

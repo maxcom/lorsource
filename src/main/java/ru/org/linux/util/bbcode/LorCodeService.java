@@ -19,7 +19,7 @@ package ru.org.linux.util.bbcode;
 import org.apache.commons.httpclient.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
@@ -33,7 +33,7 @@ public class LorCodeService {
   private static final Parser defaultParser = new Parser(new DefaultParserParameters());
 
   private UserDao userDao;
-  private Configuration configuration;
+  private SiteConfig siteConfig;
   private ToHtmlFormatter toHtmlFormatter;
 
   @Autowired
@@ -42,8 +42,8 @@ public class LorCodeService {
   }
 
   @Autowired
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
+  public void setSiteConfig(SiteConfig siteConfig) {
+    this.siteConfig = siteConfig;
   }
 
   @Autowired
@@ -135,7 +135,7 @@ public class LorCodeService {
     RootNode rootNode = defaultParser.getRootNode();
     if(minimizeCut) {
       try {
-        LorURL lorCutURL = new LorURL(configuration.getMainURI(), cutURL);
+        LorURL lorCutURL = new LorURL(siteConfig.getMainURI(), cutURL);
         if(lorCutURL.isTrueLorUrl()) {
           URI fixURI = new URI(lorCutURL.fixScheme(secure), true, "UTF-8");
           rootNode.setMinimizedTopicCutOptions(fixURI);

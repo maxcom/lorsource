@@ -22,7 +22,7 @@ import org.junit.Test;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -156,17 +156,17 @@ public class HTMLFormatterTest {
     when(commentService.getById(1948675)).thenReturn(comment);
     when(commentService.getById(6944831)).thenReturn(comment);
 
-    Configuration configuration = mock(Configuration.class);
+    SiteConfig siteConfig = mock(SiteConfig.class);
 
-    when(configuration.getMainURI()).thenReturn(mainURI);
+    when(siteConfig.getMainURI()).thenReturn(mainURI);
 
     toHtmlFormatter = new ToHtmlFormatter();
-    toHtmlFormatter.setConfiguration(configuration);
+    toHtmlFormatter.setSiteConfig(siteConfig);
     toHtmlFormatter.setMessageDao(messageDao);
     toHtmlFormatter.setCommentService(commentService);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
-    toHtmlFormatter20.setConfiguration(configuration);
+    toHtmlFormatter20.setSiteConfig(siteConfig);
     toHtmlFormatter20.setMessageDao(messageDao);
     toHtmlFormatter20.setMaxLength(20);
     toHtmlFormatter20.setCommentService(commentService);
@@ -175,7 +175,7 @@ public class HTMLFormatterTest {
     toLorCodeFormatter = new ToLorCodeFormatter();
 
     lorCodeService = new LorCodeService();
-    lorCodeService.setConfiguration(configuration);
+    lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
   }
 

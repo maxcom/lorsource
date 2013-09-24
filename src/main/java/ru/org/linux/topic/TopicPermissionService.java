@@ -26,7 +26,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
@@ -46,7 +46,7 @@ public class TopicPermissionService {
   private CommentService commentService;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private GroupDao groupDao;
@@ -273,14 +273,14 @@ public class TopicPermissionService {
     boolean authored = currentUser.getId() == comment.getUserid();
 
     /* Проверка на то, что пользователь модератор */
-    boolean editable = moderatorMode && configuration.isModeratorAllowedToEditComments();
+    boolean editable = moderatorMode && siteConfig.isModeratorAllowedToEditComments();
 
     if (!editable && authored) {
       /* проверка на то, что время редактирования не вышло */
       boolean isbyMinutesEnable;
-      if (configuration.getCommentExpireMinutesForEdit() != 0) {
+      if (siteConfig.getCommentExpireMinutesForEdit() != 0) {
         long nowTimestamp = System.currentTimeMillis();
-        long deltaTimestamp = configuration.getCommentExpireMinutesForEdit() * 60 * 1000;
+        long deltaTimestamp = siteConfig.getCommentExpireMinutesForEdit() * 60 * 1000;
 
         isbyMinutesEnable = comment.getPostdate().getTime() + deltaTimestamp > nowTimestamp;
       } else {
@@ -288,10 +288,10 @@ public class TopicPermissionService {
       }
 
       /* Проверка на то, что у комментария нет ответов */
-      boolean isbyAnswersEnable = configuration.isCommentEditingAllowedIfAnswersExists() || !haveAnswers;
+      boolean isbyAnswersEnable = siteConfig.isCommentEditingAllowedIfAnswersExists() || !haveAnswers;
 
       /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
-      boolean isByScoreEnable = currentUser.getScore() >= configuration.getCommentScoreValueForEditing();
+      boolean isByScoreEnable = currentUser.getScore() >= siteConfig.getCommentScoreValueForEditing();
 
       editable = isbyMinutesEnable && isbyAnswersEnable && isByScoreEnable;
     }

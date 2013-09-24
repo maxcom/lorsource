@@ -29,7 +29,7 @@ import java.util.Properties;
  * Конфигурация
  */
 @Service
-public class Configuration {
+public class SiteConfig {
   private static final String ERR_MSG = "Invalid MainUrl property: ";
   public static final String PROPERTY_MAIN_URL = "MainUrl";
 

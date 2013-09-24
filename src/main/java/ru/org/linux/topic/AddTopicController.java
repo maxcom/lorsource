@@ -49,7 +49,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -100,7 +100,7 @@ public class AddTopicController {
   private GroupPermissionService groupPermissionService;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private AddTopicRequestValidator addTopicRequestValidator;
@@ -467,7 +467,7 @@ public class AddTopicController {
         screenShot = Screenshot.createScreenshot(
                 uploadedFile,
                 errors,
-                configuration.getHTMLPathPrefix() + "/gallery/preview"
+                siteConfig.getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenShot != null) {
@@ -493,7 +493,7 @@ public class AddTopicController {
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
       if (multipartFile != null && !multipartFile.isEmpty()) {
-        File uploadedFile = File.createTempFile("preview", "", new File(configuration.getPathPrefix() + "/linux-storage/tmp/"));
+        File uploadedFile = File.createTempFile("preview", "", new File(siteConfig.getPathPrefix() + "/linux-storage/tmp/"));
         String image = uploadedFile.getPath();
         if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
           try {
