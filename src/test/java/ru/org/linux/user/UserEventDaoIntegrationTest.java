@@ -1,7 +1,6 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +65,7 @@ public class UserEventDaoIntegrationTest {
 
     assertEquals(1, events.size());
 
-    userEventDao.deleteTopicEvents(TEST_TOPIC_ID, ImmutableSet.of(UserEventFilterEnum.TAG.getType()));
+    userEventDao.deleteTopicEvents(ImmutableList.of(TEST_TOPIC_ID));
 
     List<UserEvent> eventsAfterDelete = userEventDao.getRepliesForUser(TEST_USER_ID, true, 50, 0, null);
 
@@ -75,19 +74,14 @@ public class UserEventDaoIntegrationTest {
 
   @Test
   public void testRemoveSyntax() {
-    userEventDao.deleteTopicEvents(TEST_TOPIC_ID,
-            ImmutableSet.of(
-                    UserEventFilterEnum.TAG.getType(),
-                    UserEventFilterEnum.ANSWERS.getType()
-            )
-    );
+    userEventDao.deleteTopicEvents(ImmutableList.of(TEST_TOPIC_ID));
   }
 
   @Test
   public void testRecalc() {
     createSimpleEvent();
     assertEquals(1, userDao.getUser(TEST_USER_ID).getUnreadEvents());
-    userEventDao.deleteTopicEvents(TEST_TOPIC_ID, ImmutableSet.of(UserEventFilterEnum.TAG.getType()));
+    userEventDao.deleteTopicEvents(ImmutableList.of(TEST_TOPIC_ID));
     assertEquals(1, userDao.getUser(TEST_USER_ID).getUnreadEvents());
     userEventDao.recalcEventCount(ImmutableList.of(TEST_USER_ID));
     assertEquals(0, userDao.getUser(TEST_USER_ID).getUnreadEvents());

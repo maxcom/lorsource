@@ -204,7 +204,7 @@ public class TopicService {
 
     if (deleted) {
       deleteInfoDao.insert(mid, moderator, reason, bonus);
-      userEventService.processTopicDeleted(mid);
+      userEventService.processTopicDeleted(ImmutableList.of(mid));
     }
 
     return deleted;
@@ -214,11 +214,7 @@ public class TopicService {
   public List<Integer> deleteByIPAddress(String ip, Timestamp startTime, User moderator, String reason) {
     List<Integer> topicIds = topicDao.getAllByIPForUpdate(ip, startTime);
 
-    for (int msgid : topicIds) {
-      deleteTopic(msgid, moderator, reason, 0);
-    }
-
-    return topicIds;
+    return massDelete(moderator, topicIds, reason);
   }
 
   /**
@@ -233,11 +229,24 @@ public class TopicService {
   public List<Integer> deleteAllByUser(User user, User moderator) {
     List<Integer> topics = topicDao.getUserTopicForUpdate(user);
 
+    return massDelete(moderator, topics, "Блокировка пользователя с удалением сообщений");
+  }
+
+  private List<Integer> massDelete(User moderator, Iterable<Integer> topics, String reason) {
+    List<Integer> deletedTopics = new ArrayList<>();
+
     for (int mid : topics) {
-      deleteTopic(mid, moderator, "Блокировка пользователя с удалением сообщений", 0);
+      boolean deleted = topicDao.delete(mid);
+
+      if (deleted) {
+        deleteInfoDao.insert(mid, moderator, reason, 0);
+        deletedTopics.add(mid);
+      }
     }
 
-    return topics;
+    userEventService.processTopicDeleted(deletedTopics);
+
+    return deletedTopics;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)

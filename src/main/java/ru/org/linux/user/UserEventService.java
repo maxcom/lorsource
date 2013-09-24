@@ -31,6 +31,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -243,15 +244,8 @@ public class UserEventService {
     userEventDao.resetUnreadReplies(user.getId());
   }
 
-  public void processTopicDeleted(int msgid) {
-    userEventDao.deleteTopicEvents(msgid,
-            ImmutableSet.of(
-                    TAG.getType(),
-                    REFERENCE.getType(),
-                    ANSWERS.getType(),
-                    FAVORITES.getType()
-            )
-    );
+  public void processTopicDeleted(Collection<Integer> msgids) {
+    userEventDao.deleteTopicEvents(msgids);
   }
 
   public void processCommentsDeleted(List<Integer> msgids) {

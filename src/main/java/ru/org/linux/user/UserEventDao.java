@@ -17,7 +17,6 @@ package ru.org.linux.user;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -262,14 +261,15 @@ public class UserEventDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteTopicEvents(int topicId, ImmutableSet<String> types) {
-    for (String type : types) {
-      jdbcTemplate.update(
-              "DELETE FROM user_events WHERE message_id=? AND type=?::event_type",
-              topicId,
-              type
-      );
+  public void deleteTopicEvents(Collection<Integer> topics) {
+    if (topics.isEmpty()) {
+      return;
     }
+
+    namedJdbcTemplate.update(
+            "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')",
+            ImmutableMap.of("list", topics)
+    );
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
