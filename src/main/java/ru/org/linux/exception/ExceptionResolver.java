@@ -21,8 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.StringUtil;
 
@@ -52,7 +51,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
   private static final String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   enum ExceptionType {
     IGNORED,
@@ -137,7 +136,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     Exception exception
   ) {
     InternetAddress mail;
-    String adminEmailAddress = configuration.getAdminEmailAddress();
+    String adminEmailAddress = siteConfig.getAdminEmailAddress();
 
     try {
       mail = new InternetAddress(adminEmailAddress, true);
@@ -153,11 +152,20 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     }
     text.append("\n\n");
 
-    Template tmpl = Template.getTemplate(request);
-//    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
-    String mainUrl = "<unknown>";
+    Object attributeUrl = request.getAttribute("javax.servlet.error.request_uri");
 
-    mainUrl = configuration.getMainUrl();
+    if (attributeUrl!=null) {
+      text.append("Attribute URL: ").append(attributeUrl).append("\n");
+    }
+
+    Object forwardUrl = request.getAttribute("javax.servlet.forward.request_uri");
+    if (forwardUrl!=null) {
+      text.append("Forward URL: ").append(forwardUrl).append("\n");
+    }
+
+    String mainUrl;
+
+    mainUrl = siteConfig.getMainUrl();
 
     text.append("Main URL: ").append(mainUrl).append(request.getServletPath());
 

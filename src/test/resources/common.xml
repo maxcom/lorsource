@@ -28,6 +28,6 @@
         </property>
     </bean>
 
-    <bean class="ru.org.linux.spring.Configuration"/>
+    <bean class="ru.org.linux.spring.SiteConfig"/>
 
 </beans>

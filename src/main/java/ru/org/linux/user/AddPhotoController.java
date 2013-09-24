@@ -30,7 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.image.ImageParam;
 
@@ -49,7 +49,7 @@ public class AddPhotoController {
   private UserDao userDao;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private UserService userService;
@@ -69,7 +69,7 @@ public class AddPhotoController {
     }
 
     try {
-      File uploadedFile = File.createTempFile("userpic", "", new File(configuration.getPathPrefix() + "/linux-storage/tmp/"));
+      File uploadedFile = File.createTempFile("userpic", "", new File(siteConfig.getPathPrefix() + "/linux-storage/tmp/"));
 
       file.transferTo(uploadedFile);
 
@@ -83,7 +83,7 @@ public class AddPhotoController {
 
       do {
         photoname = Integer.toString(AuthUtil.getCurrentUser().getId()) + ':' + random.nextInt() + '.' + extension;
-        photofile = new File(configuration.getHTMLPathPrefix() + "/photos", photoname);
+        photofile = new File(siteConfig.getHTMLPathPrefix() + "/photos", photoname);
       } while (photofile.exists());
 
       if (!uploadedFile.renameTo(photofile)) {

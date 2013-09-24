@@ -35,7 +35,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
@@ -67,7 +67,7 @@ public class TopicController {
   private IgnoreListDao ignoreListDao;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private IPBlockDao ipBlockDao;
@@ -302,7 +302,7 @@ public class TopicController {
       List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
-      LorURL lorURL = new LorURL(configuration.getMainURI(), configuration.getMainUrl());
+      LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
       params.put("mainURL", lorURL.fixScheme(request.isSecure()));
     }
 

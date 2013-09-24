@@ -18,7 +18,7 @@ package ru.org.linux.util.bbcode;
 import org.apache.commons.httpclient.URI;
 import org.junit.Before;
 import org.junit.Test;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -26,9 +26,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
@@ -37,7 +35,7 @@ import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 public class SimpleParserTest {
 
   LorCodeService lorCodeService;
-  Configuration configuration;
+  SiteConfig siteConfig;
   ToHtmlFormatter toHtmlFormatter;
   UserDao userDao;
   User maxcom; // Администратор
@@ -69,17 +67,17 @@ public class SimpleParserTest {
 
     mainUrl = "http://127.0.0.1:8080/";
     mainURI = new URI(mainUrl, true, "UTF-8");
-    configuration = mock(Configuration.class);
-    when(configuration.getMainURI()).thenReturn(mainURI);
-    when(configuration.getMainUrl()).thenReturn(mainUrl);
+    siteConfig = mock(SiteConfig.class);
+    when(siteConfig.getMainURI()).thenReturn(mainURI);
+    when(siteConfig.getMainUrl()).thenReturn(mainUrl);
 
     toHtmlFormatter = new ToHtmlFormatter();
-    toHtmlFormatter.setConfiguration(configuration);
+    toHtmlFormatter.setSiteConfig(siteConfig);
 
 
     lorCodeService = new LorCodeService();
     lorCodeService.setUserDao(userDao);
-    lorCodeService.setConfiguration(configuration);
+    lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
     url = "http://127.0.0.1:8080/forum/talks/22464";

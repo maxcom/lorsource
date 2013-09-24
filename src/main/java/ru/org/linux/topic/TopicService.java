@@ -32,7 +32,7 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
@@ -57,7 +57,7 @@ public class TopicService {
   private SectionService sectionService;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private ImageDao imageDao;
@@ -111,7 +111,7 @@ public class TopicService {
     }
 
     if (scrn!=null) {
-      Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
+      Screenshot screenShot = scrn.moveTo(siteConfig.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
 
       imageDao.saveImage(
               msgid,

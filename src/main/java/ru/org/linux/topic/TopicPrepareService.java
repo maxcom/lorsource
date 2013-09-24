@@ -39,15 +39,15 @@ import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.image.ImageInfo;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.image.ImageInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -83,7 +83,7 @@ public class TopicPrepareService {
   private LorCodeService lorCodeService;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private MemoriesDao memoriesDao;
@@ -213,7 +213,7 @@ public class TopicPrepareService {
 
       if (text.isLorcode()) {
         if (minimizeCut) {
-          String url = configuration.getMainUrl() + message.getLink();
+          String url = siteConfig.getMainUrl() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
                   text.getText(),
                   url,
@@ -277,7 +277,7 @@ public class TopicPrepareService {
 
     String mediumName = image.getMedium();
 
-    String htmlPath = configuration.getHTMLPathPrefix();
+    String htmlPath = siteConfig.getHTMLPathPrefix();
     if (!new File(htmlPath, mediumName).exists()) {
       mediumName = image.getIcon();
     }
@@ -285,8 +285,8 @@ public class TopicPrepareService {
     try {
       ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
       ImageInfo fullInfo = new ImageInfo(htmlPath + image.getOriginal());
-      LorURL medURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+mediumName);
-      LorURL fullURI = new LorURL(configuration.getMainURI(), configuration.getMainUrl()+image.getOriginal());
+      LorURL medURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+mediumName);
+      LorURL fullURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+image.getOriginal());
 
       return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image);
     } catch (BadImageException e) {

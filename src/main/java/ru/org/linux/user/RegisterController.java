@@ -32,7 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.*;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.LorHttpUtils;
@@ -68,7 +68,7 @@ public class RegisterController {
   private EmailService emailService;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
@@ -157,7 +157,7 @@ public class RegisterController {
       token.setDetails(details);
       Authentication auth = authenticationManager.authenticate(token);
       UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
-      String regcode = userDetails.getUser().getActivationCode(configuration.getSecret());
+      String regcode = userDetails.getUser().getActivationCode(siteConfig.getSecret());
       if(regcode.equals(activation)) {
         userDao.activateUser(userDetails.getUser());
         details = (UserDetailsImpl) userDetailsService.loadUserByUsername(nick);
@@ -195,7 +195,7 @@ public class RegisterController {
       throw new AccessViolationException("new_email == null?!");
     }
 
-    String regcode = user.getActivationCode(configuration.getSecret(), newEmail);
+    String regcode = user.getActivationCode(siteConfig.getSecret(), newEmail);
 
     if (!regcode.equals(activation)) {
       throw new AccessViolationException("Bad activation code");

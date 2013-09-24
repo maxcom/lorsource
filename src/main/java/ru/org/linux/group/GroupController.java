@@ -30,14 +30,14 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.image.ImageInfo;
 import ru.org.linux.util.ServletParameterBadValueException;
+import ru.org.linux.util.image.ImageInfo;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -71,7 +71,7 @@ public class GroupController {
   private TopicTagService topicTagService;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -290,7 +290,7 @@ public class GroupController {
     if(group.getImage() != null) {
       try {
         params.put("groupImagePath", '/' + "tango" + group.getImage());
-        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "tango" + group.getImage());
+        ImageInfo info = new ImageInfo(siteConfig.getHTMLPathPrefix() + "tango" + group.getImage());
         params.put("groupImageInfo", info);
       } catch (BadImageException ex) {
         params.put("groupImagePath", null);

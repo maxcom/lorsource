@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.image.ImageInfo;
@@ -42,7 +42,7 @@ public class UserService {
   public static final int MAX_IMAGESIZE = 150;
 
   @Autowired
-  private Configuration configuration;
+  private SiteConfig siteConfig;
 
   @Autowired
   private UserDao userDao;
@@ -120,7 +120,7 @@ public class UserService {
 
     if (user.getPhoto() != null) {
       try {
-        ImageInfo info = new ImageInfo(configuration.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
+        ImageInfo info = new ImageInfo(siteConfig.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
 
         return new Userpic(
             "/photos/" + user.getPhoto(),
@@ -146,7 +146,7 @@ public class UserService {
   }
 
   public String getResetCode(String nick, String email, Timestamp tm) {
-    String base = configuration.getSecret();
+    String base = siteConfig.getSecret();
 
     return StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + Long.toString(tm.getTime()) + ":reset");
   }
