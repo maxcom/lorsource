@@ -217,9 +217,9 @@
 </c:if>
 <p>
     <c:if test="${template.sessionAuthorized or user.maxScore>=50}">
-    <cite>
+    <div>
             ${userInfoText}
-    </cite>
+    </div>
     </c:if>
 
     <c:if test="${template.moderatorSession}">
