@@ -17,6 +17,7 @@ package ru.org.linux.tag;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,6 +314,6 @@ public class TagService {
   }
 
   public List<String> getRelatedTags(int tagId) {
-    return tagDao.relatedTags(tagId);
+    return Ordering.natural().immutableSortedCopy(tagDao.relatedTags(tagId));
   }
 }

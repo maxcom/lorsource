@@ -227,7 +227,7 @@ public class TagDao {
             "select value from " +
                     "(select st.tagid, count(*) as cnt from tags as mt join tags as st on mt.msgid=st.msgid " +
                     "where mt.tagid=? and mt.tagid<>st.tagid group by st.tagid having count(*)>2) as q " +
-                    "join tags_values on q.tagid=tags_values.id where counter>2 order by cnt::real/counter desc limit 10",
+                    "join tags_values on q.tagid=tags_values.id where counter>5 order by cnt::real/counter desc limit 10",
             String.class,
             tagid
     );
