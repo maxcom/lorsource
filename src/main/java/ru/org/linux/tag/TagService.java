@@ -311,4 +311,8 @@ public class TagService {
 
     return tagDao.getCounter(tagId);
   }
+
+  public List<String> getRelatedTags(int tagId) {
+    return tagDao.relatedTags(tagId);
+  }
 }

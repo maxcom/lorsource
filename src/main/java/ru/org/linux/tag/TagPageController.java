@@ -130,6 +130,12 @@ public class TagPageController {
 
     mv.addObject("favsCount", userTagService.countFavs(tagId));
 
+    List<String> relatedTags = tagService.getRelatedTags(tagId);
+
+    if (relatedTags.size()>1) {
+      mv.addObject("relatedTags", relatedTags);
+    }
+
     mv.addAllObjects(getNewsSection(request, tag));
     mv.addAllObjects(getGallerySection(tag, tagId, tmpl));
     mv.addAllObjects(getForumSection(tag, tagId));

@@ -31,6 +31,7 @@
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
 <%--@elvariable id="counter" type="java.lang.Integer"--%>
+<%--@elvariable id="relatedTags" type="java.util.List<java.lang.String>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>${title}</title>
@@ -58,8 +59,14 @@
         </c:if>
         <br><span id="favsCount" title="Кол-во пользователей, добавивших в избранное">${favsCount}</span>
     </div>
-
-    Всего сообщений: ${counter}
+    <p>
+      Всего сообщений: ${counter}
+    </p>
+    <c:if test="${not empty relatedTags}">
+      См. также:
+      <p class="tags"><i class="icon-tag"></i>&nbsp;
+      <l:tags list="${relatedTags}"/></p>
+    </c:if>
 </div>
 
 <section>

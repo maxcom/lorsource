@@ -221,4 +221,15 @@ public class TagDao {
   public int getCounter(int tagId) {
     return jdbcTemplate.queryForObject("SELECT counter FROM tags_values WHERE id=?", Integer.class, tagId);
   }
+
+  public List<String> relatedTags(int tagid) {
+    return jdbcTemplate.queryForList(
+            "select value from " +
+                    "(select st.tagid, count(*) as cnt from tags as mt join tags as st on mt.msgid=st.msgid " +
+                    "where mt.tagid=? and mt.tagid<>st.tagid group by st.tagid having count(*)>2) as q " +
+                    "join tags_values on q.tagid=tags_values.id where counter>2 order by cnt::real/counter desc limit 10",
+            String.class,
+            tagid
+    );
+  }
 }

@@ -22,10 +22,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TagIntegrationTestConfiguration.class)
@@ -72,6 +74,7 @@ public class TagDaoIntegrationTest {
     assertEquals(1, tagDao.getTagsByPrefix("zest_", 0).size());
     assertEquals(0, tagDao.getTagsByPrefix("zest%", 0).size());
   }
+
   @Test
   public void prefixSearchEscapeTest2() {
     tagDao.createTag("zest__test");
@@ -80,5 +83,12 @@ public class TagDaoIntegrationTest {
     assertEquals(2, tagDao.getTagsByPrefix("zest_", 0).size());
     assertEquals(1, tagDao.getTagsByPrefix("zest__", 0).size());
     assertEquals(1, tagDao.getTagsByPrefix("zest__t", 0).size());
+  }
+
+  @Test
+  public void testRelatedTags() {
+    List<String> tags = tagDao.relatedTags(30);
+
+    assertNotNull(tags);
   }
 }
