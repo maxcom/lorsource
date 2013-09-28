@@ -27,6 +27,7 @@ import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.Profile;
+import ru.org.linux.user.MemoriesDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +43,8 @@ public class MainPageController {
 
   @Autowired
   private TopicDao topicDao;
+  @Autowired
+  private MemoriesDao memoriesDao;
 
   private List<Topic> filterMiniNews(List<Topic> messages) {
     ImmutableList.Builder<Topic> filtred = new ImmutableList.Builder<Topic>();
@@ -79,9 +82,10 @@ public class MainPageController {
             profile,
             false
     ));
-
+    
     if (tmpl.isSessionAuthorized()) {
       mv.getModel().put("hasDrafts", topicDao.hasDrafts(tmpl.getCurrentUser()));
+      mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(tmpl.getCurrentUser{)));
     }
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
