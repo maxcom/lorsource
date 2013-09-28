@@ -66,6 +66,10 @@ public class MainPageController {
 
     ModelAndView mv = new ModelAndView("index");
 
+    if (tmpl.isSessionAuthorized() && tmpl.getCurrentUser().isAdministrator()) {
+      mv.setViewName("index_new");
+    }
+
     Profile profile = tmpl.getProf();
 
     mv.getModel().put("news", prepareService.prepareMessagesForUser(

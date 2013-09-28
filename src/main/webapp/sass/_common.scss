@@ -16,7 +16,8 @@
 @import "grid";
 
 $total_width: 100%;
-$gutter_width: 3%;
+$gutter_width: 2%;
+$container_margin: 0;
 
 @import "clearfix";
 
@@ -26,6 +27,9 @@ $gutter_width: 3%;
   }
   @else if $media == tablet-and-desktops {
     @media only screen and (min-width: 40em) { @content; }
+  }
+  @if $media == tablet {
+    @media only screen and (min-width: 40em) and (max-width: 60em) { @content; }
   }
 }
 
@@ -722,3 +726,4 @@ pre code .container:before, pre code .container:after {
 }
 
 @import "form";
+@import "mainpage"

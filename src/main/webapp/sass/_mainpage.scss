@@ -1,0 +1,35 @@
+#mainpage {
+  @include clearfix;
+  @include container;
+}
+
+#news {
+  @include respond-to(desktops) {
+    @include column(9, 3);
+  }
+}
+
+#boxlets {
+  @include respond-to(desktops) {
+    @include column(3);
+  }
+
+  .boxlet {
+    width: auto;
+
+    h2 {
+      width: auto;
+    }
+  }
+
+  @include respond-to(tablet) {
+    @include container;
+    @include clearfix;
+
+    @include generate_grid_positions('.boxlet', 4);
+
+    .boxlet {
+      @include column(4);
+    }
+  }
+}
