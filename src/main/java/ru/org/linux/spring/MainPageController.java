@@ -43,6 +43,7 @@ public class MainPageController {
 
   @Autowired
   private TopicDao topicDao;
+  
   @Autowired
   private MemoriesDao memoriesDao;
 
@@ -82,10 +83,10 @@ public class MainPageController {
             profile,
             false
     ));
-    
+  
     if (tmpl.isSessionAuthorized()) {
       mv.getModel().put("hasDrafts", topicDao.hasDrafts(tmpl.getCurrentUser()));
-      mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(tmpl.getCurrentUser{)));
+      mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(tmpl.getCurrentUser()));
     }
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
