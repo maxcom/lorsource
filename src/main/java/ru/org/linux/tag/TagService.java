@@ -229,7 +229,6 @@ public class TagService {
   public void delete(String tagName, String newTagName, Errors errors) {
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
-      checkTag(tagName);
       int oldTagId = tagDao.getTagId(tagName);
       if (!Strings.isNullOrEmpty(newTagName)) {
         if (newTagName.equals(tagName)) {
