@@ -97,10 +97,6 @@ public class TagServiceTest {
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
-    tagService.delete("#$%@@#%$", "testNewTag", binder.getBindingResult());
-    assertTrue(binder.getBindingResult().hasErrors());
-
-    prepareDeleteDataBinder();
     tagService.delete("testTag", "testTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
