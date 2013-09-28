@@ -12,6 +12,7 @@
 #boxlets {
   @include respond-to(desktops) {
     @include column(3);
+    font-size: 0.8em;
   }
 
   .boxlet {
