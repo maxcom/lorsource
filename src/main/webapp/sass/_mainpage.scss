@@ -4,6 +4,9 @@
 }
 
 #news {
+  padding-top: 5px;
+  padding-bottom: 5px;
+
   @include respond-to(desktops) {
     @include column(9, 3);
   }
@@ -16,10 +19,22 @@
   }
 
   .boxlet {
-    width: auto;
+    H2 {
+      padding: 5px;
+    }
 
-    h2 {
-      width: auto;
+    li {
+      list-style: inside !important;
+      margin-left: 0 !important;
+    }
+  }
+
+  .boxlet_content {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+
+    ul {
+      padding-left: 0;
     }
   }
 

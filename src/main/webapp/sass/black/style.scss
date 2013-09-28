@@ -110,7 +110,7 @@ DIV.forum A { text-decoration: none }
   background: #000040;
 }
 
-.newsblog .nav a {
+#mainpage .nav a {
   text-decoration: underline;
 }
 
@@ -223,7 +223,6 @@ div.quote {
 }
 
 @media screen and (max-width:360px) {
-
 	#head-main {
 		margin-left: 0;
 		float: none;
@@ -233,32 +232,6 @@ div.quote {
 		margin-left: 0 !important
 	}
 
-	div.newsblog {
-		float: none;
-		margin-left: 0;
-	}
-
-	.newsblog-in {
-		margin-left: 0;
-	}
-
-	.column {
-		width: 100%;
-		float:none;
-	}
-	
-	#bd .column {
-		font-size: inherit;
-	}
-	
-	div.boxlet {
-		width: 100%;
-	}
-	
-	div.boxlet h2 {
-		width:auto;
-	}
-	
 	#bd, #hd {
 		padding-left: 0.5em;
 		padding-right: 0.5em

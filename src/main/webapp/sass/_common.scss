@@ -87,15 +87,6 @@ textarea {
   border-top: 1px solid;
 }
 
-.newsblog .nav {
-  border: none;
-  border-top: 1px solid;
-  border-bottom: 1px solid;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-bottom: 0;
-}
-
 .entry-body .nav {
   border: none;
   padding-top: 0;
@@ -111,23 +102,6 @@ div.entry-userpic {
 
 div.entry-body {
   margin-left: 75px;
-}
-
-/* info boxes on columns */
-.column {
-  text-align: center;
-  float: left;
-  width: 240px;
-}
-
-DIV.newsblog {
-  margin-left: -245px;
-  float: right;
-  width: 100%;
-}
-
-.newsblog-in {
-  margin-left: 245px;
 }
 
 .messages H2 { margin-bottom: 5px; margin-top: 5px; }
@@ -262,29 +236,6 @@ div[itemprop="articleBody"] {
 .cloud8 { font-size: 1.3em; }
 .cloud9 { font-size: 1.4em; }
 .cloud10 { font-size: 1.5em; }
-
-.boxlet {
-  width: 238px;
-
-  H2 {
-    width: 228px;
-    padding: 5px;
-  }
-
-  li {
-    list-style: inside !important;
-    margin-left: 0 !important;
-  }
-}
-
-.boxlet_content {
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-
-  ul {
-    padding-left: 0;
-  }
-}
 
 div.quote {
   border: 1px dotted;

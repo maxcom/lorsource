@@ -26,17 +26,13 @@ body {
   color: $text_color;
 }
 
-.newsblog {
+#mainpage {
     .nav {
         border: none;
         margin-top: 0;
         padding: 0;
     }
 }
-.newsblog-in {
-	margin-left: 255px;
-}
-
 h1,h2,h3 {
     font-weight: 600;
     font-family: "Open Sans", sans-serif;
@@ -157,11 +153,6 @@ p {
       color: $signature_user_color;
     }
   }
-}
-
-#bd .column {
-	font-size: 0.8em;
-	text-align: left;
 }
 
 .boxlet {

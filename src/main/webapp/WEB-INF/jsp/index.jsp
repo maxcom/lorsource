@@ -31,9 +31,9 @@
 <META NAME="Description" CONTENT="Все о Linux на русском языке">
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="section-rss.jsp?section=1" TYPE="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
-<div style="clear: both"></div>
-<div class="newsblog">
-  <div class="newsblog-in">
+
+<div id="mainpage">
+<div id="news">
 
 <%--
 <c:if test="${showAdsense}">
@@ -114,8 +114,7 @@
   [<a href="section-rss.jsp?section=1">RSS</a>]
 </div>
 </div>
-</div>
-<aside class=column>
+<aside id=boxlets>
 
   <c:if test="${template.sessionAuthorized}">
     <div class=boxlet>
@@ -149,7 +148,6 @@
       </c:forEach>
   </lor:boxlets>
 </aside>
-
-<div style="clear: both"></div>
+</div>
 
 <jsp:include page="/WEB-INF/jsp/footer-main.jsp"/>
