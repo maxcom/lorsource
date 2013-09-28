@@ -56,23 +56,21 @@
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class="nav">
-  <div id="navPath">
-    Удаление метки
-  </div>
-</div>
+<h1>Удаление метки «${tagRequestDelete.oldTagName}»</h1>
+
 <c:url var="delete_url" value="/tags/delete">
   <c:param name="firstLetter" value="${firstLetter}"/>
 </c:url>
  <form:form modelAttribute="tagRequestDelete" method="POST" action="${delete_url}" enctype="multipart/form-data" >
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
-  Удаляемое название: ${tagRequestDelete.oldTagName}<br />
-  Метка. которой нужно заменить удаляемую (пусто - удалить без замены):<br />
-  <form:input id="tagName" path="tagName" style="width: 40em" /><br />
-  <input type="submit" value="Удалить" />
+  <label for="tagName">Метка. которой нужно заменить удаляемую (пусто - удалить без замены):</label>
+  <form:input autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
+  <br>
+  <br>
+  <button type="submit" class="btn btn-danger">Удалить</button>
   <c:url var="list_url" value="/tags/${firstLetter}" />
-  <input type="button" value="Отменить" onClick="window.location='${list_url}';" />
+  <button type="button" class="btn btn-default" onClick="window.location='${list_url}';">Отменить</button>
 </form:form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
