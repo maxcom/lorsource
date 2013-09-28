@@ -21,6 +21,7 @@
 <a href="/">
 <img style="float: left; border: 0" src="/black/lorlogo-try.png" alt="Русская информация об ОС LINUX" width="270" height="208">
 </a>
+<div id="hd">
 <div id="head-main">
 <table>
 <tr>
@@ -83,5 +84,4 @@
 </c:if>
 </div>
 
-
-<div style="clear: both"></div>
+</div>
