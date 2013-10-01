@@ -44,7 +44,8 @@
 <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
   <lor:csrf/>
 
-  Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
+  <label>Ник: <input type="text" name="nick" size="20" maxlength="80"></label>
+    <button type="submit" name="add" class="btn btn-default">Добавить</button>
 </form>
 
 <c:if test="${fn:length(ignoreList)>0}">
@@ -58,7 +59,7 @@
           <c:if test="${not empty ignoreRemarks[item.key]}">
             <c:out escapeXml="true" value="${ignoreRemarks[item.key].text}"/>
           </c:if>
-          <input type="submit" name="del" value="Удалить">
+          <button type="submit" name="del" class="btn btn-default btn-small">Удалить</button>
         </form>
       </li>
     </c:forEach>
@@ -77,7 +78,7 @@
 <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
   <lor:csrf/>
   <label>Тег: <input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80" value="${fn:escapeXml(newFavoriteTagName)}"></label>
-  <input type="submit" name="add" value="Добавить">
+  <button type="submit" name="add" class="btn btn-default">Добавить</button>
   <c:if test="${favoriteTagAddError != null}"><div class="error">
   <c:forEach var="tagAddError" items="${favoriteTagAddError}">
     ${tagAddError}<br />
@@ -93,7 +94,7 @@
           <lor:csrf/>
           <input type="hidden" name="tagName" value="${tagName}">
           <span style="white-space: nowrap">${tagName}</span>
-          <input type="submit" name="del" value="Удалить">
+          <button type="submit" name="del" class="btn btn-default btn-small">Удалить</button>
         </form>
       </li>
     </c:forEach>
@@ -117,7 +118,7 @@
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
   <lor:csrf/>
   <label>Тег: <input type="text" name="tagName" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="newIgnoreTagName" size="20" maxlength="80" value="${fn:escapeXml(newIgnoreTagName)}"></label>
-  <input type="submit" name="add" value="Добавить">
+  <button type="submit" name="add" class="btn btn-default">Добавить</button>
   <c:if test="${ignoreTagAddError != null}"><div class="error">
   <c:forEach var="tagAddError" items="${ignoreTagAddError}">
     ${tagAddError}<br />
@@ -133,7 +134,7 @@
           <lor:csrf/>
           <input type="hidden" name="tagName" value="${tagName}">
           <span style="white-space: nowrap">${tagName}</span>
-          <input type="submit" name="del" value="Удалить">
+          <button type="submit" name="del" class="btn btn-default btn-small">Удалить</button>
         </form>
       </li>
     </c:forEach>
