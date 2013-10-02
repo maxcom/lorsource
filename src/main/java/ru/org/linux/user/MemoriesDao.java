@@ -149,12 +149,14 @@ public class MemoriesDao {
 
 
   private boolean checkMemoriesPresent(User user, boolean watch) {
-    List<Integer> present = jdbcTemplate.queryForList("select id from memories where userid=? and watch=? limit 1", Integer.class, user.getId(), watch);
-    if(present == null || present.size() == 0) {
-      return false;
-    } else {
-      return true;
-    }
+    List<Integer> present = jdbcTemplate.queryForList(
+            "select memories.id from memories join topics on memories.topic=topics.id where memories.userid=? and watch=? and not deleted limit 1;",
+            Integer.class,
+            user.getId(),
+            watch
+    );
+
+    return !present.isEmpty();
   }
 
   /**
@@ -164,7 +166,7 @@ public class MemoriesDao {
    */
   public int getWatchCountForUser(User user) {
     List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='t'", Integer.class, user.getId());
-    if(ret == null || ret.size() == 0) {
+    if(ret == null || ret.isEmpty()) {
       return 0;
     } else {
       return ret.get(0);
