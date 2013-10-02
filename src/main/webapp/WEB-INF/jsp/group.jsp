@@ -190,6 +190,7 @@
   </td> </tr>
 </c:forEach>
 </tbody>
+<c:if test="${not showDeleted}">
 <tfoot>
 <tr><td colspan=3><p>
 <div style="float: left">
@@ -229,6 +230,7 @@
   </c:if>
 </div>
 </tfoot>
+</c:if>
 </table>
 </div>
 <c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
@@ -240,4 +242,16 @@
   </form>
   <hr>
 </c:if>
+<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext}">
+    <hr>
+    <form action="${url}" method=POST>
+        <lor:csrf/>
+        <input type=hidden name=deleted value=1>
+        <input type=hidden name=offset value="${nextPage}">
+        <input type=submit value="Показать еще удаленные">
+    </form>
+    <hr>
+</c:if>
+
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
