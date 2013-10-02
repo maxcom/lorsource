@@ -118,7 +118,7 @@
     <c:forEach var="item" items="${gallery}">
       <article>
         <c:url var="url" value="${item.item.link}"/>
-        <h3><a href="${url}">${item.item.title}</a></h3>
+        <h3><a href="${url}"><l:title>${item.item.title}</l:title></a></h3>
         <a href="${url}">
           <img src="${item.item.image.medium}" alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a><br>
