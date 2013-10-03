@@ -265,6 +265,28 @@ public class TopicListController {
       modelAndView.addObject("addlink", AddTopicController.getAddUrl(section));
     }
 
+    String title;
+
+    switch (sectionId) {
+      case Section.SECTION_NEWS:
+        title = "Неподтвержденные новости";
+        break;
+      case Section.SECTION_POLLS:
+        title = "Неподтвержденные опросы";
+        break;
+      case Section.SECTION_GALLERY:
+        title = "Неподтвержденные изображения";
+        break;
+      case 0:
+        title = "Просмотр неподтвержденных сообщений";
+        break;
+      default:
+        title = "Неподтвержденные: "+section.getName();
+        break;
+    }
+
+    modelAndView.addObject("title", title);
+
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -1);

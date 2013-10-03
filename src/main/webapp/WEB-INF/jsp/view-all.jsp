@@ -36,7 +36,7 @@
     }
 
 %>
-<title>Просмотр неподтвержденных сообщений &mdash; <%= section==null?"Все":section.getName() %></title>
+<title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <c:url var="urlFilterHandler" value="view-all.jsp" />
@@ -44,7 +44,7 @@
 
   <div class=nav>
     <div id="navPath">
-      Просмотр неподтвержденных сообщений &mdash; <%= section==null?"Все":section.getName() %>
+      ${title}
     </div>
 
     <div class="nav-buttons">
