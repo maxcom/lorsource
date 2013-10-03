@@ -519,4 +519,11 @@ public class AddTopicController {
 
     return builder.build().toUriString();
   }
+
+  public static String getAddUrl(Section section) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/add-section.jsp");
+    builder.queryParam("section", section.getId());
+
+    return builder.build().toUriString();
+  }
 }

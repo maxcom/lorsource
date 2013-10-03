@@ -262,6 +262,7 @@ public class TopicListController {
     if (sectionId != 0) {
       section = sectionService.getSection(sectionId);
       modelAndView.addObject("section", section);
+      modelAndView.addObject("addlink", AddTopicController.getAddUrl(section));
     }
 
     Calendar calendar = Calendar.getInstance();

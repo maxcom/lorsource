@@ -49,7 +49,11 @@
 
     <div class="nav-buttons">
       <ul>
-      <li><a href="<c:url value="tags"/>">Метки</a></li>
+      <c:if test="${not empty addlink}">
+          <li>
+              <a href="${addlink}">Добавить</a>
+          </li>
+      </c:if>
       </ul>
       <select name="section" onChange="submit();" title="Быстрый переход">
         <option value="0">Все</option>
