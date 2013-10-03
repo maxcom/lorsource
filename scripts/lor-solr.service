@@ -1,5 +1,5 @@
 [Unit]
-Description=Apache Tomcat6 Web Application Container
+Description=Apache Solr search server for LOR
 After=network.target
 
 [Service]
