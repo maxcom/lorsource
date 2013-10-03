@@ -28,9 +28,6 @@ $container_margin: 0;
   @else if $media == tablet-and-desktops {
     @media only screen and (min-width: 40em) { @content; }
   }
-  @if $media == tablet {
-    @media only screen and (min-width: 40em) and (max-width: 60em) { @content; }
-  }
 }
 
 /* document wide styles */
@@ -677,4 +674,4 @@ pre code .container:before, pre code .container:after {
 }
 
 @import "form";
-@import "mainpage"
+@import "mainpage";

@@ -37,15 +37,4 @@
       padding-left: 0;
     }
   }
-
-  @include respond-to(tablet) {
-    @include container;
-    @include clearfix;
-
-    @include generate_grid_positions('.boxlet', 4);
-
-    .boxlet {
-      @include column(4);
-    }
-  }
 }
