@@ -274,7 +274,7 @@
     <b>Первый комментарий:</b> <lor:date date="${userStat.firstComment}"/><br>
     <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
 </c:if>
-<c:if test="${not user.anonymous}">
+<c:if test="${not user.anonymous and userStat.commentCount>0}">
     <b>Число комментариев:</b> <c:if
         test="${not userStat.exactCommentCount}">приблизительно </c:if> ${userStat.commentCount}
 </c:if>
