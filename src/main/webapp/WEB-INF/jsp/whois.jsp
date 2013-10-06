@@ -276,7 +276,7 @@
 </c:if>
 <c:if test="${not user.anonymous}">
     <b>Число комментариев:</b> <c:if
-        test="${not userStat.exactCommentCount}">приблизительно </c:if> ${userStat.commentCount}
+        test="${not userStat.exactCommentCount}">приблизительно </c:if> <c:if test="${userStat.commentCount>0}"> ${userStat.commentCount}</c:if>=
 </c:if>
 <p>
 
