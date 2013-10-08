@@ -168,11 +168,11 @@
             <artifactId>recaptcha4j</artifactId>
             <version>0.0.7</version>
         </dependency>
-        <dependency>
-            <groupId>spy</groupId>
-            <artifactId>spymemcached</artifactId>
-            <version>2.8.4</version>
-        </dependency>
+      <dependency>
+      	<groupId>net.spy</groupId>
+      	<artifactId>spymemcached</artifactId>
+      	<version>2.10.0</version>
+      </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
@@ -186,7 +186,6 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
-
             </exclusions>
         </dependency>
         <dependency>
@@ -789,12 +788,6 @@
             <id>java.net</id>
             <name>java.net Maven Repository</name>
             <url>http://download.java.net/maven/2/</url>
-        </repository>
-
-        <repository>
-            <id>spymemcached</id>
-            <name>spymemcached</name>
-            <url>http://files.couchbase.com/maven2/</url>
         </repository>
 
         <repository>
