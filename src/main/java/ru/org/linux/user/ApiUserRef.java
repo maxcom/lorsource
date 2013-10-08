@@ -15,13 +15,13 @@
 
 package ru.org.linux.user;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import ru.org.linux.site.PublicApi;
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @PublicApi
 public class ApiUserRef {
   private final String nick;

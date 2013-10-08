@@ -15,7 +15,7 @@
 
 package ru.org.linux.comment;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import ru.org.linux.site.PublicApi;
 
 import javax.annotation.Nonnull;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import java.util.Date;
 
 @PublicApi
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReplyInfo {
   private final int id;
   private final String author;
