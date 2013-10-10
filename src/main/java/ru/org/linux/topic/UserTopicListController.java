@@ -32,7 +32,6 @@ import ru.org.linux.user.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URLEncoder;
 import java.util.List;
 
 @Controller
@@ -189,7 +188,8 @@ public class UserTopicListController {
     if (Integer.valueOf(0).equals(topicListForm.getSection())) {
       topicListForm.setSection(null);
     }
-    modelAndView.addObject("params", topicListForm.getSection() == null ? "" : URLEncoder.encode("section=" + topicListForm.getSection(), "UTF-8"));
+
+    modelAndView.addObject("params", topicListForm.getSection() == null ? "" : ("section=" + topicListForm.getSection()));
 
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
 
