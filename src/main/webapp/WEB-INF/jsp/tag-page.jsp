@@ -91,7 +91,7 @@
           <h3>${entry.key}</h3>
           <ul>
             <c:forEach var="msg" items="${entry.value}">
-              <li><a href="${msg.link}">${msg.title}</a> </li>
+              <li><a href="${msg.link}"><l:title>${msg.title}</l:title></a> </li>
             </c:forEach>
           </ul>
         </c:forEach>
