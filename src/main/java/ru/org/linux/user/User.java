@@ -365,7 +365,7 @@ public class User implements Serializable {
   }
 
   public String getGravatar(String avatarStyle, int size, boolean secure) {
-    return getGravatar(email, size, secure);
+    return getGravatar(email, avatarStyle, size, secure);
   }
 
   public static String getGravatar(String email, String avatarStyle, int size, boolean secure) {
