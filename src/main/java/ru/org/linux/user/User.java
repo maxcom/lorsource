@@ -365,6 +365,10 @@ public class User implements Serializable {
   }
 
   public String getGravatar(String avatarStyle, int size, boolean secure) {
+    return getGravatar(email, size, secure);
+  }
+
+  public static String getGravatar(String email, String avatarStyle, int size, boolean secure) {
     String nonExist;
 
     if ("empty".equals(avatarStyle)) {
@@ -376,8 +380,8 @@ public class User implements Serializable {
     String grUrl = secure?"https://secure.gravatar.com/avatar/":"http://www.gravatar.com/avatar/";
 
     return grUrl
-      + StringUtil.md5hash(email.toLowerCase())
-      + "?s="+size+"&r=g&d="+nonExist;
+            + StringUtil.md5hash(email.toLowerCase())
+            + "?s="+size+"&r=g&d="+nonExist;
   }
 
   public String getEmail() {

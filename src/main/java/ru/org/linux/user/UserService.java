@@ -117,6 +117,13 @@ public class UserService {
       avatarMode = "mm";
     }
 
+    if (user.isAnonymous() && misteryMan) {
+      return new Userpic(
+              user.getGravatar("anonymous@linux.org.ru",avatarMode, 150, secure),
+              150,
+              150
+      );
+    }
 
     if (user.getPhoto() != null) {
       try {
