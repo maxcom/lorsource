@@ -211,12 +211,12 @@
           var ads = [
               {
                   type: 'img',
-                  src: '/adv/selectel/sel_728-90.gif',
+                  src: '/adv/selectel/sel_728x90.gif',
                   href: 'http://selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=080913'
               },
               {
                   type: 'img',
-                  src: '/adv/selectel/storage_728x90.gif',
+                  src: '/adv/selectel/storage_728-90.gif',
                   href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=080813'
               }
           ];
