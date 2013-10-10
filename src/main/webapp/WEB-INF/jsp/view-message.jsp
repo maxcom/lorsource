@@ -211,8 +211,8 @@
           var ads = [
               {
                   type: 'img',
-                  src: '/adv/selectel/selectel_728-90.gif',
-                  href: 'http://selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=080813'
+                  src: '/adv/selectel/sel_728-90.gif',
+                  href: 'http://selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=080913'
               },
               {
                   type: 'img',
