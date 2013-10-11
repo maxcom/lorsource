@@ -430,7 +430,6 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
@@ -441,7 +440,6 @@
                         <insertNewLine>true</insertNewLine>
                         <output>${project.build.directory}/${project.build.finalName}/solarized-swamp/combined.css</output>
                         <includes>
-                          <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                           <include>${project.build.directory}/${project.build.finalName}/solarized-swamp/main.css</include>
                         </includes>
                       </aggregation>
@@ -450,7 +448,6 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
                             </includes>
@@ -460,7 +457,6 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
                             </includes>
@@ -470,7 +466,6 @@
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/fontello-c4f39afe/css/fontello.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
                             </includes>
