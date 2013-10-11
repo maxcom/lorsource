@@ -35,6 +35,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
 <div align="center">
   <script type="text/javascript"><!--
@@ -63,6 +64,23 @@
   </script>
 </div>
 </c:if>
+--%>
+
+    <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
+    </div>
+
+    <script type="text/javascript">
+        $script.ready('lorjs', function() {
+            var ads = [
+                {
+                    type: 'flash',
+                    src: '/adv/highload-2013.swf'
+                }
+            ];
+
+            init_interpage_adv(ads);
+        });
+    </script>
 
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
