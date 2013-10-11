@@ -59,7 +59,7 @@ public class UserTagDaoIntegrationTest {
   }
 
   private int createUser(String userName) {
-    int userid = jdbcTemplate.queryForInt("SELECT nextval('s_uid') AS userid");
+    int userid = jdbcTemplate.queryForObject("SELECT nextval('s_uid') AS userid", Integer.class);
 
     jdbcTemplate.update(
       "INSERT INTO users (id, name, nick) VALUES (?, ?, ?)",

@@ -52,7 +52,7 @@ public class CommentDaoIntegrationTest {
 
   @Before
   public void setUp() {
-    topicId = jdbcTemplate.queryForInt("select min (id) from topics");
+    topicId = jdbcTemplate.queryForObject("select min (id) from topics", Integer.class);
   }
 
   private void addComment(int commentId, Integer replyToId, String title, String body) {
@@ -85,7 +85,7 @@ public class CommentDaoIntegrationTest {
 
   @Test
   public void editCommentTest() {
-    int commentId = jdbcTemplate.queryForInt("select nextval('s_msgid')");
+    int commentId = jdbcTemplate.queryForObject("select nextval('s_msgid')", Integer.class);
 
     addComment(
             commentId,
@@ -119,7 +119,7 @@ public class CommentDaoIntegrationTest {
 
   @Test
   public void updateLatestEditorInfoTest() {
-    int commentId = jdbcTemplate.queryForInt("select nextval('s_msgid')");
+    int commentId = jdbcTemplate.queryForObject("select nextval('s_msgid')", Integer.class);
 
     addComment(
             commentId,
@@ -150,8 +150,8 @@ public class CommentDaoIntegrationTest {
 
   @Test
   public void isHaveAnswersTest() {
-    int commentId1 = jdbcTemplate.queryForInt("select nextval('s_msgid')");
-    int commentId2 = jdbcTemplate.queryForInt("select nextval('s_msgid')");
+    int commentId1 = jdbcTemplate.queryForObject("select nextval('s_msgid')", Integer.class);
+    int commentId2 = jdbcTemplate.queryForObject("select nextval('s_msgid')", Integer.class);
     addComment(
             commentId1,
             null,
