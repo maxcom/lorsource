@@ -68,7 +68,6 @@
         <c:if test="${addable}">
           <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
         </c:if>
-        <li><a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a></li>
   </ul>
       <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
@@ -252,6 +251,13 @@
     </form>
     <hr>
 </c:if>
+
+<p>
+  <i class="icon-rss"></i>
+  <a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">
+    RSS подписка на новые темы
+  </a>
+</p>
 
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
