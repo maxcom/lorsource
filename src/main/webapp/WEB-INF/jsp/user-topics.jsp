@@ -46,16 +46,18 @@
       </c:if>
       </ul>
       <c:if test="${sectionList != null}">
-        <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
-          <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
-            <form:option value="0" label="Все" />
-            <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
-          </form:select>
-          <noscript><input type='submit' value='&gt;'></noscript>
-        </form:form>
+        <li><a href="${url}" <c:if test="${section == null}">class="current"</c:if>>Все</a></li>
+
+        <c:forEach items="${sectionList}" var="cursection">
+          <li>
+            <a href="${url}?section=${cursection.id}"
+               <c:if test="${section == cursection}">class="current"</c:if>>${cursection.name}</a>
+          </li>
+        </c:forEach>
       </c:if>
     </div>
 </div>
+
 <c:forEach var="msg" items="${messages}">
   <lor:news
           preparedMessage="${msg.preparedTopic}"

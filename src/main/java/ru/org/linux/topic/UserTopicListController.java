@@ -18,10 +18,7 @@ package ru.org.linux.topic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.auth.AccessViolationException;
@@ -79,7 +76,9 @@ public class UserTopicListController {
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, false);
-    prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
+
+    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
 
     modelAndView.setViewName("user-topics");
 
@@ -119,7 +118,9 @@ public class UserTopicListController {
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getDrafts(user, topicListForm.getOffset());
-    prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
+
+    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
 
     modelAndView.setViewName("user-topics");
 
@@ -129,17 +130,19 @@ public class UserTopicListController {
   @RequestMapping
   public ModelAndView showUserTopics(
     HttpServletRequest request,
-    TopicListRequest topicListForm,
     @PathVariable String nick,
-    HttpServletResponse response
+    HttpServletResponse response,
+    @RequestParam(value = "offset", defaultValue = "0") int offset,
+    @RequestParam(value = "section", defaultValue = "0") int sectionId,
+    @RequestParam(value = "output", required = false) String output
   ) throws Exception {
-    TopicListController.setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
+    TopicListController.setExpireHeaders(response, null, null);
 
     ModelAndView modelAndView = new ModelAndView();
 
     Section section = null;
-    if (topicListForm.getSection() != null && topicListForm.getSection() != 0) {
-      section = sectionService.getSection(topicListForm.getSection());
+    if (sectionId != 0) {
+      section = sectionService.getSection(sectionId);
     }
 
     User user = getUserByNickname(modelAndView, nick);
@@ -163,21 +166,18 @@ public class UserTopicListController {
     modelAndView.addObject("rssLink",
         UriComponentsBuilder.fromUriString("/people/{nick}/?output=rss").buildAndExpand(nick).encode().toUriString());
 
-    topicListForm.setOffset(
-      topicListService.fixOffset(topicListForm.getOffset())
-    );
-    modelAndView.addObject("topicListForm", topicListForm);
+    offset = topicListService.fixOffset(offset);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(
       user,
       section,
       null,
-      topicListForm.getOffset(),
+      offset,
       false,
       false
     );
 
-    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
+    boolean rss = "rss".equals(output);
     if (!rss) {
       if (section != null) {
         modelAndView.addObject("section", section);
@@ -185,13 +185,9 @@ public class UserTopicListController {
       modelAndView.addObject("sectionList", sectionService.getSectionList());
     }
 
-    if (Integer.valueOf(0).equals(topicListForm.getSection())) {
-      topicListForm.setSection(null);
-    }
+    modelAndView.addObject("params", section == null ? "" : ("section=" + sectionId));
 
-    modelAndView.addObject("params", topicListForm.getSection() == null ? "" : ("section=" + topicListForm.getSection()));
-
-    prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
 
     if (!rss) {
       modelAndView.setViewName("user-topics");
@@ -227,7 +223,9 @@ public class UserTopicListController {
     modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true, true);
-    prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
+    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
+
+    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
 
     modelAndView.setViewName("user-topics");
 
@@ -237,10 +235,9 @@ public class UserTopicListController {
   private void prepareTopicsForPlainOrRss(
     HttpServletRequest request,
     ModelAndView modelAndView,
-    TopicListRequest topicListForm,
+    boolean rss,
     List<Topic> messages
   ) {
-    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
     if (rss) {
       modelAndView.addObject(
         "messages",
