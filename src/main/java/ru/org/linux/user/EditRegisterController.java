@@ -18,8 +18,8 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,8 +52,7 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/people/{nick}/edit")
 public class EditRegisterController {
-
-  private static final Log logger = LogFactory.getLog(EditRegisterController.class);
+  private static final Logger logger = LoggerFactory.getLogger(EditRegisterController.class);
 
   @Autowired
   RememberMeServices rememberMeServices;

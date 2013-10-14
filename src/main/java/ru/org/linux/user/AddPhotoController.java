@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -41,7 +41,7 @@ import java.util.Random;
 
 @Controller
 public class AddPhotoController {
-  private static final Log logger = LogFactory.getLog(AddPhotoController.class);
+  private static final Logger logger = LoggerFactory.getLogger(AddPhotoController.class);
 
   public static final UriTemplate PROFILE_NOCACHE_URI_TEMPLATE = new UriTemplate("/people/{nick}/profile");
 

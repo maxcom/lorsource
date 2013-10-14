@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 
 @Component
 public class ScoreUpdater {
-  private static final Log logger = LogFactory.getLog(ScoreUpdater.class);
+  private static final Logger logger = LoggerFactory.getLogger(ScoreUpdater.class);
 
   private JdbcTemplate jdbcTemplate;
 
