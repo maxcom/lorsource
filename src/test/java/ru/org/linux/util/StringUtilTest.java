@@ -42,7 +42,7 @@ public class StringUtilTest {
     String actualResult = StringUtil.makeTitle("\"Test of \"quotes '' \"in quotes\" in title\"\"");
 
     // then
-    assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8221; in title&#8221;&#187;", actualResult);
+    assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8220; in title&#8220;&#187;", actualResult);
   }
 
   @Test
