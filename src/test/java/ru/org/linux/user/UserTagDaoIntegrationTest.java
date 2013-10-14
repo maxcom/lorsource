@@ -120,26 +120,30 @@ public class UserTagDaoIntegrationTest {
     );
     assertEquals("Wrong count of user tags.", 5, result);
 
-    result = jdbcTemplate.queryForInt(
+    result = jdbcTemplate.queryForObject(
       QUERY_COUNT_IGNORE_BY_USER,
+      Integer.class,
       user1Id
     );
     assertEquals("Wrong count of user tags.", 3, result);
 
-    result = jdbcTemplate.queryForInt(
+    result = jdbcTemplate.queryForObject(
       QUERY_COUNT_FAVORITE_BY_USER,
+      Integer.class,
       user2Id
     );
     assertEquals("Wrong count of user tags.", 5, result);
 
-    result = jdbcTemplate.queryForInt(
+    result = jdbcTemplate.queryForObject(
       QUERY_COUNT_IGNORE_BY_USER,
+      Integer.class,
       user2Id
     );
     assertEquals("Wrong count of user tags.", 0, result);
 
-    result = jdbcTemplate.queryForInt(
+    result = jdbcTemplate.queryForObject(
       "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
+      Integer.class,
       tag1Id
     );
     assertEquals("Wrong count of user tags.", 3, result);
@@ -241,16 +245,18 @@ public class UserTagDaoIntegrationTest {
     prepareUserTags();
 
     userTagDao.replaceTag(tag2Id, tag1Id);
-    result = jdbcTemplate.queryForInt(
+    result = jdbcTemplate.queryForObject(
       "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
+      Integer.class,
       tag1Id
     );
     assertEquals("Wrong count of user tags.", 2, result);
 
     userTagDao.deleteTags(tag1Id);
     userTagDao.replaceTag(tag2Id, tag1Id);
-    result = jdbcTemplate.queryForInt(
+    result = jdbcTemplate.queryForObject(
       "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
+      Integer.class,
       tag1Id
     );
     assertEquals("Wrong count of user tags.", 3, result);
