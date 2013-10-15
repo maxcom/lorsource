@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import ru.org.linux.user.Profile;
 
 import javax.annotation.Nonnull;
@@ -27,7 +28,7 @@ import java.util.Map;
 public class CommentList implements Serializable {
   private final ImmutableList<Comment> comments;
   private final CommentNode root = new CommentNode();
-  private final Map<Integer, CommentNode> treeHash = new HashMap<>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
+  private final ImmutableMap<Integer, CommentNode> nodeIndex;
 
   private final long lastmod;
 
@@ -35,25 +36,19 @@ public class CommentList implements Serializable {
     this.lastmod = lastmod;
 
     this.comments = ImmutableList.copyOf(comments);
-    buildTree();
-  }
 
-  @Nonnull
-  public ImmutableList<Comment> getList() {
-    return comments;
-  }
+    Map<Integer, CommentNode> indexBuilder = new HashMap<>(this.comments.size());
 
-  private void buildTree() {
     /* build tree */
-    for (Comment comment : comments) {
+    for (Comment comment : this.comments) {
       CommentNode node = new CommentNode(comment);
 
-      treeHash.put(comment.getId(), node);
+      indexBuilder.put(comment.getId(), node);
 
       if (comment.getReplyTo()==0) {
         root.addChild(node);
       } else {
-        CommentNode parentNode = treeHash.get(comment.getReplyTo());
+        CommentNode parentNode = indexBuilder.get(comment.getReplyTo());
         if (parentNode!=null) {
           parentNode.addChild(node);
         } else {
@@ -61,6 +56,13 @@ public class CommentList implements Serializable {
         }
       }
     }
+
+    nodeIndex = ImmutableMap.copyOf(indexBuilder);
+  }
+
+  @Nonnull
+  public ImmutableList<Comment> getList() {
+    return comments;
   }
 
   public CommentNode getRoot() {
@@ -68,7 +70,7 @@ public class CommentList implements Serializable {
   }
 
   public CommentNode getNode(int msgid) {
-    return treeHash.get(msgid);
+    return nodeIndex.get(msgid);
   }
 
   private int getCommentPage(@Nonnull Comment comment, int messages, boolean reverse) {
