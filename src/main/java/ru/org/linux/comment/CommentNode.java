@@ -15,34 +15,27 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableList;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 public class CommentNode implements Serializable {
-  private final LinkedList<CommentNode> childs = new LinkedList<>();
-  private Comment comment = null;
+  private final ImmutableList<CommentNode> childs;
+  private final Comment comment;
 
-  public CommentNode() {
-  }
-
-  public CommentNode(Comment comment) {
+  public CommentNode(Comment comment, Iterable<CommentNode> childs) {
     this.comment = comment;
+    this.childs = ImmutableList.copyOf(childs);
   }
 
-  public void addChild(CommentNode child) {
-    childs.add(child);
-  }
-
-  public List<CommentNode> childs() {
-    return Collections.unmodifiableList(childs);
+  public ImmutableList<CommentNode> childs() {
+    return childs;
   }
 
   public boolean isHaveAnswers() {

@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class CommentList implements Serializable {
   private final ImmutableList<Comment> comments;
-  private final CommentNode root = new CommentNode();
+  private final CommentNode root;
   private final ImmutableMap<Integer, CommentNode> nodeIndex;
 
   private final long lastmod;
@@ -37,27 +37,45 @@ public class CommentList implements Serializable {
 
     this.comments = ImmutableList.copyOf(comments);
 
-    Map<Integer, CommentNode> indexBuilder = new HashMap<>(this.comments.size());
+    Map<Integer, CommentNodeBuilder> tempIndex = new HashMap<>(this.comments.size());
+
+    CommentNodeBuilder rootBuilder = new CommentNodeBuilder();
 
     /* build tree */
     for (Comment comment : this.comments) {
-      CommentNode node = new CommentNode(comment);
+      CommentNodeBuilder node = new CommentNodeBuilder(comment);
 
-      indexBuilder.put(comment.getId(), node);
+      tempIndex.put(comment.getId(), node);
 
       if (comment.getReplyTo()==0) {
-        root.addChild(node);
+        rootBuilder.addChild(node);
       } else {
-        CommentNode parentNode = indexBuilder.get(comment.getReplyTo());
+        CommentNodeBuilder parentNode = tempIndex.get(comment.getReplyTo());
         if (parentNode!=null) {
           parentNode.addChild(node);
         } else {
-          root.addChild(node);
+          rootBuilder.addChild(node);
         }
       }
     }
 
-    nodeIndex = ImmutableMap.copyOf(indexBuilder);
+    root = rootBuilder.build();
+
+    ImmutableMap.Builder<Integer, CommentNode> builder = ImmutableMap.builder();
+
+    buildIndex(builder, root);
+
+    nodeIndex = builder.build();
+  }
+
+  private static void buildIndex(ImmutableMap.Builder<Integer, CommentNode> builder, CommentNode root) {
+    if (root.getComment()!=null) {
+      builder.put(root.getComment().getId(), root);
+    }
+
+    for (CommentNode child : root.childs()) {
+      buildIndex(builder, child);
+    }
   }
 
   @Nonnull
