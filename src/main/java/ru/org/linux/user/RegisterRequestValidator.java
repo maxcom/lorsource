@@ -16,57 +16,23 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.StringUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.util.Set;
 
 public class RegisterRequestValidator implements Validator {
   protected static final int TOWN_LENGTH = 100;
   protected static final int MIN_PASSWORD_LEN = 4;
+  protected final Set<String> BAD_DOMAINS;
 
-  protected static final ImmutableSet<String> BAD_DOMAINS = ImmutableSet.of(
-          "asdasd.ru",
-          "nepwk.com",
-          "klzlk.com",
-          "nwldx.com",
-          "mailinator.com",
-          "mytrashmail.com",
-          "temporaryinbox.com",
-          "10minutemail.com",
-          "pookmail.com",
-          "dodgeit.com",
-          "mailexpire.com",
-          "spambox.us",
-          "jetable.org",
-          "maileater.com",
-          "gapmail.ru",
-          "mintemail.com",
-          "mailinator2.com",
-          "rppkn.com",
-          "rtrtr.com",
-          "mailmetrash.com",
-          "getairmail.com",
-          "sharklasers.com",
-          "mailseal.de",
-          "fakeinbox.com",
-          "drdrb.com",
-          "yopmail.com",
-          "yopmail.net",
-          "cool.fr.nf",
-          "jetable.fr.nf",
-          "nospam.ze.tc",
-          "nomail.xl.cx",
-          "mega.zik.dj",
-          "speed.1s.fr",
-          "courriel.fr.nf",
-          "moncourrier.fr.nf",
-          "monemail.fr.nf",
-          "monmail.fr.nf"
-  );
+  public RegisterRequestValidator(SiteConfig siteConfig) {
+    BAD_DOMAINS = siteConfig.getBadMailDomains();
+  }
 
   protected void checkEmail(InternetAddress email, Errors errors) {
     if (BAD_DOMAINS.contains(email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase())) {

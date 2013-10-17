@@ -44,3 +44,42 @@ comment.isEditingAllowedIfAnswersExists=false
 # то редактировать могут все. Если установлено огромное
 # число, то комментарии будут фактически отключены
 comment.scoreValueForEditing=45
+
+BadMailDomains =           asdasd.ru,\
+                           nepwk.com,\
+                           klzlk.com,\
+                           nwldx.com,\
+                           mailinator.com,\
+                           mytrashmail.com,\
+                           temporaryinbox.com,\
+                           10minutemail.com,\
+                           pookmail.com,\
+                           dodgeit.com,\
+                           mailexpire.com,\
+                           spambox.us,\
+                           jetable.org,\
+                           maileater.com,\
+                           gapmail.ru,\
+                           mintemail.com,\
+                           mailinator2.com,\
+                           rppkn.com,\
+                           rtrtr.com,\
+                           mailmetrash.com,\
+                           getairmail.com,\
+                           sharklasers.com,\
+                           mailseal.de,\
+                           fakeinbox.com,\
+                           drdrb.com,\
+                           yopmail.com,\
+                           yopmail.net,\
+                           cool.fr.nf,\
+                           jetable.fr.nf,\
+                           nospam.ze.tc,\
+                           nomail.xl.cx,\
+                           mega.zik.dj,\
+                           speed.1s.fr,\
+                           courriel.fr.nf,\
+                           moncourrier.fr.nf,\
+                           monemail.fr.nf,\
+                           monmail.fr.nf
+

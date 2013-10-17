@@ -15,8 +15,11 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -24,12 +27,15 @@ import ru.org.linux.site.MemCachedSettings;
 
 import javax.annotation.PostConstruct;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Конфигурация
  */
 @Service
 public class SiteConfig {
+  private static final Logger logger = LoggerFactory.getLogger(SiteConfig.class);
+
   private static final String ERR_MSG = "Invalid MainUrl property: ";
   public static final String PROPERTY_MAIN_URL = "MainUrl";
 
@@ -39,6 +45,7 @@ public class SiteConfig {
 
   private URI mainURI;
   private URI secureURI;
+  private Set<String> badMailDomains;
 
   /**
    * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
@@ -70,6 +77,23 @@ public class SiteConfig {
     }
 
     MemCachedSettings.setMainUrl(getMainUrl());
+    badMailDomains = parseBadMailDomains();
+  }
+
+  private Set<String> parseBadMailDomains() {
+    String badDomains = properties.getProperty("BadMailDomains", "");
+    if(badDomains.length() == 0) {
+      logger.debug("0 bad mail domains in properties");
+      return ImmutableSet.of();
+    } else {
+      ImmutableSet.Builder<String> build = new ImmutableSet.Builder<String>();
+      for(String domain : badDomains.split(",")) {
+        build.add(domain.trim());
+      }
+      ImmutableSet<String> ret = build.build();
+      logger.debug("read " + ret.size() + " bad mail domains in properties");
+      return ret;
+    }
   }
 
   public String getMainUrl() {
@@ -153,5 +177,9 @@ public class SiteConfig {
       return null;
     }
     return Integer.valueOf(property);
+  }
+
+  public Set<String> getBadMailDomains() {
+    return badMailDomains;
   }
 }
