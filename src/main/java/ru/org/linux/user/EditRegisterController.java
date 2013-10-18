@@ -38,6 +38,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.UserDetailsImpl;
 import ru.org.linux.auth.UserDetailsServiceImpl;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
@@ -73,6 +74,8 @@ public class EditRegisterController {
   @Autowired
   private EmailService emailService;
 
+  @Autowired
+  private SiteConfig siteConfig;
 
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
@@ -230,7 +233,7 @@ public class EditRegisterController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new EditRegisterRequestValidator());
+    binder.setValidator(new EditRegisterRequestValidator(siteConfig));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }

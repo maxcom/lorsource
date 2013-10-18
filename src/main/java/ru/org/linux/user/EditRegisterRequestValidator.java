@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
@@ -24,6 +25,11 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 public class EditRegisterRequestValidator extends RegisterRequestValidator {
+
+  public EditRegisterRequestValidator(SiteConfig siteConfig) {
+    super(siteConfig);
+  }
+
   @Override
   public boolean supports(Class aClass) {
     return EditRegisterRequest.class.equals(aClass);

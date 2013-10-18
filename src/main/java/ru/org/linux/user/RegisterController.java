@@ -208,7 +208,7 @@ public class RegisterController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new RegisterRequestValidator());
+    binder.setValidator(new RegisterRequestValidator(siteConfig));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }
