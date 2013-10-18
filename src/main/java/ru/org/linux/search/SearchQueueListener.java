@@ -15,13 +15,13 @@
 
 package ru.org.linux.search;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.common.SolrInputDocument;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +39,17 @@ import ru.org.linux.topic.TopicDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class SearchQueueListener {
   private static final Logger logger = LoggerFactory.getLogger(SearchQueueListener.class);
-  
+  private static final String MESSAGES_INDEX = "messages";
+  private static final String MESSAGES_TYPE = "message";
+
   @Autowired
   private CommentService commentService;
   
@@ -55,7 +57,7 @@ public class SearchQueueListener {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private SolrServer solrServer;
+  private Client client;
 
   @Autowired
   private TopicDao topicDao;
@@ -64,7 +66,6 @@ public class SearchQueueListener {
     logger.info("Indexing "+msgUpdate.getMsgid());
 
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
-    solrServer.commit();
   }
 
   private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
@@ -73,8 +74,11 @@ public class SearchQueueListener {
     if (!msg.isDeleted() && !msg.isDraft()) {
       updateMessage(msg);
     } else {
+      client
+              .prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(msg.getId()))
+              .execute()
+              .actionGet();
       //logger.info("Deleting message "+msgid+" from solr");      
-      solrServer.deleteById((Integer.toString(msg.getId())));
     }
 
     if (withComments) {
@@ -83,16 +87,26 @@ public class SearchQueueListener {
       if (!msg.isDeleted()) {
         reindexComments(msg, commentList);
       } else {
-        List<String> msgids = Lists.transform(commentList.getList(), new Function<Comment, String>() {
-          @Override
-          public String apply(Comment comment) {
-            return Integer.toString(comment.getId());
-          }
-        });
+        ImmutableList<Comment> comments = commentList.getList();
 
-        if (!msgids.isEmpty()) {
-          solrServer.deleteById(msgids);
+        if (!comments.isEmpty()) {
+          BulkRequestBuilder bulkRequest = client.prepareBulk();
+
+          for (Comment comment : comments) {
+            bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
+          }
         }
+      }
+    }
+  }
+
+  private void executeBulk(BulkRequestBuilder bulkRequest) {
+    if (bulkRequest.numberOfActions()>0) {
+      BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+
+      if (bulkResponse.hasFailures()) {
+        logger.warn("Bulk index failed: "+bulkResponse.buildFailureMessage());
+        throw new RuntimeException("Bulk request failed");
       }
     }
   }
@@ -100,13 +114,9 @@ public class SearchQueueListener {
   public void handleMessage(UpdateComments msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing comments "+msgUpdate.getMsgids());
 
-    UpdateRequest rq = new UpdateRequest();
+    BulkRequestBuilder bulkRequest = client.prepareBulk();
 
-    rq.setCommitWithin(10000);
-
-    boolean delete = false;
-
-    for (Integer msgid : msgUpdate.getMsgids()) {
+    for (int msgid : msgUpdate.getMsgids()) {
       if (msgid==0) {
         logger.warn("Skipping MSGID=0!!!");
         continue;
@@ -115,26 +125,19 @@ public class SearchQueueListener {
       Comment comment = commentService.getById(msgid);
 
       if (comment.isDeleted()) {
-        logger.info("Deleting comment "+comment.getId()+" from solr");
-        solrServer.deleteById(Integer.toString(comment.getId()));
-        delete = true;
+        logger.info("Deleting comment " + comment.getId() + " from solr");
+        bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       } else {
         // комментарии могут быть из разного топика в функция массового удаления
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
         Topic topic = topicDao.getById(comment.getTopicId());
         String message = msgbaseDao.getMessageText(comment.getId()).getText();
-        rq.add(processComment(topic, comment, message));
+        bulkRequest.add(processComment(topic, comment, message));
       }
     }
 
-    if (rq.getDocuments()!=null && !rq.getDocuments().isEmpty())  {
-      rq.process(solrServer);
-    }
-
-    if (delete) {
-      solrServer.commit();
-    }
+    executeBulk(bulkRequest);
   }
 
   public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
@@ -149,68 +152,62 @@ public class SearchQueueListener {
       reindexMessage(topicId, true);
     }
 
-    solrServer.commit();
     long endTime = System.nanoTime();
     logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
   }
 
   private void updateMessage(Topic topic) throws IOException, SolrServerException {
-    SolrInputDocument doc = new SolrInputDocument();
+    Map<String, Object> doc = new HashMap<>();
 
-    doc.addField("id", topic.getId());
+    doc.put("id", topic.getId());
 
-    doc.addField("section_id", topic.getSectionId());
-    doc.addField("section", topic.getSectionId());
-    doc.addField("user_id", topic.getUid());
-    doc.addField("topic_user_id", topic.getUid());
-    doc.addField("topic_id", topic.getId());
-    doc.addField("group_id", topic.getGroupId());
+    doc.put("section_id", topic.getSectionId());
+    doc.put("section", topic.getSectionId());
+    doc.put("user_id", topic.getUid());
+    doc.put("topic_user_id", topic.getUid());
+    doc.put("topic_id", topic.getId());
+    doc.put("group_id", topic.getGroupId());
 
-    doc.addField("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
-    doc.addField("topic_title", topic.getTitle());
-    doc.addField("message", msgbaseDao.getMessageText(topic.getId()).getText());
+    doc.put("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
+    doc.put("topic_title", topic.getTitle());
+    doc.put("message", msgbaseDao.getMessageText(topic.getId()).getText());
     Date postdate = topic.getPostdate();
-    doc.addField("postdate", new Timestamp(postdate.getTime()));
+    doc.put("postdate", new Timestamp(postdate.getTime()));
 
-    doc.addField("is_comment", false);
+    doc.put("is_comment", false);
 
-    solrServer.add(doc);
+    client
+            .prepareIndex(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(topic.getId()))
+            .setSource(doc)
+            .execute()
+            .actionGet();
   }
 
   private void reindexComments(Topic topic, CommentList comments) throws IOException, SolrServerException {
-    Collection<SolrInputDocument> docs = new ArrayList<>();
-    List<String> delete = new ArrayList<>();
+    BulkRequestBuilder bulkRequest = client.prepareBulk();
 
     for (Comment comment : comments.getList()) {
       if (comment.isDeleted()) {
-        delete.add(Integer.toString(comment.getId()));
+        bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       }
       String message = msgbaseDao.getMessageText(comment.getId()).getText();
-      docs.add(processComment(topic, comment, message));
+      bulkRequest.add(processComment(topic, comment, message));
     }
 
-    if (!docs.isEmpty()) {
-      solrServer.add(docs);
-    }
-    if (!delete.isEmpty()) {
-      //logger.info("Deleting comments: "+delete);
-      solrServer.deleteById(delete);
-    }
+    executeBulk(bulkRequest);
   }
 
-  private static SolrInputDocument processComment(Topic topic, Comment comment, String message) {
-    SolrInputDocument doc = new SolrInputDocument();
+  private IndexRequestBuilder processComment(Topic topic, Comment comment, String message) {
+    Map<String, Object> doc = new HashMap<>();
 
-    doc.addField("id", comment.getId());
-
-    doc.addField("section_id", topic.getSectionId());
-    doc.addField("section", topic.getSectionId());
-    doc.addField("user_id", comment.getUserid());
-    doc.addField("topic_user_id", topic.getUid());
-    doc.addField("topic_id", comment.getTopicId());
-    doc.addField("group_id", topic.getGroupId());
+    doc.put("section_id", topic.getSectionId());
+    doc.put("section", topic.getSectionId());
+    doc.put("user_id", comment.getUserid());
+    doc.put("topic_user_id", topic.getUid());
+    doc.put("topic_id", comment.getTopicId());
+    doc.put("group_id", topic.getGroupId());
     String topicTitle = topic.getTitle();
-    doc.addField("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));
+    doc.put("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));
     
     String commentTitle = comment.getTitle();
 
@@ -218,15 +215,17 @@ public class SearchQueueListener {
         !commentTitle.isEmpty() &&
         !commentTitle.equals(topicTitle) &&
         !commentTitle.startsWith("Re:")) {
-      doc.addField("title", StringEscapeUtils.unescapeHtml(commentTitle));
+      doc.put("title", StringEscapeUtils.unescapeHtml(commentTitle));
     }
 
-    doc.addField("message", message);
+    doc.put("message", message);
     Date postdate = comment.getPostdate();
-    doc.addField("postdate", new Timestamp(postdate.getTime()));
+    doc.put("postdate", new Timestamp(postdate.getTime()));
 
-    doc.addField("is_comment", true);
+    doc.put("is_comment", true);
 
-    return doc;
+    return client
+            .prepareIndex(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId()))
+            .setSource(doc);
   }
 }
