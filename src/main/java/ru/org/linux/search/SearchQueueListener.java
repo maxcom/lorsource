@@ -17,7 +17,6 @@ package ru.org.linux.search;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -47,8 +46,8 @@ import java.util.Map;
 @Component
 public class SearchQueueListener {
   private static final Logger logger = LoggerFactory.getLogger(SearchQueueListener.class);
-  private static final String MESSAGES_INDEX = "messages";
-  private static final String MESSAGES_TYPE = "message";
+  public static final String MESSAGES_INDEX = "messages";
+  public static final String MESSAGES_TYPE = "message";
 
   @Autowired
   private CommentService commentService;
@@ -62,13 +61,13 @@ public class SearchQueueListener {
   @Autowired
   private TopicDao topicDao;
 
-  public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException {
     logger.info("Indexing "+msgUpdate.getMsgid());
 
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
   }
 
-  private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
+  private void reindexMessage(int msgid, boolean withComments) throws IOException, MessageNotFoundException {
     Topic msg = topicDao.getById(msgid);
 
     if (!msg.isDeleted() && !msg.isDraft()) {
@@ -111,7 +110,7 @@ public class SearchQueueListener {
     }
   }
 
-  public void handleMessage(UpdateComments msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(UpdateComments msgUpdate) throws MessageNotFoundException, IOException {
     logger.info("Indexing comments "+msgUpdate.getMsgids());
 
     BulkRequestBuilder bulkRequest = client.prepareBulk();
@@ -140,7 +139,7 @@ public class SearchQueueListener {
     executeBulk(bulkRequest);
   }
 
-  public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException {
     int month = msgUpdate.getMonth();
     int year = msgUpdate.getYear();
 
@@ -156,7 +155,7 @@ public class SearchQueueListener {
     logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
   }
 
-  private void updateMessage(Topic topic) throws IOException, SolrServerException {
+  private void updateMessage(Topic topic) throws IOException {
     Map<String, Object> doc = new HashMap<>();
 
     doc.put("id", topic.getId());
@@ -183,7 +182,7 @@ public class SearchQueueListener {
             .actionGet();
   }
 
-  private void reindexComments(Topic topic, CommentList comments) throws IOException, SolrServerException {
+  private void reindexComments(Topic topic, CommentList comments) throws IOException {
     BulkRequestBuilder bulkRequest = client.prepareBulk();
 
     for (Comment comment : comments.getList()) {

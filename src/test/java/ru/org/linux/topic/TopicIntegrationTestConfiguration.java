@@ -5,7 +5,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.search.SolrOptimizer;
 import ru.org.linux.spring.FeedPinger;
 
 import java.io.FileInputStream;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.mock;
                         value = {
                                 SearchQueueListener.class,
                                 SearchQueueSender.class,
-                                SolrOptimizer.class,
                                 FeedPinger.class,
                                 TopicListService.class,
                         }

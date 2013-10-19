@@ -15,15 +15,12 @@
 
 package ru.org.linux.search;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +35,6 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchViewer.SearchInterval;
 import ru.org.linux.search.SearchViewer.SearchOrder;
 import ru.org.linux.search.SearchViewer.SearchRange;
-import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
@@ -55,7 +51,6 @@ import java.util.Map;
 
 @Controller
 public class SearchController {
-  private SolrServer solrServer;
   @Autowired
   private SectionService sectionService;
   private UserDao userDao;
@@ -66,9 +61,7 @@ public class SearchController {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  public void setSolrServer(SolrServer solrServer) {
-    this.solrServer = solrServer;
-  }
+  private Client client;
 
   @Autowired
   public void setUserDao(UserDao userDao) {
@@ -151,18 +144,20 @@ public class SearchController {
         }
       }
 
-      QueryResponse response = sv.performSearch(solrServer);
+      SearchResponse response = sv.performSearch(client);
 
       long current = System.currentTimeMillis();
 
-      SolrDocumentList list = response.getResults();
-      Collection<SearchItem> res = new ArrayList<>(list.size());
+      SearchHits hits = response.getHits();
 
-      for (SolrDocument doc : list) {
+      Collection<SearchItem> res = new ArrayList<>(hits.hits().length);
+
+      for (SearchHit doc : hits) {
         res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
       }
 
-      FacetField sectionFacet = response.getFacetField("section");
+/*
+      FacetField sectionFacet = null; // TODO response.getFacetField("section");
 
       if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
         params.put("sectionFacet", buildSectionFacet(sectionFacet));
@@ -172,19 +167,20 @@ public class SearchController {
         query.setSection(first.getName());
       }
 
-      FacetField groupFacet = response.getFacetField("group_id");
+      FacetField groupFacet = null; // TODO response.getFacetField("group_id");
 
       if (groupFacet != null && groupFacet.getValueCount() > 1) {
         params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
       }
+*/
 
       long time = System.currentTimeMillis() - current;
 
       params.put("result", res);
-      params.put("searchTime", response.getElapsedTime());
-      params.put("numFound", list.getNumFound());
+      params.put("searchTime", response.getTookInMillis());
+      params.put("numFound", response.getHits().getTotalHits());
 
-      if (list.getNumFound() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
+      if (response.getHits().getTotalHits() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
         params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SEARCH_ROWS));
       }
 
@@ -198,6 +194,7 @@ public class SearchController {
     return "search";
   }
 
+/*
   private Map<String, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
     Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
 
@@ -258,6 +255,7 @@ public class SearchController {
       return r;
     }
   }
+*/
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {

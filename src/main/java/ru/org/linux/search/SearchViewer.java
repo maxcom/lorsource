@@ -15,17 +15,21 @@
 
 package ru.org.linux.search;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import ru.org.linux.user.User;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.RangeQueryBuilder;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class SearchViewer {
   public enum SearchRange {
     ALL(null, "темы и комментарии"),
-    TOPICS("is_comment:false", "только темы"),
-    COMMENTS("is_comment:true", "только комментарии");
+    TOPICS("false", "только темы"),
+    COMMENTS("true", "только комментарии");
 
     private final String param;
     private final String title;
@@ -35,8 +39,12 @@ public class SearchViewer {
       this.title = title;
     }
 
-    private String getParam() {
+    private String getValue() {
       return param;
+    }
+
+    private String getColumn() {
+      return "is_comment";
     }
 
     public String getTitle() {
@@ -45,10 +53,10 @@ public class SearchViewer {
   }
 
   public enum SearchInterval {
-    MONTH("postdate:[NOW-1MONTH TO NOW]", "месяц"),
-    THREE_MONTH("postdate:[NOW-3MONTH TO NOW]", "три месяца"),
-    YEAR("postdate:[NOW-1YEAR TO NOW]", "год"),
-    THREE_YEAR("postdate:[NOW-3YEAR TO NOW]", "три года"),
+    MONTH("[NOW-1MONTH TO NOW]", "месяц"),
+    THREE_MONTH("[NOW-3MONTH TO NOW]", "три месяца"),
+    YEAR("[NOW-1YEAR TO NOW]", "год"),
+    THREE_YEAR("[NOW-3YEAR TO NOW]", "три года"),
     ALL(null, "весь период");
 
     private final String range;
@@ -65,6 +73,10 @@ public class SearchViewer {
 
     public String getTitle() {
       return title;
+    }
+
+    private String getColumn() {
+      return "postdate";
     }
   }
 
@@ -98,30 +110,47 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public QueryResponse performSearch(SolrServer search) throws SolrServerException {
+  public SearchResponse performSearch(Client client) {
+    SearchRequestBuilder request = client.prepareSearch(SearchQueueListener.MESSAGES_INDEX);
+
+    request.setTypes(SearchQueueListener.MESSAGES_TYPE);
+
+    request.addFields("title", "topic_title", "user_id", "postdate", "topic_id", "section");
+
+    QueryStringQueryBuilder esQuery = queryString(this.query.getQ());
+    esQuery.lenient(true);
+
+    request.setSize(SEARCH_ROWS);
+    request.setFrom(this.query.getOffset());
+
+    BoolQueryBuilder rootQuery = boolQuery();
+
+    rootQuery.must(esQuery);
+
+    if (this.query.getRange().getValue()!=null) {
+      rootQuery.must(termQuery(query.getRange().getColumn(), query.getRange().getValue()));
+    }
+
+    if (this.query.getInterval().getRange()!=null) {
+      RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(query.getInterval().getColumn());
+
+      rangeQuery.from(this.query.getInterval().getRange());
+    }
+
+    request.setQuery(rootQuery);
+
+/*
+    TODO
+
     SolrQuery params = new SolrQuery();
-    // set search query params
-    params.set("q", query.getQ());
-    params.set("rows", SEARCH_ROWS);
-    params.set("start", query.getOffset());
-
-    params.set("qt", "edismax");
-
-    if (query.getRange().getParam()!=null) {
-      params.add("fq", query.getRange().getParam());
-    }
-
-    if (query.getInterval().getRange()!=null) {
-      params.add("fq", query.getInterval().getRange());
-    }
 
     params.setFacetMinCount(1);
     params.setFacet(true);
     
-    String section = query.getSection();
+    String section = this.query.getSection();
 
     if (section != null && !section.isEmpty() && !"0".equals(section)){
-      params.add("fq", "{!tag=dt}section:"+query.getSection());
+      params.add("fq", "{!tag=dt}section:"+ this.query.getSection());
       params.addFacetField("{!ex=dt}section");
 
       params.addFacetField("{!ex=dt}group_id");
@@ -130,22 +159,26 @@ public class SearchViewer {
       params.addFacetField("group_id");
     }
 
-    if (query.getUser() != null) {
-      User user = query.getUser();
+    if (this.query.getUser() != null) {
+      User user = this.query.getUser();
 
-      if (query.isUsertopic()) {
+      if (this.query.isUsertopic()) {
         params.add("fq", "topic_user_id:" + user.getId());
       } else {
         params.add("fq", "user_id:" + user.getId());
       }
     }
 
-    if (query.getGroup()!=0) {
-      params.add("fq", "{!tag=dt}group_id:" + query.getGroup());
+    if (this.query.getGroup()!=0) {
+      params.add("fq", "{!tag=dt}group_id:" + this.query.getGroup());
     }
 
-    params.set("sort", query.getSort().getParam());
+    params.set("sort", this.query.getSort().getParam());
 
     return search.query(params);
+*/
+
+    // TODO use Async
+    return request.execute().actionGet();
   }
 }

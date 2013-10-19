@@ -15,7 +15,8 @@
 
 package ru.org.linux.search;
 
-import org.apache.solr.common.SolrDocument;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.org.linux.spring.dao.MessageText;
@@ -26,7 +27,6 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 import static ru.org.linux.util.URLUtil.buildWikiURL;
 
@@ -42,15 +42,20 @@ public class SearchItem {
   private final String virtualWiki;
   private final String section;
   
-  public SearchItem(SolrDocument doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
-    msgid = (String) doc.getFieldValue("id");
-    title = (String) doc.getFieldValue("title");
-    topicTitle = (String) doc.getFieldValue("topic_title");
-    int userid = (Integer) doc.getFieldValue("user_id");
-    Date postdate_dt = (Date) doc.getFieldValue("postdate");
-    postdate = new Timestamp(postdate_dt.getTime());
-    topic = (Integer) doc.getFieldValue("topic_id");
-    section = (String) doc.getFieldValue("section");
+  public SearchItem(SearchHit doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
+    msgid = doc.getId();
+
+    if (doc.getFields().containsKey("title")) {
+      title = doc.getFields().get("title").getValue();
+    } else {
+      title = null;
+    }
+
+    topicTitle = doc.getFields().get("topic_title").getValue();
+    int userid = doc.getFields().get("user_id").getValue();
+    postdate = new Timestamp(ISODateTimeFormat.dateTime().parseDateTime(doc.getFields().get("postdate").<String>getValue()).getMillis());
+    topic = doc.getFields().get("topic_id").getValue();
+    section = doc.getFields().get("section").getValue().toString();
 
     if(!"wiki".equals(section)) {
       virtualWiki = null;
