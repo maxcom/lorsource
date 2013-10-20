@@ -22,6 +22,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -81,23 +82,25 @@ public class SearchViewer {
   }
 
   public enum SearchOrder {
-    RELEVANCE("по релевантности", "score desc"),
-    DATE("по дате: от новых к старым", "postdate desc"),
-    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate asc");
+    RELEVANCE("по релевантности", "_score", SortOrder.DESC),
+    DATE("по дате: от новых к старым", "postdate", SortOrder.DESC),
+    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate", SortOrder.ASC);
 
     private final String name;
     private final String param;
+    private final SortOrder order;
 
-    SearchOrder(String name, String param) {
+    SearchOrder(String name, String param, SortOrder order) {
       this.name = name;
       this.param = param;
+      this.order = order;
     }
 
     public String getName() {
       return name;
     }
 
-    private String getParam() {
+    private String getColumn() {
       return param;
     }
   }
@@ -173,10 +176,10 @@ public class SearchViewer {
       params.add("fq", "{!tag=dt}group_id:" + this.query.getGroup());
     }
 
-    params.set("sort", this.query.getSort().getParam());
-
     return search.query(params);
 */
+
+    request.addSort(query.getSort().getColumn(), query.getSort().order);
 
     // TODO use Async
     return request.execute().actionGet();
