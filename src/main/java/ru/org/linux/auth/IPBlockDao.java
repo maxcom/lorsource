@@ -73,9 +73,14 @@ public class IPBlockDao {
 
   public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user)
     throws UnknownHostException, TextParseException {
-    if (getTor(block.getIp())) {
-      errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
-    }
+    
+    boolean isAnonymous = (user == null || user.isAnonymousScore()
+          || !block.isAllowRegistredPosting());
+
+    if (isAnonymous) {
+        if (getTor(block.getIp())) {
+             errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
+     }
 
     if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
       errors.reject(null, "Постинг заблокирован: " + block.getReason());
