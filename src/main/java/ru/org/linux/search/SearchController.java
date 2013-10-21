@@ -15,6 +15,7 @@
 
 package ru.org.linux.search;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import org.elasticsearch.action.search.SearchResponse;
@@ -162,24 +163,16 @@ public class SearchController {
 
         if (sectionFacet != null && sectionFacet.getEntries().size() > 1) {
           params.put("sectionFacet", buildSectionFacet(sectionFacet));
+        } else if (sectionFacet!=null && sectionFacet.getEntries().size() == 1) {
+          query.setSection(sectionFacet.getEntries().get(0).getTerm().toString());
+        }
+
+        TermsFacet groupFacet = (TermsFacet) response.getFacets().facetsAsMap().get("groups");
+
+        if (groupFacet != null && groupFacet.getEntries().size() > 1) {
+          params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
         }
       }
-/*
-
-      if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
-        params.put("sectionFacet", buildSectionFacet(sectionFacet));
-      } else if (sectionFacet != null && sectionFacet.getValueCount() == 1) {
-        Count first = sectionFacet.getValues().get(0);
-
-        query.setSection(first.getName());
-      }
-
-      FacetField groupFacet = null; // TODO response.getFacetField("group_id");
-
-      if (groupFacet != null && groupFacet.getValueCount() > 1) {
-        params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
-      }
-*/
 
       long time = System.currentTimeMillis() - current;
 
@@ -219,21 +212,19 @@ public class SearchController {
 
     return builder.build();
   }
-/*
-  private Map<Integer, String> buildGroupFacet(String section, FacetField groupFacet) {
+
+  private Map<Integer, String> buildGroupFacet(String section, TermsFacet groupFacet) {
     Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
     if (section == null || section.isEmpty() || "wiki".equals(section)) {
       return null;
     }
 
-    int totalCount = 0;
-
-    for (Count count : groupFacet.getValues()) {
-      if("0".equals(count.getName())) {
+    for (TermsFacet.Entry entry : groupFacet) {
+      if("0".equals(entry.getTerm().toString())) {
         continue;
       }
 
-      int groupId = Integer.parseInt(count.getName());
+      int groupId = Integer.parseInt(entry.getTerm().toString());
 
       Group group = groupDao.getGroup(groupId);
 
@@ -243,12 +234,10 @@ public class SearchController {
 
       String name = group.getTitle().toLowerCase();
 
-      builder.put(groupId, name + " (" + count.getCount() + ')');
-
-      totalCount += count.getCount();
+      builder.put(groupId, name + " (" + entry.getCount() + ')');
     }
 
-    builder.put(0, "все (" + Integer.toString(totalCount) + ')');
+    builder.put(0, "все (" + Long.toString(groupFacet.getTotalCount()) + ')');
 
     ImmutableMap<Integer, String> r = builder.build();
 
@@ -258,7 +247,6 @@ public class SearchController {
       return r;
     }
   }
-*/
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {

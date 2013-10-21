@@ -169,14 +169,11 @@ public class SearchViewer {
 /*
       TODO
       params.add("fq", "{!tag=dt}section:"+ this.query.getSection());
-      params.addFacetField("{!ex=dt}section");
-
-      params.addFacetField("{!ex=dt}group_id");
 */
-    } else {
-      request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
-      request.addFacet(FacetBuilders.termsFacet("groups").field("group_id"));
     }
+
+    request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
+    request.addFacet(FacetBuilders.termsFacet("groups").field("group_id"));
 /* TODO
     if (this.query.getGroup()!=0) {
       params.add("fq", "{!tag=dt}group_id:" + this.query.getGroup());
