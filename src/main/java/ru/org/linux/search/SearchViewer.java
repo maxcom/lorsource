@@ -22,6 +22,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.org.linux.user.User;
 
@@ -161,26 +162,28 @@ public class SearchViewer {
     params.setFacetMinCount(1);
     params.setFacet(true);
     
+*/
     String section = this.query.getSection();
 
     if (section != null && !section.isEmpty() && !"0".equals(section)){
+/*
+      TODO
       params.add("fq", "{!tag=dt}section:"+ this.query.getSection());
       params.addFacetField("{!ex=dt}section");
 
       params.addFacetField("{!ex=dt}group_id");
+*/
     } else {
-      params.addFacetField("section");
-      params.addFacetField("group_id");
+      request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
+      request.addFacet(FacetBuilders.termsFacet("groups").field("group_id"));
     }
-
+/* TODO
     if (this.query.getGroup()!=0) {
       params.add("fq", "{!tag=dt}group_id:" + this.query.getGroup());
     }
 
     return search.query(params);
 */
-
-
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);
 

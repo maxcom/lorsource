@@ -21,6 +21,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -156,8 +157,14 @@ public class SearchController {
         res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
       }
 
+      if (response.getFacets() != null) {
+        TermsFacet sectionFacet = (TermsFacet) response.getFacets().facetsAsMap().get("sections");
+
+        if (sectionFacet != null && sectionFacet.getEntries().size() > 1) {
+          params.put("sectionFacet", buildSectionFacet(sectionFacet));
+        }
+      }
 /*
-      FacetField sectionFacet = null; // TODO response.getFacetField("section");
 
       if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
         params.put("sectionFacet", buildSectionFacet(sectionFacet));
@@ -194,29 +201,25 @@ public class SearchController {
     return "search";
   }
 
-/*
-  private Map<String, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
+
+  private Map<String, String> buildSectionFacet(TermsFacet sectionFacet) {
     Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
 
-    int totalCount = 0;
-
-    for (Count count : sectionFacet.getValues()) {
-      if("wiki".equals(count.getName())) {
-        builder.put(count.getName(), count.getName() + " (" + count.getCount() + ')');
+    for (TermsFacet.Entry entry : sectionFacet) {
+      if("wiki".equals(entry.getTerm())) {
+        builder.put(entry.getTerm().string(), entry.getTerm() + " (" + entry.getCount() + ')');
       } else {
-        int sectionId = Integer.parseInt(count.getName());
+        int sectionId = Integer.parseInt(entry.getTerm().string());
         String name = sectionService.getSection(sectionId).getName().toLowerCase();
-        builder.put(count.getName(), name + " (" + count.getCount() + ')');
+        builder.put(entry.getTerm().string(), name + " (" + entry.getCount() + ')');
       }
-
-      totalCount += count.getCount();
     }
 
-    builder.put("0", "все (" + Integer.toString(totalCount) + ')');
+    builder.put("0", "все (" + Long.toString(sectionFacet.getTotalCount()) + ')');
 
     return builder.build();
   }
-
+/*
   private Map<Integer, String> buildGroupFacet(String section, FacetField groupFacet) {
     Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
     if (section == null || section.isEmpty() || "wiki".equals(section)) {
