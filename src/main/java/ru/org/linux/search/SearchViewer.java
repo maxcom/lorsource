@@ -23,6 +23,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import ru.org.linux.user.User;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -140,6 +141,16 @@ public class SearchViewer {
       rangeQuery.from(this.query.getInterval().getRange());
     }
 
+    if (this.query.getUser() != null) {
+      User user = this.query.getUser();
+
+      if (this.query.isUsertopic()) {
+        rootQuery.must(termQuery("topic_user_id", user.getId()));
+      } else {
+        rootQuery.must(termQuery("user_id", user.getId()));
+      }
+    }
+
     request.setQuery(rootQuery);
 
 /*
@@ -162,22 +173,14 @@ public class SearchViewer {
       params.addFacetField("group_id");
     }
 
-    if (this.query.getUser() != null) {
-      User user = this.query.getUser();
-
-      if (this.query.isUsertopic()) {
-        params.add("fq", "topic_user_id:" + user.getId());
-      } else {
-        params.add("fq", "user_id:" + user.getId());
-      }
-    }
-
     if (this.query.getGroup()!=0) {
       params.add("fq", "{!tag=dt}group_id:" + this.query.getGroup());
     }
 
     return search.query(params);
 */
+
+
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);
 
