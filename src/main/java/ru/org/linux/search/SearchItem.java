@@ -52,10 +52,10 @@ public class SearchItem {
     }
 
     topicTitle = doc.getFields().get("topic_title").getValue();
-    int userid = doc.getFields().get("user_id").getValue();
+    String author = doc.getFields().get("author").getValue();
     postdate = new Timestamp(ISODateTimeFormat.dateTime().parseDateTime(doc.getFields().get("postdate").<String>getValue()).getMillis());
     topic = doc.getFields().get("topic_id").getValue();
-    section = doc.getFields().get("section").getValue().toString();
+    section = doc.getFields().get("section").getValue();
 
     if(!"wiki".equals(section)) {
       virtualWiki = null;
@@ -83,7 +83,7 @@ public class SearchItem {
       virtualWiki = msgIds[0];
     }
 
-    user = userDao.getUserCached(userid);
+    user = userDao.getUser(author);
   }
 
   public int getMsgid() {

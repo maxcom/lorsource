@@ -1,0 +1,11 @@
+{
+    "message": {
+        "properties": {
+            "group": {
+                "type": "string",
+                "index": "not_analyzed",
+                "include_in_all": "false"
+            }
+        }
+    }
+}

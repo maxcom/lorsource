@@ -37,6 +37,7 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchViewer.SearchInterval;
 import ru.org.linux.search.SearchViewer.SearchOrder;
 import ru.org.linux.search.SearchViewer.SearchRange;
+import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
@@ -127,7 +128,7 @@ public class SearchController {
     if (!initial && !bindingResult.hasErrors()) {
       if (!query.getQ().equals(query.getOldQ())) {
         query.setSection(null);
-        query.setGroup(0);
+        query.setGroup(null);
       }
 
       query.setOldQ(query.getQ());
@@ -138,11 +139,17 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query);
 
-      if (query.getGroup() != 0) {
-        Group group = groupDao.getGroup(query.getGroup());
+      if (query.getSection()==null) {
+        query.setGroup(null);
+      }
 
-        if ("wiki".equals(query.getSection()) || group.getSectionId() != Integer.valueOf(query.getSection())) {
-          query.setGroup(0);
+      if (query.getGroup() != null) {
+        Section section = sectionService.getSectionByName(query.getSection());
+
+        Group group = groupDao.getGroupOrNull(section, query.getGroup());
+
+        if (group==null) {
+          query.setGroup(null);
         }
       }
 
@@ -202,44 +209,42 @@ public class SearchController {
       if("wiki".equals(entry.getTerm())) {
         builder.put(entry.getTerm().string(), entry.getTerm() + " (" + entry.getCount() + ')');
       } else {
-        int sectionId = Integer.parseInt(entry.getTerm().string());
-        String name = sectionService.getSection(sectionId).getName().toLowerCase();
+        String urlName = entry.getTerm().string();
+        String name = sectionService.getSectionByName(urlName).getName().toLowerCase();
         builder.put(entry.getTerm().string(), name + " (" + entry.getCount() + ')');
       }
     }
 
-    builder.put("0", "все (" + Long.toString(sectionFacet.getTotalCount()) + ')');
+    builder.put("", "все (" + Long.toString(sectionFacet.getTotalCount()) + ')');
 
     return builder.build();
   }
 
-  private Map<Integer, String> buildGroupFacet(String section, TermsFacet groupFacet) {
-    Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
-    if (section == null || section.isEmpty() || "wiki".equals(section)) {
+  private Map<String, String> buildGroupFacet(String sectionName, TermsFacet groupFacet) {
+    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
+    if (sectionName == null || sectionName.isEmpty() || "wiki".equals(sectionName)) {
       return null;
     }
+
+    Section section = sectionService.getSectionByName(sectionName);
 
     for (TermsFacet.Entry entry : groupFacet) {
       if("0".equals(entry.getTerm().toString())) {
         continue;
       }
 
-      int groupId = Integer.parseInt(entry.getTerm().toString());
+      String groupUrlName = entry.getTerm().toString();
 
-      Group group = groupDao.getGroup(groupId);
-
-      if (group.getSectionId() != Integer.valueOf(section)) {
-        continue;
-      }
+      Group group = groupDao.getGroup(section, groupUrlName);
 
       String name = group.getTitle().toLowerCase();
 
-      builder.put(groupId, name + " (" + entry.getCount() + ')');
+      builder.put(groupUrlName, name + " (" + entry.getCount() + ')');
     }
 
-    builder.put(0, "все (" + Long.toString(groupFacet.getTotalCount()) + ')');
+    builder.put("", "все (" + Long.toString(groupFacet.getTotalCount()) + ')');
 
-    ImmutableMap<Integer, String> r = builder.build();
+    ImmutableMap<String, String> r = builder.build();
 
     if (r.size() <= 2) {
       return null;

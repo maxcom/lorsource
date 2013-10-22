@@ -20,6 +20,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.facet.FacetBuilders;
+import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.org.linux.user.User;
 
@@ -117,7 +118,7 @@ public class SearchViewer {
 
     request.setTypes(SearchQueueListener.MESSAGES_TYPE);
 
-    request.addFields("title", "topic_title", "user_id", "postdate", "topic_id", "section");
+    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section");
 
     QueryStringQueryBuilder esQuery = queryString(this.query.getQ());
     esQuery.lenient(true);
@@ -143,9 +144,9 @@ public class SearchViewer {
       User user = this.query.getUser();
 
       if (this.query.isUsertopic()) {
-        rootQuery.must(termQuery("topic_user_id", user.getId()));
+        rootQuery.must(termQuery("topic_author", user.getNick()));
       } else {
-        rootQuery.must(termQuery("user_id", user.getId()));
+        rootQuery.must(termQuery("author", user.getNick()));
       }
     }
 
@@ -153,16 +154,23 @@ public class SearchViewer {
 
     String section = this.query.getSection();
 
-    if (section != null && !section.isEmpty() && !"0".equals(section)){
+    if (section != null && !section.isEmpty()){
       request.setFilter(FilterBuilders.termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
-    request.addFacet(FacetBuilders.termsFacet("groups").field("group_id"));
 
-    if (this.query.getGroup()!=0) {
+    TermsFacetBuilder groupFacet = FacetBuilders.termsFacet("groups").field("group");
+
+    if (section != null && !section.isEmpty()) {
+      groupFacet.facetFilter(FilterBuilders.termFilter("section", this.query.getSection()));
+    }
+
+    request.addFacet(groupFacet);
+
+    if (this.query.getGroup()!=null) {
       // overrides section filter!
-      request.setFilter(FilterBuilders.termFilter("group_id", this.query.getGroup()));
+      request.setFilter(FilterBuilders.termFilter("group", this.query.getGroup()));
     }
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);

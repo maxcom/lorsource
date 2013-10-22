@@ -16,6 +16,7 @@
 package ru.org.linux.search;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -28,13 +29,19 @@ import org.springframework.stereotype.Component;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentList;
 import ru.org.linux.comment.CommentService;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchQueueSender.UpdateComments;
 import ru.org.linux.search.SearchQueueSender.UpdateMessage;
 import ru.org.linux.search.SearchQueueSender.UpdateMonth;
+import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -61,7 +68,22 @@ public class SearchQueueListener {
   @Autowired
   private TopicDao topicDao;
 
+  @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
+  private SectionService sectionService;
+
+  @Autowired
+  private UserDao userDao;
+
+  private boolean mappingsSet = false;
+
   public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException {
+    if (!mappingsSet) {
+      updateMapping();
+    }
+
     logger.info("Indexing "+msgUpdate.getMsgid());
 
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
@@ -111,6 +133,10 @@ public class SearchQueueListener {
   }
 
   public void handleMessage(UpdateComments msgUpdate) throws MessageNotFoundException, IOException {
+    if (!mappingsSet) {
+      updateMapping();
+    }
+
     logger.info("Indexing comments "+msgUpdate.getMsgids());
 
     BulkRequestBuilder bulkRequest = client.prepareBulk();
@@ -140,6 +166,10 @@ public class SearchQueueListener {
   }
 
   public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException {
+    if (!mappingsSet) {
+      updateMapping();
+    }
+
     int month = msgUpdate.getMonth();
     int year = msgUpdate.getYear();
 
@@ -160,12 +190,15 @@ public class SearchQueueListener {
 
     doc.put("id", topic.getId());
 
-    doc.put("section_id", topic.getSectionId());
-    doc.put("section", topic.getSectionId());
-    doc.put("user_id", topic.getUid());
-    doc.put("topic_user_id", topic.getUid());
+    Section section = sectionService.getSection(topic.getSectionId());
+    Group group = groupDao.getGroup(topic.getGroupId());
+    User author = userDao.getUserCached(topic.getUid());
+
+    doc.put("section", section.getUrlName());
+    doc.put("topic_author", author.getNick());
     doc.put("topic_id", topic.getId());
-    doc.put("group_id", topic.getGroupId());
+    doc.put("author", author.getNick());
+    doc.put("group", group.getUrlName());
 
     doc.put("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
     doc.put("topic_title", topic.getTitle());
@@ -199,12 +232,17 @@ public class SearchQueueListener {
   private IndexRequestBuilder processComment(Topic topic, Comment comment, String message) {
     Map<String, Object> doc = new HashMap<>();
 
-    doc.put("section_id", topic.getSectionId());
-    doc.put("section", topic.getSectionId());
-    doc.put("user_id", comment.getUserid());
-    doc.put("topic_user_id", topic.getUid());
-    doc.put("topic_id", comment.getTopicId());
-    doc.put("group_id", topic.getGroupId());
+    Section section = sectionService.getSection(topic.getSectionId());
+    Group group = groupDao.getGroup(topic.getGroupId());
+    User author = userDao.getUserCached(comment.getUserid());
+    User topicAuthor = userDao.getUserCached(topic.getUid());
+
+    doc.put("section", section.getUrlName());
+    doc.put("topic_author", topicAuthor.getNick());
+    doc.put("topic_id", topic.getId());
+    doc.put("author", author.getNick());
+    doc.put("group", group.getUrlName());
+
     String topicTitle = topic.getTitle();
     doc.put("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));
     
@@ -226,5 +264,21 @@ public class SearchQueueListener {
     return client
             .prepareIndex(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId()))
             .setSource(doc);
+  }
+
+  private void updateMapping() throws IOException {
+    logger.info("Updating ElasticSearch mappings");
+
+    String mappingSource = IOUtils.toString(getClass().getClassLoader().getResource("es-mapping.json"));
+
+    client
+            .admin()
+            .indices()
+            .prepareCreate(MESSAGES_INDEX)
+            .addMapping(MESSAGES_TYPE, mappingSource)
+            .execute()
+            .actionGet();
+
+    mappingsSet = true;
   }
 }
