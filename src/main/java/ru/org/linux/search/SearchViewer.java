@@ -18,10 +18,7 @@ package ru.org.linux.search;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.org.linux.user.User;
@@ -154,33 +151,19 @@ public class SearchViewer {
 
     request.setQuery(rootQuery);
 
-/*
-    TODO
-
-    SolrQuery params = new SolrQuery();
-
-    params.setFacetMinCount(1);
-    params.setFacet(true);
-    
-*/
     String section = this.query.getSection();
 
     if (section != null && !section.isEmpty() && !"0".equals(section)){
-/*
-      TODO
-      params.add("fq", "{!tag=dt}section:"+ this.query.getSection());
-*/
+      request.setFilter(FilterBuilders.termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
     request.addFacet(FacetBuilders.termsFacet("groups").field("group_id"));
-/* TODO
-    if (this.query.getGroup()!=0) {
-      params.add("fq", "{!tag=dt}group_id:" + this.query.getGroup());
-    }
 
-    return search.query(params);
-*/
+    if (this.query.getGroup()!=0) {
+      // overrides section filter!
+      request.setFilter(FilterBuilders.termFilter("group_id", this.query.getGroup()));
+    }
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);
 
