@@ -188,8 +188,6 @@ public class SearchQueueListener {
   private void updateMessage(Topic topic) throws IOException {
     Map<String, Object> doc = new HashMap<>();
 
-    doc.put("id", topic.getId());
-
     Section section = sectionService.getSection(topic.getSectionId());
     Group group = groupDao.getGroup(topic.getGroupId());
     User author = userDao.getUserCached(topic.getUid());
