@@ -269,11 +269,21 @@ public class SearchQueueListener {
 
     String mappingSource = IOUtils.toString(getClass().getClassLoader().getResource("es-mapping.json"));
 
+    if (!client.admin().indices().prepareExists(MESSAGES_INDEX).execute().actionGet().isExists()) {
+      client
+              .admin()
+              .indices()
+              .prepareCreate(MESSAGES_INDEX)
+              .execute()
+              .actionGet();
+    }
+
     client
             .admin()
             .indices()
-            .prepareCreate(MESSAGES_INDEX)
-            .addMapping(MESSAGES_TYPE, mappingSource)
+            .preparePutMapping(MESSAGES_INDEX)
+            .setType(MESSAGES_TYPE)
+            .setSource(mappingSource)
             .execute()
             .actionGet();
 
