@@ -5,6 +5,38 @@
                 "type": "string",
                 "index": "not_analyzed",
                 "include_in_all": "false"
+            },
+            "section": {
+                "type": "string",
+                "index": "not_analyzed",
+                "include_in_all": "false"
+            },
+            "is_comment": {
+                "type": "boolean",
+                "include_in_all": "false"
+            },
+            "postdate": {
+                "type": "date",
+                "format": "dateTime",
+                "include_in_all": "false"
+            },
+            "author": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "topic_author": {
+                "type": "string",
+                "index": "not_analyzed",
+                "include_in_all": "false"
+            },
+            "topic_id" : {
+              "type" : "long",
+              "include_in_all": "false"
+            },
+            "topic_title" : {
+              "type" : "string",
+              "include_in_all": "false",
+              "index" : "no"
             }
         }
     }
