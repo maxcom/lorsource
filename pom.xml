@@ -576,6 +576,9 @@
                                 <exclude>**/*IntegrationTest.java</exclude>
                                 <exclude>**/*WebTest.java</exclude>
                             </excludes>
+                            <parallel>classes</parallel>
+                            <threadCount>2</threadCount>
+                            <perCoreThreadCount>true</perCoreThreadCount>
                         </configuration>
                     </execution>
                     <execution>
