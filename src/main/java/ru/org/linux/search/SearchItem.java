@@ -45,13 +45,20 @@ public class SearchItem {
   public SearchItem(SearchHit doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
     msgid = doc.getId();
 
-    if (doc.getFields().containsKey("title")) {
-      title = doc.getFields().get("title").getValue();
+    if (doc.getHighlightFields().containsKey("title")) {
+      title = doc.getHighlightFields().get("title").fragments()[0].string();
+    } else if (doc.getFields().containsKey("title")) {
+      title = StringUtil.escapeHtml(doc.getFields().get("title").<String>getValue());
     } else {
       title = null;
     }
 
-    topicTitle = doc.getFields().get("topic_title").getValue();
+    if (doc.getHighlightFields().containsKey("topic_title")) {
+      topicTitle = doc.getHighlightFields().get("topic_title").fragments()[0].string();
+    } else {
+      topicTitle = StringUtil.escapeHtml(doc.getFields().get("topic_title").<String>getValue());
+    }
+
     String author = doc.getFields().get("author").getValue();
     postdate = new Timestamp(ISODateTimeFormat.dateTime().parseDateTime(doc.getFields().get("postdate").<String>getValue()).getMillis());
     topic = doc.getFields().get("topic_id").getValue();

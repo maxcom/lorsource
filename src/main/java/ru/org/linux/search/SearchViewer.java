@@ -21,6 +21,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
+import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.org.linux.user.User;
 
@@ -175,7 +176,23 @@ public class SearchViewer {
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);
 
+    setupHighlight(request);
+
     // TODO use Async
     return request.execute().actionGet();
+  }
+
+  private void setupHighlight(SearchRequestBuilder request) {
+    HighlightBuilder.Field title = new HighlightBuilder.Field("title");
+    title.numOfFragments(0);
+    request.addHighlightedField(title);
+
+    HighlightBuilder.Field topicTitle = new HighlightBuilder.Field("topic_title");
+    topicTitle.numOfFragments(0);
+    request.addHighlightedField(topicTitle);
+
+    request.setHighlighterEncoder("html");
+    request.setHighlighterPreTags("<em class=search-hl>");
+    request.setHighlighterPostTags("</em>");
   }
 }

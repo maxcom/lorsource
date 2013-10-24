@@ -491,3 +491,9 @@ fieldset legend {
     white-space: nowrap;
   }
 }
+
+#bd .search-hl {
+  color: $button_selected_text_color;
+  background-color: $button_selected_background;
+  font-style: normal;
+}

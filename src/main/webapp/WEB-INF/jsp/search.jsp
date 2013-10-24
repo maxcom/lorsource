@@ -108,7 +108,7 @@
     <c:forEach items="${result}" var="item">
       <div class="msg">
         <div class="msg_header">
-          <h2><a href="${item.url}"><l:title><c:out escapeXml="true" value="${item.title}"/></l:title></a></h2>
+          <h2><a href="${item.url}"><l:title>${item.title}</l:title></a></h2>
         </div>
         <div class="msg_body">
 
