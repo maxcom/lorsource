@@ -1,42 +1,67 @@
 {
-    "message": {
-        "properties": {
-            "group": {
-                "type": "string",
-                "index": "not_analyzed",
-                "include_in_all": "false"
+    "mappings": {
+        "message": {
+            "_all": {
+                "enabled": true,
+                "analyzer": "text_analyzer"
             },
-            "section": {
-                "type": "string",
-                "index": "not_analyzed",
-                "include_in_all": "false"
-            },
-            "is_comment": {
-                "type": "boolean",
-                "include_in_all": "false"
-            },
-            "postdate": {
-                "type": "date",
-                "format": "dateTime",
-                "include_in_all": "false"
-            },
-            "author": {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "topic_author": {
-                "type": "string",
-                "index": "not_analyzed",
-                "include_in_all": "false"
-            },
-            "topic_id" : {
-              "type" : "long",
-              "include_in_all": "false"
-            },
-            "topic_title" : {
-              "type" : "string",
-              "include_in_all": "false",
-              "index" : "no"
+            "properties": {
+                "group": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": "false"
+                },
+                "section": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": "false"
+                },
+                "is_comment": {
+                    "type": "boolean",
+                    "include_in_all": "false"
+                },
+                "postdate": {
+                    "type": "date",
+                    "format": "dateTime",
+                    "include_in_all": "false"
+                },
+                "author": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "topic_author": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": "false"
+                },
+                "topic_id": {
+                    "type": "long",
+                    "include_in_all": "false"
+                },
+                "topic_title": {
+                    "type": "string",
+                    "include_in_all": "false",
+                    "index": "no",
+                    "analyzer": "text_analyzer"
+                },
+                "title": {
+                    "type": "string",
+                    "analyzer": "text_analyzer"
+                },
+                "message": {
+                    "type": "string",
+                    "analyzer": "text_analyzer"
+                }
+            }
+        }
+    },
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "text_analyzer": {
+                    "type": "snowball",
+                    "language": "Russian"
+                }
             }
         }
     }

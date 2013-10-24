@@ -87,7 +87,7 @@ public class SearchQueueListener {
 
   public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException {
     if (!mappingsSet) {
-      updateMapping();
+      createIndex();
     }
 
     logger.info("Indexing "+msgUpdate.getMsgid());
@@ -140,7 +140,7 @@ public class SearchQueueListener {
 
   public void handleMessage(UpdateComments msgUpdate) throws MessageNotFoundException, IOException {
     if (!mappingsSet) {
-      updateMapping();
+      createIndex();
     }
 
     logger.info("Indexing comments "+msgUpdate.getMsgids());
@@ -181,7 +181,7 @@ public class SearchQueueListener {
 
   public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException {
     if (!mappingsSet) {
-      updateMapping();
+      createIndex();
     }
 
     int month = msgUpdate.getMonth();
@@ -278,28 +278,20 @@ public class SearchQueueListener {
             .setSource(doc);
   }
 
-  private void updateMapping() throws IOException {
-    logger.info("Updating ElasticSearch mappings");
-
-    String mappingSource = IOUtils.toString(getClass().getClassLoader().getResource("es-mapping.json"));
-
+  private void createIndex() throws IOException {
     if (!client.admin().indices().prepareExists(MESSAGES_INDEX).execute().actionGet().isExists()) {
+      String mappingSource = IOUtils.toString(getClass().getClassLoader().getResource("es-mapping.json"));
+
+      logger.info("Create ElasticSearch index");
+
       client
               .admin()
               .indices()
               .prepareCreate(MESSAGES_INDEX)
+              .setSource(mappingSource)
               .execute()
               .actionGet();
     }
-
-    client
-            .admin()
-            .indices()
-            .preparePutMapping(MESSAGES_INDEX)
-            .setType(MESSAGES_TYPE)
-            .setSource(mappingSource)
-            .execute()
-            .actionGet();
 
     mappingsSet = true;
   }
