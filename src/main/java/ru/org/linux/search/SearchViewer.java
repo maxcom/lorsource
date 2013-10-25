@@ -28,6 +28,9 @@ import ru.org.linux.user.User;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class SearchViewer {
+
+  public static final int MESSAGE_FRAGMENT = 250;
+
   public enum SearchRange {
     ALL(null, "темы и комментарии"),
     TOPICS("false", "только темы"),
@@ -119,7 +122,7 @@ public class SearchViewer {
 
     request.setTypes(SearchQueueListener.MESSAGES_TYPE);
 
-    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section");
+    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "message");
 
     QueryStringQueryBuilder esQuery = queryString(this.query.getQ());
     esQuery.lenient(true);
@@ -190,6 +193,11 @@ public class SearchViewer {
     HighlightBuilder.Field topicTitle = new HighlightBuilder.Field("topic_title");
     topicTitle.numOfFragments(0);
     request.addHighlightedField(topicTitle);
+
+    HighlightBuilder.Field message = new HighlightBuilder.Field("message");
+    message.numOfFragments(1);
+    message.fragmentSize(MESSAGE_FRAGMENT);
+    request.addHighlightedField(message);
 
     request.setHighlighterEncoder("html");
     request.setHighlighterPreTags("<em class=search-hl>");

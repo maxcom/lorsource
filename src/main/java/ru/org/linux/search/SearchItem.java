@@ -19,12 +19,9 @@ import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;
 
@@ -42,7 +39,7 @@ public class SearchItem {
   private final String virtualWiki;
   private final String section;
   
-  public SearchItem(SearchHit doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
+  public SearchItem(SearchHit doc, UserDao userDao) {
     msgid = doc.getId();
 
     if (doc.getHighlightFields().containsKey("title")) {
@@ -64,15 +61,20 @@ public class SearchItem {
     topic = doc.getFields().get("topic_id").getValue();
     section = doc.getFields().get("section").getValue();
 
+    if (doc.getHighlightFields().containsKey("message")) {
+      message = doc.getHighlightFields().get("message").fragments()[0].string();
+    } else {
+      String fullMessage = doc.getFields().get("message").getValue();
+
+      if (fullMessage.length()>SearchViewer.MESSAGE_FRAGMENT) {
+        message = fullMessage.substring(0, SearchViewer.MESSAGE_FRAGMENT);
+      } else {
+        message = fullMessage;
+      }
+    }
+
     if(!"wiki".equals(section)) {
       virtualWiki = null;
-      MessageText messageText = msgbaseDao.getMessageText(Integer.valueOf(msgid));
-      String rawMessage = messageText.getText();
-      if (messageText.isLorcode()) {
-        message = lorCodeService.parseComment(rawMessage, secure, false);
-      } else {
-        message = rawMessage;
-      }
     } else {
       // Wiki id like <virtual_wiki>-<topic_id>
       String[] msgIds = msgid.split("-");
@@ -80,13 +82,6 @@ public class SearchItem {
         throw new RuntimeException("Invalid wiki ID");
       }
       
-      String content = msgbaseDao.getMessageTextFromWiki(Integer.valueOf(msgIds[1]));      
-      String msg = StringUtil.escapeHtml(content.substring(0, Math.min(1300, content.length())));
-      if(Math.min(1300, content.length()) == 1300) {
-        message = msg + "...";
-      } else {
-        message = msg;
-      }
       virtualWiki = msgIds[0];
     }
 

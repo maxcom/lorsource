@@ -39,14 +39,11 @@ import ru.org.linux.search.SearchViewer.SearchOrder;
 import ru.org.linux.search.SearchViewer.SearchRange;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.bbcode.LorCodeService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,10 +55,6 @@ public class SearchController {
   private SectionService sectionService;
   private UserDao userDao;
   private GroupDao groupDao;
-  private LorCodeService lorCodeService;
-  
-  @Autowired
-  private MsgbaseDao msgbaseDao;
 
   @Autowired
   private Client client;
@@ -74,11 +67,6 @@ public class SearchController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
   }
 
   @ModelAttribute("sorts")
@@ -116,7 +104,6 @@ public class SearchController {
 
   @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
-          HttpServletRequest request,
           Model model,
           @ModelAttribute("query") SearchRequest query,
           BindingResult bindingResult
@@ -162,7 +149,7 @@ public class SearchController {
       Collection<SearchItem> res = new ArrayList<>(hits.hits().length);
 
       for (SearchHit doc : hits) {
-        res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
+        res.add(new SearchItem(doc, userDao));
       }
 
       if (response.getFacets() != null) {
