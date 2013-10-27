@@ -112,8 +112,6 @@ public class TopicDao {
 
   private static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
 
-  private static final String updateLastmodToCurrentTime = "UPDATE topics SET lastmod=now() WHERE id=?";
-
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
 
@@ -139,11 +137,12 @@ public class TopicDao {
    *
    * @param topicId идентификационный номер топика
    */
-  public void updateLastModifiedToCurrentTime(int topicId) {
-    jdbcTemplate.update(
-      updateLastmodToCurrentTime,
-      topicId
-    );
+  public void updateLastmod(int topicId, boolean bump) {
+    if (bump) {
+      jdbcTemplate.update("UPDATE topics SET lastmod=now() WHERE id=?", topicId);
+    } else {
+      jdbcTemplate.update("UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=?", topicId);
+    }
   }
 
   /**
@@ -391,6 +390,7 @@ public class TopicDao {
 
     if (modified) {
       editHistoryService.insert(editHistoryDto);
+      updateLastmod(msg.getId(), false);
     }
 
     return modified;
