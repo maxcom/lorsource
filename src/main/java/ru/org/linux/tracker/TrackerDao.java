@@ -65,7 +65,7 @@ public class TrackerDao {
           "sections.moderate as smod, " +
           "t.moderate " +
           "FROM topics AS t, groups AS g, sections " +
-          "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postdate > :interval " +
+          "WHERE sections.id=g.section AND not t.expired AND not t.deleted AND not t.draft AND t.postdate > :interval " +
           "%s" + /* user!=null ? queryPartIgnored*/
           " AND t.stat1=0 AND g.id=t.groupid " +
           "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
@@ -87,7 +87,7 @@ public class TrackerDao {
         "sections.moderate as smod, " +
         "t.moderate " +
       "FROM topics AS t, groups AS g, comments, sections " +
-      "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
+      "WHERE g.section=sections.id AND not t.expired  AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
         "AND t.lastmod > :interval " +
         "%s" + /* noUncommited */
@@ -110,7 +110,7 @@ public class TrackerDao {
           "sections.moderate as smod, " +
           "t.moderate " +
       "FROM topics AS t, groups AS g, sections " +
-      "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postdate > :interval " +
+      "WHERE sections.id=g.section AND not t.expired AND not t.deleted AND not t.draft AND t.postdate > :interval " +
           "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
