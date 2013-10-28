@@ -74,12 +74,12 @@
 
 <table class="nav">
   <tr>
-    <c:if test="${topicListRequest.offset > 20}">
+    <c:if test="${offset > 20}">
       <td width="35%" align="left">
-        <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">← назад</a>
+        <a href="${url}?${aparams}offset=${offset-20}">← назад</a>
       </td>
     </c:if>
-    <c:if test="${topicListRequest.offset == 20}">
+    <c:if test="${offset == 20}">
       <td width="35%" align="left">
         <c:if test="${params!=null}">
           <a href="${url}?${params}">← назад</a>
@@ -89,9 +89,9 @@
         </c:if>
       </td>
     </c:if>
-    <c:if test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
+    <c:if test="${offset < 200 && fn:length(messages) == 20}">
       <td align="right" width="35%">
-        <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">вперед →</a>
+        <a href="${url}?${aparams}offset=${offset+20}">вперед →</a>
       </td>
     </c:if>
   </tr>

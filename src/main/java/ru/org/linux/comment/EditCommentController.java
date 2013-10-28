@@ -166,12 +166,11 @@ public class EditCommentController extends ApplicationObjectSupport {
       msg,
       request.getRemoteAddr(),
       request.getHeader("X-Forwarded-For"),
-      user
+      user,
+      originalMessageText
     );
-    searchQueueSender.updateComment(commentRequest.getOriginal().getId());
 
-    commentService.addEditHistoryItem(user, commentRequest.getOriginal(), originalMessageText, comment, msg);
-    commentService.updateLatestEditorInfo(user, commentRequest.getOriginal(), comment);
+    searchQueueSender.updateComment(commentRequest.getOriginal().getId());
 
     String returnUrl =
       "/jump-message.jsp?msgid=" + commentRequest.getTopic().getId() +

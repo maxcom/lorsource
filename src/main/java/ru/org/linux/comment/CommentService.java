@@ -385,7 +385,8 @@ public class CommentService {
     String commentBody,
     String remoteAddress,
     String xForwardedFor,
-    @Nonnull User editor
+    @Nonnull User editor,
+    String originalMessageText
   ) {
     commentDao.edit(oldComment, newComment, commentBody);
 
@@ -407,11 +408,14 @@ public class CommentService {
     }
 
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
-    topicDao.updateLastModifiedToCurrentTime(oldComment.getTopicId());
+    topicDao.updateLastmod(oldComment.getTopicId(), false);
+
+    addEditHistoryItem(editor, oldComment, originalMessageText, newComment, commentBody);
+
+    updateLatestEditorInfo(editor, oldComment, newComment);
 
     String logMessage = makeLogString("Изменён комментарий " + oldComment.getId(), remoteAddress, xForwardedFor);
     logger.info(logMessage);
-
   }
 
   /**
@@ -444,8 +448,7 @@ public class CommentService {
    * @param comment             изменённый комментарий
    * @param messageText         новое содержимое комментария
    */
-  public void addEditHistoryItem(User editor, Comment original, String originalMessageText, Comment comment, String messageText) {
-
+  private void addEditHistoryItem(User editor, Comment original, String originalMessageText, Comment comment, String messageText) {
     EditHistoryDto editHistoryDto = new EditHistoryDto();
     editHistoryDto.setMsgid(original.getId());
     editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
@@ -475,7 +478,7 @@ public class CommentService {
    * @param original оригинал (старый комментарий)
    * @param comment  изменённый комментарий
    */
-  public void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
+  private void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
     List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
 
     commentDao.updateLatestEditorInfo(

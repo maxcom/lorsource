@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 
 @Service
@@ -31,6 +32,9 @@ public class ImageService {
 
   @Autowired
   private EditHistoryService editHistoryService;
+
+  @Autowired
+  private TopicDao topicDao;
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteImage(User editor, Image image) {
@@ -44,5 +48,6 @@ public class ImageService {
     imageDao.deleteImage(image);
 
     editHistoryService.insert(info);
+    topicDao.updateLastmod(image.getTopicId(), false);
   }
 }
