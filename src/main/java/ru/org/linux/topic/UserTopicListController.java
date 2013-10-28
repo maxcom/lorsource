@@ -168,6 +168,8 @@ public class UserTopicListController {
 
     offset = topicListService.fixOffset(offset);
 
+    modelAndView.addObject("offset", offset);
+
     List<Topic> messages = topicListService.getUserTopicsFeed(
       user,
       section,
