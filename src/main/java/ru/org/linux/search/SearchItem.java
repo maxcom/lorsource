@@ -19,6 +19,7 @@ import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.StringUtil;
@@ -38,6 +39,7 @@ public class SearchItem {
   private final String message;
   private final String virtualWiki;
   private final String section;
+  private final String group;
   
   public SearchItem(SearchHit doc, UserDao userDao) {
     msgid = doc.getId();
@@ -60,6 +62,7 @@ public class SearchItem {
     postdate = new Timestamp(ISODateTimeFormat.dateTime().parseDateTime(doc.getFields().get("postdate").<String>getValue()).getMillis());
     topic = doc.getFields().get("topic_id").getValue();
     section = doc.getFields().get("section").getValue();
+    group = doc.getFields().get("group").getValue();
 
     if (doc.getHighlightFields().containsKey("message")) {
       message = doc.getHighlightFields().get("message").fragments()[0].string();
@@ -130,9 +133,13 @@ public class SearchItem {
       }      
     } else {
       if (topic==0 || topic==Integer.valueOf(msgid)) {
-        return "view-message.jsp?msgid="+msgid;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}");
+
+        return builder.buildAndExpand(section, group, topic).toUriString();
       } else {
-        return "jump-message.jsp?msgid="+topic+"&amp;cid="+msgid;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}");
+
+        return builder.buildAndExpand(section, group, topic, msgid).toUriString();
       }
     }
   }
