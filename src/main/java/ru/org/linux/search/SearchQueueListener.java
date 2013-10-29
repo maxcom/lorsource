@@ -233,9 +233,10 @@ public class SearchQueueListener {
     for (Comment comment : comments.getList()) {
       if (comment.isDeleted()) {
         bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
+      } else {
+        String message = extractText(msgbaseDao.getMessageText(comment.getId()));
+        bulkRequest.add(processComment(topic, comment, message));
       }
-      String message = extractText(msgbaseDao.getMessageText(comment.getId()));
-      bulkRequest.add(processComment(topic, comment, message));
     }
 
     executeBulk(bulkRequest);
