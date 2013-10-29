@@ -108,7 +108,10 @@
     <c:forEach items="${result}" var="item">
       <div class="msg">
         <div class="msg_header">
-          <h2><a href="${item.url}"><l:title>${item.title}</l:title></a></h2>
+          <h2>
+            <c:if test="${item.comment}"><i class="icon-comment"></i></c:if>
+            <a href="${item.url}"><l:title>${item.title}</l:title></a>
+          </h2>
         </div>
         <div class="msg_body">
 

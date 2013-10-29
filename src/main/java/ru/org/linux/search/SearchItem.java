@@ -132,7 +132,7 @@ public class SearchItem {
         return "#";
       }      
     } else {
-      if (topic==0 || topic==Integer.valueOf(msgid)) {
+      if (topic==Integer.valueOf(msgid)) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}");
 
         return builder.buildAndExpand(section, group, topic).toUriString();
@@ -142,5 +142,9 @@ public class SearchItem {
         return builder.buildAndExpand(section, group, topic, msgid).toUriString();
       }
     }
+  }
+
+  public boolean isComment() {
+    return !"wiki".equals("section") && topic!=Integer.valueOf(msgid);
   }
 }
