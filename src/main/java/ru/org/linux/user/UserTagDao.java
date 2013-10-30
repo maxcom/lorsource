@@ -17,8 +17,8 @@ package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -33,7 +33,7 @@ import java.util.List;
 
 @Repository
 public class UserTagDao {
-  private static final Log logger = LogFactory.getLog(UserTagDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserTagDao.class);
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired

@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
@@ -43,7 +43,7 @@ import java.util.Random;
 
 @Controller
 public class UserModificationController {
-  private static final Log logger = LogFactory.getLog(UserModificationController.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserModificationController.class);
 
   private SearchQueueSender searchQueueSender;
   private UserDao userDao;
