@@ -406,7 +406,7 @@ public class TopicDao {
 
   public void commit(Topic msg, User commiter) {
     jdbcTemplate.update(
-            "UPDATE topics SET moderate='t', commitby=?, commitdate='now' WHERE id=?",
+            "UPDATE topics SET moderate='t', commitby=?, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=?",
             commiter.getId(),
             msg.getId()
     );
@@ -414,7 +414,7 @@ public class TopicDao {
 
   public void publish(Topic msg) {
     jdbcTemplate.update(
-            "UPDATE topics SET draft='f',postdate='now' WHERE id=? AND draft",
+            "UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=? AND draft",
             msg.getId()
     );
   }
