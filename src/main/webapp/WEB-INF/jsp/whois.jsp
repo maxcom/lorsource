@@ -167,7 +167,7 @@
 </c:if>
 <c:if test="${moderatorOrCurrentUser && fn:length(ignoreTags)>0}">
     <b>Игнорированные теги:</b>
-    <c:forEach var="tagName" items="${ignoreTags}">
+    <c:forEach var="tagName" items="${ignoreTags}" varStatus="status">
         <spring:url value="/tag/{tag}" var="tagLink">
             <spring:param name="tag" value="${tagName}"/>
         </spring:url>
