@@ -265,7 +265,7 @@ public class TopicService {
   )  {
     boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText);
 
-    if (!newMsg.isDraft()) {
+    if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());
 
       if (section.isPremoderated() && !oldMsg.isCommited() && !commit) {

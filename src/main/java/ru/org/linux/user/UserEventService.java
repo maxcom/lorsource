@@ -16,8 +16,8 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,7 +39,7 @@ import static ru.org.linux.user.UserEventFilterEnum.*;
 
 @Service
 public class UserEventService {
-  private static final Log logger = LogFactory.getLog(UserEventService.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserEventService.class);
 
   @Autowired
   private LorCodeService lorCodeService;
