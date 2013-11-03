@@ -15,6 +15,7 @@
 
 package ru.org.linux.search;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
@@ -126,7 +127,7 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query);
 
-      if (query.getSection()==null) {
+      if (Strings.isNullOrEmpty(query.getSection())) {
         query.setGroup(null);
       }
 
