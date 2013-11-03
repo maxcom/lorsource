@@ -15,6 +15,7 @@
 
 package ru.org.linux.search;
 
+import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -23,11 +24,14 @@ import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class SearchViewer {
+  private static final Logger logger = LoggerFactory.getLogger(SearchViewer.class);
 
   public static final int MESSAGE_FRAGMENT = 250;
 
@@ -117,6 +121,30 @@ public class SearchViewer {
     this.query = query;
   }
 
+  private QueryBuilder processQueryString(Client client, String queryText) {
+    QueryStringQueryBuilder esQuery = queryString(queryText);
+    esQuery.lenient(true);
+
+    ValidateQueryResponse response = client
+            .admin()
+            .indices()
+            .prepareValidateQuery(SearchQueueListener.MESSAGES_INDEX)
+            .setTypes(SearchQueueListener.MESSAGES_TYPE)
+            .setQuery(esQuery)
+            .execute()
+            .actionGet();
+
+    if (response.isValid()) {
+      return esQuery;
+    } else {
+      String fixedText = queryText.replaceAll("((?:\\[)|(?:]))", "\\\\$1");
+      logger.info("Rewitter '{}' to '{}'", queryText, fixedText);
+      QueryStringQueryBuilder fixedQuery = queryString(fixedText);
+      fixedQuery.lenient(true);
+      return fixedQuery;
+    }
+  }
+
   public SearchResponse performSearch(Client client) {
     SearchRequestBuilder request = client.prepareSearch(SearchQueueListener.MESSAGES_INDEX);
 
@@ -124,8 +152,7 @@ public class SearchViewer {
 
     request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "message", "group");
 
-    QueryStringQueryBuilder esQuery = queryString(this.query.getQ());
-    esQuery.lenient(true);
+    QueryBuilder esQuery = processQueryString(client, this.query.getQ());
 
     request.setSize(SEARCH_ROWS);
     request.setFrom(this.query.getOffset());
