@@ -62,7 +62,6 @@
         <property name="exceptionMappings">
             <props>
                 <prop key="ru.org.linux.site.MessageNotFoundException">errors/code404</prop>
-                <prop key="ru.org.linux.section.SectionNotFoundException">errors/code404</prop>
                 <prop key="org.springframework.web.bind.UnsatisfiedServletRequestParameterException">errors/code404</prop>
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">errors/code404</prop>
                 <prop key="ru.org.linux.auth.AccessViolationException">errors/code403</prop>
