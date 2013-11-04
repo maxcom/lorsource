@@ -122,7 +122,9 @@ public class SearchViewer {
   }
 
   private QueryBuilder processQueryString(Client client, String queryText) {
-    QueryStringQueryBuilder esQuery = queryString(queryText);
+    String fixedText = queryText.replaceAll("((?:\\[)|(?:])|(?:[\\\\/]))", "\\\\$1");
+
+    QueryStringQueryBuilder esQuery = queryString(fixedText);
     esQuery.lenient(true);
 
     ValidateQueryResponse response = client
@@ -137,10 +139,9 @@ public class SearchViewer {
     if (response.isValid()) {
       return esQuery;
     } else {
-      String fixedText = queryText.replaceAll("((?:\\[)|(?:]))", "\\\\$1");
-      logger.info("Rewitter '{}' to '{}'", queryText, fixedText);
-      QueryStringQueryBuilder fixedQuery = queryString(fixedText);
-      fixedQuery.lenient(true);
+      logger.info("Invalid query '{}', using converting to phrase", queryText);
+      MatchQueryBuilder fixedQuery = matchPhraseQuery("_all", queryText);
+      fixedQuery.setLenient(true);
       return fixedQuery;
     }
   }
