@@ -20,6 +20,8 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
@@ -28,12 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
 
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class SearchViewer {
   private static final Logger logger = LoggerFactory.getLogger(SearchViewer.class);
 
   public static final int MESSAGE_FRAGMENT = 250;
+
+  private static final int TOPIC_BOOST = 3;
 
   public enum SearchRange {
     ALL(null, "темы и комментарии"),
@@ -146,6 +151,14 @@ public class SearchViewer {
     }
   }
 
+  private QueryBuilder boost(QueryBuilder query) {
+    FunctionScoreQueryBuilder booster = functionScoreQuery(query);
+
+    booster.add(termFilter("is_comment", "false"), ScoreFunctionBuilders.factorFunction(TOPIC_BOOST));
+
+    return booster;
+  }
+
   public SearchResponse performSearch(Client client) {
     SearchRequestBuilder request = client.prepareSearch(SearchQueueListener.MESSAGES_INDEX);
 
@@ -182,12 +195,12 @@ public class SearchViewer {
       }
     }
 
-    request.setQuery(rootQuery);
+    request.setQuery(boost(rootQuery));
 
     String section = this.query.getSection();
 
     if (section != null && !section.isEmpty()){
-      request.setFilter(FilterBuilders.termFilter("section", this.query.getSection()));
+      request.setFilter(termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
@@ -195,14 +208,14 @@ public class SearchViewer {
     TermsFacetBuilder groupFacet = FacetBuilders.termsFacet("groups").field("group");
 
     if (section != null && !section.isEmpty()) {
-      groupFacet.facetFilter(FilterBuilders.termFilter("section", this.query.getSection()));
+      groupFacet.facetFilter(termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(groupFacet);
 
     if (this.query.getGroup()!=null) {
       // overrides section filter!
-      request.setFilter(FilterBuilders.termFilter("group", this.query.getGroup()));
+      request.setFilter(termFilter("group", this.query.getGroup()));
     }
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);
