@@ -529,7 +529,7 @@ public class TopicListController {
     return navTitle.toString();
   }
 
-  @ExceptionHandler(GroupNotFoundException.class)
+  @ExceptionHandler({GroupNotFoundException.class, SectionNotFoundException.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ModelAndView handleNotFoundException() {
     return new ModelAndView("errors/code404");

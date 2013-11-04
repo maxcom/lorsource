@@ -30,7 +30,6 @@ import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
 import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.BadInputException;
@@ -497,11 +496,5 @@ public class TopicController {
     } else {
       return new ModelAndView("errors/code404");
     }
-  }
-
-  @ExceptionHandler(SectionNotFoundException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleSectionNotFoundException(SectionNotFoundException ex) {
-    return new ModelAndView("errors/code404");
   }
 }
