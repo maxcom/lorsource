@@ -40,9 +40,12 @@ public class SearchItem {
   private final String virtualWiki;
   private final String section;
   private final String group;
+  private final float score;
   
   public SearchItem(SearchHit doc, UserDao userDao) {
     msgid = doc.getId();
+
+    score = doc.getScore();
 
     if (doc.getHighlightFields().containsKey("title")) {
       title = doc.getHighlightFields().get("title").fragments()[0].string();
@@ -146,5 +149,9 @@ public class SearchItem {
 
   public boolean isComment() {
     return !"wiki".equals("section") && topic!=Integer.valueOf(msgid);
+  }
+
+  public float getScore() {
+    return score;
   }
 }

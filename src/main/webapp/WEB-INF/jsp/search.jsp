@@ -121,6 +121,8 @@
             <lor:sign postdate="${item.postdate}" shortMode="false"
                       user="${item.user}"/>
           </div>
+
+          <c:if test="${param.debug}"><div>Rank: ${item.score}</div></c:if>
         </div>
       </div>
     </c:forEach>
