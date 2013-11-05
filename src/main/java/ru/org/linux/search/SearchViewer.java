@@ -164,7 +164,7 @@ public class SearchViewer {
 
     request.setTypes(SearchQueueListener.MESSAGES_TYPE);
 
-    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "group");
+    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "message", "group");
 
     QueryBuilder esQuery = processQueryString(client, this.query.getQ());
 
