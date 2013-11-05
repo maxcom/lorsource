@@ -164,7 +164,7 @@ public class SearchViewer {
 
     request.setTypes(SearchQueueListener.MESSAGES_TYPE);
 
-    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "message", "group");
+    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "group");
 
     QueryBuilder esQuery = processQueryString(client, this.query.getQ());
 
@@ -240,6 +240,7 @@ public class SearchViewer {
     HighlightBuilder.Field message = new HighlightBuilder.Field("message");
     message.numOfFragments(1);
     message.fragmentSize(MESSAGE_FRAGMENT);
+    message.noMatchSize(MESSAGE_FRAGMENT);
     request.addHighlightedField(message);
 
     request.setHighlighterEncoder("html");

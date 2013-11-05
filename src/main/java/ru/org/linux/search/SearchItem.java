@@ -67,17 +67,7 @@ public class SearchItem {
     section = doc.getFields().get("section").getValue();
     group = doc.getFields().get("group").getValue();
 
-    if (doc.getHighlightFields().containsKey("message")) {
-      message = doc.getHighlightFields().get("message").fragments()[0].string();
-    } else {
-      String fullMessage = doc.getFields().get("message").getValue();
-
-      if (fullMessage.length()>SearchViewer.MESSAGE_FRAGMENT) {
-        message = fullMessage.substring(0, SearchViewer.MESSAGE_FRAGMENT);
-      } else {
-        message = fullMessage;
-      }
-    }
+    message = doc.getHighlightFields().get("message").fragments()[0].string();
 
     if(!"wiki".equals(section)) {
       virtualWiki = null;
