@@ -67,10 +67,10 @@ public class SearchViewer {
   }
 
   public enum SearchInterval {
-    MONTH("[NOW-1MONTH TO NOW]", "месяц"),
-    THREE_MONTH("[NOW-3MONTH TO NOW]", "три месяца"),
-    YEAR("[NOW-1YEAR TO NOW]", "год"),
-    THREE_YEAR("[NOW-3YEAR TO NOW]", "три года"),
+    MONTH("now-1M", "месяц"),
+    THREE_MONTH("now-3M", "три месяца"),
+    YEAR("now-1y", "год"),
+    THREE_YEAR("now-3y", "три года"),
     ALL(null, "весь период");
 
     private final String range;
@@ -183,6 +183,8 @@ public class SearchViewer {
       RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(query.getInterval().getColumn());
 
       rangeQuery.from(this.query.getInterval().getRange());
+
+      rootQuery.must(rangeQuery);
     }
 
     if (this.query.getUser() != null) {
