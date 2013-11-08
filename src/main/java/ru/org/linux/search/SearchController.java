@@ -15,15 +15,15 @@
 
 package ru.org.linux.search;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,16 +38,13 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchViewer.SearchInterval;
 import ru.org.linux.search.SearchViewer.SearchOrder;
 import ru.org.linux.search.SearchViewer.SearchRange;
-import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.bbcode.LorCodeService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,20 +52,13 @@ import java.util.Map;
 
 @Controller
 public class SearchController {
-  private SolrServer solrServer;
   @Autowired
   private SectionService sectionService;
   private UserDao userDao;
   private GroupDao groupDao;
-  private LorCodeService lorCodeService;
-  
-  @Autowired
-  private MsgbaseDao msgbaseDao;
 
   @Autowired
-  public void setSolrServer(SolrServer solrServer) {
-    this.solrServer = solrServer;
-  }
+  private Client client;
 
   @Autowired
   public void setUserDao(UserDao userDao) {
@@ -78,11 +68,6 @@ public class SearchController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
   }
 
   @ModelAttribute("sorts")
@@ -120,7 +105,6 @@ public class SearchController {
 
   @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
-          HttpServletRequest request,
           Model model,
           @ModelAttribute("query") SearchRequest query,
           BindingResult bindingResult
@@ -132,7 +116,7 @@ public class SearchController {
     if (!initial && !bindingResult.hasErrors()) {
       if (!query.getQ().equals(query.getOldQ())) {
         query.setSection(null);
-        query.setGroup(0);
+        query.setGroup(null);
       }
 
       query.setOldQ(query.getQ());
@@ -143,48 +127,55 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query);
 
-      if (query.getGroup() != 0) {
-        Group group = groupDao.getGroup(query.getGroup());
+      if (Strings.isNullOrEmpty(query.getSection())) {
+        query.setGroup(null);
+      }
 
-        if ("wiki".equals(query.getSection()) || group.getSectionId() != Integer.valueOf(query.getSection())) {
-          query.setGroup(0);
+      if (query.getGroup() != null) {
+        Section section = sectionService.getSectionByName(query.getSection());
+
+        Group group = groupDao.getGroupOrNull(section, query.getGroup());
+
+        if (group==null) {
+          query.setGroup(null);
         }
       }
 
-      QueryResponse response = sv.performSearch(solrServer);
+      SearchResponse response = sv.performSearch(client);
 
       long current = System.currentTimeMillis();
 
-      SolrDocumentList list = response.getResults();
-      Collection<SearchItem> res = new ArrayList<>(list.size());
+      SearchHits hits = response.getHits();
 
-      for (SolrDocument doc : list) {
-        res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
+      Collection<SearchItem> res = new ArrayList<>(hits.hits().length);
+
+      for (SearchHit doc : hits) {
+        res.add(new SearchItem(doc, userDao));
       }
 
-      FacetField sectionFacet = response.getFacetField("section");
+      if (response.getFacets() != null) {
+        TermsFacet sectionFacet = (TermsFacet) response.getFacets().facetsAsMap().get("sections");
 
-      if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
-        params.put("sectionFacet", buildSectionFacet(sectionFacet));
-      } else if (sectionFacet != null && sectionFacet.getValueCount() == 1) {
-        Count first = sectionFacet.getValues().get(0);
+        if (sectionFacet != null && sectionFacet.getEntries().size() > 1) {
+          params.put("sectionFacet", buildSectionFacet(sectionFacet));
+        } else if (sectionFacet!=null && sectionFacet.getEntries().size() == 1) {
+          query.setSection(sectionFacet.getEntries().get(0).getTerm().toString());
+        }
 
-        query.setSection(first.getName());
-      }
+        TermsFacet groupFacet = (TermsFacet) response.getFacets().facetsAsMap().get("groups");
 
-      FacetField groupFacet = response.getFacetField("group_id");
-
-      if (groupFacet != null && groupFacet.getValueCount() > 1) {
-        params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
+        if (groupFacet != null && groupFacet.getEntries().size() > 1) {
+          params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
+        }
       }
 
       long time = System.currentTimeMillis() - current;
 
       params.put("result", res);
-      params.put("searchTime", response.getElapsedTime());
-      params.put("numFound", list.getNumFound());
+      params.put("searchTime", response.getTookInMillis());
+      params.put("numFound", response.getHits().getTotalHits());
 
-      if (list.getNumFound() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
+      if (response.getHits().getTotalHits() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
         params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SEARCH_ROWS));
       }
 
@@ -198,59 +189,50 @@ public class SearchController {
     return "search";
   }
 
-  private Map<String, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
+
+  private Map<String, String> buildSectionFacet(TermsFacet sectionFacet) {
     Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
 
-    int totalCount = 0;
-
-    for (Count count : sectionFacet.getValues()) {
-      if("wiki".equals(count.getName())) {
-        builder.put(count.getName(), count.getName() + " (" + count.getCount() + ')');
+    for (TermsFacet.Entry entry : sectionFacet) {
+      if("wiki".equals(entry.getTerm())) {
+        builder.put(entry.getTerm().string(), entry.getTerm() + " (" + entry.getCount() + ')');
       } else {
-        int sectionId = Integer.parseInt(count.getName());
-        String name = sectionService.getSection(sectionId).getName().toLowerCase();
-        builder.put(count.getName(), name + " (" + count.getCount() + ')');
+        String urlName = entry.getTerm().string();
+        String name = sectionService.getSectionByName(urlName).getName().toLowerCase();
+        builder.put(entry.getTerm().string(), name + " (" + entry.getCount() + ')');
       }
-
-      totalCount += count.getCount();
     }
 
-    builder.put("0", "все (" + Integer.toString(totalCount) + ')');
+    builder.put("", "все (" + Long.toString(sectionFacet.getTotalCount()) + ')');
 
     return builder.build();
   }
 
-  private Map<Integer, String> buildGroupFacet(String section, FacetField groupFacet) {
-    Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
-    if (section == null || section.isEmpty() || "wiki".equals(section)) {
+  private Map<String, String> buildGroupFacet(String sectionName, TermsFacet groupFacet) {
+    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
+    if (sectionName == null || sectionName.isEmpty() || "wiki".equals(sectionName)) {
       return null;
     }
 
-    int totalCount = 0;
+    Section section = sectionService.getSectionByName(sectionName);
 
-    for (Count count : groupFacet.getValues()) {
-      if("0".equals(count.getName())) {
+    for (TermsFacet.Entry entry : groupFacet) {
+      if("0".equals(entry.getTerm().toString())) {
         continue;
       }
 
-      int groupId = Integer.parseInt(count.getName());
+      String groupUrlName = entry.getTerm().toString();
 
-      Group group = groupDao.getGroup(groupId);
-
-      if (group.getSectionId() != Integer.valueOf(section)) {
-        continue;
-      }
+      Group group = groupDao.getGroup(section, groupUrlName);
 
       String name = group.getTitle().toLowerCase();
 
-      builder.put(groupId, name + " (" + count.getCount() + ')');
-
-      totalCount += count.getCount();
+      builder.put(groupUrlName, name + " (" + entry.getCount() + ')');
     }
 
-    builder.put(0, "все (" + Integer.toString(totalCount) + ')');
+    builder.put("", "все (" + Long.toString(groupFacet.getTotalCount()) + ')');
 
-    ImmutableMap<Integer, String> r = builder.build();
+    ImmutableMap<String, String> r = builder.build();
 
     if (r.size() <= 2) {
       return null;

@@ -15,6 +15,8 @@
 
 package ru.org.linux.group;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +28,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +38,8 @@ import java.util.List;
 
 @Repository
 public class GroupDao {
+  private final static Logger logger = LoggerFactory.getLogger(GroupDao.class);
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -94,7 +100,27 @@ public class GroupDao {
    * @return объект группы
    * @throws GroupNotFoundException если группа не существует
    */
+  @Nonnull
   public Group getGroup(Section section, String name) throws GroupNotFoundException {
+    Group group = getGroupOrNull(section, name);
+
+    if (group==null) {
+      logger.info("Group '{}' not found in section {}", name, section.getUrlName());
+      throw new GroupNotFoundException("group not found");
+    }
+
+    return group;
+  }
+
+  /**
+   * Получить объект группы в указанной секции по имени группы.
+   *
+   * @param section объект секции.
+   * @param name    имя группы
+   * @return объект группы
+   */
+  @Nullable
+  public Group getGroupOrNull(Section section, String name) {
     try {
       int id = jdbcTemplate.queryForObject(
               "SELECT id FROM groups WHERE section=? AND urlname=?",
@@ -105,7 +131,8 @@ public class GroupDao {
 
       return getGroup(id);
     } catch (EmptyResultDataAccessException ex) {
-      throw new GroupNotFoundException("group not found");
+      logger.debug("Group '{}' not found in section {}", name, section.getUrlName());
+      return null;
     }
   }
 

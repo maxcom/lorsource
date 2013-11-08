@@ -15,18 +15,16 @@
 
 package ru.org.linux.search;
 
-import org.apache.solr.common.SolrDocument;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 import static ru.org.linux.util.URLUtil.buildWikiURL;
 
@@ -41,26 +39,48 @@ public class SearchItem {
   private final String message;
   private final String virtualWiki;
   private final String section;
+  private final String group;
+  private final float score;
   
-  public SearchItem(SolrDocument doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
-    msgid = (String) doc.getFieldValue("id");
-    title = (String) doc.getFieldValue("title");
-    topicTitle = (String) doc.getFieldValue("topic_title");
-    int userid = (Integer) doc.getFieldValue("user_id");
-    Date postdate_dt = (Date) doc.getFieldValue("postdate");
-    postdate = new Timestamp(postdate_dt.getTime());
-    topic = (Integer) doc.getFieldValue("topic_id");
-    section = (String) doc.getFieldValue("section");
+  public SearchItem(SearchHit doc, UserDao userDao) {
+    msgid = doc.getId();
+
+    score = doc.getScore();
+
+    if (doc.getHighlightFields().containsKey("title")) {
+      title = doc.getHighlightFields().get("title").fragments()[0].string();
+    } else if (doc.getFields().containsKey("title")) {
+      title = StringUtil.escapeHtml(doc.getFields().get("title").<String>getValue());
+    } else {
+      title = null;
+    }
+
+    if (doc.getHighlightFields().containsKey("topic_title")) {
+      topicTitle = doc.getHighlightFields().get("topic_title").fragments()[0].string();
+    } else {
+      topicTitle = StringUtil.escapeHtml(doc.getFields().get("topic_title").<String>getValue());
+    }
+
+    String author = doc.getFields().get("author").getValue();
+    postdate = new Timestamp(ISODateTimeFormat.dateTime().parseDateTime(doc.getFields().get("postdate").<String>getValue()).getMillis());
+    topic = doc.getFields().get("topic_id").getValue();
+    section = doc.getFields().get("section").getValue();
+    group = doc.getFields().get("group").getValue();
+
+    if (doc.getHighlightFields().containsKey("message")) {
+      message = doc.getHighlightFields().get("message").fragments()[0].string();
+    } else {
+      String fullMessage = doc.getFields().get("message").getValue();
+
+      if (fullMessage.length()>SearchViewer.MESSAGE_FRAGMENT) {
+        message = fullMessage.substring(0, SearchViewer.MESSAGE_FRAGMENT);
+      } else {
+        message = fullMessage;
+      }
+    }
 
     if(!"wiki".equals(section)) {
       virtualWiki = null;
-      MessageText messageText = msgbaseDao.getMessageText(Integer.valueOf(msgid));
-      String rawMessage = messageText.getText();
-      if (messageText.isLorcode()) {
-        message = lorCodeService.parseComment(rawMessage, secure, false);
-      } else {
-        message = rawMessage;
-      }
     } else {
       // Wiki id like <virtual_wiki>-<topic_id>
       String[] msgIds = msgid.split("-");
@@ -68,17 +88,10 @@ public class SearchItem {
         throw new RuntimeException("Invalid wiki ID");
       }
       
-      String content = msgbaseDao.getMessageTextFromWiki(Integer.valueOf(msgIds[1]));      
-      String msg = StringUtil.escapeHtml(content.substring(0, Math.min(1300, content.length())));
-      if(Math.min(1300, content.length()) == 1300) {
-        message = msg + "...";
-      } else {
-        message = msg;
-      }
       virtualWiki = msgIds[0];
     }
 
-    user = userDao.getUserCached(userid);
+    user = userDao.getUser(author);
   }
 
   public int getMsgid() {
@@ -122,11 +135,23 @@ public class SearchItem {
         return "#";
       }      
     } else {
-      if (topic==0 || topic==Integer.valueOf(msgid)) {
-        return "view-message.jsp?msgid="+msgid;
+      if (topic==Integer.valueOf(msgid)) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}");
+
+        return builder.buildAndExpand(section, group, topic).toUriString();
       } else {
-        return "jump-message.jsp?msgid="+topic+"&amp;cid="+msgid;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}");
+
+        return builder.buildAndExpand(section, group, topic, msgid).toUriString();
       }
     }
+  }
+
+  public boolean isComment() {
+    return !"wiki".equals("section") && topic!=Integer.valueOf(msgid);
+  }
+
+  public float getScore() {
+    return score;
   }
 }

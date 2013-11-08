@@ -16,6 +16,7 @@
         <spring.security.version>3.1.4.RELEASE</spring.security.version>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
         <jdbc.postgresql.version>9.2-1002-jdbc4</jdbc.postgresql.version>
+      <es.version>0.90.6</es.version>
     </properties>
 
     <dependencies>
@@ -173,22 +174,12 @@
       	<artifactId>spymemcached</artifactId>
       	<version>2.10.0</version>
       </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>3.5.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>${es.version}</version>
+      </dependency>
+      <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
@@ -301,6 +292,12 @@
             <version>${spring.security.version}</version>
         </dependency>
 
+      <dependency>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>3.1</version>
+      </dependency>
+
         <dependency>
         	<groupId>com.sun.jersey</groupId>
         	<artifactId>jersey-client</artifactId>
@@ -319,7 +316,6 @@
           <groupId>org.jsoup</groupId>
           <artifactId>jsoup</artifactId>
           <version>1.7.1</version>
-          <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -670,11 +666,6 @@
 
                             <contextHandlers>
                                 <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                                    <war>${project.build.directory}/test-wars/solr.war</war>
-                                    <contextPath>/solr</contextPath>
-                                </contextHandler>
-
-                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
                                     <war>${project.build.directory}/test-wars/wiki.war</war>
                                     <contextPath>/wiki</contextPath>
                                     <extraClasspath>${project.build.directory}/test-classes;${project.build.directory}/test-wars/postgresql.jar</extraClasspath>
@@ -685,10 +676,6 @@
                                 <systemProperty>
                                     <name>java.net.preferIPv4Stack</name>
                                     <value>true</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <name>solr.solr.home</name>
-                                    <value>target/test-classes/solr</value>
                                 </systemProperty>
                             </systemProperties>
 
@@ -725,7 +712,7 @@
         </profile>
 
         <profile>
-            <id>test with jamwiki and solr</id>
+            <id>test with jamwiki</id>
             <activation>
                 <property>
                     <name>!env.TRAVIS</name>
@@ -754,15 +741,6 @@
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
                                             <destFileName>wiki.war</destFileName>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.apache.solr</groupId>
-                                            <artifactId>solr</artifactId>
-                                            <version>3.5.0</version>
-                                            <type>war</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                            <destFileName>solr.war</destFileName>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.postgresql</groupId>

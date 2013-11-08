@@ -15,17 +15,35 @@
 
 package ru.org.linux.search;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
+import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.facet.FacetBuilders;
+import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
+import org.elasticsearch.search.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
 
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 public class SearchViewer {
+  private static final Logger logger = LoggerFactory.getLogger(SearchViewer.class);
+
+  public static final int MESSAGE_FRAGMENT = 250;
+
+  private static final int TOPIC_BOOST = 3;
+
   public enum SearchRange {
     ALL(null, "темы и комментарии"),
-    TOPICS("is_comment:false", "только темы"),
-    COMMENTS("is_comment:true", "только комментарии");
+    TOPICS("false", "только темы"),
+    COMMENTS("true", "только комментарии");
 
     private final String param;
     private final String title;
@@ -35,8 +53,12 @@ public class SearchViewer {
       this.title = title;
     }
 
-    private String getParam() {
+    private String getValue() {
       return param;
+    }
+
+    private String getColumn() {
+      return "is_comment";
     }
 
     public String getTitle() {
@@ -45,10 +67,10 @@ public class SearchViewer {
   }
 
   public enum SearchInterval {
-    MONTH("postdate:[NOW-1MONTH TO NOW]", "месяц"),
-    THREE_MONTH("postdate:[NOW-3MONTH TO NOW]", "три месяца"),
-    YEAR("postdate:[NOW-1YEAR TO NOW]", "год"),
-    THREE_YEAR("postdate:[NOW-3YEAR TO NOW]", "три года"),
+    MONTH("now-1M", "месяц"),
+    THREE_MONTH("now-3M", "три месяца"),
+    YEAR("now-1y", "год"),
+    THREE_YEAR("now-3y", "три года"),
     ALL(null, "весь период");
 
     private final String range;
@@ -66,26 +88,32 @@ public class SearchViewer {
     public String getTitle() {
       return title;
     }
+
+    private String getColumn() {
+      return "postdate";
+    }
   }
 
   public enum SearchOrder {
-    RELEVANCE("по релевантности", "score desc"),
-    DATE("по дате: от новых к старым", "postdate desc"),
-    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate asc");
+    RELEVANCE("по релевантности", "_score", SortOrder.DESC),
+    DATE("по дате: от новых к старым", "postdate", SortOrder.DESC),
+    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate", SortOrder.ASC);
 
     private final String name;
     private final String param;
+    private final SortOrder order;
 
-    SearchOrder(String name, String param) {
+    SearchOrder(String name, String param, SortOrder order) {
       this.name = name;
       this.param = param;
+      this.order = order;
     }
 
     public String getName() {
       return name;
     }
 
-    private String getParam() {
+    private String getColumn() {
       return param;
     }
   }
@@ -98,54 +126,125 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public QueryResponse performSearch(SolrServer search) throws SolrServerException {
-    SolrQuery params = new SolrQuery();
-    // set search query params
-    params.set("q", query.getQ());
-    params.set("rows", SEARCH_ROWS);
-    params.set("start", query.getOffset());
+  private QueryBuilder processQueryString(Client client, String queryText) {
+    String fixedText = queryText.replaceAll("((?:\\[)|(?:])|(?:[\\\\/]))", "\\\\$1");
 
-    params.set("qt", "edismax");
+    QueryStringQueryBuilder esQuery = queryString(fixedText);
+    esQuery.lenient(true);
 
-    if (query.getRange().getParam()!=null) {
-      params.add("fq", query.getRange().getParam());
-    }
+    ValidateQueryResponse response = client
+            .admin()
+            .indices()
+            .prepareValidateQuery(SearchQueueListener.MESSAGES_INDEX)
+            .setTypes(SearchQueueListener.MESSAGES_TYPE)
+            .setQuery(esQuery)
+            .execute()
+            .actionGet();
 
-    if (query.getInterval().getRange()!=null) {
-      params.add("fq", query.getInterval().getRange());
-    }
-
-    params.setFacetMinCount(1);
-    params.setFacet(true);
-    
-    String section = query.getSection();
-
-    if (section != null && !section.isEmpty() && !"0".equals(section)){
-      params.add("fq", "{!tag=dt}section:"+query.getSection());
-      params.addFacetField("{!ex=dt}section");
-
-      params.addFacetField("{!ex=dt}group_id");
+    if (response.isValid()) {
+      return esQuery;
     } else {
-      params.addFacetField("section");
-      params.addFacetField("group_id");
+      logger.info("Invalid query '{}', using converting to phrase", queryText);
+      MatchQueryBuilder fixedQuery = matchPhraseQuery("_all", queryText);
+      fixedQuery.setLenient(true);
+      return fixedQuery;
+    }
+  }
+
+  private QueryBuilder boost(QueryBuilder query) {
+    FunctionScoreQueryBuilder booster = functionScoreQuery(query);
+
+    booster.add(termFilter("is_comment", "false"), ScoreFunctionBuilders.factorFunction(TOPIC_BOOST));
+
+    return booster;
+  }
+
+  public SearchResponse performSearch(Client client) {
+    SearchRequestBuilder request = client.prepareSearch(SearchQueueListener.MESSAGES_INDEX);
+
+    request.setTypes(SearchQueueListener.MESSAGES_TYPE);
+
+    request.addFields("title", "topic_title", "author", "postdate", "topic_id", "section", "message", "group");
+
+    QueryBuilder esQuery = processQueryString(client, this.query.getQ());
+
+    request.setSize(SEARCH_ROWS);
+    request.setFrom(this.query.getOffset());
+
+    BoolQueryBuilder rootQuery = boolQuery();
+
+    rootQuery.must(esQuery);
+
+    if (this.query.getRange().getValue()!=null) {
+      rootQuery.must(termQuery(query.getRange().getColumn(), query.getRange().getValue()));
     }
 
-    if (query.getUser() != null) {
-      User user = query.getUser();
+    if (this.query.getInterval().getRange()!=null) {
+      RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(query.getInterval().getColumn());
 
-      if (query.isUsertopic()) {
-        params.add("fq", "topic_user_id:" + user.getId());
+      rangeQuery.from(this.query.getInterval().getRange());
+
+      rootQuery.must(rangeQuery);
+    }
+
+    if (this.query.getUser() != null) {
+      User user = this.query.getUser();
+
+      if (this.query.isUsertopic()) {
+        rootQuery.must(termQuery("topic_author", user.getNick()));
       } else {
-        params.add("fq", "user_id:" + user.getId());
+        rootQuery.must(termQuery("author", user.getNick()));
       }
     }
 
-    if (query.getGroup()!=0) {
-      params.add("fq", "{!tag=dt}group_id:" + query.getGroup());
+    request.setQuery(boost(rootQuery));
+
+    String section = this.query.getSection();
+
+    if (section != null && !section.isEmpty()){
+      request.setFilter(termFilter("section", this.query.getSection()));
     }
 
-    params.set("sort", query.getSort().getParam());
+    request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
 
-    return search.query(params);
+    TermsFacetBuilder groupFacet = FacetBuilders.termsFacet("groups").field("group");
+
+    if (section != null && !section.isEmpty()) {
+      groupFacet.facetFilter(termFilter("section", this.query.getSection()));
+    }
+
+    request.addFacet(groupFacet);
+
+    if (this.query.getGroup()!=null) {
+      // overrides section filter!
+      request.setFilter(termFilter("group", this.query.getGroup()));
+    }
+
+    request.addSort(query.getSort().getColumn(), query.getSort().order);
+
+    setupHighlight(request);
+
+    // TODO use Async
+    return request.execute().actionGet();
+  }
+
+  private void setupHighlight(SearchRequestBuilder request) {
+    HighlightBuilder.Field title = new HighlightBuilder.Field("title");
+    title.numOfFragments(0);
+    request.addHighlightedField(title);
+
+    HighlightBuilder.Field topicTitle = new HighlightBuilder.Field("topic_title");
+    topicTitle.numOfFragments(0);
+    request.addHighlightedField(topicTitle);
+
+    HighlightBuilder.Field message = new HighlightBuilder.Field("message");
+    message.numOfFragments(1);
+    message.fragmentSize(MESSAGE_FRAGMENT);
+    message.noMatchSize(MESSAGE_FRAGMENT);
+    request.addHighlightedField(message);
+
+    request.setHighlighterEncoder("html");
+    request.setHighlighterPreTags("<em class=search-hl>");
+    request.setHighlighterPostTags("</em>");
   }
 }

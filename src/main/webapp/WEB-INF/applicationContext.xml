@@ -119,25 +119,6 @@
     <bean id="httpConnectionManager" destroy-method="shutdownAll"
           class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
 
-    <bean id="httpClient" class="ru.org.linux.search.SearchHttpClientFactoryBean">
-        <property name="connectionManager" ref="httpConnectionManager"/>
-        <property name="username" value="${solr.username}"/>
-        <property name="password" value="${solr.password}"/>
-        <property name="host" value="${solr.host}"/>
-        <property name="port" value="${solr.port}"/>
-    </bean>
-
-    <bean id="solr" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
-        <constructor-arg type="java.lang.String" value="${solr.url}"/>
-        <constructor-arg ref="httpClient"/>
-
-        <property name="requestWriter">
-            <bean id="binaryRequestWriter"
-                  class="org.apache.solr.client.solrj.impl.BinaryRequestWriter"/>
-        </property>
-        <property name="maxRetries" value="1"/>
-    </bean>
-
     <bean id="messageListener"
           class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
         <constructor-arg ref="searchQueueListener"/>

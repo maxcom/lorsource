@@ -33,7 +33,7 @@ public class SearchRequest {
   private User user=null;
   private String section = null;
   private SearchOrder sort = SearchOrder.RELEVANCE;
-  private int group = 0;
+  private String group;
   private SearchInterval interval = SearchInterval.ALL;
   private SearchRange range = SearchRange.ALL;
   private int offset = 0;
@@ -90,11 +90,11 @@ public class SearchRequest {
     this.oldQ = oldQ;
   }
 
-  public int getGroup() {
+  public String getGroup() {
     return group;
   }
 
-  public void setGroup(int group) {
+  public void setGroup(String group) {
     this.group = group;
   }
 
@@ -154,8 +154,8 @@ public class SearchRequest {
       params.put("section", section);
     }
 
-    if (group!=0) {
-      params.put("group", Integer.toString(group));
+    if (group!=null) {
+      params.put("group", group);
     }
 
     if (newOffset!=0) {
