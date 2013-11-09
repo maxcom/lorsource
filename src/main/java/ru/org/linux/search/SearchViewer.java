@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
 
+import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
 import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -39,6 +40,7 @@ public class SearchViewer {
   public static final int MESSAGE_FRAGMENT = 250;
 
   private static final int TOPIC_BOOST = 3;
+  private static final int RECENT_BOOST = 2;
 
   public enum SearchRange {
     ALL(null, "темы и комментарии"),
@@ -155,6 +157,7 @@ public class SearchViewer {
     FunctionScoreQueryBuilder booster = functionScoreQuery(query);
 
     booster.add(termFilter("is_comment", "false"), ScoreFunctionBuilders.factorFunction(TOPIC_BOOST));
+    booster.add(rangeFilter("postdate").from("now-3y"), ScoreFunctionBuilders.factorFunction(RECENT_BOOST));
 
     return booster;
   }
