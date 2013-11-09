@@ -73,8 +73,9 @@
         $script.ready('lorjs', function() {
             var ads = [
                 {
-                    type: 'flash',
-                    src: '/adv/highload-2013.swf'
+                  type: 'img',
+                  src: '/adv/ontico.png',
+                  href: 'http://conf.ontico.ru/landing.html'
                 }
             ];
 
