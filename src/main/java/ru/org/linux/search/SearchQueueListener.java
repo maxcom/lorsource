@@ -217,6 +217,7 @@ public class SearchQueueListener {
     doc.put("message", extractText(msgbaseDao.getMessageText(topic.getId())));
     Date postdate = topic.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
+    doc.put("tag", topicDao.getTags(topic));
 
     doc.put("is_comment", false);
 
@@ -271,6 +272,8 @@ public class SearchQueueListener {
     doc.put("message", message);
     Date postdate = comment.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
+
+    doc.put("tag", topicDao.getTags(topic));
 
     doc.put("is_comment", true);
 
