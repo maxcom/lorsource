@@ -154,7 +154,7 @@
 
 <label>
 <c:if test="${not section.premoderated}">
-  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>, просим не злоупотреблять созданием новых тегов) :<br>
+  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>, просим не злоупотреблять созданием новых и использовать наиболее популярные теги):<br>
 </c:if>
 
 <c:if test="${section.premoderated}">
