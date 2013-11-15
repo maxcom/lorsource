@@ -124,12 +124,22 @@
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 
   <div class="form-actions">
-  <button type="submit">Отредактировать</button>
+    <c:if test="${commit}">
+      <button type="submit" class="btn btn-default">Отредактировать</button>
+    </c:if>
+    <c:if test="${not commit}">
+      <button type="submit" class="btn btn-primary">Отредактировать</button>
+    </c:if>
   &nbsp;
-  <button type=submit name=preview>Предпросмотр</button>
+  <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
   <c:if test="${message.draft}">
     &nbsp;
-    <button type=submit name=publish>Опубликовать</button>
+    <c:if test="${commit}">
+      <button type=submit name=publish class="btn btn-default">Опубликовать</button>
+    </c:if>
+    <c:if test="${not commit}">
+      <button type=submit name=publish class="btn btn-primary">Опубликовать</button>
+    </c:if>
   </c:if>
   </div>
 
@@ -153,10 +163,10 @@
 
     <div class="form-actions">
       <c:if test="${message.draft}">
-        <button type=submit name=commit>Опубликовать и Подтвердить</button>
+        <button type=submit name=commit class="btn btn-primary">Опубликовать и Подтвердить</button>
       </c:if>
       <c:if test="${not message.draft}">
-        <button type=submit name=commit>Подтвердить</button>
+        <button type=submit name=commit class="btn btn-primary">Подтвердить</button>
       </c:if>
     </div>
   </c:if>
