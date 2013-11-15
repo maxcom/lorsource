@@ -65,7 +65,7 @@
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
   <label for="tagName">Метка. которой нужно заменить удаляемую (пусто - удалить без замены):</label>
-  <form:input autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
+  <form:input autofocus="autofocus" autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
   <br>
   <br>
   <button type="submit" class="btn btn-danger">Удалить</button>
