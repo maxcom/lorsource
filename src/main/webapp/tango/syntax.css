@@ -25,7 +25,8 @@ pre {
 //    background: #000;
 }
 
-pre .shebang, pre .comment, pre .template_comment, pre .javadoc, pre .diff .header {
+pre .shebang, pre .comment, pre .template_comment, pre .javadoc, pre .diff .header,
+pre .pragma {
     color: #7c7c7c;
 }
 
@@ -48,6 +49,14 @@ pre .id {
   color: #268bd2;
 }
 
+pre .haskell .type {
+    color: #aac;
+}
+
+pre .haskell .preprocessor {
+    color: #caa;
+}
+
 pre .string, pre .attribute .value, pre .cdata, pre .filter .argument, pre .attr_selector, pre .apache .cbracket, pre .date {
     color: #A8FF60;
 }
@@ -66,6 +75,10 @@ pre .function .title, pre .sub .identifier, pre .pi, pre .decorator, pre .ini .t
 
 pre .class .title, pre .smalltalk .class, pre .javadoctag, pre .phpdoc {
     color: #FFFFB6;
+}
+
+pre .haskell .class .title {
+    color: #FFF;
 }
 
 pre .preprocessor,

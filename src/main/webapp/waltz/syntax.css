@@ -21,7 +21,7 @@ pre code {
     color: #000;
 }
 
-pre .shebang, pre .comment, pre .template_comment, pre .javadoc {
+pre .shebang, pre .comment, pre .template_comment, pre .javadoc, pre .pragma {
     color: #888786;
 }
 

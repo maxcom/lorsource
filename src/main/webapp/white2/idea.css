@@ -29,7 +29,7 @@ pre .subst, pre .title {
     color: #000;
 }
 
-pre .comment, pre .template_comment, pre .javadoc, pre .diff .header {
+pre .comment, pre .template_comment, pre .javadoc, pre .diff .header, pre .pragma {
     color: #808080;
     font-style: italic;
 }
