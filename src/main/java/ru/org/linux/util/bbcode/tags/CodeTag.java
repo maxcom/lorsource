@@ -69,6 +69,7 @@ public class CodeTag extends Tag {
                   .put("cpp", "language-cpp")
                   .put("cxx", "language-cpp")
                   .put("cc", "language-cpp")
+                  .put("c++", "language-cpp")
                   .put("c", "language-cpp")
                   .put("diff", "language-diff")
                   .put("patch", "language-diff")
@@ -102,6 +103,11 @@ public class CodeTag extends Tag {
                   .put("go", "language-go")
                   .put("tex", "language-tex")
                   .put("haskell", "language-haskell")
+                  .put("clojure", "language-clojure")
+                  .put("d", "language-d")
+                  .put("fs", "language-fsharp")
+                  .put("f#", "language-fsharp")
+                  .put("rust", "language-rust")
                   .build();
 
   public CodeTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
@@ -115,7 +121,7 @@ public class CodeTag extends Tag {
     }
     StringBuilder ret = new StringBuilder();
     if (node.isParameter()) {
-      String lang = node.getParameter().trim();
+      String lang = node.getParameter().trim().toLowerCase();
       if (langHash.containsKey(lang)) {
         ret.append("<div class=\"code\"><pre class=\"").append(langHash.get(lang)).append("\"><code>");
       } else {

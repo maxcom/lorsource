@@ -1,0 +1,15 @@
+#!/bin/sh
+
+highlight_js_path="$1"
+
+if [ -z "$highlight_js_path" ] ; then
+  echo "usage: ./build-highlight.js <path-to-highlight.js>"
+  exit
+fi
+
+python3 "$highlight_js_path/tools/build.py" \
+    bash cs cpp css diff xml ini java javascript php perl python ruby sql cmake \
+    erlang lisp objectivec scala lua smalltalk vala delphi go tex haskell \
+    coffeescript clojure d rust fsharp \
+  && cp "$highlight_js_path/build/highlight.pack.js" \
+        ./src/main/webapp/js/highlight.pack.js

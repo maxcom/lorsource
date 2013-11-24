@@ -1,8 +1,9 @@
 Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
 
-Версия 7.3
+Версия 7.5
 
 Собрано с поддержкой следующих языков:
+
 * Bash
 * C#  
 * C++
@@ -25,10 +26,12 @@
 * Lua
 * Smalltalk
 * Vala
-* Apache
 * Delphi
 * Go
 * TeX
 * Haskell
-* Nginx
 * CoffeeScript
+* Clojure
+* D
+* Rust
+* F#

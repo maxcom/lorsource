@@ -15,7 +15,8 @@ pre .diff .header,
 pre .doctype,
 pre .pi,
 pre .lisp .string,
-pre .javadoc {
+pre .javadoc,
+pre .pragma {
   color: #93a1a1;
   font-style: italic;
 }
