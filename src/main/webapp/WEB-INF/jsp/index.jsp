@@ -130,15 +130,6 @@
         </div>
       </c:forEach>
   </lor:boxlets>
-
-  <c:if test="${showAdsense}">
-    <div align="center">
-      <a href="http://www.linuxcenter.ru/shop/books-and-magazines/mag_subscribe/Linux_org_ru/" target="_blank"
-         rel="nofollow">
-        <img src="/adv/lf-250x250.gif" width="250" height="250">
-      </a>
-    </div>
-  </c:if>
 </aside>
 </div>
 
