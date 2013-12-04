@@ -61,7 +61,7 @@ import ru.org.linux.util.bbcode.tags.Tag;
  */
 public class TagNode extends Node {
   final Tag bbtag;
-  final RootNode rootNode;
+  private final RootNode rootNode;
 
   public TagNode(Node node, ParserParameters parserParameters, String name, String parameter, RootNode rootNode) {
     super(node, parserParameters);
@@ -112,7 +112,6 @@ public class TagNode extends Node {
 
   @Override
   public String renderOg() {
-    return bbtag.renderNodeOg(this);
+    return renderChildrenOg();
   }
-
 }

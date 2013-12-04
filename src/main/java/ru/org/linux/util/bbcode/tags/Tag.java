@@ -93,12 +93,6 @@ public class Tag {
     this.discardable = discardable;
   }
 
-  public String renderNodeOg(Node node) {
-    StringBuilder ret = new StringBuilder();
-    ret.append(node.renderChildrenOg());
-    return ret.toString();
-  }
-
   public String renderNodeXhtml(Node node) {
     throw new NotImplementedException();
   }

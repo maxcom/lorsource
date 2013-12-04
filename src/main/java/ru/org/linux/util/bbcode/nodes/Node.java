@@ -139,7 +139,7 @@ public class Node {
     return "";
   }
 
-  public String renderChildrenOg() {
+  public final String renderChildrenOg() {
     StringBuilder stringBuilder = new StringBuilder();
     for(Node child : children) {
       stringBuilder.append(child.renderOg());
