@@ -95,7 +95,7 @@ public class SearchQueueListener {
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
   }
 
-  private void reindexMessage(int msgid, boolean withComments) throws IOException, MessageNotFoundException {
+  private void reindexMessage(int msgid, boolean withComments) throws MessageNotFoundException {
     Topic msg = topicDao.getById(msgid);
 
     if (!msg.isDeleted() && !msg.isDraft()) {
@@ -199,7 +199,7 @@ public class SearchQueueListener {
     logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
   }
 
-  private void updateMessage(Topic topic) throws IOException {
+  private void updateMessage(Topic topic) {
     Map<String, Object> doc = new HashMap<>();
 
     Section section = sectionService.getSection(topic.getSectionId());
@@ -228,7 +228,7 @@ public class SearchQueueListener {
             .actionGet();
   }
 
-  private void reindexComments(Topic topic, CommentList comments) throws IOException {
+  private void reindexComments(Topic topic, CommentList comments) {
     BulkRequestBuilder bulkRequest = client.prepareBulk();
 
     for (Comment comment : comments.getList()) {
