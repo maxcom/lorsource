@@ -104,12 +104,11 @@ public class HTMLFormatterTest {
   private ToLorCodeFormatter toLorCodeFormatter;
   private LorCodeService lorCodeService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
-  private URI mainURI;
 
   @Before
   public void init() throws Exception {
 
-    mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
+    URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao messageDao = mock(TopicDao.class);
     Topic message1 = mock(Topic.class);
@@ -578,35 +577,35 @@ public class HTMLFormatterTest {
   public void testOg() {
     assertEquals(
         "hello",
-        lorCodeService.parseForOgDescription("hello")
+        lorCodeService.extractPlainText("hello")
     );
 
     assertEquals(
         "one crap two three",
-        lorCodeService.parseForOgDescription("[list]\n" +
-            "[*]one\n" +
+        lorCodeService.extractPlainText("[list]\n" +
+                "[*]one\n" +
                 '\n' +
-            "crap\n" +
-            "[*]two\n" +
-            "[*]three\n" +
-            "[/list]")
+                "crap\n" +
+                "[*]two\n" +
+                "[*]three\n" +
+                "[/list]")
     );
     assertEquals(
         "due one teo neo wuf?\nok",
-        lorCodeService.parseForOgDescription("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
+        lorCodeService.extractPlainText("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
     assertEquals(
         "&amp;#9618;",
-        lorCodeService.parseForOgDescription("[code]&#9618;[/code]")
+        lorCodeService.extractPlainText("[code]&#9618;[/code]")
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
     assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
-        lorCodeService.parseForOgDescription(txt)
+        lorCodeService.extractPlainText(txt, 250)
     );
     assertEquals(
         250+3,
-        lorCodeService.parseForOgDescription(txt).length()
+        lorCodeService.extractPlainText(txt, 250).length()
     );
   }
 

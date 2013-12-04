@@ -173,7 +173,7 @@ public class SearchQueueListener {
 
   private String extractText(MessageText text) {
     if (text.isLorcode()) {
-      return lorCodeService.parseForOgDescription(text.getText());
+      return lorCodeService.extractPlainText(text.getText());
     } else {
       return Jsoup.parse(text.getText()).text();
     }

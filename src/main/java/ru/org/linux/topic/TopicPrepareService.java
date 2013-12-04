@@ -224,7 +224,7 @@ public class TopicPrepareService {
           processedMessage = lorCodeService.parseTopic(text.getText(), secure, ! topicPermissionService.followInTopic(message, author));
         }
 
-        ogDescription = lorCodeService.parseForOgDescription(text.getText());
+        ogDescription = lorCodeService.extractPlainText(text.getText(), 250);
       } else {
         processedMessage = "<p>" + text.getText();
         ogDescription = "";

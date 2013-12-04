@@ -69,12 +69,30 @@ public class LorCodeService {
   }
 
   /**
-   * Получить og:description из LORCODE текста. Тоесть только текст и без содержимого [code]
+   * Получить чистый текст из LORCODE текста
+   *
    * @param text обрабатываемый текст
-   * @return og:description
+   * @return извлеченный текст
    */
-  public String parseForOgDescription(String text) {
+  public String extractPlainText(String text) {
     return defaultParser.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
+  }
+
+  /**
+   * Получить чистый текст из LORCODE текста с ограничением размера
+   *
+   * @param text обрабатываемый текст
+   * @param maxLength обрезать текст до указанной длинны
+   * @return извлеченный текст
+   */
+  public String extractPlainText(String text, int maxLength) {
+    String plainText = extractPlainText(text);
+
+    if(plainText.length() < maxLength) {
+      return plainText;
+    } else {
+      return plainText.substring(0, maxLength).trim() + "...";
+    }
   }
 
   /**
@@ -83,7 +101,7 @@ public class LorCodeService {
    * @return флаг пустоты
    */
   public boolean isEmptyTextComment(String msg) {
-    return parseForOgDescription(msg.trim()).isEmpty();
+    return extractPlainText(msg.trim()).isEmpty();
   }
 
   /**
