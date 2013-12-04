@@ -46,6 +46,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.LorURL;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.image.ImageInfo;
 
@@ -224,7 +225,7 @@ public class TopicPrepareService {
           processedMessage = lorCodeService.parseTopic(text.getText(), secure, ! topicPermissionService.followInTopic(message, author));
         }
 
-        ogDescription = lorCodeService.extractPlainText(text.getText(), 250);
+        ogDescription = lorCodeService.extractPlainText(text.getText(), 250, true);
       } else {
         processedMessage = "<p>" + text.getText();
         ogDescription = "";

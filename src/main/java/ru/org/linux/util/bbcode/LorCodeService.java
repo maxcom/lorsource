@@ -23,6 +23,7 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -85,13 +86,21 @@ public class LorCodeService {
    * @param maxLength обрезать текст до указанной длинны
    * @return извлеченный текст
    */
-  public String extractPlainText(String text, int maxLength) {
+  public String extractPlainText(String text, int maxLength, boolean encodeHtml) {
     String plainText = extractPlainText(text);
 
+    String cut;
+
     if(plainText.length() < maxLength) {
-      return plainText;
+      cut = plainText;
     } else {
-      return plainText.substring(0, maxLength).trim() + "...";
+      cut = plainText.substring(0, maxLength).trim() + "...";
+    }
+
+    if (encodeHtml) {
+      return StringUtil.escapeForceHtml(cut);
+    } else {
+      return cut;
     }
   }
 

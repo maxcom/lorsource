@@ -596,16 +596,16 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "&amp;#9618;",
-        lorCodeService.extractPlainText("[code]&#9618;[/code]")
+        lorCodeService.extractPlainText("[code]&#9618;[/code]", 250, true)
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
     assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
-        lorCodeService.extractPlainText(txt, 250)
+        lorCodeService.extractPlainText(txt, 250, true)
     );
     assertEquals(
         250+3,
-        lorCodeService.extractPlainText(txt, 250).length()
+        lorCodeService.extractPlainText(txt, 250, true).length()
     );
   }
 

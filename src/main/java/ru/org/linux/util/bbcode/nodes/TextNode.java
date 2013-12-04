@@ -107,6 +107,6 @@ public class TextNode extends Node {
 
   @Override
   public String renderOg() {
-    return Parser.escape(text);
+    return text;
   }
 }
