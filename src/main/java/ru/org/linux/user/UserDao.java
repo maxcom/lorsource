@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -45,6 +47,8 @@ import java.util.List;
 
 @Repository
 public class UserDao {
+  private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -88,6 +92,7 @@ public class UserDao {
     }
 
     if (!StringUtil.checkLoginName(nick)) {
+      logger.warn("Invalid user name '{}'", nick);
       throw new UserNotFoundException("<invalid name>");
     }
 
