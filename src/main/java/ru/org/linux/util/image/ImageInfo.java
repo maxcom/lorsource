@@ -15,14 +15,8 @@
 
 package ru.org.linux.util.image;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.imgscalr.Scalr;
 import ru.org.linux.util.BadImageException;
 
-import javax.imageio.IIOException;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,8 +27,6 @@ import java.io.IOException;
  * currently supported file types: Jpeg Gif Png
  */
 public class ImageInfo{
-  private static final Log logger = LogFactory.getLog(ImageInfo.class);
-
   private int height = -1;
   private int width = -1;
   private int size = 0;

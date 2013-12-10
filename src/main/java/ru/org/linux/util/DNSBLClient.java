@@ -15,8 +15,8 @@
 
 package ru.org.linux.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xbill.DNS.*;
 
 import java.net.UnknownHostException;
@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
 public class DNSBLClient {
   public static final int DNSBL_TIMEOUT_SEC = 10;
 
-  private static final Log logger = LogFactory.getLog(DNSBLClient.class);
+  private static final Logger logger = LoggerFactory.getLogger(DNSBLClient.class);
 
   private final Resolver resolver;
   private final String zone;
