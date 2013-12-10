@@ -17,8 +17,8 @@ package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ import java.util.Set;
 
 @Service
 public class UserTagService {
-  private static final Log logger = LogFactory.getLog(UserTagService.class);
+  private static final Logger logger = LoggerFactory.getLogger(UserTagService.class);
 
   private final ITagActionHandler actionHandler = new ITagActionHandler() {
     @Override
@@ -146,7 +146,7 @@ public class UserTagService {
   /**
    * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
    *
-   * @param user объект пользователя, которому не нужно слать оповещение
+   * @param userid id пользователя, которому не нужно слать оповещение
    * @param tags список фаворитных тегов
    * @return список ID пользователей
    */
