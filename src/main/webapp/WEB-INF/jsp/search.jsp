@@ -44,7 +44,7 @@
 <form:form method="GET" commandName="query" ACTION="search.jsp">
 
 <form:input path="q" TYPE="search" SIZE="50" maxlength="250" autofocus="autofocus"/>
-  <input TYPE="submit" VALUE="Поиск"><BR>
+  <button TYPE="submit">Поиск</button><BR>
 
   <form:hidden path="oldQ"/>
   
