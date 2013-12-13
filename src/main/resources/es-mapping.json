@@ -31,7 +31,8 @@
                 },
                 "tag": {
                     "type": "string",
-                    "index": "not_analyzed"
+                    "index": "not_analyzed",
+                    "include_in_all": "false"
                 },
                 "topic_author": {
                     "type": "string",
