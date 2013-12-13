@@ -133,6 +133,7 @@ public class SearchViewer {
 
     QueryStringQueryBuilder esQuery = queryString(fixedText);
     esQuery.lenient(true);
+    esQuery.minimumShouldMatch("50%");
 
     ValidateQueryResponse response = client
             .admin()
