@@ -75,7 +75,7 @@
         <div>
           Раздел:
           <c:forEach items="${sectionFacet}" var="facet">
-            <label style="display: inline">
+            <label style="display: inline-block">
                 <form:radiobutton path="section" onchange="submit()" value="${facet.key}"/>
                 ${facet.value}
             </label>
