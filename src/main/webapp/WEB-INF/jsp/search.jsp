@@ -43,8 +43,8 @@
 <H1>Поиск по сайту</h1>
 <form:form method="GET" commandName="query" ACTION="search.jsp">
 
-<form:input path="q" TYPE="search" SIZE="50" maxlength="250" autofocus="autofocus"/>
-  <button TYPE="submit">Поиск</button><BR>
+<form:input class="input-lg" path="q" TYPE="search" SIZE="50" maxlength="250" autofocus="autofocus"/>
+  <button TYPE="submit" class="btn btn-primary">Поиск</button><BR>
 
   <form:hidden path="oldQ"/>
   

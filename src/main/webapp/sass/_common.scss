@@ -678,6 +678,12 @@ a img { border: none; }
   padding: 2px 6px;
 }
 
+#bd .input-lg {
+  padding: 6px 3px;
+  margin-bottom: .5em;
+  vertical-align: middle;
+}
+
 // highlight.js fixes
 pre code .container:before, pre code .container:after {
   display: inherit;
