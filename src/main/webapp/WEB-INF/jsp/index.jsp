@@ -130,6 +130,15 @@
         </div>
       </c:forEach>
   </lor:boxlets>
+
+  <c:if test="${showAdsense}">
+    <div align="center">
+      <a href="http://goo.gl/3P7fRw" target="_blank"
+         rel="nofollow">
+        <img src="/adv/lf-250x250.gif" width="250" height="250">
+      </a>
+    </div>
+  </c:if>
 </aside>
 </div>
 
