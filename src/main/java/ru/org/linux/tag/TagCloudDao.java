@@ -83,16 +83,16 @@ public class TagCloudDao {
   }
 
   public static class TagDTO implements Serializable, Comparable<TagDTO>{
-    private Integer weight;
+    private int weight;
     private String value;
     private double counter;
     private static final long serialVersionUID = -1928783200997267710L;
 
-    public Integer getWeight() {
+    public int getWeight() {
       return weight;
     }
 
-    public void setWeight(Integer weight) {
+    public void setWeight(int weight) {
       this.weight = weight;
     }
 
