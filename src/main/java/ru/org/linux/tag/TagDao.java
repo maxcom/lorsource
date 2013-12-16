@@ -58,9 +58,8 @@ public class TagDao {
    * @param tagId   идентификационный номер существующего тега
    * @param tagName новое название тега
    */
-  public void changeTag(Integer tagId, String tagName) {
-    jdbcTemplate.update(
-      "UPDATE tags_values set value=? WHERE id=?", tagName, tagId);
+  public void changeTag(int tagId, String tagName) {
+    jdbcTemplate.update("UPDATE tags_values set value=? WHERE id=?", tagName, tagId);
   }
 
   /**
