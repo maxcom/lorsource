@@ -123,14 +123,6 @@
     </div>
   </c:if>
 
-  <lor:boxlets var="boxes">
-      <c:forEach var="boxlet" items="${boxes}">
-        <div class="boxlet">
-            <c:import url="/${boxlet}.boxlet"/>
-        </div>
-      </c:forEach>
-  </lor:boxlets>
-
   <c:if test="${showAdsense}">
     <div align="center">
       <a href="http://goo.gl/3P7fRw" target="_blank"
@@ -139,6 +131,14 @@
       </a>
     </div>
   </c:if>
+
+  <lor:boxlets var="boxes">
+      <c:forEach var="boxlet" items="${boxes}">
+        <div class="boxlet">
+            <c:import url="/${boxlet}.boxlet"/>
+        </div>
+      </c:forEach>
+  </lor:boxlets>
 </aside>
 </div>
 
