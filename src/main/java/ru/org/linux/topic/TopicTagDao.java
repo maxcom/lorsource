@@ -14,13 +14,17 @@
  */
 package ru.org.linux.topic;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.tag.TagInfo;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -65,20 +69,25 @@ public class TopicTagDao {
    */
   @Nonnull
   public ImmutableList<String> getTags(int msgid) {
-    final ImmutableList.Builder<String> tags = ImmutableList.builder();
+    final ImmutableList.Builder<TagInfo> tags = ImmutableList.builder();
 
     jdbcTemplate.query(
-      "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
+      "SELECT tags_values.value, tags_values.counter FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
       new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet rs) throws SQLException {
-          tags.add(rs.getString("value"));
+          tags.add(new TagInfo(rs.getString("value"), rs.getInt("counter")));
         }
       },
       msgid
     );
 
-    return tags.build();
+    return ImmutableList.copyOf(Lists.transform(tags.build(), new Function<TagInfo, String>() {
+      @Override
+      public String apply(TagInfo input) {
+        return input.name();
+      }
+    }));
   }
 
   /**

@@ -13,17 +13,24 @@
        <maven>3.0.1</maven>
     </prerequisites>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dependency.spring.version>3.2.4.RELEASE</dependency.spring.version>
-        <spring.security.version>3.1.4.RELEASE</spring.security.version>
-        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-        <jdbc.postgresql.version>9.2-1002-jdbc4</jdbc.postgresql.version>
-      <es.version>0.90.6</es.version>
-    </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <dependency.spring.version>3.2.4.RELEASE</dependency.spring.version>
+    <spring.security.version>3.1.4.RELEASE</spring.security.version>
+    <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+    <jdbc.postgresql.version>9.2-1002-jdbc4</jdbc.postgresql.version>
+    <es.version>0.90.6</es.version>
+    <scala.version>2.10.3</scala.version>
+  </properties>
 
-    <dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -343,7 +350,33 @@
 
     <build>
         <plugins>
-            <plugin>
+          <plugin>
+            <groupId>net.alchim31.maven</groupId>
+            <artifactId>scala-maven-plugin</artifactId>
+            <version>3.1.6</version>
+            <configuration>
+              <args><arg>-feature</arg></args>
+            </configuration>
+            <executions>
+              <execution>
+                <id>scala-compile-first</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                  <goal>compile</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>scala-test-compile</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>testCompile</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.1.1</version>
