@@ -96,7 +96,7 @@ public final class DefaultProfile {
 
 // main page settings
     ImmutableList<String> boxes = ImmutableList.of(
-      "ibm", "poll", "top10", "gallery", "tagcloud", "archive"
+      "poll", "top10", "gallery", "tagcloud", "archive", "ibm"
     );
 
     defaults.put(BOXES_MAIN2_PROPERTY, boxes);
