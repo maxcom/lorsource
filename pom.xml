@@ -31,6 +31,18 @@
       <version>${scala.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-reflect</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.scala</groupId>
+      <artifactId>spring-scala_2.10</artifactId>
+      <version>1.0.0.RC1</version>
+    </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -385,16 +397,16 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <compilerArgument>-Xlint:deprecation</compilerArgument>
-                </configuration>
-            </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.1</version>
+            <configuration>
+              <source>1.7</source>
+              <target>1.7</target>
+              <compilerArgument>-Xlint:deprecation</compilerArgument>
+            </configuration>
+          </plugin>
 
           <plugin>
             <groupId>org.jasig.maven</groupId>
@@ -813,6 +825,12 @@
           <id>spring-jade4j-releases</id>
           <url>https://raw.github.com/neuland/spring-jade4j/master/releases</url>
         </repository>
+
+      <repository>
+          <id>repository.springsource.milestone</id>
+          <name>SpringSource Milestone Repository</name>
+          <url>http://repo.springsource.org/milestone</url>
+      </repository>
     </repositories>
 
 </project>
