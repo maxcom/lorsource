@@ -323,15 +323,15 @@
         </dependency>
 
         <dependency>
-          <groupId>de.neuland</groupId>
+          <groupId>de.neuland-bfi</groupId>
           <artifactId>jade4j</artifactId>
-          <version>0.3.17</version>
+          <version>0.4.0</version>
         </dependency>
 
         <dependency>
-          <groupId>de.neuland</groupId>
+          <groupId>de.neuland-bfi</groupId>
           <artifactId>spring-jade4j</artifactId>
-          <version>0.3.0</version>
+          <version>0.4.0</version>
         </dependency>
 
         <dependency>
@@ -769,16 +769,6 @@
             <id>java.net</id>
             <name>java.net Maven Repository</name>
             <url>http://download.java.net/maven/2/</url>
-        </repository>
-
-        <repository>
-            <id>jade4j-releases</id>
-            <url>https://raw.github.com/neuland/jade4j/master/releases</url>
-        </repository>
-
-        <repository>
-          <id>spring-jade4j-releases</id>
-          <url>https://raw.github.com/neuland/spring-jade4j/master/releases</url>
         </repository>
     </repositories>
 
