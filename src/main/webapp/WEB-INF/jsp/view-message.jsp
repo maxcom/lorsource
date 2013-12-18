@@ -211,13 +211,8 @@
           var ads = [
               {
                   type: 'img',
-                  src: '/adv/selectel/sel_728x90.gif',
-                  href: 'http://selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=dedicated&utm_campaign=080913'
-              },
-              {
-                  type: 'img',
-                  src: '/adv/selectel/storage_728-90.gif',
-                  href: 'http://storage.selectel.ru/?utm_source=lor&utm_medium=banner&utm_content=storage&utm_campaign=080813'
+                  src: '/adv/selectel/dedicated_728x90.png',
+                  href: 'http://selectel.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_content=dedicated&utm_campaign=171213'
               }
           ];
 
