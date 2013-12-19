@@ -43,7 +43,13 @@
       <version>1.0.0.RC1</version>
     </dependency>
 
-        <dependency>
+    <dependency>
+      <groupId>com.typesafe</groupId>
+      <artifactId>scalalogging-slf4j_2.10</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+
+    <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.7</version>
@@ -820,6 +826,12 @@
           <id>repository.springsource.milestone</id>
           <name>SpringSource Milestone Repository</name>
           <url>http://repo.springsource.org/milestone</url>
+      </repository>
+
+      <repository>
+        <id>typesafe</id>
+        <name>typesafe-releases</name>
+        <url>http://repo.typesafe.com/typesafe/repo1</url>
       </repository>
     </repositories>
 
