@@ -87,6 +87,9 @@ public class EditTopicController {
   private TagService tagService;
 
   @Autowired
+  private TopicTagService topicTagService;
+
+  @Autowired
   private PollDao pollDao;
 
   @Autowired
@@ -391,7 +394,7 @@ public class EditTopicController {
     List<String> newTags = null;
 
     if (form.getTags()!=null) {
-      newTags = tagService.parseSanitizeTags(form.getTags());
+      newTags = topicTagService.parseAndSanitizeTags(form.getTags());
     }
 
     if (changeGroupId != null) {

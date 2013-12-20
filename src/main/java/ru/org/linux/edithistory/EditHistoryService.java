@@ -115,7 +115,7 @@ public class EditHistoryService {
       }
 
       if (dto.getOldtags() != null) {
-        currentTags = tagService.parseSanitizeTags(dto.getOldtags());
+        currentTags = topicTagService.parseAndSanitizeTags(dto.getOldtags());
       }
 
       if (dto.getOldminor() != null) {

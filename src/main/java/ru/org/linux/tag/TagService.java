@@ -16,9 +16,7 @@
 package ru.org.linux.tag;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -67,44 +63,6 @@ public class TagService {
     if (!isGoodTag(tag)) {
       throw new UserErrorException("Некорректный тег: '" + tag + '\'');
     }
-  }
-
-  /**
-   * Разбор строки тегов. Игнорируем некорректные теги
-   *
-   * @param tags список тегов через запятую
-   * @return список тегов
-   */
-  @Nonnull
-  public ImmutableList<String> parseSanitizeTags(@Nullable String tags) {
-    if (tags == null) {
-      return ImmutableList.of();
-    }
-
-    Set<String> tagSet = new HashSet<>();
-
-    // Теги разделяютчя пайпом или запятой
-    tags = tags.replaceAll("\\|", ",");
-    String[] tagsArr = tags.split(",");
-
-    if (tagsArr.length == 0) {
-      return ImmutableList.of();
-    }
-
-    for (String aTagsArr : tagsArr) {
-      String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
-      // плохой тег - выбрасываем
-      if (tag == null) {
-        continue;
-      }
-
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (isGoodTag(tag)) {
-        tagSet.add(tag);
-      }
-    }
-
-    return ImmutableList.copyOf(tagSet);
   }
 
   /**

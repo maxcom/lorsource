@@ -124,7 +124,7 @@ public class TopicService {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
-    List<String> tags = tagService.parseSanitizeTags(form.getTags());
+    List<String> tags = topicTagService.parseAndSanitizeTags(form.getTags());
 
     topicTagService.updateTags(msgid, ImmutableList.<String>of(), tags);
 

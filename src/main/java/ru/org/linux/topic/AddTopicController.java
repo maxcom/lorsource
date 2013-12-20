@@ -89,6 +89,9 @@ public class AddTopicController {
   @Autowired
   private TagService tagService;
 
+  @Autowired
+  private TopicTagService topicTagService;
+
   private UserDao userDao;
 
   @Autowired
@@ -306,7 +309,7 @@ public class AddTopicController {
 
       PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
-              tagService.parseSanitizeTags(form.getTags()),
+              topicTagService.parseAndSanitizeTags(form.getTags()),
               poll,
               request.isSecure(),
               message,
