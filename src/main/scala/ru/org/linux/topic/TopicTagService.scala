@@ -20,7 +20,7 @@ class TopicTagService @Autowired() (
                                      tagDao:TagDao
   ) extends Logging with TransactionManagement {
 
-  tagService.getActionHandlers().add(new ITagActionHandler() {
+  tagService.getActionHandlers.add(new ITagActionHandler() {
     override def replaceTag(oldTagId: Int, oldTagName: String, newTagId: Int, newTagName: String):Unit = {
       val tagCount = topicTagDao.getCountReplacedTags(oldTagId, newTagId)
       topicTagDao.replaceTag(oldTagId, newTagId)
@@ -46,9 +46,9 @@ class TopicTagService @Autowired() (
    * @param tagList новый список тегов.
    * @return true если были произведены изменения
    */
-  def updateTags(msgId:Int, tagList:java.util.List[String]):Boolean = {
+  def updateTags(msgId:Int, oldTags:java.util.List[String], tagList:java.util.List[String]):Boolean = {
     transactional() { _ =>
-      logger.debug("Обновление списка тегов [" + tagList.toString() + "] для топика msgId=" + msgId)
+      logger.debug("Обновление списка тегов [" + tagList.toString + "] для топика msgId=" + msgId)
 
       val oldTags = getTags(msgId)
 
@@ -71,7 +71,39 @@ class TopicTagService @Autowired() (
 
       logger.trace("Завершено: обновление списка тегов для топика msgId=" + msgId)
 
-      !newTags.isEmpty || !deleteTags.isEmpty
+      val modified = !newTags.isEmpty || !deleteTags.isEmpty
+
+      if (modified) {
+        updateCounters(oldTags, newTags)
+      }
+
+      modified
+    }
+  }
+
+  /**
+   * Обновить счётчики по тегам.
+   *
+   * @param oldTags список старых тегов
+   * @param newTags список новых тегов
+   */
+  private[this] def updateCounters(oldTags:Seq[String], newTags:Seq[String]):Unit = {
+    logger.debug(
+            "Обновление счётчиков тегов; старые теги [{}]; новые теги [{}]",
+            oldTags,
+            newTags
+    )
+
+    for (tag <- newTags if !oldTags.contains(tag)) {
+      val id = tagService.getOrCreateTag(tag)
+      logger.trace("Увеличен счётчик для тега " + tag)
+      tagDao.increaseCounterById(id, 1)
+    }
+
+    for (tag <- oldTags if !newTags.contains(tag)) {
+      val id = tagService.getOrCreateTag(tag)
+      logger.trace("Уменьшен счётчик для тега " + tag)
+      tagDao.decreaseCounterById(id, 1)
     }
   }
 

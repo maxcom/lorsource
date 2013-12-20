@@ -39,7 +39,7 @@ public class TagService {
 
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-.]+)", Pattern.CASE_INSENSITIVE);
 
-  public static final int MIN_TAG_LENGTH = 2;
+  private static final int MIN_TAG_LENGTH = 2;
   public static final int MAX_TAG_LENGTH = 25;
 
   @Autowired
@@ -117,37 +117,6 @@ public class TagService {
   }
 
   /**
-   * Обновить счётчики по тегам.
-   *
-   * @param oldTags список старых тегов
-   * @param newTags список новых тегов
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void updateCounters(final List<String> oldTags, final List<String> newTags) {
-    logger.debug(
-            "Обновление счётчиков тегов; старые теги [{}]; новые теги [{}]",
-            oldTags,
-            newTags
-    );
-
-    for (String tag : newTags) {
-      if (!oldTags.contains(tag)) {
-        int id = getOrCreateTag(tag);
-        logger.trace("Увеличен счётчик для тега " + tag);
-        tagDao.increaseCounterById(id, 1);
-      }
-    }
-
-    for (String tag : oldTags) {
-      if (!newTags.contains(tag)) {
-        int id = getOrCreateTag(tag);
-        logger.trace("Уменьшен счётчик для тега " + tag);
-        tagDao.decreaseCounterById(id, 1);
-      }
-    }
-  }
-
-  /**
    * Получить уникальный список первых букв тегов.
    *
    * @return список первых букв тегов
@@ -182,7 +151,7 @@ public class TagService {
    *
    * @param tagName название нового тега
    */
-  public void create(String tagName) {
+  private void create(String tagName) {
     tagDao.createTag(tagName);
     logger.info("Создан тег: " + tagName);
   }

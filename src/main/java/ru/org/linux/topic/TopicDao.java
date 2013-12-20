@@ -260,8 +260,6 @@ public class TopicDao {
   /**
    * Сохраняем новое сообщение
    *
-   * @param msg
-   * @param user
    * @return msgid
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -311,8 +309,6 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
-    List<String> oldTags = topicTagService.getTags(msg.getId());
-
     EditHistoryDto editHistoryDto = new EditHistoryDto();
 
     editHistoryDto.setMsgid(msg.getId());
@@ -361,11 +357,12 @@ public class TopicDao {
     }
 
     if (newTags != null) {
-      boolean modifiedTags = topicTagService.updateTags(msg.getId(), newTags);
+      List<String> oldTags = topicTagService.getTags(msg.getId());
+
+      boolean modifiedTags = topicTagService.updateTags(msg.getId(), oldTags, newTags);
 
       if (modifiedTags) {
         editHistoryDto.setOldtags(TagService.toString(oldTags));
-        tagService.updateCounters(oldTags, newTags);
         modified = true;
       }
     }

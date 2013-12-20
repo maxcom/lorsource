@@ -126,8 +126,7 @@ public class TopicService {
 
     List<String> tags = tagService.parseSanitizeTags(form.getTags());
 
-    topicTagService.updateTags(msgid, tags);
-    tagService.updateCounters(ImmutableList.<String>of(), tags);
+    topicTagService.updateTags(msgid, ImmutableList.<String>of(), tags);
 
     if (!previewMsg.isDraft()) {
       if (section.isPremoderated()) {
