@@ -75,7 +75,7 @@ public class EditHistoryService {
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
-    List<String> currentTags = topicTagService.getMessageTags(message.getId());
+    List<String> currentTags = topicTagService.getTags(message.getId());
     boolean currentMinor = message.isMinor();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {

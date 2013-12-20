@@ -218,7 +218,7 @@ public class GroupController {
 
       author = userDao.getUserCached(rs.getInt("userid"));
 
-      ImmutableList<String> tags = topicTagService.getMessageTagsForTitle(rs.getInt("msgid"));
+      ImmutableList<String> tags = topicTagService.getTagsForTitle(rs.getInt("msgid"));
 
       TopicsListItem topic = new TopicsListItem(author, rs, messagesInPage, tags);
 

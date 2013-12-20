@@ -320,7 +320,7 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
-    List<String> oldTags = topicTagService.getMessageTags(msg.getId());
+    List<String> oldTags = topicTagService.getTags(msg.getId());
 
     EditHistoryDto editHistoryDto = new EditHistoryDto();
 

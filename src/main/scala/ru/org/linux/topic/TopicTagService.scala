@@ -50,7 +50,7 @@ class TopicTagService @Autowired() (
     transactional() { _ =>
       logger.debug("Обновление списка тегов [" + tagList.toString() + "] для топика msgId=" + msgId)
 
-      val oldTags = getMessageTags(msgId)
+      val oldTags = getTags(msgId)
 
       val newTags = tagList.filter(!oldTags.contains(_))
 
@@ -81,7 +81,7 @@ class TopicTagService @Autowired() (
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getMessageTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId).map(_.name)
+  def getTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId).map(_.name)
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
@@ -90,7 +90,7 @@ class TopicTagService @Autowired() (
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getMessageTagsForTitle(msgId:Int):ImmutableList[String] = {
+  def getTagsForTitle(msgId:Int):ImmutableList[String] = {
     val tags = topicTagDao.getTags(msgId).map(_.name).take(MAX_TAGS_IN_TITLE)
     ImmutableList.copyOf(tags.toIterable)
   }
