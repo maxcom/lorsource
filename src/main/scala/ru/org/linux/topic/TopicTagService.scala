@@ -81,7 +81,7 @@ class TopicTagService @Autowired() (
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getMessageTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId)
+  def getMessageTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId).map(_.name)
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
@@ -91,8 +91,8 @@ class TopicTagService @Autowired() (
    * @return все теги сообщения
    */
   def getMessageTagsForTitle(msgId:Int):ImmutableList[String] = {
-    val tags = topicTagDao.getTags(msgId)
-    ImmutableList.copyOf(tags.subList(0, Math.min(tags.size, MAX_TAGS_IN_TITLE)).toIterable)
+    val tags = topicTagDao.getTags(msgId).map(_.name).take(MAX_TAGS_IN_TITLE)
+    ImmutableList.copyOf(tags.toIterable)
   }
 
   /**

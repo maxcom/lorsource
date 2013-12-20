@@ -37,13 +37,11 @@ class TopicTagDao @Autowired() (ds:DataSource) {
    * @param msgid идентификационный номер топика
    * @return список тегов топика
    */
-  def getTags(msgid:Int):Seq[String] = {
-    val tags = jdbcTemplate.queryAndMap(
+  def getTags(msgid:Int):Seq[TagInfo] = {
+    jdbcTemplate.queryAndMap(
       "SELECT tags_values.value, tags_values.counter FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
       msgid
     ) { (rs, _) => TagInfo(rs.getString("value"), rs.getInt("counter")) }
-
-    tags.map(_.name)
   }
 
   /**
