@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
-<%@ page import="ru.org.linux.topic.TopicTagService"%>
+<%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%--
   ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -154,11 +154,11 @@
 
 <label>
 <c:if test="${not section.premoderated}">
-  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
+  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC() %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE() %>):<br>
 </c:if>
 
 <c:if test="${section.premoderated}">
-  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
+  Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC() %>):<br>
 </c:if>
 
     <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
