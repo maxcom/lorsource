@@ -19,23 +19,27 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
         >
 
-    <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <!-- TODO: здесь захардкодены реквизиты СУБД. Нужно будет потом вынести в ресурсы -->
-        <property name="driverClassName">
-            <value>org.postgresql.Driver</value>
-        </property>
-        <property name="url">
-            <value>jdbc:postgresql://127.0.0.1:5432/lor</value>
-        </property>
-        <property name="username">
-            <value>linuxweb</value>
-        </property>
-        <property name="password">
-            <value>linuxweb</value>
-        </property>
-    </bean>
+  <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <!-- TODO: здесь захардкодены реквизиты СУБД. Нужно будет потом вынести в ресурсы -->
+    <property name="driverClassName">
+      <value>org.postgresql.Driver</value>
+    </property>
+    <property name="url">
+      <value>jdbc:postgresql://127.0.0.1:5432/lor</value>
+    </property>
+    <property name="username">
+      <value>linuxweb</value>
+    </property>
+    <property name="password">
+      <value>linuxweb</value>
+    </property>
+  </bean>
 
-    <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
-        <constructor-arg ref="datasource"/>
-    </bean>
+  <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
+    <constructor-arg ref="datasource"/>
+  </bean>
+
+  <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="datasource"/>
+  </bean>
 </beans>

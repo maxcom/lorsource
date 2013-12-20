@@ -24,9 +24,6 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-
-import javax.sql.DataSource;
 
 @Configuration
 @ImportResource("classpath:database.xml")
@@ -58,10 +55,5 @@ public class UserDaoIntegrationTestConfiguration {
   @Bean
   public UserLogDao userLogDao() {
     return new UserLogDao();
-  }
-
-  @Bean
-  public DataSourceTransactionManager transactionManager(DataSource ds) {
-    return new DataSourceTransactionManager(ds);
   }
 }
