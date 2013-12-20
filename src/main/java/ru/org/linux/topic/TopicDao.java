@@ -17,8 +17,10 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
-import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,8 +105,6 @@ public class TopicDao {
   /**
    * Удаление топика
    */
-  private static final String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
-
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
   private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
@@ -199,21 +199,12 @@ public class TopicDao {
 
   /**
    * Получить тэги топика
-   * TODO возможно надо сделать TagDao ?
+   *
    * @param message топик
    * @return список тэгов
    */
-  public ImmutableList<String> getTags(Topic message) {
-    final Builder<String> tags = ImmutableList.builder();
-
-    jdbcTemplate.query(queryTags, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        tags.add(resultSet.getString("value"));
-      }
-    }, message.getId());
-
-    return tags.build();
+  public List<String> getTags(Topic message) {
+    return topicTagService.getTags(message.getId());
   }
 
   @Nonnull
