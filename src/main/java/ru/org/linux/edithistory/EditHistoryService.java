@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.tag.TagService;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
@@ -37,9 +37,6 @@ import java.util.List;
 
 @Service
 public class EditHistoryService {
-  @Autowired
-  private TagService tagService;
-
   @Autowired
   TopicTagService topicTagService;
 
@@ -115,7 +112,7 @@ public class EditHistoryService {
       }
 
       if (dto.getOldtags() != null) {
-        currentTags = topicTagService.parseAndSanitizeTags(dto.getOldtags());
+        currentTags = TagName.parseAndSanitizeTags(dto.getOldtags());
       }
 
       if (dto.getOldminor() != null) {

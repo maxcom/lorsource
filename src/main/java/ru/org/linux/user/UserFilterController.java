@@ -28,8 +28,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagNotFoundException;
-import ru.org.linux.tag.TagService;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -79,11 +79,11 @@ public class UserFilterController {
       modelAndView.addObject("isModerator", true);
     }
 
-    if (newFavoriteTagName != null && TagService.isGoodTag(newFavoriteTagName)) {
+    if (newFavoriteTagName != null && TagName.isGoodTag(newFavoriteTagName)) {
       modelAndView.addObject("newFavoriteTagName", newFavoriteTagName);
     }
 
-    if (newIgnoredTagName != null && TagService.isGoodTag(newIgnoredTagName)) {
+    if (newIgnoredTagName != null && TagName.isGoodTag(newIgnoredTagName)) {
       modelAndView.addObject("newIgnoredTagName", newIgnoredTagName);
     }
 

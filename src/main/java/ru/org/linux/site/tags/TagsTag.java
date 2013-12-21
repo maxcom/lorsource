@@ -14,7 +14,7 @@
  */
 package ru.org.linux.site.tags;
 
-import ru.org.linux.tag.TagService;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.topic.TagTopicListController;
 import ru.org.linux.util.StringUtil;
 
@@ -45,7 +45,7 @@ public class TagsTag extends TagSupport {
           if (buf.length() > 0) {
             buf.append(", ");
           }
-          if (TagService.isGoodTag(el)) {
+          if (TagName.isGoodTag(el)) {
             buf
                 .append("<a class=tag rel=tag href=\"")
                 .append(TagTopicListController.tagListUrl(el))

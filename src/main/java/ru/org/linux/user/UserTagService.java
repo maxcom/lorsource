@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
-import ru.org.linux.tag.ITagActionHandler;
-import ru.org.linux.tag.TagDao;
-import ru.org.linux.tag.TagNotFoundException;
-import ru.org.linux.tag.TagService;
+import ru.org.linux.tag.*;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -179,7 +176,7 @@ public class UserTagService {
       }
 
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (!TagService.isGoodTag(tag)) {
+      if (!TagName.isGoodTag(tag)) {
         errors.reject("Некорректный тег: '" + tag + '\'');
         continue;
       }

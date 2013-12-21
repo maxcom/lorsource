@@ -30,6 +30,7 @@ import org.springframework.web.util.UriTemplate;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.UserTagService;
 
@@ -98,7 +99,7 @@ public class TagTopicListController {
       section = null;
     }
 
-    tagService.checkTag(tag);
+    TagName.checkTag(tag);
 
     Template tmpl = Template.getTemplate(request);
 

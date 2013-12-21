@@ -110,7 +110,7 @@ public class TagController {
     return ImmutableList.copyOf(Iterables.filter(tags, new Predicate<String>() {
       @Override
       public boolean apply(String input) {
-        return TagService.isGoodTag(input);
+        return TagName.isGoodTag(input);
       }
     }));
   }

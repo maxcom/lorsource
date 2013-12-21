@@ -34,6 +34,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
@@ -124,7 +125,7 @@ public class TopicService {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
-    List<String> tags = topicTagService.parseAndSanitizeTags(form.getTags());
+    List<String> tags = TagName.parseAndSanitizeTags(form.getTags());
 
     topicTagService.updateTags(msgid, ImmutableList.<String>of(), tags);
 

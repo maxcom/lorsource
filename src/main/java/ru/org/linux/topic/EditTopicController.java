@@ -49,6 +49,7 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
@@ -85,9 +86,6 @@ public class EditTopicController {
 
   @Autowired
   private TagService tagService;
-
-  @Autowired
-  private TopicTagService topicTagService;
 
   @Autowired
   private PollDao pollDao;
@@ -394,7 +392,7 @@ public class EditTopicController {
     List<String> newTags = null;
 
     if (form.getTags()!=null) {
-      newTags = topicTagService.parseAndSanitizeTags(form.getTags());
+      newTags = TagName.parseAndSanitizeTags(form.getTags());
     }
 
     if (changeGroupId != null) {

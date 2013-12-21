@@ -1,4 +1,4 @@
-<%@ page import="ru.org.linux.topic.TopicTagService" %>
+<%@ page import="ru.org.linux.tag.TagName" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -106,7 +106,7 @@
   </c:if>
 
   <c:if test="${topicMenu.tagsEditable}">
-    <label>Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC() %>):<br>
+    <label>Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
       <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
     </label>
     <p>

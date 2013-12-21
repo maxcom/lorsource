@@ -8,7 +8,6 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import scala.collection.JavaConversions._
 
 import TopicTagService._
-import org.springframework.validation.Errors
 import com.google.common.collect.ImmutableList
 import org.springframework.transaction.PlatformTransactionManager
 
@@ -126,59 +125,8 @@ class TopicTagService @Autowired() (
     val tags = topicTagDao.getTags(msgId).map(_.name).take(MAX_TAGS_IN_TITLE)
     ImmutableList.copyOf(tags.toIterable)
   }
-
-  private[this] def parseTags(tags: String) = {
-    if (tags == null) {
-      Set.empty[String]
-    } else {
-      // Теги разделяютчя пайпом или запятой
-      val tagsArr = tags.replaceAll("\\|", ",").split(",")
-
-      import scala.collection.breakOut
-
-      val tagSet: Set[String] = tagsArr.filterNot(_.isEmpty).map(_.toLowerCase)(breakOut)
-
-      tagSet
-    }
-  }
-
-  /**
-   * Разбор строки тегов. Error при ошибках
-   *
-   * @param tags   список тегов через запятую
-   * @param errors класс для ошибок валидации (параметр 'tags')
-   * @return список тегов
-   */
-  def parseAndValidateTags(tags:String, errors:Errors):Seq[String] = {
-    val (goodTags, badTags) = parseTags(tags).partition(TagService.isGoodTag)
-
-    for (tag <- badTags) {
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (tag.length() > TagService.MAX_TAG_LENGTH) {
-        errors.rejectValue("tags", null, "Слишком длиный тег: '" + tag + "\' (максимум " + TagService.MAX_TAG_LENGTH + " символов)")
-      } else if (!TagService.isGoodTag(tag)) {
-        errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'')
-      }
-    }
-
-    if (goodTags.size > MAX_TAGS_PER_TOPIC) {
-      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + MAX_TAGS_PER_TOPIC + ')')
-    }
-
-    goodTags.toVector
-  }
-
-  /**
-   * Разбор строки тегов. Игнорируем некорректные теги
-   *
-   * @param tags список тегов через запятую
-   * @return список тегов
-   */
-  def parseAndSanitizeTags(tags:String):java.util.List[String] =
-    parseTags(tags).filter(TagService.isGoodTag).toVector
 }
 
 object TopicTagService {
-  val MAX_TAGS_PER_TOPIC = 5
   val MAX_TAGS_IN_TITLE = 3
 }

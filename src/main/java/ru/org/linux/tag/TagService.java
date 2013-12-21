@@ -27,16 +27,10 @@ import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 @Service
 public class TagService {
   private static final Logger logger = LoggerFactory.getLogger(TagService.class);
-
-  private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-.]+)", Pattern.CASE_INSENSITIVE);
-
-  private static final int MIN_TAG_LENGTH = 2;
-  public static final int MAX_TAG_LENGTH = 25;
 
   @Autowired
   private TagDao tagDao;
@@ -56,13 +50,6 @@ public class TagService {
    */
   public int getTagId(String tag) throws TagNotFoundException {
     return tagDao.getTagId(tag, true);
-  }
-
-  public static void checkTag(String tag) throws UserErrorException {
-    // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-    if (!isGoodTag(tag)) {
-      throw new UserErrorException("Некорректный тег: '" + tag + '\'');
-    }
   }
 
   /**
@@ -124,7 +111,7 @@ public class TagService {
   public void change(String oldTagName, String tagName, Errors errors) {
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
-      checkTag(tagName);
+      TagName.checkTag(tagName);
       int oldTagId = tagDao.getTagId(oldTagName);
       try {
         tagDao.getTagId(tagName);
@@ -162,7 +149,7 @@ public class TagService {
           errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
           return;
         }
-        checkTag(newTagName);
+        TagName.checkTag(newTagName);
         int newTagId = getOrCreateTag(newTagName);
         if (newTagId != 0) {
           for (ITagActionHandler actionHandler : actionHandlers) {
@@ -218,10 +205,6 @@ public class TagService {
     }
 
     return str.toString();
-  }
-
-  public static boolean isGoodTag(String tag) {
-    return tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH;
   }
 
   /**

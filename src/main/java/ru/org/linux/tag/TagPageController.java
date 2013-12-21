@@ -106,7 +106,7 @@ public class TagPageController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    tagService.checkTag(tag);
+    TagName.checkTag(tag);
 
     ModelAndView mv = new ModelAndView("tag-page");
 

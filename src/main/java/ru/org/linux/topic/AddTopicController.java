@@ -50,6 +50,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -88,9 +89,6 @@ public class AddTopicController {
 
   @Autowired
   private TagService tagService;
-
-  @Autowired
-  private TopicTagService topicTagService;
 
   private UserDao userDao;
 
@@ -309,7 +307,7 @@ public class AddTopicController {
 
       PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
-              topicTagService.parseAndSanitizeTags(form.getTags()),
+              TagName.parseAndSanitizeTags(form.getTags()),
               poll,
               request.isSecure(),
               message,
@@ -394,7 +392,7 @@ public class AddTopicController {
     Map<String, Object> params = new HashMap<>();
 
     if (tag!=null) {
-      TagService.checkTag(tag);
+      TagName.checkTag(tag);
       params.put("tag", tag);
     }
 
