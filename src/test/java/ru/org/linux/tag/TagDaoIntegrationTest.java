@@ -68,21 +68,10 @@ public class TagDaoIntegrationTest {
 
   @Test
   public void prefixSearchEscapeTest() {
-    tagDao.createTag("zest_test");
     tagDao.createTag("zestxtest");
 
-    assertEquals(1, tagDao.getTagsByPrefix("zest_", 0).size());
+    assertEquals(0, tagDao.getTagsByPrefix("zest_", 0).size());
     assertEquals(0, tagDao.getTagsByPrefix("zest%", 0).size());
-  }
-
-  @Test
-  public void prefixSearchEscapeTest2() {
-    tagDao.createTag("zest__test");
-    tagDao.createTag("zest_xtest");
-
-    assertEquals(2, tagDao.getTagsByPrefix("zest_", 0).size());
-    assertEquals(1, tagDao.getTagsByPrefix("zest__", 0).size());
-    assertEquals(1, tagDao.getTagsByPrefix("zest__t", 0).size());
   }
 
   @Test
