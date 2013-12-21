@@ -15,6 +15,7 @@
 
 package ru.org.linux.tag;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -49,6 +50,8 @@ public class TagDao {
    * @param tagName название нового тега
    */
   public void createTag(String tagName) {
+    Preconditions.checkArgument(TagName.isGoodTag(tagName), "Tag name must be valid");
+
     jdbcTemplate.update("INSERT INTO tags_values (value) VALUES(?)", tagName);
   }
 
