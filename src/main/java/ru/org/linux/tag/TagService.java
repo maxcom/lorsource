@@ -98,7 +98,7 @@ public class TagService {
    */
   private void create(String tagName) {
     tagDao.createTag(tagName);
-    logger.info("Создан тег: " + tagName);
+    logger.info("Создан тег: '{}'", tagName);
   }
 
   /**
