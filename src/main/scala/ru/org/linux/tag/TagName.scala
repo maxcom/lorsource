@@ -10,7 +10,7 @@ object TagName {
   val MIN_TAG_LENGTH = 2
   val MAX_TAG_LENGTH = 25
 
-  private[this] val tagRE = Pattern.compile("([\\p{L}\\d][\\p{L}\\d \\+-.]+)", Pattern.CASE_INSENSITIVE)
+  private[this] val tagRE = Pattern.compile("([\\p{L}\\d-][\\p{L}\\d \\+-.]*[\\p{L}\\d\\+-])", Pattern.CASE_INSENSITIVE)
 
   def isGoodTag(tag:String):Boolean = {
     tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH

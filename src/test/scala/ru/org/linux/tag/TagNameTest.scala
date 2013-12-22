@@ -28,8 +28,16 @@ class TagNameTest extends FunSuite {
     assert(isGoodTag("linux") === true)
   }
 
+  test("dot in end is not valid") {
+    assert(isGoodTag("linux.") === false)
+  }
+
   test("c++ is valid tag") {
     assert(isGoodTag("c++") === true)
+  }
+
+  test("-20 is valid tag") {
+    assert(isGoodTag("-20") === true)
   }
 }
 
