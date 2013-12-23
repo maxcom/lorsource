@@ -24,7 +24,7 @@ object TagName {
     }
   }
 
-  private[this] def parseTags(tags: String) = {
+  def parseTags(tags: String) = {
     if (tags == null) {
       Set.empty[String]
     } else {
@@ -33,7 +33,7 @@ object TagName {
 
       import scala.collection.breakOut
 
-      val tagSet: Set[String] = tagsArr.filterNot(_.isEmpty).map(_.toLowerCase.trim)(breakOut)
+      val tagSet: Set[String] = tagsArr.filterNot(_.trim.isEmpty).map(_.toLowerCase.trim)(breakOut)
 
       tagSet
     }

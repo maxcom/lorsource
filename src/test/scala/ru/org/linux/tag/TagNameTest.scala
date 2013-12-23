@@ -16,6 +16,13 @@ class TagNameTest extends FunSuite {
     assert(List("fedora", "ubuntu", "opensuse") === parseAndSanitizeTags("fedora, ubuntu, opensuse").toList)
   }
 
+  test("ignore extra spaces and commas") {
+    val (goodTags, badTags) = parseTags("fedora,, ,   ,  ,").partition(isGoodTag)
+
+    assert (badTags === Set())
+    assert (goodTags === Set("fedora"))
+  }
+
   test("html tag is invalid") {
     assert(isGoodTag("<b>") === false)
   }
