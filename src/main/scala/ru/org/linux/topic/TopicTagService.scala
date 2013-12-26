@@ -3,13 +3,14 @@ package ru.org.linux.topic
 import org.springframework.stereotype.Service
 import com.typesafe.scalalogging.slf4j.Logging
 import org.springframework.beans.factory.annotation.Autowired
-import ru.org.linux.tag.{ITagActionHandler, TagDao, TagService}
+import ru.org.linux.tag._
 import org.springframework.scala.transaction.support.TransactionManagement
 import scala.collection.JavaConversions._
 
 import TopicTagService._
-import com.google.common.collect.ImmutableList
+import com.google.common.collect.{ImmutableListMultimap, ImmutableList}
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.tag.TagRef
 
 @Service
 class TopicTagService @Autowired() (
@@ -114,6 +115,21 @@ class TopicTagService @Autowired() (
    */
   def getTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId).map(_.name)
 
+  def getTagRefs(topic:Topic):java.util.List[TagRef] =
+    topicTagDao.getTags(topic.getId).map(tag => tagRef(tag))
+
+  def getTagRefs(topics:java.util.List[Topic]):ImmutableListMultimap[Integer, TagRef] = {
+    val builder = ImmutableListMultimap.builder[Integer,TagRef]()
+
+    val tags = topicTagDao.getTags(topics)
+
+    for ((msgid, tag) <- tags) {
+      builder.put(msgid, tagRef(tag))
+    }
+
+    builder.build()
+  }
+
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
    * Ограничение по числу тегов для показа в заголовке в таблице
@@ -129,4 +145,23 @@ class TopicTagService @Autowired() (
 
 object TopicTagService {
   val MAX_TAGS_IN_TITLE = 3
+
+  // TODO: move to TagService
+  def tagRef(tag: TagInfo) = new TagRef(tag.name,
+    if (TagName.isGoodTag(tag.name)) {
+      Some(TagTopicListController.tagListUrl(tag.name))
+    } else {
+      None
+    })
+
+  // TODO: move to TagService
+  def tagRef(name: String) = new TagRef(name,
+    if (TagName.isGoodTag(name)) {
+      Some(TagTopicListController.tagListUrl(name))
+    } else {
+      None
+    })
+
+  // TODO: move to TagService
+  def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.map(tagRef)
 }

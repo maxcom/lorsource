@@ -15,6 +15,7 @@
 
 package ru.org.linux.tag;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
@@ -194,17 +195,7 @@ public class TagService {
   }
 
   public static String toString(Collection<String> tags) {
-    if (tags.isEmpty()) {
-      return "";
-    }
-
-    StringBuilder str = new StringBuilder();
-
-    for (String tag : tags) {
-      str.append(str.length() > 0 ? "," : "").append(tag);
-    }
-
-    return str.toString();
+    return Joiner.on(",").join(tags);
   }
 
   /**

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
@@ -72,7 +73,7 @@ public class EditHistoryService {
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
-    List<String> currentTags = topicTagService.getTags(message.getId());
+    List<TagRef> currentTags = topicTagService.getTagRefs(message);
     boolean currentMinor = message.isMinor();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
@@ -112,7 +113,7 @@ public class EditHistoryService {
       }
 
       if (dto.getOldtags() != null) {
-        currentTags = TagName.parseAndSanitizeTags(dto.getOldtags());
+        currentTags = TopicTagService.namesToRefs(TagName.parseAndSanitizeTags(dto.getOldtags()));
       }
 
       if (dto.getOldminor() != null) {

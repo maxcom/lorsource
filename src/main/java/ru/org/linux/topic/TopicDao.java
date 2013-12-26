@@ -15,12 +15,8 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +24,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -55,7 +50,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -205,36 +199,6 @@ public class TopicDao {
    */
   public List<String> getTags(Topic message) {
     return topicTagService.getTags(message.getId());
-  }
-
-  @Nonnull
-  public ImmutableListMultimap<Integer, String> getTags(@Nonnull List<Topic> topics) {
-    if (topics.isEmpty()) {
-      return ImmutableListMultimap.of();
-    }
-
-    ArrayList<Integer> topicIds = Lists.newArrayList(
-            Iterables.transform(topics, new Function<Topic, Integer>() {
-              @Override
-              public Integer apply(Topic topic) {
-                return topic.getId();
-              }
-            })
-    );
-
-    final ImmutableListMultimap.Builder<Integer, String> tags = ImmutableListMultimap.builder();
-
-    namedJdbcTemplate.query(
-            "SELECT msgid, tags_values.value FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
-            ImmutableMap.of("list", topicIds),
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                tags.put(resultSet.getInt("msgid"), resultSet.getString("value"));
-              }
-            });
-
-    return tags.build();
   }
 
   public boolean delete(int msgid) {

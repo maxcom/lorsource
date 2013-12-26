@@ -14,8 +14,7 @@
  */
 package ru.org.linux.site.tags;
 
-import ru.org.linux.tag.TagName;
-import ru.org.linux.topic.TagTopicListController;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.jsp.JspException;
@@ -28,9 +27,9 @@ import java.util.List;
  * tags tag
  */
 public class TagsTag extends TagSupport {
-  private List<String> list;
+  private List<TagRef> list;
 
-  public void setList(List<String> list) {
+  public void setList(List<TagRef> list) {
     this.list = list;
   }
 
@@ -41,19 +40,19 @@ public class TagsTag extends TagSupport {
     if (list != null) {
       try {
         StringBuilder buf = new StringBuilder();
-        for (String el : list) {
+        for (TagRef el : list) {
           if (buf.length() > 0) {
             buf.append(", ");
           }
-          if (TagName.isGoodTag(el)) {
+          if (el.url().isDefined()) {
             buf
                 .append("<a class=tag rel=tag href=\"")
-                .append(TagTopicListController.tagListUrl(el))
+                .append(el.url().get())
                 .append("\">")
-                .append(StringUtil.escapeHtml(el))
+                .append(StringUtil.escapeHtml(el.name()))
                 .append("</a>");
           } else {
-            buf.append(StringUtil.escapeHtml(el));
+            buf.append(StringUtil.escapeHtml(el.name()));
           }
         }
         out.append(buf);

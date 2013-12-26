@@ -50,6 +50,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
@@ -242,7 +243,7 @@ public class EditTopicController {
     }
 
     if (!preparedTopic.getTags().isEmpty()) {
-      form.setTags(TagService.toString(preparedTopic.getTags()));
+      form.setTags(TagRef.names(preparedTopic.getTags()));
     }
 
     if (preparedTopic.getSection().isPollPostAllowed()) {
@@ -490,7 +491,7 @@ public class EditTopicController {
             "newPreparedMessage",
             prepareService.prepareTopicPreview(
                     newMsg,
-                    newTags,
+                    TopicTagService.namesToRefs(newTags),
                     newPoll,
                     request.isSecure(),
                     newText,

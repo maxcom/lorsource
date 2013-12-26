@@ -307,7 +307,7 @@ public class AddTopicController {
 
       PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
-              TagName.parseAndSanitizeTags(form.getTags()),
+              TopicTagService.namesToRefs(TagName.parseAndSanitizeTags(form.getTags())),
               poll,
               request.isSecure(),
               message,

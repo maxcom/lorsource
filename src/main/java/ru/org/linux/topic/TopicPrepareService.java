@@ -43,10 +43,10 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.LorURL;
-import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.image.ImageInfo;
 
@@ -106,14 +106,17 @@ public class TopicPrepareService {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private TopicTagService topicTagService;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
-    return prepareMessage(message, messageDao.getTags(message), false, null, secure, user, null, null);
+    return prepareMessage(message, topicTagService.getTagRefs(message), false, null, secure, user, null, null);
   }
 
   public PreparedTopic prepareTopicPreview(
           Topic message,
-          List<String> tags,
+          List<TagRef> tags,
           Poll newPoll,
           boolean secure,
           String text,
@@ -143,7 +146,7 @@ public class TopicPrepareService {
    */
   private PreparedTopic prepareMessage(
           Topic message, 
-          List<String> tags, 
+          List<TagRef> tags,
           boolean minimizeCut, 
           PreparedPoll poll,
           boolean secure, 
@@ -319,7 +322,7 @@ public class TopicPrepareService {
     List<PersonalizedPreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
-    ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
+    ImmutableListMultimap<Integer,TagRef> tags = topicTagService.getTagRefs(messages);
 
     for (Topic message : messages) {
 
@@ -372,7 +375,7 @@ public class TopicPrepareService {
     List<PreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
-    ImmutableListMultimap<Integer,String> tags = messageDao.getTags(messages);
+    ImmutableListMultimap<Integer,TagRef> tags = topicTagService.getTagRefs(messages);
 
     for (Topic message : messages) {
       PreparedTopic preparedMessage = prepareMessage(

@@ -21,6 +21,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
 
@@ -36,7 +37,7 @@ public final class PreparedTopic {
   private final PreparedPoll poll;
   private final User commiter;
   private final boolean lorcode;
-  private final ImmutableList<String> tags;
+  private final ImmutableList<TagRef> tags;
   private final Group group;
   private final Section section;
 
@@ -59,7 +60,7 @@ public final class PreparedTopic {
           String ogDescription,
           PreparedPoll poll,
           User commiter,
-          List<String> tags,
+          List<TagRef> tags,
           Group group,
           Section section,
           EditHistoryDto lastHistoryDto,
@@ -141,7 +142,7 @@ public final class PreparedTopic {
     return message.getId();
   }
 
-  public ImmutableList<String> getTags() {
+  public ImmutableList<TagRef> getTags() {
     return tags;
   }
 

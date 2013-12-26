@@ -15,6 +15,7 @@
 
 package ru.org.linux.edithistory;
 
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.User;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -29,7 +30,7 @@ public class PreparedEditHistory {
   private final String message;
   private final boolean current;
   private final String title;
-  private final List<String> tags;
+  private final List<TagRef> tags;
   private final String url;
   private final String linktext;
   private final Boolean minor;
@@ -44,7 +45,7 @@ public class PreparedEditHistory {
     String title,
     String url,
     String linktext,
-    List<String> tags,
+    List<TagRef> tags,
     boolean current,
     boolean original,
     @Nullable Boolean minor
@@ -101,7 +102,7 @@ public class PreparedEditHistory {
     return original;
   }
 
-  public List<String> getTags() {
+  public List<TagRef> getTags() {
     return tags;
   }
 
