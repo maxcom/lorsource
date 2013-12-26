@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
+import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.UserErrorException;
 
 import java.util.*;
@@ -213,7 +214,7 @@ public class TagService {
     return tagDao.getCounter(tagId);
   }
 
-  public List<String> getRelatedTags(int tagId) {
-    return Ordering.natural().immutableSortedCopy(tagDao.relatedTags(tagId));
+  public List<TagRef> getRelatedTags(int tagId) {
+    return Ordering.natural().immutableSortedCopy(TopicTagService.namesToRefs(tagDao.relatedTags(tagId)));
   }
 }

@@ -130,7 +130,7 @@ public class TagPageController {
 
     mv.addObject("favsCount", userTagService.countFavs(tagId));
 
-    List<String> relatedTags = tagService.getRelatedTags(tagId);
+    List<TagRef> relatedTags = tagService.getRelatedTags(tagId);
 
     if (relatedTags.size()>1) {
       mv.addObject("relatedTags", relatedTags);
