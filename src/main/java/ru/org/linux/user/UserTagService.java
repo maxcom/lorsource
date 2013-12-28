@@ -75,8 +75,7 @@ public class UserTagService {
    * @param tagName название тега
    * @return идентификатор избранного тега
    */
-  public int favoriteAdd(User user, String tagName)
-    throws TagNotFoundException {
+  public int favoriteAdd(User user, String tagName) throws TagNotFoundException {
     int tagId = tagDao.getTagId(tagName);
     userTagDao.addTag(user.getId(), tagId, true);
     return tagId;

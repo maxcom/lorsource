@@ -57,12 +57,14 @@ public class TagDaoIntegrationTest {
 
   @Test
   public void prefixSearchSimpleTest() {
-    tagDao.createTag("zest");
-    tagDao.createTag("zesd");
+    int zest = tagDao.createTag("zest");
+    int zesd = tagDao.createTag("zesd");
 
     List<TagInfo> tags = tagDao.getTagsByPrefix("ze", 0);
 
     assertEquals(2, tags.size());
+    assertEquals(zesd, tags.get(0).id());
+    assertEquals(zest, tags.get(1).id());
   }
 
   @Test

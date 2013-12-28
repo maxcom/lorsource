@@ -18,9 +18,12 @@ package ru.org.linux.tag;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -32,27 +35,39 @@ import java.util.TreeSet;
 
 @Repository
 public class TagDao {
+  private static final Logger logger = LoggerFactory.getLogger(TagDao.class);
 
   private static final int TOP_TAGS_COUNT = 50;
 
   private static final String QUERY_TAG_ID_BY_NAME = "SELECT id FROM tags_values WHERE value=?";
 
   private JdbcTemplate jdbcTemplate;
+  private SimpleJdbcInsert simpleJdbcInsert;
+
 
   @Autowired
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
+    simpleJdbcInsert = new SimpleJdbcInsert(ds)
+            .withTableName("tags_values")
+            .usingColumns("value")
+            .usingGeneratedKeyColumns("id");
   }
 
   /**
    * Создать новый тег.
    *
    * @param tagName название нового тега
+   * @return tag id
    */
-  public void createTag(String tagName) {
+  public int createTag(String tagName) {
     Preconditions.checkArgument(TagName.isGoodTag(tagName), "Tag name must be valid");
 
-    jdbcTemplate.update("INSERT INTO tags_values (value) VALUES(?)", tagName);
+    int id = simpleJdbcInsert.executeAndReturnKey(ImmutableMap.<String, Object>of("value", tagName)).intValue();
+
+    logger.debug("Создан тег: '{}' id={}", tagName, id);
+
+    return id;
   }
 
   /**
@@ -135,11 +150,11 @@ public class TagDao {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {
           builder.add(
-              new TagInfo(
-                  resultSet.getString("value"),
-                  resultSet.getInt("counter"),
-                  resultSet.getInt("id")
-              )
+                  new TagInfo(
+                          resultSet.getString("value"),
+                          resultSet.getInt("counter"),
+                          resultSet.getInt("id")
+                  )
           );
         }
       },

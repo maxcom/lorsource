@@ -101,16 +101,6 @@ public class TagService {
   }
 
   /**
-   * Создать новый тег.
-   *
-   * @param tagName название нового тега
-   */
-  private void create(String tagName) {
-    tagDao.createTag(tagName);
-    logger.info("Создан тег: '{}'", tagName);
-  }
-
-  /**
    * Изменить название существующего тега.
    *
    * @param oldTagName старое название тега
@@ -118,7 +108,7 @@ public class TagService {
    * @param errors     обработчик ошибок ввода для формы
    */
   public void change(String oldTagName, String tagName, Errors errors) {
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    // TODO Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       TagName.checkTag(tagName);
       int oldTagId = tagDao.getTagId(oldTagName);
@@ -150,7 +140,7 @@ public class TagService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void delete(String tagName, String newTagName, Errors errors) {
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    // TODO Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       int oldTagId = tagDao.getTagId(tagName);
       if (!Strings.isNullOrEmpty(newTagName)) {
@@ -160,12 +150,11 @@ public class TagService {
         }
         TagName.checkTag(newTagName);
         int newTagId = getOrCreateTag(newTagName);
-        if (newTagId != 0) {
-          for (ITagActionHandler actionHandler : actionHandlers) {
-            actionHandler.replaceTag(oldTagId, tagName, newTagId, newTagName);
-          }
-          logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName);
+
+        for (ITagActionHandler actionHandler : actionHandlers) {
+          actionHandler.replaceTag(oldTagId, tagName, newTagId, newTagName);
         }
+        logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName);
       }
       for (ITagActionHandler actionHandler : actionHandlers) {
         actionHandler.deleteTag(oldTagId, tagName);
@@ -188,16 +177,11 @@ public class TagService {
    */
   public int getOrCreateTag(String tagName) {
     int id;
-    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    // TODO Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       id = tagDao.getTagId(tagName);
     } catch (TagNotFoundException e) {
-      create(tagName);
-      try {
-        id = tagDao.getTagId(tagName);
-      } catch (TagNotFoundException e2) {
-        id = 0;
-      }
+      id = tagDao.createTag(tagName);
     }
     return id;
   }
