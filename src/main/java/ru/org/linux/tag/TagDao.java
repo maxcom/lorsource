@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -221,8 +222,17 @@ public class TagDao {
     return getTagId(tagName, false);
   }
 
-  public int getCounter(int tagId) {
-    return jdbcTemplate.queryForObject("SELECT counter FROM tags_values WHERE id=?", Integer.class, tagId);
+  public TagInfo getTagInfo(int tagId) {
+    return jdbcTemplate.queryForObject(
+            "SELECT counter, value, id  FROM tags_values WHERE id=?",
+            new RowMapper<TagInfo>() {
+              @Override
+              public TagInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new TagInfo(rs.getString("value"), rs.getInt("counter"), rs.getInt("id"));
+              }
+            },
+            tagId
+    );
   }
 
   public List<String> relatedTags(int tagid) {

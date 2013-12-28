@@ -45,14 +45,14 @@ public class TagService {
   }
 
   /**
-   * Получение идентификационного номера тега по названию. Тег должен использоваться.
+   * Получение идентификационного номера тега по названию.
    *
    * @param tag название тега
    * @return идентификационный номер
    * @throws TagNotFoundException
    */
   public int getTagId(String tag) throws TagNotFoundException {
-    return tagDao.getTagId(tag, true);
+    return tagDao.getTagId(tag);
   }
 
   /**
@@ -199,10 +199,10 @@ public class TagService {
     }
   }
 
-  public int getCounter(String tag) throws TagNotFoundException {
-    int tagId = tagDao.getTagId(tag);
+  public TagInfo getTagInfo(String tag, boolean skipZero) throws TagNotFoundException {
+    int tagId = tagDao.getTagId(tag, skipZero);
 
-    return tagDao.getCounter(tagId);
+    return tagDao.getTagInfo(tagId);
   }
 
   public List<TagRef> getRelatedTags(int tagId) {

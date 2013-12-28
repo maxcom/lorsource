@@ -30,6 +30,7 @@ import org.springframework.web.util.UriTemplate;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.tag.TagInfo;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.UserTagService;
@@ -165,10 +166,12 @@ public class TagTopicListController {
       }
     }
 
-    modelAndView.addObject("counter", tagService.getCounter(tag));
+    TagInfo tagInfo = tagService.getTagInfo(tag, true);
+
+    modelAndView.addObject("counter", tagInfo.topicCount());
 
     modelAndView.addObject("url", tagListUrl(tag));
-    modelAndView.addObject("favsCount", userTagService.countFavs(tagService.getTagId(tag)));
+    modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id()));
 
     if (offset<200 && preparedTopics.size()==20) {
       modelAndView.addObject("nextLink", buildTagUri(tag, sectionId, offset + 20));

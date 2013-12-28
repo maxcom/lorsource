@@ -112,7 +112,10 @@ public class TagPageController {
 
     mv.addObject("tag", tag);
     mv.addObject("title", WordUtils.capitalize(tag));
-    mv.addObject("counter", tagService.getCounter(tag));
+
+    TagInfo tagInfo = tagService.getTagInfo(tag, true);
+
+    mv.addObject("counter", tagInfo.topicCount());
 
     if (tmpl.isSessionAuthorized()) {
       mv.addObject(
@@ -126,7 +129,7 @@ public class TagPageController {
       );
     }
 
-    int tagId = tagService.getTagId(tag);
+    int tagId = tagInfo.id();
 
     mv.addObject("favsCount", userTagService.countFavs(tagId));
 
