@@ -16,15 +16,14 @@ import ru.org.linux.tag.TagRef
 class TopicTagService @Autowired() (
                                      val transactionManager:PlatformTransactionManager,
                                      tagService:TagService,
-                                     topicTagDao:TopicTagDao,
-                                     tagDao:TagDao
+                                     topicTagDao:TopicTagDao
   ) extends Logging with TransactionManagement {
 
   tagService.getActionHandlers.add(new ITagActionHandler() {
     override def replaceTag(oldTagId: Int, oldTagName: String, newTagId: Int, newTagName: String):Unit = {
       val tagCount = topicTagDao.getCountReplacedTags(oldTagId, newTagId)
       topicTagDao.replaceTag(oldTagId, newTagId)
-      tagDao.increaseCounterById(newTagId, tagCount)
+      topicTagDao.increaseCounterById(newTagId, tagCount)
 
       logger.debug(s"Счётчик использование тега '$newTagName' увеличен на $tagCount")
     }
@@ -97,13 +96,13 @@ class TopicTagService @Autowired() (
     for (tag <- newTags if !oldTags.contains(tag)) {
       val id = tagService.getOrCreateTag(tag)
       logger.trace("Увеличен счётчик для тега " + tag)
-      tagDao.increaseCounterById(id, 1)
+      topicTagDao.increaseCounterById(id, 1)
     }
 
     for (tag <- oldTags if !newTags.contains(tag)) {
       val id = tagService.getOrCreateTag(tag)
       logger.trace("Уменьшен счётчик для тега " + tag)
-      tagDao.decreaseCounterById(id, 1)
+      topicTagDao.decreaseCounterById(id, 1)
     }
   }
 

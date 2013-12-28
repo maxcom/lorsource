@@ -45,9 +45,9 @@ class TopicTagDao @Autowired() (ds:DataSource) {
    */
   def getTags(msgid:Int):Seq[TagInfo] = {
     jdbcTemplate.queryAndMap(
-      "SELECT tags_values.value, tags_values.counter FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
+      "SELECT tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
       msgid
-    ) { (rs, _) => TagInfo(rs.getString("value"), rs.getInt("counter")) }
+    ) { (rs, _) => TagInfo(rs.getString("value"), rs.getInt("counter"), rs.getInt("id")) }
   }
 
   /**
@@ -103,12 +103,36 @@ class TopicTagDao @Autowired() (ds:DataSource) {
       val topicIds:java.util.List[Int] = topics.map(_.getId)
 
       namedJdbcTemplate.query(
-        "SELECT msgid, tags_values.value, tags_values.counter FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
+        "SELECT msgid, tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
         ImmutableMap.of("list", topicIds),
         new RowMapper[(Int, TagInfo)]() {
           def mapRow(resultSet: ResultSet, rowNum: Int): (Int, TagInfo) =
-            resultSet.getInt("msgid") -> TagInfo(resultSet.getString("value"), resultSet.getInt("counter"))
+            resultSet.getInt("msgid") -> TagInfo(
+              resultSet.getString("value"),
+              resultSet.getInt("counter"),
+              resultSet.getInt("id")
+            )
         }).toVector
     }
+  }
+
+  /**
+   * Увеличить счётчик использования тега.
+   *
+   * @param tagId    идентификационный номер тега
+   * @param tagCount на какое значение изменить счётчик
+   */
+  def increaseCounterById(tagId: Int, tagCount: Int):Unit = {
+    jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId)
+  }
+
+  /**
+   * Уменьшить счётчик использования тега.
+   *
+   * @param tagId    идентификационный номер тега
+   * @param tagCount на какое значение изменить счётчик
+   */
+  def decreaseCounterById(tagId: Int, tagCount: Int):Unit = {
+    jdbcTemplate.update("UPDATE tags_values SET counter=counter-? WHERE id=?", tagCount, tagId)
   }
 }

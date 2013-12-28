@@ -16,6 +16,7 @@
 package ru.org.linux.tag;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,7 +27,6 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -123,10 +123,10 @@ public class TagDao {
    * @param prefix       префикс имени тега
    * @return список тегов
    */
-  Map<String, Integer> getTagsByPrefix(String prefix, int minCount) {
-    final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+  List<TagInfo> getTagsByPrefix(String prefix, int minCount) {
+    final ImmutableList.Builder<TagInfo> builder = ImmutableList.builder();
     StringBuilder query = new StringBuilder();
-    query.append("select counter, value from tags_values where value like ?");
+    query.append("select counter, value, id from tags_values where value like ?");
     query.append(" and counter >= ? ");
     query.append(" order by value");
 
@@ -134,7 +134,13 @@ public class TagDao {
       new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {
-          builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
+          builder.add(
+              new TagInfo(
+                  resultSet.getString("value"),
+                  resultSet.getInt("counter"),
+                  resultSet.getInt("id")
+              )
+          );
         }
       },
             escapeLikeWildcards(prefix) + "%", minCount
@@ -172,26 +178,6 @@ public class TagDao {
 
   private static String escapeLikeWildcards(String str) {
     return str.replaceAll("[_%]", "\\\\$0");
-  }
-
-  /**
-   * Увеличить счётчик использования тега.
-   *
-   * @param tagId    идентификационный номер тега
-   * @param tagCount на какое значение изменить счётчик
-   */
-  public void increaseCounterById(int tagId, int tagCount) {
-    jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId);
-  }
-
-  /**
-   * Уменьшить счётчик использования тега.
-   *
-   * @param tagId    идентификационный номер тега
-   * @param tagCount на какое значение изменить счётчик
-   */
-  public void decreaseCounterById(int tagId, int tagCount) {
-    jdbcTemplate.update("UPDATE tags_values SET counter=counter-? WHERE id=?", tagCount, tagId);
   }
 
   /**

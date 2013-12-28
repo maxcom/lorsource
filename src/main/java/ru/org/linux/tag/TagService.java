@@ -17,6 +17,7 @@ package ru.org.linux.tag;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,13 @@ public class TagService {
    * @return список тегов по первому символу
    */
   public Map<String, Integer> getTagsByPrefix(String prefix, int threshold) {
-    return tagDao.getTagsByPrefix(prefix, threshold);
+    ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+
+    for (TagInfo info : tagDao.getTagsByPrefix(prefix, threshold)) {
+      builder.put(info.name(), info.topicCount());
+    }
+
+    return builder.build();
   }
 
   /**
