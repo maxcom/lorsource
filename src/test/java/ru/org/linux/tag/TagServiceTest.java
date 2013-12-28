@@ -15,6 +15,7 @@
 
 package ru.org.linux.tag;
 
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.WebDataBinder;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +44,7 @@ public class TagServiceTest {
   @Before
   public void resetTagDaoMock() {
     reset(tagDao);
+    when(tagDao.getTagId(anyString())).thenReturn(Optional.<Integer>absent());
   }
 
   private void prepareChangeDataBinder() {
@@ -57,9 +60,8 @@ public class TagServiceTest {
   @Test
   public void changeTest()
     throws Exception {
-    when(tagDao.getTagId("testTag")).thenReturn(123);
-    when(tagDao.getTagId("testNewTag")).thenReturn(456);
-    when(tagDao.getTagId("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+    when(tagDao.getTagId("testTag")).thenReturn(Optional.of(123));
+    when(tagDao.getTagId("testNewTag")).thenReturn(Optional.of(456));
 
     prepareChangeDataBinder();
     tagService.change("InvalidTestTag", "testNewTag", binder.getBindingResult());
@@ -77,16 +79,20 @@ public class TagServiceTest {
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
-    when(tagDao.getTagId("testNewTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+    resetTagDaoMock();
+    when(tagDao.getTagId("testTag")).thenReturn(Optional.of(123));
+    when(tagDao.getTagId("testNewTag")).thenReturn(Optional.<Integer>absent());
     prepareChangeDataBinder();
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
     assertFalse(binder.getBindingResult().hasErrors());
   }
+
   @Test
   public void deleteTest()
     throws Exception {
 
-    when(tagDao.getTagId("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+    when(tagDao.getTagId("testTag")).thenReturn(Optional.of(123));
+    when(tagDao.getTagId("InvalidTestTag")).thenReturn(Optional.<Integer>absent());
 
     prepareDeleteDataBinder();
     tagService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());

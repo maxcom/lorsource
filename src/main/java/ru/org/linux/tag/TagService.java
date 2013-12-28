@@ -16,7 +16,9 @@
 package ru.org.linux.tag;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
@@ -52,7 +54,13 @@ public class TagService {
    * @throws TagNotFoundException
    */
   public int getTagId(String tag) throws TagNotFoundException {
-    return tagDao.getTagId(tag);
+    Optional<Integer> tagId = tagDao.getTagId(tag);
+
+    if (tagId.isPresent()) {
+      return tagId.get();
+    } else {
+      throw new TagNotFoundException();
+    }
   }
 
   /**
@@ -108,14 +116,13 @@ public class TagService {
    * @param errors     обработчик ошибок ввода для формы
    */
   public void change(String oldTagName, String tagName, Errors errors) {
-    // TODO Нельзя строить логику на исключениях. Это антипаттерн!
     try {
       TagName.checkTag(tagName);
-      int oldTagId = tagDao.getTagId(oldTagName);
-      try {
-        tagDao.getTagId(tagName);
+      int oldTagId = getTagId(oldTagName);
+
+      if (tagDao.getTagId(tagName).isPresent()) {
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
-      } catch (TagNotFoundException ignored) {
+      } else {
         tagDao.changeTag(oldTagId, tagName);
         logger.info(
                 "Изменено название тега. Старое значение: '{}'; новое значение: '{}'",
@@ -140,9 +147,8 @@ public class TagService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void delete(String tagName, String newTagName, Errors errors) {
-    // TODO Нельзя строить логику на исключениях. Это антипаттерн!
     try {
-      int oldTagId = tagDao.getTagId(tagName);
+      int oldTagId = getTagId(tagName);
       if (!Strings.isNullOrEmpty(newTagName)) {
         if (newTagName.equals(tagName)) {
           errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
@@ -161,7 +167,6 @@ public class TagService {
       }
       tagDao.deleteTag(oldTagId);
       logger.info("Удалён тег: " + tagName);
-
     } catch (UserErrorException e) {
       errors.rejectValue("tagName", "", e.getMessage());
     } catch (TagNotFoundException e) {
@@ -175,15 +180,13 @@ public class TagService {
    * @param tagName название тега
    * @return идентификационный номер тега
    */
-  public int getOrCreateTag(String tagName) {
-    int id;
-    // TODO Нельзя строить логику на исключениях. Это антипаттерн!
-    try {
-      id = tagDao.getTagId(tagName);
-    } catch (TagNotFoundException e) {
-      id = tagDao.createTag(tagName);
-    }
-    return id;
+  public int getOrCreateTag(final String tagName) {
+    return tagDao.getTagId(tagName).or(new Supplier<Integer>() {
+      @Override
+      public Integer get() {
+        return tagDao.createTag(tagName);
+      }
+    });
   }
 
   public static String toString(Collection<String> tags) {
@@ -200,9 +203,13 @@ public class TagService {
   }
 
   public TagInfo getTagInfo(String tag, boolean skipZero) throws TagNotFoundException {
-    int tagId = tagDao.getTagId(tag, skipZero);
+    Optional<Integer> tagId = tagDao.getTagId(tag, skipZero);
 
-    return tagDao.getTagInfo(tagId);
+    if (!tagId.isPresent()) {
+      throw new TagNotFoundException();
+    }
+
+    return tagDao.getTagInfo(tagId.get());
   }
 
   public List<TagRef> getRelatedTags(int tagId) {

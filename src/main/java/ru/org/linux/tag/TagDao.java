@@ -15,6 +15,7 @@
 
 package ru.org.linux.tag;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -204,7 +205,7 @@ public class TagDao {
    * @return идентификационный номер
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag, boolean skipZero) throws TagNotFoundException {
+  public Optional<Integer> getTagId(String tag, boolean skipZero) {
     List<Integer> res = jdbcTemplate.queryForList(
             QUERY_TAG_ID_BY_NAME + (skipZero?" AND counter>0":""),
             Integer.class,
@@ -212,13 +213,13 @@ public class TagDao {
     );
 
     if (res.isEmpty()) {
-      throw new TagNotFoundException();
+      return Optional.absent();
     } else {
-      return res.get(0);
+      return Optional.of(res.get(0));
     }
   }
 
-  public int getTagId(String tagName) throws TagNotFoundException {
+  public Optional<Integer> getTagId(String tagName) {
     return getTagId(tagName, false);
   }
 

@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +54,7 @@ public class UserTagServiceTest {
   public void resetMockObjects() throws Exception {
     reset(userTagDao);
     reset(tagDao);
-    when(tagDao.getTagId("tag1")).thenReturn(2);
+    when(tagDao.getTagId("tag1")).thenReturn(Optional.of(2));
     user = getUser(1);
   }
 
@@ -68,30 +69,26 @@ public class UserTagServiceTest {
   }
 
   @Test
-  public void favoriteAddTest()
-    throws TagNotFoundException {
-    when(tagDao.getTagId("tag1")).thenReturn(2);
+  public void favoriteAddTest() throws TagNotFoundException {
+    when(tagDao.getTagId("tag1")).thenReturn(Optional.of(2));
     userTagService.favoriteAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(true));
   }
 
   @Test
-  public void favoriteDelTest()
-    throws TagNotFoundException {
+  public void favoriteDelTest() throws TagNotFoundException {
     userTagService.favoriteDel(user, "tag1");
     verify(userTagDao).deleteTag(eq(1), eq(2), eq(true));
   }
 
   @Test
-  public void ignoreAddTest()
-    throws TagNotFoundException {
+  public void ignoreAddTest() throws TagNotFoundException {
     userTagService.ignoreAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(false));
   }
 
   @Test
-  public void ignoreDelTest()
-    throws TagNotFoundException {
+  public void ignoreDelTest() throws TagNotFoundException {
     userTagService.ignoreDel(user, "tag1");
     verify(userTagDao).deleteTag(eq(1), eq(2), eq(false));
   }
