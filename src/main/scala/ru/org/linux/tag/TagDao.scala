@@ -10,6 +10,7 @@ import scala.collection.JavaConversions._
 import java.sql.ResultSet
 
 import TagDao._
+import org.springframework.dao.EmptyResultDataAccessException
 
 @Repository
 class TagDao @Autowired() (ds:DataSource) extends Logging {
@@ -114,10 +115,14 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    * @return идентификационный номер
    */
   def getTagId(tag: String, skipZero: Boolean): Option[Integer] = {
-    jdbcTemplate.queryForObject[Integer](
-      "SELECT id FROM tags_values WHERE value=?" + (if (skipZero) " AND counter>0" else ""),
-      tag
-    )
+    try {
+      jdbcTemplate.queryForObject[Integer](
+        "SELECT id FROM tags_values WHERE value=?" + (if (skipZero) " AND counter>0" else ""),
+        tag
+      )
+    } catch {  // что-то в spring-scala не доделано
+      case ex: EmptyResultDataAccessException => None
+    }
   }
 
   def getTagId(tag: String):Option[Integer] = getTagId(tag, skipZero = false)

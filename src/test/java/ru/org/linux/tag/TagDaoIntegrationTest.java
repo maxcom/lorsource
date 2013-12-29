@@ -26,8 +26,7 @@ import scala.Option;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TagIntegrationTestConfiguration.class)
@@ -35,6 +34,13 @@ import static org.junit.Assert.assertNotNull;
 public class TagDaoIntegrationTest {
   @Autowired
   TagDao tagDao;
+
+  @Test
+  public void testTagNotFound() {
+    Option<Integer> fetch = tagDao.getTagId("fdsfsdfdsfsdfs");
+
+    assertTrue(fetch.isEmpty());
+  }
 
   @Test
   public void createAndGetTest() {
