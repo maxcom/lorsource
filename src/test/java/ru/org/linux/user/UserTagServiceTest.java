@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.validation.Errors;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
+import scala.Option;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,7 +54,7 @@ public class UserTagServiceTest {
   public void resetMockObjects() throws Exception {
     reset(userTagDao);
     reset(tagDao);
-    when(tagDao.getTagId("tag1")).thenReturn(Optional.of(2));
+    when(tagDao.getTagId("tag1")).thenReturn(Option.apply(2));
     user = getUser(1);
   }
 
@@ -70,7 +70,7 @@ public class UserTagServiceTest {
 
   @Test
   public void favoriteAddTest() throws TagNotFoundException {
-    when(tagDao.getTagId("tag1")).thenReturn(Optional.of(2));
+    when(tagDao.getTagId("tag1")).thenReturn(Option.apply(2));
     userTagService.favoriteAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(true));
   }

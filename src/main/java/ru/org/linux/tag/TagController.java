@@ -32,9 +32,9 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.TagTopicListController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
 @Controller
 public class TagController {
@@ -68,11 +68,11 @@ public class TagController {
     throws TagNotFoundException {
     ModelAndView modelAndView = new ModelAndView("tags");
 
-    SortedSet<String> firstLetters = tagService.getFirstLetters();
+    Collection<String> firstLetters = tagService.getFirstLetters();
     modelAndView.addObject("firstLetters", firstLetters);
 
     if (Strings.isNullOrEmpty(firstLetter)) {
-      firstLetter = firstLetters.first();
+      firstLetter = firstLetters.iterator().next();
     }
 
     modelAndView.addObject("currentLetter", firstLetter);
@@ -105,7 +105,7 @@ public class TagController {
   List<String> showTagListHandlerJSON(
     @RequestParam("term") final String term
   ) {
-    SortedSet<String> tags = tagService.suggestTagsByPrefix(term, 10);
+    Collection<String> tags = tagService.suggestTagsByPrefix(term, 10);
 
     return ImmutableList.copyOf(Iterables.filter(tags, new Predicate<String>() {
       @Override

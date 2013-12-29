@@ -22,8 +22,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,7 +50,7 @@ public class TagDaoIntegrationTest {
     tagDao.createTag("zest");
     tagDao.createTag("zesd");
 
-    Set<String> tags = tagDao.getTopTagsByPrefix("zest", 0, 20);
+    Collection<String> tags = tagDao.getTopTagsByPrefix("zest", 0, 20);
 
     assertEquals(1, tags.size());
   }

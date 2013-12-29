@@ -16,9 +16,7 @@
 package ru.org.linux.tag;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
@@ -30,8 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.UserErrorException;
+import scala.Option;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class TagService {
@@ -54,9 +56,9 @@ public class TagService {
    * @throws TagNotFoundException
    */
   public int getTagId(String tag) throws TagNotFoundException {
-    Optional<Integer> tagId = tagDao.getTagId(tag);
+    Option<Integer> tagId = tagDao.getTagId(tag);
 
-    if (tagId.isPresent()) {
+    if (tagId.isDefined()) {
       return tagId.get();
     } else {
       throw new TagNotFoundException();
@@ -68,7 +70,7 @@ public class TagService {
    *
    * @return список наиболее популярных тегов
    */
-  public SortedSet<String> getTopTags() {
+  public Collection<String> getTopTags() {
     return tagDao.getTopTags();
   }
 
@@ -77,7 +79,7 @@ public class TagService {
    *
    * @return список первых букв тегов
    */
-  public SortedSet<String> getFirstLetters() {
+  public Collection<String> getFirstLetters() {
     return tagDao.getFirstLetters();
   }
 
@@ -104,7 +106,7 @@ public class TagService {
    * @param count      количество тегов
    * @return список тегов по первому символу
    */
-  public SortedSet<String> suggestTagsByPrefix(String prefix, int count) {
+  public Collection<String> suggestTagsByPrefix(String prefix, int count) {
     return tagDao.getTopTagsByPrefix(prefix, 2, count);
   }
 
@@ -120,7 +122,7 @@ public class TagService {
       TagName.checkTag(tagName);
       int oldTagId = getTagId(oldTagName);
 
-      if (tagDao.getTagId(tagName).isPresent()) {
+      if (tagDao.getTagId(tagName).isDefined()) {
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
       } else {
         tagDao.changeTag(oldTagId, tagName);
@@ -181,12 +183,13 @@ public class TagService {
    * @return идентификационный номер тега
    */
   public int getOrCreateTag(final String tagName) {
-    return tagDao.getTagId(tagName).or(new Supplier<Integer>() {
-      @Override
-      public Integer get() {
-        return tagDao.createTag(tagName);
-      }
-    });
+    Option<Integer> tagId = tagDao.getTagId(tagName);
+
+    if (tagId.isDefined()) {
+      return tagId.get();
+    } else {
+      return tagDao.createTag(tagName);
+    }
   }
 
   public static String toString(Collection<String> tags) {
@@ -203,9 +206,9 @@ public class TagService {
   }
 
   public TagInfo getTagInfo(String tag, boolean skipZero) throws TagNotFoundException {
-    Optional<Integer> tagId = tagDao.getTagId(tag, skipZero);
+    Option<Integer> tagId = tagDao.getTagId(tag, skipZero);
 
-    if (!tagId.isPresent()) {
+    if (tagId.isEmpty()) {
       throw new TagNotFoundException();
     }
 

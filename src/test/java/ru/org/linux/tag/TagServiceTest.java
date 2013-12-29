@@ -15,7 +15,6 @@
 
 package ru.org.linux.tag;
 
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.WebDataBinder;
+import scala.Option;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -41,10 +41,12 @@ public class TagServiceTest {
 
   WebDataBinder binder;
 
+  private static Option<Integer> noneInteger = scala.Option.apply(null);
+
   @Before
   public void resetTagDaoMock() {
     reset(tagDao);
-    when(tagDao.getTagId(anyString())).thenReturn(Optional.<Integer>absent());
+    when(tagDao.getTagId(anyString())).thenReturn(noneInteger);
   }
 
   private void prepareChangeDataBinder() {
@@ -60,8 +62,8 @@ public class TagServiceTest {
   @Test
   public void changeTest()
     throws Exception {
-    when(tagDao.getTagId("testTag")).thenReturn(Optional.of(123));
-    when(tagDao.getTagId("testNewTag")).thenReturn(Optional.of(456));
+    when(tagDao.getTagId("testTag")).thenReturn(Option.apply(123));
+    when(tagDao.getTagId("testNewTag")).thenReturn(Option.apply(456));
 
     prepareChangeDataBinder();
     tagService.change("InvalidTestTag", "testNewTag", binder.getBindingResult());
@@ -80,8 +82,8 @@ public class TagServiceTest {
     assertTrue(binder.getBindingResult().hasErrors());
 
     resetTagDaoMock();
-    when(tagDao.getTagId("testTag")).thenReturn(Optional.of(123));
-    when(tagDao.getTagId("testNewTag")).thenReturn(Optional.<Integer>absent());
+    when(tagDao.getTagId("testTag")).thenReturn(Option.apply(123));
+    when(tagDao.getTagId("testNewTag")).thenReturn(noneInteger);
     prepareChangeDataBinder();
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
     assertFalse(binder.getBindingResult().hasErrors());
@@ -91,8 +93,8 @@ public class TagServiceTest {
   public void deleteTest()
     throws Exception {
 
-    when(tagDao.getTagId("testTag")).thenReturn(Optional.of(123));
-    when(tagDao.getTagId("InvalidTestTag")).thenReturn(Optional.<Integer>absent());
+    when(tagDao.getTagId("testTag")).thenReturn(Option.apply(123));
+    when(tagDao.getTagId("InvalidTestTag")).thenReturn(noneInteger);
 
     prepareDeleteDataBinder();
     tagService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());
