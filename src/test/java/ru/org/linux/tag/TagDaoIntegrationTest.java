@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+import scala.Option;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +35,14 @@ import static org.junit.Assert.assertNotNull;
 public class TagDaoIntegrationTest {
   @Autowired
   TagDao tagDao;
+
+  @Test
+  public void createAndGetTest() {
+    int id = tagDao.createTag("test-tag");
+    Option<Integer> fetchId = tagDao.getTagId("test-tag");
+
+    assertEquals(Option.apply(id), fetchId);
+  }
 
   @Test
   public void prefixSearchExactTest() {

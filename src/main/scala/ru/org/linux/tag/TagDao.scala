@@ -114,10 +114,10 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    * @return идентификационный номер
    */
   def getTagId(tag: String, skipZero: Boolean): Option[Integer] = {
-    jdbcTemplate.queryForObject[Int](
+    jdbcTemplate.queryForObject[Integer](
       "SELECT id FROM tags_values WHERE value=?" + (if (skipZero) " AND counter>0" else ""),
       tag
-    ).map(x => x)
+    )
   }
 
   def getTagId(tag: String):Option[Integer] = getTagId(tag, skipZero = false)
