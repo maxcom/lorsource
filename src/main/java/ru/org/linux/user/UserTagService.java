@@ -42,7 +42,7 @@ public class UserTagService {
 
   private final ITagActionHandler actionHandler = new ITagActionHandler() {
     @Override
-    public void replaceTag(int oldTagId, String oldTagName, int newTagId, String newTagName) {
+    public void replaceTag(int oldTagId, int newTagId, String newTagName) {
       userTagDao.replaceTag(oldTagId, newTagId);
     }
 
@@ -50,10 +50,6 @@ public class UserTagService {
     public void deleteTag(int tagId, String tagName) {
       userTagDao.deleteTags(tagId);
       logger.debug("Удалено использование тега '" + tagName + "' у всех пользователей");
-    }
-
-    @Override
-    public void reCalculateAllCounters() {
     }
   };
 
@@ -230,7 +226,7 @@ public class UserTagService {
           ignoreAdd(user, tag);
         }
       } catch (TagNotFoundException e) {
-        errors.reject(e.getMessage() + ": '" + tag + "'");
+        errors.reject(e.getMessage() + ": '" + tag + '\'');
       } catch (DuplicateKeyException e) {
         errors.reject("Тег уже добавлен: '" + tag);
       }
