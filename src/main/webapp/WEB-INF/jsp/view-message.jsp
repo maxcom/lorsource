@@ -201,24 +201,8 @@
 
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
-<%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
---%>
   </div>
-
-  <script type="text/javascript">
-      $script.ready('lorjs', function() {
-          var ads = [
-              {
-                  type: 'img',
-                  src: '/adv/selectel/dedicated_728x90.png',
-                  href: 'http://selectel.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_content=dedicated&utm_campaign=171213'
-              }
-          ];
-
-          init_interpage_adv(ads);
-      });
-  </script>
   <br>
 </c:if>
 
