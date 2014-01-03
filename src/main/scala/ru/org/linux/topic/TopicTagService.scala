@@ -20,7 +20,7 @@ class TopicTagService @Autowired() (
   ) extends Logging with TransactionManagement {
 
   tagService.getActionHandlers.add(new ITagActionHandler() {
-    override def replaceTag(oldTagId: Int, oldTagName: String, newTagId: Int, newTagName: String):Unit = {
+    override def replaceTag(oldTagId: Int, newTagId: Int, newTagName: String):Unit = {
       val tagCount = topicTagDao.getCountReplacedTags(oldTagId, newTagId)
       topicTagDao.replaceTag(oldTagId, newTagId)
       topicTagDao.increaseCounterById(newTagId, tagCount)
@@ -32,11 +32,11 @@ class TopicTagService @Autowired() (
       topicTagDao.deleteTag(tagId)
       logger.debug("Удалено использование тега '{}' в топиках", tagName)
     }
-
-    override def reCalculateAllCounters():Unit = {
-      topicTagDao.reCalculateAllCounters()
-    }
   })
+
+  def reCalculateAllCounters():Unit = {
+    topicTagDao.reCalculateAllCounters()
+  }
 
   /**
    * Обновить список тегов сообщения по идентификационному номеру сообщения.

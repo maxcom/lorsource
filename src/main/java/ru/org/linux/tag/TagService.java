@@ -160,7 +160,7 @@ public class TagService {
         int newTagId = getOrCreateTag(newTagName);
 
         for (ITagActionHandler actionHandler : actionHandlers) {
-          actionHandler.replaceTag(oldTagId, tagName, newTagId, newTagName);
+          actionHandler.replaceTag(oldTagId, newTagId, newTagName);
         }
         logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName);
       }
@@ -194,15 +194,6 @@ public class TagService {
 
   public static String toString(Collection<String> tags) {
     return Joiner.on(",").join(tags);
-  }
-
-  /**
-   * пересчёт счётчиков использования.
-   */
-  public void reCalculateAllCounters() {
-    for (ITagActionHandler actionHandler : actionHandlers) {
-      actionHandler.reCalculateAllCounters();
-    }
   }
 
   public TagInfo getTagInfo(String tag, boolean skipZero) throws TagNotFoundException {

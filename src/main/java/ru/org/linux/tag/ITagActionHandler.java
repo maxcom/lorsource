@@ -22,11 +22,10 @@ public interface ITagActionHandler {
    * Изменение существующего тега.
    *
    * @param oldTagId    идентификационный номер старого тега
-   * @param oldTagName  название старого тега
    * @param newTagId    идентификационный номер нового тега
    * @param newTagName  название нового тега
    */
-  void replaceTag(int oldTagId, String oldTagName, int newTagId, String newTagName);
+  void replaceTag(int oldTagId, int newTagId, String newTagName);
 
   /**
    * Удаление существующего тега.
@@ -35,10 +34,4 @@ public interface ITagActionHandler {
    * @param tagName  название тега
    */
   void deleteTag(int tagId, String tagName);
-
-  /**
-   * пересчёт счётчиков использования.
-   */
-  void reCalculateAllCounters();
-
 }
