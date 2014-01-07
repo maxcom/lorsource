@@ -226,10 +226,6 @@ public class EditTopicController {
 
     params.put("commit", false);
 
-    if (topicMenu.isTagsEditable()) {
-      params.put("topTags", tagService.getTopTags());
-    }
-
     if (group.isLinksAllowed()) {
       form.setLinktext(message.getLinktext());
       form.setUrl(message.getUrl());
@@ -305,10 +301,6 @@ public class EditTopicController {
             tmpl.getProf(),
             true
     ));
-
-    if (tagsEditable) {
-      params.put("topTags", tagService.getTopTags());
-    }
 
     params.put("groups", groupDao.getGroups(preparedTopic.getSection()));
 

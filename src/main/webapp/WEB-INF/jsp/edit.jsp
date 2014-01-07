@@ -26,15 +26,12 @@
 <%--@elvariable id="editInfo" type="ru.org.linux.topic.EditInfoDto"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
-<%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="topicMenu" type="ru.org.linux.topic.TopicMenu"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
 <script type="text/javascript">
-  $script.ready('lorjs', function() { initTopTagSelection(); });
-
   $script.ready("plugins", function() {
     $(function() {
       $("#messageForm").validate({
@@ -109,12 +106,6 @@
     <label>Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
       <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
     </label>
-    <p>
-      Популярные теги:
-      <c:forEach items="${topTags}" var="topTag" varStatus="status">
-        ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
-      </c:forEach>
-    </p>
   </c:if>
 
   <c:if test="${group.premoderated and template.moderatorSession}">
