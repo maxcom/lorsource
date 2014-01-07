@@ -45,7 +45,7 @@ public class TopTenDao {
       "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
         "from topics " +
         "join groups on groups.id = topics.groupid" +
-      " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
+      " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and not notop " +
       " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
 
     return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDTO>() {
