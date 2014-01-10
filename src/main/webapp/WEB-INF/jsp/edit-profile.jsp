@@ -100,7 +100,7 @@ $script.ready('plugins', function() {
 
 </table>
 
-<button type=submit>Установить</button>
+<button type=submit class="btn btn-primary">Установить</button>
 </form>
 
 <h2>Другие настройки</h2>
