@@ -45,16 +45,11 @@
     google_ad_slot = "2628258430";
     google_ad_width = 320;
     google_ad_height = 50;
-  } else if ($(window).width()>1000) {
+  } else {
     /* lor-main-wide */
     google_ad_slot = "4104991635";
     google_ad_width = 728;
     google_ad_height = 90;
-  } else {
-    /* lor-main */
-    google_ad_slot = "1151525234";
-    google_ad_width = 468;
-    google_ad_height = 60;
   }
   //-->
   </script>
