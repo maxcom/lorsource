@@ -54,21 +54,18 @@ import java.util.Map;
 public class SearchController {
   @Autowired
   private SectionService sectionService;
+
+  @Autowired
   private UserDao userDao;
+
+  @Autowired
   private GroupDao groupDao;
 
   @Autowired
   private Client client;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setGroupDao(GroupDao groupDao) {
-    this.groupDao = groupDao;
-  }
+  private SearchResultsService resultsService;
 
   @ModelAttribute("sorts")
   public static Map<SearchOrder, String> getSorts() {
@@ -150,7 +147,7 @@ public class SearchController {
       Collection<SearchItem> res = new ArrayList<>(hits.hits().length);
 
       for (SearchHit doc : hits) {
-        res.add(new SearchItem(doc, userDao));
+        res.add(resultsService.prepare(doc));
       }
 
       if (response.getFacets() != null) {
