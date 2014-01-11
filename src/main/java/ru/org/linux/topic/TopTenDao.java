@@ -66,7 +66,7 @@ public class TopTenDao {
     private Timestamp lastmod;
     private String title;
     private Integer pages;
-    private Integer answers;
+    private int answers;
     private static final long serialVersionUID = 166352344159392938L;
 
     public String getUrl() {
@@ -105,7 +105,7 @@ public class TopTenDao {
       return answers;
     }
 
-    public void setAnswers(Integer answers) {
+    public void setAnswers(int answers) {
       this.answers = answers;
     }
   }
