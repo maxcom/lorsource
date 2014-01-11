@@ -26,7 +26,7 @@
     <option value="all">all</option>
     <option value="current">current</option>
   </select>
-  <input type="submit"> 
+  <button type="submit" class="btn btn-primary">Reindex</button>
 </form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
