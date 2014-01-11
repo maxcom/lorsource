@@ -106,15 +106,13 @@
   <div class="messages">
   <div class="comment">
     <c:forEach items="${result}" var="item">
-      <div class="msg">
-        <div class="msg_header">
-          <h2>
-            <c:if test="${item.comment}"><i class="icon-comment"></i></c:if>
-            <a href="${item.url}"><l:title>${item.title}</l:title></a>
-          </h2>
-        </div>
-        <div class="msg_body">
+      <article class="msg">
+        <h2>
+          <c:if test="${item.comment}"><i class="icon-comment"></i></c:if>
+          <a href="${item.url}"><l:title>${item.title}</l:title></a>
+        </h2>
 
+        <div class="msg_body">
           <p>${item.message}</p>
 
           <div class=sign>
@@ -124,7 +122,7 @@
 
           <c:if test="${param.debug}"><div>Rank: ${item.score}</div></c:if>
         </div>
-      </div>
+      </article>
     </c:forEach>
   </div>
   </div>
