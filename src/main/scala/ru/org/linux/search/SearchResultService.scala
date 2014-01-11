@@ -8,7 +8,6 @@ import org.elasticsearch.search.SearchHit
 import ru.org.linux.util.StringUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.joda.time.format.ISODateTimeFormat
-import scala.Predef.String
 import ru.org.linux.util.URLUtil._
 import org.springframework.web.util.UriComponentsBuilder
 import com.typesafe.scalalogging.slf4j.Logging
