@@ -2,8 +2,8 @@
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
-<%@ tag import="ru.org.linux.util.image.ImageInfo" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
+<%@ tag import="ru.org.linux.util.image.ImageInfo" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -145,7 +145,7 @@
 %>
   </div>
 <c:if test="${not empty preparedMessage.tags}">
-  <p class="tags"><i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/></p>
+  <l:tags list="${preparedMessage.tags}"/>
 </c:if>
 
   <div class=sign>

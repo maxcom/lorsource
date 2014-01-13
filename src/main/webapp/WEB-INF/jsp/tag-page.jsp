@@ -63,9 +63,7 @@
       Всего сообщений: ${counter}
     </p>
     <c:if test="${not empty relatedTags}">
-      См. также:
-      <p class="tags"><i class="icon-tag"></i>&nbsp;
-      <l:tags list="${relatedTags}"/></p>
+      См. также: <l:tags list="${relatedTags}"/>
     </c:if>
 </div>
 

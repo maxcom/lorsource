@@ -11,6 +11,9 @@ import org.joda.time.format.ISODateTimeFormat
 import ru.org.linux.util.URLUtil._
 import org.springframework.web.util.UriComponentsBuilder
 import com.typesafe.scalalogging.slf4j.Logging
+import ru.org.linux.tag.TagRef
+import scala.collection.JavaConversions._
+import ru.org.linux.topic.TopicTagService
 
 case class SearchItem (
   @BeanProperty title:String,
@@ -19,11 +22,14 @@ case class SearchItem (
   @BeanProperty message:String,
   @BeanProperty url:String,
   @BeanProperty score:Float,
-  @BeanProperty comment:Boolean
+  @BeanProperty comment:Boolean,
+  @BeanProperty tags:java.util.List[TagRef]
 )
 
 @Service
-class SearchResultsService @Autowired() (userDao:UserDao) extends Logging {
+class SearchResultsService @Autowired() (
+  userDao:UserDao
+) extends Logging {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
   def prepare(doc:SearchHit):SearchItem = {
@@ -33,6 +39,14 @@ class SearchResultsService @Autowired() (userDao:UserDao) extends Logging {
 
     val comment = doc.getFields.get("is_comment").getValue[Boolean]
 
+    val tags = if (comment) {
+      Seq()
+    } else {
+      doc.getFields.get("tag").getValue[java.util.List[String]].map(
+        tag => TopicTagService.tagRef(tag)
+      )
+    }
+
     SearchItem(
       title = getTitle(doc),
       postdate = postdate,
@@ -40,7 +54,8 @@ class SearchResultsService @Autowired() (userDao:UserDao) extends Logging {
       url = getUrl(doc),
       score = doc.getScore,
       comment = comment,
-      message = getMessage(doc)
+      message = getMessage(doc),
+      tags = tags
     )
   }
 

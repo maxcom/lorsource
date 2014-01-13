@@ -177,7 +177,8 @@ public class SearchViewer {
             "section",
             "message",
             "group",
-            "is_comment"
+            "is_comment",
+            "tag"
     );
 
     QueryBuilder esQuery = processQueryString(client, this.query.getQ());

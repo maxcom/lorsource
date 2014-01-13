@@ -91,9 +91,7 @@
     </h1>
 
     <c:if test="${not empty preparedMessage.tags}">
-      <div class=tags>
-        <i class="icon-tag"></i>&nbsp;<l:tags list="${preparedMessage.tags}"/>
-      </div>
+        <l:tags list="${preparedMessage.tags}"/>
     </c:if>
   </header>
 

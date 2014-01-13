@@ -39,11 +39,16 @@ public class TagsTag extends TagSupport {
     JspWriter out = pageContext.getOut();
     if (list != null) {
       try {
-        StringBuilder buf = new StringBuilder();
+        StringBuilder buf = new StringBuilder("<p class=\"tags\"><i class=\"icon-tag\"></i>&nbsp;");
+        boolean first = true;
+
         for (TagRef el : list) {
-          if (buf.length() > 0) {
+          if (!first) {
             buf.append(", ");
+          } else {
+            first = false;
           }
+
           if (el.url().isDefined()) {
             buf
                 .append("<a class=tag rel=tag href=\"")
@@ -55,6 +60,7 @@ public class TagsTag extends TagSupport {
             buf.append(StringUtil.escapeHtml(el.name()));
           }
         }
+        buf.append("</p>");
         out.append(buf);
       } catch (IOException e) {
         throw new JspException("Error:" + e.getMessage());
