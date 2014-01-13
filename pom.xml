@@ -700,7 +700,7 @@
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>8.1.9.v20130131</version>
+                        <version>8.1.14.v20131031</version>
                         <executions>
                              <execution>
                                  <id>start-jetty</id>
