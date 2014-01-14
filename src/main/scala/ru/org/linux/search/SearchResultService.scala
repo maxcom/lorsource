@@ -61,11 +61,11 @@ class SearchResultsService @Autowired() (
 
   private def getTitle(doc: SearchHit):String = {
     val itemTitle = if (doc.getHighlightFields.containsKey("title")) {
-      doc.getHighlightFields.get("title").fragments()(0).string
+      Some(doc.getHighlightFields.get("title").fragments()(0).string)
     } else if (doc.getFields.containsKey("title")) {
-      StringUtil.escapeHtml(doc.getFields.get("title").getValue[String])
+      Some(StringUtil.escapeHtml(doc.getFields.get("title").getValue[String]))
     } else {
-      null
+      None
     }
 
     val topicTitle = if (doc.getHighlightFields.containsKey("topic_title")) {
@@ -74,11 +74,7 @@ class SearchResultsService @Autowired() (
       StringUtil.escapeHtml(doc.getFields.get("topic_title").getValue[String])
     }
 
-    if (itemTitle!=null && !itemTitle.trim.isEmpty) {
-      itemTitle
-    } else {
-      topicTitle
-    }
+    itemTitle.filter(!_.trim.isEmpty).getOrElse(topicTitle)
   }
 
   private def getMessage(doc: SearchHit): String = {
