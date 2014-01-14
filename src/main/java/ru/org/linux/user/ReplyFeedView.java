@@ -15,15 +15,16 @@
 
 package ru.org.linux.user;
 
+import com.sun.syndication.feed.synd.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import ru.org.linux.spring.AbstractRomeView;
+import ru.org.linux.util.StringUtil;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.syndication.feed.synd.*;
-import org.apache.commons.lang.StringEscapeUtils;
-import ru.org.linux.spring.AbstractRomeView;
 
 public class ReplyFeedView extends AbstractRomeView {
   @Override
@@ -73,7 +74,7 @@ public class ReplyFeedView extends AbstractRomeView {
 
       if (preparedUserEvent.getMessageText() != null){
         SyndContent message = new SyndContentImpl();
-        message.setValue(preparedUserEvent.getMessageText());
+        message.setValue(StringUtil.removeInvalidXmlChars(preparedUserEvent.getMessageText()));
         message.setType("text/html");
         feedEntry.setDescription(message);
       }

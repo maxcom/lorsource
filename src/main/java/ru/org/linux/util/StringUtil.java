@@ -244,4 +244,16 @@ public final class StringUtil {
   public static boolean isUnsignedPositiveNumber(String s) {
     return s.matches("\\d+");
   }
+
+  // http://stackoverflow.com/questions/4237625/removing-invalid-xml-characters-from-a-string-in-java
+  private static final Pattern INVALID_XML = Pattern.compile("[^"
+          + "\u0009\r\n"
+          + "\u0020-\uD7FF"
+          + "\uE000-\uFFFD"
+          + "\ud800\udc00-\udbff\udfff"
+          + "]");
+
+  public static String removeInvalidXmlChars(String str) {
+    return INVALID_XML.matcher(str).replaceAll("");
+  }
 }
