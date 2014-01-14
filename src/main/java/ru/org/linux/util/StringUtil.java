@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.Random;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,15 +29,6 @@ public final class StringUtil {
   private static final Random random = new Random();
 
   private StringUtil() {
-  }
-
-  public static String getFileName(String pathname) {
-    StringTokenizer parsed = new StringTokenizer(pathname, "/\\", false);
-    String filename = "";
-    while (parsed.hasMoreElements()) {
-      filename = parsed.nextToken();
-    }
-    return filename;
   }
 
   private static final Pattern loginCheckRE = Pattern.compile("[a-z][a-z0-9_-]*");
@@ -231,37 +221,6 @@ public final class StringUtil {
     return res.toString();
   }
 
-
-  public static String escapeBBCode(String content) {
-    // escaping single characters
-    content = replaceAll(content, "[]{}\t".toCharArray(), new String[]{
-        "&#91;",
-        "&#93;",
-        "&#123;",
-        "&#125;",
-        "&nbsp; &nbsp;"});
-
-    return content;
-  }
-
-  public static String replaceAll(CharSequence str, char[] chars, String[] replacement) {
-    StringBuilder buffer = new StringBuilder();
-    for (int i = 0; i < str.length(); i++) {
-      char c = str.charAt(i);
-      boolean matched = false;
-      for (int j = 0; j < chars.length; j++) {
-        if (c == chars[j]) {
-          buffer.append(replacement[j]);
-          matched = true;
-        }
-      }
-      if (!matched) {
-        buffer.append(c);
-      }
-    }
-    return buffer.toString();
-  }
-
   /**
    * Повторить строку n раз
    * @param s строка
@@ -285,5 +244,4 @@ public final class StringUtil {
   public static boolean isUnsignedPositiveNumber(String s) {
     return s.matches("\\d+");
   }
-
 }
