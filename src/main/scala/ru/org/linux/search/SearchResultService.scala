@@ -1,6 +1,5 @@
 package ru.org.linux.search
 
-import java.sql.Timestamp
 import ru.org.linux.user.{UserDao, User}
 import scala.beans.BeanProperty
 import org.springframework.stereotype.Service
@@ -14,10 +13,11 @@ import com.typesafe.scalalogging.slf4j.Logging
 import ru.org.linux.tag.TagRef
 import scala.collection.JavaConversions._
 import ru.org.linux.topic.TopicTagService
+import org.joda.time.DateTime
 
 case class SearchItem (
   @BeanProperty title:String,
-  @BeanProperty postdate:Timestamp, // TODO use Joda time
+  @BeanProperty postdate:DateTime,
   @BeanProperty user:User, // TODO use UserRef
   @BeanProperty message:String,
   @BeanProperty url:String,
@@ -35,7 +35,7 @@ class SearchResultsService @Autowired() (
   def prepare(doc:SearchHit):SearchItem = {
     val author = userDao.getUser(doc.getFields.get("author").getValue[String])
 
-    val postdate = new Timestamp(isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String]).getMillis)
+    val postdate = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
 
     val comment = doc.getFields.get("is_comment").getValue[Boolean]
 
