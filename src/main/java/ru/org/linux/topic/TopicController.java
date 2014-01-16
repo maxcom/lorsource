@@ -29,6 +29,7 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
 import ru.org.linux.paginator.PagesInfo;
+import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -74,6 +75,9 @@ public class TopicController {
 
   @Autowired
   private TopicPermissionService permissionService;
+
+  @Autowired
+  private MoreLikeThisService moreLikeThisService;
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
@@ -153,14 +157,18 @@ public class TopicController {
     Topic topic = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
 
+    Map<String, Object> params = new HashMap<>();
+
+    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator()) {
+      params.put("moreLikeThis", moreLikeThisService.search(topic));
+    }
+
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
-
-    Map<String, Object> params = new HashMap<>();
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {

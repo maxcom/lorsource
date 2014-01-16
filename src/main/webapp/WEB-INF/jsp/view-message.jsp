@@ -31,6 +31,7 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
+<%--@elvariable id="moreLikeThis" type="java.util.List<ru.org.linux.topic.Topic>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -271,6 +272,15 @@
     <input type=submit value="Показать удаленные комментарии">
     </form>
     <hr>
+</c:if>
+
+<c:if test="${not empty moreLikeThis}">
+  <h2>Похожие темы</h2>
+  <ul>
+    <c:forEach var="topic" items="${moreLikeThis}">
+      <li><a href="${topic.link}">${topic.title}</a></li>
+    </c:forEach>
+  </ul>
 </c:if>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
