@@ -1,6 +1,8 @@
 package ru.org.linux.topic;
 
 import net.tanesha.recaptcha.ReCaptcha;
+import org.elasticsearch.client.Client;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import ru.org.linux.search.SearchQueueListener;
@@ -52,4 +54,10 @@ public class TopicIntegrationTestConfiguration {
 
     return properties;
   }
+
+  @Bean
+  public Client elasticsearch() {
+    return Mockito.mock(Client.class);
+  }
+
 }
