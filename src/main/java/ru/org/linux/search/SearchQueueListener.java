@@ -212,8 +212,8 @@ public class SearchQueueListener {
     doc.put("author", author.getNick());
     doc.put("group", group.getUrlName());
 
-    doc.put("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
-    doc.put("topic_title", topic.getTitle());
+    doc.put("title", topic.getTitleUnescaped());
+    doc.put("topic_title", topic.getTitleUnescaped());
     doc.put("message", extractText(msgbaseDao.getMessageText(topic.getId())));
     Date postdate = topic.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
@@ -257,8 +257,8 @@ public class SearchQueueListener {
     doc.put("author", author.getNick());
     doc.put("group", group.getUrlName());
 
-    String topicTitle = topic.getTitle();
-    doc.put("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));
+    String topicTitle = topic.getTitleUnescaped();
+    doc.put("topic_title", topicTitle);
     
     String commentTitle = comment.getTitle();
 
