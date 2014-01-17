@@ -21,7 +21,10 @@ class MoreLikeThisService @Autowired() (
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
     // TODO unescape title
-    val titleQuery = moreLikeThisFieldQuery("title").likeText(topic.getTitle).minTermFreq(0)
+    val titleQuery = moreLikeThisFieldQuery("title")
+      .likeText(topic.getTitleUnescaped)
+      .minTermFreq(0)
+      .minDocFreq(0)
 
     // TODO tags
     // TODO message body
