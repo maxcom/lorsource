@@ -7,6 +7,7 @@ import ru.org.linux.topic.{TopicDao, Topic}
 import scala.collection.JavaConversions._
 import org.elasticsearch.index.query.QueryBuilders._
 import com.typesafe.scalalogging.slf4j.Logging
+import org.elasticsearch.index.query.FilterBuilders._
 
 @Service
 class MoreLikeThisService @Autowired() (
@@ -16,7 +17,6 @@ class MoreLikeThisService @Autowired() (
   // TODO async - return ListenableFuture
   // TODO timeout
   def search(topic:Topic):java.util.List[Topic] = {
-    // TODO filter out comments
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
@@ -28,9 +28,11 @@ class MoreLikeThisService @Autowired() (
 
     // TODO filter out same topic
 
-    val rootQuery = boolQuery()
+    val mltQuery = boolQuery()
 
-    rootQuery.should(titleQuery)
+    mltQuery.should(titleQuery)
+
+    val rootQuery = filteredQuery(mltQuery, termFilter("is_comment", "false"))
 
     val query = client
       .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
