@@ -16,6 +16,7 @@ class MoreLikeThisService @Autowired() (
 ) extends Logging {
   // TODO async - return ListenableFuture
   // TODO timeout
+  // TODO errors
   def search(topic:Topic):java.util.List[Topic] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
@@ -29,13 +30,15 @@ class MoreLikeThisService @Autowired() (
     // TODO tags
     // TODO message body
 
-    // TODO filter out same topic
-
     val mltQuery = boolQuery()
 
     mltQuery.should(titleQuery)
 
-    val rootQuery = filteredQuery(mltQuery, termFilter("is_comment", "false"))
+    val rootFilter = boolFilter()
+    rootFilter.must(termFilter("is_comment", "false"))
+    rootFilter.mustNot(idsFilter(SearchQueueListener.MESSAGES_TYPE).addIds(topic.getId.toString))
+
+    val rootQuery = filteredQuery(mltQuery, rootFilter)
 
     val query = client
       .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
