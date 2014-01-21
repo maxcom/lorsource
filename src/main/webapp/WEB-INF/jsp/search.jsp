@@ -120,7 +120,7 @@
           </c:if>
 
           <div class=sign>
-            <lor:sign postdate="${item.postdate.toDate}" shortMode="false" user="${item.user}"/>
+            <lor:sign postdate="${item.postdate.toDate()}" shortMode="false" user="${item.user}"/>
           </div>
 
           <c:if test="${param.debug}"><div>Rank: ${item.score}</div></c:if>
