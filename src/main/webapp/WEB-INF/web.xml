@@ -14,9 +14,9 @@
   ~    limitations under the License.
   -->
 <web-app
-        version="2.5"
+        version="3.0"
         xmlns="http://java.sun.com/xml/ns/javaee"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 >
     <display-name>linux.org.ru</display-name>
