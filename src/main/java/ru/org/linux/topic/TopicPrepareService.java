@@ -114,6 +114,10 @@ public class TopicPrepareService {
     return prepareMessage(message, topicTagService.getTagRefs(message), false, null, secure, user, null, null);
   }
 
+  public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, boolean secure, User user) {
+    return prepareMessage(message, tags, false, null, secure, user, null, null);
+  }
+
   public PreparedTopic prepareTopicPreview(
           Topic message,
           List<TagRef> tags,

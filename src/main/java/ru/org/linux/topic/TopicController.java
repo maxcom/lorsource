@@ -37,6 +37,7 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
@@ -78,6 +79,9 @@ public class TopicController {
 
   @Autowired
   private MoreLikeThisService moreLikeThisService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
@@ -159,11 +163,13 @@ public class TopicController {
 
     Map<String, Object> params = new HashMap<>();
 
+    List<TagRef> tags = topicTagService.getTagRefs(topic);
+
     if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator()) {
-      params.put("moreLikeThis", moreLikeThisService.search(topic));
+      params.put("moreLikeThis", moreLikeThisService.search(topic, tags));
     }
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, tags, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {

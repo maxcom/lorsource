@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import org.elasticsearch.index.query.QueryBuilders._
 import com.typesafe.scalalogging.slf4j.Logging
 import org.elasticsearch.index.query.FilterBuilders._
+import ru.org.linux.tag.TagRef
 
 @Service
 class MoreLikeThisService @Autowired() (
@@ -17,11 +18,10 @@ class MoreLikeThisService @Autowired() (
   // TODO async - return ListenableFuture
   // TODO timeout
   // TODO errors
-  def search(topic:Topic):java.util.List[Topic] = {
+  def search(topic:Topic, tags:java.util.List[TagRef]):java.util.List[Topic] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
-    // TODO unescape title
     val titleQuery = moreLikeThisFieldQuery("title")
       .likeText(topic.getTitleUnescaped)
       .minTermFreq(0)
