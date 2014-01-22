@@ -22,17 +22,15 @@ class MoreLikeThisService @Autowired() (
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
-    val titleQuery = moreLikeThisFieldQuery("title")
-      .likeText(topic.getTitleUnescaped)
-      .minTermFreq(0)
-      .minDocFreq(0)
-
-    // TODO tags
     // TODO message body
 
     val mltQuery = boolQuery()
 
-    mltQuery.should(titleQuery)
+    mltQuery.should(titleQuery(topic))
+
+    if (!tags.isEmpty) {
+      mltQuery.should(tagsQuery(tags.map(_.name).toSeq))
+    }
 
     val rootFilter = boolFilter()
     rootFilter.must(termFilter("is_comment", "false"))
@@ -49,5 +47,20 @@ class MoreLikeThisService @Autowired() (
 
     // TODO filter out ids with MessageNotFoundException
     result.getHits.map(hit => topicDao.getById(hit.getId.toInt)).toSeq
+  }
+
+  private def titleQuery(topic:Topic) = moreLikeThisFieldQuery("title")
+    .likeText(topic.getTitleUnescaped)
+    .minTermFreq(0)
+    .minDocFreq(0)
+
+  private def tagsQuery(tags:Seq[String]) = {
+    val root = boolQuery()
+
+    tags foreach { tag =>
+      root.should(termQuery("tag", tag))
+    }
+
+    root
   }
 }
