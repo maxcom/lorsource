@@ -9,6 +9,9 @@ import org.elasticsearch.index.query.QueryBuilders._
 import com.typesafe.scalalogging.slf4j.Logging
 import org.elasticsearch.index.query.FilterBuilders._
 import ru.org.linux.tag.TagRef
+import org.joda.time.DateTime
+import scala.beans.BeanProperty
+import ru.org.linux.util.StringUtil
 
 @Service
 class MoreLikeThisService @Autowired() (
@@ -18,7 +21,7 @@ class MoreLikeThisService @Autowired() (
   // TODO async - return ListenableFuture
   // TODO timeout
   // TODO errors
-  def search(topic:Topic, tags:java.util.List[TagRef]):java.util.List[Topic] = {
+  def search(topic:Topic, tags:java.util.List[TagRef]):java.util.List[MoreLikeThisTopic] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
@@ -46,7 +49,16 @@ class MoreLikeThisService @Autowired() (
     val result = query.execute().actionGet()
 
     // TODO filter out ids with MessageNotFoundException
-    result.getHits.map(hit => topicDao.getById(hit.getId.toInt)).toSeq
+    result.getHits.map(hit => {
+      val topic = topicDao.getById(hit.getId.toInt)
+      val postdate = new DateTime(topic.getPostdate)
+
+      MoreLikeThisTopic(
+        title=StringUtil.processTitle(topic.getTitleUnescaped),
+        link=topic.getLink,
+        year=postdate.year().get()
+      )
+    }).toSeq
   }
 
   private def titleQuery(topic:Topic) = moreLikeThisFieldQuery("title")
@@ -64,3 +76,9 @@ class MoreLikeThisService @Autowired() (
     root
   }
 }
+
+case class MoreLikeThisTopic(
+  @BeanProperty title:String,
+  @BeanProperty link:String,
+  @BeanProperty year:Int
+)

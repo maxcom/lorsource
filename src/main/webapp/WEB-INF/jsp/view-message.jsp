@@ -31,7 +31,7 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
-<%--@elvariable id="moreLikeThis" type="java.util.List<ru.org.linux.topic.Topic>"--%>
+<%--@elvariable id="moreLikeThis" type="java.util.List<ru.org.linux.search.MoreLikeThisTopic>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -278,7 +278,9 @@
   <h2>Похожие темы</h2>
   <ul>
     <c:forEach var="topic" items="${moreLikeThis}">
-      <li><a href="${topic.link}">${topic.title}</a></li>
+      <li>
+        <a href="${topic.link}"><c:out value="${topic.title}" escapeXml="true"/></a> (${topic.year})
+      </li>
     </c:forEach>
   </ul>
 </c:if>
