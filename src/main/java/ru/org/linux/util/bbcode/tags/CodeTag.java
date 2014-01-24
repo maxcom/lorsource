@@ -108,6 +108,7 @@ public class CodeTag extends Tag {
                   .put("fs", "language-fsharp")
                   .put("f#", "language-fsharp")
                   .put("rust", "language-rust")
+                  .put("upstart", "language-upstart")
                   .build();
 
   public CodeTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
