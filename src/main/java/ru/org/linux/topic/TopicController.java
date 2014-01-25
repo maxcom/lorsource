@@ -16,6 +16,8 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableSet;
+import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.search.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -165,8 +167,12 @@ public class TopicController {
 
     List<TagRef> tags = topicTagService.getTagRefs(topic);
 
-    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator()) {
-      params.put("moreLikeThis", moreLikeThisService.search(topic, tags));
+    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
+
+    ListenableActionFuture<SearchResponse> moreLikeThis = null;
+
+    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator() && !rss) {
+      moreLikeThis = moreLikeThisService.search(topic, tags);
     }
 
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, tags, request.isSecure(), tmpl.getCurrentUser());
@@ -180,8 +186,6 @@ public class TopicController {
     if (showDeleted) {
       page = -1;
     }
-
-    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (rss && topic.isExpired()) {
       throw new MessageNotFoundException(topic.getId(), "no more comments");
@@ -318,6 +322,10 @@ public class TopicController {
       params.put("commentsPrepared", commentsPrepared);
       LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
       params.put("mainURL", lorURL.fixScheme(request.isSecure()));
+    }
+
+    if (moreLikeThis!=null) {
+      params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);

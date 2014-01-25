@@ -21,8 +21,7 @@ import org.elasticsearch.ElasticSearchException
 class MoreLikeThisService @Autowired() (
   client:Client
 ) extends Logging {
-  // TODO async - return ListenableFuture
-  def search(topic:Topic, tags:java.util.List[TagRef]):java.util.List[MoreLikeThisTopic] = {
+  def search(topic:Topic, tags:java.util.List[TagRef]):ListenableActionFuture[SearchResponse] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
@@ -48,7 +47,7 @@ class MoreLikeThisService @Autowired() (
       .setQuery(rootQuery)
       .addFields("title", "postdate", "section", "group")
 
-    resultsOrNothing(query.execute())
+    query.execute()
   }
 
   def resultsOrNothing(featureResult:ListenableActionFuture[SearchResponse]):java.util.List[MoreLikeThisTopic] = {
