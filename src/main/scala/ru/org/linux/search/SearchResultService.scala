@@ -30,7 +30,7 @@ case class SearchItem (
 class SearchResultsService @Autowired() (
   userDao:UserDao
 ) extends Logging {
-  private val isoDateTime = ISODateTimeFormat.dateTime
+  import SearchResultsService._
 
   def prepare(doc:SearchHit):SearchItem = {
     val author = userDao.getUser(doc.getFields.get("author").getValue[String])
@@ -91,7 +91,7 @@ class SearchResultsService @Autowired() (
   }
 
   private def getUrl(doc:SearchHit): String = {
-    val section = doc.getFields.get("section").getValue[String]
+    val section = SearchResultsService.section(doc)
     val msgid = doc.getId
 
     if ("wiki" == section) {
@@ -116,7 +116,7 @@ class SearchResultsService @Autowired() (
     } else {
       val comment = doc.getFields.get("is_comment").getValue[Boolean]
       val topic = doc.getFields.get("topic_id").getValue[Int]
-      val group = doc.getFields.get("group").getValue[String]
+      val group = SearchResultsService.group(doc)
 
       if (comment) {
         val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
@@ -127,6 +127,14 @@ class SearchResultsService @Autowired() (
       }
     }
   }
+}
+
+object SearchResultsService {
+  private val isoDateTime = ISODateTimeFormat.dateTime
+
+  def postdate(doc:SearchHit) = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
+  def section(doc:SearchHit) = doc.getFields.get("section").getValue[String]
+  def group(doc:SearchHit) = doc.getFields.get("group").getValue[String]
 }
 
 

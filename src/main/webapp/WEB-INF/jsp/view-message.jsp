@@ -279,7 +279,7 @@
   <ul>
     <c:forEach var="topic" items="${moreLikeThis}">
       <li>
-        <a href="${topic.link}"><c:out value="${topic.title}" escapeXml="true"/></a> (${topic.year})
+        <a href="${topic.link}">${topic.title}</a> (${topic.year})
       </li>
     </c:forEach>
   </ul>
