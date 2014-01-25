@@ -30,10 +30,10 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MessageText;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 import ru.org.linux.util.ServletParameterException;
@@ -50,7 +50,7 @@ public class EditCommentController extends ApplicationObjectSupport {
   private CommentService commentService;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private IPBlockDao ipBlockDao;
@@ -98,7 +98,7 @@ public class EditCommentController extends ApplicationObjectSupport {
     if (original == null) {
       throw new ServletParameterException("Комментарий на задан");
     }
-    MessageText messageText = msgbaseDao.getMessageText(original.getId());
+    MessageText messageText = msgDao.getMessageText(original.getId());
     commentRequest.setMsg(messageText.getText());
     commentRequest.setTitle(original.getTitle());
 
@@ -158,7 +158,7 @@ public class EditCommentController extends ApplicationObjectSupport {
       return modelAndView;
     }
 
-    String originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal().getId()).getText();
+    String originalMessageText = msgDao.getMessageText(commentRequest.getOriginal().getId()).getText();
 
     commentService.edit(
       commentRequest.getOriginal(),

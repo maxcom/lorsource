@@ -35,14 +35,14 @@ import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
@@ -100,7 +100,7 @@ public class CommentService {
   private UserEventService userEventService;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private IgnoreListDao ignoreListDao;
@@ -393,7 +393,7 @@ public class CommentService {
     /* кастование пользователей */
     Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
 
-    MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
+    MessageText messageText = msgDao.getMessageText(oldComment.getId());
     Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
     Set<User> userRefs = new HashSet<>();
     /* кастовать только тех, кто добавился. Существующие ранее не кастуются */

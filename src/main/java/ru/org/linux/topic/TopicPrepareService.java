@@ -32,6 +32,7 @@ import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollPrepareService;
@@ -41,8 +42,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MessageText;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
 import ru.org.linux.util.BadImageException;
@@ -96,7 +96,7 @@ public class TopicPrepareService {
   private GroupPermissionService groupPermissionService;
   
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private EditHistoryService editHistoryService;
@@ -209,7 +209,7 @@ public class TopicPrepareService {
       }
 
       if (text == null) {
-        text = msgbaseDao.getMessageText(message.getId());
+        text = msgDao.getMessageText(message.getId());
       }
 
       String processedMessage;
@@ -352,7 +352,7 @@ public class TopicPrepareService {
   }
 
   private Map<Integer, MessageText> loadTexts(List<Topic> messages) {
-    return msgbaseDao.getMessageText(
+    return msgDao.getMessageText(
             Lists.newArrayList(
                     Iterables.transform(messages, new Function<Topic, Integer>() {
                       @Override

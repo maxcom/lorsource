@@ -32,14 +32,14 @@ import ru.org.linux.comment.CommentList;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.search.SearchQueueSender.UpdateComments;
 import ru.org.linux.search.SearchQueueSender.UpdateMessage;
 import ru.org.linux.search.SearchQueueSender.UpdateMonth;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
@@ -63,7 +63,7 @@ public class SearchQueueListener {
   private CommentService commentService;
   
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private Client client;
@@ -163,7 +163,7 @@ public class SearchQueueListener {
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
         Topic topic = topicDao.getById(comment.getTopicId());
-        String message = extractText(msgbaseDao.getMessageText(comment.getId()));
+        String message = extractText(msgDao.getMessageText(comment.getId()));
         bulkRequest.add(processComment(topic, comment, message));
       }
     }
@@ -214,7 +214,7 @@ public class SearchQueueListener {
 
     doc.put("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
     doc.put("topic_title", topic.getTitle());
-    doc.put("message", extractText(msgbaseDao.getMessageText(topic.getId())));
+    doc.put("message", extractText(msgDao.getMessageText(topic.getId())));
     Date postdate = topic.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
     doc.put("tag", topicDao.getTags(topic));
@@ -235,7 +235,7 @@ public class SearchQueueListener {
       if (comment.isDeleted()) {
         bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       } else {
-        String message = extractText(msgbaseDao.getMessageText(comment.getId()));
+        String message = extractText(msgDao.getMessageText(comment.getId()));
         bulkRequest.add(processComment(topic, comment, message));
       }
     }
