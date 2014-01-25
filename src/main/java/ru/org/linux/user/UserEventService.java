@@ -24,10 +24,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MessageText;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class UserEventService {
   private UserDao userDao;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private UserEventDao userEventDao;
@@ -75,9 +75,9 @@ public class UserEventService {
         MessageText messageText;
 
         if (event.isComment()) {
-          messageText = msgbaseDao.getMessageText(event.getCid());
+          messageText = msgDao.getMessageText(event.getCid());
         } else { // Топик
-          messageText = msgbaseDao.getMessageText(event.getMsgid());
+          messageText = msgDao.getMessageText(event.getMsgid());
         }
 
         text = lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());

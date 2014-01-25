@@ -42,4 +42,6 @@
   <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="datasource"/>
   </bean>
+
+  <bean id="msgDao" class="ru.org.linux.msg.MsgDao" />
 </beans>

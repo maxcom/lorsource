@@ -13,13 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.msg;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -31,30 +32,17 @@ import java.util.Collection;
 import java.util.Map;
 
 @Repository
-public class MsgbaseDao {
-  /**
-   * Запрос тела сообщения и признака bbcode для сообщения
-   */
+public class MsgDao {
   private static final String QUERY_MESSAGE_TEXT = "SELECT message, markup FROM msgbase WHERE id=?";
-  private static final String QUERY_MESSAGE_TEXT_FROM_WIKI =
-      "    select jam_topic_version.version_content " +
-          "    from jam_topic, jam_topic_version " +
-          "    where jam_topic.current_version_id = jam_topic_version.topic_version_id " +
-          "    and jam_topic.topic_id = ?";
 
   private JdbcTemplate jdbcTemplate;
-  private NamedParameterJdbcTemplate namedJdbcTemplate;
 
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
-    namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-  }
-  
-  public String getMessageTextFromWiki(int topicId) {
-    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topicId);
   }
 
+  @Cacheable(value = "Msgs", key = "#msgid")
   public MessageText getMessageText(int msgid) {
     return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT, new RowMapper<MessageText>() {
       @Override
@@ -66,7 +54,7 @@ public class MsgbaseDao {
         return new MessageText(text, lorcode);
       }
     }, msgid);
-  }                  
+  }
 
   public Map<Integer, MessageText> getMessageText(Collection<Integer> msgids) {
     if (msgids.isEmpty()) {
@@ -75,35 +63,34 @@ public class MsgbaseDao {
 
     final Map<Integer, MessageText> out = Maps.newHashMapWithExpectedSize(msgids.size());
 
-    namedJdbcTemplate.query(
-            "SELECT message, markup, id FROM msgbase WHERE id IN (:list)",
-            ImmutableMap.of("list", msgids),
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                String text = resultSet.getString("message");
-                String markup = resultSet.getString("markup");
-                boolean lorcode = !"PLAIN".equals(markup);
-
-                out.put(resultSet.getInt("id"), new MessageText(text, lorcode));
-              }
-            });
-
+    for(Integer msgid : msgids) {
+      out.put(msgid, getMessageText(msgid));
+    }
     return out;
   }
 
+  @CacheEvict(value = "Msgs", key = "#msgid")
   public void updateMessage(int msgid, String text) {
-    namedJdbcTemplate.update(
-      "UPDATE msgbase SET message=:message WHERE id=:msgid",
-      ImmutableMap.of("message", text, "msgid", msgid)
+    jdbcTemplate.update(
+        "UPDATE msgbase SET message=? WHERE id=?", text, msgid
     );
   }
 
+  @CacheEvict(value = "Msgs", key = "#msgid")
   public void appendMessage(int msgid, String text) {
     jdbcTemplate.update(
             "UPDATE msgbase SET message=message||? WHERE id=?",
             text,
             msgid
     );
+  }
+
+  /**
+   * Добавление нового тела сообщения. Не кешируется потому, что новое. Поопадет в кеш при первом чтении.
+   * @param msgid
+   * @param text
+   */
+  public void addMessage(int msgid, String text) {
+    jdbcTemplate.update("INSERT INTO msgbase(id, message) values(?,?)", msgid, text);
   }
 }

@@ -22,7 +22,7 @@ import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.topic.Topic;
@@ -48,7 +48,7 @@ public class EditHistoryService {
   private LorCodeService lorCodeService;
   
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private EditHistoryDao editHistoryDao;
@@ -69,7 +69,7 @@ public class EditHistoryService {
     List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    String currentMessage = msgbaseDao.getMessageText(message.getId()).getText();
+    String currentMessage = msgDao.getMessageText(message.getId()).getText();
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
@@ -152,7 +152,7 @@ public class EditHistoryService {
     List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    String currentMessage = msgbaseDao.getMessageText(comment.getId()).getText();
+    String currentMessage = msgDao.getMessageText(comment.getId()).getText();
     String currentTitle = comment.getTitle();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {

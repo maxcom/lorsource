@@ -39,6 +39,7 @@ import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -48,7 +49,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
-import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.Profile;
@@ -91,7 +91,7 @@ public class EditTopicController {
   private GroupPermissionService permissionService;
   
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
   
   @Autowired
   private EditHistoryService editHistoryService;
@@ -228,7 +228,7 @@ public class EditTopicController {
     }
 
     form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
-    form.setMsg(msgbaseDao.getMessageText(message.getId()).getText());
+    form.setMsg(msgDao.getMessageText(message.getId()).getText());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
       form.setMinor(message.isMinor());
@@ -345,7 +345,7 @@ public class EditTopicController {
     }
     
     if (form.getMsg()!=null) {
-      String oldText = msgbaseDao.getMessageText(message.getId()).getText();
+      String oldText = msgDao.getMessageText(message.getId()).getText();
   
       if (!oldText.equals(form.getMsg())) {
         modified = true;
@@ -407,7 +407,7 @@ public class EditTopicController {
     if (form.getMsg() != null) {
       newText = form.getMsg();
     } else {
-      newText = msgbaseDao.getMessageText(message.getId()).getText();
+      newText = msgDao.getMessageText(message.getId()).getText();
     }
 
     if (form.getEditorBonus() != null) {

@@ -34,12 +34,12 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -74,7 +74,7 @@ public class TopicDao {
   private SectionService sectionService;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private DeleteInfoDao deleteInfoDao;
@@ -262,11 +262,7 @@ public class TopicDao {
             }
     );
 
-    // insert message text
-    jdbcTemplate.update(
-            "INSERT INTO msgbase (id, message) values (?,?)",
-            msgid, text
-    );
+    msgDao.addMessage(msgid, text);
 
     return msgid;
   }
@@ -281,13 +277,13 @@ public class TopicDao {
 
     boolean modified = false;
 
-    String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
+    String oldText = msgDao.getMessageText(msg.getId()).getText();
 
     if (!oldText.equals(newText)) {
       editHistoryDto.setOldmessage(oldText);
       modified = true;
 
-      msgbaseDao.updateMessage(msg.getId(), newText);
+      msgDao.updateMessage(msg.getId(), newText);
     }
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {
@@ -542,7 +538,7 @@ public class TopicDao {
       return;
     }
 
-    boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
+    boolean lorcode = msgDao.getMessageText(msg.getId()).isLorcode();
 
     changeGroup(msg, newGrp.getId());
 
@@ -573,7 +569,7 @@ public class TopicDao {
         add = '\n' + link + "<br><i>Перемещено " + moveBy.getNick() + " из " + title + "</i>\n";
       }
 
-      msgbaseDao.appendMessage(msg.getId(), add);
+      msgDao.appendMessage(msg.getId(), add);
     }
 
     logger.info("topic " + msg.getId() + " moved" +

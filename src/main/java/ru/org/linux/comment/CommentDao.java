@@ -15,7 +15,6 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +24,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
@@ -79,16 +78,13 @@ public class CommentDao {
 
   private JdbcTemplate jdbcTemplate;
 
-  private SimpleJdbcInsert insertMsgbase;
-
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
-
-    insertMsgbase = new SimpleJdbcInsert(dataSource);
-    insertMsgbase.setTableName("msgbase");
-    insertMsgbase.usingColumns("id", "message");
   }
+
+  @Autowired
+  private MsgDao msgDao;
 
   /**
      * Получить комментарий по id
@@ -253,10 +249,7 @@ public class CommentDao {
       }
     );
 
-    insertMsgbase.execute(ImmutableMap.<String, Object>of(
-      "id", msgid,
-      "message", message)
-    );
+    msgDao.addMessage(msgid, message);
 
     return msgid;
   }

@@ -22,12 +22,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.msg.MsgDao;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.msg.MessageText;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
@@ -48,7 +48,7 @@ public class CommentPrepareService {
   private LorCodeService lorCodeService;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgDao msgDao;
 
   @Autowired
   private TopicPermissionService topicPermissionService;
@@ -66,7 +66,7 @@ public class CommentPrepareService {
           @Nonnull Comment comment,
           boolean secure
   ) throws UserNotFoundException {
-    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+    MessageText messageText = msgDao.getMessageText(comment.getId());
     return prepareComment(messageText, comment, null, secure, null, null);
   }
 
@@ -254,7 +254,7 @@ public class CommentPrepareService {
   ) throws UserNotFoundException {
     List<PreparedRSSComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
-      MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+      MessageText messageText = msgDao.getMessageText(comment.getId());
 
       commentsPrepared.add(prepareRSSComment(messageText, comment, secure));
     }
@@ -272,7 +272,7 @@ public class CommentPrepareService {
       return ImmutableList.of();
     }
 
-    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(
+    Map<Integer, MessageText> texts = msgDao.getMessageText(
             Lists.newArrayList(
                     Iterables.transform(list, new Function<Comment, Integer>() {
                       @Override

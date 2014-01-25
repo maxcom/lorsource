@@ -812,6 +812,8 @@ used with JMX monitors.
 
     <cache name="Groups" maxElementsInMemory="500" eternal="false" overflowToDisk="false" timeToLiveSeconds="300" memoryStoreEvictionPolicy="LFU" transactionalMode="off"/>
 
+    <cache name="Msgs" maxElementsInMemory="5000" eternal="false" overflowToDisk="false" timeToLiveSeconds="3600" memoryStoreEvictionPolicy="LFU" transactionalMode="off"/>
+
     <!--
     Sample caches. Following are some example caches. Remove these before use.
     -->
