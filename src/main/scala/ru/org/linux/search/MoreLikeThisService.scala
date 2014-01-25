@@ -47,7 +47,13 @@ class MoreLikeThisService @Autowired() (
       .setQuery(rootQuery)
       .addFields("title", "postdate", "section", "group")
 
-    query.execute()
+    try {
+      query.execute()
+    } catch {
+      case ex:ElasticSearchException =>
+        logger.warn("Unable to find simular topics", ex)
+        null // TODO return failed future
+    }
   }
 
   def resultsOrNothing(featureResult:ListenableActionFuture[SearchResponse]):java.util.List[MoreLikeThisTopic] = {
