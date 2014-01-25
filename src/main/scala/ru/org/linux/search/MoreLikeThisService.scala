@@ -12,14 +12,16 @@ import ru.org.linux.tag.TagRef
 import scala.beans.BeanProperty
 import ru.org.linux.util.StringUtil
 import org.springframework.web.util.UriComponentsBuilder
+import org.elasticsearch.search.SearchHit
+import org.elasticsearch.action.ListenableActionFuture
+import org.elasticsearch.action.search.SearchResponse
+import org.elasticsearch.ElasticSearchException
 
 @Service
 class MoreLikeThisService @Autowired() (
   client:Client
 ) extends Logging {
   // TODO async - return ListenableFuture
-  // TODO timeout
-  // TODO errors
   def search(topic:Topic, tags:java.util.List[TagRef]):java.util.List[MoreLikeThisTopic] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
@@ -46,25 +48,37 @@ class MoreLikeThisService @Autowired() (
       .setQuery(rootQuery)
       .addFields("title", "postdate", "section", "group")
 
-    val result = query.execute().actionGet()
+    resultsOrNothing(query.execute())
+  }
 
-    result.getHits.map(hit => {
-      val section = SearchResultsService.section(hit)
-      val group = SearchResultsService.group(hit)
+  def resultsOrNothing(featureResult:ListenableActionFuture[SearchResponse]):java.util.List[MoreLikeThisTopic] = {
+    try {
+      val result = featureResult.actionGet(MoreLikeThisService.TimeoutMillis)
 
-      val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-      val link = builder.buildAndExpand(section, group, new Integer(hit.getId)).toUriString
+      result.getHits.map(processHit).toSeq
+    } catch {
+      case ex:ElasticSearchException =>
+        logger.warn("Unable to find simular topics", ex)
+        Seq()
+    }
+  }
 
-      val postdate = SearchResultsService.postdate(hit)
+  def processHit(hit: SearchHit): MoreLikeThisTopic = {
+    val section = SearchResultsService.section(hit)
+    val group = SearchResultsService.group(hit)
 
-      val title = hit.getFields.get("title").getValue[String]
+    val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
+    val link = builder.buildAndExpand(section, group, new Integer(hit.getId)).toUriString
 
-      MoreLikeThisTopic(
-        title=StringUtil.processTitle(StringUtil.escapeHtml(title)),
-        link=link,
-        year=postdate.year().get()
-      )
-    }).toSeq
+    val postdate = SearchResultsService.postdate(hit)
+
+    val title = hit.getFields.get("title").getValue[String]
+
+    MoreLikeThisTopic(
+      title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
+      link = link,
+      year = postdate.year().get()
+    )
   }
 
   private def titleQuery(topic:Topic) = moreLikeThisFieldQuery("title")
@@ -81,6 +95,10 @@ class MoreLikeThisService @Autowired() (
 
     root
   }
+}
+
+object MoreLikeThisService {
+  val TimeoutMillis = 500
 }
 
 case class MoreLikeThisTopic(
