@@ -32,7 +32,6 @@ class MoreLikeThisService @Autowired() (
 
     if (!tags.isEmpty) {
       mltQuery.should(tagsQuery(tags.map(_.name).toSeq))
-      mltQuery.minimumNumberShouldMatch(2)
     }
 
     val rootFilter = boolFilter()
