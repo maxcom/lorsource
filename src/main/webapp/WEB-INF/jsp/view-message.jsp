@@ -32,6 +32,7 @@
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 <%--@elvariable id="moreLikeThis" type="java.util.List<ru.org.linux.search.MoreLikeThisTopic>"--%>
+<%--@elvariable id="ogDescription" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -47,8 +48,8 @@
   <meta name="twitter:card" content="summary">
 </c:if>
 <meta name="twitter:site" content="@wwwlinuxorgru">
-<c:if test="${not empty preparedMessage.ogDescription}">
-  <meta property="og:description" content="${preparedMessage.ogDescription}">
+<c:if test="${not empty ogDescription}">
+  <meta property="og:description" content="${ogDescription}">
 </c:if>
 
 <meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">

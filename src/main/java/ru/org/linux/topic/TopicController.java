@@ -39,11 +39,14 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -84,6 +87,12 @@ public class TopicController {
 
   @Autowired
   private TopicTagService topicTagService;
+
+  @Autowired
+  private MsgbaseDao msgbaseDao;
+
+  @Autowired
+  private LorCodeService lorCodeService;
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
@@ -175,7 +184,16 @@ public class TopicController {
       moreLikeThis = moreLikeThisService.search(topic, tags);
     }
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, tags, request.isSecure(), tmpl.getCurrentUser());
+    MessageText messageText = msgbaseDao.getMessageText(topic.getId());
+
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+            topic,
+            tags,
+            request.isSecure(),
+            tmpl.getCurrentUser(),
+            messageText
+    );
+
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
@@ -233,6 +251,10 @@ public class TopicController {
     CommentList comments = commentService.getCommentList(topic, showDeleted);
 
     if (!rss) {
+      if (messageText.isLorcode()) {
+        params.put("ogDescription", lorCodeService.extractPlainText(messageText.getText(), 250, true));
+      }
+
       params.put("page", page);
       params.put("group", group);
       params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());

@@ -33,7 +33,6 @@ public final class PreparedTopic {
   private final DeleteInfo deleteInfo;
   private final User deleteUser;
   private final String processedMessage;
-  private final String ogDescription;
   private final PreparedPoll poll;
   private final User commiter;
   private final boolean lorcode;
@@ -57,7 +56,6 @@ public final class PreparedTopic {
           DeleteInfo deleteInfo,
           User deleteUser,
           String processedMessage,
-          String ogDescription,
           PreparedPoll poll,
           User commiter,
           List<TagRef> tags,
@@ -75,7 +73,6 @@ public final class PreparedTopic {
     this.deleteInfo = deleteInfo;
     this.deleteUser = deleteUser;
     this.processedMessage = processedMessage;
-    this.ogDescription = ogDescription;
     this.poll = poll;
     this.commiter = commiter;
     this.lorcode = lorcode;
@@ -112,10 +109,6 @@ public final class PreparedTopic {
 
   public String getProcessedMessage() {
     return processedMessage;
-  }
-
-  public String getOgDescription() {
-    return ogDescription;
   }
 
   public PreparedPoll getPoll() {

@@ -120,7 +120,7 @@ public class TopicPrepareService {
     );
   }
 
-  public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, boolean secure, User user) {
+  public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, boolean secure, User user, MessageText text) {
     return prepareMessage(
             message,
             tags,
@@ -128,7 +128,7 @@ public class TopicPrepareService {
             null,
             secure,
             user,
-            msgbaseDao.getMessageText(message.getId()),
+            text,
             null
     );
   }
@@ -228,7 +228,6 @@ public class TopicPrepareService {
       }
 
       String processedMessage;
-      String ogDescription;
 
       if (text.isLorcode()) {
         if (minimizeCut) {
@@ -242,11 +241,8 @@ public class TopicPrepareService {
         } else {
           processedMessage = lorCodeService.parseTopic(text.getText(), secure, ! topicPermissionService.followInTopic(message, author));
         }
-
-        ogDescription = lorCodeService.extractPlainText(text.getText(), 250, true);
       } else {
         processedMessage = "<p>" + text.getText();
-        ogDescription = "";
       }
 
       PreparedImage preparedImage = null;
@@ -273,8 +269,7 @@ public class TopicPrepareService {
               deleteInfo, 
               deleteUser, 
               processedMessage,
-              ogDescription,
-              preparedPoll, 
+              preparedPoll,
               commiter, 
               tags,
               group,
