@@ -183,7 +183,7 @@ public class TopicController {
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);
 
-    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator() && !rss) {
+    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().getScore()>=500 && !rss) {
       moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
     }
 
@@ -335,6 +335,10 @@ public class TopicController {
       if (pages>1 && !showDeleted) {
         params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
       }
+
+      if (moreLikeThis!=null && tmpl.getCurrentUser().isAdministrator()) {
+        params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
+      }
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
@@ -345,10 +349,6 @@ public class TopicController {
       params.put("commentsPrepared", commentsPrepared);
       LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
       params.put("mainURL", lorURL.fixScheme(request.isSecure()));
-    }
-
-    if (moreLikeThis!=null) {
-      params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
