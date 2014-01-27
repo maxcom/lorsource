@@ -25,11 +25,10 @@ class MoreLikeThisService @Autowired() (
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
-    // TODO message body
-
     val mltQuery = boolQuery()
 
     mltQuery.should(titleQuery(topic))
+    mltQuery.should(mltQuery)
 
     if (!tags.isEmpty) {
       mltQuery.should(tagsQuery(tags.map(_.name).toSeq))
@@ -90,6 +89,9 @@ class MoreLikeThisService @Autowired() (
     .likeText(topic.getTitleUnescaped)
     .minTermFreq(0)
     .minDocFreq(0)
+
+  private def textQuery(plainText:String) = moreLikeThisFieldQuery("message")
+    .likeText(plainText)
 
   private def tagsQuery(tags:Seq[String]) = {
     val root = boolQuery()
