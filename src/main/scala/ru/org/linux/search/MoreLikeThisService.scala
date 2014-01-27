@@ -90,6 +90,7 @@ class MoreLikeThisService @Autowired() (
     .likeText(topic.getTitleUnescaped)
     .minTermFreq(0)
     .minDocFreq(0)
+    .maxDocFreq(50000)
 
   private def textQuery(plainText:String) = moreLikeThisFieldQuery("message")
     .likeText(plainText)
