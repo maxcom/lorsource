@@ -180,11 +180,12 @@ public class TopicController {
 
     ListenableActionFuture<SearchResponse> moreLikeThis = null;
 
-    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator() && !rss) {
-      moreLikeThis = moreLikeThisService.search(topic, tags);
-    }
-
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
+    String plainText = lorCodeService.extractPlainText(messageText);
+
+    if (tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isAdministrator() && !rss) {
+      moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
+    }
 
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
             topic,
@@ -252,7 +253,7 @@ public class TopicController {
 
     if (!rss) {
       if (messageText.isLorcode()) {
-        params.put("ogDescription", lorCodeService.extractPlainText(messageText.getText(), 250, true));
+        params.put("ogDescription", lorCodeService.trimPlainText(plainText, 250, true));
       }
 
       params.put("page", page);

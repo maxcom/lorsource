@@ -21,7 +21,7 @@ import org.elasticsearch.ElasticSearchException
 class MoreLikeThisService @Autowired() (
   client:Client
 ) extends Logging {
-  def search(topic:Topic, tags:java.util.List[TagRef]):ListenableActionFuture[SearchResponse] = {
+  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):ListenableActionFuture[SearchResponse] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 

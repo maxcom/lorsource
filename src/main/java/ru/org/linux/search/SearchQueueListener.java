@@ -22,7 +22,6 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ import ru.org.linux.search.SearchQueueSender.UpdateMonth;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
@@ -163,20 +161,12 @@ public class SearchQueueListener {
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
         Topic topic = topicDao.getById(comment.getTopicId());
-        String message = extractText(msgbaseDao.getMessageText(comment.getId()));
+        String message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId()));
         bulkRequest.add(processComment(topic, comment, message));
       }
     }
 
     executeBulk(bulkRequest);
-  }
-
-  private String extractText(MessageText text) {
-    if (text.isLorcode()) {
-      return lorCodeService.extractPlainText(text.getText());
-    } else {
-      return Jsoup.parse(text.getText()).text();
-    }
   }
 
   public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException {
@@ -214,7 +204,7 @@ public class SearchQueueListener {
 
     doc.put("title", topic.getTitleUnescaped());
     doc.put("topic_title", topic.getTitleUnescaped());
-    doc.put("message", extractText(msgbaseDao.getMessageText(topic.getId())));
+    doc.put("message", lorCodeService.extractPlainText(msgbaseDao.getMessageText(topic.getId())));
     Date postdate = topic.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
     doc.put("tag", topicDao.getTags(topic));
@@ -235,7 +225,7 @@ public class SearchQueueListener {
       if (comment.isDeleted()) {
         bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       } else {
-        String message = extractText(msgbaseDao.getMessageText(comment.getId()));
+        String message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId()));
         bulkRequest.add(processComment(topic, comment, message));
       }
     }
