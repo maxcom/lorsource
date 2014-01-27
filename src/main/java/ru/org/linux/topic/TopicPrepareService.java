@@ -63,9 +63,6 @@ public class TopicPrepareService {
   private static final Logger logger = LoggerFactory.getLogger(TopicPrepareService.class);
 
   @Autowired
-  private TopicDao messageDao;
-
-  @Autowired
   private GroupDao groupDao;
 
   @Autowired
