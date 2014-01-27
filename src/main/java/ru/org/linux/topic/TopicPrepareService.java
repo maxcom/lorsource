@@ -111,11 +111,29 @@ public class TopicPrepareService {
   private TopicTagService topicTagService;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
-    return prepareMessage(message, topicTagService.getTagRefs(message), false, null, secure, user, null, null);
+    return prepareMessage(
+            message,
+            topicTagService.getTagRefs(message),
+            false,
+            null,
+            secure,
+            user,
+            msgbaseDao.getMessageText(message.getId()),
+            null
+    );
   }
 
   public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, boolean secure, User user) {
-    return prepareMessage(message, tags, false, null, secure, user, null, null);
+    return prepareMessage(
+            message,
+            tags,
+            false,
+            null,
+            secure,
+            user,
+            msgbaseDao.getMessageText(message.getId()),
+            null
+    );
   }
 
   public PreparedTopic prepareTopicPreview(
@@ -210,10 +228,6 @@ public class TopicPrepareService {
         editHistoryDto = null;
         lastEditor = null;
         editCount = 0;
-      }
-
-      if (text == null) {
-        text = msgbaseDao.getMessageText(message.getId());
       }
 
       String processedMessage;
