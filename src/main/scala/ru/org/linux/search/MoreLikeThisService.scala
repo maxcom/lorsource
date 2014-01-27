@@ -28,7 +28,7 @@ class MoreLikeThisService @Autowired() (
     val mltQuery = boolQuery()
 
     mltQuery.should(titleQuery(topic))
-    mltQuery.should(mltQuery)
+    mltQuery.should(textQuery(plainText))
 
     if (!tags.isEmpty) {
       mltQuery.should(tagsQuery(tags.map(_.name).toSeq))
