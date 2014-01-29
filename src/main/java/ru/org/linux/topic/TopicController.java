@@ -187,7 +187,7 @@ public class TopicController {
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);
 
-    if (tmpl.getCurrentUser() != null && tmpl.getCurrentUser().getScore() >= 500) {
+    if (tmpl.getCurrentUser() != null && tmpl.getCurrentUser().getScore() >= 100) {
       moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
     }
 
