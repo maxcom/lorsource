@@ -52,7 +52,7 @@ object TagName {
     for (tag <- badTags) {
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
       if (tag.length() > MAX_TAG_LENGTH) {
-        errors.rejectValue("tags", null, "Слишком длиный тег: '" + tag + "\' (максимум " + MAX_TAG_LENGTH + " символов)")
+        errors.rejectValue("tags", null, "Слишком длинный тег: '" + tag + "\' (максимум " + MAX_TAG_LENGTH + " символов)")
       } else if (!isGoodTag(tag)) {
         errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'')
       }
