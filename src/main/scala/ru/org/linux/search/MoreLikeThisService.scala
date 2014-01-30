@@ -94,6 +94,7 @@ class MoreLikeThisService @Autowired() (
   private def textQuery(plainText:String) = moreLikeThisFieldQuery("message")
     .likeText(plainText)
     .maxDocFreq(50000)
+    .minTermFreq(1)
 
   private def tagsQuery(tags:Seq[String]) = {
     val root = boolQuery()
