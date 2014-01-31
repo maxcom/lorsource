@@ -335,7 +335,7 @@ public class TopicController {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 
-    if (moreLikeThis!=null && tmpl.getCurrentUser().isModerator()) {
+    if (moreLikeThis!=null && tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().getScore()>=400) {
       params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
     }
 
