@@ -16,8 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableSet;
-import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.search.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -32,6 +30,7 @@ import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
 import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.search.MoreLikeThisService;
+import ru.org.linux.search.MoreLikeThisTopic;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -47,6 +46,7 @@ import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.concurrent.Future;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -182,7 +182,7 @@ public class TopicController {
 
     List<TagRef> tags = topicTagService.getTagRefs(topic);
 
-    ListenableActionFuture<SearchResponse> moreLikeThis = null;
+    Future<List<MoreLikeThisTopic>> moreLikeThis = null;
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);

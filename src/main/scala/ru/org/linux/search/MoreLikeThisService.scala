@@ -13,15 +13,18 @@ import scala.beans.BeanProperty
 import ru.org.linux.util.StringUtil
 import org.springframework.web.util.UriComponentsBuilder
 import org.elasticsearch.search.SearchHit
-import org.elasticsearch.action.ListenableActionFuture
+import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.ElasticSearchException
+import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Service
 class MoreLikeThisService @Autowired() (
   client:Client
 ) extends Logging {
-  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):ListenableActionFuture[SearchResponse] = {
+  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[java.util.List[MoreLikeThisTopic]] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
@@ -46,20 +49,23 @@ class MoreLikeThisService @Autowired() (
       .setQuery(rootQuery)
       .addFields("title", "postdate", "section", "group")
 
+    val promise = Promise[SearchResponse]()
+
     try {
-      query.execute()
+      query.execute().addListener(new ActionListener[SearchResponse]() {
+        override def onFailure(e: Throwable): Unit = promise.failure(e)
+        override def onResponse(response: SearchResponse): Unit = promise.success(response)
+      })
+
+      promise.future.map(result => result.getHits.map(processHit).toSeq)
     } catch {
-      case ex:ElasticSearchException =>
-        logger.warn("Unable to find simular topics", ex)
-        null // TODO return failed future
+      case ex:ElasticSearchException => Future.failed(ex)
     }
   }
 
-  def resultsOrNothing(featureResult:ListenableActionFuture[SearchResponse]):java.util.List[MoreLikeThisTopic] = {
+  def resultsOrNothing(featureResult:Future[java.util.List[MoreLikeThisTopic]]):java.util.List[MoreLikeThisTopic] = {
     try {
-      val result = featureResult.actionGet(MoreLikeThisService.TimeoutMillis)
-
-      result.getHits.map(processHit).toSeq
+      Await.result(featureResult, MoreLikeThisService.Timeout)
     } catch {
       case ex:ElasticSearchException =>
         logger.warn("Unable to find simular topics", ex)
@@ -108,7 +114,7 @@ class MoreLikeThisService @Autowired() (
 }
 
 object MoreLikeThisService {
-  val TimeoutMillis = 500
+  val Timeout = 500.milliseconds
 }
 
 case class MoreLikeThisTopic(
