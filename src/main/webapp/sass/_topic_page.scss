@@ -1,0 +1,17 @@
+#related-topics-list {
+  @include clearfix();
+  @include container();
+
+  ul {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  @include respond-to(desktops) {
+    @include generate_grid_positions('ul', 6);
+
+    ul {
+      @include column(6);
+    }
+  }
+}

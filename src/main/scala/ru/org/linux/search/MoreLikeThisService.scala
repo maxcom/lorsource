@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.elasticsearch.client.Client
 import ru.org.linux.topic.Topic
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.elasticsearch.index.query.QueryBuilders._
 import com.typesafe.scalalogging.slf4j.Logging
 import org.elasticsearch.index.query.FilterBuilders._
@@ -24,7 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class MoreLikeThisService @Autowired() (
   client:Client
 ) extends Logging {
-  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[java.util.List[MoreLikeThisTopic]] = {
+  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[java.util.List[java.util.List[MoreLikeThisTopic]]] = {
     // TODO boost tags
     // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
 
@@ -57,13 +58,17 @@ class MoreLikeThisService @Autowired() (
         override def onResponse(response: SearchResponse): Unit = promise.success(response)
       })
 
-      promise.future.map(result => result.getHits.map(processHit).toSeq)
+      promise.future.map(result => {
+        val half = result.getHits.size/2 + result.getHits.size%2
+
+        result.getHits.map(processHit).grouped(half).map(_.toSeq.asJava).toSeq.asJava
+      })
     } catch {
       case ex:ElasticSearchException => Future.failed(ex)
     }
   }
 
-  def resultsOrNothing(featureResult:Future[java.util.List[MoreLikeThisTopic]]):java.util.List[MoreLikeThisTopic] = {
+  def resultsOrNothing(featureResult:Future[java.util.List[java.util.List[MoreLikeThisTopic]]]):java.util.List[java.util.List[MoreLikeThisTopic]] = {
     try {
       Await.result(featureResult, MoreLikeThisService.Timeout)
     } catch {

@@ -31,7 +31,7 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
-<%--@elvariable id="moreLikeThis" type="java.util.List<ru.org.linux.search.MoreLikeThisTopic>"--%>
+<%--@elvariable id="moreLikeThis" type="java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>"--%>
 <%--@elvariable id="ogDescription" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -277,14 +277,19 @@
 
 <c:if test="${not empty moreLikeThis}">
   <section id="related-topics">
-  <h2>Похожие темы</h2>
-  <ul>
-    <c:forEach var="topic" items="${moreLikeThis}">
-      <li>
-        <a href="${topic.link}">${topic.title}</a> (${topic.year})
-      </li>
-    </c:forEach>
-  </ul>
+    <h2>Похожие темы</h2>
+
+    <div id="related-topics-list">
+      <c:forEach var="sublist" items="${moreLikeThis}">
+        <ul>
+          <c:forEach var="topic" items="${sublist}">
+            <li>
+              <a href="${topic.link}">${topic.title}</a> (${topic.year})
+            </li>
+          </c:forEach>
+        </ul>
+      </c:forEach>
+    </div>
   </section>
 </c:if>
 
