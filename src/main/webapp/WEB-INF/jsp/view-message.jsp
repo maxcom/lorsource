@@ -276,6 +276,7 @@
 </c:if>
 
 <c:if test="${not empty moreLikeThis}">
+  <section id="related-topics">
   <h2>Похожие темы</h2>
   <ul>
     <c:forEach var="topic" items="${moreLikeThis}">
@@ -284,6 +285,7 @@
       </li>
     </c:forEach>
   </ul>
+  </section>
 </c:if>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">

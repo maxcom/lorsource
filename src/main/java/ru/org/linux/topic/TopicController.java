@@ -440,6 +440,7 @@ public class TopicController {
    * @return вовзращает редирект на новый код
    * @throws Exception если получится
    */
+
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessageOld(
     @RequestParam("msgid") int msgid,
