@@ -60,11 +60,11 @@ class MoreLikeThisService @Autowired() (
         override def onResponse(response: SearchResponse): Unit = promise.success(response)
       })
 
-      promise.future.map(result => {
+      promise.future.map(result => if (result.getHits.nonEmpty) {
         val half = result.getHits.size/2 + result.getHits.size%2
 
         result.getHits.map(processHit).grouped(half).map(_.toSeq.asJava).toSeq.asJava
-      })
+      } else Seq())
     } catch {
       case ex:ElasticSearchException => Future.failed(ex)
     }
