@@ -262,14 +262,10 @@ textarea {
     }
 }
 
-#tag-page-forum {
-    .group-label {
-        padding: 2px;
-        background-color: $group_label_color;
-        font-size: 0.8em;
-    }
+.group-label {
+  padding: 2px;
+  background-color: $group_label_color;
+  font-size: 0.8em;
 }
-
-
 
 @import "../responsive";

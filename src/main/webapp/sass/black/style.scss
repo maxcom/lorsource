@@ -222,6 +222,15 @@ div.quote {
   color: $link_color;
 }
 
+.group-label {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  background-color: #8f5902;
+  color: #eeeeec;
+  white-space: nowrap;
+}
+
 @media screen and (max-width:360px) {
 	#head-main {
 		margin-left: 0;

@@ -284,6 +284,7 @@
         <ul>
           <c:forEach var="topic" items="${sublist}">
             <li>
+              <span class="group-label">${topic.section}</span>
               <a href="${topic.link}">${topic.title}</a> (${topic.year})
             </li>
           </c:forEach>
