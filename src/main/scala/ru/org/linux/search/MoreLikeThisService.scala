@@ -17,13 +17,15 @@ import org.elasticsearch.search.SearchHit
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.ElasticSearchException
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.{TimeoutException, Await, Future, Promise}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import ru.org.linux.section.SectionService
 
 @Service
 class MoreLikeThisService @Autowired() (
-  client:Client
+  client:Client,
+  sectionService:SectionService
 ) extends Logging {
   def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[java.util.List[java.util.List[MoreLikeThisTopic]]] = {
     // TODO boost tags
@@ -75,6 +77,9 @@ class MoreLikeThisService @Autowired() (
       case ex:ElasticSearchException =>
         logger.warn("Unable to find simular topics", ex)
         Seq()
+      case ex:TimeoutException =>
+        logger.warn("Simular topics lookup timed out", ex)
+        Seq()
     }
   }
 
@@ -92,7 +97,8 @@ class MoreLikeThisService @Autowired() (
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
       link = link,
-      year = postdate.year().get()
+      year = postdate.year().get(),
+      sectionService.getSectionByName(section).getTitle
     )
   }
 
@@ -125,5 +131,6 @@ object MoreLikeThisService {
 case class MoreLikeThisTopic(
   @BeanProperty title:String,
   @BeanProperty link:String,
-  @BeanProperty year:Int
+  @BeanProperty year:Int,
+  @BeanProperty section:String
 )
