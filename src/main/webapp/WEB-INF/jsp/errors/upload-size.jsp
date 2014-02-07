@@ -27,7 +27,7 @@
     <div id="warning-text">
         <h1>Слишком крупное изображение</h1>
         <p>Размер изображения превышает лимит в ${exception.maxUploadSize} Байт</p>
-        <p>Вернитесь <a href="java script:history.back()">назад</a></p>
+        <p>Вернитесь <a href="javascript:history.back()">назад</a></p>
     </div>
 </div>
 <div id="warning-footer"></div>
