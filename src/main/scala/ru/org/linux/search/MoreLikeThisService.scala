@@ -15,22 +15,63 @@ import ru.org.linux.util.StringUtil
 import org.springframework.web.util.UriComponentsBuilder
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.action.ActionListener
-import org.elasticsearch.action.search.SearchResponse
+import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse}
 import org.elasticsearch.ElasticSearchException
 import scala.concurrent.{TimeoutException, Await, Future, Promise}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import ru.org.linux.section.SectionService
+import com.google.common.cache.CacheBuilder
+import java.util.concurrent.TimeUnit
 
 @Service
 class MoreLikeThisService @Autowired() (
   client:Client,
   sectionService:SectionService
 ) extends Logging {
-  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[java.util.List[java.util.List[MoreLikeThisTopic]]] = {
-    // TODO boost tags
-    // see http://stackoverflow.com/questions/15300650/elasticsearch-more-like-this-api-vs-more-like-this-query
+  import MoreLikeThisService._
 
+  type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
+
+  private val cache = CacheBuilder
+    .newBuilder()
+    .maximumSize(CacheSize)
+    .expireAfterWrite(1, TimeUnit.HOURS)
+    .build[Integer, Result]()
+
+  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[Result] = {
+    val cachedValue = cache.getIfPresent(topic.getId)
+    if (cachedValue != null) {
+      Future.successful(cachedValue)
+    } else {
+      val query = makeQuery(topic, plainText, tags)
+
+      val promise = Promise[SearchResponse]()
+
+      try {
+        query.execute().addListener(new ActionListener[SearchResponse]() {
+          override def onFailure(e: Throwable): Unit = promise.failure(e)
+          override def onResponse(response: SearchResponse): Unit = promise.success(response)
+        })
+
+        val result:Future[Result] = promise.future.map(result => if (result.getHits.nonEmpty) {
+          val half = result.getHits.size / 2 + result.getHits.size % 2
+
+          result.getHits.map(processHit).grouped(half).map(_.toSeq.asJava).toSeq.asJava
+        } else Seq())
+
+        result.onSuccess {
+          case v => cache.put(topic.getId, v)
+        }
+
+        result
+      } catch {
+        case ex: ElasticSearchException => Future.failed(ex)
+      }
+    }
+  }
+
+  def makeQuery(topic: Topic, plainText: String, tags: java.util.List[TagRef]):SearchRequestBuilder = {
     val mltQuery = boolQuery()
 
     mltQuery.should(titleQuery(topic))
@@ -46,39 +87,22 @@ class MoreLikeThisService @Autowired() (
 
     val rootQuery = filteredQuery(mltQuery, rootFilter)
 
-    val query = client
+    client
       .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
       .setTypes(SearchQueueListener.MESSAGES_TYPE)
       .setQuery(rootQuery)
       .addFields("title", "postdate", "section", "group")
-
-    val promise = Promise[SearchResponse]()
-
-    try {
-      query.execute().addListener(new ActionListener[SearchResponse]() {
-        override def onFailure(e: Throwable): Unit = promise.failure(e)
-        override def onResponse(response: SearchResponse): Unit = promise.success(response)
-      })
-
-      promise.future.map(result => if (result.getHits.nonEmpty) {
-        val half = result.getHits.size/2 + result.getHits.size%2
-
-        result.getHits.map(processHit).grouped(half).map(_.toSeq.asJava).toSeq.asJava
-      } else Seq())
-    } catch {
-      case ex:ElasticSearchException => Future.failed(ex)
-    }
   }
 
-  def resultsOrNothing(featureResult:Future[java.util.List[java.util.List[MoreLikeThisTopic]]]):java.util.List[java.util.List[MoreLikeThisTopic]] = {
+  def resultsOrNothing(featureResult:Future[Result]):Result = {
     try {
-      Await.result(featureResult, MoreLikeThisService.Timeout)
+      Await.result(featureResult, Timeout)
     } catch {
       case ex:ElasticSearchException =>
-        logger.warn("Unable to find simular topics", ex)
+        logger.warn("Unable to find similar topics", ex)
         Seq()
       case ex:TimeoutException =>
-        logger.warn("Simular topics lookup timed out", ex)
+        logger.warn("Similar topics lookup timed out", ex)
         Seq()
     }
   }
@@ -126,6 +150,7 @@ class MoreLikeThisService @Autowired() (
 
 object MoreLikeThisService {
   val Timeout = 500.milliseconds
+  val CacheSize = 2000
 }
 
 case class MoreLikeThisTopic(
