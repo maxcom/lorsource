@@ -182,14 +182,10 @@ public class TopicController {
 
     List<TagRef> tags = topicTagService.getTagRefs(topic);
 
-    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = null;
-
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);
 
-    if (tmpl.getCurrentUser() != null) {
-      moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
-    }
+    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
 
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
             topic,
