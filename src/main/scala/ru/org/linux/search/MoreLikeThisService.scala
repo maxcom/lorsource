@@ -44,11 +44,11 @@ class MoreLikeThisService @Autowired() (
     if (cachedValue != null) {
       Future.successful(cachedValue)
     } else {
-      val query = makeQuery(topic, plainText, tags)
-
       val promise = Promise[SearchResponse]()
 
       try {
+        val query = makeQuery(topic, plainText, tags)
+
         query.execute().addListener(new ActionListener[SearchResponse]() {
           override def onFailure(e: Throwable): Unit = promise.failure(e)
           override def onResponse(response: SearchResponse): Unit = promise.success(response)
