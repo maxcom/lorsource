@@ -29,6 +29,8 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
 import ru.org.linux.paginator.PagesInfo;
+import ru.org.linux.search.MoreLikeThisService;
+import ru.org.linux.search.MoreLikeThisTopic;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -36,10 +38,15 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
+import ru.org.linux.util.bbcode.LorCodeService;
+import scala.concurrent.Future;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,6 +82,18 @@ public class TopicController {
   @Autowired
   private TopicPermissionService permissionService;
 
+  @Autowired
+  private MoreLikeThisService moreLikeThisService;
+
+  @Autowired
+  private TopicTagService topicTagService;
+
+  @Autowired
+  private MsgbaseDao msgbaseDao;
+
+  @Autowired
+  private LorCodeService lorCodeService;
+
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
     WebRequest webRequest,
@@ -92,7 +111,13 @@ public class TopicController {
 
     Section section = sectionService.getSectionByName(sectionName);
 
-    return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid);
+    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
+
+    if (rss) {
+      return getMessageRss(section, request, response, groupName, msgid);
+    } else {
+      return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid);
+    }
   }
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}/page{page}")
@@ -153,24 +178,32 @@ public class TopicController {
     Topic topic = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    Map<String, Object> params = new HashMap<>();
+
+    List<TagRef> tags = topicTagService.getTagRefs(topic);
+
+    MessageText messageText = msgbaseDao.getMessageText(topic.getId());
+    String plainText = lorCodeService.extractPlainText(messageText);
+
+    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
+
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+            topic,
+            tags,
+            request.isSecure(),
+            tmpl.getCurrentUser(),
+            messageText
+    );
+
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
-    Map<String, Object> params = new HashMap<>();
-
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {
       page = -1;
-    }
-
-    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
-
-    if (rss && topic.isExpired()) {
-      throw new MessageNotFoundException(topic.getId(), "no more comments");
     }
 
     if (!tmpl.isModeratorSession()) {
@@ -214,99 +247,154 @@ public class TopicController {
 
     CommentList comments = commentService.getCommentList(topic, showDeleted);
 
-    if (!rss) {
-      params.put("page", page);
-      params.put("group", group);
-      params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
-
-      if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-        String etag = getEtag(topic);
-        response.setHeader("Etag", etag);
-
-        if (request.getHeader("If-None-Match") != null) {
-          if (etag.equals(request.getHeader("If-None-Match"))) {
-            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            return null;
-          }
-        } else if (checkLastModified(webRequest, topic)) {
-          return null;
-        }
-      }
-
-      params.put("messageMenu", messagePrepareService.getTopicMenu(
-              preparedMessage,
-              currentUser,
-              request.isSecure(),
-              tmpl.getProf(),
-              true
-      ));
-
-      Set<Integer> ignoreList;
-
-      if (currentUser != null) {
-        ignoreList = ignoreListDao.get(currentUser);
-      } else {
-        ignoreList = ImmutableSet.of();
-      }
-
-      int defaultFilterMode = getDefaultFilter(tmpl.getProf(), ignoreList.isEmpty());
-      int filterMode;
-
-      if (filter != null) {
-        filterMode = CommentFilter.parseFilterChain(filter);
-
-        if (!ignoreList.isEmpty() && filterMode == CommentFilter.FILTER_ANONYMOUS) {
-          filterMode += CommentFilter.FILTER_IGNORED;
-        }
-      } else {
-        filterMode = defaultFilterMode;
-      }
-
-      params.put("filterMode", CommentFilter.toString(filterMode));
-      params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
-
-      loadTopicScroller(params, topic, currentUser, !ignoreList.isEmpty());
-
-      Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
-
-      CommentFilter cv = new CommentFilter(comments);
-
-      boolean reverse = tmpl.getProf().isShowNewFirst();
-
-      List<Comment> commentsFiltred = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), hideSet);
-      List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.<Integer>of());
-
-      params.put("unfilteredCount", commentsFull.size());
-
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
-              comments,
-              commentsFiltred,
-              request.isSecure(),
-              tmpl,
-              topic
-      );
-
-      params.put("commentsPrepared", commentsPrepared);
-
-      IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-      params.put("ipBlockInfo", ipBlockInfo);
-
-      if (pages>1 && !showDeleted) {
-        params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
-      }
-    } else {
-      CommentFilter cv = new CommentFilter(comments);
-
-      List<Comment> commentsFiltred = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
-
-      List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltred, request.isSecure());
-
-      params.put("commentsPrepared", commentsPrepared);
-      LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
-      params.put("mainURL", lorURL.fixScheme(request.isSecure()));
+    if (messageText.isLorcode()) {
+      params.put("ogDescription", lorCodeService.trimPlainText(plainText, 250, true));
     }
 
-    return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
+    params.put("page", page);
+    params.put("group", group);
+    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
+
+    if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
+      String etag = getEtag(topic);
+      response.setHeader("Etag", etag);
+
+      if (request.getHeader("If-None-Match") != null) {
+        if (etag.equals(request.getHeader("If-None-Match"))) {
+          response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+          return null;
+        }
+      } else if (checkLastModified(webRequest, topic)) {
+        return null;
+      }
+    }
+
+    params.put("messageMenu", messagePrepareService.getTopicMenu(
+            preparedMessage,
+            currentUser,
+            request.isSecure(),
+            tmpl.getProf(),
+            true
+    ));
+
+    Set<Integer> ignoreList;
+
+    if (currentUser != null) {
+      ignoreList = ignoreListDao.get(currentUser);
+    } else {
+      ignoreList = ImmutableSet.of();
+    }
+
+    int defaultFilterMode = getDefaultFilter(tmpl.getProf(), ignoreList.isEmpty());
+    int filterMode;
+
+    if (filter != null) {
+      filterMode = CommentFilter.parseFilterChain(filter);
+
+      if (!ignoreList.isEmpty() && filterMode == CommentFilter.FILTER_ANONYMOUS) {
+        filterMode += CommentFilter.FILTER_IGNORED;
+      }
+    } else {
+      filterMode = defaultFilterMode;
+    }
+
+    params.put("filterMode", CommentFilter.toString(filterMode));
+    params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode));
+
+    loadTopicScroller(params, topic, currentUser, !ignoreList.isEmpty());
+
+    Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
+
+    CommentFilter cv = new CommentFilter(comments);
+
+    boolean reverse = tmpl.getProf().isShowNewFirst();
+
+    List<Comment> commentsFiltred = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), hideSet);
+    List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.<Integer>of());
+
+    params.put("unfilteredCount", commentsFull.size());
+
+    List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
+            comments,
+            commentsFiltred,
+            request.isSecure(),
+            tmpl,
+            topic
+    );
+
+    params.put("commentsPrepared", commentsPrepared);
+
+    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+    params.put("ipBlockInfo", ipBlockInfo);
+
+    if (pages>1 && !showDeleted) {
+      params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
+    }
+
+    if (moreLikeThis!=null) {
+      params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
+    }
+
+    return new ModelAndView("view-message", params);
+  }
+
+  private ModelAndView getMessageRss(
+          Section section,
+          HttpServletRequest request,
+          HttpServletResponse response,
+          String groupName,
+          int msgid) throws Exception {
+    Topic topic = messageDao.getById(msgid);
+    Template tmpl = Template.getTemplate(request);
+
+    Map<String, Object> params = new HashMap<>();
+
+    List<TagRef> tags = topicTagService.getTagRefs(topic);
+
+    MessageText messageText = msgbaseDao.getMessageText(topic.getId());
+
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+            topic,
+            tags,
+            request.isSecure(),
+            tmpl.getCurrentUser(),
+            messageText
+    );
+
+    Group group = preparedMessage.getGroup();
+
+    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
+      return new ModelAndView(new RedirectView(topic.getLink()));
+    }
+
+    if (topic.isExpired()) {
+      throw new MessageNotFoundException(topic.getId(), "no more comments");
+    }
+
+    User currentUser = AuthUtil.getCurrentUser();
+
+    permissionService.checkView(group, topic, currentUser, false);
+
+    params.put("message", topic);
+    params.put("preparedMessage", preparedMessage);
+
+    if (topic.isExpired()) {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
+    }
+
+    CommentList comments = commentService.getCommentList(topic, false);
+
+    CommentFilter cv = new CommentFilter(comments);
+
+    List<Comment> commentsFiltred = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
+
+    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltred, request.isSecure());
+
+    params.put("commentsPrepared", commentsPrepared);
+    LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
+    params.put("mainURL", lorURL.fixScheme(request.isSecure()));
+
+    return new ModelAndView("view-message-rss", params);
   }
 
   private void loadTopicScroller(Map<String, Object> params, Topic topic, User currentUser, boolean useIgnoreList) {
@@ -348,6 +436,7 @@ public class TopicController {
    * @return вовзращает редирект на новый код
    * @throws Exception если получится
    */
+
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessageOld(
     @RequestParam("msgid") int msgid,

@@ -63,9 +63,6 @@ public class TopicPrepareService {
   private static final Logger logger = LoggerFactory.getLogger(TopicPrepareService.class);
 
   @Autowired
-  private TopicDao messageDao;
-
-  @Autowired
   private GroupDao groupDao;
 
   @Autowired
@@ -111,7 +108,29 @@ public class TopicPrepareService {
   private TopicTagService topicTagService;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
-    return prepareMessage(message, topicTagService.getTagRefs(message), false, null, secure, user, null, null);
+    return prepareMessage(
+            message,
+            topicTagService.getTagRefs(message),
+            false,
+            null,
+            secure,
+            user,
+            msgbaseDao.getMessageText(message.getId()),
+            null
+    );
+  }
+
+  public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, boolean secure, User user, MessageText text) {
+    return prepareMessage(
+            message,
+            tags,
+            false,
+            null,
+            secure,
+            user,
+            text,
+            null
+    );
   }
 
   public PreparedTopic prepareTopicPreview(
@@ -208,12 +227,7 @@ public class TopicPrepareService {
         editCount = 0;
       }
 
-      if (text == null) {
-        text = msgbaseDao.getMessageText(message.getId());
-      }
-
       String processedMessage;
-      String ogDescription;
 
       if (text.isLorcode()) {
         if (minimizeCut) {
@@ -227,11 +241,8 @@ public class TopicPrepareService {
         } else {
           processedMessage = lorCodeService.parseTopic(text.getText(), secure, ! topicPermissionService.followInTopic(message, author));
         }
-
-        ogDescription = lorCodeService.extractPlainText(text.getText(), 250, true);
       } else {
         processedMessage = "<p>" + text.getText();
-        ogDescription = "";
       }
 
       PreparedImage preparedImage = null;
@@ -258,8 +269,7 @@ public class TopicPrepareService {
               deleteInfo, 
               deleteUser, 
               processedMessage,
-              ogDescription,
-              preparedPoll, 
+              preparedPoll,
               commiter, 
               tags,
               group,

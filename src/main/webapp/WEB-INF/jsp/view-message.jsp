@@ -31,6 +31,8 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
+<%--@elvariable id="moreLikeThis" type="java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>"--%>
+<%--@elvariable id="ogDescription" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -46,8 +48,8 @@
   <meta name="twitter:card" content="summary">
 </c:if>
 <meta name="twitter:site" content="@wwwlinuxorgru">
-<c:if test="${not empty preparedMessage.ogDescription}">
-  <meta property="og:description" content="${preparedMessage.ogDescription}">
+<c:if test="${not empty ogDescription}">
+  <meta property="og:description" content="${ogDescription}">
 </c:if>
 
 <meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
@@ -271,6 +273,25 @@
     <input type=submit value="Показать удаленные комментарии">
     </form>
     <hr>
+</c:if>
+
+<c:if test="${not empty moreLikeThis}">
+  <section id="related-topics">
+    <h2>Похожие темы</h2>
+
+    <div id="related-topics-list">
+      <c:forEach var="sublist" items="${moreLikeThis}">
+        <ul>
+          <c:forEach var="topic" items="${sublist}">
+            <li>
+              <span class="group-label">${topic.section}</span>
+              <a href="${topic.link}">${topic.title}</a> (${topic.year})
+            </li>
+          </c:forEach>
+        </ul>
+      </c:forEach>
+    </div>
+  </section>
 </c:if>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">

@@ -16,6 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringEscapeUtils;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
@@ -255,6 +256,10 @@ public class Topic implements Serializable {
 
   public String getTitle() {
     return title;
+  }
+
+  public String getTitleUnescaped() {
+    return StringEscapeUtils.unescapeHtml(title);
   }
 
   public Timestamp getLastModified() {

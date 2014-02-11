@@ -17,9 +17,11 @@
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.httpclient.URI;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
@@ -75,20 +77,20 @@ public class LorCodeService {
    * @param text обрабатываемый текст
    * @return извлеченный текст
    */
-  public String extractPlainText(String text) {
+  public String extractPlainTextFromLorcode(String text) {
     return defaultParser.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
   }
 
   /**
-   * Получить чистый текст из LORCODE текста с ограничением размера
+   * Обрезать чистый текст до заданого размера
    *
-   * @param text обрабатываемый текст
+   * @param plainText обрабатываемый текст (не lorcode!)
    * @param maxLength обрезать текст до указанной длинны
-   * @return извлеченный текст
+   * @param encodeHtml экранировать теги
+   *
+   * @return обрезанный текст
    */
-  public String extractPlainText(String text, int maxLength, boolean encodeHtml) {
-    String plainText = extractPlainText(text);
-
+  public String trimPlainText(String plainText, int maxLength, boolean encodeHtml) {
     String cut;
 
     if(plainText.length() < maxLength) {
@@ -104,13 +106,21 @@ public class LorCodeService {
     }
   }
 
+  public String extractPlainText(MessageText text) {
+    if (text.isLorcode()) {
+      return extractPlainTextFromLorcode(text.getText());
+    } else {
+      return Jsoup.parse(text.getText()).text();
+    }
+  }
+
   /**
    * Проверяем комментарий на отсутствие текста
    * @param msg текст
    * @return флаг пустоты
    */
   public boolean isEmptyTextComment(String msg) {
-    return extractPlainText(msg.trim()).isEmpty();
+    return extractPlainTextFromLorcode(msg.trim()).isEmpty();
   }
 
   /**

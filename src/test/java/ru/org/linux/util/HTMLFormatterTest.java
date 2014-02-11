@@ -577,12 +577,12 @@ public class HTMLFormatterTest {
   public void testOg() {
     assertEquals(
         "hello",
-        lorCodeService.extractPlainText("hello")
+        lorCodeService.extractPlainTextFromLorcode("hello")
     );
 
     assertEquals(
         "one crap two three",
-        lorCodeService.extractPlainText("[list]\n" +
+        lorCodeService.extractPlainTextFromLorcode("[list]\n" +
                 "[*]one\n" +
                 '\n' +
                 "crap\n" +
@@ -592,20 +592,20 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "due one teo neo wuf?\nok",
-        lorCodeService.extractPlainText("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
+        lorCodeService.extractPlainTextFromLorcode("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
     assertEquals(
         "&amp;#9618;",
-        lorCodeService.extractPlainText("[code]&#9618;[/code]", 250, true)
+            lorCodeService.trimPlainText(lorCodeService.extractPlainTextFromLorcode("[code]&#9618;[/code]"), 250, true)
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
     assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
-        lorCodeService.extractPlainText(txt, 250, true)
+            lorCodeService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true)
     );
     assertEquals(
         250+3,
-        lorCodeService.extractPlainText(txt, 250, true).length()
+        lorCodeService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true).length()
     );
   }
 

@@ -496,15 +496,13 @@ fieldset legend {
   color: $signature_remark_color;
 }
 
-#tag-page-forum {
-  .group-label {
-    border-radius: 3px;
-    font-size: 0.8em;
-    padding: 2px 4px;
-    background-color: $tagpage_group_label_background;
-    color: $tagpage_group_label_color;
-    white-space: nowrap;
-  }
+.group-label {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  background-color: $tagpage_group_label_background;
+  color: $tagpage_group_label_color;
+  white-space: nowrap;
 }
 
 .messages .msg:target {
