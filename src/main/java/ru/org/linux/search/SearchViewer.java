@@ -158,7 +158,7 @@ public class SearchViewer {
     FunctionScoreQueryBuilder booster = functionScoreQuery(query);
 
     booster.add(termFilter("is_comment", "false"), ScoreFunctionBuilders.factorFunction(TOPIC_BOOST));
-    booster.add(rangeFilter("postdate").from("now-3y"), ScoreFunctionBuilders.factorFunction(RECENT_BOOST));
+    booster.add(rangeFilter("postdate").gte("now/d-3y"), ScoreFunctionBuilders.factorFunction(RECENT_BOOST));
 
     return booster;
   }
