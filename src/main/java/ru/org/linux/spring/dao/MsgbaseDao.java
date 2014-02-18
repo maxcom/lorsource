@@ -22,7 +22,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -45,12 +48,26 @@ public class MsgbaseDao {
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
 
+  private SimpleJdbcInsert insertMsgbase;
+
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+
+    insertMsgbase = new SimpleJdbcInsert(dataSource);
+    insertMsgbase.setTableName("msgbase");
+    insertMsgbase.usingColumns("id", "message");
   }
-  
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void saveNewMessage(String message, int msgid) {
+    insertMsgbase.execute(ImmutableMap.<String, Object>of(
+            "id", msgid,
+            "message", message)
+    );
+  }
+
   public String getMessageTextFromWiki(int topicId) {
     return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topicId);
   }

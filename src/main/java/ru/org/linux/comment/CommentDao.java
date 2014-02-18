@@ -15,7 +15,6 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,15 +77,9 @@ public class CommentDao {
 
   private JdbcTemplate jdbcTemplate;
 
-  private SimpleJdbcInsert insertMsgbase;
-
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
-
-    insertMsgbase = new SimpleJdbcInsert(dataSource);
-    insertMsgbase.setTableName("msgbase");
-    insertMsgbase.usingColumns("id", "message");
   }
 
   /**
@@ -213,19 +205,12 @@ public class CommentDao {
   }
 
   /**
-     * Добавить новый комментарий.
-     *
-     *
-     * @param comment данные комментария
-     * @param message текст комментария
-     * @param userAgent
-     * @return идентификационный номер нового комментария
-     * @throws MessageNotFoundException
-     */
-  public int saveNewMessage(
-          final Comment comment,
-          String message,
-          final String userAgent) {
+   * Добавить новый комментарий.
+   *
+   * @return идентификационный номер нового комментария
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public int saveNewMessage(final Comment comment, final String userAgent) {
     final int msgid = jdbcTemplate.queryForObject("select nextval('s_msgid') as msgid", Integer.class);
 
     jdbcTemplate.execute(
@@ -251,11 +236,6 @@ public class CommentDao {
           return null;
         }
       }
-    );
-
-    insertMsgbase.execute(ImmutableMap.<String, Object>of(
-      "id", msgid,
-      "message", message)
     );
 
     return msgid;

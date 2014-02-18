@@ -334,7 +334,8 @@ public class CommentService {
           String userAgent) throws MessageNotFoundException {
     Preconditions.checkArgument(comment.getUserid() == author.getId());
 
-    int commentId = commentDao.saveNewMessage(comment, commentBody, userAgent);
+    int commentId = commentDao.saveNewMessage(comment, userAgent);
+    msgbaseDao.saveNewMessage(commentBody, commentId);
 
     /* кастование пользователей */
     if (permissionService.isUserCastAllowed(author)) {
