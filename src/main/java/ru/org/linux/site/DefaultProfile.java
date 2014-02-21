@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +47,6 @@ public final class DefaultProfile {
       return input.getId();
     }
   });
-
-  private static final ImmutableSet<String> STYLE_NAMES = ImmutableSet.copyOf(THEMES.keySet());
 
   private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
   private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
@@ -112,9 +109,8 @@ public final class DefaultProfile {
     return THEMES.containsKey(style);
   }
 
-  @Deprecated
-  public static Collection<String> getStyles() {
-    return STYLE_NAMES;
+  public static Map<String, Theme> getThemes() {
+    return THEMES;
   }
 
   public static List<String> getAvatars() {
