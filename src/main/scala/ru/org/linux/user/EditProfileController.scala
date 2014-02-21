@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.{RequestParam, PathVariable, Requ
 import org.springframework.stereotype.Controller
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.site.{BadInputException, DefaultProfile, Template}
+import ru.org.linux.site.{Theme, BadInputException, DefaultProfile, Template}
 import ru.org.linux.auth.AccessViolationException
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import javax.servlet.ServletRequest
 import java.util
 import org.springframework.web.servlet.view.RedirectView
@@ -28,7 +30,15 @@ class EditProfileController @Autowired() (
     }
 
     val params = new util.HashMap[String, AnyRef]
-    params.put("stylesList", DefaultProfile.getThemes.keySet())
+
+    val nonDeprecatedThemes = Theme.THEMES.toVector.filterNot(_.isDeprecated).map(_.getId)
+
+    if (DefaultProfile.getTheme(tmpl.getCurrentUser.getStyle).isDeprecated) {
+      params.put("stylesList", (nonDeprecatedThemes :+ tmpl.getCurrentUser.getStyle).asJava)
+    } else {
+      params.put("stylesList", nonDeprecatedThemes.asJava)
+    }
+
     params.put("avatarsList", DefaultProfile.getAvatars)
 
     new ModelAndView("edit-profile", params)

@@ -109,10 +109,6 @@ public final class DefaultProfile {
     return THEMES.containsKey(style);
   }
 
-  public static Map<String, Theme> getThemes() {
-    return THEMES;
-  }
-
   public static List<String> getAvatars() {
     return AVATAR_TYPES;
   }

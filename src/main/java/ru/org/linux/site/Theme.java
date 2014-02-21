@@ -22,7 +22,7 @@ public class Theme {
   private static final Theme WHITE2 = new Theme("white2", "white2/head-main.jsp", "white2/head-main.jsp");
   private static final Theme TANGO = new Theme("tango", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp");
-  private static final Theme SOLARIZED_SWAMP = new Theme("solarized-swamp", "tango/head-main.jsp", "tango/head-main.jsp");
+  private static final Theme SOLARIZED_SWAMP = new Theme("solarized-swamp", "tango/head-main.jsp", "tango/head-main.jsp", true);
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(
           TANGO,
@@ -35,11 +35,20 @@ public class Theme {
   private final String id;
   private final String head;
   private final String headMain;
+  private final boolean deprecated;
 
   public Theme(String id, String head, String headMain) {
     this.id = id;
     this.head = head;
     this.headMain = headMain;
+    deprecated = false;
+  }
+
+  public Theme(String id, String head, String headMain, boolean deprecated) {
+    this.id = id;
+    this.head = head;
+    this.headMain = headMain;
+    this.deprecated = deprecated;
   }
 
   public String getId() {
@@ -52,5 +61,9 @@ public class Theme {
 
   public String getHeadMain() {
     return headMain;
+  }
+
+  public boolean isDeprecated() {
+    return deprecated;
   }
 }
