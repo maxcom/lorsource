@@ -389,7 +389,8 @@ public class CommentService {
     @Nonnull User editor,
     String originalMessageText
   ) {
-    commentDao.edit(oldComment, newComment, commentBody);
+    commentDao.changeTitle(oldComment, newComment.getTitle());
+    msgbaseDao.updateMessage(oldComment.getId(), commentBody);
 
     /* кастование пользователей */
     Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
@@ -492,7 +493,6 @@ public class CommentService {
 
   /**
    * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
-   *
    *
    * @param msgid      id удаляемого сообщения
    * @param reason     причина удаления

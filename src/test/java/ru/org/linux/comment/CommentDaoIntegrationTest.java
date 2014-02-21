@@ -98,23 +98,12 @@ public class CommentDaoIntegrationTest {
     Comment oldComment = mock(Comment.class);
     when(oldComment.getId()).thenReturn(commentId);
 
-    Comment newComment = mock(Comment.class);
-    when(newComment.getTitle()).thenReturn("CommentDaoIntegrationTest.editCommentTest(): new title");
-
-    commentDao.edit(oldComment, newComment, "test body");
+    commentDao.changeTitle(oldComment, "CommentDaoIntegrationTest.editCommentTest(): new title");
 
     List<Map<String, Object>> rows = getComment(commentId);
     assertFalse("No any records", rows.isEmpty());
     Map<String, Object> row = rows.get(0);
     assertEquals("CommentDaoIntegrationTest.editCommentTest(): new title", row.get("title"));
-
-    rows = jdbcTemplate.queryForList(
-            "SELECT * FROM msgbase WHERE id=?", commentId
-    );
-
-    assertFalse("No any records", rows.isEmpty());
-    row = rows.get(0);
-    assertEquals("test body", row.get("message"));
   }
 
   @Test

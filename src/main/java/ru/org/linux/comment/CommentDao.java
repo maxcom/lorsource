@@ -244,21 +244,12 @@ public class CommentDao {
   /**
      * Редактирование комментария.
      *
-     * @param oldComment  данные старого комментария
-     * @param newComment  данные нового комментария
-     * @param commentBody текст нового комментария
-     */
-  public void edit(final Comment oldComment, final Comment newComment, final String commentBody) {
+   * @param oldComment  данные старого комментария
+   * @param title       новый заголовок
+   */
+  public void changeTitle(Comment oldComment, String title) {
     jdbcTemplate.update(
-      "UPDATE comments SET title=? WHERE id=?",
-      newComment.getTitle(),
-      oldComment.getId()
-    );
-
-    jdbcTemplate.update(
-      "UPDATE msgbase SET message=? WHERE id=?",
-      commentBody,
-      oldComment.getId()
+      "UPDATE comments SET title=? WHERE id=?", title, oldComment.getId()
     );
   }
 
