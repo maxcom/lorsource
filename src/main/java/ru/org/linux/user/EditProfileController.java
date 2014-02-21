@@ -86,7 +86,7 @@ public class EditProfileController {
       throw new BadInputException("некорректное число сообщений");
     }
 
-    if(!DefaultProfile.getStyles().contains(request.getParameter("style"))) {
+    if(!DefaultProfile.isStyle(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы");
     }
 
