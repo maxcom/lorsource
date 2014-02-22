@@ -245,10 +245,6 @@ public class AddTopicController {
       } else {
         user = userDao.getAnonymous();
       }
-
-      if (form.getPassword()==null) {
-        errors.rejectValue("password", null, "Требуется авторизация");
-      }
     } else {
       user = tmpl.getCurrentUser();
     }
