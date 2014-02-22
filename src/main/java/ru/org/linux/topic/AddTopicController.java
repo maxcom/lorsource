@@ -212,6 +212,22 @@ public class AddTopicController {
     return params.build();
   }
 
+  private User postingUser(Template tmpl, AddTopicRequest form) {
+    User user;
+
+    if (!tmpl.isSessionAuthorized()) {
+      if (form.getNick() != null) {
+        user = form.getNick();
+      } else {
+        user = userDao.getAnonymous();
+      }
+    } else {
+      user = tmpl.getCurrentUser();
+    }
+
+    return user;
+  }
+
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
   @CSRFNoAuto
   public ModelAndView doAdd(
@@ -237,17 +253,7 @@ public class AddTopicController {
       section = sectionService.getSection(group.getSectionId());
     }
 
-    User user;
-
-    if (!tmpl.isSessionAuthorized()) {
-      if (form.getNick() != null) {
-        user = form.getNick();
-      } else {
-        user = userDao.getAnonymous();
-      }
-    } else {
-      user = tmpl.getCurrentUser();
-    }
+    User user = postingUser(tmpl, form);
 
     user.checkBlocked(errors);
 
