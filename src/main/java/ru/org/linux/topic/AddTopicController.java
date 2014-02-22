@@ -58,7 +58,6 @@ import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.UtilException;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -342,38 +341,42 @@ public class AddTopicController {
       dupeProtector.checkDuplication(FloodProtector.Action.ADD_TOPIC, request.getRemoteAddr(), user.getScore() >= 100, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null && section!=null) {
-      session.removeAttribute("image");
-
-      int msgid = topicService.addMessage(
-              request,
-              form,
-              message,
-              group,
-              user,
-              scrn,
-              previewMsg
-      );
-
-      if (!previewMsg.isDraft())  {
-        searchQueueSender.updateMessageOnly(msgid);
-      }
-
-      String messageUrl = "view-message.jsp?msgid=" + msgid;
-
-      if (!section.isPremoderated() || previewMsg.isDraft()) {
-        return new ModelAndView(new RedirectView(messageUrl));
-      }
-
-      params.put("moderated", section.isPremoderated());
-      params.put("url", messageUrl);
-
-      return new ModelAndView("add-done-moderated", params);
+    if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
+      return createNewTopic(request, form, session, group, params, section, user, message, scrn, previewMsg);
     } else {
       return new ModelAndView("add", params);
     }
   }
-  
+
+  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, Screenshot scrn, Topic previewMsg) throws IOException, ScriptErrorException {
+    session.removeAttribute("image");
+
+    int msgid = topicService.addMessage(
+            request,
+            form,
+            message,
+            group,
+            user,
+            scrn,
+            previewMsg
+    );
+
+    if (!previewMsg.isDraft())  {
+      searchQueueSender.updateMessageOnly(msgid);
+    }
+
+    String messageUrl = "view-message.jsp?msgid=" + msgid;
+
+    if (!section.isPremoderated() || previewMsg.isDraft()) {
+      return new ModelAndView(new RedirectView(messageUrl));
+    }
+
+    params.put("moderated", section.isPremoderated());
+    params.put("url", messageUrl);
+
+    return new ModelAndView("add-done-moderated", params);
+  }
+
   private static Poll preparePollPreview(AddTopicRequest form) {
     List<PollVariant> variants = new ArrayList<>(form.getPoll().length);
 
@@ -447,10 +450,8 @@ public class AddTopicController {
   /**
    *
    *
-   * @param session
    * @return <icon, image, previewImagePath> or null
    * @throws IOException
-   * @throws UtilException
    */
   private Screenshot processUpload(
           HttpSession session,
