@@ -50,8 +50,8 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagName;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
@@ -87,7 +87,7 @@ public class AddTopicController {
   private SectionService sectionService;
 
   @Autowired
-  private TagService tagService;
+  private TagModificationService tagService;
 
   private UserDao userDao;
 

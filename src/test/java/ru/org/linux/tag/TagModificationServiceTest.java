@@ -32,16 +32,16 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("unit-tests-context.xml")
-public class TagServiceTest {
+public class TagModificationServiceTest {
   @Autowired
-  TagService tagService;
+  TagModificationService tagService;
 
   @Autowired
   TagDao tagDao;
 
   WebDataBinder binder;
 
-  private static Option<Integer> noneInteger = scala.Option.apply(null);
+  private static final Option<Integer> noneInteger = scala.Option.apply(null);
 
   @Before
   public void resetTagDaoMock() {

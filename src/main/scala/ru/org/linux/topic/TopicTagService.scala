@@ -15,7 +15,7 @@ import ru.org.linux.tag.TagRef
 @Service
 class TopicTagService @Autowired() (
                                      val transactionManager:PlatformTransactionManager,
-                                     tagService:TagService,
+                                     tagService:TagModificationService,
                                      topicTagDao:TopicTagDao
   ) extends Logging with TransactionManagement {
 

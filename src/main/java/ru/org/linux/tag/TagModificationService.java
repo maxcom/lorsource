@@ -18,7 +18,6 @@ package ru.org.linux.tag;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
-import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.UserErrorException;
 import scala.Option;
 
@@ -36,33 +34,19 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class TagService {
-  private static final Logger logger = LoggerFactory.getLogger(TagService.class);
+public class TagModificationService {
+  private static final Logger logger = LoggerFactory.getLogger(TagModificationService.class);
 
   @Autowired
   private TagDao tagDao;
+
+  @Autowired
+  private TagService tagService;
 
   private final List<ITagActionHandler> actionHandlers = new ArrayList<>();
 
   public List<ITagActionHandler> getActionHandlers() {
     return actionHandlers;
-  }
-
-  /**
-   * Получение идентификационного номера тега по названию.
-   *
-   * @param tag название тега
-   * @return идентификационный номер
-   * @throws TagNotFoundException
-   */
-  public int getTagId(String tag) throws TagNotFoundException {
-    Option<Integer> tagId = tagDao.getTagId(tag);
-
-    if (tagId.isDefined()) {
-      return tagId.get();
-    } else {
-      throw new TagNotFoundException();
-    }
   }
 
   /**
@@ -120,7 +104,7 @@ public class TagService {
   public void change(String oldTagName, String tagName, Errors errors) {
     try {
       TagName.checkTag(tagName);
-      int oldTagId = getTagId(oldTagName);
+      int oldTagId = tagService.getTagId(oldTagName);
 
       if (tagDao.getTagId(tagName).isDefined()) {
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
@@ -150,7 +134,7 @@ public class TagService {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void delete(String tagName, String newTagName, Errors errors) {
     try {
-      int oldTagId = getTagId(tagName);
+      int oldTagId = tagService.getTagId(tagName);
       if (!Strings.isNullOrEmpty(newTagName)) {
         if (newTagName.equals(tagName)) {
           errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
@@ -194,19 +178,5 @@ public class TagService {
 
   public static String toString(Collection<String> tags) {
     return Joiner.on(",").join(tags);
-  }
-
-  public TagInfo getTagInfo(String tag, boolean skipZero) throws TagNotFoundException {
-    Option<Integer> tagId = tagDao.getTagId(tag, skipZero);
-
-    if (tagId.isEmpty()) {
-      throw new TagNotFoundException();
-    }
-
-    return tagDao.getTagInfo(tagId.get());
-  }
-
-  public List<TagRef> getRelatedTags(int tagId) {
-    return Ordering.natural().immutableSortedCopy(TopicTagService.namesToRefs(tagDao.relatedTags(tagId)));
   }
 }

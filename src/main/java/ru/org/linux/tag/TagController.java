@@ -43,7 +43,7 @@ public class TagController {
   private static final String REJECT_REASON = "недостаточно прав доступа";
 
   @Autowired
-  private TagService tagService;
+  private TagModificationService tagService;
 
   /**
    * Обработчик по умолчанию. Показ тегов по самой первой букве.

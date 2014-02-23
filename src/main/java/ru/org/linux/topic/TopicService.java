@@ -34,8 +34,8 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagName;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -70,7 +70,7 @@ public class TopicService {
   private UserEventService userEventService;
 
   @Autowired
-  private TagService tagService;
+  private TagModificationService tagService;
 
   @Autowired
   private TopicTagService topicTagService;

@@ -29,6 +29,7 @@
         <constructor-arg value="ru.org.linux.user.UserTagDao"/>
     </bean>
 
+  <bean id="tagModificationService" class="ru.org.linux.tag.TagModificationService" />
   <bean id="tagService" class="ru.org.linux.tag.TagService" />
 
 </beans>

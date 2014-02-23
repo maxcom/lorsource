@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
-import ru.org.linux.tag.ITagActionHandler;
-import ru.org.linux.tag.TagName;
-import ru.org.linux.tag.TagNotFoundException;
-import ru.org.linux.tag.TagService;
+import ru.org.linux.tag.*;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -57,11 +54,14 @@ public class UserTagService {
   private UserTagDao userTagDao;
 
   @Autowired
+  private TagModificationService tagModificationService;
+
+  @Autowired
   private TagService tagService;
 
   @PostConstruct
   private void addToReplaceHandlerList() {
-    tagService.getActionHandlers().add(actionHandler);
+    tagModificationService.getActionHandlers().add(actionHandler);
   }
 
   /**
@@ -84,8 +84,7 @@ public class UserTagService {
    * @param tagName название тега
    * @return идентификатор тега
    */
-  public int favoriteDel(User user, String tagName)
-    throws TagNotFoundException {
+  public int favoriteDel(User user, String tagName) throws TagNotFoundException {
     int tagId = tagService.getTagId(tagName);
     userTagDao.deleteTag(user.getId(), tagId, true);
     return tagId;

@@ -40,7 +40,7 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.tag.TagService;
+import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
@@ -65,7 +65,7 @@ public class TopicDao {
   private GroupDao groupDao;
 
   @Autowired
-  private TagService tagService;
+  private TagModificationService tagService;
 
   @Autowired
   private TopicTagService topicTagService;
@@ -322,7 +322,7 @@ public class TopicDao {
       boolean modifiedTags = topicTagService.updateTags(msg.getId(), oldTags, newTags);
 
       if (modifiedTags) {
-        editHistoryDto.setOldtags(TagService.toString(oldTags));
+        editHistoryDto.setOldtags(TagModificationService.toString(oldTags));
         modified = true;
       }
     }
