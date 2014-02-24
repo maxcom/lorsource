@@ -8,6 +8,7 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import scala.collection.JavaConversions._
 
 import TopicTagService._
+import TagService._
 import com.google.common.collect.{ImmutableListMultimap, ImmutableList}
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.tag.TagRef
@@ -144,23 +145,4 @@ class TopicTagService @Autowired() (
 
 object TopicTagService {
   val MAX_TAGS_IN_TITLE = 3
-
-  // TODO: move to TagService
-  def tagRef(tag: TagInfo) = new TagRef(tag.name,
-    if (TagName.isGoodTag(tag.name)) {
-      Some(TagTopicListController.tagListUrl(tag.name))
-    } else {
-      None
-    })
-
-  // TODO: move to TagService
-  def tagRef(name: String) = new TagRef(name,
-    if (TagName.isGoodTag(name)) {
-      Some(TagTopicListController.tagListUrl(name))
-    } else {
-      None
-    })
-
-  // TODO: move to TagService
-  def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.map(tagRef)
 }

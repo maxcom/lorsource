@@ -52,6 +52,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagName;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
@@ -308,7 +309,7 @@ public class AddTopicController {
 
       PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
-              TopicTagService.namesToRefs(TagName.parseAndSanitizeTags(form.getTags())),
+              TagService.namesToRefs(TagName.parseAndSanitizeTags(form.getTags())),
               poll,
               request.isSecure(),
               message,

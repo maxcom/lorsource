@@ -51,6 +51,7 @@ import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
@@ -479,7 +480,7 @@ public class EditTopicController {
             "newPreparedMessage",
             prepareService.prepareTopicPreview(
                     newMsg,
-                    TopicTagService.namesToRefs(newTags),
+                    TagService.namesToRefs(newTags),
                     newPoll,
                     request.isSecure(),
                     newText,

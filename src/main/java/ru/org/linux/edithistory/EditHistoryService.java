@@ -25,11 +25,11 @@ import ru.org.linux.comment.Comment;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -55,12 +55,6 @@ public class EditHistoryService {
 
   /**
    * Получить историю изменений топика
-   *
-   * @param message
-   * @param secure
-   * @return
-   * @throws UserNotFoundException
-   * @throws UserErrorException
    */
   public List<PreparedEditHistory> prepareEditInfo(
     Topic message,
@@ -113,7 +107,7 @@ public class EditHistoryService {
       }
 
       if (dto.getOldtags() != null) {
-        currentTags = TopicTagService.namesToRefs(TagName.parseAndSanitizeTags(dto.getOldtags()));
+        currentTags = TagService.namesToRefs(TagName.parseAndSanitizeTags(dto.getOldtags()));
       }
 
       if (dto.getOldminor() != null) {

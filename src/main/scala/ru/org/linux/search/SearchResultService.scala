@@ -10,9 +10,8 @@ import org.joda.time.format.ISODateTimeFormat
 import ru.org.linux.util.URLUtil._
 import org.springframework.web.util.UriComponentsBuilder
 import com.typesafe.scalalogging.slf4j.Logging
-import ru.org.linux.tag.TagRef
+import ru.org.linux.tag.{TagService, TagRef}
 import scala.collection.JavaConversions._
-import ru.org.linux.topic.TopicTagService
 import org.joda.time.DateTime
 
 case class SearchItem (
@@ -43,7 +42,7 @@ class SearchResultsService @Autowired() (
       Seq()
     } else {
       doc.getFields.get("tag").getValue[java.util.List[String]].map(
-        tag => TopicTagService.tagRef(tag)
+        tag => TagService.tagRef(tag)
       )
     }
 
