@@ -15,9 +15,7 @@
 
 package ru.org.linux.tag;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +27,7 @@ import ru.org.linux.user.UserErrorException;
 import scala.Option;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class TagModificationService {
@@ -47,51 +43,6 @@ public class TagModificationService {
 
   public List<ITagActionHandler> getActionHandlers() {
     return actionHandlers;
-  }
-
-  /**
-   * Получить список наиболее популярных тегов.
-   *
-   * @return список наиболее популярных тегов
-   */
-  public Collection<String> getTopTags() {
-    return tagDao.getTopTags();
-  }
-
-  /**
-   * Получить уникальный список первых букв тегов.
-   *
-   * @return список первых букв тегов
-   */
-  public Collection<String> getFirstLetters() {
-    return tagDao.getFirstLetters();
-  }
-
-  /**
-   * Получить список тегов по префиксу.
-   *
-   * @param prefix     префикс
-   * @return список тегов по первому символу
-   */
-  public Map<String, Integer> getTagsByPrefix(String prefix, int threshold) {
-    ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
-
-    for (TagInfo info : tagDao.getTagsByPrefix(prefix, threshold)) {
-      builder.put(info.name(), info.topicCount());
-    }
-
-    return builder.build();
-  }
-
-  /**
-   * Получить список популярных тегов по префиксу.
-   *
-   * @param prefix     префикс
-   * @param count      количество тегов
-   * @return список тегов по первому символу
-   */
-  public Collection<String> suggestTagsByPrefix(String prefix, int count) {
-    return tagDao.getTopTagsByPrefix(prefix, 2, count);
   }
 
   /**
@@ -174,9 +125,5 @@ public class TagModificationService {
     } else {
       return tagDao.createTag(tagName);
     }
-  }
-
-  public static String toString(Collection<String> tags) {
-    return Joiner.on(",").join(tags);
   }
 }

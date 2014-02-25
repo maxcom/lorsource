@@ -51,7 +51,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
     jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId)
   }
 
-  def getTopTags: java.util.List[String] = {
+  def getTopTags: Seq[String] = {
     val topTags = jdbcTemplate.queryForSeq[String](
       "SELECT value FROM tags_values WHERE counter>1 " +
         "ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT
@@ -65,7 +65,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    *
    * @return список первых букв тегов.
    */
-  private[tag] def getFirstLetters: java.util.List[String] = {
+  private[tag] def getFirstLetters: Seq[String] = {
     val query =
       "select distinct firstchar from " +
         "(select lower(substr(value,1,1)) as firstchar from tags_values " +
@@ -97,7 +97,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    * @param prefix       префикс имени тега
    * @return список тегов
    */
-  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): java.util.List[String] = {
+  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): Seq[String] = {
     val query = "select value from tags_values " +
       "where value like ? and counter >= ? order by counter DESC LIMIT ?"
 

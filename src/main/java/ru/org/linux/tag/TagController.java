@@ -43,7 +43,10 @@ public class TagController {
   private static final String REJECT_REASON = "недостаточно прав доступа";
 
   @Autowired
-  private TagModificationService tagService;
+  private TagModificationService tagModificationService;
+
+  @Autowired
+  private TagService tagService;
 
   /**
    * Обработчик по умолчанию. Показ тегов по самой первой букве.
@@ -163,7 +166,7 @@ public class TagController {
       throw new AccessViolationException(REJECT_REASON);
     }
 
-    tagService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName(), errors);
+    tagModificationService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName(), errors);
 
     if (!errors.hasErrors()) {
       logger.info(
@@ -228,7 +231,7 @@ public class TagController {
       throw new AccessViolationException(REJECT_REASON);
     }
 
-    tagService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
+    tagModificationService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
 
     if (!errors.hasErrors()) {
       logger.info(
