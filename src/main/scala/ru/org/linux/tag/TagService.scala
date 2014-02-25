@@ -13,7 +13,7 @@ class TagService @Autowired () (tagDao:TagDao) {
   /**
    * Получение идентификационного номера тега по названию.
    *
-   * @param tag название тега
+   * @param tag название тегаg
    * @return идентификационный номер
    */
   @throws(classOf[TagNotFoundException])
@@ -25,6 +25,9 @@ class TagService @Autowired () (tagDao:TagDao) {
 
     tagDao.getTagInfo(tagId)
   }
+
+  def getNewTags(tags:util.List[String]):util.List[String] =
+    tags.filterNot(tag => tagDao.getTagId(tag, skipZero = true).isDefined)
 
   def getRelatedTags(tagId: Int): java.util.List[TagRef] =
     namesToRefs(tagDao.relatedTags(tagId)).sorted
@@ -85,5 +88,5 @@ object TagService {
 
   def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.map(tagRef)
 
-  def toString(tags: util.Collection[String]): String = tags.mkString(",")
+  def tagsToString(tags: util.Collection[String]): String = tags.mkString(",")
 }

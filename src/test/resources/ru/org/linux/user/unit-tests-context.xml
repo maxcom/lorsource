@@ -22,6 +22,11 @@
   <bean id="tagDao" name="mockTagDao"
         class="org.mockito.Mockito" factory-method="mock">
     <constructor-arg value="ru.org.linux.tag.TagDao"/>
+
+  </bean>
+  <bean id="tagService" name="mockTagService"
+        class="org.mockito.Mockito" factory-method="mock">
+    <constructor-arg value="ru.org.linux.tag.TagService"/>
   </bean>
 
   <bean id="userTagDao" name="mockUserTagDao"
@@ -31,6 +36,5 @@
 
   <bean id="userTagService" class="ru.org.linux.user.UserTagService"/>
   <bean id="tagModificationService" class="ru.org.linux.tag.TagModificationService"/>
-  <bean id="tagService" class="ru.org.linux.tag.TagService"/>
 
 </beans>

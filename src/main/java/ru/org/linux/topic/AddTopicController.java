@@ -306,9 +306,19 @@ public class AddTopicController {
         );
       }
 
+      List<String> tagNames = TagName.parseAndSanitizeTags(form.getTags());
+
+      if (!groupPermissionService.canCreateTag(section, tmpl.getCurrentUser())) {
+        List<String> newTags = tagService.getNewTags(tagNames);
+
+        if (!newTags.isEmpty()) {
+          errors.rejectValue("tags", null, "Вы не можете создавать новые теги ("+ TagService.tagsToString(newTags)+")");
+        }
+      }
+
       PreparedTopic preparedTopic = prepareService.prepareTopicPreview(
               previewMsg,
-              TagService.namesToRefs(TagName.parseAndSanitizeTags(form.getTags())),
+              TagService.namesToRefs(tagNames),
               poll,
               request.isSecure(),
               message,

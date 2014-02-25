@@ -34,6 +34,7 @@ import java.util.Date;
 public class GroupPermissionService {
   private static final int EDIT_SELF_ALWAYS_SCORE = 300;
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
+  private static final int CREATE_TAG_SCORE = 200;
 
   private SectionService sectionService;
 
@@ -293,5 +294,13 @@ public class GroupPermissionService {
     }
 
     return false;
+  }
+
+  public boolean canCreateTag(Section section, User user) {
+    if (section.isPremoderated()) {
+      return true;
+    }
+
+    return user!=null && user.getScore()>=CREATE_TAG_SCORE;
   }
 }

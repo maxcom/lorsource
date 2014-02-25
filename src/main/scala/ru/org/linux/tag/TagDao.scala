@@ -114,18 +114,18 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    * @param skipZero пропускать неиспользуемые теги
    * @return идентификационный номер
    */
-  def getTagId(tag: String, skipZero: Boolean): Option[Integer] = {
+  def getTagId(tag: String, skipZero: Boolean): Option[Int] = {
     try {
       jdbcTemplate.queryForObject[Integer](
         "SELECT id FROM tags_values WHERE value=?" + (if (skipZero) " AND counter>0" else ""),
         tag
-      )
-    } catch {  // что-то в spring-scala не доделано
+      ).map(_.toInt)
+    } catch {
       case ex: EmptyResultDataAccessException => None
     }
   }
 
-  def getTagId(tag: String):Option[Integer] = getTagId(tag, skipZero = false)
+  def getTagId(tag: String):Option[Int] = getTagId(tag, skipZero = false)
 
   def getTagInfo(tagId: Int): TagInfo = {
     jdbcTemplate.queryForObjectAndMap(

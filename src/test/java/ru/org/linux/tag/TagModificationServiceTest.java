@@ -34,19 +34,20 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration("unit-tests-context.xml")
 public class TagModificationServiceTest {
   @Autowired
-  TagModificationService tagService;
+  private TagModificationService tagModificationService;
 
-  @Autowired
-  TagDao tagDao;
+ @Autowired
+  private TagDao tagDao;
 
   WebDataBinder binder;
 
-  private static final Option<Integer> noneInteger = scala.Option.apply(null);
+  private static final Option<Object> noneInt = scala.Option.apply(null);
 
   @Before
   public void resetTagDaoMock() {
     reset(tagDao);
-    when(tagDao.getTagId(anyString())).thenReturn(noneInteger);
+    when(tagDao.getTagId(anyString())).thenReturn(noneInt);
+    when(tagDao.getTagId(anyString())).thenReturn(noneInt);
   }
 
   private void prepareChangeDataBinder() {
@@ -62,30 +63,30 @@ public class TagModificationServiceTest {
   @Test
   public void changeTest()
     throws Exception {
-    when(tagDao.getTagId("testTag")).thenReturn(Option.apply(123));
-    when(tagDao.getTagId("testNewTag")).thenReturn(Option.apply(456));
+    when(tagDao.getTagId("testTag")).thenReturn(Option.apply((Object) 123));
+    when(tagDao.getTagId("testNewTag")).thenReturn(Option.apply((Object) 456));
 
     prepareChangeDataBinder();
-    tagService.change("InvalidTestTag", "testNewTag", binder.getBindingResult());
+    tagModificationService.change("InvalidTestTag", "testNewTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareChangeDataBinder();
-    tagService.change("testTag", "#$%@@#%$", binder.getBindingResult());
+    tagModificationService.change("testTag", "#$%@@#%$", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareChangeDataBinder();
-    tagService.change("#$%@@#%$", "testNewTag", binder.getBindingResult());
+    tagModificationService.change("#$%@@#%$", "testNewTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareChangeDataBinder();
-    tagService.change("testTag", "testNewTag", binder.getBindingResult());
+    tagModificationService.change("testTag", "testNewTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     resetTagDaoMock();
-    when(tagDao.getTagId("testTag")).thenReturn(Option.apply(123));
-    when(tagDao.getTagId("testNewTag")).thenReturn(noneInteger);
+    when(tagDao.getTagId("testTag")).thenReturn(Option.apply((Object) 123));
+    when(tagDao.getTagId("testNewTag")).thenReturn(noneInt);
     prepareChangeDataBinder();
-    tagService.change("testTag", "testNewTag", binder.getBindingResult());
+    tagModificationService.change("testTag", "testNewTag", binder.getBindingResult());
     assertFalse(binder.getBindingResult().hasErrors());
   }
 
@@ -93,23 +94,23 @@ public class TagModificationServiceTest {
   public void deleteTest()
     throws Exception {
 
-    when(tagDao.getTagId("testTag")).thenReturn(Option.apply(123));
-    when(tagDao.getTagId("InvalidTestTag")).thenReturn(noneInteger);
+    when(tagDao.getTagId("testTag")).thenReturn(Option.apply((Object) 123));
+    when(tagDao.getTagId("InvalidTestTag")).thenReturn(noneInt);
 
     prepareDeleteDataBinder();
-    tagService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());
+    tagModificationService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
-    tagService.delete("testTag", "#$%@@#%$", binder.getBindingResult());
+    tagModificationService.delete("testTag", "#$%@@#%$", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
-    tagService.delete("testTag", "testTag", binder.getBindingResult());
+    tagModificationService.delete("testTag", "testTag", binder.getBindingResult());
     assertTrue(binder.getBindingResult().hasErrors());
 
     prepareDeleteDataBinder();
-    tagService.delete("testTag", "testNewTag", binder.getBindingResult());
+    tagModificationService.delete("testTag", "testNewTag", binder.getBindingResult());
     assertFalse(binder.getBindingResult().hasErrors());
   }
 }

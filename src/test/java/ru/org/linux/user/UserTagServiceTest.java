@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.validation.Errors;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 import scala.Option;
 
 import java.sql.ResultSet;
@@ -40,21 +41,24 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration("unit-tests-context.xml")
 public class UserTagServiceTest {
   @Autowired
-  TagDao tagDao;
+  private TagDao tagDao;
 
   @Autowired
-  UserTagDao userTagDao;
+  private TagService tagService;
 
   @Autowired
-  UserTagService userTagService;
+  private UserTagDao userTagDao;
+
+  @Autowired
+  private UserTagService userTagService;
 
   private User user;
 
   @Before
   public void resetMockObjects() throws Exception {
     reset(userTagDao);
-    reset(tagDao);
-    when(tagDao.getTagId("tag1")).thenReturn(Option.apply(2));
+    reset(tagService);
+    when(tagService.getTagId("tag1")).thenReturn(2);
     user = getUser(1);
   }
 
@@ -70,7 +74,7 @@ public class UserTagServiceTest {
 
   @Test
   public void favoriteAddTest() throws TagNotFoundException {
-    when(tagDao.getTagId("tag1")).thenReturn(Option.apply(2));
+    when(tagDao.getTagId("tag1")).thenReturn(Option.apply((Object) 2));
     userTagService.favoriteAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(true));
   }

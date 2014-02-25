@@ -37,7 +37,7 @@ public class TagDaoIntegrationTest {
 
   @Test
   public void testTagNotFound() {
-    Option<Integer> fetch = tagDao.getTagId("fdsfsdfdsfsdfs");
+    Option<Object> fetch = tagDao.getTagId("fdsfsdfdsfsdfs");
 
     assertTrue(fetch.isEmpty());
   }
@@ -45,9 +45,9 @@ public class TagDaoIntegrationTest {
   @Test
   public void createAndGetTest() {
     int id = tagDao.createTag("test-tag");
-    Option<Integer> fetchId = tagDao.getTagId("test-tag");
+    Option<Object> fetchId = tagDao.getTagId("test-tag");
 
-    assertEquals(Option.apply(id), fetchId);
+    assertEquals(Option.apply((Object) id), fetchId);
   }
 
   @Test

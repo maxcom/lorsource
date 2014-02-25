@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
+import scala.Int;
 import scala.Option;
 
 import java.util.ArrayList;
@@ -117,11 +118,11 @@ public class TagModificationService {
    * @param tagName название тега
    * @return идентификационный номер тега
    */
-  public int getOrCreateTag(final String tagName) {
-    Option<Integer> tagId = tagDao.getTagId(tagName);
+  public int getOrCreateTag(String tagName) {
+    Option<Object> tagId = tagDao.getTagId(tagName);
 
     if (tagId.isDefined()) {
-      return tagId.get();
+      return Int.unbox(tagId.get());
     } else {
       return tagDao.createTag(tagName);
     }
