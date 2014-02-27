@@ -13,7 +13,7 @@ class TagService @Autowired () (tagDao:TagDao) {
   /**
    * Получение идентификационного номера тега по названию.
    *
-   * @param tag название тегаg
+   * @param tag название тега
    * @return идентификационный номер
    */
   @throws(classOf[TagNotFoundException])
