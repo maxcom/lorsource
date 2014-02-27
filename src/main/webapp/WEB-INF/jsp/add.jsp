@@ -162,6 +162,8 @@
   Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
 </c:if>
 
+    <a href="/tags" target="_blank">Все теги</a><br>
+    
     <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
     </label>
     Популярные теги:
