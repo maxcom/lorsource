@@ -21,10 +21,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
-
-  response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
-  response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
-
+  response.setDateHeader("Expires", new Date(System.currentTimeMillis() - 20 * 3600 * 1000).getTime());
+  response.setDateHeader("Last-Modified", new Date(System.currentTimeMillis() - 2 * 1000).getTime());
 %>
 <title>Список меток</title>
 <link rel="parent" title="Linux.org.ru" href="/">
