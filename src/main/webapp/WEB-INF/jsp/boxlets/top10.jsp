@@ -34,7 +34,7 @@
         <c:url value="${message.url}/page${message.pages-1}" var="page_link">
           <c:param name="lastmod" value="${message.lastmod.time}"/>
         </c:url>
-        (стр. <a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
+        (стр.&nbsp;<a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
       </c:if>
       (${message.answers})
       </li>
