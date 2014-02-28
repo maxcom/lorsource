@@ -5,6 +5,7 @@ import ru.org.linux.topic.TagTopicListController
 import scala.collection.JavaConversions._
 import org.springframework.stereotype.Service
 import java.util
+import scala.collection.immutable.SortedMap
 
 @Service
 class TagService @Autowired () (tagDao:TagDao) {
@@ -56,11 +57,11 @@ class TagService @Autowired () (tagDao:TagDao) {
    * @return список тегов по первому символу
    */
   def getTagsByPrefix(prefix: String, threshold: Int): util.Map[TagRef, Integer] = {
-    val result = (for (
+    val result = for (
       info <- tagDao.getTagsByPrefix(prefix, threshold)
-    ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)).toMap
+    ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
 
-    mapAsJavaMap(result)
+    mapAsJavaMap(SortedMap(result: _*))
   }
 
   /**
