@@ -1,8 +1,9 @@
 package ru.org.linux.tag
 
 import scala.collection.JavaConversions._
+import scala.beans.BeanProperty
 
-case class TagRef(name:String, url:Option[String]) extends Ordered[TagRef] {
+case class TagRef(@BeanProperty name:String, @BeanProperty url:Option[String]) extends Ordered[TagRef] {
   def compare(that: TagRef): Int = name.compareTo(that.name)
 }
 
