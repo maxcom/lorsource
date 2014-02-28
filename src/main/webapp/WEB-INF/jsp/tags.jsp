@@ -52,10 +52,10 @@ ${status.first ? '' : ', '}
         <c:choose>
           <c:when test="${tag.value != 0 and tag.key.url.defined}">
             <c:url value="${tag.key.url.get()}" var="tag_url"/>
-            <a href="${fn:escapeXml(tag_url)}">${tag.key}</a>
+            <a href="${fn:escapeXml(tag_url)}">${tag.key.name}</a>
           </c:when>
           <c:otherwise>
-            <span>${tag.key}</span>
+            <span>${tag.key.name}</span>
           </c:otherwise>
         </c:choose>
 
