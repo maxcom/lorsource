@@ -55,10 +55,10 @@ class TagService @Autowired () (tagDao:TagDao) {
    * @param prefix     префикс
    * @return список тегов по первому символу
    */
-  def getTagsByPrefix(prefix: String, threshold: Int): util.Map[String, Integer] = {
+  def getTagsByPrefix(prefix: String, threshold: Int): util.Map[TagRef, Integer] = {
     val result = (for (
       info <- tagDao.getTagsByPrefix(prefix, threshold)
-    ) yield info.name -> (info.topicCount:java.lang.Integer)).toMap
+    ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)).toMap
 
     mapAsJavaMap(result)
   }

@@ -80,7 +80,7 @@ public class TagController {
 
     modelAndView.addObject("currentLetter", firstLetter);
 
-    Map<String, Integer> tags = tagService.getTagsByPrefix(firstLetter, 1);
+    Map<TagRef, Integer> tags = tagService.getTagsByPrefix(firstLetter, 1);
 
     if (tags.isEmpty()) {
       throw new TagNotFoundException("Tag list is empty");
