@@ -51,12 +51,12 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 18</li>
+      <li>Fedora 19</li>
       <li>СУБД PostgreSQL 9.2</li>
       <li>OpenJDK 1.7.0</li>
       <li>Apache Tomcat 7</li>
       <li>memcached 1.2</li>
-      <li>ActiveMQ 5.8.0</li>
+      <li>ActiveMQ 5.9</li>
       <li>Spring 3.2</li>
       <li>Wiki: JamWiki 1.1.5</li>
       <li>Поиск: Elasticsearch 0.90</li>
