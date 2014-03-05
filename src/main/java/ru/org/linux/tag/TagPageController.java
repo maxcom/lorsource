@@ -106,7 +106,9 @@ public class TagPageController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    TagName.checkTag(tag);
+    if (!TagName.isGoodTag(tag)) {
+      throw new TagNotFoundException();
+    }
 
     ModelAndView mv = new ModelAndView("tag-page");
 
