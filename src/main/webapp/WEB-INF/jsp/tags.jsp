@@ -64,13 +64,13 @@ ${status.first ? '' : ', '}
           <span class="action-buttons">
               <c:url var="edit_url" value="/tags/change">
                 <c:param name="firstLetter" value="${currentLetter}"/>
-                <c:param name="tagName" value="${tag.key}"/>
+                <c:param name="tagName" value="${tag.key.name}"/>
               </c:url>
               [<a href="${edit_url}">Изменить</a>]
 
               <c:url var="delete_url" value="/tags/delete">
                 <c:param name="firstLetter" value="${currentLetter}"/>
-                <c:param name="tagName" value="${tag.key}"/>
+                <c:param name="tagName" value="${tag.key.name}"/>
               </c:url>
               [<a href="${delete_url}">Удалить</a>]
           </span>
