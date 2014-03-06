@@ -427,6 +427,20 @@ public class UserDao {
   }
 
   /**
+   * Ставим score=50 если он меньше
+   *
+   * @param user кому ставим score
+   * @param moderator модератор
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
+  public void score50(@Nonnull User user, @Nonnull User moderator) {
+    if (jdbcTemplate.update("UPDATE users SET score=GREATEST(score, 50), max_score=GREATEST(max_score, 50) WHERE id=? AND score<50", user.getId()) > 0) {
+      userLogDao.logScore50(user, moderator);
+    }
+  }
+
+  /**
    * Разблокировка пользователя
    * @param user разблокируемый пользователь
    */

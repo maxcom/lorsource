@@ -129,30 +129,42 @@
     </c:if>
 </div>
 <c:if test="${moderatorOrCurrentUser}">
-    <div>
-        <c:if test="${not empty user.email}">
-            <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
-            <form action="/lostpwd.jsp" method="POST" style="display: inline">
-                <lor:csrf/>
-                <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
-                <button type="submit">Получить забытый пароль</button>
-            </form>
-        </c:if>
+  <div>
+    <c:if test="${not empty user.email}">
+      <b>Email:</b> <a
+            href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
+      <form action="/lostpwd.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
+        <button type="submit">Получить забытый пароль</button>
+      </form>
+    </c:if>
 
-        <c:if test="${template.moderatorSession}">
-            <form action="/usermod.jsp" method="POST" style="display: inline">
-                <lor:csrf/>
-                <input type="hidden" name="id" value="${user.id}">
-                <input type='hidden' name='action' value='reset-password'>
-                <button type="submit">Сбросить пароль</button>
-            </form>
-        </c:if>
-        <br>
-        <b>Score:</b> ${user.score}<br>
-        <c:if test="${not currentUser && template.moderatorSession}">
-            <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
-        </c:if>
-    </div>
+    <c:if test="${template.moderatorSession}">
+      <form action="/usermod.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type='hidden' name='action' value='reset-password'>
+        <button type="submit">Сбросить пароль</button>
+      </form>
+    </c:if>
+    <br>
+
+    <b>Score:</b> ${user.score}
+    <c:if test="${template.moderatorSession and user.score<50}">
+      <form action="/usermod.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type='hidden' name='action' value='score50'>
+        <button type="submit">Установить score=50</button>
+      </form>
+    </c:if>
+    <br>
+
+    <c:if test="${not currentUser && template.moderatorSession}">
+      <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
+    </c:if>
+  </div>
 </c:if>
 
 <c:if test="${fn:length(favoriteTags)>0}">

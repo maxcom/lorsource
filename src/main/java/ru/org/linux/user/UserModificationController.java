@@ -105,6 +105,29 @@ public class UserModificationController {
   }
 
   /**
+   * Выставляем score=50 для пользователей у которых score меньше
+   *
+   * @param request http запрос
+   * @param user кому ставим score
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователь блокирован
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=score50")
+  public ModelAndView score50(
+          HttpServletRequest request,
+          @RequestParam("id") User user
+  ) throws Exception {
+    User moderator = getModerator(request);
+    if (user.isBlocked() || user.isAnonymous()) {
+      throw new AccessViolationException("Нельзя выставить score=50 пользователю " + user.getNick());
+    }
+
+    userDao.score50(user, moderator);
+
+    return redirectToProfile(user);
+  }
+
+  /**
    * Контроллер разблокировки пользователя
    * @param request http запрос
    * @param user разблокируемый пользователь

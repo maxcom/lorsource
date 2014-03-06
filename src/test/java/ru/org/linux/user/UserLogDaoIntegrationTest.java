@@ -39,4 +39,21 @@ public class UserLogDaoIntegrationTest {
     assertNotNull(item);
     assertEquals(UserLogAction.ACCEPT_NEW_EMAIL, item.getAction());
   }
+
+  @Test
+  public void testLogScore50() {
+    User user = mock(User.class);
+    when(user.getId()).thenReturn(UserDaoIntegrationTest.TEST_ID);
+
+    userLogDao.logScore50(user, user);
+
+    List<UserLogItem> logItems = userLogDao.getLogItems(user, true);
+
+    Assert.assertEquals(1, logItems.size());
+
+    UserLogItem item = logItems.get(0);
+
+    assertNotNull(item);
+    assertEquals(UserLogAction.SCORE50, item.getAction());
+  }
 }
