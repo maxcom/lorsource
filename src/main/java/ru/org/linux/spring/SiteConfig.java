@@ -31,7 +31,6 @@ import java.util.Properties;
 @Service
 public class SiteConfig {
   private static final String ERR_MSG = "Invalid MainUrl property: ";
-  public static final String PROPERTY_MAIN_URL = "MainUrl";
 
   @Qualifier("properties")
   @Autowired
@@ -110,6 +109,19 @@ public class SiteConfig {
    */
   public Boolean isModeratorAllowedToEditComments() {
     String property = properties.getProperty("comment.isModeratorAllowedToEdit");
+    if (property == null) {
+      return false;
+    }
+    return Boolean.valueOf(property);
+  }
+
+  /**
+   * Добавление заголовков Strict-Transport-Security.
+   *
+   * @return true если разрешено, иначе false
+   */
+  public Boolean enableHsts() {
+    String property = properties.getProperty("EnableHsts");
     if (property == null) {
       return false;
     }

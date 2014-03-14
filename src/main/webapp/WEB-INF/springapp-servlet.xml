@@ -111,6 +111,7 @@
     <mvc:interceptors>
         <bean class="ru.org.linux.spring.Perf4jHandlerInterceptor"/>
         <bean class="ru.org.linux.csrf.CSRFHandlerInterceptor"/>
+        <bean class="ru.org.linux.auth.HstsInterceptor"/>
     </mvc:interceptors>
 
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">

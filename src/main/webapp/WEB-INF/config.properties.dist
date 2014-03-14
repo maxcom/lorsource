@@ -20,13 +20,9 @@ HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
 Secret=secret
 recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM
 recaptcha.public=6LclXgcAAAAAAIRhcA0V1DNiTT_AGUg_baM3-vc8
-solr.username=solr
-solr.password=tomcat
-solr.host=127.0.0.1
-solr.port=8080
-solr.url=http://127.0.0.1:8080/solr
+EnableHsts=false
 # admin.emailAddress=bugz@linux.org.ru
-admin.emailAddress=specify_your_real_email_if_you_want_reicive_messages
+admin.emailAddress=specify_your_real_email_if_you_want_receive_messages
 
 # разрешение модераторам на редактирование комментов пользователей
 comment.isModeratorAllowedToEdit=false
