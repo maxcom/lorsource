@@ -10,7 +10,7 @@ class HstsInterceptor @Autowired() (config:SiteConfig) extends HandlerIntercepto
     if (request.isSecure && config.enableHsts()) {
       val currentUser = AuthUtil.getCurrentUser
 
-      if (currentUser!=null && currentUser.isModerator) {
+      if (currentUser!=null && currentUser.getMaxScore>=200) {
         response.addHeader("Strict-Transport-Security", "max-age=7776000")
       }
     }
