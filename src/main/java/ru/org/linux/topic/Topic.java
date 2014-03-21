@@ -17,18 +17,21 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.joda.time.DateTime;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class Topic implements Serializable {
   private final int msgid;
@@ -42,8 +45,8 @@ public class Topic implements Serializable {
   private final boolean deleted;
   private final boolean expired;
   private final int commitby;
-  private final Timestamp postdate;
-  private final Timestamp commitDate;
+  private final DateTime postdate;
+  private final DateTime commitDate;
   private final String groupUrl;
   private final Timestamp lastModified;
   private final int sectionid;
@@ -96,8 +99,8 @@ public class Topic implements Serializable {
     this.deleted = deleted;
     this.expired = expired;
     commitby = commitBy;
-    this.postdate = postdate;
-    this.commitDate = commitDate;
+    this.postdate = new DateTime(postdate.getTime());
+    this.commitDate = commitDate!=null?new DateTime(commitDate.getTime()):null;
     this.groupUrl = groupUrl;
     this.lastModified = lastModified;
     sectionid = sectionId;
@@ -178,7 +181,7 @@ public class Topic implements Serializable {
     deleted = false;
     expired = false;
     commitby = 0;
-    postdate = new Timestamp(System.currentTimeMillis());
+    postdate = DateTime.now();
     commitDate = null;
     groupUrl = "";
     lastModified = new Timestamp(System.currentTimeMillis());
@@ -326,8 +329,8 @@ public class Topic implements Serializable {
     return userAgent;
   }
 
-  public Timestamp getPostdate() {
-    return postdate;
+  public Date getPostdate() {
+    return postdate.toDate();
   }
 
   public String getPostIP() {
@@ -338,8 +341,26 @@ public class Topic implements Serializable {
     return commitby;
   }
 
-  public Timestamp getCommitDate() {
-    return commitDate;
+  public Date getCommitDate() {
+    if (commitDate!=null) {
+      return commitDate.toDate();
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Дата размещения сообщения на сайте
+   *
+   * @return postdate для премодерируемых и commitdate для постмодерируемых, прошедших модерацию
+   */
+  @Nonnull
+  public DateTime getEffectiveDate() {
+    if (moderate && commitDate!=null) {
+      return commitDate;
+    } else {
+      return postdate;
+    }
   }
 
   public boolean isResolved() {

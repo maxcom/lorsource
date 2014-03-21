@@ -21,7 +21,7 @@ import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 public class PreparedEditHistory {
@@ -34,13 +34,13 @@ public class PreparedEditHistory {
   private final String url;
   private final String linktext;
   private final Boolean minor;
-  private final Timestamp editdate;
+  private final Date editdate;
 
   public PreparedEditHistory(
     LorCodeService lorCodeService,
     boolean secure,
     @Nonnull User editor,
-    Timestamp editdate,
+    Date editdate,
     String message,
     String title,
     String url,
@@ -69,7 +69,7 @@ public class PreparedEditHistory {
     this.editdate = editdate;
   }
 
-  public Timestamp getEditDate() {
+  public Date getEditDate() {
     return editdate;
   }
 

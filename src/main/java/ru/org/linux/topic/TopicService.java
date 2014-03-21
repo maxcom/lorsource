@@ -17,6 +17,7 @@ package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -249,6 +250,13 @@ public class TopicService {
     return deletedTopics;
   }
 
+  private static boolean sendTagEventsNeeded(Section section, Topic oldMsg, boolean commit) {
+    boolean needCommit = section.isPremoderated() && !oldMsg.isCommited();
+    boolean fresh = oldMsg.getEffectiveDate().isAfter(DateTime.now().minusMonths(1));
+
+    return commit || (!needCommit && fresh);
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateAndCommit(
           Topic newMsg,
@@ -268,10 +276,10 @@ public class TopicService {
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());
 
-      if (section.isPremoderated() && !oldMsg.isCommited() && !commit) {
-        sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
-      } else {
+      if (sendTagEventsNeeded(section, oldMsg, commit)) {
         sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
+      } else {
+        sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
       }
     }
 
