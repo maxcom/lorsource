@@ -40,7 +40,6 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -66,22 +65,19 @@ public class TopicDao {
   private GroupDao groupDao;
 
   @Autowired
-  private TagModificationService tagService;
-
-  @Autowired
-  private TopicTagService topicTagService;
+  private TopicTagService topicTagService; // TODO move to TopicService
 
   @Autowired
   private SectionService sectionService;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgbaseDao msgbaseDao; // TODO move to TopicService
 
   @Autowired
-  private DeleteInfoDao deleteInfoDao;
+  private DeleteInfoDao deleteInfoDao; // TODO move to TopicService
 
   @Autowired
-  private EditHistoryService editHistoryService;
+  private EditHistoryService editHistoryService; // TODO move to TopicService
 
   /**
    * Запрос получения полной информации о топике

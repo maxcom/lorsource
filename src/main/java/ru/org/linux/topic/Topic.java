@@ -31,7 +31,6 @@ import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
 
 public class Topic implements Serializable {
   private final int msgid;
@@ -45,8 +44,8 @@ public class Topic implements Serializable {
   private final boolean deleted;
   private final boolean expired;
   private final int commitby;
-  private final DateTime postdate;
-  private final DateTime commitDate;
+  private final Timestamp postdate;
+  private final Timestamp commitDate;
   private final String groupUrl;
   private final Timestamp lastModified;
   private final int sectionid;
@@ -99,8 +98,8 @@ public class Topic implements Serializable {
     this.deleted = deleted;
     this.expired = expired;
     commitby = commitBy;
-    this.postdate = new DateTime(postdate.getTime());
-    this.commitDate = commitDate!=null?new DateTime(commitDate.getTime()):null;
+    this.postdate = postdate;
+    this.commitDate = commitDate;
     this.groupUrl = groupUrl;
     this.lastModified = lastModified;
     sectionid = sectionId;
@@ -181,7 +180,7 @@ public class Topic implements Serializable {
     deleted = false;
     expired = false;
     commitby = 0;
-    postdate = DateTime.now();
+    postdate = new Timestamp(System.currentTimeMillis());
     commitDate = null;
     groupUrl = "";
     lastModified = new Timestamp(System.currentTimeMillis());
@@ -329,8 +328,8 @@ public class Topic implements Serializable {
     return userAgent;
   }
 
-  public Date getPostdate() {
-    return postdate.toDate();
+  public Timestamp getPostdate() {
+    return postdate;
   }
 
   public String getPostIP() {
@@ -341,12 +340,8 @@ public class Topic implements Serializable {
     return commitby;
   }
 
-  public Date getCommitDate() {
-    if (commitDate!=null) {
-      return commitDate.toDate();
-    } else {
-      return null;
-    }
+  public Timestamp getCommitDate() {
+    return commitDate;
   }
 
   /**
@@ -357,9 +352,9 @@ public class Topic implements Serializable {
   @Nonnull
   public DateTime getEffectiveDate() {
     if (moderate && commitDate!=null) {
-      return commitDate;
+      return new DateTime(commitDate.getTime());
     } else {
-      return postdate;
+      return new DateTime(postdate.getTime());
     }
   }
 
