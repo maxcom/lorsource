@@ -252,7 +252,8 @@ public class TopicListController {
   @RequestMapping(value = "/view-all.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
     @RequestParam(value = "section", required = false, defaultValue = "0") int sectionId,
-    HttpServletRequest request
+    HttpServletRequest request,
+    HttpServletResponse response
   ) {
     Template tmpl = Template.getTemplate(request);
 
@@ -264,6 +265,9 @@ public class TopicListController {
       modelAndView.addObject("section", section);
       modelAndView.addObject("addlink", AddTopicController.getAddUrl(section));
     }
+
+    response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
+    response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
 
     String title;
 

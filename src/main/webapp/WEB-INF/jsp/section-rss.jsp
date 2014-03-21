@@ -14,7 +14,7 @@
   --%><?xml version="1.0" encoding="utf-8"?>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.util.Date"   buffer="200kb"%>
+<%@ page import="java.util.Date"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>

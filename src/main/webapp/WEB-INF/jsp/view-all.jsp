@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.section.Section,java.util.Date"   buffer="60kb"%>
+<%@ page import="ru.org.linux.section.Section"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
@@ -26,9 +26,6 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-    response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
-    response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
-
     Section section = (Section) request.getAttribute("section");
     int sectionid = 0;
     if (section!=null) {
