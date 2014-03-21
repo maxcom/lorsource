@@ -40,6 +40,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -80,6 +81,9 @@ public class SearchQueueListener {
 
   @Autowired
   private LorCodeService lorCodeService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   private boolean mappingsSet = false;
 
@@ -207,7 +211,7 @@ public class SearchQueueListener {
     doc.put("message", lorCodeService.extractPlainText(msgbaseDao.getMessageText(topic.getId())));
     Date postdate = topic.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
-    doc.put("tag", topicDao.getTags(topic));
+    doc.put("tag", topicTagService.getTags(topic));
 
     doc.put("is_comment", false);
 
@@ -263,7 +267,7 @@ public class SearchQueueListener {
     Date postdate = comment.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
 
-    doc.put("tag", topicDao.getTags(topic));
+    doc.put("tag", topicTagService.getTags(topic));
 
     doc.put("is_comment", true);
 

@@ -113,7 +113,9 @@ class TopicTagService @Autowired() (
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId).map(_.name)
+  def getTags(topic:Topic):java.util.List[String] = topicTagDao.getTags(topic.getId).map(_.name)
+
+  private def getTags(msgId:Int):java.util.List[String] = topicTagDao.getTags(msgId).map(_.name)
 
   def getTagRefs(topic:Topic):java.util.List[TagRef] =
     topicTagDao.getTags(topic.getId).map(tag => tagRef(tag))

@@ -188,16 +188,6 @@ public class TopicDao {
     }, ts_start, ts_end);
   }
 
-  /**
-   * Получить тэги топика
-   *
-   * @param message топик
-   * @return список тэгов
-   */
-  public List<String> getTags(Topic message) {
-    return topicTagService.getTags(message.getId());
-  }
-
   public boolean delete(int msgid) {
     return jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=? AND NOT deleted", msgid)>0;
   }
@@ -314,7 +304,7 @@ public class TopicDao {
     }
 
     if (newTags != null) {
-      List<String> oldTags = topicTagService.getTags(msg.getId());
+      List<String> oldTags = topicTagService.getTags(msg);
 
       boolean modifiedTags = topicTagService.updateTags(msg.getId(), oldTags, newTags);
 
