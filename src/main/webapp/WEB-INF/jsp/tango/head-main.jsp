@@ -18,8 +18,9 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <link rel="yandex-tableau-widget" href="/tango/manifest.json" />
-<meta name = "viewport" content = "initial-scale=1.0">
+<meta name="viewport" content="initial-scale=1.0">
 </head>
+<% out.flush(); %>
 <body>
 <div id="hd">
   <a id="sitetitle" href="/">LINUX.ORG.RU</a>
