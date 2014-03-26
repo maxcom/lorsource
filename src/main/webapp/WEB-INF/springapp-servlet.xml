@@ -73,6 +73,7 @@
                 <prop key="org.springframework.validation.BindException">errors/bad-parameter</prop>
                 <prop key="ru.org.linux.user.UserBanedException">errors/user-banned</prop>
                 <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">errors/upload-size</prop>
+                <prop key="org.springframework.web.multipart.MultipartException">errors/bad-parameter</prop>
             </props>
         </property>
     </bean>
