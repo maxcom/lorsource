@@ -175,6 +175,11 @@ public class UserModificationController {
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
+
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь уже блокирован");
+    }
+
     Map<String, Object> params = new HashMap<>();
     params.put("message", "Удалено");
     DeleteCommentResult deleteCommentResult = commentService.deleteAllCommentsAndBlock(user, moderator, reason);
