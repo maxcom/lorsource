@@ -186,11 +186,15 @@ public class UserModificationController {
 
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-    params.put("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
+    params.put("bigMessage",
+            "Удалено комментариев: "+deleteCommentResult.getDeletedCommentIds().size()+"<br>"+
+            "Удалено тем: "+deleteCommentResult.getDeletedTopicIds().size()
+    );
 
-    for(int topicId : deleteCommentResult.getDeletedTopicIds()) {
+    for (int topicId : deleteCommentResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
     }
+
     searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds());
 
     return new ModelAndView("action-done", params);
