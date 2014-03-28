@@ -355,11 +355,13 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void toggleCorrector(User user){
+  public void toggleCorrector(User user, User moderator) {
     if(user.canCorrect()){
       jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
-    }else{
+      userLogDao.unsetCorrector(user, moderator);
+    } else {
       jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.getId());
+      userLogDao.setCorrector(user, moderator);
     }
   }
   

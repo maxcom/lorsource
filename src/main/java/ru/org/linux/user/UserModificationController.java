@@ -216,7 +216,7 @@ public class UserModificationController {
     if (user.getScore()<User.CORRECTOR_SCORE) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
     }
-    userDao.toggleCorrector(user);
+    userDao.toggleCorrector(user, moderator);
     logger.info("Toggle corrector " + user.getNick() + " by " + moderator.getNick());
 
     return redirectToProfile(user);

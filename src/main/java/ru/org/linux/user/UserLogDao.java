@@ -206,4 +206,27 @@ public class UserLogDao {
             ImmutableMap.of(OPTION_IP, ip)
     );
   }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void setCorrector(@Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.SET_CORRECTOR.toString(),
+            ImmutableMap.of()
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void unsetCorrector(@Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.UNSET_CORRECTOR.toString(),
+            ImmutableMap.of()
+    );
+  }
+
 }

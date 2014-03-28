@@ -25,6 +25,8 @@ public enum UserLogAction {
   RESET_INFO("reset_info", "Сброшен текст информации"),
   RESET_PASSWORD("reset_password", "Сброшен пароль"),
   SET_PASSWORD("set_password", "Установлен новый пароль"),
+  SET_CORRECTOR("set_corrector", "Добавлены права корректора"),
+  UNSET_CORRECTOR("unset_corrector", "Убраны права корректора"),
   REGISTER("register", "Зарегистрирован");
 
   private final String name;
