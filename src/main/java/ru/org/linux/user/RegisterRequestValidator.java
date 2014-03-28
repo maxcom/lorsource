@@ -65,7 +65,11 @@ public class RegisterRequestValidator implements Validator {
           "courriel.fr.nf",
           "moncourrier.fr.nf",
           "monemail.fr.nf",
-          "monmail.fr.nf"
+          "monmail.fr.nf",
+          "solvemail.info",
+          "burstmail.info",
+          "coldemail.info",
+          "mailtemp.info"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
