@@ -23,13 +23,15 @@ public class Theme {
   private static final Theme TANGO = new Theme("tango", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme SOLARIZED_SWAMP = new Theme("solarized-swamp", "tango/head-main.jsp", "tango/head-main.jsp", true);
+  private static final Theme ZOMG_PONIES = new Theme("zomg_ponies", "zomg_ponies/head-main.jsp", "zomg_ponies/head-main.jsp");
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(
           TANGO,
           BLACK,
           WHITE2,
           WALTZ,
-          SOLARIZED_SWAMP
+          SOLARIZED_SWAMP,
+	  ZOMG_PONIES
   );
 
   private final String id;
