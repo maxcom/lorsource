@@ -26,12 +26,12 @@ public class Theme {
   private static final Theme ZOMG_PONIES = new Theme("zomg_ponies", "zomg_ponies/head-main.jsp", "zomg_ponies/head-main.jsp");
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(
+          ZOMG_PONIES,
           TANGO,
           BLACK,
           WHITE2,
           WALTZ,
-          SOLARIZED_SWAMP,
-	  ZOMG_PONIES
+          SOLARIZED_SWAMP
   );
 
   private final String id;
