@@ -21,7 +21,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jdbc.postgresql.version>9.2-1002-jdbc4</jdbc.postgresql.version>
     <es.version>0.90.11</es.version>
-    <scala.version>2.10.3</scala.version>
+    <scala.version>2.10.4</scala.version>
     <activemq.version>5.9.0</activemq.version>
   </properties>
 
