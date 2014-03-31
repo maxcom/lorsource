@@ -518,6 +518,14 @@
                           <include>${project.build.directory}/${project.build.finalName}/solarized-swamp/main.css</include>
                         </includes>
                       </aggregation>
+                      <aggregation>
+                        <removeIncluded>false</removeIncluded>
+                        <insertNewLine>true</insertNewLine>
+                        <output>${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css</output>
+                        <includes>
+                          <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/style.css</include>
+                        </includes>
+                      </aggregation>
                         <aggregation>
                             <removeIncluded>false</removeIncluded>
                             <insertNewLine>true</insertNewLine>
