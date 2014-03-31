@@ -1,0 +1,755 @@
+/*
+ * Copyright 1998-2013 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+@import "../tango/reset";
+
+@import "../common";
+
+@import "reset";
+
+@import "../clearfix";
+
+@import "colors";
+
+@import "../responsive";
+
+@import "highlight";
+
+html, body {
+  background-color: $main_background;
+  background-image: url(/zomg_ponies/img/background.jpg);
+  background-size: cover;
+  background-attachment: fixed;
+  color: $text_color;
+  font-size: medium;
+  footer {
+    background-color: $head_background;
+    color: $head_color;
+    padding: 5px;
+  }
+}
+
+#mainpage {
+    .nav {
+        border: none;
+        margin-top: 0;
+        padding: 0;
+    }
+}
+h1,h2,h3 {
+    font-weight: 600;
+    font-family: "Open Sans", sans-serif;
+}
+
+#bd h1,h2 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#bd .messages h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-size: 1.6em;
+}
+
+h2, h3, h4, #whois_userpic {
+  background-color: transparent;
+  color: $text_color;
+}
+
+strong {
+	font-weight: bold;
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+a, .standardchange, .section-link{
+  color: $table_link_color;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.title {
+  background: transparent;
+  padding-left: 20px;
+}
+
+#hd {
+  padding-left: 1em;
+  margin-bottom: 5px;
+  background-color: $head_background;
+  color: $head_color;
+  padding: 5px;
+  border-bottom: 1px red solid;
+
+  h1 {
+    color: $header_color;
+  }
+
+  .menu {
+    padding-top: 0;
+  }
+
+  .menu a {
+    color: $main_menu_color;
+  }
+}
+
+#sitetitle {
+  font-size: 32px;
+  font-weight: bold;
+  margin-right: 20px;
+  text-decoration: none;
+  display: inline-block;
+  float: left;
+  color: $header_color;
+  padding-top: 0;
+  padding-left: 0;
+}
+
+#twilight_logo {
+  display: inline-block;
+  background-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-right: 2px;
+}
+
+.menu li a, #loginGreating a{
+  text-decoration: none;
+  font-size: 1em;
+  color: $header_color;
+}
+
+#sitetitle:hover, .menu li:hover, .menu a:hover {
+  background-color: $head_hover;
+  color: $header_color;
+  border-radius: 4px;
+}
+
+#loginGreating:hover {
+  border-radius: 4px;
+}
+
+#main_events_count {
+  background-color: $notification_bg;
+  border-radius: 15px;
+  height: 24px;
+  width: 24px;
+  color: white;
+  padding: 6px;
+}
+
+#main_events_count:empty {
+  display: none;
+}
+
+article, .boxlet, #counter_block, .infoblock, #nav-menu, #p-lang, .messages .msg, #warning-text, #tag-page-forum, fieldset, legend, #tag-page-news, #related-topics, .tags-first-letters{
+  background-color: $article_background;
+  border-top-color: white;
+  border-left-color: white;
+  border-radius: 5px;
+  border-right-color: #bbb;
+  border-bottom-color: #bbb;
+  padding: 5px 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+div.msg-top-header{
+  span {
+    background-color: $tag_even_color;
+    color: transparent;
+  }
+  a + * {
+    color: $text_color;
+  }
+  a {
+    color: $text_color;
+    text-decoration: none;
+  }
+  a:nth-child(odd) {
+    background-color: $tag_color;
+    color: $text_color;
+  }
+  a:after, a:before {
+    max-width: 0;
+    max-height: 0;
+    display: inline-block;
+    content: "";
+    vertical-align: bottom;
+  }
+  a:nth-child(odd):after {
+    border-top: 10px solid $tag_even_color;
+    border-bottom: 10px solid $tag_even_color;
+    border-left: 10px solid $tag_color;
+  }
+  a:nth-child(2n+3):before {
+    border-top: 10px solid $tag_color;
+    border-bottom: 10px solid $tag_color;
+    border-left: 10px solid $tag_even_color;
+  }
+}
+
+#hd .menu {
+    font-size: 1.1em;
+
+    @include clearfix;
+
+    li {
+        float: left;
+        margin-right: 0.5em;
+        margin-top: 0.5em;
+    }
+}
+
+#bd {
+  margin-bottom: 2em;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#bd .news {
+    margin-bottom: 1em;
+    border-top: none;
+    padding: 5px 10px;
+    border: 1px solid $article_border_color;
+    border-radius: .5em;
+    background: $article_background;
+    border-top: 1px solid white;
+
+    h2 {
+        font-size: 1.6em;
+	font-weight: bold;
+        margin-top: 0.25em;
+        margin-bottom: 0;
+    }
+
+    .entry-body {
+        padding-top: 0.5em;
+    }
+
+    .entry-userpic {
+        padding-top: 0.5em;
+    }
+
+    .nav {
+        text-align: left;
+    }
+}
+
+#bd ul, #bd ol {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+#bd ul *, #bd ol * {
+	margin: 0;
+}
+
+#bd li {
+	margin-left: 2em;
+	list-style: inherit;
+}
+
+#bd .sign {
+  font-style: normal;
+  text-align: left;
+  margin-bottom: 0.5em;
+
+  a {
+    color: $signature_user_color;
+    &:visited {
+      color: $signature_user_color;
+    }
+  }
+}
+
+.boxlet {
+  border: 1px solid;
+  
+  h2 {
+    text-align: left;
+    font-weight: bold;
+    padding: 0.25em;
+    margin-bottom: 0.25em;
+    font-size: 1.5em;
+    margin-top: 0;
+  }
+
+  p.image {
+    text-align: center;
+    margin-bottom: 0;
+  }
+
+  h3 {
+    margin-bottom: 0.5em;
+  }
+}
+
+.nav, #query, h1, h1 a, #whois_userpic + div, #bd > ul, #bd > form, #bd > ol, #bd > h3, body > a[href="/"]:after, .ui-menu-item, #user_menu {
+  background-color: $head_background;
+  color: $head_color;
+  padding: 5px;
+}
+
+.tags {
+  color: transparent;
+}
+
+.tag, .nav-buttons a, .tab-menu li, .group-label {
+  background-color: $tag_color;
+  color: $text_color;
+  text-decoration: none;
+}
+
+.tag:nth-child(even), .nav-buttons li:nth-child(even) a, .tab-menu li:nth-child(even) {
+  background-color: $tag_even_color;
+}
+
+code .tag, code .tag:nth-child(even) {
+  background-color: inherit;
+}
+
+.ui-widget-content, .ui-state-focus {
+  background-image: none;
+  border: 0;
+}
+
+.ui-state-focus {
+  background-color: $tag_even_color;
+}
+
+.penguin_progress span {
+  background-repeat: repeat-x;
+  height: 19px;
+  background-image: url(/zomg_ponies/img/rainbow.gif) !important;
+}
+
+.userpic img {
+  border-radius: 4px;
+}
+
+.code, pre, code {
+  background-color: $stars_color;
+  color: #FFFFDF;
+}
+
+.icon-tag, .stars {
+  color: $stars_color;
+}
+
+.message, #items ol, #special, #login {
+  color: $text_color;
+}
+
+.search-hl {
+  background-color: transparent;
+}
+
+.icon-comment{
+  color: $stars_color;
+  font-size: 0.75em;
+}
+
+img[src="/img/good-penguin.jpg"] {
+ width: 0px;
+ height: 0px;
+ padding-left: 280px;
+ padding-top: 280px;
+ background: url(/zomg_ponies/img/pinkie_pie.png);
+}
+
+#ft:before{
+  display: inline-block;
+  background: url(/zomg_ponies/img/derpy.gif);
+  background-size: 70px;
+  width: 70px;
+  height: 70px;
+  float: left;
+  content: "";
+}
+
+#bd .forum {
+  h1 {
+    font-size: 1.5em;
+  }
+
+  table {
+    th {
+      border-top: 1px solid $table_border_color;
+      border-bottom: 1px solid $table_border_color;
+      border-left: 1px solid $table_body_background_color;
+      &:first-child {
+        border-left: 1px solid $table_border_color;
+      }
+      &:last-child {
+        border-right: 1px solid $table_border_color;
+      }
+    }
+
+    tbody {
+      background: $table_body_background_color;
+    }
+    tbody td {
+      border: 1px solid;
+      border-color: $table_border_color;
+
+      a {
+        text-decoration: none;
+        color: $table_link_color;
+        &:visited {
+          color: $text_color;
+        }
+      }
+
+      s {
+        text-decoration: line-through;
+      }
+    }
+
+    thead {
+      background-color: $table_header_background;
+      a {
+        color: $text_color;
+      }
+    }
+
+    tbody tr:hover {
+      background-color: $table_hover_background;
+    }
+  }
+}
+
+#ft {
+  padding: 1em;
+  border-top: 1px dashed;
+  background-color: $head_background;
+  color: $head_color;
+  padding: 5px;
+}
+
+div.msg_body {
+    h1 {
+        font-size: 1.6em;
+    }
+
+    h2 {
+        font-size: 1em;
+        font-weight: 600;
+        font-family: "Open Sans", sans-serif;
+    }
+}
+
+.msg {
+  .code .title {
+    margin-left: inherit;
+  }
+
+  h1, h1 a {
+    background: transparent;
+  }
+
+  h1 a {
+    color: $text_color;
+  }
+}
+
+.code {
+    border-radius: 3px;
+    border: 1px dashed #777;
+    overflow: auto;
+}
+
+#navPath {
+  font-size: 1.5em;
+
+  a {
+    text-decoration: underline;
+
+    &:visited {
+      text-decoration: underline;
+      color: $link_color;
+    }
+  }
+}
+
+#loginGreating {
+  text-align: right;
+  float: right !important;
+  padding-left: 1em;
+  margin-right: 0.75em;
+  margin-top: 0.5em;
+
+  a {
+    color: $link_color !important;
+    &.do-logout {
+      color: $logout_link_color !important;
+      text-decoration: none
+    }
+  }
+}
+
+input[type="radio"] {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+input[type="checkbox"] {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#whois_userpic {
+  padding: 1em;
+  background: $article_background;
+}
+
+.infoblock {
+  border: 1px solid;
+}
+
+div.quote {
+    margin: 0;
+    border: 0 solid #555753;
+    border-left-width: 5px;
+    padding: 0 0.5em 0;
+}
+
+.page-number {
+  padding: 5px;
+  text-decoration: none;
+  border: 0;
+  border-radius: 30px;
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  min-width: 1.1em;
+  background-color: $page_number_background;
+}
+
+a.page-number {
+  color: #CCFFCC;
+}
+
+strong.page-number {
+  color: white;
+}
+
+span.page-number {
+  color: #CCCCFF;
+}
+
+.penguin_progress span {
+  background-repeat: repeat-x;
+  height: 19px;
+  background-image: url(/zomg_ponies/img/rainbow.gif);
+}
+
+.message-table {
+  .tag {
+    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 2px 4px;
+  }
+
+  a.secondary {
+    text-decoration: underline !important;
+    color: $text_color !important;
+  }
+  td.dateinterval {
+    text-align: left;
+  }
+  tbody {
+    background-color: $table_body_background_color;
+    color: $text_color;
+  }
+  thead, tfoot {
+    color: $text_color;
+  }
+  tr:hover {
+    background-color: $table_hover_background;
+  }
+  td, th {
+    border-color: $table_border_color;
+    color: $text_color;
+  }
+}
+
+figure.medium-image {
+    float: right;
+    margin-left: 1em;
+    text-align: center;
+}
+
+a {
+  color: $link_color;
+}
+
+#bd h2 * {
+  color: $text_color;
+}
+
+#bd h3 * {
+  color: $text_color;
+}
+
+#bd .tags a {
+  color: $text_color;
+  &:visited {
+    color: $text_color;
+  }
+}
+
+#bd header {
+  a:visited {
+    color: $link_color;
+  }
+
+  h1 a {
+    color: $text_color;
+    &:visited {
+      color: $text_color;
+    }
+  }
+}
+
+#bd a.tag {
+  color: $text_color;
+  &.tag:visited {
+    color: $text_color;
+  }
+}
+
+.messages .msg {
+  background:  $article_background;
+  border: 1px solid $article_border_color;
+}
+
+#bd a:visited {
+  color: $text_color;
+}
+
+#bd a.navLink:visited {
+  color: $link_color;
+}
+
+#bd .nav a:visited {
+  color: $link_color;
+}
+
+fieldset {
+  border: 1px solid $table_border_color;
+  padding: 5px;
+}
+
+fieldset legend {
+  padding-left: 5px;
+  padding-right: 5px;
+  color:$text_color;
+}
+
+#bd .nav li a {
+  margin-left: 0 !important;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid;
+  margin: 0;
+  font-size: smaller;
+  white-space: nowrap;
+  outline: none;
+  border-radius: 0.2em;
+  zoom: 1;
+
+  border-color: $button_border_color;
+  background-color: $button_background;
+  color: $text_color;
+
+  &:visited {
+    color: $text_color;
+  }
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
+  }
+  &.current {
+    background-color: $button_selected_background;
+    color: $button_selected_text_color !important;
+  }
+}
+
+#bd .btn {
+  border: 1px solid transparent;
+  border-radius: .2em;
+
+  border-color: $button_border_color;
+  color: $button_text_color;
+
+  &:visited {
+    color: $button_text_color;
+  }
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
+  }
+}
+
+#bd .btn-default, .tag-page-buttons a, .btn-primary {
+  background-color: $button_background;
+  border-color: #7777FF;
+  color: $text_color;
+}
+
+#bd .btn.btn-danger {
+  background-color: $stars_color;
+  color: white;
+}
+
+.fav-buttons {
+  .selected [class^="icon-"] {
+    color: $icon_button_active_color;
+  }
+  a {
+    color: $text_color;
+  }
+}
+
+.user-remark {
+  color: $signature_remark_color;
+}
+
+.group-label {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  background-color: $article_background !important;
+  color: $text_color;
+  white-space: nowrap;
+}
+
+.messages .msg:target {
+  border: 2px solid $targeted_message_border_color;
+}
+
+@import "../responsive";
