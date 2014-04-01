@@ -83,7 +83,7 @@
   <div class="group">
     ${preparedMessage.section.title} - ${preparedMessage.group.title}
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-      (не подтверждено)
+      <span>(не подтверждено)</span>
     </c:if>
   </div>
 </c:if>
@@ -193,7 +193,7 @@
 
 <c:if test="${multiPortal}">
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-      (не подтверждено)
+      <span>(не подтверждено)</span>
     </c:if>
 </c:if>
 
