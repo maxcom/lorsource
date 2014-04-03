@@ -24,7 +24,7 @@
 <body>
 <div id="hd">
   <a id="sitetitle" href="/">
-   <img src="/zomg_ponies/img/twilight_logo.gif" id="twilight_logo" />PONY.ORG.RU
+   <img src="/zomg_ponies/img/twilight_logo.png" id="twilight_logo" />PONY.ORG.RU
   </a>
 
   <div class="menu">
