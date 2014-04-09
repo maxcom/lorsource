@@ -41,9 +41,12 @@ class SearchResultsService @Autowired() (
     val tags = if (comment) {
       Seq()
     } else {
-      doc.getFields.get("tag").getValue[java.util.List[String]].map(
-        tag => TagService.tagRef(tag)
-      )
+      if (doc.getFields.containsKey("tag")) {
+        doc.getFields.get("tag").getValues.map(
+          tag => TagService.tagRef(tag.toString))
+      } else {
+        Seq()
+      }
     }
 
     SearchItem(

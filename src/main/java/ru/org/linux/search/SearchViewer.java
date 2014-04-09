@@ -216,8 +216,8 @@ public class SearchViewer {
 
     String section = this.query.getSection();
 
-    if (section != null && !section.isEmpty()){
-      request.setFilter(termFilter("section", this.query.getSection()));
+    if (section != null && !section.isEmpty()) {
+      request.setPostFilter(termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
@@ -232,7 +232,7 @@ public class SearchViewer {
 
     if (this.query.getGroup()!=null) {
       // overrides section filter!
-      request.setFilter(termFilter("group", this.query.getGroup()));
+      request.setPostFilter(termFilter("group", this.query.getGroup()));
     }
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);

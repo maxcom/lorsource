@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse}
-import org.elasticsearch.ElasticSearchException
+import org.elasticsearch.ElasticsearchException
 import scala.concurrent.{TimeoutException, Await, Future, Promise}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -66,7 +66,7 @@ class MoreLikeThisService @Autowired() (
 
         result
       } catch {
-        case ex: ElasticSearchException => Future.failed(ex)
+        case ex: ElasticsearchException => Future.failed(ex)
       }
     }
   }
@@ -98,7 +98,7 @@ class MoreLikeThisService @Autowired() (
     try {
       Await.result(featureResult, Timeout)
     } catch {
-      case ex:ElasticSearchException =>
+      case ex:ElasticsearchException =>
         logger.warn("Unable to find similar topics", ex)
         Seq()
       case ex:TimeoutException =>

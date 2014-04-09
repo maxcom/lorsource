@@ -1,7 +1,7 @@
 package ru.org.linux.topic;
 
 import net.tanesha.recaptcha.ReCaptcha;
-import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -61,7 +61,7 @@ public class TopicIntegrationTestConfiguration {
   public Client elasticsearch() {
     Client mockClient = Mockito.mock(Client.class);
 
-    Mockito.when(mockClient.prepareSearch(Matchers.anyString())).thenThrow(new ElasticSearchException("no ES here"));
+    Mockito.when(mockClient.prepareSearch(Matchers.anyString())).thenThrow(new ElasticsearchException("no ES here"));
 
     return mockClient;
   }
