@@ -121,15 +121,20 @@ public class UserLogDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logAcceptNewEmail(@Nonnull User user, @Nonnull String newEmail) {
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+
+    builder.put(OPTION_NEW_EMAIL, newEmail);
+
+    if (user.getEmail()!=null) {
+      builder.put(OPTION_OLD_EMAIL, user.getEmail());
+    }
+
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             user.getId(),
             user.getId(),
             UserLogAction.ACCEPT_NEW_EMAIL.toString(),
-            ImmutableMap.of(
-                    OPTION_OLD_EMAIL, user.getEmail(),
-                    OPTION_NEW_EMAIL, newEmail
-            )
+            builder.build()
     );
   }
 
