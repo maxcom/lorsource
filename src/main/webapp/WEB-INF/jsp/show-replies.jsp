@@ -54,10 +54,10 @@
         <ul>
         <c:forEach var="f" items="${filter}">
         <c:url var="fUrl" value="/notifications">
-            <c:param name="filter">${f.value}</c:param>
+            <c:param name="filter">${f.name}</c:param>
         </c:url>
         <c:choose>
-            <c:when test="${f.value == notifications.filter}">
+            <c:when test="${f.name == notifications.filter}">
                 <li><a href="${fUrl}" class="current">${f.label}</a></li>
             </c:when>
             <c:otherwise>

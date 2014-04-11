@@ -14,26 +14,38 @@
  */
 package ru.org.linux.user;
 
-public enum UserEventFilterEnum {
-  ALL("all", "все уведомления", ""),
-  ANSWERS("answers", "ответы", "REPLY"),
-  FAVORITES("favorites", "отслеживаемое", "WATCH"),
-  DELETED("deleted", "удаленное", "DEL"),
-  REFERENCE("reference", "упоминания", "REF"),
-  TAG("tag", "теги", "TAG");
+import com.google.common.collect.ImmutableSet;
 
-  private final String value;
+public enum UserEventFilterEnum {
+  ALL("все уведомления", ""),
+  ANSWERS("ответы", "REPLY"),
+  FAVORITES("отслеживаемое", "WATCH"),
+  DELETED("удаленное", "DEL"),
+  REFERENCE("упоминания", "REF"),
+  TAG("теги", "TAG");
+
   private final String label;
   private final String type;
 
-  UserEventFilterEnum(String value, String label, String type) {
-    this.value = value;
+  private static final ImmutableSet<String> VALUES;
+
+  static {
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+
+    for (UserEventFilterEnum eventFilter : UserEventFilterEnum.values()) {
+      builder.add(eventFilter.getName());
+    }
+
+    VALUES = builder.build();
+  }
+
+  UserEventFilterEnum(String label, String type) {
     this.label = label;
     this.type = type;
   }
 
-  public String getValue() {
-    return value;
+  public String getName() {
+    return toString().toLowerCase();
   }
 
   public String getLabel() {
@@ -51,5 +63,13 @@ public enum UserEventFilterEnum {
       }
     }
     return null;
+  }
+
+  public static UserEventFilterEnum fromNameOrDefault(String filterAction) {
+    if (VALUES.contains(filterAction)) {
+      return UserEventFilterEnum.valueOf(filterAction.toUpperCase());
+    } else {
+      return UserEventFilterEnum.ALL;
+    }
   }
 }

@@ -26,7 +26,10 @@ import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserEventController {
@@ -50,15 +53,6 @@ public class UserEventController {
 
     public String getFilter() {
       return filter;
-    }
-  }
-
-  private static final Set<String> filterValues;
-
-  static {
-    filterValues = new HashSet<>();
-    for (UserEventFilterEnum eventFilter : UserEventFilterEnum.values()) {
-      filterValues.add(eventFilter.getValue());
     }
   }
 
@@ -90,13 +84,7 @@ public class UserEventController {
       throw new AccessViolationException("not authorized");
     }
 
-    String filterAction = action.getFilter();
-    UserEventFilterEnum eventFilter;
-    if (filterValues.contains(filterAction)) {
-      eventFilter = UserEventFilterEnum.valueOf(filterAction.toUpperCase());
-    } else {
-      eventFilter = UserEventFilterEnum.ALL;
-    }
+    UserEventFilterEnum eventFilter = UserEventFilterEnum.fromNameOrDefault(action.getFilter());
 
     User currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
@@ -105,7 +93,7 @@ public class UserEventController {
     params.put("nick", nick);
     params.put("forceReset", forceReset);
     if (eventFilter != UserEventFilterEnum.ALL) {
-      params.put("addition_query", "&filter=" + eventFilter.getValue());
+      params.put("addition_query", "&filter=" + eventFilter.getName());
     } else {
       params.put("addition_query", "");
     }
