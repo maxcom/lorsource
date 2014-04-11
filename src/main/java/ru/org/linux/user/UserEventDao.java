@@ -53,7 +53,6 @@ public class UserEventDao {
       " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
       " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
-      " INNER JOIN groups ON (groups.id = topics.groupid) " +
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " %s " +
@@ -72,7 +71,6 @@ public class UserEventDao {
       " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
       " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
-      " INNER JOIN groups ON (groups.id = topics.groupid) " +
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " AND NOT private " +
