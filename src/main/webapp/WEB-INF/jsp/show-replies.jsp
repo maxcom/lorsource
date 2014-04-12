@@ -35,11 +35,10 @@
 <script type="text/javascript">
   $script.ready('plugins', function() {
     $(document).ready(function() {
-      $('#reset_form').ajaxSubmit(
-        function() {
-          $('#reset_form').hide();
-        }
-      );
+      $('#reset_form').ajaxSubmit({
+        success: function() { $('#reset_form').hide(); },
+        url: "/notifications-reset"
+      });
     });
   });
 </script>

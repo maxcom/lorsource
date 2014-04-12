@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,10 +27,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/notifications-count")
 public class UserEventApiController {
+  @Autowired
+  private UserEventService userEventService;
+
   @ResponseBody
-  @RequestMapping(method= RequestMethod.GET)
+  @RequestMapping(value = "/notifications-count", method= RequestMethod.GET)
   public int getEventsCount(HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
@@ -39,5 +42,22 @@ public class UserEventApiController {
     response.setHeader("Cache-control", "no-cache");
 
     return tmpl.getCurrentUser().getUnreadEvents();
+  }
+
+  @RequestMapping(value="/notifications-reset", method = RequestMethod.POST)
+  @ResponseBody
+  public String resetNotifications(
+    HttpServletRequest request
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("not authorized");
+    }
+
+    User currentUser = tmpl.getCurrentUser();
+
+    userEventService.resetUnreadReplies(currentUser);
+
+    return "ok";
   }
 }

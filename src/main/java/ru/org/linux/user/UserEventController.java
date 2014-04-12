@@ -35,10 +35,15 @@ import java.util.Map;
 public class UserEventController {
   @Autowired
   private ReplyFeedView feedView;
+
   @Autowired
   private UserDao userDao;
+
   @Autowired
   private UserEventService userEventService;
+
+  @Autowired
+  private UserEventApiController apiController;
 
   @ModelAttribute("filterValues")
   public static List<UserEventFilterEnum> getFilter() {
@@ -49,14 +54,7 @@ public class UserEventController {
   public RedirectView resetNotifications(
     HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-    if (!tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("not authorized");
-    }
-
-    User currentUser = tmpl.getCurrentUser();
-
-    userEventService.resetUnreadReplies(currentUser);
+    apiController.resetNotifications(request);
 
     RedirectView view = new RedirectView("/notifications");
 
