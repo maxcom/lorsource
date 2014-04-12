@@ -45,22 +45,40 @@ public class UserEventController {
     return Arrays.asList(UserEventFilterEnum.values());
   }
 
+  @RequestMapping(value="/notifications", method = RequestMethod.POST)
+  public RedirectView resetNotifications(
+    HttpServletRequest request
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("not authorized");
+    }
+
+    User currentUser = tmpl.getCurrentUser();
+
+    userEventService.resetUnreadReplies(currentUser);
+
+    RedirectView view = new RedirectView("/notifications");
+
+    view.setExposeModelAttributes(false);
+
+    return view;
+  }
+
   /**
    * Показывает уведомления для текущего пользоваетля
    *
    * @param request    запрос
    * @param response   ответ
    * @param offset     смещение
-   * @param forceReset принудительная отсчистка уведомлений
    * @return вьюшку
    */
-  @RequestMapping("/notifications")
+  @RequestMapping(value="/notifications", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNotifications(
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "filter", defaultValue="all") String filter,
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
+    @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
@@ -75,7 +93,6 @@ public class UserEventController {
     String nick = currentUser.getNick();
 
     params.put("nick", nick);
-    params.put("forceReset", forceReset);
     if (eventFilter != UserEventFilterEnum.ALL) {
       params.put("addition_query", "&filter=" + eventFilter.getName());
     } else {
@@ -110,11 +127,7 @@ public class UserEventController {
     List<UserEvent> list = userEventService.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
     List<PreparedUserEvent> prepared = userEventService.prepare(list, false, request.isSecure());
 
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-      userEventService.resetUnreadReplies(currentUser);
-    } else {
-      params.put("enableReset", true);
-    }
+    params.put("enableReset", true);
 
     params.put("topicsList", prepared);
     params.put("hasMore", list.size() == topics);

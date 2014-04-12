@@ -23,7 +23,6 @@
 <%--@elvariable id="hasMore" type="String"--%>
 <%--@elvariable id="unreadCount" type="Integer"--%>
 <%--@elvariable id="enableReset" type="Boolean"--%>
-<%--@elvariable id="forceReset" type="Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -71,7 +70,7 @@
     </div>
 </div>
 
-<c:if test="${unreadCount > 0 && !forceReset}">
+<c:if test="${unreadCount > 0}">
   <div id="counter_block" class="infoblock">
     <c:choose>
       <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
@@ -91,7 +90,6 @@
     <c:if test="${enableReset}">
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
-        <input type="hidden" name="forceReset" value="true">
         <input type="submit" value="Сбросить">
       </form>
     </c:if>
