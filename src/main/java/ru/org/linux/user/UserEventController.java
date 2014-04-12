@@ -40,23 +40,7 @@ public class UserEventController {
   @Autowired
   private UserEventService userEventService;
 
-  public static class Action {
-    private String filter;
-
-    public Action() {
-      filter = "all";
-    }
-
-    public void setFilter(String filter) {
-      this.filter = filter;
-    }
-
-    public String getFilter() {
-      return filter;
-    }
-  }
-
-  @ModelAttribute("filter")
+  @ModelAttribute("filterValues")
   public static List<UserEventFilterEnum> getFilter() {
     return Arrays.asList(UserEventFilterEnum.values());
   }
@@ -69,13 +53,12 @@ public class UserEventController {
    * @param offset     смещение
    * @param forceReset принудительная отсчистка уведомлений
    * @return вьюшку
-   * @throws Exception возможны исключительные ситуации :-(
    */
   @RequestMapping("/notifications")
   public ModelAndView showNotifications(
     HttpServletRequest request,
     HttpServletResponse response,
-    @ModelAttribute("notifications") Action action,
+    @RequestParam(value = "filter", defaultValue="all") String filter,
     @RequestParam(value = "offset", defaultValue = "0") int offset,
     @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
   ) throws Exception {
@@ -84,12 +67,13 @@ public class UserEventController {
       throw new AccessViolationException("not authorized");
     }
 
-    UserEventFilterEnum eventFilter = UserEventFilterEnum.fromNameOrDefault(action.getFilter());
+    Map<String, Object> params = new HashMap<>();
+    UserEventFilterEnum eventFilter = UserEventFilterEnum.fromNameOrDefault(filter);
+    params.put("filter", eventFilter.getName());
 
     User currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
 
-    Map<String, Object> params = new HashMap<>();
     params.put("nick", nick);
     params.put("forceReset", forceReset);
     if (eventFilter != UserEventFilterEnum.ALL) {
@@ -143,8 +127,7 @@ public class UserEventController {
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "nick", required = false) String nick,
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @ModelAttribute("notifications") Action action
+    @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     boolean feedRequested = request.getParameterMap().containsKey("output");
