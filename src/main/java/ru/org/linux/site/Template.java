@@ -43,17 +43,13 @@ public final class Template {
 
   @Deprecated
   public String getStyle() {
-    User user = getCurrentUser();
-    if(user == null) {
-      return DefaultProfile.getDefaultTheme().getId();
-    } else {
-      return user.getStyle();
-    }
+    return getTheme().getId();
   }
 
   public Theme getTheme() {
     User user = getCurrentUser();
-    if(user == null) {
+
+    if (user == null) {
       return DefaultProfile.getDefaultTheme();
     } else {
       return DefaultProfile.getTheme(user.getStyle());
