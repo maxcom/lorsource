@@ -28,7 +28,7 @@
 </c:if>
 
 <c:if test="${template != null}">
-<jsp:include page="${template.theme.head}"/>
+  <jsp:include page="${template.theme.head}"/>
 </c:if>
 
 <div id="bd">
