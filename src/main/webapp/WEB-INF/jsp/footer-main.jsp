@@ -35,25 +35,6 @@
     height="31" width="88" alt="Рейтинг@Mail.ru"></a>
     <!-- //Rating@Mail.ru logo -->
 </c:if>
-<%--
-  <c:if test="${template.style == 'tango'}"><br>
-  <div id="styleswitch">
-           Стиль: <a href="javascript: void(0)" id="tango-dark">Dark</a> -
-            <a href="javascript: void(0)" id="tango-swamp">Swamp</a>
-  </div>
-  <script type="text/javascript">
-    $script.ready('plugins', function() {
-      $(document).ready(function() {
-          $('#styleswitch').styleSwitcher({
-              slidein: false,
-              cookieExpires: 365,
-              directory:"/tango/"
-          });
-      });
-    });
-  </script>
-  </c:if>
---%>
 </div>
 
 <script type="text/javascript">
