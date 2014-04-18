@@ -29,10 +29,6 @@
 
 <div id="ft-buttons">
 <c:if test="${not pageContext.request.secure}">
-<!-- begin of Top100 logo -->
-<a href="http://top100.rambler.ru/home?id=29833" target="_blank"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-black2.gif" alt="Rambler's Top100" width="88" height="31" /></a>
-<!-- end of Top100 logo -->
-
     <!-- Rating@Mail.ru logo -->
     <a target="_top" href="http://top.mail.ru/jump?from=71642">
     <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642;t=11;l=1"
@@ -75,11 +71,5 @@ pageTracker._trackPageview();
 } catch(err) {}</script>
 
 </div>
-
-<c:if test="${not pageContext.request.secure}">
-<!-- begin of Top100 code -->
-<script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?29833"></script><noscript><img src="http://counter.rambler.ru/top100.cnt?29833" alt="" width="1" height="1"/></noscript>
-<!-- end of Top100 code -->
-</c:if>
 </body>
 </html>
