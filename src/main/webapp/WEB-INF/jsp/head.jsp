@@ -1,4 +1,5 @@
 <%@ page import="org.apache.commons.io.IOUtils" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="java.io.InputStream" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
@@ -16,6 +17,9 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<c:if test="${empty template}">
+  <c:set var="template" value="<%= Template.getTemplate(request) %>"/>
+</c:if>
 <!DOCTYPE html>
 <html lang=ru>
 <head>
