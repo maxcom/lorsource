@@ -31,10 +31,4 @@
 <jsp:include page="${template.theme.head}"/>
 </c:if>
 
-<c:if test="${not pageContext.request.secure}">
-    <!-- Rating@Mail.ru counter -->
-    <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642"
-    height="1" width="1" alt="" style="position: absolute">
-    <!-- //Rating@Mail.ru counter -->
-</c:if>
 <div id="bd">

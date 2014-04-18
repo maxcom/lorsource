@@ -31,13 +31,6 @@
 </p>
 
 <div id="ft-buttons">
-<c:if test="${not pageContext.request.secure}">
-    <!-- Rating@Mail.ru logo -->
-    <a target="_top" href="http://top.mail.ru/jump?from=71642">
-    <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642;t=11;l=1"
-    height="31" width="88" alt="Рейтинг@Mail.ru"></a>
-    <!-- //Rating@Mail.ru logo -->
-</c:if>
 </div>
 
 <script type="text/javascript">
