@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.site.Template" %>
 <%--
   ~ Copyright 1998-2013 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +17,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<c:if test="${empty template}">
+    <c:set var="template" value="<%= Template.getTemplate(request) %>"/>
+</c:if>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 
