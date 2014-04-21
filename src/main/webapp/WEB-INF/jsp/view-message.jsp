@@ -202,24 +202,8 @@
 
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
-<%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
---%>
   </div>
-
-  <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'flash',
-          src: '/adv/rit-2014.swf'
-        }
-      ];
-
-      init_interpage_adv(ads);
-    });
-  </script>
-
   <br>
 </c:if>
 
