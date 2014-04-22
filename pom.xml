@@ -593,7 +593,6 @@
                         <phase>generate-test-resources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/tmp/linux-storage/profile"/>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
                                 <mkdir dir="${project.build.directory}/tmp/jamwiki/upload"/>
 				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery"/>
