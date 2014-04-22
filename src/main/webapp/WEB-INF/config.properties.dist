@@ -40,3 +40,6 @@ comment.isEditingAllowedIfAnswersExists=false
 # то редактировать могут все. Если установлено огромное
 # число, то комментарии будут фактически отключены
 comment.scoreValueForEditing=45
+
+# "embedded" или host:port
+Elasticsearch=embedded

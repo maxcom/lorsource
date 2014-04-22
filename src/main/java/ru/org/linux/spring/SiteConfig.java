@@ -91,6 +91,10 @@ public class SiteConfig {
     return properties.getProperty("PathPrefix");
   }
 
+  public String getElasticsearch() {
+    return properties.getProperty("Elasticsearch");
+  }
+
   public String getHTMLPathPrefix() {
     return properties.getProperty("HTMLPathPrefix");
   }
