@@ -23,9 +23,9 @@
   <channel>
     <link>http://www.linux.org.ru/</link>
     <language>ru</language>
-    <title>Linux.org.ru: ${ptitle}</title>
+    <title>Linux.org.ru: <c:out escapeXml="true" value="${ptitle}"/></title>
 
-    <description>Linux.org.ru: ${ptitle}</description>
+    <description>Linux.org.ru: <c:out escapeXml="true" value="${ptitle}"/></description>
 
     <pubDate>
       <lor:rfc822date date="<%= new Date() %>"/>
