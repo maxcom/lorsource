@@ -717,9 +717,9 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.mortbay.jetty</groupId>
+                        <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>8.1.14.v20131031</version>
+                        <version>9.0.7.v20131107</version>
                         <executions>
                              <execution>
                                  <id>start-jetty</id>
@@ -743,6 +743,7 @@
                         <configuration>
                             <stopKey>foo</stopKey>
                             <stopPort>9999</stopPort>
+                            <stopWait>10</stopWait>
 
                             <webAppConfig>
                                 <jettyEnvXml>${project.build.directory}/test-classes/jetty-env.xml</jettyEnvXml>
