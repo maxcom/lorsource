@@ -59,7 +59,7 @@
       <li>ActiveMQ 5.9</li>
       <li>Spring 3.2</li>
       <li>Wiki: JamWiki 1.1.5</li>
-      <li>Поиск: Elasticsearch 1.0</li>
+      <li>Поиск: Elasticsearch 1.1</li>
     </ul>
 
 <h1>Исходные тексты</h1>
