@@ -110,7 +110,7 @@
     <bean id="replyFeed" class="ru.org.linux.user.ReplyFeedView" parent="absractRomeView" scope="prototype"/>
 
     <mvc:interceptors>
-        <bean class="ru.org.linux.spring.Perf4jHandlerInterceptor"/>
+        <bean class="ru.org.linux.monitoring.Perf4jHandlerInterceptor"/>
         <bean class="ru.org.linux.csrf.CSRFHandlerInterceptor"/>
         <bean class="ru.org.linux.auth.HstsInterceptor"/>
     </mvc:interceptors>
