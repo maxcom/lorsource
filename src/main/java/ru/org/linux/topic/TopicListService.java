@@ -105,7 +105,7 @@ public class TopicListService {
       topicListDto.setLimit(count);
       topicListDto.setOffset(offset > 0 ? offset : null);
       if (tag == null && group == null && !section.isPremoderated()) {
-        topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+        topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH, -6);
@@ -223,7 +223,7 @@ public class TopicListService {
       topicListDto.setGroup(group.getId());
     }
 
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(fromDate);
 
     topicListDto.setNotalks(noTalks);
@@ -240,11 +240,6 @@ public class TopicListService {
       : topicListDao.getTopics(topicListDto);
   }
 
-  /**
-   * @param section
-   * @param fromDate
-   * @return
-   */
   public List<Topic> getAllTopicsFeed(
     Section section,
     Date fromDate
@@ -263,7 +258,7 @@ public class TopicListService {
       topicListDto.setSection(section.getId());
     }
 
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(fromDate);
 
     return topicListDao.getTopics(topicListDto);
@@ -295,7 +290,7 @@ public class TopicListService {
     TopicListDto topicListDto = new TopicListDto();
 
     topicListDto.setLimit(20);
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());

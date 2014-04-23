@@ -25,7 +25,7 @@ public class TopicListDto {
   public enum DateLimitType {
     NONE,
     BETWEEN,
-    MONTH_AGO
+    FROM_DATE
   }
 
   private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;

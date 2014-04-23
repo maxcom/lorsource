@@ -172,7 +172,7 @@ public class TopicListDao {
           .append(dateFormat.format(topicListDto.getToDate()))
           .append("'::timestamp ");
         break;
-      case MONTH_AGO:
+      case FROM_DATE:
         where
           .append("AND postdate>'")
           .append(dateFormat.format(topicListDto.getFromDate()))

@@ -72,7 +72,7 @@ public class UncommitedTopicsController {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-    calendar.add(Calendar.MONTH, -1);
+    calendar.add(Calendar.MONTH, -3);
 
     List<Topic> messages = topicListService.getAllTopicsFeed(section, calendar.getTime());
     modelAndView.addObject(
