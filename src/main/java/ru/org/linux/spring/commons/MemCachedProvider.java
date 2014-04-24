@@ -39,22 +39,17 @@ public class MemCachedProvider implements CacheProvider {
   }
 
   @Override
-  public <T> void storeToCache(String key, T value, int expire) {
+  public <T> void storeToCache(String key, T value) {
     String s = MemCachedSettings.getId(key);
     try {
       if (MemCachedSettings.getMemCachedClient().getAvailableServers().isEmpty()) {
         return;
       }
 
-      MemCachedSettings.getMemCachedClient().set(s, expire/1000, value);
+      MemCachedSettings.getMemCachedClient().set(s, 0, value);
     } catch (IllegalArgumentException | IllegalStateException | OperationTimeoutException ex) {
       logger.info("Memcached SET failed", ex);
     }
-  }
-
-  @Override
-  public <T> void storeToCache(String key, T value) {
-    storeToCache(key, value, 0);
   }
 
   public void destroy() {
