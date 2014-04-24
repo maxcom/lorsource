@@ -69,9 +69,6 @@
         <constructor-arg ref="datasource"/>
     </bean>
 
-    <bean class="ru.org.linux.spring.commons.MemCachedProvider" id="cacheProvider"
-          destroy-method="destroy"/>
-
     <bean id="reCaptcha" class="net.tanesha.recaptcha.ReCaptchaImpl">
         <property name="privateKey" value="${recaptcha.private}"/>
         <property name="publicKey" value="${recaptcha.public}"/>

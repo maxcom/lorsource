@@ -16,6 +16,8 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
@@ -35,11 +37,9 @@ import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
-import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -116,6 +116,11 @@ public class CommentService {
 
   @Autowired
   private TopicPermissionService permissionService;
+
+  private Cache<Integer, CommentList> cache =
+          CacheBuilder.newBuilder()
+          .maximumSize(10000)
+          .build();
 
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new CommentRequestValidator(lorCodeService));
@@ -566,15 +571,11 @@ public class CommentService {
     if (showDeleted) {
       return new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
     } else {
-      CacheProvider mcc = MemCachedSettings.getCache();
+      CommentList commentList = cache.getIfPresent(topic.getId());
 
-      String cacheId = "commentList?msgid=" + topic.getId();
-
-      CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
-
-      if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
-        commentList = new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
-        mcc.storeToCache(cacheId, commentList);
+      if (commentList == null || commentList.getLastmod() < topic.getLastModified().getTime()) {
+        commentList = new CommentList(commentDao.getCommentList(topic.getId(), false), topic.getLastModified().getTime());
+        cache.put(topic.getId(), commentList);
       }
 
       return commentList;

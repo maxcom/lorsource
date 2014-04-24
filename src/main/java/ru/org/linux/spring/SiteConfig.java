@@ -20,7 +20,6 @@ import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.MemCachedSettings;
 
 import javax.annotation.PostConstruct;
 import java.util.Properties;
@@ -67,8 +66,6 @@ public class SiteConfig {
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
-
-    MemCachedSettings.setMainUrl(getMainUrl());
   }
 
   public String getMainUrl() {
