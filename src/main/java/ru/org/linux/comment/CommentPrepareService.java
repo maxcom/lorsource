@@ -179,10 +179,13 @@ public class CommentPrepareService {
 
     if (comment.isDeleted()) {
       DeleteInfo info = deleteInfoDao.getDeleteInfo(comment.getId());
-      deleteInfo = new ApiDeleteInfo(
-              userDao.getUserCached(info.getUserid()).getNick(),
-              info.getReason()
-      );
+
+      if (info!=null) {
+        deleteInfo = new ApiDeleteInfo(
+                userDao.getUserCached(info.getUserid()).getNick(),
+                info.getReason()
+        );
+      }
     }
 
     return deleteInfo;

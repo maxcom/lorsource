@@ -26,6 +26,7 @@ import ru.org.linux.site.DeleteInfoStat;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,6 +53,7 @@ public class DeleteInfoDao {
    * @param id id проверяемого сообщения
    * @return информация о удаленном сообщении
    */
+  @Nullable
   public DeleteInfo getDeleteInfo(int id) {
     return getDeleteInfo(id, false);
   }
