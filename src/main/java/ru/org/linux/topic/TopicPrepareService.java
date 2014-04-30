@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.BriefEditInfo;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.edithistory.EditInfoSummary;
@@ -56,6 +56,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -215,16 +216,17 @@ public class TopicPrepareService {
 
       EditInfoSummary editInfoSummary = editHistoryService.editInfoSummary(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
 
-      EditHistoryDto editHistoryDto;
       User lastEditor;
       int editCount;
+      Date lastEditDate;
 
       if (editInfoSummary.editCount() > 0) {
-        editHistoryDto = editInfoSummary.lastEditInfo().get();
-        lastEditor = userDao.getUserCached(editHistoryDto.getEditor());
+        BriefEditInfo editHistoryDto = editInfoSummary.lastEditInfo().get();
+        lastEditor = userDao.getUserCached(editHistoryDto.editor());
         editCount = editInfoSummary.editCount();
+        lastEditDate = editHistoryDto.editdate();
       } else {
-        editHistoryDto = null;
+        lastEditDate = null;
         lastEditor = null;
         editCount = 0;
       }
@@ -276,7 +278,7 @@ public class TopicPrepareService {
               tags,
               group,
               section,
-              editHistoryDto,
+              lastEditDate,
               lastEditor, 
               editCount,
               text.isLorcode(),

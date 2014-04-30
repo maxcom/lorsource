@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
@@ -25,6 +24,8 @@ import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
 
+import javax.annotation.Nullable;
+import java.util.Date;
 import java.util.List;
 
 public final class PreparedTopic {
@@ -40,8 +41,12 @@ public final class PreparedTopic {
   private final Group group;
   private final Section section;
 
-  private final EditHistoryDto lastHistoryDto;
+  @Nullable
+  private final Date lastEditDate;
+
+  @Nullable
   private final User lastEditor;
+
   private final int editCount;
 
   private final PreparedImage image;
@@ -61,8 +66,8 @@ public final class PreparedTopic {
           List<TagRef> tags,
           Group group,
           Section section,
-          EditHistoryDto lastHistoryDto,
-          User lastEditor,
+          @Nullable Date lastEditDate,
+          @Nullable User lastEditor,
           int editorCount,
           boolean lorcode,
           PreparedImage image,
@@ -84,7 +89,7 @@ public final class PreparedTopic {
     }
     this.group = group;
     this.section = section;
-    this.lastHistoryDto = lastHistoryDto;
+    this.lastEditDate = lastEditDate;
     this.lastEditor = lastEditor;
     editCount = editorCount;
     this.image = image;
@@ -119,8 +124,9 @@ public final class PreparedTopic {
     return commiter;
   }
 
-  public EditHistoryDto getLastHistoryDto() {
-    return lastHistoryDto;
+  @Nullable
+  public Date getLastEditDate() {
+    return lastEditDate;
   }
 
   public User getLastEditor() {
