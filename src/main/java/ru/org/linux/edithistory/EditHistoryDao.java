@@ -30,8 +30,6 @@ import java.util.List;
 
 @Repository
 public class EditHistoryDao {
-  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC";
-
   private JdbcTemplate jdbcTemplate;
   private SimpleJdbcInsert editInsert;
 
@@ -66,42 +64,40 @@ public class EditHistoryDao {
    */
   public List<EditHistoryDto> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     final List<EditHistoryDto> editInfoDTOs = new ArrayList<>();
-    jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        EditHistoryDto editHistoryDto = new EditHistoryDto();
-        editHistoryDto.setId(resultSet.getInt("id"));
-        editHistoryDto.setMsgid(resultSet.getInt("msgid"));
-        editHistoryDto.setEditor(resultSet.getInt("editor"));
-        editHistoryDto.setOldmessage(resultSet.getString("oldmessage"));
-        editHistoryDto.setEditdate(resultSet.getTimestamp("editdate"));
-        editHistoryDto.setOldtitle(resultSet.getString("oldtitle"));
-        editHistoryDto.setOldtags(resultSet.getString("oldtags"));
-        editHistoryDto.setObjectType(resultSet.getString("object_type"));
+    jdbcTemplate.query(
+            "SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet resultSet) throws SQLException {
+                EditHistoryDto editHistoryDto = new EditHistoryDto();
+                editHistoryDto.setId(resultSet.getInt("id"));
+                editHistoryDto.setMsgid(resultSet.getInt("msgid"));
+                editHistoryDto.setEditor(resultSet.getInt("editor"));
+                editHistoryDto.setOldmessage(resultSet.getString("oldmessage"));
+                editHistoryDto.setEditdate(resultSet.getTimestamp("editdate"));
+                editHistoryDto.setOldtitle(resultSet.getString("oldtitle"));
+                editHistoryDto.setOldtags(resultSet.getString("oldtags"));
+                editHistoryDto.setObjectType(resultSet.getString("object_type"));
 
-        editHistoryDto.setOldimage(resultSet.getInt("oldimage"));
-        if (resultSet.wasNull()) {
-          editHistoryDto.setOldimage(null);
-        }
+                editHistoryDto.setOldimage(resultSet.getInt("oldimage"));
+                if (resultSet.wasNull()) {
+                  editHistoryDto.setOldimage(null);
+                }
 
-        editHistoryDto.setOldminor(resultSet.getBoolean("oldminor"));
-        if (resultSet.wasNull()) {
-          editHistoryDto.setOldminor(null);
-        }
+                editHistoryDto.setOldminor(resultSet.getBoolean("oldminor"));
+                if (resultSet.wasNull()) {
+                  editHistoryDto.setOldminor(null);
+                }
 
-        editInfoDTOs.add(editHistoryDto);
-      }
-    },
-      id,
-      objectTypeEnum.toString()
+                editInfoDTOs.add(editHistoryDto);
+              }
+            },
+            id,
+            objectTypeEnum.toString()
     );
     return editInfoDTOs;
   }
 
-  /**
-   *
-   * @param editHistoryDto
-   */
   public void insert(EditHistoryDto editHistoryDto) {
     editInsert.execute(new BeanPropertySqlParameterSource(editHistoryDto));
   }
