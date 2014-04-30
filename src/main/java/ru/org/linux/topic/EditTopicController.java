@@ -15,12 +15,9 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -209,7 +206,7 @@ public class EditTopicController {
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
-      ImmutableSet<User> editors = editHistoryService.getEditors(message, editInfoList);
+      ImmutableSet<User> editors = editHistoryService.getEditorUsers(message, editInfoList);
 
       ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
       for (User editor : editors) {
@@ -412,19 +409,7 @@ public class EditTopicController {
     }
 
     if (form.getEditorBonus() != null) {
-      ImmutableSet<Integer> editors = ImmutableSet.copyOf(
-              Iterables.transform(
-                      Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
-                        @Override
-                        public boolean apply(EditHistoryDto input) {
-                          return input.getEditor() != message.getUid();
-                        }
-                      }), new Function<EditHistoryDto, Integer>() {
-                @Override
-                public Integer apply(EditHistoryDto input) {
-                  return input.getEditor();
-                }
-              }));
+      ImmutableSet<Integer> editors = editHistoryService.getEditors(message, editInfoList);
 
       for (int userid : form.getEditorBonus().keySet()) {
         if (!editors.contains(userid)) {

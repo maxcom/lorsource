@@ -213,7 +213,13 @@ public class EditHistoryService {
     editHistoryDao.insert(editHistoryDto);
   }
 
-  public ImmutableSet<User> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
+  public ImmutableSet<User> getEditorUsers(final Topic message, List<EditHistoryDto> editInfoList) {
+    ImmutableSet<Integer> editors = getEditors(message, editInfoList);
+
+    return ImmutableSet.copyOf(userDao.getUsersCached(editors));
+  }
+
+  public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
     return ImmutableSet.copyOf(
             Iterables.transform(
                     Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
@@ -222,10 +228,10 @@ public class EditHistoryService {
                         return input.getEditor() != message.getUid();
                       }
                     }),
-                    new Function<EditHistoryDto, User>() {
+                    new Function<EditHistoryDto, Integer>() {
                       @Override
-                      public User apply(EditHistoryDto input) {
-                        return userDao.getUserCached(input.getEditor());
+                      public Integer apply(EditHistoryDto input) {
+                        return input.getEditor();
                       }
                     })
     );

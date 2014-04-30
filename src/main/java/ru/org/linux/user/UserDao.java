@@ -43,6 +43,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -477,7 +478,9 @@ public class UserDao {
     ));
   }
 
-  public List<User> getUsersCached(List<Integer> ids) {
+  // TODO кеш тут не работает, так как аннотации оборачивают
+  // TODO только внешние вызовы. Надо что-то с этим сделать.
+  public List<User> getUsersCached(Collection<Integer> ids) {
     List<User> users = new ArrayList<>(ids.size());
 
     for (int id : ids) {
