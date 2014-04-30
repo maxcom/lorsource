@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.group.Group;
@@ -212,15 +213,16 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+      EditInfoSummary editInfoSummary = editHistoryService.editInfoSummary(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+
       EditHistoryDto editHistoryDto;
       User lastEditor;
       int editCount;
 
-      if (!editHistoryDtoList.isEmpty()) {
-        editHistoryDto = editHistoryDtoList.get(0);
+      if (editInfoSummary.editCount() > 0) {
+        editHistoryDto = editInfoSummary.lastEditInfo().get();
         lastEditor = userDao.getUserCached(editHistoryDto.getEditor());
-        editCount = editHistoryDtoList.size();
+        editCount = editInfoSummary.editCount();
       } else {
         editHistoryDto = null;
         lastEditor = null;

@@ -204,6 +204,11 @@ public class EditHistoryService {
     return editHistoryDao.getEditInfo(id, objectTypeEnum);
   }
 
+  public int editCount(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    // TODO replace with count() SQL query
+    return editHistoryDao.getEditInfo(id, objectTypeEnum).size();
+  }
+
   public void insert(EditHistoryDto editHistoryDto) {
     editHistoryDao.insert(editHistoryDto);
   }
@@ -224,5 +229,16 @@ public class EditHistoryService {
                       }
                     })
     );
+  }
+
+  public EditInfoSummary editInfoSummary(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    // TODO do not load full history here
+    List<EditHistoryDto> history = editHistoryDao.getEditInfo(id, objectTypeEnum);
+
+    if (history.isEmpty()) {
+      return EditInfoSummary.NoEdits();
+    } else {
+      return EditInfoSummary.apply(history.size(), history.get(0));
+    }
   }
 }

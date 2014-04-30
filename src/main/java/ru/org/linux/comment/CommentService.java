@@ -486,13 +486,13 @@ public class CommentService {
    * @param comment  изменённый комментарий
    */
   private void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
-    List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
+    int editCount = editHistoryService.editCount(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
 
     commentDao.updateLatestEditorInfo(
       original.getId(),
       editor.getId(),
       comment.getPostdate(),
-      editHistoryDtoList.size()
+      editCount
     );
   }
 
