@@ -204,6 +204,10 @@ public class EditHistoryService {
     return editHistoryDao.getEditInfo(id, objectTypeEnum);
   }
 
+  public List<BriefEditInfo> getBriefEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    return editHistoryDao.getBriefEditInfo(id, objectTypeEnum);
+  }
+
   public int editCount(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     // TODO replace with count() SQL query
     return editHistoryDao.getEditInfo(id, objectTypeEnum).size();
@@ -238,8 +242,7 @@ public class EditHistoryService {
   }
 
   public EditInfoSummary editInfoSummary(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
-    // TODO do not load full history here
-    List<EditHistoryDto> history = editHistoryDao.getEditInfo(id, objectTypeEnum);
+    List<BriefEditInfo> history = editHistoryDao.getBriefEditInfo(id, objectTypeEnum);
 
     if (history.isEmpty()) {
       return EditInfoSummary.NoEdits();

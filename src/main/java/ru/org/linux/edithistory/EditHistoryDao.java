@@ -18,6 +18,7 @@ package ru.org.linux.edithistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -96,6 +97,27 @@ public class EditHistoryDao {
             objectTypeEnum.toString()
     );
     return editInfoDTOs;
+  }
+
+  /**
+   * Получить информации о редактировании топика/комментария.
+   *
+   * @param id id топика
+   * @param objectTypeEnum тип: топик или комментарий
+   * @return список изменений топика
+   */
+  public List<BriefEditInfo> getBriefEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    return jdbcTemplate.query(
+            "SELECT editdate, editor FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
+            new RowMapper<BriefEditInfo>() {
+              @Override
+              public BriefEditInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor"));
+              }
+            },
+            id,
+            objectTypeEnum.toString()
+    );
   }
 
   public void insert(EditHistoryDto editHistoryDto) {

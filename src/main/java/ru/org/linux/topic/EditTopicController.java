@@ -305,14 +305,14 @@ public class EditTopicController {
       }
     }
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
-
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
       params.put("info", "Предпросмотр");
     }
 
     boolean publish = request.getParameter("publish") != null;
+
+    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
 
     if (!editInfoList.isEmpty()) {
       EditHistoryDto editHistoryDto = editInfoList.get(0);
