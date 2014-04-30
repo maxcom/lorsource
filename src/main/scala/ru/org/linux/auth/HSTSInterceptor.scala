@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 
 class HstsInterceptor @Autowired() (config:SiteConfig) extends HandlerInterceptorAdapter {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {
-    if (request.isSecure && config.enableHsts() && AuthUtil.isSessionAuthorized) {
+    if (request.isSecure && config.enableHsts()) {
       response.addHeader("Strict-Transport-Security", "max-age=7776000")
     }
 
