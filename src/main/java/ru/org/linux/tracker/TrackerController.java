@@ -107,7 +107,6 @@ public class TrackerController {
     TrackerFilterEnum trackerFilter = TrackerFilterEnum.getByValue(filterAction).or(DEFAULT_FILTER);
 
     Map<String, Object> params = new HashMap<>();
-    params.put("mine", trackerFilter == TrackerFilterEnum.MINE);
     params.put("offset", offset);
     params.put("filter", trackerFilter.getValue());
 

@@ -18,7 +18,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
 public enum TrackerFilterEnum {
-  ALL("all", "все сообщения", true),
+  ALL("all", "все", true),
   NOTALKS("notalks", "без talks", false),
   TECH("tech", "тех. разделы форума", false),
   MINE("mine", "мои темы", false),
