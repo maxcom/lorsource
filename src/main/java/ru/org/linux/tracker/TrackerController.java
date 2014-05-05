@@ -125,14 +125,16 @@ public class TrackerController {
 
     User user = tmpl.getCurrentUser();
 
-    if (trackerFilter == TrackerFilterEnum.MINE) {
-      if (!tmpl.isSessionAuthorized()) {
-        throw new UserErrorException("Not authorized");
-      }
-      params.put("title", "Последние сообщения (мои темы)");
+    if (trackerFilter != DEFAULT_FILTER) {
+      params.put("title", "Последние сообщения ("+trackerFilter.getLabel()+")");
     } else {
       params.put("title", "Последние сообщения");
     }
+
+    if (trackerFilter == TrackerFilterEnum.MINE && !tmpl.isSessionAuthorized()) {
+      throw new UserErrorException("Not authorized");
+    }
+
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages));
 
     if (tmpl.isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
