@@ -15,6 +15,9 @@
 
 package ru.org.linux.tracker;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,10 +33,12 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.*;
+
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
 
 @Controller
 public class TrackerController {
@@ -46,61 +51,43 @@ public class TrackerController {
   @Autowired
   private DeleteInfoDao deleteInfoDao;
 
-  private static final Set<String> filterValues;
-
-  static {
-    filterValues = new HashSet<>();
-    for (TrackerFilterEnum eventFilter : TrackerFilterEnum.values()) {
-      filterValues.add(eventFilter.getValue());
-    }
-  }
+  private static TrackerFilterEnum DEFAULT_FILTER = TrackerFilterEnum.ALL;
 
   @ModelAttribute("filters")
   public static List<TrackerFilterEnum> getFilter(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
-    if(tmpl.isSessionAuthorized()) {
-      return Arrays.asList(TrackerFilterEnum.values());
+
+    List<TrackerFilterEnum> filterValues = Arrays.asList(TrackerFilterEnum.values());
+
+    if (tmpl.isSessionAuthorized()) {
+      return filterValues;
     } else {
-      List<TrackerFilterEnum> trackerFilters = new ArrayList<>();
-      for(TrackerFilterEnum trackerFilter : TrackerFilterEnum.values()) {
-        if("mine".equals(trackerFilter.getValue())) {
-          continue;
-        }
-        trackerFilters.add(trackerFilter);
-      }
-      return trackerFilters;
+      return ImmutableList.copyOf(Iterables.filter(filterValues, not(equalTo(TrackerFilterEnum.MINE))));
     }
   }
 
   @RequestMapping("/tracker.jsp")
   public View trackerOldUrl(
           @RequestParam(value="filter", defaultValue = "all") String filterAction
-  ) throws UnsupportedEncodingException {
+  ) throws Exception {
     RedirectView redirectView = new RedirectView("/tracker/");
 
     redirectView.setExposeModelAttributes(false);
 
-    if (filterValues.contains(filterAction) && !filterAction.equals("all")) {
+    Optional<TrackerFilterEnum> filter = TrackerFilterEnum.getByValue(filterAction);
+    if (filter.isPresent() && filter.get()!=DEFAULT_FILTER) {
       redirectView.setUrl("/tracker/?filter="+ URLEncoder.encode(filterAction, "UTF-8"));
     }
 
     return redirectView;
   }
 
-  private TrackerFilterEnum getFilterValue(String filterAction) {
-    if(filterValues.contains(filterAction)) {
-      return TrackerFilterEnum.valueOf(filterAction.toUpperCase());
-    } else {
-      return TrackerFilterEnum.ALL;
-    }
-  }
-
   @RequestMapping("/tracker")
   public ModelAndView tracker(
       @RequestParam(value="filter", defaultValue = "all") String filterAction,
       @RequestParam(value="offset", required = false) Integer offset,
-      HttpServletRequest request) throws Exception {
-
+      HttpServletRequest request
+  ) throws Exception {
     if (offset==null) {
       offset = 0;
     } else {
@@ -109,14 +96,14 @@ public class TrackerController {
       }
     }
 
-    TrackerFilterEnum trackerFilter = getFilterValue(filterAction);
+    TrackerFilterEnum trackerFilter = TrackerFilterEnum.getByValue(filterAction).or(DEFAULT_FILTER);
 
     Map<String, Object> params = new HashMap<>();
     params.put("mine", trackerFilter == TrackerFilterEnum.MINE);
     params.put("offset", offset);
     params.put("filter", trackerFilter.getValue());
 
-    if(trackerFilter != TrackerFilterEnum.ALL) {
+    if (trackerFilter != TrackerFilterEnum.ALL) {
       params.put("addition_query", "&amp;filter=" + trackerFilter.getValue());
     } else {
       params.put("addition_query", "");
@@ -156,5 +143,4 @@ public class TrackerController {
 
     return new ModelAndView("tracker", params);
   }
-
 }

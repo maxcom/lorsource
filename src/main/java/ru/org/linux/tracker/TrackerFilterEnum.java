@@ -14,6 +14,9 @@
  */
 package ru.org.linux.tracker;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+
 public enum TrackerFilterEnum {
   ALL("all", "все сообщения", true),
   NOTALKS("notalks", "без talks", false),
@@ -41,5 +44,23 @@ public enum TrackerFilterEnum {
 
   public boolean isDefaultValue() {
     return def;
+  }
+
+  private static final ImmutableSet<String> valuesSet;
+
+  static {
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    for (TrackerFilterEnum eventFilter : TrackerFilterEnum.values()) {
+      builder.add(eventFilter.getValue());
+    }
+    valuesSet = builder.build();
+  }
+
+  public static Optional<TrackerFilterEnum> getByValue(String filterAction) {
+    if (valuesSet.contains(filterAction)) {
+      return Optional.of(TrackerFilterEnum.valueOf(filterAction.toUpperCase()));
+    } else {
+      return Optional.absent();
+    }
   }
 }
