@@ -31,6 +31,7 @@ import ru.org.linux.util.StringUtil;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -168,11 +169,11 @@ public class TrackerDao {
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
-  public List<TrackerItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Timestamp interval,
+  public List<TrackerItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Date startDate,
                                        int topics, int offset, final int messagesInPage) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
-    parameter.addValue("interval", interval);
+    parameter.addValue("interval", startDate);
     parameter.addValue("topics", topics);
     parameter.addValue("offset", offset);
 

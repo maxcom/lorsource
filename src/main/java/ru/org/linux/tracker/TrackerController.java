@@ -18,6 +18,7 @@ package ru.org.linux.tracker;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.elasticsearch.common.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -34,7 +35,6 @@ import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static com.google.common.base.Predicates.equalTo;
@@ -109,14 +109,13 @@ public class TrackerController {
       params.put("addition_query", "");
     }
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(new Date());
-    if(trackerFilter == TrackerFilterEnum.MINE) {
-      calendar.add(Calendar.MONTH, -6);
+    Date startDate;
+
+    if (trackerFilter == TrackerFilterEnum.MINE) {
+      startDate = DateTime.now().minusMonths(6).toDate();
     } else {
-      calendar.add(Calendar.HOUR, -24);
+      startDate = DateTime.now().minusDays(1).toDate();
     }
-    Timestamp dateLimit = new Timestamp(calendar.getTimeInMillis());
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getMessages();
@@ -134,7 +133,7 @@ public class TrackerController {
     } else {
       params.put("title", "Последние сообщения");
     }
-    params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
+    params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages));
 
     if (tmpl.isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
       params.put("newUsers", userDao.getNewUsers());
