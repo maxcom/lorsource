@@ -42,7 +42,7 @@
       <c:forEach items="${filters}" var="f">
         <li>
           <c:url var="fUrl" value="/tracker/">
-            <c:if test="${not f.defaultValue}">
+            <c:if test="${f != defaultFilter}">
               <c:param name="filter">${f.value}</c:param>
             </c:if>
           </c:url>

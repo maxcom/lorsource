@@ -18,20 +18,18 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
 public enum TrackerFilterEnum {
-  ALL("all", "все", true),
-  NOTALKS("notalks", "без talks", false),
-  TECH("tech", "тех. разделы форума", false),
-  MINE("mine", "мои темы", false),
-  ZERO("zero", "без ответов", false);
+  ALL("all", "все"),
+  NOTALKS("notalks", "без talks"),
+  TECH("tech", "тех. разделы форума"),
+  MINE("mine", "мои темы"),
+  ZERO("zero", "без ответов");
 
   private final String value;
   private final String label;
-  private final boolean def;
 
-  TrackerFilterEnum(String value, String label, boolean def) {
+  TrackerFilterEnum(String value, String label) {
     this.value = value;
     this.label = label;
-    this.def = def;
   }
 
   public String getValue() {
@@ -40,10 +38,6 @@ public enum TrackerFilterEnum {
 
   public String getLabel() {
     return label;
-  }
-
-  public boolean isDefaultValue() {
-    return def;
   }
 
   private static final ImmutableSet<String> valuesSet;

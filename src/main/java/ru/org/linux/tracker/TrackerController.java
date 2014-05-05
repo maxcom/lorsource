@@ -116,6 +116,8 @@ public class TrackerController {
       params.put("addition_query", "");
     }
 
+    params.put("defaultFilter", DEFAULT_FILTER);
+
     Date startDate;
 
     if (trackerFilter == TrackerFilterEnum.MINE) {
