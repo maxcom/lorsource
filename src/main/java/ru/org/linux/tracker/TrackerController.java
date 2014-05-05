@@ -82,6 +82,14 @@ public class TrackerController {
     return redirectView;
   }
 
+  private String makeTitle(TrackerFilterEnum filter) {
+    if (filter != DEFAULT_FILTER) {
+      return "Последние сообщения ("+filter.getLabel()+")";
+    } else {
+      return "Последние сообщения";
+    }
+  }
+
   @RequestMapping("/tracker")
   public ModelAndView tracker(
       @RequestParam(value="filter", defaultValue = "all") String filterAction,
@@ -103,7 +111,7 @@ public class TrackerController {
     params.put("offset", offset);
     params.put("filter", trackerFilter.getValue());
 
-    if (trackerFilter != TrackerFilterEnum.ALL) {
+    if (trackerFilter != DEFAULT_FILTER) {
       params.put("addition_query", "&amp;filter=" + trackerFilter.getValue());
     } else {
       params.put("addition_query", "");
@@ -125,11 +133,7 @@ public class TrackerController {
 
     User user = tmpl.getCurrentUser();
 
-    if (trackerFilter != DEFAULT_FILTER) {
-      params.put("title", "Последние сообщения ("+trackerFilter.getLabel()+")");
-    } else {
-      params.put("title", "Последние сообщения");
-    }
+    params.put("title", makeTitle(trackerFilter));
 
     if (trackerFilter == TrackerFilterEnum.MINE && !tmpl.isSessionAuthorized()) {
       throw new UserErrorException("Not authorized");
