@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 
 public enum TrackerFilterEnum {
   ALL("all", "все"),
+  MAIN("main", "основные"),
   NOTALKS("notalks", "без talks"),
   TECH("tech", "тех. разделы форума"),
   MINE("mine", "мои темы"),

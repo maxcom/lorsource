@@ -166,6 +166,7 @@ public class TrackerDao {
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
+  private static final String queryPartMain = " AND not t.groupid=8404 AND not t.groupid=4068 AND not t.groupid=19392 ";
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
@@ -194,6 +195,9 @@ public class TrackerDao {
         break;
       case NOTALKS:
         partFilter = queryPartNoTalks;
+        break;
+      case MAIN:
+        partFilter = queryPartMain;
         break;
       case TECH:
         partFilter = queryPartTech;
