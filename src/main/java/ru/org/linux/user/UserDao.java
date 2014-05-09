@@ -15,8 +15,6 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
@@ -27,13 +25,13 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
+import scala.Tuple2;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -203,13 +201,15 @@ public class UserDao {
     }
   }
 
-  /**
-   * Получить статситику пользователя
-   * @param user пользователь
-   * @param exact точная или приблизительная статистика
-   * @return статистика
-   */
-  public UserStatistics getUserStatisticsClass(User user, boolean exact, int ignoreCount) {
+  public int getExactCommentCount(User user) {
+    try {
+      return jdbcTemplate.queryForObject(queryCommentStat, Integer.class, user.getId());
+    } catch (EmptyResultDataAccessException exception) {
+      return 0;
+    }
+  }
+
+  public Tuple2<Boolean, Integer> getCommentCount(User user, boolean exact) {
     int commentCount = 0;
 
     if (!exact) {
@@ -222,52 +222,38 @@ public class UserDao {
 
     boolean exactCommentCount = false;
     if (commentCount == 0) {
-      try {
-        commentCount = jdbcTemplate.queryForObject(queryCommentStat, Integer.class, user.getId());
-      } catch (EmptyResultDataAccessException exception) {
-      }
-
+      commentCount = getExactCommentCount(user);
       exactCommentCount = true;
     }
 
-    List<Timestamp> commentStat;
+    return new Tuple2<>(exactCommentCount, commentCount);
+  }
 
-    try {
-      commentStat = jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<List<Timestamp>>() {
-        @Override
-        public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-          return Lists.newArrayList(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-        }
-      }, user.getId());
-    } catch (EmptyResultDataAccessException exception) {
-      commentStat = null;
-    }
-
-    List<Timestamp> topicStat;
-
-    try {
-      topicStat = jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<List<Timestamp>>() {
-        @Override
-        public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-          return Lists.newArrayList(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-        }
-      }, user.getId());
-    } catch (EmptyResultDataAccessException exception) {
-      topicStat = null;
-    }
-
-    final ImmutableList.Builder<UsersSectionStatEntry> builder = ImmutableList.builder();
-    jdbcTemplate.query(queryTopicsBySectionStat, new RowCallbackHandler() {
+  public Tuple2<Timestamp, Timestamp> getFirstAndLastCommentDate(User user) {
+    return jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<Tuple2<Timestamp, Timestamp>>() {
       @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        builder.add(new UsersSectionStatEntry(resultSet.getInt("section"), resultSet.getInt("c")));
+      public Tuple2<Timestamp, Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
       }
     }, user.getId());
-    
-    return new UserStatistics(ignoreCount, commentCount,
-            exactCommentCount, commentStat.get(0), commentStat.get(1),
-        topicStat.get(0), topicStat.get(1),
-        builder.build());
+  }
+
+  public Tuple2<Timestamp, Timestamp> getFirstAndLastTopicDate(User user) {
+    return jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<Tuple2<Timestamp, Timestamp>>() {
+      @Override
+      public Tuple2<Timestamp, Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new Tuple2(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
+      }
+    }, user.getId());
+  }
+
+  public List<UsersSectionStatEntry> getSectionStats(User user) {
+    return jdbcTemplate.query(queryTopicsBySectionStat, new RowMapper<UsersSectionStatEntry>() {
+      @Override
+      public UsersSectionStatEntry mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new UsersSectionStatEntry(resultSet.getInt("section"), resultSet.getInt("c"));
+      }
+    }, user.getId());
   }
 
   /**

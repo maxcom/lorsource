@@ -15,10 +15,7 @@
 
 package ru.org.linux.user;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -27,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
@@ -56,13 +52,13 @@ public class WhoisController {
   private UserTagService userTagService;
 
   @Autowired
-  private SectionService sectionService;
-
-  @Autowired
   private TopicPermissionService topicPermissionService;
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private UserStatisticsService userStatisticsService;
 
   @Autowired
   private UserLogDao userLogDao;
@@ -104,9 +100,8 @@ public class WhoisController {
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     if (!user.isAnonymous()) {
-      UserStatistics userStat = userService.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
+      UserStats userStat = userStatisticsService.getStats(user, currentUser || tmpl.isModeratorSession());
       mv.getModel().put("userStat", userStat);
-      mv.getModel().put("sectionStat", prepareSectionStats(userStat));
       mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
       mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(user));
 
@@ -161,23 +156,6 @@ public class WhoisController {
     return mv;
   }
 
-  private ImmutableList<PreparedUsersSectionStatEntry> prepareSectionStats(UserStatistics userStat) {
-    return ImmutableList.copyOf(
-            Iterables.transform(
-                    userStat.getTopicsBySection(),
-                    new Function<UsersSectionStatEntry, PreparedUsersSectionStatEntry>() {
-                      @Override
-                      public PreparedUsersSectionStatEntry apply(UsersSectionStatEntry input) {
-                        return new PreparedUsersSectionStatEntry(
-                                sectionService.getSection(input.getSection()),
-                                input.getCount()
-                        );
-                      }
-                    }
-            )
-    );
-  }
-
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
   public ModelAndView wipe(@PathVariable String nick, ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -198,7 +176,7 @@ public class WhoisController {
     ModelAndView mv = new ModelAndView("wipe-user");
     mv.getModel().put("user", user);
 
-    mv.getModel().put("userStat", userService.getUserStatisticsClass(user, true));
+    mv.getModel().put("commentCount", userDao.getExactCommentCount(user));
 
     return mv;
   }

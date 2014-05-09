@@ -16,7 +16,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
-<%--@elvariable id="userStat" type="ru.org.linux.user.UserStatistics"--%>
+<%--@elvariable id="commentCount" type="java.lang.Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -26,7 +26,7 @@
 
 <h1>Блокировка с удалением сообщений ${user.nick}</h1>
 <p>
-  Будет удалено ${userStat.commentCount} комментариев вместе с ответами, а так же все темы пользователя
+  Будет удалено ${commentCount} комментариев вместе с ответами, а так же все темы пользователя
 </p>
 
 <p><strong>Внимание!</strong> простого способа востановить комментарии после удаления нет</p>

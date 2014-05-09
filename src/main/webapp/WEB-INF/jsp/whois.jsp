@@ -21,7 +21,7 @@
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="userpic" type="ru.org.linux.user.Userpic"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
-<%--@elvariable id="userStat" type="ru.org.linux.user.UserStatistics"--%>
+<%--@elvariable id="userStat" type="ru.org.linux.user.UserStats"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="ignored" type="java.lang.Boolean"--%>
@@ -29,7 +29,6 @@
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
 <%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
-<%--@elvariable id="sectionStat" type="java.util.List<ru.org.linux.user.PreparedUsersSectionStatEntry>"--%>
 <%--@elvariable id="userlog" type="java.util.List<ru.org.linux.user.PreparedUserLogItem>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -302,7 +301,7 @@
             <th>Число тем</th>
         </tr>
         <tbody>
-        <c:forEach items="${sectionStat}" var="i">
+        <c:forEach items="${userStat.topicsBySection}" var="i">
         <tr>
             <td>${i.section.name}</td>
             <td><a href="/people/${user.nick}/?section=${i.section.id}">${i.count}</a></td>

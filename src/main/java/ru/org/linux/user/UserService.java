@@ -44,12 +44,6 @@ public class UserService {
   @Autowired
   private SiteConfig siteConfig;
 
-  @Autowired
-  private UserDao userDao;
-
-  @Autowired
-  private IgnoreListDao ignoreListDao;
-
   public ImageParam checkUserPic(File file) throws UserErrorException, IOException, BadImageException {
     if (!file.isFile()) {
       throw new UserErrorException("Сбой загрузки изображения: не файл");
@@ -156,11 +150,5 @@ public class UserService {
     String base = siteConfig.getSecret();
 
     return StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + Long.toString(tm.getTime()) + ":reset");
-  }
-
-  public UserStatistics getUserStatisticsClass(User user, boolean exact) {
-    int ignoreCount = ignoreListDao.getIgnoreStat(user);
-
-    return userDao.getUserStatisticsClass(user, exact, ignoreCount);
   }
 }
