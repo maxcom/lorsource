@@ -47,7 +47,7 @@
     - Архив ${year}, ${l:getMonthName(month)}
   </c:if>
 </title>
-    <LINK REL="alternate" HREF="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
+    <link rel="alternate" href="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" type="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form>
   <div class=nav>

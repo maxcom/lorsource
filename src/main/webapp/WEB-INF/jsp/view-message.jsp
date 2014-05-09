@@ -64,7 +64,7 @@
 </c:if>
 
 <c:if test="${not message.expired}">
-  <LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
+  <link rel="alternate" title="Comments RSS" href="${message.link}?output=rss" type="application/rss+xml">
 </c:if>
 
 <script type="text/javascript">

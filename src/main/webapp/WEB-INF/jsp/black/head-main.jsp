@@ -15,7 +15,7 @@
   ~    limitations under the License.
   --%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body style="margin-top: 0">
 <a href="/">

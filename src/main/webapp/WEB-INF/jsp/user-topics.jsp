@@ -22,11 +22,11 @@
 	<title>${ptitle}</title>
 
 <c:if test="${rssLink != null}">
-  <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
+  <link rel="alternate" href="${rssLink}" type="application/rss+xml">
 </c:if>
 
 <c:if test="${meLink != null}">
-  <LINK REL="me" HREF="${fn:escapeXml(meLink)}">
+  <link rel="me" href="${fn:escapeXml(meLink)}">
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>

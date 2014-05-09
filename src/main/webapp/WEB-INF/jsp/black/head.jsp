@@ -15,7 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="head">
