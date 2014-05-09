@@ -22,7 +22,7 @@
     <a href="/about">О Сервере</a> -
     <a href="rules.jsp">Правила форума</a><br>
 
-  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2013<br>
+  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2014<br>
   Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
   ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
   </p>
