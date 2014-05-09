@@ -16,7 +16,7 @@ class UserStatisticsService @Autowired() (userDao: UserDao, ignoreListDao: Ignor
     val (firstTopic, lastTopic) = userDao.getFirstAndLastTopicDate(user)
 
     val topicsBySection = userDao.getSectionStats(user).map(
-      e => new PreparedUsersSectionStatEntry(sectionService.getSection(e.getSection), e.getCount)
+      e => PreparedUsersSectionStatEntry(sectionService.getSection(e.getSection), e.getCount)
     )
 
     new UserStats(
