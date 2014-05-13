@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,7 +22,7 @@
     <a href="/about">О Сервере</a> -
     <a href="rules.jsp">Правила форума</a><br>
 
-  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2013<br>
+  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2014<br>
   Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
   ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
   </p>

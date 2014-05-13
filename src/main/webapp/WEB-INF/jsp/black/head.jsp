@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,7 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="head">

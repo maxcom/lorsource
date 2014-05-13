@@ -4,7 +4,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -64,7 +64,7 @@
 </c:if>
 
 <c:if test="${not message.expired}">
-  <LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
+  <link rel="alternate" title="Comments RSS" href="${message.link}?output=rss" type="application/rss+xml">
 </c:if>
 
 <script type="text/javascript">

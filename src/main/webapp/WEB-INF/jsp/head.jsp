@@ -3,7 +3,7 @@
 <%@ page import="java.io.InputStream" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -40,10 +40,10 @@
   </c:if>
 </c:if>
 
-<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
+<link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 
 <c:if test="${template.style=='black' and template.prof.useHover}">
-  <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
+  <link rel=STYLESHEET type="text/css" href="/black/hover.css">
 </c:if>
 
 <script type="text/javascript">

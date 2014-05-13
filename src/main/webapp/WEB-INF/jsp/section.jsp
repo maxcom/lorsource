@@ -2,7 +2,7 @@
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -25,7 +25,7 @@
 %>
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
+<link rel="alternate" href="/section-rss.jsp?section=${section.id}" type="application/rss+xml">
 <meta name="format-detection" content="telephone=no">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 

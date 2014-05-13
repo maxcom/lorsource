@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -43,8 +43,8 @@
 <H1>Поиск по сайту</h1>
 <form:form method="GET" commandName="query" ACTION="search.jsp">
 
-<form:input class="input-lg" path="q" TYPE="search" SIZE="50" maxlength="250" autofocus="autofocus"/>
-  <button TYPE="submit" class="btn btn-primary">Поиск</button><BR>
+<form:input class="input-lg" path="q" type="search" size="50" maxlength="250" autofocus="autofocus"/>
+  <button type="submit" class="btn btn-primary">Поиск</button><BR>
 
   <form:hidden path="oldQ"/>
   
@@ -55,7 +55,7 @@
     <form:select path="interval" items="${intervals}"/>
   </label>
 
-    <label>Пользователь: <form:input path="user" TYPE="text" SIZE="20"/></label>
+    <label>Пользователь: <form:input path="user" type="text" size="20"/></label>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label>
 
   <form:errors element="div" cssClass="error" path="*"/>

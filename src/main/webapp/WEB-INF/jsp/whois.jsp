@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2014 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -39,7 +39,7 @@
         <link rel="me" href="${fn:escapeXml(userInfo.url)}">
     </c:if>
 </c:if>
-<LINK REL="alternate" HREF="/people/${user.nick}/?output=rss" TYPE="application/rss+xml">
+<link rel="alternate" href="/people/${user.nick}/?output=rss" type="application/rss+xml">
 
 <jsp:include page="header.jsp"/>
 
