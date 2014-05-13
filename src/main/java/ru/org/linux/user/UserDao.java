@@ -209,26 +209,6 @@ public class UserDao {
     }
   }
 
-  public Tuple2<Boolean, Integer> getCommentCount(User user, boolean exact) {
-    int commentCount = 0;
-
-    if (!exact) {
-      List<Integer> res = jdbcTemplate.queryForList("SELECT cnt FROM user_comment_counts WHERE userid=?", Integer.class, user.getId());
-
-      if (!res.isEmpty()) {
-        commentCount = (int) Math.round(res.get(0) / 1000.0) * 1000;
-      }
-    }
-
-    boolean exactCommentCount = false;
-    if (commentCount == 0) {
-      commentCount = getExactCommentCount(user);
-      exactCommentCount = true;
-    }
-
-    return new Tuple2<>(exactCommentCount, commentCount);
-  }
-
   public Tuple2<Timestamp, Timestamp> getFirstAndLastCommentDate(User user) {
     return jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<Tuple2<Timestamp, Timestamp>>() {
       @Override
@@ -242,7 +222,7 @@ public class UserDao {
     return jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<Tuple2<Timestamp, Timestamp>>() {
       @Override
       public Tuple2<Timestamp, Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Tuple2(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
+        return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
       }
     }, user.getId());
   }

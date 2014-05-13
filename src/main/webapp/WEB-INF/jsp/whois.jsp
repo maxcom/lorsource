@@ -82,7 +82,7 @@
     <b>ID:</b> ${user.id}<br>
     <b>Nick:</b> <span class="nickname">${user.nick}</span>
     <c:if test="${template.sessionAuthorized and !currentUser}">
-        <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
+        <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/>
         [<a href="/people/${user.nick}/remark/">Изменить</a>]
     </c:if>
     <br>
@@ -276,6 +276,12 @@
 </c:if>
 
 <h2>Статистика</h2>
+<c:if test="${userStat.incomplete}">
+  <div class="infoblock">
+  Внимание! Статистику пользователя не удалось полностью загрузить. Попробуйте обновить страницу позже.
+  </div>
+</c:if>
+
 <c:if test="${userStat.firstTopic != null}">
     <b>Первая созданная тема:</b> <lor:date date="${userStat.firstTopic}"/><br>
     <b>Последняя созданная тема:</b> <lor:date date="${userStat.lastTopic}"/><br>
@@ -284,9 +290,8 @@
     <b>Первый комментарий:</b> <lor:date date="${userStat.firstComment}"/><br>
     <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
 </c:if>
-<c:if test="${not user.anonymous and userStat.commentCount>0}">
-    <b>Число комментариев:</b> <c:if
-        test="${not userStat.exactCommentCount}">приблизительно </c:if> ${userStat.commentCount}
+<c:if test="${userStat.commentCount>0}">
+    <b>Число комментариев:</b> ${userStat.commentCount}
 </c:if>
 <p>
 

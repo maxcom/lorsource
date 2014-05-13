@@ -100,7 +100,7 @@ public class WhoisController {
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     if (!user.isAnonymous()) {
-      UserStats userStat = userStatisticsService.getStats(user, currentUser || tmpl.isModeratorSession());
+      UserStats userStat = userStatisticsService.getStats(user);
       mv.getModel().put("userStat", userStat);
       mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
       mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(user));
@@ -150,8 +150,6 @@ public class WhoisController {
         mv.addObject("userlog", userLogPrepareService.prepare(logItems));
       }
     }
-
-    response.setDateHeader("Expires", System.currentTimeMillis()+120000);
 
     return mv;
   }
