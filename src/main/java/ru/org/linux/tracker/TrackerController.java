@@ -51,8 +51,6 @@ public class TrackerController {
   @Autowired
   private DeleteInfoDao deleteInfoDao;
 
-  private static TrackerFilterEnum DEFAULT_FILTER = TrackerFilterEnum.ALL;
-
   @ModelAttribute("filters")
   public static List<TrackerFilterEnum> getFilter(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
@@ -68,22 +66,27 @@ public class TrackerController {
 
   @RequestMapping("/tracker.jsp")
   public View trackerOldUrl(
-          @RequestParam(value="filter", defaultValue = "all") String filterAction
+          @RequestParam(value="filter", defaultValue = "all") String filterAction,
+          HttpServletRequest request
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    TrackerFilterEnum defaultFilter = tmpl.getProf().getTrackerMode();
+
     RedirectView redirectView = new RedirectView("/tracker/");
 
     redirectView.setExposeModelAttributes(false);
 
     Optional<TrackerFilterEnum> filter = TrackerFilterEnum.getByValue(filterAction);
-    if (filter.isPresent() && filter.get()!=DEFAULT_FILTER) {
+    if (filter.isPresent() && filter.get()!=defaultFilter) {
       redirectView.setUrl("/tracker/?filter="+ URLEncoder.encode(filterAction, "UTF-8"));
     }
 
     return redirectView;
   }
 
-  private String makeTitle(TrackerFilterEnum filter) {
-    if (filter != DEFAULT_FILTER) {
+  private String makeTitle(TrackerFilterEnum filter, TrackerFilterEnum defaultFilter) {
+    if (filter != defaultFilter) {
       return "Последние сообщения ("+filter.getLabel()+")";
     } else {
       return "Последние сообщения";
@@ -92,7 +95,7 @@ public class TrackerController {
 
   @RequestMapping("/tracker")
   public ModelAndView tracker(
-      @RequestParam(value="filter", defaultValue = "all") String filterAction,
+      @RequestParam(value="filter", required = false) String filterAction,
       @RequestParam(value="offset", required = false) Integer offset,
       HttpServletRequest request
   ) throws Exception {
@@ -104,19 +107,23 @@ public class TrackerController {
       }
     }
 
-    TrackerFilterEnum trackerFilter = TrackerFilterEnum.getByValue(filterAction).or(DEFAULT_FILTER);
+    Template tmpl = Template.getTemplate(request);
+
+    TrackerFilterEnum defaultFilter = tmpl.getProf().getTrackerMode();
+
+    TrackerFilterEnum trackerFilter = TrackerFilterEnum.getByValue(filterAction).or(defaultFilter);
 
     Map<String, Object> params = new HashMap<>();
     params.put("offset", offset);
     params.put("filter", trackerFilter.getValue());
 
-    if (trackerFilter != DEFAULT_FILTER) {
+    if (trackerFilter != defaultFilter) {
       params.put("addition_query", "&amp;filter=" + trackerFilter.getValue());
     } else {
       params.put("addition_query", "");
     }
 
-    params.put("defaultFilter", DEFAULT_FILTER);
+    params.put("defaultFilter", defaultFilter);
 
     Date startDate;
 
@@ -126,7 +133,6 @@ public class TrackerController {
       startDate = DateTime.now().minusDays(1).toDate();
     }
 
-    Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getMessages();
     int topics = tmpl.getProf().getTopics();
 
@@ -134,7 +140,7 @@ public class TrackerController {
 
     User user = tmpl.getCurrentUser();
 
-    params.put("title", makeTitle(trackerFilter));
+    params.put("title", makeTitle(trackerFilter, defaultFilter));
 
     if (trackerFilter == TrackerFilterEnum.MINE && !tmpl.isSessionAuthorized()) {
       throw new UserErrorException("Not authorized");

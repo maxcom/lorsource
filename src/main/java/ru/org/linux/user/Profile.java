@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.util.ProfileHashtable;
 
 import javax.annotation.Nonnull;
@@ -39,6 +40,7 @@ public class Profile {
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
+  public static final String TRACKER_MODE = "trackerMode";
 
   private String style;
   private String formatMode;
@@ -52,6 +54,7 @@ public class Profile {
   private String avatarMode;
   private boolean showAnonymous;
   private boolean showSocial;
+  private TrackerFilterEnum trackerMode;
 
   private List<String> boxes;
 
@@ -68,6 +71,7 @@ public class Profile {
     avatarMode = p.getString(AVATAR_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
+    trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE)).or(DefaultProfile.DEFAULT_TRACKER_MODE);
 
     this.boxes = boxes;
   }
@@ -87,6 +91,7 @@ public class Profile {
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
+    p.setString(TRACKER_MODE, trackerMode.getValue());
 
     return p.getSettings();
   }
@@ -199,6 +204,14 @@ public class Profile {
     }
 
     return style;
+  }
+
+  public TrackerFilterEnum getTrackerMode() {
+    return trackerMode;
+  }
+
+  public void setTrackerMode(TrackerFilterEnum trackerMode) {
+    this.trackerMode = trackerMode;
   }
 
   @Nonnull

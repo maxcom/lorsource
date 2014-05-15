@@ -72,6 +72,24 @@ $script.ready('plugins', function() {
     </c:forEach>
   </td>
 </tr>
+
+  <tr><td colspan=2><hr></td></tr>
+  <tr>
+    <td valign=top>Фильтр трекера по-умолчанию</td>
+    <td>
+      <c:set value="${template.prof.trackerMode.value}" var="trackerMode"/>
+
+      <c:forEach var="s" items="${trackerModes}">
+        <c:if test="${s.value == trackerMode}">
+          <label><input type=radio name=trackerMode value="${s.value}" checked>${s.label}</label>
+        </c:if>
+        <c:if test="${s.value != trackerMode}">
+          <label><input type=radio name=trackerMode value="${s.value}">${s.label}</label>
+        </c:if>
+      </c:forEach>
+    </td>
+  </tr>
+
   <tr><td colspan="2"><hr></td></tr>
   <tr>
     <td valign="top">При отсутствии аватара показывать</td>

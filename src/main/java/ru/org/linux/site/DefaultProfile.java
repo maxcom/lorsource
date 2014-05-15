@@ -21,11 +21,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import ru.org.linux.tracker.TrackerFilterEnum;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static ru.org.linux.user.Profile.*;
 
@@ -56,7 +55,9 @@ public final class DefaultProfile {
     }
   };
 
-  private static final ImmutableMap<String, Object> defaultProfile = ImmutableMap.copyOf(createDefaultProfile());
+  public static final TrackerFilterEnum DEFAULT_TRACKER_MODE = TrackerFilterEnum.MAIN;
+
+  private static final ImmutableMap<String, Object> defaultProfile = createDefaultProfile();
 
   private DefaultProfile() {
   }
@@ -73,32 +74,33 @@ public final class DefaultProfile {
     return defaultProfile;
   }
 
-  private static Map<String, Object> createDefaultProfile() {
-    Map<String, Object> defaults = new HashMap<>();
+  private static ImmutableMap<String, Object> createDefaultProfile() {
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
-    defaults.put(NEWFIRST_PROPERTY, Boolean.FALSE);
-    defaults.put(HOVER_PROPERTY, Boolean.TRUE);
-    defaults.put(STYLE_PROPERTY, "tango");
-    defaults.put(FORMAT_MODE_PROPERTY, "quot");
-    defaults.put(TOPICS_PROPERTY, 30);
-    defaults.put(MESSAGES_PROPERTY, 50);
-    defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
-    defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
-    defaults.put(AVATAR_PROPERTY, "empty");
-    defaults.put(HIDE_ADSENSE_PROPERTY, true);
-    defaults.put(MAIN_GALLERY_PROPERTY, false);
-    defaults.put(SHOW_SOCIAL_PROPERTY, true);
+    builder.put(NEWFIRST_PROPERTY, Boolean.FALSE);
+    builder.put(HOVER_PROPERTY, Boolean.TRUE);
+    builder.put(STYLE_PROPERTY, "tango");
+    builder.put(FORMAT_MODE_PROPERTY, "quot");
+    builder.put(TOPICS_PROPERTY, 30);
+    builder.put(MESSAGES_PROPERTY, 50);
+    builder.put(PHOTOS_PROPERTY, Boolean.TRUE);
+    builder.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
+    builder.put(AVATAR_PROPERTY, "empty");
+    builder.put(HIDE_ADSENSE_PROPERTY, true);
+    builder.put(MAIN_GALLERY_PROPERTY, false);
+    builder.put(SHOW_SOCIAL_PROPERTY, true);
+    builder.put(TRACKER_MODE, DEFAULT_TRACKER_MODE.getValue());
 
-    defaults.put("DebugMode", Boolean.FALSE);
+    builder.put("DebugMode", Boolean.FALSE);
 
 // main page settings
     ImmutableList<String> boxes = ImmutableList.of(
       "poll", "top10", "gallery", "tagcloud", "archive", "ibm"
     );
 
-    defaults.put(BOXES_MAIN2_PROPERTY, boxes);
+    builder.put(BOXES_MAIN2_PROPERTY, boxes);
 
-    return defaults;
+    return builder.build();
   }
 
   public static Predicate<String> boxPredicate() {

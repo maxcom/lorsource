@@ -11,6 +11,7 @@ import scala.collection.JavaConverters._
 import javax.servlet.ServletRequest
 import java.util
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.tracker.TrackerFilterEnum
 
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
@@ -38,6 +39,8 @@ class EditProfileController @Autowired() (
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
+
+    params.put("trackerModes", TrackerFilterEnum.values)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
@@ -76,6 +79,7 @@ class EditProfileController @Autowired() (
     tmpl.getProf.setStyle(request.getParameter("style"))
     userDao.setStyle(tmpl.getCurrentUser, request.getParameter("style"))
     tmpl.getProf.setShowSocial("on" == request.getParameter("showSocial"))
+    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).or(DefaultProfile.DEFAULT_TRACKER_MODE))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {
