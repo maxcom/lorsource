@@ -86,6 +86,17 @@ public class ArchiveDao {
     }
   }
 
+  public int getArchiveCount(int groupid, int year, int month) {
+    List<Integer> res = jdbcTemplate.queryForList("SELECT c FROM monthly_stats WHERE groupid=? AND year=? AND month=?", Integer.class, groupid, year, month);
+
+    if (!res.isEmpty()) {
+      return res.get(0);
+    } else {
+      return 0;
+    }
+  }
+
+
   public static class ArchiveDTO implements Serializable {
     private int year;
     private int month;

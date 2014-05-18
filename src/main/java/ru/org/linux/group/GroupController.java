@@ -31,6 +31,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.topic.ArchiveDao;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
@@ -51,6 +52,9 @@ public class GroupController {
 
   @Autowired
   private GroupDao groupDao;
+
+  @Autowired
+  private ArchiveDao archiveDao;
 
   @Autowired
   private SectionService sectionService;
@@ -343,7 +347,7 @@ public class GroupController {
     }
 
     if (year != null) {
-      params.put("hasNext", offset + tmpl.getProf().getTopics() < getArchiveCount(group.getId(), year, month));
+      params.put("hasNext", offset + tmpl.getProf().getTopics() < archiveDao.getArchiveCount(group.getId(), year, month));
     } else {
       params.put("hasNext", offset<MAX_OFFSET && mainTopics.size()==tmpl.getProf().getTopics());
     }
@@ -353,16 +357,6 @@ public class GroupController {
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
     return new ModelAndView("group", params);
-  }
-
-  private int getArchiveCount(int groupid, int year, int month) {
-    List<Integer> res = jdbcTemplate.queryForList("SELECT c FROM monthly_stats WHERE groupid=? AND year=? AND month=?", Integer.class, groupid, year, month);
-
-    if (!res.isEmpty()) {
-      return res.get(0);
-    } else {
-      return 0;
-    }
   }
 
   @ExceptionHandler(GroupNotFoundException.class)
