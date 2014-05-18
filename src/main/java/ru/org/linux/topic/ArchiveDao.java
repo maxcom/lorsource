@@ -23,7 +23,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 
 import javax.sql.DataSource;
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -49,13 +48,7 @@ public class ArchiveDao {
     RowMapper<ArchiveDTO> mapper = new RowMapper<ArchiveDTO>() {
       @Override
       public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ArchiveDTO dto = new ArchiveDTO();
-        dto.setYear(rs.getInt("year"));
-        dto.setMonth(rs.getInt("month"));
-        dto.setCount(rs.getInt("c"));
-        dto.setSection(section);
-        dto.setGroup(group);
-        return dto;
+        return new ArchiveDTO(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"));
       }
     };
 
@@ -97,53 +90,39 @@ public class ArchiveDao {
   }
 
 
-  public static class ArchiveDTO implements Serializable {
-    private int year;
-    private int month;
-    private int count;
-    private Section section;
-    private Group group;
+  public static class ArchiveDTO {
+    private final int year;
+    private final int month;
+    private final int count;
+    private final Section section;
+    private final Group group;
 
-    private static final long serialVersionUID = 5862774559965251295L;
+    public ArchiveDTO(Section section, Group group, int year, int month, int count) {
+      this.year = year;
+      this.month = month;
+      this.count = count;
+      this.section = section;
+      this.group = group;
+    }
 
     public int getYear() {
       return year;
-    }
-
-    public void setYear(int year) {
-      this.year = year;
     }
 
     public int getMonth() {
       return month;
     }
 
-    public void setMonth(int month) {
-      this.month = month;
-    }
-
     public int getCount() {
       return count;
-    }
-
-    public void setCount(int count) {
-      this.count = count;
     }
 
     public Section getSection() {
       return section;
     }
 
-    public void setSection(Section section) {
-      this.section = section;
-    }
-
     public Group getGroup() {
       return group;
-    }
-
-    public void setGroup(Group group) {
-      this.group = group;
     }
 
     public String getLink() {
