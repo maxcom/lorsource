@@ -235,6 +235,10 @@ public class GroupPermissionService {
         return true;
       }
 
+      if (message.isDraft()) {
+        return true;
+      }
+
       if (author.getScore()>=EDIT_SELF_ALWAYS_SCORE) {
         return !message.isExpired();
       }
