@@ -36,47 +36,47 @@ public class ArchiveDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public List<ArchiveDTO> getArchiveDTO(Section section, Group group) {
-    return getArchiveInternal(section, group, 0);
+  public List<ArchiveStats> getArchiveStats(Section section, Group group) {
+    return getArchiveInternal(section, group);
   }
 
-  public List<ArchiveDTO> getArchiveDTO(Section section, int limit) {
-    return getArchiveInternal(section, null, limit);
+  public List<ArchiveStats> getLatestArchiveStats(Section section, int limit) {
+    return jdbcTemplate.query(
+            "select year, month, c from monthly_stats where section=? and groupid is null" +
+                    " order by year desc, month desc limit ?",
+            mapper(section, null),
+            section.getId(),
+            limit
+    );
   }
 
-  private List<ArchiveDTO> getArchiveInternal(final Section section, final Group group, int limit) {
-    RowMapper<ArchiveDTO> mapper = new RowMapper<ArchiveDTO>() {
-      @Override
-      public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new ArchiveDTO(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"));
-      }
-    };
+  private List<ArchiveStats> getArchiveInternal(final Section section, final Group group) {
+    RowMapper<ArchiveStats> mapper = mapper(section, group);
 
-    if (limit > 0) {
+    if (group == null) {
       return jdbcTemplate.query(
               "select year, month, c from monthly_stats where section=? and groupid is null" +
-                      " order by year desc, month desc limit ?",
+                      " order by year, month",
               mapper,
-              section.getId(),
-              limit
+              section.getId()
       );
     } else {
-      if (group == null) {
-        return jdbcTemplate.query(
-                "select year, month, c from monthly_stats where section=? and groupid is null" +
-                        " order by year, month",
-                mapper,
-                section.getId()
-        );
-      } else {
-        return jdbcTemplate.query(
-                "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
-                mapper,
-                section.getId(),
-                group.getId()
-        );
-      }
+      return jdbcTemplate.query(
+              "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
+              mapper,
+              section.getId(),
+              group.getId()
+      );
     }
+  }
+
+  private RowMapper<ArchiveStats> mapper(final Section section, final Group group) {
+    return new RowMapper<ArchiveStats>() {
+        @Override
+        public ArchiveStats mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return new ArchiveStats(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"));
+        }
+      };
   }
 
   public int getArchiveCount(int groupid, int year, int month) {
@@ -89,14 +89,14 @@ public class ArchiveDao {
     }
   }
 
-  public static class ArchiveDTO {
+  public static class ArchiveStats {
     private final int year;
     private final int month;
     private final int count;
     private final Section section;
     private final Group group;
 
-    public ArchiveDTO(Section section, Group group, int year, int month, int count) {
+    public ArchiveStats(Section section, Group group, int year, int month, int count) {
       this.year = year;
       this.month = month;
       this.count = count;

@@ -23,7 +23,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.topic.ArchiveDao;
-import ru.org.linux.topic.ArchiveDao.ArchiveDTO;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +52,7 @@ public class ArchiveBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    List<ArchiveDTO> list = archiveDao.getArchiveDTO(sectionNews, 13);
+    List<ArchiveDao.ArchiveStats> list = archiveDao.getLatestArchiveStats(sectionNews, 13);
 
     return new ModelAndView("boxlets/archive", "items", list);
   }
