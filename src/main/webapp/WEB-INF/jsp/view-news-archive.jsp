@@ -19,7 +19,7 @@
 
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
-<%--@elvariable id="items" type="ru.org.linux.topic.ArchiveDao.ArchiveDTO"--%>
+<%--@elvariable id="items" type="java.util.List<ru.org.linux.topic.ArchiveDao.ArchiveDTO>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>

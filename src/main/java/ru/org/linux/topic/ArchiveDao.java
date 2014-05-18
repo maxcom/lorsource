@@ -89,7 +89,6 @@ public class ArchiveDao {
     }
   }
 
-
   public static class ArchiveDTO {
     private final int year;
     private final int month;
@@ -115,14 +114,6 @@ public class ArchiveDao {
 
     public int getCount() {
       return count;
-    }
-
-    public Section getSection() {
-      return section;
-    }
-
-    public Group getGroup() {
-      return group;
     }
 
     public String getLink() {
