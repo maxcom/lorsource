@@ -107,7 +107,7 @@ public class SearchQueueListener {
               .prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(msg.getId()))
               .execute()
               .actionGet();
-      //logger.info("Deleting message "+msgid+" from solr");      
+      //logger.info("Deleting message "+msgid);
     }
 
     if (withComments) {
@@ -160,7 +160,7 @@ public class SearchQueueListener {
       Comment comment = commentService.getById(msgid);
 
       if (comment.isDeleted()) {
-        logger.info("Deleting comment " + comment.getId() + " from solr");
+        logger.info("Deleting comment " + comment.getId());
         bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       } else {
         // комментарии могут быть из разного топика в функция массового удаления
