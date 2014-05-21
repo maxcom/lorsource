@@ -124,6 +124,8 @@ public class SearchQueueListener {
           for (Comment comment : comments) {
             bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
           }
+
+          executeBulk(bulkRequest);
         }
       }
     }
