@@ -212,7 +212,7 @@ public class TopicController {
       }
     }
 
-    if (page == -1 && !tmpl.isSessionAuthorized()) {
+    if (page == -1 && !showDeleted) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
