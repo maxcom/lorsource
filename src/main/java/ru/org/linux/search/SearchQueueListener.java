@@ -97,26 +97,35 @@ public class SearchQueueListener {
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
   }
 
+  private boolean isTopicVisible(Topic msg) {
+    Section section = sectionService.getSection(msg.getSectionId());
+
+    if (section.isPremoderated() && !msg.isCommited()) {
+      return false;
+    }
+
+    return !msg.isDeleted() && !msg.isDraft();
+  }
+
   private void reindexMessage(int msgid, boolean withComments) throws MessageNotFoundException {
     Topic msg = topicDao.getById(msgid);
 
-    if (!msg.isDeleted() && !msg.isDraft()) {
+    if (isTopicVisible(msg)) {
       updateMessage(msg);
+
+      if (withComments) {
+        CommentList commentList = commentService.getCommentList(msg, true);
+
+        reindexComments(msg, commentList);
+      }
     } else {
       client
               .prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(msg.getId()))
               .execute()
               .actionGet();
-      //logger.info("Deleting message "+msgid);
-    }
 
-    if (withComments) {
-      CommentList commentList = commentService.getCommentList(msg, true);
-
-      if (!msg.isDeleted()) {
-        reindexComments(msg, commentList);
-      } else {
-        ImmutableList<Comment> comments = commentList.getList();
+      if (withComments) {
+        ImmutableList<Comment> comments = commentService.getCommentList(msg, true).getList();
 
         if (!comments.isEmpty()) {
           BulkRequestBuilder bulkRequest = client.prepareBulk();
@@ -159,14 +168,15 @@ public class SearchQueueListener {
 
       Comment comment = commentService.getById(msgid);
 
-      if (comment.isDeleted()) {
+      // комментарии могут быть из разного топика в функция массового удаления
+      // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
+      // комментарии из одного топика
+      Topic topic = topicDao.getById(comment.getTopicId());
+
+      if (!isTopicVisible(topic) || comment.isDeleted()) {
         logger.info("Deleting comment " + comment.getId());
         bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       } else {
-        // комментарии могут быть из разного топика в функция массового удаления
-        // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
-        // комментарии из одного топика
-        Topic topic = topicDao.getById(comment.getTopicId());
         String message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId()));
         bulkRequest.add(processComment(topic, comment, message));
       }
@@ -187,7 +197,7 @@ public class SearchQueueListener {
     long startTime = System.nanoTime();
 
     List<Integer> topicIds = topicDao.getMessageForMonth(year, month);
-    for(int topicId : topicIds) {
+    for (int topicId : topicIds) {
       reindexMessage(topicId, true);
     }
 

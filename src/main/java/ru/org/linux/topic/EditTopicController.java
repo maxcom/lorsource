@@ -439,7 +439,7 @@ public class EditTopicController {
 
       if (changed || commit || publish) {
         if (!newMsg.isDraft()) {
-          searchQueueSender.updateMessageOnly(newMsg.getId());
+          searchQueueSender.updateMessage(newMsg.getId(), commit || publish);
         }
 
         if (commit) {
