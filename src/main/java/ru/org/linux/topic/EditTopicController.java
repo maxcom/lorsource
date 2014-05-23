@@ -465,7 +465,7 @@ public class EditTopicController {
             "newPreparedMessage",
             prepareService.prepareTopicPreview(
                     newMsg,
-                    TagService.namesToRefs(newTags),
+                    newTags!=null?TagService.namesToRefs(newTags):null,
                     newPoll,
                     request.isSecure(),
                     newText,
