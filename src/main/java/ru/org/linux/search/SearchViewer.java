@@ -30,8 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
 
-import static org.elasticsearch.index.query.FilterBuilders.rangeFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class SearchViewer {
@@ -186,33 +185,37 @@ public class SearchViewer {
     request.setSize(SEARCH_ROWS);
     request.setFrom(this.query.getOffset());
 
-    BoolQueryBuilder rootQuery = boolQuery();
-
-    rootQuery.must(esQuery);
+    BoolFilterBuilder queryFilter = boolFilter();
 
     if (this.query.getRange().getValue()!=null) {
-      rootQuery.must(termQuery(query.getRange().getColumn(), query.getRange().getValue()));
+      queryFilter.must(termFilter(query.getRange().getColumn(), query.getRange().getValue()));
     }
 
     if (this.query.getInterval().getRange()!=null) {
-      RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(query.getInterval().getColumn());
+      RangeFilterBuilder dateFilter = rangeFilter(query.getInterval().getColumn());
 
-      rangeQuery.from(this.query.getInterval().getRange());
+      dateFilter.from(this.query.getInterval().getRange());
 
-      rootQuery.must(rangeQuery);
+      queryFilter.must(dateFilter);
     }
 
     if (this.query.getUser() != null) {
       User user = this.query.getUser();
 
       if (this.query.isUsertopic()) {
-        rootQuery.must(termQuery("topic_author", user.getNick()));
+        queryFilter.must(termFilter("topic_author", user.getNick()));
       } else {
-        rootQuery.must(termQuery("author", user.getNick()));
+        queryFilter.must(termFilter("author", user.getNick()));
       }
     }
 
-    request.setQuery(boost(rootQuery));
+    if (!queryFilter.hasClauses()) {
+      request.setQuery(boost(esQuery));
+    } else {
+      QueryBuilder rootQuery = filteredQuery(esQuery, queryFilter);
+
+      request.setQuery(boost(rootQuery));
+    }
 
     String section = this.query.getSection();
 
