@@ -68,10 +68,10 @@ public class SearchViewer {
   }
 
   public enum SearchInterval {
-    MONTH("now-1M", "месяц"),
-    THREE_MONTH("now-3M", "три месяца"),
-    YEAR("now-1y", "год"),
-    THREE_YEAR("now-3y", "три года"),
+    MONTH("now/h-1M", "месяц"),
+    THREE_MONTH("now/d-3M", "три месяца"),
+    YEAR("now/d-1y", "год"),
+    THREE_YEAR("now/w-3y", "три года"),
     ALL(null, "весь период");
 
     private final String range;
