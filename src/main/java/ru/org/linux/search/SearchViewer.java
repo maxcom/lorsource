@@ -15,6 +15,7 @@
 
 package ru.org.linux.search;
 
+import com.google.common.base.Strings;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -29,6 +30,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -218,24 +222,28 @@ public class SearchViewer {
     }
 
     String section = this.query.getSection();
+    List<FilterBuilder> postFilters = new ArrayList<>();
 
-    if (section != null && !section.isEmpty()) {
-      request.setPostFilter(termFilter("section", this.query.getSection()));
+    if (!Strings.isNullOrEmpty(section)) {
+      postFilters.add(termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
 
     TermsFacetBuilder groupFacet = FacetBuilders.termsFacet("groups").field("group");
 
-    if (section != null && !section.isEmpty()) {
+    if (!Strings.isNullOrEmpty(section)) {
       groupFacet.facetFilter(termFilter("section", this.query.getSection()));
     }
 
     request.addFacet(groupFacet);
 
     if (this.query.getGroup()!=null) {
-      // overrides section filter!
-      request.setPostFilter(termFilter("group", this.query.getGroup()));
+      postFilters.add(termFilter("group", this.query.getGroup()));
+    }
+
+    if (!postFilters.isEmpty()) {
+      request.setPostFilter(andFilters(postFilters));
     }
 
     request.addSort(query.getSort().getColumn(), query.getSort().order);
@@ -244,6 +252,20 @@ public class SearchViewer {
 
     // TODO use Async
     return request.execute().actionGet();
+  }
+
+  private FilterBuilder andFilters(List<FilterBuilder> filters) {
+    if (filters.size()==1) {
+      return filters.get(0);
+    } else {
+      BoolFilterBuilder postRoot = boolFilter();
+
+      for (FilterBuilder filter : filters) {
+        postRoot.must(filter);
+      }
+
+      return postRoot;
+    }
   }
 
   private void setupHighlight(SearchRequestBuilder request) {
