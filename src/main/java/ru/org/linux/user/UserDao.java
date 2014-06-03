@@ -70,7 +70,6 @@ public class UserDao {
   private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
-  private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
   private static final String queryTopicsBySectionStat =
             "SELECT groups.section, count(*) as c " +
@@ -214,24 +213,6 @@ public class UserDao {
       @Override
       public Tuple2<Timestamp, Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
         return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-      }
-    }, user.getId());
-  }
-
-  public Tuple2<Timestamp, Timestamp> getFirstAndLastTopicDate(User user) {
-    return jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<Tuple2<Timestamp, Timestamp>>() {
-      @Override
-      public Tuple2<Timestamp, Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-      }
-    }, user.getId());
-  }
-
-  public List<UsersSectionStatEntry> getSectionStats(User user) {
-    return jdbcTemplate.query(queryTopicsBySectionStat, new RowMapper<UsersSectionStatEntry>() {
-      @Override
-      public UsersSectionStatEntry mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new UsersSectionStatEntry(resultSet.getInt("section"), resultSet.getInt("c"));
       }
     }, user.getId());
   }
