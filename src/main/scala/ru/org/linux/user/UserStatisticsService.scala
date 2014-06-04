@@ -22,10 +22,10 @@ import org.joda.time.DateTime
 import QueryBuilders._
 import FilterBuilders._
 import org.elasticsearch.search.aggregations.AggregationBuilders._
-import org.elasticsearch.search.aggregations.metrics.min.Min
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import scala.util.{Try, Success, Failure}
 import java.util.Date
+import org.elasticsearch.search.aggregations.metrics.stats.Stats
 
 @Service
 class UserStatisticsService @Autowired() (
@@ -100,33 +100,33 @@ class UserStatisticsService @Autowired() (
 
     val root = filteredQuery(matchAllQuery(), filter)
 
-    val firstTopicAgg = min("first_topic").field("postdate")
-    val lastTopicAgg = max("last_topic").field("postdate")
-    val statsAgg = terms("sections").field("section")
+    val topicStatsAgg = stats("topic_stats").field("postdate")
+    val sectionsAgg = terms("sections").field("section")
 
     try {
       elastic
         .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
         .setSearchType(SearchType.COUNT)
         .setQuery(root)
-        .addAggregation(firstTopicAgg)
-        .addAggregation(lastTopicAgg)
-        .addAggregation(statsAgg)
+        .addAggregation(topicStatsAgg)
+        .addAggregation(sectionsAgg)
         .setTimeout(TimeValue.timeValueMillis(ElasticTimeout.toMillis))
         .scalaExecute(failOnTimeout = true)
         .map { response =>
-          val firstTopicResult:Min = response.getAggregations.get("first_topic")
-          val lastTopicResult:Min = response.getAggregations.get("first_topic")
+          val topicStatsResult:Stats = response.getAggregations.get("topic_stats")
           val sectionsResult:Terms = response.getAggregations.get("sections")
 
-          val firstTopic = new DateTime(firstTopicResult.getValue.toLong)
-          val lastTopic = new DateTime(lastTopicResult.getValue.toLong)
+          val (firstTopic, lastTopic) = if (topicStatsResult.getCount>0) {
+            (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
+          } else {
+            (None, None)
+          }
 
           val sections = sectionsResult.getBuckets.map { bucket =>
             (bucket.getKeyAsText.string(), bucket.getDocCount)
           }.toSeq
 
-          TopicStats(Some(firstTopic), Some(lastTopic), sections)
+          TopicStats(firstTopic, lastTopic, sections)
         }
     } catch {
       case ex:ElasticsearchException => Future.failed(ex)
