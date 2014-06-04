@@ -58,7 +58,7 @@ class UserStatisticsService @Autowired() (
 
     val topicsBySection = topicStat.map(_.sectionCount).getOrElse(Seq()).map(
       e => PreparedUsersSectionStatEntry(sectionService.getSectionByName(e._1), e._2)
-    )
+    ).sortBy(_.section.getId)
 
     new UserStats(
       ignoreCount,
