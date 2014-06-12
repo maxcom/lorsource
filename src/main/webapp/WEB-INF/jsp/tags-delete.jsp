@@ -15,7 +15,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Удаление метки</title>
@@ -62,6 +62,7 @@
   <c:param name="firstLetter" value="${firstLetter}"/>
 </c:url>
  <form:form modelAttribute="tagRequestDelete" method="POST" action="${delete_url}" enctype="multipart/form-data" >
+  <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
   <label for="tagName">Метка. которой нужно заменить удаляемую (пусто - удалить без замены):</label>

@@ -14,6 +14,7 @@
   --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -31,6 +32,7 @@
   <c:param name="firstLetter" value="${firstLetter}"/>
 </c:url>
 <form:form modelAttribute="tagRequestChange" method="POST" action="${change_url}" enctype="multipart/form-data" >
+  <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
   Старое название: ${tagRequestChange.oldTagName}<br />

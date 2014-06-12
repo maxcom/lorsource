@@ -29,6 +29,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <title>Добавить сообщение</title>
 <script type="text/javascript">
@@ -93,8 +94,8 @@
 </p>
 </c:if>
 
-
 <form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}" >
+  <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
 
   <form:hidden path="noinfo"/>

@@ -69,6 +69,7 @@
 </c:if>
 
 <form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm">
+  <lor:csrf/>
   <form:errors cssClass="error" path="*" element="div"/>
 
   <input type="hidden" name="msgid" value="${message.id}">

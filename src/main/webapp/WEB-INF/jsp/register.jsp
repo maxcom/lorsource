@@ -43,6 +43,7 @@
 <a href="../../lostpwd.jsp">сюда</a>.
 
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
+    <lor:csrf/>
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label for="nick">Login</label></dt>

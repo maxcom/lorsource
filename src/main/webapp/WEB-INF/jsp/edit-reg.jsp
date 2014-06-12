@@ -49,6 +49,7 @@ $script.ready("plugins", function() {
 </div>
 
 <form:form modelAttribute="form" method="POST" action="/people/${form.nick}/edit" id="editRegForm">
+    <lor:csrf/>
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label for="name">Полное имя</label></dt>

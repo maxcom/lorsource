@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page
-        import="ru.org.linux.comment.PreparedComment" %>
+<%@ page import="ru.org.linux.comment.PreparedComment" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
