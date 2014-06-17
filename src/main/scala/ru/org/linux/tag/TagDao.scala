@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import javax.sql.DataSource
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.collection.JavaConversions._
 import java.sql.ResultSet
 
@@ -13,7 +13,7 @@ import TagDao._
 import org.springframework.dao.EmptyResultDataAccessException
 
 @Repository
-class TagDao @Autowired() (ds:DataSource) extends Logging {
+class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val simpleJdbcInsert =
     new SimpleJdbcInsert(ds).withTableName("tags_values").usingColumns("value").usingGeneratedKeyColumns("id")

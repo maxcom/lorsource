@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.joda.time.format.ISODateTimeFormat
 import ru.org.linux.util.URLUtil._
 import org.springframework.web.util.UriComponentsBuilder
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import ru.org.linux.tag.{TagService, TagRef}
 import scala.collection.JavaConversions._
 import org.joda.time.DateTime
@@ -28,7 +28,7 @@ case class SearchItem (
 @Service
 class SearchResultsService @Autowired() (
   userDao:UserDao
-) extends Logging {
+) extends StrictLogging {
   import SearchResultsService._
 
   def prepare(doc:SearchHit):SearchItem = {

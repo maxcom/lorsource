@@ -16,7 +16,7 @@ import scala.concurrent.duration._
 import UserStatisticsService._
 import org.elasticsearch.common.unit.TimeValue
 import org.elasticsearch.ElasticsearchException
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.joda.time.DateTime
 import QueryBuilders._
@@ -33,7 +33,7 @@ class UserStatisticsService @Autowired() (
   ignoreListDao: IgnoreListDao,
   sectionService: SectionService,
   elastic: Client
-) extends Logging {
+) extends StrictLogging {
   def getStats(user:User) : UserStats = {
     val commentCountFuture = countComments(user)
     val topicsFuture = topicStats(user)

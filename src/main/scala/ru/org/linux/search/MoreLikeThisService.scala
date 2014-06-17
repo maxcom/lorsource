@@ -7,7 +7,7 @@ import ru.org.linux.topic.Topic
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.elasticsearch.index.query.QueryBuilders._
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.elasticsearch.index.query.FilterBuilders._
 import ru.org.linux.tag.TagRef
 import scala.beans.BeanProperty
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 class MoreLikeThisService @Autowired() (
   client:Client,
   sectionService:SectionService
-) extends Logging {
+) extends StrictLogging {
   import MoreLikeThisService._
 
   type Result = java.util.List[java.util.List[MoreLikeThisTopic]]

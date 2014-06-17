@@ -1,7 +1,7 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import ru.org.linux.tag._
 import org.springframework.scala.transaction.support.TransactionManagement
@@ -18,7 +18,7 @@ class TopicTagService @Autowired() (
                                      val transactionManager:PlatformTransactionManager,
                                      tagService:TagModificationService,
                                      topicTagDao:TopicTagDao
-  ) extends Logging with TransactionManagement {
+  ) extends StrictLogging with TransactionManagement {
 
   tagService.getActionHandlers.add(new ITagActionHandler() {
     override def replaceTag(oldTagId: Int, newTagId: Int, newTagName: String):Unit = {

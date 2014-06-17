@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.elasticsearch.client.Client
 import org.apache.commons.io.IOUtils
 import javax.annotation.PostConstruct
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.index.IndexResponse
@@ -26,7 +26,7 @@ object Perf4jHandlerInterceptor {
   private val PERF_TYPE = "metric"
 }
 
-class Perf4jHandlerInterceptor @Autowired() (elastic:Client) extends HandlerInterceptorAdapter with Logging {
+class Perf4jHandlerInterceptor @Autowired() (elastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
   @PostConstruct
   def createIndex {
     try {
