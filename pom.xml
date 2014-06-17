@@ -39,12 +39,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.scala</groupId>
-      <artifactId>spring-scala_2.10</artifactId>
-      <version>1.0.0.RC1</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.typesafe</groupId>
       <artifactId>scalalogging-slf4j_2.10</artifactId>
       <version>1.1.0</version>
