@@ -25,9 +25,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class Screenshot {
-  public static final int MAX_SCREENSHOT_FILESIZE = 1500000;
+  public static final int MAX_SCREENSHOT_FILESIZE = 2*1024*1024;
   public static final int MIN_SCREENSHOT_SIZE = 400;
-  public static final int MAX_SCREENSHOT_SIZE = 3000;
+  public static final int MAX_SCREENSHOT_SIZE = 4000;
 
   private final File mainFile;
   private final File mediumFile;
