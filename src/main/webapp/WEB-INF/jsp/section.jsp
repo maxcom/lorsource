@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2014 Linux.org.ru
@@ -19,10 +18,6 @@
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<%
-  response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
-  response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
-%>
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <link rel="alternate" href="/section-rss.jsp?section=${section.id}" type="application/rss+xml">
