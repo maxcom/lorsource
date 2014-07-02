@@ -37,7 +37,6 @@ public class Group implements Serializable {
   private final int restrictComments;
   private final int id;
 
-  private final int stat1;
   private final int stat3;
 
   private String info;
@@ -47,7 +46,7 @@ public class Group implements Serializable {
 
   public Group(boolean moderate, boolean votepoll, boolean havelink, int section,
                String linktext, String urlName, String image, int restrictTopics, int restrictComments,
-               int id, int stat1, int stat3, boolean resolvable) {
+               int id, int stat3, boolean resolvable) {
     this.moderate = moderate;
     this.votepoll = votepoll;
     this.havelink = havelink;
@@ -58,7 +57,6 @@ public class Group implements Serializable {
     this.restrictTopics = restrictTopics;
     this.restrictComments = restrictComments;
     this.id = id;
-    this.stat1 = stat1;
     this.stat3 = stat3;
     this.resolvable = resolvable;
   }
@@ -80,7 +78,6 @@ public class Group implements Serializable {
       restrict_topics,
       rs.getInt("restrict_comments"),
       rs.getInt("id"),
-      rs.getInt("stat1"),
       rs.getInt("stat3"),
       rs.getBoolean("resolvable")
     );
@@ -130,10 +127,6 @@ public class Group implements Serializable {
 
   public int getId() {
     return id;
-  }
-
-  public int getStat1() {
-    return stat1;
   }
 
   public int getStat3() {
