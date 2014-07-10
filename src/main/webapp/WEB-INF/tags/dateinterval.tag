@@ -39,7 +39,7 @@
     } else if (min%10==1 && min>20 ) {
         out.print(min +"&nbsp;минута назад");
     } else {
-      out.print(min +"&nbsp;минут");
+      out.print(min +"&nbsp;минут назад");
     }
   } else if (c.after(today)) {
     out.print("сегодня " + DateFormats.time().print(date.getTime()));
