@@ -264,8 +264,8 @@ public class TopicListService {
     return topicListDao.getTopics(topicListDto);
   }
 
-  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId) {
-    return topicListDao.getDeletedTopics(sectionId);
+  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
+    return topicListDao.getDeletedTopics(sectionId, skipEmptyReason);
   }
 
   public List<Topic> getMainPageFeed(boolean isShowGalleryOnMain) {
