@@ -86,7 +86,7 @@ public class UncommitedTopicsController {
             )
     );
 
-    List<TopicListDto.DeletedTopic> deleted = topicListService.getDeletedTopicsFeed(sectionId);
+    List<TopicListDto.DeletedTopic> deleted = topicListService.getDeletedTopics(sectionId);
 
     modelAndView.addObject("deletedTopics", deleted);
     modelAndView.addObject("sections", sectionService.getSectionList());

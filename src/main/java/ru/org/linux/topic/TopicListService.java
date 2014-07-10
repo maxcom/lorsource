@@ -264,18 +264,7 @@ public class TopicListService {
     return topicListDao.getTopics(topicListDto);
   }
 
-  /**
-   * @param sectionId
-   * @return
-   */
-  public List<TopicListDto.DeletedTopic> getDeletedTopicsFeed(Integer sectionId) {
-    logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getDeletedTopicsFeed()")
-        .append("; sectionId=").append(sectionId)
-        .toString()
-    );
-
+  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId) {
     return topicListDao.getDeletedTopics(sectionId);
   }
 

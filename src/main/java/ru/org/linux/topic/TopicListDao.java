@@ -85,7 +85,16 @@ public class TopicListDao {
     );
   }
 
-  public List<TopicListDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
+  /**
+   * Возвращает удаленные темы в премодерируемом разделе.
+   *
+   * Темы, удаленные с пустым комментарием пропускаются.
+   * Темы, удаленные автором пропускаются.
+   *
+   * @param sectionId номер раздела или 0 для всех премодерируемых
+   * @return список удаленных тем
+   */
+  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId) {
     StringBuilder query = new StringBuilder();
     List <Object> queryParameters = new ArrayList<>();
 
@@ -97,11 +106,14 @@ public class TopicListDao {
       .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
       .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
+      .append("AND reason!='' ")
       .append("AND delDate is not null ");
-    if (sectionId != null && sectionId != 0) {
+
+    if (sectionId != 0) {
       query.append(" AND section=? ");
       queryParameters.add(sectionId);
     }
+
     query.append(" ORDER BY del_info.delDate DESC LIMIT 20");
 
     return jdbcTemplate.query(
