@@ -87,16 +87,26 @@
 <div class=forum>
 <table class="message-table" width="100%">
 <thead>
-<tr><th class="hideon-tablet">Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
+<tr>
+  <th>Заголовок</th>
+  <th>Причина удаления</th>
+  <c:if test="${template.moderatorSession}">
+    <th>Дата</th>
+  </c:if>
+</tr>
 <tbody>
 
 <c:forEach items="${deletedTopics}" var="topic">
 
 <tr>
-  <td class="hideon-tablet"><a href="group.jsp?group=${topic.groupId}">${topic.gtitle}</a></td>
-  <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick}<span class="hideon-desktop"> в </span><%--
-                  --%><span class="hideon-desktop"><a href="group.jsp?group=${topic.groupId}">${topic.gtitle}</a></span>)</td>
+  <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
   <td>${topic.reason}</td>
+  <c:if test="${template.moderatorSession}">
+    <td>
+      написано <lor:dateinterval date="${topic.postdate}"/><br>
+      удалено <lor:dateinterval date="${topic.delDate}"/>
+    </td>
+  </c:if>
 </tr>
 </c:forEach>
 </table>

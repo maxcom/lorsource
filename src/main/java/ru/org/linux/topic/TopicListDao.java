@@ -34,7 +34,12 @@ import java.util.List;
 public class TopicListDao {
   private static final Logger logger = LoggerFactory.getLogger(TopicListDao.class);
 
-  private static final RowMapper<TopicListDto.DeletedTopic> rowMapperForDeletedTopics = getRowMapperForDeletedTopics();
+  private static final RowMapper<TopicListDto.DeletedTopic> rowMapperForDeletedTopics = new RowMapper<TopicListDto.DeletedTopic>() {
+    @Override
+    public TopicListDto.DeletedTopic mapRow(ResultSet rs, int rowNum) throws SQLException {
+      return new TopicListDto.DeletedTopic(rs);
+    }
+  };
 
   private JdbcTemplate jdbcTemplate;
 
@@ -100,8 +105,8 @@ public class TopicListDao {
 
     query
       .append("SELECT ")
-      .append("topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, ")
-      .append("groups.id as guid, sections.name as ptitle, reason ")
+      .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
+      .append("reason, topics.postdate, del_info.delDate ")
       .append("FROM topics,groups,users,sections,del_info ")
       .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
@@ -126,10 +131,6 @@ public class TopicListDao {
     );
   }
 
-  /**
-   *
-   * @return
-   */
   private static RowMapper<TopicListDto.DeletedTopic> getRowMapperForDeletedTopics() {
     return new RowMapper<TopicListDto.DeletedTopic>() {
       @Override

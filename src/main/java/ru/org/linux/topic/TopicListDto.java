@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class TopicListDto {
@@ -199,20 +200,18 @@ public class TopicListDto {
   public static class DeletedTopic {
     private final String nick;
     private final int id;
-    private final int groupId;
-    private final String ptitle;
-    private final String gtitle;
     private final String title;
     private final String reason;
+    private final Timestamp postdate;
+    private final Timestamp delDate;
 
     public DeletedTopic(ResultSet rs) throws SQLException {
       nick = rs.getString("nick");
       id = rs.getInt("msgid");
-      groupId = rs.getInt("guid");
-      ptitle = rs.getString("ptitle");
-      gtitle = rs.getString("gtitle");
       title = rs.getString("subj");
       reason = rs.getString("reason");
+      postdate = rs.getTimestamp("postdate");
+      delDate = rs.getTimestamp("delDate");
     }
 
     public String getNick() {
@@ -223,24 +222,20 @@ public class TopicListDto {
       return id;
     }
 
-    public int getGroupId() {
-      return groupId;
-    }
-
-    public String getPtitle() {
-      return ptitle;
-    }
-
-    public String getGtitle() {
-      return gtitle;
-    }
-
     public String getTitle() {
       return title;
     }
 
     public String getReason() {
       return reason;
+    }
+
+    public Timestamp getPostdate() {
+      return postdate;
+    }
+
+    public Timestamp getDelDate() {
+      return delDate;
     }
   }
 }
