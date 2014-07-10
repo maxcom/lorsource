@@ -35,9 +35,9 @@
     long min = diff / (1000 * 60);
 
     if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +"&nbsp;минуты");
+      out.print(min +"&nbsp;минуты назад");
     } else if (min%10==1 && min>20 ) {
-        out.print(min +"&nbsp;минута");
+        out.print(min +"&nbsp;минута назад");
     } else {
       out.print(min +"&nbsp;минут");
     }
