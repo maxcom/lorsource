@@ -81,4 +81,26 @@
         </sql>
     </changeSet>
 
+    <changeSet id="2014072405" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION public.msgdel()
+                RETURNS trigger
+                LANGUAGE plpgsql
+            AS $function$
+            DECLARE
+                    grid int;
+                    thetopic topics%ROWTYPE;
+            BEGIN
+                    SELECT * INTO thetopic FROM topics WHERE id = NEW.msgid;
+                    IF FOUND THEN
+                            SELECT groupid INTO grid FROM topics WHERE id = NEW.msgid;
+                            UPDATE topics SET lastmod=CURRENT_TIMESTAMP WHERE id = NEW.msgid;
+                            UPDATE comments SET topic_deleted=true WHERE topic = NEW.msgid;
+                    END IF;
+                    RETURN NULL;
+            END;
+            $function$
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
