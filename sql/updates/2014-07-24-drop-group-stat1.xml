@@ -47,7 +47,7 @@
       <dropColumn tableName="groups" columnName="stat1"/>
     </changeSet>
 
-      <changeSet id="2014072403" author="Maxim Valyanskiy">
+    <changeSet id="2014072403" author="Maxim Valyanskiy">
         <sql splitStatements="false">
           CREATE OR REPLACE FUNCTION public.comins()
               RETURNS trigger
@@ -60,6 +60,22 @@
                                 UPDATE topics SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1,lastmod=CURRENT_TIMESTAMP WHERE topics.id = NEW.topic;
                                 UPDATE groups SET stat3=stat3+1 WHERE id = cgroup;
                                 RETURN NULL;
+                        END;
+                        $function$
+        </sql>
+    </changeSet>
+
+    <changeSet id="2014072404" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION public.topins()
+                RETURNS trigger
+                LANGUAGE plpgsql
+            AS $function$
+                        BEGIN
+                            UPDATE groups SET stat3=stat3+1 WHERE groups.id = NEW.groupid;
+                            UPDATE topics SET lastmod=CURRENT_TIMESTAMP WHERE id = NEW.id;
+                            INSERT INTO memories (userid, topic) VALUES (NEW.userid, NEW.id);
+                            RETURN NULL;
                         END;
                         $function$
         </sql>
