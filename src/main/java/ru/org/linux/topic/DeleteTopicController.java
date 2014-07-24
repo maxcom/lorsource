@@ -89,6 +89,7 @@ public class DeleteTopicController {
     params.put("author", userDao.getUser(msg.getUid()));
     params.put("msgid", msgid);
     params.put("draft", msg.isDraft());
+    params.put("uncommited", section.isPremoderated() && !msg.isCommited());
 
     return new ModelAndView("delete", params);
   }

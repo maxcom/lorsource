@@ -20,6 +20,7 @@
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
 <%--@elvariable id="author" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="draft" type="java.lang.Boolean"--%>
+<%--@elvariable id="uncommited" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -76,7 +77,10 @@ function change(dest,source)
         </select><br>
       </c:if>
 
-      <input id="reason-input" type=text name=reason>
+      <input id="reason-input" type=text name=reason><br>
+      <c:if test="${uncommited and template.moderatorSession}">
+        Сообщения, удаленные с пустой причиной не буду показаны в списке удаленных внизу страницы неподтвержденных.
+      </c:if>
     </div>
   </div>
 
