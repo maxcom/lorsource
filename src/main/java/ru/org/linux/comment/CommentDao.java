@@ -168,9 +168,6 @@ public class CommentDao {
     jdbcTemplate.update("UPDATE topics SET stat2=stat1 WHERE id=? AND stat2 > stat1", topicId);
     jdbcTemplate.update("UPDATE topics SET stat3=stat1 WHERE id=? AND stat3 > stat1", topicId);
     jdbcTemplate.update("UPDATE topics SET stat4=stat1 WHERE id=? AND stat4 > stat1", topicId);
-
-    int groupId = jdbcTemplate.queryForObject("SELECT groupid FROM topics WHERE id = ?", Integer.class, topicId);
-    jdbcTemplate.update("UPDATE groups SET stat1=stat1-? WHERE id = ?", count, groupId);
   }
 
   /**
