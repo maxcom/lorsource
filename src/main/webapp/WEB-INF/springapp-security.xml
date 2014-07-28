@@ -32,6 +32,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http pattern="/tango/**" security="none"/>
     <http pattern="/waltz/**" security="none"/>
     <http pattern="/white/**" security="none"/>
+    <http pattern="/zomg_ponies/**" security="none"/>
     <http pattern="/white2/**" security="none"/>
     <http pattern="/black/**" security="none"/>
     <http pattern="/adv/**" security="none"/>
