@@ -25,21 +25,43 @@
 <h1>Активация</h1>
 
 <c:if test="${not template.sessionAuthorized}">
-  <form method=POST action="/activate.jsp" id="activateForm">
+  <form method=POST action="/activate.jsp" id="activateForm" class="form-horizontal">
     <lor:csrf/>
-    <dl>
-      <dt><label>Login:</label></dt>
-      <dd><input type="text" name="nick" /></dd>
-    </dl>
-    <dl>
-      <dt><label>Пароль:</label></dt>
-      <dd><input type="password" name="passwd" /></dd>
-    </dl>
-    <dl>
-      <dt><label>Код активациии:</label></dt>
-      <dd><input type="text" name="activation" /></dd>
-    </dl>
-    <input type=submit value="Активировать">
+
+    <c:if test="${not empty error}">
+      <div class="error">${error}</div>
+    </c:if>
+
+    <div class="control-group">
+      <label class="control-label" for="field_nick">Login/Email</label>
+      <div class="controls">
+        <input type="text" name="nick" required autofocus id="field_nick">
+        <span class="help-block">
+          Регистр имеет значение! Вместо имени пользователя
+          можно ввести email, указанный при регистрации.
+        </span>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="field_password" class="control-label">Пароль</label>
+      <div class="controls">
+        <input type="password" name="passwd" required id="field_password">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="field_code" class="control-label">Код активациии</label>
+      <div class="controls">
+        <input type="text" name="activation" required id="field_code">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="controls">
+        <button type=submit class="btn btn-primary">Активировать</button>
+      </div>
+    </div>
     <input type="hidden" name="action" value="new" />
   </form>
 </c:if>
@@ -49,7 +71,7 @@
     <lor:csrf/>
     <dl>
       <dt><label>Код активациии:</label></dt>
-      <dd><input type="text" name="activation" /></dd>
+      <dd><input type="text" name="activation" required autofocus/></dd>
     </dl>
 
     <input type=submit value="Активировать">

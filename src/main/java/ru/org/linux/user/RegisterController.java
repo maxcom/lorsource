@@ -20,9 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -164,14 +166,17 @@ public class RegisterController {
         token.setDetails(details);
         auth = authenticationManager.authenticate(token);
       } else {
-        throw new AccessViolationException("Bad activation code");
+        return new ModelAndView("activate", "error", "Неправильный код активации");
       }
       SecurityContextHolder.getContext().setAuthentication(auth);
       rememberMeServices.loginSuccess(request, response, auth);
       AuthUtil.updateLastLogin(auth, userDao);
-    } catch (Exception e) {
-      throw new AccessViolationException(e.getMessage());
+    } catch (UsernameNotFoundException e) {
+      return new ModelAndView("activate", "error", "Пользователь не найден");
+    } catch (BadCredentialsException e) {
+      return new ModelAndView("activate", "error", "Неправильный логин или пароль");
     }
+
     return new ModelAndView(new RedirectView("/"));
   }
 
