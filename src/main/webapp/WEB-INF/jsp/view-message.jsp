@@ -200,7 +200,9 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
+<%--
 <c:if test="${showAdsense}">
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
 <%--
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
@@ -220,7 +222,9 @@
     });
   </script>
   <br>
+<%--
 </c:if>
+--%>
 
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
   <div class=nav>
