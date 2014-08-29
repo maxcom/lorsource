@@ -28,9 +28,9 @@
 
 <form method=POST action="${template.secureMainUrl}/login_process">
   <lor:csrf/>
-  <label>Имя:<br><input autofocus type=text name=nick size=40 placeholder="nick или email"></label>
+  <label>Имя/email:<br><input autofocus autocapitalize="off" type=text name=nick size=40></label>
   <label>Пароль:<br><input type=password name=passwd size=40></label>
-  <button type=submit>Вход</button>
+  <button type=submit class="btn btn-primary">Вход</button>
 </form>
 
 <div style="font-size: smaller">
