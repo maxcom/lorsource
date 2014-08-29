@@ -305,7 +305,7 @@ $script.ready('plugins', function() {
 $(document).ready(function() {
   function initCtrlEnter() {
     function ctrl_enter(e, form) {
-        if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey)) {
+        if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey||e.metaKey)) {
           window.onbeforeunload = null;
 
           $(form).submit();
