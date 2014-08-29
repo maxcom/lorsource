@@ -35,7 +35,7 @@ public final class DefaultProfile {
       .put("gallery", "Галерея")
       .put("tagcloud", "Облако тэгов")
       .put("archive", "Архив новостей")
-      .put("ibm", "IBM developerWorks")
+      //.put("ibm", "IBM developerWorks")
       .put("lastMiniNews", "Последние мининовости (не будут отображаться в ленте новостей на главной странице)").build();
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
@@ -95,7 +95,7 @@ public final class DefaultProfile {
 
 // main page settings
     ImmutableList<String> boxes = ImmutableList.of(
-      "poll", "top10", "gallery", "tagcloud", "archive", "ibm"
+      "poll", "top10", "gallery", "tagcloud", "archive"/* , "ibm" */
     );
 
     builder.put(BOXES_MAIN2_PROPERTY, boxes);
