@@ -1,35 +1,37 @@
 package ru.org.linux.search
 
-import org.springframework.stereotype.Service
-import org.springframework.beans.factory.annotation.Autowired
-import org.elasticsearch.client.Client
-import ru.org.linux.topic.Topic
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import org.elasticsearch.index.query.QueryBuilders._
+import java.util.concurrent.TimeUnit
+
+import com.google.common.cache.CacheBuilder
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.elasticsearch.index.query.FilterBuilders._
-import ru.org.linux.tag.TagRef
-import scala.beans.BeanProperty
-import ru.org.linux.util.StringUtil
-import org.springframework.web.util.UriComponentsBuilder
-import org.elasticsearch.search.SearchHit
+import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse}
-import org.elasticsearch.ElasticsearchException
-import scala.concurrent.{TimeoutException, Await, Future, Promise}
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.elasticsearch.client.Client
+import org.elasticsearch.index.query.FilterBuilders._
+import org.elasticsearch.index.query.QueryBuilders._
+import org.elasticsearch.search.SearchHit
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.section.SectionService
-import com.google.common.cache.CacheBuilder
-import java.util.concurrent.TimeUnit
+import ru.org.linux.tag.TagRef
+import ru.org.linux.topic.Topic
+import ru.org.linux.util.StringUtil
+
+import scala.beans.BeanProperty
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future, Promise, TimeoutException}
 
 @Service
 class MoreLikeThisService @Autowired() (
   client:Client,
   sectionService:SectionService
 ) extends StrictLogging {
-  import MoreLikeThisService._
+  import ru.org.linux.search.MoreLikeThisService._
 
   type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
@@ -102,7 +104,7 @@ class MoreLikeThisService @Autowired() (
         logger.warn("Unable to find similar topics", ex)
         Seq()
       case ex:TimeoutException =>
-        logger.warn("Similar topics lookup timed out", ex)
+        logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
         Seq()
     }
   }
