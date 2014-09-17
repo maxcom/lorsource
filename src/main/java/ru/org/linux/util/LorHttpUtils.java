@@ -15,10 +15,14 @@
 
 package ru.org.linux.util;
 
-import java.util.Properties;
+import com.google.common.base.Joiner;
+import com.google.common.net.HttpHeaders;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Properties;
 
 public final class LorHttpUtils {
   private LorHttpUtils() {
@@ -43,8 +47,10 @@ public final class LorHttpUtils {
 
   public static String getRequestIP(HttpServletRequest request) {
     String logmessage = "ip:" + request.getRemoteAddr();
-    if (request.getHeader("X-Forwarded-For") != null) {
-      logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
+    ArrayList<String> xff = Collections.list(request.getHeaders(HttpHeaders.X_FORWARDED_FOR));
+
+    if (!xff.isEmpty()) {
+      logmessage = logmessage + " XFF:" + Joiner.on(", ").join(xff);
     }
 
     return logmessage;
