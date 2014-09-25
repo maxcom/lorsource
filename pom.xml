@@ -501,6 +501,14 @@
                                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                             </includes>
                         </aggregation>
+                        <aggregation>
+                            <removeIncluded>false</removeIncluded>
+                            <insertNewLine>true</insertNewLine>
+                            <output>${project.build.directory}/${project.build.finalName}/qrerror/combined.css</output>
+                            <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
+                            </includes>
+                        </aggregation>
                       <aggregation>
                         <removeIncluded>false</removeIncluded>
                         <insertNewLine>true</insertNewLine>
@@ -588,6 +596,7 @@
 				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery"/>
 				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery/preview"/>
                                 <mkdir dir="${project.build.directory}/${project.build.finalName}/photos"/>
+                                <copy file="${basedir}/src/main/webapp/img/good-penguin.jpg" todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
                             </tasks>
                         </configuration>
                         <goals>
