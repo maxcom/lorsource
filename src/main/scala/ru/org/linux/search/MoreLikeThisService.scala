@@ -109,7 +109,7 @@ class MoreLikeThisService @Autowired() (
     }
   }
 
-  def processHit(hit: SearchHit): MoreLikeThisTopic = {
+  private def processHit(hit: SearchHit): MoreLikeThisTopic = {
     val section = SearchResultsService.section(hit)
     val group = SearchResultsService.group(hit)
 
@@ -139,15 +139,7 @@ class MoreLikeThisService @Autowired() (
     .maxDocFreq(50000)
     .minTermFreq(1)
 
-  private def tagsQuery(tags:Seq[String]) = {
-    val root = boolQuery()
-
-    tags foreach { tag =>
-      root.should(termQuery("tag", tag))
-    }
-
-    root
-  }
+  private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags)
 }
 
 object MoreLikeThisService {
