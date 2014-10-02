@@ -11,7 +11,7 @@ class CSPInterceptor @Autowired() (config:SiteConfig) extends HandlerInterceptor
     //  return true
     //}
     
-    response.addHeader("Content-Security-Policy", "frame-options 'deny'")
+    response.addHeader("Content-Security-Policy", "frame-ancestors 'none'")
     // вообще-то правила можно было бы придумать и более гибкие чем эти.
     // но начала -- пойдёт! лучше чем ни чего :-)
 
