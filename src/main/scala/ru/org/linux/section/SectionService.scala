@@ -12,35 +12,29 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.section
 
-package ru.org.linux.section;
+import javax.annotation.PostConstruct
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
 
-import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
-import java.util.List;
+import scala.collection.JavaConversions._
 
 @Service
-public class SectionService {
-  private ImmutableList<Section> sectionList;
-
+class SectionService {
   @Autowired
-  private SectionDao sectionDao;
+  private var sectionDao: SectionDao = null
+
+  private var sectionList: Seq[Section] = null
 
   /**
    * Инициализация списка секций из БД.
    * Метод вызывается автоматически сразу после создания бина.
    */
   @PostConstruct
-  private void initializeSectionList() {
-    Builder<Section> sectionListBuilder = ImmutableList.builder();
-    List<Section> sections = sectionDao.getAllSections();
-    sectionListBuilder.addAll(sections);
-    sectionList = sectionListBuilder.build();
+  private def initializeSectionList:Unit = {
+    sectionList = sectionDao.getAllSections.toVector
   }
 
   /**
@@ -50,15 +44,8 @@ public class SectionService {
    * @return идентификатор секции
    * @throws SectionNotFoundException если секция не найдена
    */
-  public Section getSectionByName(String sectionName) throws SectionNotFoundException {
-    for (Section section : sectionList) {
-      if (section.getUrlName().equals(sectionName)) {
-        return section;
-      }
-    }
-
-    throw new SectionNotFoundException();
-  }
+  def getSectionByName(sectionName: String): Section =
+    sectionList.find(_.getUrlName == sectionName).getOrElse(throw new SectionNotFoundException)
 
   /**
    * Получить объект секции по идентификатору секции.
@@ -67,24 +54,15 @@ public class SectionService {
    * @return объект секции
    * @throws SectionNotFoundException если секция не найдена
    */
-  @Nonnull
-  public Section getSection(int sectionId) throws SectionNotFoundException {
-    for (Section section : sectionList) {
-      if (section.getId() == sectionId) {
-        return section;
-      }
-    }
-    throw new SectionNotFoundException(sectionId);
-  }
+  def getSection(sectionId: Int): Section =
+    sectionList.find(_.getId == sectionId).getOrElse(throw new SectionNotFoundException)
 
   /**
    * получить список секций.
    *
    * @return список секций
    */
-  public ImmutableList<Section> getSectionList() {
-    return sectionList;
-  }
+  def getSectionList: java.util.List[Section] = sectionList
 
   /**
    * Получить расширенную информацию о секции по идентификатору секции.
@@ -92,9 +70,7 @@ public class SectionService {
    * @param id идентификатор секции
    * @return расширеннуя информация о секции
    */
-  public String getAddInfo(int id) {
-    return sectionDao.getAddInfo(id);
-  }
+  def getAddInfo(id: Int): String = sectionDao.getAddInfo(id)
 
   /**
    * Получить тип "листания" между страницами.
@@ -103,9 +79,5 @@ public class SectionService {
    * @return тип "листания" между страницами
    * @throws SectionNotFoundException
    */
-  public SectionScrollModeEnum getScrollMode(int sectionId)
-    throws SectionNotFoundException {
-    Section section = getSection(sectionId);
-    return section.getScrollMode();
-  }
+  def getScrollMode(sectionId: Int): SectionScrollModeEnum = getSection(sectionId).getScrollMode
 }
