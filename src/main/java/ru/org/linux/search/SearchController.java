@@ -15,6 +15,7 @@
 
 package ru.org.linux.search;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -131,10 +132,12 @@ public class SearchController {
       if (query.getGroup() != null) {
         Section section = sectionService.getSectionByName(query.getSection());
 
-        Group group = groupDao.getGroupOrNull(section, query.getGroup());
+        Optional<Group> group = groupDao.getGroupOpt(section, query.getGroup(), true);
 
-        if (group==null) {
+        if (!group.isPresent()) {
           query.setGroup(null);
+        } else {
+          query.setGroup(group.get().getUrlName());
         }
       }
 

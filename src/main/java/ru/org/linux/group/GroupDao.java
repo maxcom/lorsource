@@ -15,6 +15,8 @@
 
 package ru.org.linux.group;
 
+import com.google.common.base.Optional;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,6 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -102,14 +103,14 @@ public class GroupDao {
    */
   @Nonnull
   public Group getGroup(Section section, String name) throws GroupNotFoundException {
-    Group group = getGroupOrNull(section, name);
+    Optional<Group> group = getGroupOpt(section, name, false);
 
-    if (group==null) {
+    if (!group.isPresent()) {
       logger.info("Group '{}' not found in section {}", name, section.getUrlName());
       throw new GroupNotFoundException("group not found");
+    } else {
+      return group.get();
     }
-
-    return group;
   }
 
   /**
@@ -119,20 +120,30 @@ public class GroupDao {
    * @param name    имя группы
    * @return объект группы
    */
-  @Nullable
-  public Group getGroupOrNull(Section section, String name) {
+  public Optional<Group> getGroupOpt(Section section, String name, Boolean allowNumber) {
     try {
-      int id = jdbcTemplate.queryForObject(
-              "SELECT id FROM groups WHERE section=? AND urlname=?",
-              Integer.class,
-              section.getId(),
-              name
-      );
+      int id;
 
-      return getGroup(id);
+      if (allowNumber && StringUtils.isNumeric(name)) {
+        id = jdbcTemplate.queryForObject(
+                "SELECT id FROM groups WHERE section=? AND id=?",
+                Integer.class,
+                section.getId(),
+                Integer.parseInt(name)
+        );
+      } else {
+        id = jdbcTemplate.queryForObject(
+                "SELECT id FROM groups WHERE section=? AND urlname=?",
+                Integer.class,
+                section.getId(),
+                name
+        );
+      }
+
+      return Optional.of(getGroup(id));
     } catch (EmptyResultDataAccessException ex) {
       logger.debug("Group '{}' not found in section {}", name, section.getUrlName());
-      return null;
+      return Optional.absent();
     }
   }
 
