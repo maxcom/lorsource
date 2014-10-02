@@ -35,7 +35,6 @@
 <div id="mainpage">
 <div id="news">
 
-<%--
 <c:if test="${showAdsense}">
 <div align="center">
   <script type="text/javascript"><!--
@@ -59,36 +58,6 @@
   </script>
 </div>
 </c:if>
---%>
-
-  <div style="text-align: center; height: 91px" id="interpage-adv">
-  </div>
-
-  <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'img',
-          src: '/adv/selectel/selectel_728x90.png',
-          width: 728,
-          height: 90,
-          href: 'http://selectel.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_content=dedicated&utm_campaign=010414'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/tehnodom_728x90.png',
-          width: 728,
-          height: 90,
-          href: 'http://tehnodom.com/order/i3/?utm_source=linux.org.ru&utm_medium=banner&utm_content=dedicated&utm_campaign=010414'
-        }
-      ];
-
-      init_interpage_adv(ads);
-    });
-  </script>
-
-  <br>
-
 
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
