@@ -45,6 +45,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import scala.Option;
 
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
@@ -123,23 +124,33 @@ public class SearchController {
         return "redirect:/search.jsp";
       }
 
-      SearchViewer sv = new SearchViewer(query);
+      if (!Strings.isNullOrEmpty(query.getSection())) {
+        Option<Section> section = sectionService.fuzzyNameToSection().get(query.getSection());
 
-      if (Strings.isNullOrEmpty(query.getSection())) {
-        query.setGroup(null);
-      }
+        if (section.isDefined()) {
+          query.setSection(section.get().getUrlName());
 
-      if (query.getGroup() != null) {
-        Section section = sectionService.getSectionByName(query.getSection());
+          if (!Strings.isNullOrEmpty(query.getGroup())) {
+            Optional<Group> group = groupDao.getGroupOpt(section.get(), query.getGroup(), true);
 
-        Optional<Group> group = groupDao.getGroupOpt(section, query.getGroup(), true);
-
-        if (!group.isPresent()) {
-          query.setGroup(null);
+            if (!group.isPresent()) {
+              query.setGroup(null);
+            } else {
+              query.setGroup(group.get().getUrlName());
+            }
+          } else {
+            query.setGroup(null);
+          }
         } else {
-          query.setGroup(group.get().getUrlName());
+          query.setSection(null);
+          query.setGroup(null);
         }
+      } else {
+        query.setGroup(null);
+        query.setSection(null);
       }
+
+      SearchViewer sv = new SearchViewer(query);
 
       SearchResponse response = sv.performSearch(client);
 
