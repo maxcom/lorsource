@@ -1,18 +1,20 @@
 package ru.org.linux.search
 
-import ru.org.linux.user.{UserDao, User}
-import scala.beans.BeanProperty
-import org.springframework.stereotype.Service
-import org.elasticsearch.search.SearchHit
-import ru.org.linux.util.StringUtil
-import org.springframework.beans.factory.annotation.Autowired
-import org.joda.time.format.ISODateTimeFormat
-import ru.org.linux.util.URLUtil._
-import org.springframework.web.util.UriComponentsBuilder
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import ru.org.linux.tag.{TagService, TagRef}
-import scala.collection.JavaConversions._
+import org.elasticsearch.search.SearchHit
 import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
+import ru.org.linux.tag.{TagRef, TagService}
+import ru.org.linux.user.{User, UserDao}
+import ru.org.linux.util.StringUtil
+import ru.org.linux.util.URLUtil._
+
+import scala.beans.BeanProperty
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class SearchItem (
   @BeanProperty title:String,
@@ -29,7 +31,9 @@ case class SearchItem (
 class SearchResultsService @Autowired() (
   userDao:UserDao
 ) extends StrictLogging {
-  import SearchResultsService._
+  import ru.org.linux.search.SearchResultsService._
+
+  def prepareAll(docs:java.lang.Iterable[SearchHit]) = (docs map prepare).asJavaCollection
 
   def prepare(doc:SearchHit):SearchItem = {
     val author = userDao.getUser(doc.getFields.get("author").getValue[String])
