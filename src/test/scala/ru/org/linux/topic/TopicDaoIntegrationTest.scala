@@ -1,18 +1,18 @@
 package ru.org.linux.topic
 
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.junit.runner.RunWith
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.context.annotation.{Bean, ImportResource, Configuration}
 import org.junit.{Assert, Test}
-import org.springframework.beans.factory.annotation.Autowired
-import TopicDaoIntegrationTest._
-import ru.org.linux.group.GroupDao
 import org.mockito.Mockito
-import ru.org.linux.section.{SectionDaoImpl, SectionService}
-import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
-import ru.org.linux.user.{UserLogDao, UserDao}
+import ru.org.linux.group.GroupDao
+import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
+import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
+import ru.org.linux.topic.TopicDaoIntegrationTest._
+import ru.org.linux.user.{UserDao, UserLogDao}
 import ru.org.linux.util.bbcode.LorCodeService
 
 @RunWith (classOf[SpringJUnit4ClassRunner] )
@@ -52,7 +52,7 @@ class TopicDaoIntegrationTestConfiguration {
   def groupDao = new GroupDao()
 
   @Bean
-  def sectionService = new SectionService()
+  def sectionService(sectionDao:SectionDao) = new SectionService(sectionDao)
 
   @Bean
   def sectionDao = new SectionDaoImpl()

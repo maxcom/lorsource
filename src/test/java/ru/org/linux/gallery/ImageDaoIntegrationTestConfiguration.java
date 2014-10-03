@@ -20,8 +20,8 @@ public class ImageDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public SectionService sectionService() {
-    return new SectionService();
+  public SectionService sectionService(SectionDao sectionDao) {
+    return new SectionService(sectionDao);
   }
 
   @Bean

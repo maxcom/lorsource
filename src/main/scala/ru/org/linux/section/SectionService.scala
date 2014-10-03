@@ -14,55 +14,43 @@
  */
 package ru.org.linux.section
 
-import javax.annotation.PostConstruct
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import scala.collection.JavaConversions._
 
 @Service
-class SectionService {
-  @Autowired
-  private var sectionDao: SectionDao = null
+class SectionService @Autowired () (sectionDao: SectionDao) {
+  val sections: Seq[Section] = sectionDao.getAllSections.toVector
+  val nameToSection = sections map { section => section.getUrlName -> section } toMap
+  val idToSection = sections map { section => section.getId -> section } toMap
 
-  private var sectionList: Seq[Section] = null
-
-  /**
-   * Инициализация списка секций из БД.
-   * Метод вызывается автоматически сразу после создания бина.
-   */
-  @PostConstruct
-  private def initializeSectionList:Unit = {
-    sectionList = sectionDao.getAllSections.toVector
-  }
+  val fuzzyNameToSection = nameToSection ++ idToSection.map { case (k, v) => k.toString -> v }
 
   /**
    * Получить идентификатор секции по url-имени.
    *
-   * @param sectionName название секции
-   * @return идентификатор секции
+   * @param name название секции
+   * @return объект секции
    * @throws SectionNotFoundException если секция не найдена
    */
-  def getSectionByName(sectionName: String): Section =
-    sectionList.find(_.getUrlName == sectionName).getOrElse(throw new SectionNotFoundException)
+  def getSectionByName(name: String): Section = nameToSection.getOrElse(name, throw new SectionNotFoundException)
 
   /**
    * Получить объект секции по идентификатору секции.
    *
-   * @param sectionId идентификатор секции
+   * @param id идентификатор секции
    * @return объект секции
    * @throws SectionNotFoundException если секция не найдена
    */
-  def getSection(sectionId: Int): Section =
-    sectionList.find(_.getId == sectionId).getOrElse(throw new SectionNotFoundException)
+  def getSection(id: Int): Section = idToSection.getOrElse(id, throw new SectionNotFoundException)
 
   /**
    * получить список секций.
    *
    * @return список секций
    */
-  def getSectionList: java.util.List[Section] = sectionList
+  def getSectionList: java.util.List[Section] = sections
 
   /**
    * Получить расширенную информацию о секции по идентификатору секции.
