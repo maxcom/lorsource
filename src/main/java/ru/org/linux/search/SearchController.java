@@ -22,8 +22,6 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,7 +46,6 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import scala.Option;
 
 import java.beans.PropertyEditorSupport;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -113,42 +110,11 @@ public class SearchController {
     boolean initial = query.isInitial();
 
     if (!initial && !bindingResult.hasErrors()) {
-      if (!query.getQ().equals(query.getOldQ())) {
-        query.setSection(null);
-        query.setGroup(null);
-      }
-
-      query.setOldQ(query.getQ());
-
       if (query.getQ().trim().isEmpty()) {
         return "redirect:/search.jsp";
       }
 
-      if (!Strings.isNullOrEmpty(query.getSection())) {
-        Option<Section> section = sectionService.fuzzyNameToSection().get(query.getSection());
-
-        if (section.isDefined()) {
-          query.setSection(section.get().getUrlName());
-
-          if (!Strings.isNullOrEmpty(query.getGroup())) {
-            Optional<Group> group = groupDao.getGroupOpt(section.get(), query.getGroup(), true);
-
-            if (!group.isPresent()) {
-              query.setGroup(null);
-            } else {
-              query.setGroup(group.get().getUrlName());
-            }
-          } else {
-            query.setGroup(null);
-          }
-        } else {
-          query.setSection(null);
-          query.setGroup(null);
-        }
-      } else {
-        query.setGroup(null);
-        query.setSection(null);
-      }
+      sanitizeQuery(query);
 
       SearchViewer sv = new SearchViewer(query);
 
@@ -156,13 +122,7 @@ public class SearchController {
 
       long current = System.currentTimeMillis();
 
-      SearchHits hits = response.getHits();
-
-      Collection<SearchItem> res = new ArrayList<>(hits.hits().length);
-
-      for (SearchHit doc : hits) {
-        res.add(resultsService.prepare(doc));
-      }
+      Collection<SearchItem> res = resultsService.prepareAll(response.getHits());
 
       if (response.getFacets() != null) {
         TermsFacet sectionFacet = (TermsFacet) response.getFacets().facetsAsMap().get("sections");
@@ -200,6 +160,40 @@ public class SearchController {
     return "search";
   }
 
+  private void sanitizeQuery(SearchRequest query) {
+    if (!query.getQ().equals(query.getOldQ())) {
+      query.setSection(null);
+      query.setGroup(null);
+    }
+
+    query.setOldQ(query.getQ());
+
+    if (!Strings.isNullOrEmpty(query.getSection())) {
+      Option<Section> section = sectionService.fuzzyNameToSection().get(query.getSection());
+
+      if (section.isDefined()) {
+        query.setSection(section.get().getUrlName());
+
+        if (!Strings.isNullOrEmpty(query.getGroup())) {
+          Optional<Group> group = groupDao.getGroupOpt(section.get(), query.getGroup(), true);
+
+          if (!group.isPresent()) {
+            query.setGroup(null);
+          } else {
+            query.setGroup(group.get().getUrlName());
+          }
+        } else {
+          query.setGroup(null);
+        }
+      } else {
+        query.setSection(null);
+        query.setGroup(null);
+      }
+    } else {
+      query.setGroup(null);
+      query.setSection(null);
+    }
+  }
 
   private Map<String, String> buildSectionFacet(TermsFacet sectionFacet) {
     Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
