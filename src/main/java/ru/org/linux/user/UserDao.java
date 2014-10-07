@@ -71,13 +71,6 @@ public class UserDao {
 
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
-  private static final String queryTopicsBySectionStat =
-            "SELECT groups.section, count(*) as c " +
-                    "FROM topics, groups " +
-                    "WHERE topics.userid=? " +
-                    "AND groups.id=topics.groupid " +
-                    "AND not deleted " +
-                    "GROUP BY groups.section ORDER BY groups.section";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
