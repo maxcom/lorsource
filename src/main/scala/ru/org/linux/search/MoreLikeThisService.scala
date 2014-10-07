@@ -139,7 +139,7 @@ class MoreLikeThisService @Autowired() (
     .maxDocFreq(50000)
     .minTermFreq(1)
 
-  private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags)
+  private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags:_*)
 }
 
 object MoreLikeThisService {
