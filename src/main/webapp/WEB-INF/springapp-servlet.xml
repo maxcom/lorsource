@@ -113,6 +113,7 @@
         <bean class="ru.org.linux.monitoring.Perf4jHandlerInterceptor"/>
         <bean class="ru.org.linux.csrf.CSRFHandlerInterceptor"/>
         <bean class="ru.org.linux.auth.HstsInterceptor"/>
+        <bean class="ru.org.linux.auth.LastLoginInterceptor"/>
     </mvc:interceptors>
 
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
