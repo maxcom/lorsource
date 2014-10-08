@@ -16,7 +16,6 @@
 package ru.org.linux.search;
 
 import com.google.common.base.Strings;
-import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -131,30 +130,19 @@ public class SearchViewer {
     this.query = query;
   }
 
-  private QueryBuilder processQueryString(Client client, String queryText) {
-    String fixedText = queryText.replaceAll("((?:\\[)|(?:])|(?:[\\\\/]))", "\\\\$1");
-
-    QueryStringQueryBuilder esQuery = queryString(fixedText);
+  private QueryBuilder processQueryString(String queryText) {
+    SimpleQueryStringBuilder esQuery = simpleQueryString(queryText);
     esQuery.lenient(true);
-    esQuery.minimumShouldMatch("50%");
 
-    ValidateQueryResponse response = client
-            .admin()
-            .indices()
-            .prepareValidateQuery(SearchQueueListener.MESSAGES_INDEX)
-            .setTypes(SearchQueueListener.MESSAGES_TYPE)
-            .setQuery(esQuery)
-            .execute()
-            .actionGet();
 
-    if (response.isValid()) {
-      return esQuery;
-    } else {
-      logger.info("Invalid query '{}', using converting to phrase", queryText);
-      MatchQueryBuilder fixedQuery = matchPhraseQuery("_all", queryText);
-      fixedQuery.setLenient(true);
-      return fixedQuery;
-    }
+    MatchQueryBuilder phraseQuery = matchPhraseQuery("_all", queryText);
+    phraseQuery.setLenient(true);
+
+    BoolQueryBuilder boolQuery = boolQuery();
+    boolQuery.should(esQuery);
+    boolQuery.should(phraseQuery);
+
+    return boolQuery;
   }
 
   private QueryBuilder boost(QueryBuilder query) {
@@ -184,7 +172,7 @@ public class SearchViewer {
             "tag"
     );
 
-    QueryBuilder esQuery = processQueryString(client, this.query.getQ());
+    QueryBuilder esQuery = processQueryString(this.query.getQ());
 
     request.setSize(SEARCH_ROWS);
     request.setFrom(this.query.getOffset());
