@@ -131,9 +131,8 @@ public class SearchViewer {
   }
 
   private QueryBuilder processQueryString(String queryText) {
-    SimpleQueryStringBuilder esQuery = simpleQueryString(queryText);
-    esQuery.lenient(true);
-
+    CommonTermsQueryBuilder esQuery = commonTerms("_all", queryText);
+    esQuery.lowFreqMinimumShouldMatch("2");
 
     MatchQueryBuilder phraseQuery = matchPhraseQuery("_all", queryText);
     phraseQuery.setLenient(true);
