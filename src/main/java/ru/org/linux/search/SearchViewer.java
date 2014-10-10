@@ -26,8 +26,6 @@ import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.org.linux.user.User;
 
 import java.util.ArrayList;
@@ -37,9 +35,7 @@ import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
 public class SearchViewer {
-  private static final Logger logger = LoggerFactory.getLogger(SearchViewer.class);
-
-  public static final int MESSAGE_FRAGMENT = 250;
+  public static final int MESSAGE_FRAGMENT = 500;
 
   private static final int TOPIC_BOOST = 3;
   private static final int RECENT_BOOST = 2;
@@ -122,7 +118,7 @@ public class SearchViewer {
     }
   }
 
-  public static final int SEARCH_ROWS = 50;
+  public static final int SEARCH_ROWS = 25;
 
   private final SearchRequest query;
 
