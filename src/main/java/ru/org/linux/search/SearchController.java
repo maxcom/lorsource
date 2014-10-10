@@ -129,6 +129,9 @@ public class SearchController {
 
         if (sectionFacet != null && sectionFacet.getEntries().size() > 1) {
           params.put("sectionFacet", buildSectionFacet(sectionFacet));
+          if (query.getSection()==null) {
+            query.setSection("");
+          }
         } else if (sectionFacet!=null && sectionFacet.getEntries().size() == 1) {
           query.setSection(sectionFacet.getEntries().get(0).getTerm().toString());
         }
@@ -137,6 +140,9 @@ public class SearchController {
 
         if (groupFacet != null && groupFacet.getEntries().size() > 1) {
           params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
+          if (query.getGroup()==null) {
+            query.setGroup("");
+          }
         }
       }
 
