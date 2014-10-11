@@ -72,14 +72,9 @@
 
     <c:choose>
       <c:when test="${sectionFacet !=null}">
-        <div>
+        <div style="display: inline-block">
           Раздел:
-          <c:forEach items="${sectionFacet}" var="facet">
-            <label style="display: inline-block">
-                <form:radiobutton path="section" onchange="submit()" value="${facet.key}"/>
-                ${facet.value}
-            </label>
-          </c:forEach>
+          <form:select path="section" items="${sectionFacet}" onchange="submit()"/>
         </div>
       </c:when>
 
@@ -89,7 +84,7 @@
     </c:choose>
 
     <c:if test="${groupFacet!=null}">
-      <div>
+      <div style="display: inline-block">
         Группа:
         <form:select path="group" items="${groupFacet}" onchange="submit()"/>
       </div>
