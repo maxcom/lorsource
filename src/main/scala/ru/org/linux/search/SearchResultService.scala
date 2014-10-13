@@ -2,11 +2,15 @@ package ru.org.linux.search
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.elasticsearch.search.SearchHit
+import org.elasticsearch.search.aggregations.bucket.filter.Filter
+import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
+import ru.org.linux.group.GroupDao
+import ru.org.linux.section.SectionService
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.{User, UserDao}
 import ru.org.linux.util.StringUtil
@@ -29,7 +33,7 @@ case class SearchItem (
 
 @Service
 class SearchResultsService @Autowired() (
-  userDao:UserDao
+  userDao:UserDao, sectionService:SectionService, groupDao:GroupDao
 ) extends StrictLogging {
   import ru.org.linux.search.SearchResultsService._
 
@@ -117,7 +121,7 @@ class SearchResultsService @Autowired() (
       } catch {
         case e: Exception =>
           logger.warn(s"Fail build topic url for $title in $virtualWiki")
-          return "#"
+          "#"
       }
     } else {
       val comment = doc.getFields.get("is_comment").getValue[Boolean]
@@ -133,7 +137,41 @@ class SearchResultsService @Autowired() (
       }
     }
   }
-}
+
+  def buildSectionFacet(sectionFacet: Filter): java.util.List[FacetItem] = {
+    val agg = sectionFacet.getAggregations.get[Terms]("sections")
+
+    val items = for (entry <- agg.getBuckets.toSeq) yield {
+      val urlName = entry.getKey
+      val name = sectionService.nameToSection.get(urlName).map(_.getName).getOrElse(urlName).toLowerCase
+      new FacetItem(entry.getKey, name + " (" + entry.getDocCount + ')')
+    }
+
+    val all = new FacetItem("", s"все (${sectionFacet.getDocCount})")
+
+    all +: items
+  }
+
+  def buildGroupFacet(selectedSection: Terms.Bucket): java.util.List[FacetItem] = {
+      val groups = selectedSection.getAggregations.get[Terms]("groups")
+
+      if (groups.getBuckets.size > 1) {
+        val all = new FacetItem("", s"все (${selectedSection.getDocCount})")
+        val section = sectionService.getSectionByName(selectedSection.getKey)
+
+        val items = for (entry <- groups.getBuckets.toSeq) yield {
+          val groupUrlName = entry.getKey
+          val group = groupDao.getGroup(section, groupUrlName)
+          val name = group.getTitle.toLowerCase
+          new FacetItem(groupUrlName, name + " (" + entry.getDocCount + ')')
+        }
+
+        all +: items
+      } else {
+        null
+      }
+    }
+  }
 
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
@@ -142,5 +180,7 @@ object SearchResultsService {
   def section(doc:SearchHit) = doc.getFields.get("section").getValue[String]
   def group(doc:SearchHit) = doc.getFields.get("group").getValue[String]
 }
+
+case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)
 
 

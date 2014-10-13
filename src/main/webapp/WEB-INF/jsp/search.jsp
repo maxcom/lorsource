@@ -74,7 +74,7 @@
       <c:when test="${sectionFacet !=null}">
         <div style="display: inline-block">
           Раздел:
-          <form:select path="section" items="${sectionFacet}" onchange="submit()"/>
+          <form:select path="section" items="${sectionFacet}" onchange="submit()" itemValue="key" itemLabel="label"/>
         </div>
       </c:when>
 
@@ -86,7 +86,7 @@
     <c:if test="${groupFacet!=null}">
       <div style="display: inline-block">
         Группа:
-        <form:select path="group" items="${groupFacet}" onchange="submit()"/>
+        <form:select path="group" items="${groupFacet}" onchange="submit()" itemValue="key" itemLabel="label"/>
       </div>
     </c:if>
 

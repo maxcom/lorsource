@@ -17,12 +17,12 @@ package ru.org.linux.search;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.aggregations.bucket.filter.Filter;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -124,25 +124,23 @@ public class SearchController {
 
       Collection<SearchItem> res = resultsService.prepareAll(response.getHits());
 
-      if (response.getFacets() != null) {
-        TermsFacet sectionFacet = (TermsFacet) response.getFacets().facetsAsMap().get("sections");
+      if (response.getAggregations() != null) {
+        Filter countFacet = response.getAggregations().get("sections");
+        Terms sectionsFacet = countFacet.getAggregations().get("sections");
 
-        if (sectionFacet != null && sectionFacet.getEntries().size() > 1) {
-          params.put("sectionFacet", buildSectionFacet(sectionFacet));
-          if (query.getSection()==null) {
-            query.setSection("");
+        if (sectionsFacet.getBuckets().size()>1) {
+          params.put("sectionFacet", resultsService.buildSectionFacet(countFacet));
+
+          if (!Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBucketByKey(query.getSection())!=null) {
+            Terms.Bucket selectedSection = sectionsFacet.getBucketByKey(query.getSection());
+
+            params.put("groupFacet", resultsService.buildGroupFacet(selectedSection));
           }
-        } else if (sectionFacet!=null && sectionFacet.getEntries().size() == 1) {
-          query.setSection(sectionFacet.getEntries().get(0).getTerm().toString());
-        }
+        } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBuckets().size()==1) {
+          Terms.Bucket onlySection = sectionsFacet.getBuckets().iterator().next();
+          query.setSection(onlySection.getKey());
 
-        TermsFacet groupFacet = (TermsFacet) response.getFacets().facetsAsMap().get("groups");
-
-        if (groupFacet != null && groupFacet.getEntries().size() > 1) {
-          params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
-          if (query.getGroup()==null) {
-            query.setGroup("");
-          }
+          params.put("groupFacet", resultsService.buildGroupFacet(onlySection));
         }
       }
 
@@ -184,71 +182,20 @@ public class SearchController {
           Optional<Group> group = groupDao.getGroupOpt(section.get(), query.getGroup(), true);
 
           if (!group.isPresent()) {
-            query.setGroup(null);
+            query.setGroup("");
           } else {
             query.setGroup(group.get().getUrlName());
           }
         } else {
-          query.setGroup(null);
+          query.setGroup("");
         }
       } else {
-        query.setSection(null);
-        query.setGroup(null);
+        query.setSection("");
+        query.setGroup("");
       }
     } else {
-      query.setGroup(null);
-      query.setSection(null);
-    }
-  }
-
-  private Map<String, String> buildSectionFacet(TermsFacet sectionFacet) {
-    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
-
-    for (TermsFacet.Entry entry : sectionFacet) {
-      if("wiki".equals(entry.getTerm())) {
-        builder.put(entry.getTerm().string(), entry.getTerm() + " (" + entry.getCount() + ')');
-      } else {
-        String urlName = entry.getTerm().string();
-        String name = sectionService.getSectionByName(urlName).getName().toLowerCase();
-        builder.put(entry.getTerm().string(), name + " (" + entry.getCount() + ')');
-      }
-    }
-
-    builder.put("", "все (" + Long.toString(sectionFacet.getTotalCount()) + ')');
-
-    return builder.build();
-  }
-
-  private Map<String, String> buildGroupFacet(String sectionName, TermsFacet groupFacet) {
-    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
-    if (sectionName == null || sectionName.isEmpty() || "wiki".equals(sectionName)) {
-      return null;
-    }
-
-    Section section = sectionService.getSectionByName(sectionName);
-
-    for (TermsFacet.Entry entry : groupFacet) {
-      if("0".equals(entry.getTerm().toString())) {
-        continue;
-      }
-
-      String groupUrlName = entry.getTerm().toString();
-
-      Group group = groupDao.getGroup(section, groupUrlName);
-
-      String name = group.getTitle().toLowerCase();
-
-      builder.put(groupUrlName, name + " (" + entry.getCount() + ')');
-    }
-
-    builder.put("", "все (" + Long.toString(groupFacet.getTotalCount()) + ')');
-
-    ImmutableMap<String, String> r = builder.build();
-
-    if (r.size() <= 2) {
-      return null;
-    } else {
-      return r;
+      query.setGroup("");
+      query.setSection("");
     }
   }
 
@@ -257,12 +204,16 @@ public class SearchController {
     binder.registerCustomEditor(SearchOrder.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
-        if ("1".equals(s)) { // for old links
-          setValue(SearchOrder.RELEVANCE);
-        } else if ("2".equals(s)) {
-          setValue(SearchOrder.DATE);
-        } else {
-          setValue(SearchOrder.valueOf(s));
+        switch (s) {
+          case "1":  // for old links
+            setValue(SearchOrder.RELEVANCE);
+            break;
+          case "2":
+            setValue(SearchOrder.DATE);
+            break;
+          default:
+            setValue(SearchOrder.valueOf(s));
+            break;
         }
       }
     });

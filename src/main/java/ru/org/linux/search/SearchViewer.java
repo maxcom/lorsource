@@ -22,8 +22,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.search.facet.FacetBuilders;
-import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.org.linux.user.User;
@@ -211,17 +210,15 @@ public class SearchViewer {
       postFilters.add(termFilter("section", this.query.getSection()));
     }
 
-    request.addFacet(FacetBuilders.termsFacet("sections").field("section"));
+    request.addAggregation(
+            AggregationBuilders.filter("sections").subAggregation(
+              AggregationBuilders.terms("sections").field("section").size(0).subAggregation(
+                AggregationBuilders.terms("groups").field("group").size(0)
+              )
+            ).filter(matchAllFilter())
+    );
 
-    TermsFacetBuilder groupFacet = FacetBuilders.termsFacet("groups").field("group");
-
-    if (!Strings.isNullOrEmpty(section)) {
-      groupFacet.facetFilter(termFilter("section", this.query.getSection()));
-    }
-
-    request.addFacet(groupFacet);
-
-    if (this.query.getGroup()!=null) {
+    if (!Strings.isNullOrEmpty(this.query.getGroup())) {
       postFilters.add(termFilter("group", this.query.getGroup()));
     }
 
