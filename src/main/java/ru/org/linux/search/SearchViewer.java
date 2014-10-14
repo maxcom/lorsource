@@ -218,7 +218,7 @@ public class SearchViewer {
             ).filter(matchAllFilter())
     );
 
-    request.addAggregation(significantTerms("tags").field("tag").minDocCount(50));
+    request.addAggregation(significantTerms("tags").field("tag").minDocCount(30));
 
     if (!Strings.isNullOrEmpty(this.query.getGroup())) {
       postFilters.add(termFilter("group", this.query.getGroup()));
