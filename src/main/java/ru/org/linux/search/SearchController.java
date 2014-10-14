@@ -142,6 +142,8 @@ public class SearchController {
 
           params.put("groupFacet", resultsService.buildGroupFacet(onlySection));
         }
+
+        params.put("tags", resultsService.foundTags(response.getAggregations()));
       }
 
       long time = System.currentTimeMillis() - current;

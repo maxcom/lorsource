@@ -98,6 +98,12 @@
     </div>
   </div>
 
+  <c:if test="${not empty tags}">
+    <div class="infoblock">
+      Найдены теги: <l:tags list="${tags}"/>
+    </div>
+  </c:if>
+
   <div class="messages">
   <div class="comment">
     <c:forEach items="${result}" var="item">

@@ -22,7 +22,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import ru.org.linux.user.User;
@@ -32,6 +31,7 @@ import java.util.List;
 
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.search.aggregations.AggregationBuilders.*;
 
 public class SearchViewer {
   public static final int MESSAGE_FRAGMENT = 500;
@@ -211,12 +211,14 @@ public class SearchViewer {
     }
 
     request.addAggregation(
-            AggregationBuilders.filter("sections").subAggregation(
-              AggregationBuilders.terms("sections").field("section").size(0).subAggregation(
-                AggregationBuilders.terms("groups").field("group").size(0)
-              )
+            filter("sections").subAggregation(
+                    terms("sections").field("section").size(0).subAggregation(
+                            terms("groups").field("group").size(0)
+                    )
             ).filter(matchAllFilter())
     );
+
+    request.addAggregation(significantTerms("tags").field("tag").minDocCount(10));
 
     if (!Strings.isNullOrEmpty(this.query.getGroup())) {
       postFilters.add(termFilter("group", this.query.getGroup()));

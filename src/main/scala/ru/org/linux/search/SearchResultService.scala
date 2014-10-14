@@ -2,7 +2,9 @@ package ru.org.linux.search
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.elasticsearch.search.SearchHit
+import org.elasticsearch.search.aggregations.Aggregations
 import org.elasticsearch.search.aggregations.bucket.filter.Filter
+import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -153,25 +155,31 @@ class SearchResultsService @Autowired() (
   }
 
   def buildGroupFacet(selectedSection: Terms.Bucket): java.util.List[FacetItem] = {
-      val groups = selectedSection.getAggregations.get[Terms]("groups")
+    val groups = selectedSection.getAggregations.get[Terms]("groups")
 
-      if (groups.getBuckets.size > 1) {
-        val all = new FacetItem("", s"все (${selectedSection.getDocCount})")
-        val section = sectionService.getSectionByName(selectedSection.getKey)
+    if (groups.getBuckets.size > 1) {
+      val all = new FacetItem("", s"все (${selectedSection.getDocCount})")
+      val section = sectionService.getSectionByName(selectedSection.getKey)
 
-        val items = for (entry <- groups.getBuckets.toSeq) yield {
-          val groupUrlName = entry.getKey
-          val group = groupDao.getGroup(section, groupUrlName)
-          val name = group.getTitle.toLowerCase
-          new FacetItem(groupUrlName, name + " (" + entry.getDocCount + ')')
-        }
-
-        all +: items
-      } else {
-        null
+      val items = for (entry <- groups.getBuckets.toSeq) yield {
+        val groupUrlName = entry.getKey
+        val group = groupDao.getGroup(section, groupUrlName)
+        val name = group.getTitle.toLowerCase
+        new FacetItem(groupUrlName, name + " (" + entry.getDocCount + ')')
       }
+
+      all +: items
+    } else {
+      null
     }
   }
+
+  def foundTags(agg:Aggregations):java.util.List[TagRef] = {
+    val tags = agg.get[SignificantTerms]("tags")
+
+    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKey)).toSeq
+  }
+}
 
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
