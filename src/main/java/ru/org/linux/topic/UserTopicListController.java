@@ -155,6 +155,8 @@ public class UserTopicListController {
       modelAndView.addObject("meLink", userInfo.getUrl());
     }
 
+    modelAndView.addObject("nick", user.getNick());
+
     modelAndView.addObject("url",
         UriComponentsBuilder.fromUriString("/people/{nick}/").buildAndExpand(nick).encode().toUriString());
     modelAndView.addObject("whoisLink",

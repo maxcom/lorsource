@@ -41,24 +41,24 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Поиск по сайту</h1>
-<form:form method="GET" commandName="query" ACTION="search.jsp">
+<form:form method="GET" commandName="query" action="search.jsp">
 
-<form:input class="input-lg" path="q" type="search" size="50" maxlength="250" autofocus="autofocus"/>
-  <button type="submit" class="btn btn-primary">Поиск</button><BR>
+<form:input class="input-lg" path="q" type="search" size="50" maxlength="250" autofocus="autofocus"/>&nbsp;
+<button type="submit" class="btn btn-primary">Поиск</button><BR>
 
-  <form:hidden path="oldQ"/>
+<form:hidden path="oldQ"/>
   
-  <p>
-  <form:select path="range" items="${ranges}"/>
+<p>
+<form:select path="range" items="${ranges}"/>
 
-  <label>За:
-    <form:select path="interval" items="${intervals}"/>
-  </label>
+<label>За:
+  <form:select path="interval" items="${intervals}"/>
+</label>
 
-    <label>Пользователь: <form:input path="user" type="text" size="20"/></label>
-    <label>В темах пользователя <form:checkbox path="usertopic"/></label>
+<label>Пользователь: <form:input path="user" type="text" size="20"/></label>
+<label>В темах пользователя <form:checkbox path="usertopic"/></label>
 
-  <form:errors element="div" cssClass="error" path="*"/>
+<form:errors element="div" cssClass="error" path="*"/>
 
 <c:if test="${not query.initial && numFound!=null}">
   <div class="infoblock">
