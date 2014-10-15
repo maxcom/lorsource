@@ -43,20 +43,27 @@
 <H1>Поиск по сайту</h1>
 <form:form method="GET" commandName="query" action="search.jsp">
 
+<div class="control-group">
 <form:input class="input-lg" path="q" type="search" size="50" maxlength="250" autofocus="autofocus"/>&nbsp;
 <button type="submit" class="btn btn-primary">Поиск</button><BR>
+</div>
 
 <form:hidden path="oldQ"/>
   
-<p>
+<div class="control-group">
 <form:select path="range" items="${ranges}"/>
+</div>
 
+<div class="control-group">
 <label>За:
   <form:select path="interval" items="${intervals}"/>
 </label>
+</div>
 
-<label>Пользователь: <form:input path="user" type="text" size="20"/></label>
-<label>В темах пользователя <form:checkbox path="usertopic"/></label>
+<div class="control-group">
+  <label>Пользователь: <form:input path="user" type="text" size="20"/></label>
+  <label>В темах пользователя <form:checkbox path="usertopic"/></label>
+</div>
 
 <form:errors element="div" cssClass="error" path="*"/>
 

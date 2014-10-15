@@ -22,6 +22,11 @@ input[type="search"] {
     -webkit-appearance: textfield;
 }
 
+.input-lg {
+  padding: 6px 3px;
+  vertical-align: middle;
+}
+
 select {
   border: 1px;
 }
@@ -45,18 +50,12 @@ select {
     margin-left: 18rem;
 }
 
-.form-horizontal .control-group {
-  margin-bottom: 1.5rem;
+.control-group {
+  margin-bottom: 1rem;
 }
 
-/* clearfix */
-.control-group:before,
-.control-group:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
-.control-group:after {
-    clear: both;
+.form-horizontal .control-group {
+  @include clearfix;
 }
 
 .form-horizontal .controls {

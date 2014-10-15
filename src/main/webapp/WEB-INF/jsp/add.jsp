@@ -100,7 +100,9 @@
 
   <form:hidden path="noinfo"/>
 
-  ${postscoreInfo}<br>
+  <p>
+    ${postscoreInfo}
+  </p>
 
   <c:if test="${not template.sessionAuthorized}">
     <label>
@@ -112,14 +114,17 @@
   </c:if>
 
   <form:hidden path="group"/>
-  <p>
-
-  <label>Заглавие:<br>
-    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
-   </label>
+  <div class="control-group">
+    <label>Заглавие:<br>
+      <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
+    </label>
+  </div>
 
   <c:if test="${imagepost}">
-    <label>Изображение: <input type="file" name="image"></label>
+    <div class="control-group">
+      <label>Изображение: <br>
+      <input type="file" name="image"></label>
+    </div>
   </c:if>
 
   <c:if test="${section.pollPostAllowed}">
@@ -141,35 +146,43 @@
 <form:select path="mode" items="${modes}"/></label><br>
 </c:if>
 
-<label for="form_msg">Сообщение:</label>
-<form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
-<font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+<div class="control-group">
+  <label for="form_msg">Сообщение:</label>
+    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
+    <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+</div>
 
 <c:if test="${group!=null and group.linksAllowed}">
-<label>
-Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
-</label>
-<label>
-Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
-</label>
+<div class="control-group">
+  <label>
+    Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
+  </label>
+</div>
+
+<div class="control-group">
+  <label>
+    Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
+  </label>
+</div>
 </c:if>
 
-<label>
-<c:if test="${not section.premoderated}">
-  Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE() %>):<br>
-</c:if>
+<div class="control-group">
+  <label>
+    <c:if test="${not section.premoderated}">
+      Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE() %>):<br>
+    </c:if>
 
-<c:if test="${section.premoderated}">
-  Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
-</c:if>
+    <c:if test="${section.premoderated}">
+      Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
+    </c:if>
 
     <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
-    </label>
+  </label>
     Популярные теги:
      <c:forEach items="${topTags}" var="topTag" varStatus = "status">
 ${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
      </c:forEach>
-
+</div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <div class="form-actions">
   <button type=submit>Поместить</button>

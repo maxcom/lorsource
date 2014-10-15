@@ -60,15 +60,17 @@
 
 <div class="infoblock">
   <form method="GET" commandName="query" action="search.jsp">
-  <input name="q" type="search" size="50" maxlength="250" placeholder="Поиск в темах пользователя"/>&nbsp;
-  <button type="submit" class="btn btn-default btn-small">Поиск</button>
-  <BR>
+    <div class="control-group">
+      <input name="q" type="search" size="50" maxlength="250" placeholder="Поиск в темах пользователя"/>&nbsp;
+      <button type="submit" class="btn btn-default btn-small">Поиск</button>
+    </div>
 
-  <p>
-    <select name="range">
-      <option value="ALL">включая комментарии</option>
-      <option value="TOPICS">без комментариев</option>
-    </select>
+    <div class="control-group">
+      <select name="range">
+        <option value="ALL">включая комментарии</option>
+        <option value="TOPICS">без комментариев</option>
+      </select>
+    </div>
 
     <input type="hidden" name="user" value="${nick}"/>
     <input type="hidden" name="usertopic" value="true"/>

@@ -55,9 +55,11 @@
   </select>  <br>
   </c:if>
 
+  <div class="control-group">
   <label for="title">Заглавие:</label>
-  <input type=text id="title" name=title value="<%= StringUtil.escapeHtml(title) %>"><br>
-
+  <input type=text id="title" name=title value="<%= StringUtil.escapeHtml(title) %>">
+  </div>
+  <div class="control-group">
   <label for="msg">Сообщение:</label>
 
   <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
@@ -94,9 +96,9 @@
 Ссылка:
 [url]http://www.linux.org.ru/[/url] 
 можно с параметром, например: 
-[url=http://www.example.com/]Сюда![/url]">прочитайте описание разметки LORCODE</a></font><br>
+[url=http://www.example.com/]Сюда![/url]">прочитайте описание разметки LORCODE</a></font>
 
-  <br>
+  </div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}" />
 
   <button type=submit>Поместить</button>
