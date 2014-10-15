@@ -22,6 +22,10 @@ input[type="search"] {
     -webkit-appearance: textfield;
 }
 
+select {
+  border: 1px;
+}
+
 .form-actions {
     margin-top: 1em;
     margin-bottom: 1em;
