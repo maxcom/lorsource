@@ -116,7 +116,7 @@
   <form:hidden path="group"/>
   <div class="control-group">
     <label>Заглавие:<br>
-      <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
+      <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/>
     </label>
   </div>
 
