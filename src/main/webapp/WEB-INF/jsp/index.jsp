@@ -103,7 +103,7 @@
           <c:if test="${favPresent}">
               <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           </c:if>
-          <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
+          <li><a href="search.jsp?range=COMMENTS&user=${template.nick}&sort=DATE">Мои комментарии</a></li>
           <c:if test="${hasDrafts}">
               <li>
                   <a href="/people/${template.nick}/drafts">Черновики</a>

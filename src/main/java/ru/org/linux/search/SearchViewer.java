@@ -126,17 +126,21 @@ public class SearchViewer {
   }
 
   private QueryBuilder processQueryString(String queryText) {
-    CommonTermsQueryBuilder esQuery = commonTerms("_all", queryText);
-    esQuery.lowFreqMinimumShouldMatch("2");
+    if (queryText.isEmpty()) {
+      return matchAllQuery();
+    } else {
+      CommonTermsQueryBuilder esQuery = commonTerms("_all", queryText);
+      esQuery.lowFreqMinimumShouldMatch("2");
 
-    MatchQueryBuilder phraseQuery = matchPhraseQuery("_all", queryText);
-    phraseQuery.setLenient(true);
+      MatchQueryBuilder phraseQuery = matchPhraseQuery("_all", queryText);
+      phraseQuery.setLenient(true);
 
-    BoolQueryBuilder boolQuery = boolQuery();
-    boolQuery.should(esQuery);
-    boolQuery.should(phraseQuery);
+      BoolQueryBuilder boolQuery = boolQuery();
+      boolQuery.should(esQuery);
+      boolQuery.should(phraseQuery);
 
-    return boolQuery;
+      return boolQuery;
+    }
   }
 
   private QueryBuilder boost(QueryBuilder query) {

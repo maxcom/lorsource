@@ -107,13 +107,7 @@ public class SearchController {
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
-    boolean initial = query.isInitial();
-
-    if (!initial && !bindingResult.hasErrors()) {
-      if (query.getQ().trim().isEmpty()) {
-        return "redirect:/search.jsp";
-      }
-
+    if (!query.isInitial() && !bindingResult.hasErrors()) {
       sanitizeQuery(query);
 
       SearchViewer sv = new SearchViewer(query);

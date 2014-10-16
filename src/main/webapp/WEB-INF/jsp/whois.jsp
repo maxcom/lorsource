@@ -326,7 +326,7 @@
 
     <c:if test="${userStat.commentCount>0}">
         <li>
-            <a href="show-comments.jsp?nick=${user.nick}">Комментарии</a>
+          <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
         </li>
     </c:if>
 
