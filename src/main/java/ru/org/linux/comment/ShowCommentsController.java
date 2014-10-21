@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -43,7 +44,16 @@ public class ShowCommentsController {
   private CommentService commentService;
 
   @RequestMapping("/show-comments.jsp")
-  public ModelAndView showComments(
+  public RedirectView showComments(
+          @RequestParam String nick
+  ) throws Exception {
+    User user = userDao.getUser(nick);
+
+    return new RedirectView("search.jsp?range=COMMENTS&user="+user.getNick()+"&sort=DATE");
+  }
+
+  @RequestMapping("/show-comments-old.jsp")
+  public ModelAndView showCommentsOld(
     @RequestParam String nick,
     @RequestParam(defaultValue="0") int offset,
     HttpServletRequest request,
