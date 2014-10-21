@@ -1,3 +1,4 @@
+<%@ tag import="com.google.common.net.InternetDomainName" %>
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.topic.Topic" %>
@@ -123,7 +124,9 @@
 
   out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
   if (moderateMode) {
-    out.append(" ("+URI.create(url).getHost()+")");
+    String shortHost = InternetDomainName.from(URI.create(url).getHost()).topPrivateDomain().toString();
+
+    out.append(" ("+shortHost+")");
   }
 %>
 </c:if>
