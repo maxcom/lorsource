@@ -364,7 +364,7 @@ public class TopicController {
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
-      return new ModelAndView(new RedirectView(topic.getLink()));
+      return new ModelAndView(new RedirectView(topic.getLink()+"?output=rss"));
     }
 
     if (topic.isExpired()) {
