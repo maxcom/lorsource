@@ -18,7 +18,7 @@
   --%>
 <jsp:include page="head.jsp"/>
 
-<title>Регистрация пользователя</title>
+<title>Редактирование профиля</title>
 <script type="text/javascript">
 $script.ready("plugins", function() {
   $(function() {
@@ -37,7 +37,7 @@ $script.ready("plugins", function() {
 
 <div class=nav>
     <div id="navPath">
-      Изменение регистрации
+      Редактирование профиля
     </div>
 
     <div class="nav-buttons">
@@ -108,6 +108,6 @@ $script.ready("plugins", function() {
             <span class="help-block">&nbsp;</span>
         </dd>
     </dl>
-    <input type="submit" value="Применить изменения">
+    <button type="submit" class="btn btn-primary">Применить изменения</button>
 </form:form>
 <jsp:include page="footer.jsp"/>

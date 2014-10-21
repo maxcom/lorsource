@@ -44,7 +44,7 @@
 <jsp:include page="header.jsp"/>
 
 <c:if test="${currentUser}">
-  <a href="/people/${user.nick}/edit" class="btn btn-default">Изменить регистрацию</a>
+  <a href="/people/${user.nick}/edit" class="btn btn-default">Редактировать профиль</a>
   <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
   <form action="logout" method="POST" style="display: inline-block">

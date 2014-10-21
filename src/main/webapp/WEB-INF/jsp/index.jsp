@@ -130,7 +130,7 @@
         </ul>
         <ul>
           <li><a href="/people/${template.nick}/settings">Настройки</a></li>
-          <li><a href="/people/${template.nick}/edit">Изменить регистрацию</a></li>
+          <li><a href="/people/${template.nick}/edit">Редактировать профиль</a></li>
         </ul>
       </div>
     </div>
