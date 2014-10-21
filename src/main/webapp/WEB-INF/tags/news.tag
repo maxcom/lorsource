@@ -5,6 +5,7 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.image.ImageInfo" %>
 <%@ tag import="java.io.IOException" %>
+<%@ tag import="java.net.URI" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
@@ -70,7 +71,6 @@
 <c:if test="${not message.minor || minorAsMajor}">
 <article class=news id="topic-${message.id}">
 <%
-  String url = message.getUrl();
   boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
 
   String image = preparedMessage.getGroup().getImage();
@@ -113,15 +113,20 @@
   </c:if>
   
   ${preparedMessage.processedMessage}
+<c:if test="${message.url!=null}">
 <%
-  if (url != null) {
-    if (url.isEmpty()) {
-      url = message.getLink();
-    }
+  String url = message.getUrl();
 
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
+  if (url.isEmpty()) {
+    url = message.getLink();
+  }
+
+  out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
+  if (moderateMode) {
+    out.append(" ("+URI.create(url).getHost()+")");
   }
 %>
+</c:if>
 <c:if test="${preparedMessage.image != null}">
   <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
