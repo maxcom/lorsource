@@ -34,9 +34,9 @@
   }
   // -->
 </script>
-<h1>Удаление сообщения</h1>
-Вы можете удалить свое сообщение в течении часа с момента
-его помещения.
+<h1>Удаление комментария</h1>
+Вы можете удалить свой комментарий в течении трех часов с момента
+его помещения, если на него еще нет ответов.
 <form method=POST action="delete_comment.jsp" class="form-horizontal">
   <lor:csrf/>
   <div class="control-group">
@@ -94,7 +94,7 @@
  <input type=hidden name=msgid value="${msgid}">
   <div class="control-group">
     <div class="controls">
-      <button type=submit>Удалить</button>
+      <button type=submit class="btn btn-danger">Удалить</button>
     </div>
   </div>
 </form>

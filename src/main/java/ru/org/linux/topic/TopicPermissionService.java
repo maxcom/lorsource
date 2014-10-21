@@ -16,6 +16,8 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Preconditions;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -40,7 +42,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   public static final int LINK_FOLLOW_MIN_SCORE = 100;
   public static final int VIEW_DELETED_SCORE = 100;
-  public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
+  public static final Duration DELETE_PERIOD = Duration.standardHours(3);
 
   @Autowired
   private CommentService commentService;
@@ -322,13 +324,13 @@ public class TopicPermissionService {
     boolean moderatorMode = currentUser.isModerator();
     boolean authored = currentUser.getId() == comment.getUserid();
 
-    long nowTimestamp = System.currentTimeMillis();
+    DateTime deleteDeadline = new DateTime(comment.getPostdate()).plus(DELETE_PERIOD);
 
     return moderatorMode ||
         (!topic.isExpired() &&
          authored &&
          !haveAnswers &&
-          nowTimestamp - comment.getPostdate().getTime() < DELETE_PERIOD);
+          deleteDeadline.isAfterNow());
   }
 
   /**
