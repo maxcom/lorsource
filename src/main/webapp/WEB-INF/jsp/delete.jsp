@@ -37,7 +37,7 @@ function change(dest,source)
 </script>
 <h1>Удаление сообщения</h1>
 <c:if test="${not draft}">
-Вы можете удалить свое сообщение в течении часа с момента
+Вы можете удалить свое сообщение в течении 6 часов с момента
 его помещения.
 </c:if>
 <form method=POST action="delete.jsp" class="form-horizontal">

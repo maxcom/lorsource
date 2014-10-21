@@ -15,6 +15,8 @@
 
 package ru.org.linux.group;
 
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.section.Section;
@@ -33,7 +35,8 @@ import java.util.Date;
 @Service
 public class GroupPermissionService {
   private static final int EDIT_SELF_ALWAYS_SCORE = 300;
-  private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
+  private static final Duration DELETE_PERIOD = Duration.standardHours(6);
+  private static final Duration EDIT_PERIOD = DELETE_PERIOD.multipliedBy(2);
   private static final int CREATE_TAG_SCORE = 200;
 
   private SectionService sectionService;
@@ -136,14 +139,10 @@ public class GroupPermissionService {
       return true;
     }
 
-    Calendar calendar = Calendar.getInstance();
-
-    calendar.setTime(new Date());
-    calendar.add(Calendar.HOUR_OF_DAY, -1);
-    Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
+    DateTime deleteDeadline = new DateTime(topic.getPostdate()).plus(DELETE_PERIOD);
 
     return (
-        topic.getPostdate().compareTo(hourDeltaTime) >= 0 &&
+        deleteDeadline.isAfterNow() &&
         topic.getCommentCount() == 0
     );
   }
@@ -243,7 +242,9 @@ public class GroupPermissionService {
         return !message.isExpired();
       }
 
-      return (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
+      DateTime editDeadline = new DateTime(message.getPostdate()).plus(EDIT_PERIOD);
+
+      return editDeadline.isAfterNow();
     }
 
     return false;
@@ -294,7 +295,9 @@ public class GroupPermissionService {
         return !message.isExpired();
       }
 
-      return (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
+      DateTime editDeadline = new DateTime(message.getPostdate()).plus(EDIT_PERIOD);
+
+      return editDeadline.isAfterNow();
     }
 
     return false;
