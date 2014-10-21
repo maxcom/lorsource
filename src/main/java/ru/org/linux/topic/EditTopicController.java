@@ -210,7 +210,11 @@ public class EditTopicController {
 
       ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
       for (User editor : editors) {
-        editorBonus.put(editor.getId(), 1);
+        if (currentUser.getId() == editor.getId()) {
+          editorBonus.put(editor.getId(), 0);
+        } else {
+          editorBonus.put(editor.getId(), 1);
+        }
       }
 
       form.setEditorBonus(editorBonus.build());
