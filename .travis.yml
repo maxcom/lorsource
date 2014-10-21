@@ -2,7 +2,6 @@ language: java
 script: mvn -T 2C install
 jdk:
   - oraclejdk8
-  - openjdk8
 before_script:
   - createuser -U postgres -d -S -R maxcom
   - createuser -U postgres -D -S -R linuxweb
