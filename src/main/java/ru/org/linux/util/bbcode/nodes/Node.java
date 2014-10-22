@@ -62,14 +62,15 @@ import java.util.List;
  * Базовый класс для узлов дерева разбора LORCODE
  */
 public class Node {
-  Node parent = null;
+  protected final Node parent;
   private final List<Node> children;
-  String parameter;
+  protected String parameter;
   protected final ParserParameters parserParameters;
 
   public Node(ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
     children = new ArrayList<>();
+    parent = null;
   }
 
   public Node(Node parent, ParserParameters parserParameters) {
