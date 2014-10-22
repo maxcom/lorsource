@@ -19,7 +19,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Настройки профиля</title>
+<title>Настройки</title>
 <script type="text/javascript">
 $script.ready('plugins', function() {
   $(function() {
@@ -30,7 +30,7 @@ $script.ready('plugins', function() {
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Параметры профиля</h1>
+<h1>Настройки</h1>
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>

@@ -43,7 +43,7 @@ $script.ready("plugins", function() {
     <div class="nav-buttons">
       <ul>
         <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="/people/${form.nick}/settings">Настройки профиля</a></li>
+        <li><a href="/people/${form.nick}/settings">Настройки</a></li>
       </ul>
      </div>
 </div>
