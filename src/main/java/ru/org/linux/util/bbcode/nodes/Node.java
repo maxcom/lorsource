@@ -84,7 +84,6 @@ public class Node {
   }
 
   public boolean allows(String tagname) {
-    assert false;
     return false;
   }
 
