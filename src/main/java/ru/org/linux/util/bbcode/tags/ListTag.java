@@ -58,16 +58,9 @@ import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/12/11
- * Time: 10:07 PM
- */
 public class ListTag extends HtmlEquivTag {
   public ListTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
-    setHtmlEquiv("ul");
+    super(name, allowedChildren, implicitTag, parserParameters, "ul");
   }
 
   @Override

@@ -53,52 +53,23 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import com.google.common.collect.ImmutableMap;
-import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 10:40 AM
- */
 public class HtmlEquivTag extends Tag {
-  private String htmlEquiv;
-  private Map<String, String> attributes = ImmutableMap.of();
+  private final String htmlEquiv;
 
-  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters, String htmlEquiv) {
     super(name, allowedChildren, implicitTag, parserParameters);
-  }
-
-  public void setHtmlEquiv(String htmlEquiv) {
     this.htmlEquiv = htmlEquiv;
-  }
-
-  public void setAttributes(Map<String, String> attributes) {
-    this.attributes = attributes;
   }
 
   @Override
   public String renderNodeXhtml(Node node) {
     StringBuilder opening = new StringBuilder(htmlEquiv);
     StringBuilder ret = new StringBuilder();
-
-    if (!attributes.isEmpty()) {
-      opening.append(' ');
-
-      for (Entry<String, String> entry : attributes.entrySet()) {
-        opening.append(entry.getKey());
-        opening.append('=');
-        opening.append(Parser.escape(entry.getValue()));
-        opening.append(' ');
-      }
-    }
 
     if (htmlEquiv.isEmpty()) {
       ret.append(node.renderChildrenXHtml());

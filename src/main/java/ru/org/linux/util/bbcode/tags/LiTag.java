@@ -58,26 +58,13 @@ import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/1/11
- * Time: 2:55 PM
- */
 public class LiTag extends HtmlEquivTag {
   public LiTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
-    setHtmlEquiv("li");
+    super(name, allowedChildren, implicitTag, parserParameters, "li");
   }
 
   @Override
   public String renderNodeBBCode(Node node) {
-    StringBuilder ret = new StringBuilder();
-    return ret
-            .append('[')
-            .append(name)
-            .append(']')
-            .append(node.renderChildrenBBCode())
-            .toString();
+    return "[" + name + ']' + node.renderChildrenBBCode();
   }
 }
