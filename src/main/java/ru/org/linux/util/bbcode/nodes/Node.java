@@ -61,7 +61,7 @@ import java.util.List;
 /**
  * Базовый класс для узлов дерева разбора LORCODE
  */
-public class Node {
+abstract public class Node {
   protected final Node parent;
   private final List<Node> children;
   protected String parameter;
@@ -99,6 +99,10 @@ public class Node {
     return children;
   }
 
+  public Node lastChildren() {
+    return children.get(children.size() - 1);
+  }
+
   public boolean isParameter() {
     return (parameter != null) && (!parameter.isEmpty());
   }
@@ -111,13 +115,9 @@ public class Node {
     this.parameter = parameter;
   }
 
-  public String renderXHtml() {
-    throw new UnsupportedOperationException();
-  }
+  abstract public String renderXHtml();
 
-  public String renderBBCode() {
-    throw new UnsupportedOperationException();
-  }
+  abstract public String renderBBCode();
 
   public String renderChildrenXHtml() {
     StringBuilder stringBuilder = new StringBuilder();

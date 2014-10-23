@@ -30,7 +30,7 @@ public class DefaultParserParameters implements ParserParameters{
    * Множество тэгов которое содержат или текст или себе подобных
    */
   private final static ImmutableSet<String> INLINE_TAGS = ImmutableSet.of(
-          "b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr", "inline"
+          "b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "softbr", "inline"
   );
 
   /**
@@ -95,7 +95,7 @@ public class DefaultParserParameters implements ParserParameters{
       allTags.add(tag);
     }
     { // <br/>, but can adapt during render ?
-      SoftBrTag tag = new SoftBrTag("softbr", ImmutableSet.<String>of(), "p", this);
+      SoftBrTag tag = new SoftBrTag(ImmutableSet.<String>of(), this);
       tag.setSelfClosing(true);
       tag.setDiscardable(true);
       allTags.add(tag);
@@ -125,20 +125,19 @@ public class DefaultParserParameters implements ParserParameters{
       allTags.add(tag);
     }
     { // <a>
-      UrlTag tag = new UrlTag("url", ImmutableSet.of("text"), "p", this);
+      UrlTag tag = new UrlTag(ImmutableSet.of("text"), this);
       allTags.add(tag);
     }
     { // <a> специальный случай с парамтром
-      UrlWithParamTag tag = new UrlWithParamTag("url2", URL_TAGS, "p", this);
+      UrlWithParamTag tag = new UrlWithParamTag(URL_TAGS, this);
       allTags.add(tag);
     }
     { // <a> member
-      MemberTag tag = new MemberTag("user", ImmutableSet.of("text"), "p", this);
+      MemberTag tag = new MemberTag(ImmutableSet.of("text"), this);
       allTags.add(tag);
     }
     { // <p>
-      HtmlEquivTag tag = new HtmlEquivTag("p", FLOW_TAGS, null, this, "p");
-      tag.setProhibitedElements(ImmutableSet.of("div", "list", "quote", "cut"));
+      HtmlEquivTag tag = new HtmlEquivTag("p", FLOW_TAGS, null, this, "p", ImmutableSet.of("div", "list", "quote", "cut"));
       allTags.add(tag);
     }
     { // <div>
@@ -146,33 +145,31 @@ public class DefaultParserParameters implements ParserParameters{
       allTags.add(tag);
     }
     { // <blockquote>
-      QuoteTag tag = new QuoteTag("quote", BLOCK_LEVEL_TAGS, "div", this);
+      QuoteTag tag = new QuoteTag(BLOCK_LEVEL_TAGS, this);
       allTags.add(tag);
     }
     { // <ul>
-      ListTag tag = new ListTag("list", ImmutableSet.of("*", "softbr"), "div", this);
+      ListTag tag = new ListTag(ImmutableSet.of("*", "softbr"), this);
       allTags.add(tag);
     }
-    { // <pre> (only img currently needed out of the prohibited elements)
+    { // <pre>
       HtmlEquivTag tag = new HtmlEquivTag("pre", INLINE_TAGS, "div", this, "pre");
-      tag.setProhibitedElements(ImmutableSet.of("img"));
       allTags.add(tag);
     }
     { // <pre class="code">
       CodeTag tag = new CodeTag("code", INLINE_TAGS, "div", this);
-      tag.setProhibitedElements(ImmutableSet.of("img"));
       allTags.add(tag);
     }
     {
-      InlineTag tag = new InlineTag("inline", INLINE_TAGS, "p", this);
+      InlineTag tag = new InlineTag(INLINE_TAGS, this);
       allTags.add(tag);
     }
     {   // [cut]
-      CutTag tag = new CutTag("cut", BLOCK_LEVEL_TAGS, "div", this);
+      CutTag tag = new CutTag(BLOCK_LEVEL_TAGS, this);
       allTags.add(tag);
     }
     { //  <li>
-      LiTag tag = new LiTag("*", FLOW_TAGS, "list", this);
+      LiTag tag = new LiTag(FLOW_TAGS, this);
       allTags.add(tag);
     }
 

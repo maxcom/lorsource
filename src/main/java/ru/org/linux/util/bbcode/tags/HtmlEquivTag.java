@@ -53,16 +53,20 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
-
-import java.util.Set;
 
 public class HtmlEquivTag extends Tag {
   private final String htmlEquiv;
 
-  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters, String htmlEquiv) {
+  public HtmlEquivTag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters, String htmlEquiv) {
     super(name, allowedChildren, implicitTag, parserParameters);
+    this.htmlEquiv = htmlEquiv;
+  }
+
+  public HtmlEquivTag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters, String htmlEquiv, ImmutableSet<String> prohibitedElements) {
+    super(name, allowedChildren, implicitTag, parserParameters, prohibitedElements);
     this.htmlEquiv = htmlEquiv;
   }
 

@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
@@ -63,17 +64,9 @@ import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 12:20 PM
- */
 public class UrlTag extends Tag {
-  public UrlTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public UrlTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("url", allowedChildren, "p", parserParameters);
   }
 
   @Override
@@ -92,7 +85,7 @@ public class UrlTag extends Tag {
       url = txtNode.getText().trim();
     }
     String linkText = txtNode.getText().trim();
-    if (linkText == null || linkText.isEmpty()) {
+    if (linkText.isEmpty()) {
       linkText = url;
     }
     String escapedUrl = URLUtil.fixURL(url);

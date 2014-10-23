@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
@@ -61,25 +62,16 @@ import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 12:34 PM
- */
 public class QuoteTag extends Tag {
-
   public static final String citeHeader = "<div class=\"none\">&gt;&gt;-----Цитата----&gt;&gt;</div><div class=\"quote\">";
   public static final String citeFooter = "</div><div class=\"none\">&lt;&lt;-----Цитата----&lt;&lt;</div>";
 
-  public static final String citeHeaderRSS = "<div style=\"border-width: 0 0 0 5px; border-style: solid; border-color: black; padding: 0 0 0 .5em; \">";
-  public static final String citeFooterRSS = "</div>";
+  private static final String citeHeaderRSS = "<div style=\"border-width: 0 0 0 5px; border-style: solid; border-color: black; padding: 0 0 0 .5em; \">";
+  private static final String citeFooterRSS = "</div>";
 
 
-  public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public QuoteTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("quote", allowedChildren, "div", parserParameters);
   }
 
   @Override

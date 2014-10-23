@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
@@ -60,17 +61,9 @@ import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/26/11
- * Time: 12:09 PM
- */
 public class UrlWithParamTag extends Tag {
-  public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public UrlWithParamTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("url2", allowedChildren, "p", parserParameters);
   }
 
   @Override

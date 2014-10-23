@@ -62,7 +62,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
  */
 public class TextNode extends Node {
   final String text;
-  final Parser.ParserAutomatonState state;
+  private final Parser.ParserAutomatonState state;
 
   public TextNode(Node parent, ParserParameters parserParameters, String text, Parser.ParserAutomatonState state1) {
     super(parent, parserParameters);

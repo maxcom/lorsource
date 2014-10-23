@@ -53,14 +53,13 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Set;
-
 public class LiTag extends HtmlEquivTag {
-  public LiTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters, "li");
+  public LiTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("*", allowedChildren, "list", parserParameters, "li");
   }
 
   @Override

@@ -53,14 +53,13 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Set;
-
 public class ListTag extends HtmlEquivTag {
-  public ListTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters, "ul");
+  public ListTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("list", allowedChildren, "div", parserParameters, "ul");
   }
 
   @Override

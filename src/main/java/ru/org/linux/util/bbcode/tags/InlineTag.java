@@ -52,31 +52,22 @@
  */
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
-import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.util.Set;
-
-/**
- */
-public class InlineTag extends CodeTag{
-
-  public InlineTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+public class InlineTag extends CodeTag {
+  public InlineTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("inline", allowedChildren, "p", parserParameters);
   }
 
   @Override
   public String renderNodeXhtml(Node node) {
-    if(NodeUtils.isEmptyNode(node)) {
+    if (NodeUtils.isEmptyNode(node)) {
       return "";
+    } else {
+      return "<span class=\"code\"><code>" + node.renderChildrenXHtml() + "</span></code>";
     }
-    StringBuilder ret = new StringBuilder();
-    ret
-        .append("<span class=\"code\"><code>")
-        .append(node.renderChildrenXHtml())
-        .append("</span></code>");
-    return ret.toString();
   }
 }

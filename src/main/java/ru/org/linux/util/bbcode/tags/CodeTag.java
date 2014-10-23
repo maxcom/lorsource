@@ -54,14 +54,13 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Set;
-
 public class CodeTag extends Tag {
-  protected static final ImmutableMap<String, String> langHash =
+  private static final ImmutableMap<String, String> langHash =
           ImmutableMap.<String, String>builder().
                   put("bash", "language-bash")
                   .put("coffeescript", "language-coffeescript")
@@ -110,7 +109,7 @@ public class CodeTag extends Tag {
                   .put("rust", "language-rust")
                   .build();
 
-  public CodeTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+  public CodeTag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
     super(name, allowedChildren, implicitTag, parserParameters);
   }
 

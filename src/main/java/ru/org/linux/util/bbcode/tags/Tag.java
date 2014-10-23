@@ -53,36 +53,38 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.NotImplementedException;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/29/11
- * Time: 11:20 PM
- */
 public class Tag {
   final String name;
-  private final Set<String> allowedChildren;
+  private final ImmutableSet<String> allowedChildren;
   private final String implicitTag;
   boolean selfClosing = false;
-  private Set<String> prohibitedElements;
+  private final ImmutableSet<String> prohibitedElements;
   private boolean discardable = false;
   protected final ParserParameters parserParameters;
 
-  public Tag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+  public Tag(
+          String name,
+          ImmutableSet<String> allowedChildren,
+          String implicitTag,
+          ParserParameters parserParameters,
+          ImmutableSet<String> prohibitedElements
+  ) {
     this.name = name;
     this.implicitTag = implicitTag;
     this.allowedChildren = allowedChildren;
     this.parserParameters = parserParameters;
+    this.prohibitedElements = prohibitedElements;
   }
 
-  public void setProhibitedElements(Set<String> prohibitedElements) {
-    this.prohibitedElements = prohibitedElements;
+  public Tag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    this(name, allowedChildren, implicitTag, parserParameters, ImmutableSet.<String>of());
   }
 
   public void setSelfClosing(boolean selfClosing) {

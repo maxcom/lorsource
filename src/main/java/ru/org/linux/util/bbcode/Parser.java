@@ -71,12 +71,12 @@ public class Parser {
   /**
    * Регулярное выражение поиска тэга
    */
-  public static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
+  private static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
 
   /**
    * Регулярное выражения поиска двойного перевода строки
    */
-  public static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
+  private static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
 
   private final ParserParameters parserParameters;
 
@@ -146,17 +146,15 @@ public class Parser {
    */
   private Node pushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
     if (!currentNode.allows("text")) {
-      if (text.trim().isEmpty()) {
-        //currentNode.getChildren().add(new TextNode(currentNode, this, text));
-      } else {
+      if (!text.trim().isEmpty()) {
         if (currentNode.allows("p")) {
           currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode()));
-          currentNode = descend(currentNode);
+          currentNode = currentNode.lastChildren();
         } else if (currentNode.allows("div")) {
           currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode()));
-          currentNode = descend(currentNode);
+          currentNode = currentNode.lastChildren();
         } else {
-          currentNode = ascend(currentNode);
+          currentNode = currentNode.getParent();
         }
         currentNode = pushTextNode(automatonState, currentNode, text);
       }
@@ -194,11 +192,11 @@ public class Parser {
             currentNode = pushTextNode(automatonState, currentNode, text.substring(0, matcher.start()));
           }
           if (isParagraph) {
-            currentNode = ascend(currentNode);
+            currentNode = currentNode.getParent();
           }
           if (matcher.end() != text.length()) {
             currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode()));
-            currentNode = descend(currentNode);
+            currentNode = currentNode.lastChildren();
             currentNode = pushTextNode(automatonState, currentNode, text.substring(matcher.end()));
           }
         } else if (!isParagraphed) {
@@ -227,26 +225,6 @@ public class Parser {
   }
 
   /**
-   * Сдвигает текущий узед в дереве на уровень ниже текущего узла
-   *
-   * @param currentNode текщуий узел
-   * @return новый текущий узел
-   */
-  private Node descend(Node currentNode) {
-    return currentNode.getChildren().get(currentNode.getChildren().size() - 1);
-  }
-
-  /**
-   * Сдвигает текущий узел на уровень выше текущего узла
-   *
-   * @param currentNode текущий узел
-   * @return новый текущий узел
-   */
-  private Node ascend(Node currentNode) {
-    return currentNode.getParent();
-  }
-
-  /**
    * Добавление в дерево нового узла с тэгом
    *
    * @param automatonState текущее состояние автомата
@@ -268,7 +246,7 @@ public class Parser {
         if (currentNode != automatonState.getRootNode() && TagNode.class.isInstance(currentNode)) {
           TagNode currentTagNode = (TagNode) currentNode;
           if ("p".equals(currentTagNode.getBbtag().getName())) {
-            currentNode = ascend(currentNode);
+            currentNode = currentNode.getParent();
             return pushTagNode(automatonState, currentNode, name, parameter);
           }
         }
@@ -282,7 +260,7 @@ public class Parser {
       TagNode node = new TagNode(currentNode, parserParameters, name, parameter, automatonState.getRootNode());
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {
-        currentNode = descend(currentNode);
+        currentNode = currentNode.lastChildren();
       }
     }
     return currentNode;
@@ -307,7 +285,7 @@ public class Parser {
         String tagName = node.getBbtag().getName();
         if (tagName.equals(name) || ("url".equals(name) && "url2".equals(tagName))) {
           currentNode = tempNode;
-          currentNode = ascend(currentNode);
+          currentNode = currentNode.getParent();
           break;
         }
       }
@@ -316,11 +294,6 @@ public class Parser {
     return currentNode;
   }
 
-  /**
-   * @param currentNode
-   * @param automatonState
-   * @return
-   */
   private Node processKnownTag(Node currentNode, ParserAutomatonState automatonState) {
     if (automatonState.getWholematch().startsWith("[[")) {
       currentNode = pushTextNode(automatonState, currentNode, "[");
@@ -328,7 +301,7 @@ public class Parser {
 
     boolean tagNameIsCode = "code".equals(automatonState.getTagname()) || "inline".equals(automatonState.getTagname());
 
-    if (automatonState.isCloseTag(automatonState)) {
+    if (automatonState.isCloseTag()) {
       currentNode = processCloseTag(automatonState, currentNode, tagNameIsCode);
     } else {
       currentNode = processTag(automatonState, currentNode, tagNameIsCode);
@@ -337,6 +310,7 @@ public class Parser {
     if (automatonState.getWholematch().endsWith("]]")) {
       currentNode = pushTextNode(automatonState, currentNode, "]");
     }
+
     return currentNode;
   }
 
@@ -428,7 +402,7 @@ public class Parser {
       return wholematch.startsWith("[[") && wholematch.endsWith("]]");
     }
 
-    public boolean isCloseTag(ParserAutomatonState automatonState) {
+    public boolean isCloseTag() {
       return wholematch.startsWith("[/") || wholematch.startsWith("[[/");
     }
 
@@ -460,24 +434,12 @@ public class Parser {
       return tagname;
     }
 
-    public void setTagname(String tagname) {
-      this.tagname = tagname;
-    }
-
     public String getParameter() {
       return parameter;
     }
 
-    public void setParameter(String parameter) {
-      this.parameter = parameter;
-    }
-
     public String getWholematch() {
       return wholematch;
-    }
-
-    public void setWholematch(String wholematch) {
-      this.wholematch = wholematch;
     }
 
     public RootNode getRootNode() {

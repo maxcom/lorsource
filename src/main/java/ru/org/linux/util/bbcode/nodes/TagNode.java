@@ -72,14 +72,10 @@ public class TagNode extends Node {
 
   @Override
   public boolean prohibited(String tagName) {
-    if (bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)) {
+    if (bbtag.getProhibitedElements().contains(tagName)) {
       return true;
     } else {
-      if (parent == null) {
-        return false;
-      } else {
-        return parent.prohibited(tagName);
-      }
+      return parent != null && parent.prohibited(tagName);
     }
   }
 

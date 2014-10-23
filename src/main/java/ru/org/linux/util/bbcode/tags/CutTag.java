@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.httpclient.URI;
 import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.Parser;
@@ -62,12 +63,10 @@ import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
 public class CutTag extends HtmlEquivTag {
 
-  public CutTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters, "div");
+  public CutTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("cut", allowedChildren, "div", parserParameters, "div");
   }
 
   @Override

@@ -67,7 +67,7 @@ public class LorCodeService {
     return defaultParser.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
   }
 
-  public String parseCommentRSS(String text, boolean secure) {
+  String parseCommentRSS(String text, boolean secure) {
     return defaultParser.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
   }
 

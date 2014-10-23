@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.bbcode.Parser;
@@ -63,13 +64,9 @@ import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- */
 public class MemberTag extends Tag {
-  public MemberTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public MemberTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("user", allowedChildren, "p", parserParameters);
   }
 
   @Override

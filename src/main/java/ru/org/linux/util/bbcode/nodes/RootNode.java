@@ -90,10 +90,6 @@ public class RootNode extends Node {
     return cutURI;
   }
 
-  public void setCutURI(URI cutURI) {
-    this.cutURI = cutURI;
-  }
-
   public ToHtmlFormatter getToHtmlFormatter() {
     return toHtmlFormatter;
   }

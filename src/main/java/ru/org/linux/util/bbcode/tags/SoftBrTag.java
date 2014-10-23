@@ -53,20 +53,13 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 11:45 AM
- */
 public class SoftBrTag extends Tag {
-  public SoftBrTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public SoftBrTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("softbr", allowedChildren, "p", parserParameters);
   }
 
   @Override
