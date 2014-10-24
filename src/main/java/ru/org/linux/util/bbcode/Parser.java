@@ -148,10 +148,10 @@ public class Parser {
     if (!currentNode.allows("text")) {
       if (!text.trim().isEmpty()) {
         if (currentNode.allows("p")) {
-          currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode()));
+          currentNode.addChildren(new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode()));
           currentNode = currentNode.lastChildren();
         } else if (currentNode.allows("div")) {
-          currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode()));
+          currentNode.addChildren(new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode()));
           currentNode = currentNode.lastChildren();
         } else {
           currentNode = currentNode.getParent();
@@ -195,7 +195,7 @@ public class Parser {
             currentNode = currentNode.getParent();
           }
           if (matcher.end() != text.length()) {
-            currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode()));
+            currentNode.addChildren(new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode()));
             currentNode = currentNode.lastChildren();
             currentNode = pushTextNode(automatonState, currentNode, text.substring(matcher.end()));
           }
@@ -218,9 +218,9 @@ public class Parser {
 
   private void rawPushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
     if (!automatonState.isCode()) {
-      currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, automatonState));
+      currentNode.addChildren(new TextNode(currentNode, parserParameters, text, automatonState));
     } else {
-      currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, automatonState));
+      currentNode.addChildren(new TextCodeNode(currentNode, parserParameters, text, automatonState));
     }
   }
 
@@ -258,7 +258,7 @@ public class Parser {
       }
     } else {
       TagNode node = new TagNode(currentNode, parserParameters, name, parameter, automatonState.getRootNode());
-      currentNode.getChildren().add(node);
+      currentNode.addChildren(node);
       if (!node.getBbtag().isSelfClosing()) {
         currentNode = currentNode.lastChildren();
       }

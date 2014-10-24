@@ -56,6 +56,7 @@ package ru.org.linux.util.bbcode.nodes;
 import ru.org.linux.util.bbcode.ParserParameters;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -96,7 +97,11 @@ abstract public class Node {
   }
 
   public List<Node> getChildren() {
-    return children;
+    return Collections.unmodifiableList(children);
+  }
+
+  public void addChildren(Node node) {
+    children.add(node);
   }
 
   public Node lastChildren() {
