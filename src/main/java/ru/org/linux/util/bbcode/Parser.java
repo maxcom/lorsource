@@ -369,9 +369,6 @@ public class Parser {
     return pushTextNode(automatonState, currentNode, fixWhole);
   }
 
-  /**
-   *
-   */
   public class ParserAutomatonState {
     private final RootNode rootNode;
     private final Set<String> allTagsNames;
@@ -386,12 +383,12 @@ public class Parser {
     private String parameter;
     private String wholematch;
 
-    public ParserAutomatonState(RootNode rootNode, ParserParameters parserParameters) {
+    private ParserAutomatonState(RootNode rootNode, ParserParameters parserParameters) {
       this.rootNode = rootNode;
       allTagsNames = parserParameters.getAllTagsNames();
     }
 
-    public void processTagMatcher(Matcher match) {
+    private void processTagMatcher(Matcher match) {
       tagname = match.group(1).toLowerCase();
       parameter = match.group(3);
       wholematch = match.group(0);
@@ -401,47 +398,47 @@ public class Parser {
       }
     }
 
-    public boolean isTagEscaped() {
+    private boolean isTagEscaped() {
       return wholematch.startsWith("[[") && wholematch.endsWith("]]");
     }
 
-    public boolean isCloseTag() {
+    private boolean isCloseTag() {
       return wholematch.startsWith("[/") || wholematch.startsWith("[[/");
     }
 
-    public int getPos() {
+    private int getPos() {
       return pos;
     }
 
-    public void setPos(int pos) {
+    private void setPos(int pos) {
       this.pos = pos;
     }
 
-    public boolean isCode() {
+    private boolean isCode() {
       return isCode;
     }
 
-    public void setCode(boolean code) {
+    private void setCode(boolean code) {
       isCode = code;
     }
 
-    public boolean isFirstCode() {
+    private boolean isFirstCode() {
       return firstCode;
     }
 
-    public void setFirstCode(boolean firstCode) {
+    private void setFirstCode(boolean firstCode) {
       this.firstCode = firstCode;
     }
 
-    public String getTagname() {
+    private String getTagname() {
       return tagname;
     }
 
-    public String getParameter() {
+    private String getParameter() {
       return parameter;
     }
 
-    public String getWholematch() {
+    private String getWholematch() {
       return wholematch;
     }
 
@@ -449,7 +446,7 @@ public class Parser {
       return rootNode;
     }
 
-    public Set<String> getAllTagsNames() {
+    private Set<String> getAllTagsNames() {
       return allTagsNames;
     }
 
