@@ -148,11 +148,13 @@ public class Parser {
     if (!currentNode.allows("text")) {
       if (!text.trim().isEmpty()) {
         if (currentNode.allows("p")) {
-          currentNode.addChildren(new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode()));
-          currentNode = currentNode.lastChildren();
+          TagNode node = new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode());
+          currentNode.addChildren(node);
+          currentNode = node;
         } else if (currentNode.allows("div")) {
-          currentNode.addChildren(new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode()));
-          currentNode = currentNode.lastChildren();
+          TagNode node = new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode());
+          currentNode.addChildren(node);
+          currentNode = node;
         } else {
           currentNode = currentNode.getParent();
         }
@@ -195,8 +197,9 @@ public class Parser {
             currentNode = currentNode.getParent();
           }
           if (matcher.end() != text.length()) {
-            currentNode.addChildren(new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode()));
-            currentNode = currentNode.lastChildren();
+            TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
+            currentNode.addChildren(node);
+            currentNode = node;
             currentNode = pushTextNode(automatonState, currentNode, text.substring(matcher.end()));
           }
         } else if (!isParagraphed) {
@@ -260,7 +263,7 @@ public class Parser {
       TagNode node = new TagNode(currentNode, parserParameters, name, parameter, automatonState.getRootNode());
       currentNode.addChildren(node);
       if (!node.getBbtag().isSelfClosing()) {
-        currentNode = currentNode.lastChildren();
+        currentNode = node;
       }
     }
     return currentNode;

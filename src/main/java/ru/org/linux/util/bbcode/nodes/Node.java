@@ -104,10 +104,6 @@ abstract public class Node {
     children.add(node);
   }
 
-  public Node lastChildren() {
-    return children.get(children.size() - 1);
-  }
-
   public boolean isParameter() {
     return (parameter != null) && (!parameter.isEmpty());
   }
