@@ -63,8 +63,6 @@
             </c:otherwise>
         </c:choose>
         </c:forEach>
-
-          <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
         </ul>
     </div>
 </div>
@@ -206,5 +204,13 @@
 </c:choose>
 </c:if>
 </div>
+
+<p>
+  <i class="icon-rss"></i>
+  <a href="show-replies.jsp?output=rss&amp;nick=${nick}">
+    RSS подписка на новые темы
+  </a>
+</p>
+
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
