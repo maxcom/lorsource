@@ -155,7 +155,7 @@
       <c:if test="${topic.event.cid==0}">
         <a href="jump-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
       </c:if>
-      (<a class="secondary" href="${topic.group.url}">${topic.group.title}</a>)
+      (${topic.group.title})
     </c:if>
 
     <c:if test="${topic.event.type == 'DELETED'}">
