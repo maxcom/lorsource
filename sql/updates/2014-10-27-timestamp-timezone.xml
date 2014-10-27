@@ -9,4 +9,21 @@
       alter table user_events alter column event_date type timestamp with time zone;
     </sql>
   </changeSet>
+
+  <changeSet id="2014102702" author="Maxim Valyanskiy">
+    <sql>
+      alter table b_ips alter column ban_date type timestamp with time zone;
+      alter table ban_info alter column bandate type timestamp with time zone;
+      alter table del_info alter column deldate type timestamp with time zone;
+      alter table edit_info alter column editdate type timestamp with time zone;
+      alter table memories alter column add_date type timestamp with time zone;
+      alter table topics alter column commitdate type timestamp with time zone;
+      alter table user_log alter column action_date type timestamp with time zone;
+    </sql>
+  </changeSet>
+
+  <!--
+         alter table users alter column lastlogin type timestamp with time zone;
+      alter table users alter column regdate type timestamp with time zone;
+  -->
 </databaseChangeLog>
