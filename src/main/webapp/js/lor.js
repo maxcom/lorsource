@@ -13,24 +13,6 @@
  *    limitations under the License.
  */
 
-// addtag.js
-function initTopTagSelection() {
-  $(function() {
-    function addTag() {
-      var tags = $('#tags');
-      var curVal = tags.val();
-
-      if (curVal != "") {
-        curVal += ",";
-      }
-
-      tags.val(curVal + $(this).text());
-    }
-
-    $('a[data-toptag]').click(addTag);
-  });
-}
-
 function initNextPrevKeys() {
   $script.ready('plugins', function () {
     $(function () {

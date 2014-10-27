@@ -206,8 +206,6 @@ public class AddTopicController {
       params.put("imagepost", groupPermissionService.isImagePostingAllowed(section, currentUser));
     }
 
-    params.put("topTags", tagService.getTopTags());
-
     return params.build();
   }
 

@@ -1,16 +1,17 @@
 package ru.org.linux.tag
 
-import org.springframework.stereotype.Repository
-import org.springframework.beans.factory.annotation.Autowired
-import javax.sql.DataSource
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import scala.collection.JavaConversions._
 import java.sql.ResultSet
+import javax.sql.DataSource
 
-import TagDao._
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.scala.jdbc.core.JdbcTemplate
+import org.springframework.stereotype.Repository
+import ru.org.linux.tag.TagDao._
+
+import scala.collection.JavaConversions._
 
 @Repository
 class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
@@ -49,15 +50,6 @@ class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
    */
   def deleteTag(tagId: Int):Unit = {
     jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId)
-  }
-
-  def getTopTags: Seq[String] = {
-    val topTags = jdbcTemplate.queryForSeq[String](
-      "SELECT value FROM tags_values WHERE counter>1 " +
-        "ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT
-    )
-
-    topTags.sorted
   }
 
   /**

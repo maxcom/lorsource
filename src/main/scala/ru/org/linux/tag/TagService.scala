@@ -1,15 +1,17 @@
 package ru.org.linux.tag
 
-import org.springframework.beans.factory.annotation.Autowired
-import ru.org.linux.topic.TagTopicListController
-import scala.collection.JavaConversions._
-import org.springframework.stereotype.Service
 import java.util
+
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import ru.org.linux.topic.TagTopicListController
+
+import scala.collection.JavaConversions._
 import scala.collection.immutable.SortedMap
 
 @Service
 class TagService @Autowired () (tagDao:TagDao) {
-  import TagService._
+  import ru.org.linux.tag.TagService._
 
   /**
    * Получение идентификационного номера тега по названию.
@@ -63,13 +65,6 @@ class TagService @Autowired () (tagDao:TagDao) {
 
     mapAsJavaMap(SortedMap(result: _*))
   }
-
-  /**
-   * Получить список наиболее популярных тегов.
-   *
-   * @return список наиболее популярных тегов
-   */
-  def getTopTags: util.List[String] = tagDao.getTopTags
 }
 
 object TagService {

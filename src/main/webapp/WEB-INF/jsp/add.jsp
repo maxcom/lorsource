@@ -33,8 +33,6 @@
 
 <title>Добавить сообщение</title>
 <script type="text/javascript">
-  $script.ready('lorjs', function() { initTopTagSelection(); });
-
   $script.ready("plugins", function() {
     $(function() {
       $("#messageForm").validate({
@@ -178,10 +176,6 @@
 
     <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
   </label>
-    Популярные теги:
-     <c:forEach items="${topTags}" var="topTag" varStatus = "status">
-${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
-     </c:forEach>
 </div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <div class="form-actions">
