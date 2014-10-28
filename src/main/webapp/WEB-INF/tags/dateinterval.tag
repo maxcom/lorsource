@@ -1,5 +1,5 @@
+<%@ tag import="org.joda.time.DateTime" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="java.util.Calendar" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%--
   ~ Copyright 1998-2014 Linux.org.ru
@@ -17,17 +17,10 @@
   --%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>"><%
   long diff = System.currentTimeMillis() - date.getTime();
-  Calendar c = Calendar.getInstance();
-  c.setTime(date);
+  DateTime c = new DateTime(date.getTime());
 
-  Calendar today = Calendar.getInstance();
-  today.set(Calendar.HOUR_OF_DAY, 0);
-  today.set(Calendar.MINUTE, 0);
-  today.set(Calendar.SECOND, 0);
-  today.set(Calendar.MILLISECOND, 0);
-
-  Calendar yesterday = (Calendar) today.clone();
-  yesterday.roll(Calendar.DAY_OF_MONTH, false);
+  DateTime today = DateTime.now().withTimeAtStartOfDay();
+  DateTime yesterday = DateTime.now().minusDays(1).withTimeAtStartOfDay();
 
   if (diff<2*1000*60) {
     out.print("минуту назад");
@@ -41,11 +34,11 @@
     } else {
       out.print(min +"&nbsp;минут назад");
     }
-  } else if (c.after(today)) {
-    out.print("сегодня " + DateFormats.time().print(date.getTime()));
-  } else if (c.after(yesterday)) {
-    out.print("вчера " + DateFormats.time().print(date.getTime()));
+  } else if (c.isAfter(today)) {
+    out.print("сегодня " + DateFormats.time().print(c));
+  } else if (c.isAfter(yesterday)) {
+    out.print("вчера " + DateFormats.time().print(c));
   } else {
-    out.print(DateFormats.getShort().print(date.getTime()));
+    out.print(DateFormats.getShort().print(c));
   }
 %></time>
