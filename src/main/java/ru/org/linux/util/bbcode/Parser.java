@@ -142,88 +142,91 @@ public class Parser {
    * @param automatonState текущее состояние автомата
    * @param currentNode    текущий узел
    * @param text           текст
-   * @return возвращает новй текущий узел
+   * @return возвращает новый текущий узел
    */
   private Node pushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
-    if (!currentNode.allows("text")) {
-      if (!text.trim().isEmpty()) {
-        if (currentNode.allows("p")) {
-          TagNode node = new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode());
-          currentNode.addChildren(node);
-          currentNode = node;
-        } else if (currentNode.allows("div")) {
-          TagNode node = new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode());
-          currentNode.addChildren(node);
-          currentNode = node;
-        } else {
-          currentNode = currentNode.getParent();
-        }
-        currentNode = pushTextNode(automatonState, currentNode, text);
-      }
-    } else {
-      Matcher matcher = P_REGEXP.matcher(text);
+    if (text.trim().isEmpty()) {
+      return currentNode;
+    }
 
-      boolean isParagraph = false;
-      boolean isAllow = true;
-      boolean isParagraphed = false;
-      if (TagNode.class.isInstance(currentNode)) {
-        TagNode tempNode = (TagNode) currentNode;
-        Set<String> disallowedParagraphTags = parserParameters.getDisallowedParagraphTags();
-        Set<String> paragraphedTags = parserParameters.getParagraphedTags();
-        if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())) {
-          isAllow = false;
-        }
-        if (paragraphedTags.contains(tempNode.getBbtag().getName())) {
-          isParagraphed = true;
-        }
-        if ("p".equals(tempNode.getBbtag().getName())) {
-          isParagraph = true;
-        }
-      }
-
-      /**
-       * Если мы находим двойной пеернос строки и в тексте
-       * и в текущем тэге разрешена вставка нового тэга p -
-       * вставляем p
-       * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
-       * выше в дереве и вставляем p с текстом
-       */
-      if (matcher.find()) {
-        if (isAllow) {
-          if (matcher.start() != 0) {
-            currentNode = pushTextNode(automatonState, currentNode, text.substring(0, matcher.start()));
-          }
-          if (isParagraph) {
-            currentNode = currentNode.getParent();
-          }
-          if (matcher.end() != text.length()) {
-            TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
-            currentNode.addChildren(node);
-            currentNode = node;
-            currentNode = pushTextNode(automatonState, currentNode, text.substring(matcher.end()));
-          }
-        } else if (!isParagraphed) {
-          if (matcher.start() != 0) {
-            rawPushTextNode(automatonState, currentNode, text.substring(0, matcher.start()));
-          }
-          if (matcher.end() != text.length()) {
-            rawPushTextNode(automatonState, currentNode, text.substring(matcher.end()));
-          }
-        } else {
-          rawPushTextNode(automatonState, currentNode, text);
-        }
+    while (!currentNode.allows("text")) {
+      if (currentNode.allows("p")) {
+        TagNode node = new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode());
+        currentNode.addChildren(node);
+        currentNode = node;
+      } else if (currentNode.allows("div")) {
+        TagNode node = new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode());
+        currentNode.addChildren(node);
+        currentNode = node;
       } else {
-        rawPushTextNode(automatonState, currentNode, text);
+        currentNode = currentNode.getParent();
       }
     }
+
+    boolean isParagraph = false;
+    boolean isAllow = true;
+    boolean isParagraphed = false;
+
+    if (TagNode.class.isInstance(currentNode)) {
+      TagNode tempNode = (TagNode) currentNode;
+      Set<String> disallowedParagraphTags = parserParameters.getDisallowedParagraphTags();
+      Set<String> paragraphedTags = parserParameters.getParagraphedTags();
+      if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())) {
+        isAllow = false;
+      }
+      if (paragraphedTags.contains(tempNode.getBbtag().getName())) {
+        isParagraphed = true;
+      }
+      if ("p".equals(tempNode.getBbtag().getName())) {
+        isParagraph = true;
+      }
+    }
+
+    /**
+     * Если мы находим двойной пеернос строки и в тексте
+     * и в текущем тэге разрешена вставка нового тэга p -
+     * вставляем p
+     * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
+     * выше в дереве и вставляем p с текстом
+     */
+    Matcher matcher = P_REGEXP.matcher(text);
+
+    if (matcher.find()) {
+      if (isAllow) {
+        if (matcher.start() != 0) {
+          currentNode = pushTextNode(automatonState, currentNode, text.substring(0, matcher.start()));
+        }
+        if (isParagraph) {
+          currentNode = currentNode.getParent();
+        }
+        if (matcher.end() != text.length()) {
+          TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
+          currentNode.addChildren(node);
+          currentNode = node;
+          currentNode = pushTextNode(automatonState, currentNode, text.substring(matcher.end()));
+        }
+      } else if (!isParagraphed) {
+        if (matcher.start() != 0) {
+          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text.substring(0, matcher.start())));
+        }
+        if (matcher.end() != text.length()) {
+          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text.substring(matcher.end())));
+        }
+      } else {
+        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
+      }
+    } else {
+      currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
+    }
+
     return currentNode;
   }
 
-  private void rawPushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
+  private TextNode rawPushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
     if (!automatonState.isCode()) {
-      currentNode.addChildren(new TextNode(currentNode, parserParameters, text, automatonState));
+      return new TextNode(currentNode, parserParameters, text, automatonState);
     } else {
-      currentNode.addChildren(new TextCodeNode(currentNode, parserParameters, text, automatonState));
+      return new TextCodeNode(currentNode, parserParameters, text, automatonState);
     }
   }
 
