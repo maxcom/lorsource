@@ -183,7 +183,7 @@ public class Parser {
     }
 
     /**
-     * Если мы находим двойной пеернос строки и в тексте
+     * Если мы находим двойной перенос строки и в тексте
      * и в текущем тэге разрешена вставка нового тэга p -
      * вставляем p
      * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
@@ -194,7 +194,7 @@ public class Parser {
     if (matcher.find()) {
       if (isAllow) {
         if (matcher.start() != 0) {
-          currentNode = pushTextNode(automatonState, currentNode, text.substring(0, matcher.start()));
+          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text.substring(0, matcher.start())));
         }
         if (isParagraph) {
           currentNode = currentNode.getParent();
