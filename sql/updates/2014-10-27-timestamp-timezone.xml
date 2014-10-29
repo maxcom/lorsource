@@ -43,4 +43,10 @@
          FROM users;
     </sql>
   </changeSet>
+
+  <changeSet id="2014102901" author="Maxim Valyanskiy">
+    <sql>
+      GRANT SELECT ON TABLE jam_wiki_user TO jamwiki;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
