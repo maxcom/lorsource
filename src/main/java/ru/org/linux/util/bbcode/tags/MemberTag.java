@@ -86,18 +86,18 @@ public class MemberTag extends Tag {
       if(userDao != null && toHtmlFormatter != null){
         User user = rootNode.getUserDao().getUser(memberName);
         if (!user.isBlocked()) {
-          result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
+          result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
               toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
           rootNode.addReplier(user);
         } else {
-          result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
+          result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
               toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
         }
       }else{
         result = Parser.escape(memberName);
       }
     } catch (Exception ex) {
-      result = String.format("<s>%s</s>", Parser.escape(memberName));
+      result = String.format(" <s>%s</s>", Parser.escape(memberName));
     }
     return result;
   }
