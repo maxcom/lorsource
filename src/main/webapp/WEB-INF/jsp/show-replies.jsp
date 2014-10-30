@@ -158,7 +158,7 @@
 
     <c:if test="${topic.event.type == 'DELETED'}">
       <a href="view-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
-      (<a class="secondary" href="${topic.group.url}">${topic.group.title}</a>)
+      (${topic.group.title})
       <br>
       <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
     </c:if>
