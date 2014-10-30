@@ -191,32 +191,28 @@ public class Parser {
      */
     Matcher matcher = P_REGEXP.matcher(text);
 
-    if (matcher.find()) {
-      if (isAllow) {
-        if (matcher.start() != 0) {
-          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text.substring(0, matcher.start())));
-        }
-        if (isParagraph) {
-          currentNode = currentNode.getParent();
-        }
-        if (matcher.end() != text.length()) {
-          TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
-          currentNode.addChildren(node);
-          currentNode = node;
-          currentNode = pushTextNode(automatonState, currentNode, text.substring(matcher.end()));
-        }
-      } else if (!isParagraphed) {
-        if (matcher.start() != 0) {
-          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text.substring(0, matcher.start())));
-        }
-        if (matcher.end() != text.length()) {
-          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text.substring(matcher.end())));
-        }
-      } else {
-        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
+    if (isAllow && matcher.find()) {
+      String head = text.substring(0, matcher.start());
+      String tail = text.substring(matcher.end());
+
+      if (!head.isEmpty()) {
+        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, head));
+      }
+      if (isParagraph) {
+        currentNode = currentNode.getParent();
+      }
+      if (!tail.isEmpty()) {
+        TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
+        currentNode.addChildren(node);
+        currentNode = node;
+        currentNode = pushTextNode(automatonState, currentNode, tail);
       }
     } else {
-      currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
+      if (isParagraphed) {
+        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
+      } else {
+        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, matcher.replaceAll("")));
+      }
     }
 
     return currentNode;
