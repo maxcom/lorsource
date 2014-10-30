@@ -20,13 +20,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
-
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -35,41 +31,15 @@ import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 
 public class Simple2ParserTest {
-
-  LorCodeService lorCodeService;
-  SiteConfig siteConfig;
-  ToHtmlFormatter toHtmlFormatter;
-  UserDao userDao;
-  User maxcom; // Администратор
-  User JB;     // Модератор
-  User isden;  // Заблокированный пользователь
-  String mainUrl;
-  URI mainURI;
-  String url;
-
+  private LorCodeService lorCodeService;
+  private ToHtmlFormatter toHtmlFormatter;
+  private String url;
 
   @Before
   public void init() throws Exception {
-    maxcom = mock(User.class);
-    JB = mock(User.class);
-    isden = mock(User.class);
-
-    when(maxcom.isBlocked()).thenReturn(false);
-    when(JB.isBlocked()).thenReturn(false);
-    when(isden.isBlocked()).thenReturn(true);
-    when(maxcom.getNick()).thenReturn("maxcom");
-    when(JB.getNick()).thenReturn("JB");
-    when(isden.getNick()).thenReturn("isden");
-
-    userDao = mock(UserDao.class);
-    when(userDao.getUser("maxcom")).thenReturn(maxcom);
-    when(userDao.getUser("JB")).thenReturn(JB);
-    when(userDao.getUser("isden")).thenReturn(isden);
-    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
-
-    mainUrl = "http://127.0.0.1:8080/";
-    mainURI = new URI(mainUrl, true, "UTF-8");
-    siteConfig = mock(SiteConfig.class);
+    String mainUrl = "http://127.0.0.1:8080/";
+    URI mainURI = new URI(mainUrl, true, "UTF-8");
+    SiteConfig siteConfig = mock(SiteConfig.class);
     when(siteConfig.getMainURI()).thenReturn(mainURI);
     when(siteConfig.getMainUrl()).thenReturn(mainUrl);
 
@@ -78,7 +48,7 @@ public class Simple2ParserTest {
 
 
     lorCodeService = new LorCodeService();
-    lorCodeService.setUserDao(userDao);
+    lorCodeService.setUserDao(mock(UserDao.class));
     lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
@@ -177,17 +147,17 @@ public class Simple2ParserTest {
   public void listTest() {
     Assert.assertEquals("<ul><li>one</li><li>two</li><li>three</li></ul>", lorCodeService.parseComment("[LIST][*]one[*]two[*]three[/list]", false, false));
     assertEquals(
-        "<ul><li>one\n" +
-            "</li><li>two\n" +
-            "</li><li>three\n" +
-            "</li></ul>",
-        lorCodeService.parseComment("[list]\n[*]one\n[*]two\n[*]three\n[/LIST]", false, false));
+            "<ul><li>one\n" +
+                    "</li><li>two\n" +
+                    "</li><li>three\n" +
+                    "</li></ul>",
+            lorCodeService.parseComment("[list]\n[*]one\n[*]two\n[*]three\n[/LIST]", false, false));
     assertEquals(
-        "<ul><li>one\n" +
-            "</li><li>two\n" +
-            "</li><li>three\n" +
-            "</li></ul>",
-        lorCodeService.parseTopic("[list]\n[*]one\n[*]two\n[*]three\n[/LIST]", false, false));
+            "<ul><li>one\n" +
+                    "</li><li>two\n" +
+                    "</li><li>three\n" +
+                    "</li></ul>",
+            lorCodeService.parseTopic("[list]\n[*]one\n[*]two\n[*]three\n[/LIST]", false, false));
   }
 
   @Test
@@ -247,30 +217,6 @@ public class Simple2ParserTest {
   public void spacesTest() {
     Assert.assertEquals("<p>some text</p><p> some again text <a href=\"http://example.com\">example</a> example</p>",
         lorCodeService.parseComment("some text\n\n some again text [URL=http://example.com]example[/url] example", false, false));
-  }
-
-  @Test
-  public void userTest() {
-
-
-    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
-        lorCodeService.parseComment("[user]maxcom[/USER]", false, false));
-    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
-        lorCodeService.parseComment("[USER]isden[/USER]", false, false));
-    Assert.assertEquals("<p><s>hizel</s></p>",
-        lorCodeService.parseComment("[user]hizel[/USER]", false, false));
-  }
-
-  @Test
-  public void parserResultTest() {
-    String msg = "[user]hizel[/user][USER]JB[/user][user]maxcom[/USER]";
-    Set<User> replier = lorCodeService.getReplierFromMessage(msg);
-    String html = lorCodeService.parseComment(msg, true, false);
-
-    Assert.assertTrue(replier.contains(maxcom));
-    Assert.assertTrue(replier.contains(JB));
-    Assert.assertFalse(replier.contains(isden));
-    Assert.assertEquals("<p><s>hizel</s><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"https://127.0.0.1:8080/people/JB/profile\">JB</a></span><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"https://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>", html);
   }
 
   @Test

@@ -19,59 +19,30 @@ import org.apache.commons.httpclient.URI;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 
 public class SimpleParserTest {
-
-  LorCodeService lorCodeService;
-  SiteConfig siteConfig;
-  ToHtmlFormatter toHtmlFormatter;
-  UserDao userDao;
-  User maxcom; // Администратор
-  User JB;     // Модератор
-  User isden;  // Заблокированный пользователь
-  String mainUrl;
-  URI mainURI;
-  String url;
-
+  private LorCodeService lorCodeService;
+  private String url;
 
   @Before
   public void init() throws Exception {
-    maxcom = mock(User.class);
-    JB = mock(User.class);
-    isden = mock(User.class);
+    UserDao userDao = mock(UserDao.class);
 
-    when(maxcom.isBlocked()).thenReturn(false);
-    when(JB.isBlocked()).thenReturn(false);
-    when(isden.isBlocked()).thenReturn(true);
-    when(maxcom.getNick()).thenReturn("maxcom");
-    when(JB.getNick()).thenReturn("JB");
-    when(isden.getNick()).thenReturn("isden");
-
-    userDao = mock(UserDao.class);
-    when(userDao.getUser("maxcom")).thenReturn(maxcom);
-    when(userDao.getUser("JB")).thenReturn(JB);
-    when(userDao.getUser("isden")).thenReturn(isden);
-    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
-
-    mainUrl = "http://127.0.0.1:8080/";
-    mainURI = new URI(mainUrl, true, "UTF-8");
-    siteConfig = mock(SiteConfig.class);
+    String mainUrl = "http://127.0.0.1:8080/";
+    URI mainURI = new URI(mainUrl, true, "UTF-8");
+    SiteConfig siteConfig = mock(SiteConfig.class);
     when(siteConfig.getMainURI()).thenReturn(mainURI);
     when(siteConfig.getMainUrl()).thenReturn(mainUrl);
 
-    toHtmlFormatter = new ToHtmlFormatter();
+    ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
 
 
@@ -220,30 +191,6 @@ public class SimpleParserTest {
   public void spacesTest() {
     assertEquals("<p>some text</p><p> some again text <a href=\"http://example.com\">example</a> example</p>",
         lorCodeService.parseComment("some text\n\n some again text [url=http://example.com]example[/url] example", false, false));
-  }
-
-  @Test
-  public void userTest() {
-
-
-    assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
-        lorCodeService.parseComment("[user]maxcom[/user]", false, false));
-    assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
-        lorCodeService.parseComment("[user]isden[/user]", false, false));
-    assertEquals("<p><s>hizel</s></p>",
-        lorCodeService.parseComment("[user]hizel[/user]", false, false));
-  }
-
-  @Test
-  public void parserResultTest() {
-    String msg = "[user]hizel[/user][user]JB[/user][user]maxcom[/user]";
-    Set<User> replier = lorCodeService.getReplierFromMessage(msg);
-    String html = lorCodeService.parseComment(msg, true, false);
-
-    assertTrue(replier.contains(maxcom));
-    assertTrue(replier.contains(JB));
-    assertFalse(replier.contains(isden));
-    assertEquals("<p><s>hizel</s><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"https://127.0.0.1:8080/people/JB/profile\">JB</a></span><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"https://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>", html);
   }
 
   @Test

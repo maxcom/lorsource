@@ -76,12 +76,12 @@ public class MemberTag extends Tag {
     }
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
     String memberName = Parser.escape(txtNode.getText()).trim();
-    String result;
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
     boolean secure = rootNode.isSecure();
     UserDao userDao = rootNode.getUserDao();
+    String result;
     try {
       if(userDao != null && toHtmlFormatter != null){
         User user = rootNode.getUserDao().getUser(memberName);
