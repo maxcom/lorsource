@@ -66,8 +66,8 @@ class UserStatisticsService @Autowired() (
       commentCount.isEmpty || topicStat.isEmpty,
       firstComment,
       lastComment,
-      topicStat.flatMap(_.firstTopic).map(_.toDate).getOrElse(null),
-      topicStat.flatMap(_.lastTopic).map(_.toDate).getOrElse(null),
+      topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
+      topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
       topicsBySection
     )
   }

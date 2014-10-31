@@ -71,7 +71,7 @@ class TopicTagService @Autowired() (
 
       logger.trace("Завершено: обновление списка тегов для топика msgId=" + msgId)
 
-      val modified = !newTags.isEmpty || !deleteTags.isEmpty
+      val modified = newTags.nonEmpty || deleteTags.nonEmpty
 
       if (modified) {
         updateCounters(oldTags, newTags)
