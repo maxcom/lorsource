@@ -18,9 +18,11 @@ package org.springframework.scala.jdbc.core
 
 import java.sql.{CallableStatement, PreparedStatement, Connection, ResultSet}
 import org.springframework.jdbc.core._
+import scala.language.implicitConversions
 
 /**
  * A collection of implicit conversions between
+
  * [[org.springframework.jdbc.core.JdbcTemplate]] callback interfaces and functions.
  *
  * @author Henryk Konsek

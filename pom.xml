@@ -389,7 +389,7 @@
             <artifactId>scala-maven-plugin</artifactId>
             <version>3.1.6</version>
             <configuration>
-              <args><arg>-feature</arg></args>
+              <args><arg>-feature</arg><arg>-Xlint</arg><arg>-language:postfixOps</arg></args>
             </configuration>
             <executions>
               <execution>
@@ -427,6 +427,7 @@
               <source>1.8</source>
               <target>1.8</target>
               <compilerArgument>-Xlint:deprecation</compilerArgument>
+              <compilerArgument>-Xlint:unchecked</compilerArgument>
             </configuration>
           </plugin>
 

@@ -28,7 +28,7 @@ object Perf4jHandlerInterceptor {
 
 class Perf4jHandlerInterceptor @Autowired() (elastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
   @PostConstruct
-  def createIndex {
+  def createIndex():Unit = {
     try {
       if (!elastic.admin.indices.prepareExists(PERF_INDEX).execute.actionGet.isExists) {
         val mappingSource: String = IOUtils.toString(getClass.getClassLoader.getResource("perf-mapping.json"))
