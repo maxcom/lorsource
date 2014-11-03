@@ -29,7 +29,7 @@
 
     <div class="nav-buttons">
       <ul>
-        <li><a href="register.jsp">Изменение регистрации</a></li>
+        <li><a href="register.jsp">Редактировать профиль</a></li>
         <li><a href="rules.jsp">Правила форума</a></li>
       </ul>
      </div>
