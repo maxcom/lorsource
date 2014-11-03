@@ -108,6 +108,6 @@ public class TagNode extends Node {
 
   @Override
   public String renderOg() {
-    return renderChildrenOg();
+    return bbtag.renderOg(this);
   }
 }

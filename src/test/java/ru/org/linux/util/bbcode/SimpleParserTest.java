@@ -86,6 +86,12 @@ public class SimpleParserTest {
   }
 
   @Test
+  public void quoteTextTest() {
+    assertEquals(lorCodeService.extractPlainTextFromLorcode("[quote]hello world[/quote]"),
+            "«hello world»");
+  }
+
+  @Test
   public void quoteParamTest() {
     assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false, false),
         citeHeader + "<p><cite>maxcom</cite></p><p>hello world</p>"+citeFooter);

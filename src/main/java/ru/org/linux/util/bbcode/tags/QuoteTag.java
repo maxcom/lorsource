@@ -75,6 +75,15 @@ public class QuoteTag extends Tag {
   }
 
   @Override
+  public String renderOg(Node node) {
+    if (node.lengthChildren() == 0) {
+      return "";
+    } else {
+      return "«" + node.renderChildrenOg() + "»";
+    }
+  }
+
+  @Override
   public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
     boolean emtyQuote = false;

@@ -54,13 +54,12 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.NotImplementedException;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
 
-public class Tag {
+abstract public class Tag {
   final String name;
   private final ImmutableSet<String> allowedChildren;
   private final String implicitTag;
@@ -95,9 +94,7 @@ public class Tag {
     this.discardable = discardable;
   }
 
-  public String renderNodeXhtml(Node node) {
-    throw new NotImplementedException();
-  }
+  abstract public String renderNodeXhtml(Node node);
 
   public String renderNodeBBCode(Node node) {
     StringBuilder opening = new StringBuilder(name);
@@ -119,6 +116,10 @@ public class Tag {
               .append(']');
     }
     return render.toString();
+  }
+
+  public String renderOg(Node node) {
+    return node.renderChildrenOg();
   }
 
   public Set<String> getAllowedChildren() {

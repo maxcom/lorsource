@@ -591,7 +591,7 @@ public class HTMLFormatterTest {
                 "[/list]")
     );
     assertEquals(
-        "due one teo neo wuf?\nok",
+        "due ««one» teo «neo»» wuf?\nok",
         lorCodeService.extractPlainTextFromLorcode("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
     assertEquals(
