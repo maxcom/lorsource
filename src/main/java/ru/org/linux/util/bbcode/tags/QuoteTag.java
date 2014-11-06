@@ -63,8 +63,8 @@ import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 public class QuoteTag extends Tag {
-  public static final String citeHeader = "<div class=\"none\">&gt;&gt;-----Цитата----&gt;&gt;</div><blockquote>";
-  public static final String citeFooter = "</blockquote><div class=\"none\">&lt;&lt;-----Цитата----&lt;&lt;</div>";
+  public static final String citeHeader = "<blockquote>";
+  public static final String citeFooter = "</blockquote>";
 
   private static final String citeHeaderRSS = "<blockquote style=\"border-width: 0 0 0 5px; border-style: solid; border-color: black; padding: 0 0 0 .5em; \">";
   private static final String citeFooterRSS = "</blockquote>";

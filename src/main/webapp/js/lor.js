@@ -342,9 +342,6 @@ $(document).ready(function() {
   initCtrlEnter();
   initUpdateEventsCount();
 
-  // remove hidden quote elements
-  $(".none").remove();
-
   initSamepageCommentNavigation();
   initScollupButton();
 });
