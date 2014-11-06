@@ -29,7 +29,6 @@ import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -103,15 +102,11 @@ public class CommentDao {
      * @return список комментариев топика
      */
   public List<Comment> getCommentList(int topicId, boolean showDeleted) {
-    final List<Comment> comments = new ArrayList<>();
-
     if (showDeleted) {
-      jdbcTemplate.query(queryCommentListByTopicId, (ResultSet resultSet) -> comments.add(new Comment(resultSet)), topicId);
+      return jdbcTemplate.query(queryCommentListByTopicId, (resultSet, rownum) -> new Comment(resultSet), topicId);
     } else {
-      jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, (ResultSet resultSet) -> comments.add(new Comment(resultSet)), topicId);
+      return jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, (resultSet, rownum) -> new Comment(resultSet), topicId);
     }
-
-    return comments;
   }
 
   /**
