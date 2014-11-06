@@ -324,9 +324,13 @@
         </li>
     </c:if>
 
-    <c:if test="${userStat.commentCount>0}">
+    <c:if test="${userStat.commentCount>0 || template.moderatorSession}">
         <li>
           <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
+
+          <c:if test="${template.moderatorSession}">
+            (<a href="deleted-comments.jsp?nick=${user.nick}">Удаленные комментарии</a>)
+          </c:if>
         </li>
     </c:if>
 

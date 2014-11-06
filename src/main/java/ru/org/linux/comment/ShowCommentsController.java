@@ -24,16 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.util.ServletParameterException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 @Controller
 public class ShowCommentsController {
@@ -52,55 +49,23 @@ public class ShowCommentsController {
     return new RedirectView("search.jsp?range=COMMENTS&user="+user.getNick()+"&sort=DATE");
   }
 
-  @RequestMapping("/show-comments-old.jsp")
+  @RequestMapping("/deleted-comments.jsp")
   public ModelAndView showCommentsOld(
     @RequestParam String nick,
-    @RequestParam(defaultValue="0") int offset,
-    HttpServletRequest request,
-    HttpServletResponse response
+    HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
-
-    ModelAndView mv = new ModelAndView("show-comments");
-
-    int topics = 50;
-    mv.getModel().put("topics", topics);
-
-    if (offset<0) {
-      throw new ServletParameterException("offset<0!?");
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not moderator");
     }
 
-    if (offset>1000) {
-      throw new ServletParameterException("Доступно не более 1000 комментариев");
-    }
-
-    mv.getModel().put("offset", offset);
-
-    boolean firstPage = offset==0;
-
-    if (firstPage) {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
-    } else {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 60 * 1000L);
-    }
-
-    mv.getModel().put("firstPage", firstPage);
+    ModelAndView mv = new ModelAndView("deleted-comments");
 
     User user = userDao.getUser(nick);
 
     mv.getModel().put("user", user);
 
-    if (user.isAnonymous()) {
-      throw new UserErrorException("Функция только для зарегистрированных пользователей");
-    }
-
-    List<CommentDao.CommentsListItem> out = commentService.getUserComments(user, topics, offset);
-
-    mv.getModel().put("list", out);
-
-    if (tmpl.isModeratorSession()) {
-      mv.getModel().put("deletedList", commentService.getDeletedComments(user));
-    }
+    mv.getModel().put("deletedList", commentService.getDeletedComments(user));
 
     return mv;
   }

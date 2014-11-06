@@ -18,12 +18,8 @@ package ru.org.linux.comment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,12 +88,7 @@ public class CommentDao {
   public Comment getById(int id) throws MessageNotFoundException {
     Comment comment;
     try {
-      comment = jdbcTemplate.queryForObject(queryCommentById, new RowMapper<Comment>() {
-        @Override
-        public Comment mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Comment(resultSet);
-        }
-      }, id);
+      comment = jdbcTemplate.queryForObject(queryCommentById, (resultSet, i) -> new Comment(resultSet), id);
     } catch (EmptyResultDataAccessException exception) {
       throw new MessageNotFoundException(id);
     }
@@ -115,19 +106,9 @@ public class CommentDao {
     final List<Comment> comments = new ArrayList<>();
 
     if (showDeleted) {
-      jdbcTemplate.query(queryCommentListByTopicId, new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet));
-        }
-      }, topicId);
+      jdbcTemplate.query(queryCommentListByTopicId, (ResultSet resultSet) -> comments.add(new Comment(resultSet)), topicId);
     } else {
-      jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet));
-        }
-      }, topicId);
+      jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, (ResultSet resultSet) -> comments.add(new Comment(resultSet)), topicId);
     }
 
     return comments;
@@ -212,27 +193,24 @@ public class CommentDao {
 
     jdbcTemplate.execute(
       "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
-      new PreparedStatementCallback<Object>() {
-        @Override
-        public Object doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-          pst.setInt(1, msgid);
-          pst.setInt(2, comment.getUserid());
-          pst.setString(3, comment.getTitle());
-          pst.setInt(5, comment.getTopicId());
-          pst.setString(6, comment.getPostIP());
-          pst.setString(7, userAgent);
+            (PreparedStatement pst) -> {
+              pst.setInt(1, msgid);
+              pst.setInt(2, comment.getUserid());
+              pst.setString(3, comment.getTitle());
+              pst.setInt(5, comment.getTopicId());
+              pst.setString(6, comment.getPostIP());
+              pst.setString(7, userAgent);
 
-          if (comment.getReplyTo() != 0) {
-            pst.setInt(4, comment.getReplyTo());
-          } else {
-            pst.setNull(4, Types.INTEGER);
-          }
+              if (comment.getReplyTo() != 0) {
+                pst.setInt(4, comment.getReplyTo());
+              } else {
+                pst.setNull(4, Types.INTEGER);
+              }
 
-          pst.executeUpdate();
+              pst.executeUpdate();
 
-          return null;
-        }
-      }
+              return null;
+            }
     );
 
     return msgid;
@@ -269,43 +247,6 @@ public class CommentDao {
   }
 
   /**
-     * Получить список комментариев пользователя.
-     *
-     * @param userId идентификационный номер пользователя
-     * @param limit  сколько записей должно быть в ответе
-     * @param offset начиная с какой позиции выдать ответ
-     * @return список комментариев пользователя
-     */
-  public List<CommentsListItem> getUserComments(int userId, int limit, int offset) {
-    return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
-                    "topics.id as topicid, comments.id as msgid, comments.postdate " +
-                    "FROM sections, groups, topics, comments " +
-                    "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
-                    "AND comments.topic=topics.id " +
-                    "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT ? OFFSET ?",
-            new RowMapper<CommentsListItem>() {
-              @Override
-              public CommentsListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                CommentsListItem item = new CommentsListItem();
-
-                item.setSectionTitle(rs.getString("ptitle"));
-                item.setGroupTitle(rs.getString("gtitle"));
-                item.setTopicId(rs.getInt("topicid"));
-                item.setCommentId(rs.getInt("msgid"));
-                item.setTitle(StringUtil.makeTitle(rs.getString("title")));
-                item.setPostdate(rs.getTimestamp("postdate"));
-
-                return item;
-              }
-            },
-            userId,
-            limit,
-            offset
-    );
-  }
-
-  /**
      * Получить список последних удалённых комментариев пользователя.
      *
      * @param userId идентификационный номер пользователя
@@ -323,12 +264,7 @@ public class CommentDao {
         "AND comments.userid=? " +
         "AND del_info.delby!=comments.userid " +
         "ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20",
-      new RowMapper<DeletedListItem>() {
-        @Override
-        public DeletedListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new DeletedListItem(rs);
-        }
-      },
+            (rs, rowNum) -> new DeletedListItem(rs),
       userId
     );
   }
@@ -388,64 +324,5 @@ public class CommentDao {
     public int getCommentId() {
       return cid;
     }
-  }
-
-  public static class CommentsListItem {
-    private String sectionTitle;
-    private String groupTitle;
-    private int topicId;
-    private int commentId;
-    private String title;
-    private Timestamp postdate;
-
-    public String getSectionTitle() {
-      return sectionTitle;
-    }
-
-    public void setSectionTitle(String sectionTitle) {
-      this.sectionTitle = sectionTitle;
-    }
-
-    public String getGroupTitle() {
-      return groupTitle;
-    }
-
-    public void setGroupTitle(String groupTitle) {
-      this.groupTitle = groupTitle;
-    }
-
-    public int getTopicId() {
-      return topicId;
-    }
-
-    public void setTopicId(int topicId) {
-      this.topicId = topicId;
-    }
-
-    public int getCommentId() {
-      return commentId;
-    }
-
-    public void setCommentId(int commentId) {
-      this.commentId = commentId;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public void setTitle(String title) {
-      this.title = title;
-    }
-
-    public Timestamp getPostdate() {
-      return postdate;
-    }
-
-    public void setPostdate(Timestamp postdate) {
-      this.postdate = postdate;
-    }
-
-
   }
 }

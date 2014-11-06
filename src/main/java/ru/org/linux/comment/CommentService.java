@@ -117,7 +117,7 @@ public class CommentService {
   @Autowired
   private TopicPermissionService permissionService;
 
-  private Cache<Integer, CommentList> cache =
+  private final Cache<Integer, CommentList> cache =
           CacheBuilder.newBuilder()
           .maximumSize(10000)
           .build();
@@ -569,7 +569,7 @@ public class CommentService {
   @Nonnull
   public CommentList getCommentList(@Nonnull Topic topic, boolean showDeleted) {
     if (showDeleted) {
-      return new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      return new CommentList(commentDao.getCommentList(topic.getId(), true), topic.getLastModified().getTime());
     } else {
       CommentList commentList = cache.getIfPresent(topic.getId());
 
@@ -697,18 +697,6 @@ public class CommentService {
     userEventService.processCommentsDeleted(deletedCommentIds);
 
     return new DeleteCommentResult(deletedTopics, deletedCommentIds, deleteInfo);
-  }
-
-  /**
-   * Получить список комментариев пользователя.
-   *
-   * @param user    объект пользователя
-   * @param limit   сколько записей должно быть в ответе
-   * @param offset  начиная с какой позиции выдать ответ
-   * @return список комментариев пользователя
-   */
-  public List<CommentDao.CommentsListItem> getUserComments(User user, int limit, int offset) {
-    return commentDao.getUserComments(user.getId(), limit, offset);
   }
 
   /**
@@ -855,10 +843,6 @@ public class CommentService {
 
     public Comment getComment() {
       return comment;
-    }
-
-    public int getDepth() {
-      return depth;
     }
 
     private DeleteInfoDao.InsertDeleteInfo deleteInfo(boolean score, User user) {
