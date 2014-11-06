@@ -18,10 +18,7 @@ package ru.org.linux.comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -49,9 +46,9 @@ public class ShowCommentsController {
     return new RedirectView("search.jsp?range=COMMENTS&user="+user.getNick()+"&sort=DATE");
   }
 
-  @RequestMapping("/deleted-comments.jsp")
+  @RequestMapping(value="/people/{nick}/deleted-comments")
   public ModelAndView showCommentsOld(
-    @RequestParam String nick,
+    @PathVariable String nick,
     HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);

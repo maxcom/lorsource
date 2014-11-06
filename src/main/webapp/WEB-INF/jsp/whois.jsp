@@ -329,7 +329,7 @@
           <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
 
           <c:if test="${template.moderatorSession}">
-            (<a href="deleted-comments.jsp?nick=${user.nick}">Удаленные комментарии</a>)
+            (<a href="/people/${user.nick}/deleted-comments">удаленные</a>)
           </c:if>
         </li>
     </c:if>
