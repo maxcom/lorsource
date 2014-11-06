@@ -245,10 +245,13 @@ div[itemprop="articleBody"] {
 .cloud10 { font-size: 1.5em; }
 
 blockquote {
-  border: 1px dotted;
-  margin: 0.5em 0.5em 0.5em 5px;
+  border-top-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 0;
+  border-left: 5px solid;
+  margin: 0;
   font-style: italic;
-  padding: 5px;
+  padding: 0 0.5em 0;
 
   h3 {
     margin-top: 0;
