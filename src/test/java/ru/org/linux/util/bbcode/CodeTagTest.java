@@ -45,6 +45,12 @@ public class CodeTagTest {
   }
 
   @Test
+  public void codeSpacesTest() {
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[url]test[/url] [url]test[/url]</code></pre></div>",
+            lorCodeService.parseComment("[code][url]test[/url] [url]test[/url][/code]", false, false));
+  }
+
+  @Test
   public void codeCleanTest() {
     assertEquals("", lorCodeService.parseComment("[code][/code]", false, false));
   }
