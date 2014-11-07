@@ -141,33 +141,6 @@ public class SimpleParserTest {
   }
 
   @Test
-  public void codeTest() {
-    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>",
-        lorCodeService.parseComment("[code][list][*]one[*]two[*]three[/list][/code]", false, false));
-    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>simple code</code></pre></div>",
-        lorCodeService.parseComment("[code]\nsimple code[/code]", false, false));
-    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>",
-        lorCodeService.parseComment("[code]\n[list][*]one[*]two[*]three[/list][/code]", false, false));
-  }
-
-  @Test
-  public void codeCleanTest() {
-    assertEquals("", lorCodeService.parseComment("[code][/code]", false, false));
-  }
-
-  @Test
-  public void codeKnowTest() {
-    assertEquals("<div class=\"code\"><pre class=\"language-cpp\"><code>#include &lt;stdio.h&gt;</code></pre></div>",
-            lorCodeService.parseComment("[code=cxx]#include <stdio.h>[/code]", false, false));
-  }
-
-  @Test
-  public void codeUnKnowTest() {
-    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>#include &lt;stdio.h&gt;</code></pre></div>",
-            lorCodeService.parseComment("[code=foo]#include <stdio.h>[/code]", false, false));
-  }
-
-  @Test
   public void overflow1Test() {
     assertEquals("<p>ololo</p>" + citeHeader +"<p><i>hz</i></p>" + citeFooter,
             lorCodeService.parseComment("ololo[quote][i]hz[/i][/quote]", false, false));
