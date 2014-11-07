@@ -145,7 +145,7 @@ public class Parser {
    * @return возвращает новый текущий узел
    */
   private Node pushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
-    if (text.trim().isEmpty() && !automatonState.isCode()) {
+    if (text.trim().isEmpty() && !currentNode.allows("text")) {
       return currentNode;
     }
 

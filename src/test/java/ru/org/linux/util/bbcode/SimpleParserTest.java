@@ -105,7 +105,14 @@ public class SimpleParserTest {
 
   @Test
   public void urlTest() {
-    assertEquals("<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>", lorCodeService.parseComment("[url]http://linux.org.ru[/url]", false, false));
+    assertEquals("<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>",
+            lorCodeService.parseComment("[url]http://linux.org.ru[/url]", false, false));
+  }
+
+  @Test
+  public void paragraphSpacesTest() {
+    assertEquals("<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a> <a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>",
+            lorCodeService.parseComment("[url]http://linux.org.ru[/url] [url]http://linux.org.ru[/url]", false, false));
   }
 
   @Test
