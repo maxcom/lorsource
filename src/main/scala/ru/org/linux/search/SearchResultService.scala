@@ -93,12 +93,9 @@ class SearchResultsService @Autowired() (
     if (doc.getHighlightFields.containsKey("message")) {
       doc.getHighlightFields.get("message").fragments()(0).string
     } else {
-      val fullMessage = doc.getFields.get("message").getValue[String]
-      if (fullMessage.length > SearchViewer.MESSAGE_FRAGMENT) {
-        fullMessage.substring(0, SearchViewer.MESSAGE_FRAGMENT)
-      } else {
-        fullMessage
-      }
+      val rawMessage = doc.getFields.get("message").getValue[String].take(SearchViewer.MESSAGE_FRAGMENT)
+
+      StringUtil.escapeHtml(rawMessage)
     }
   }
 
