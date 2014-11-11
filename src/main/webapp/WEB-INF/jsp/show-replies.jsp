@@ -179,7 +179,7 @@
 </table>
 </div>
 
-<div class="container">
+<div class="container" style="margin-bottom: 1em">
   <div style="float: left">
     <c:if test="${not firstPage}">
       <c:choose>
