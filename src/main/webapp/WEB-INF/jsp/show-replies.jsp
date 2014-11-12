@@ -23,11 +23,19 @@
 <%--@elvariable id="hasMore" type="String"--%>
 <%--@elvariable id="unreadCount" type="Integer"--%>
 <%--@elvariable id="enableReset" type="Boolean"--%>
+<%--@elvariable id="isMyNotifications" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <c:set var="title">
-  Уведомления пользователя ${nick}
+  <c:choose>
+    <c:when test="${isMyNotifications}">
+      Уведомления
+    </c:when>
+    <c:otherwise>
+      Уведомления пользователя ${nick}
+    </c:otherwise>
+  </c:choose>
 </c:set>
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
