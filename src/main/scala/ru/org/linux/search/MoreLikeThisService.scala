@@ -85,6 +85,7 @@ class MoreLikeThisService @Autowired() (
 
     val rootFilter = boolFilter()
     rootFilter.must(termFilter("is_comment", "false"))
+    rootFilter.must(termFilter(SearchQueueListener.COLUMN_TOPIC_AWAITS_COMMIT, "false"))
     rootFilter.mustNot(idsFilter(SearchQueueListener.MESSAGES_TYPE).addIds(topic.getId.toString))
 
     val rootQuery = filteredQuery(mltQuery, rootFilter)

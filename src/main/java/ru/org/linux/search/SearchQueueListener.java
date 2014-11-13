@@ -57,6 +57,7 @@ public class SearchQueueListener {
   private static final Logger logger = LoggerFactory.getLogger(SearchQueueListener.class);
   public static final String MESSAGES_INDEX = "messages";
   public static final String MESSAGES_TYPE = "message";
+  public static final String COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit";
 
   @Autowired
   private CommentService commentService;
@@ -97,20 +98,20 @@ public class SearchQueueListener {
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
   }
 
-  private boolean isTopicVisible(Topic msg) {
+  private boolean topicAwaitsCommit(Topic msg) {
     Section section = sectionService.getSection(msg.getSectionId());
 
-    if (section.isPremoderated() && !msg.isCommited()) {
-      return false;
-    }
+    return section.isPremoderated() && !msg.isCommited();
+  }
 
+  private boolean isTopicSearchable(Topic msg) {
     return !msg.isDeleted() && !msg.isDraft();
   }
 
   private void reindexMessage(int msgid, boolean withComments) throws MessageNotFoundException {
     Topic msg = topicDao.getById(msgid);
 
-    if (isTopicVisible(msg)) {
+    if (isTopicSearchable(msg)) {
       updateMessage(msg);
 
       if (withComments) {
@@ -173,7 +174,7 @@ public class SearchQueueListener {
       // комментарии из одного топика
       Topic topic = topicDao.getById(comment.getTopicId());
 
-      if (!isTopicVisible(topic) || comment.isDeleted()) {
+      if (!isTopicSearchable(topic) || comment.isDeleted()) {
         logger.info("Deleting comment " + comment.getId());
         bulkRequest.add(client.prepareDelete(MESSAGES_INDEX, MESSAGES_TYPE, Integer.toString(comment.getId())));
       } else {
@@ -224,6 +225,7 @@ public class SearchQueueListener {
     Date postdate = topic.getPostdate();
     doc.put("postdate", new Timestamp(postdate.getTime()));
     doc.put("tag", topicTagService.getTags(topic));
+    doc.put(COLUMN_TOPIC_AWAITS_COMMIT, topicAwaitsCommit(topic));
 
     doc.put("is_comment", false);
 
@@ -265,7 +267,8 @@ public class SearchQueueListener {
 
     String topicTitle = topic.getTitleUnescaped();
     doc.put("topic_title", topicTitle);
-    
+    doc.put(COLUMN_TOPIC_AWAITS_COMMIT, topicAwaitsCommit(topic));
+
     String commentTitle = comment.getTitle();
 
     if (commentTitle != null &&

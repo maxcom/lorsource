@@ -56,6 +56,10 @@
                 "message": {
                     "type": "string",
                     "analyzer": "text_analyzer"
+                },
+                "topic_awaits_commit": {
+                    "type": "boolean",
+                    "include_in_all": "false"
                 }
             }
         }
