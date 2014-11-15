@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -31,8 +30,6 @@ import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
@@ -227,35 +224,32 @@ public class UserEventDao {
     } else {
       queryString = QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE;
     }
-    return jdbcTemplate.query(queryString, new RowMapper<UserEvent>() {
-      @Override
-      public UserEvent mapRow(ResultSet resultSet, int i) throws SQLException {
-        String subj = StringUtil.makeTitle(resultSet.getString("subj"));
-        Timestamp lastmod = resultSet.getTimestamp("lastmod");
-        if (lastmod == null) {
-          lastmod = new Timestamp(0);
-        }
-        Timestamp eventDate = resultSet.getTimestamp("event_date");
-        int cid = resultSet.getInt("cid");
-        int cAuthor;
-        Timestamp cDate;
-        if (!resultSet.wasNull()) {
-          cAuthor = resultSet.getInt("cAuthor");
-          cDate = resultSet.getTimestamp("cDate");
-        } else {
-          cDate = null;
-          cAuthor = 0;
-        }
-        int groupId = resultSet.getInt("groupid");
-        int msgid = resultSet.getInt("msgid");
-        UserEventFilterEnum type = UserEventFilterEnum.valueOfByType(resultSet.getString("type"));
-        String eventMessage = resultSet.getString("ev_msg");
-
-        boolean unread = resultSet.getBoolean("unread");
-
-        return new UserEvent(cid, cAuthor, cDate,
-                groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
+    return jdbcTemplate.query(queryString, (resultSet, i) -> {
+      String subj = StringUtil.makeTitle(resultSet.getString("subj"));
+      Timestamp lastmod = resultSet.getTimestamp("lastmod");
+      if (lastmod == null) {
+        lastmod = new Timestamp(0);
       }
+      Timestamp eventDate = resultSet.getTimestamp("event_date");
+      int cid = resultSet.getInt("cid");
+      int cAuthor;
+      Timestamp cDate;
+      if (!resultSet.wasNull()) {
+        cAuthor = resultSet.getInt("cAuthor");
+        cDate = resultSet.getTimestamp("cDate");
+      } else {
+        cDate = null;
+        cAuthor = 0;
+      }
+      int groupId = resultSet.getInt("groupid");
+      int msgid = resultSet.getInt("msgid");
+      UserEventFilterEnum type = UserEventFilterEnum.valueOfByType(resultSet.getString("type"));
+      String eventMessage = resultSet.getString("ev_msg");
+
+      boolean unread = resultSet.getBoolean("unread");
+
+      return new UserEvent(cid, cAuthor, cDate,
+              groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
     }, userId, topics, offset);
   }
 
