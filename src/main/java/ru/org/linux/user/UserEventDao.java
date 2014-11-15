@@ -53,7 +53,6 @@ public class UserEventDao {
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " %s " +
-      " AND (comments.id is null or NOT comments.topic_deleted)" +
       " ORDER BY event_date DESC LIMIT ?" +
       " OFFSET ?";
 
@@ -71,7 +70,6 @@ public class UserEventDao {
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " AND NOT private " +
-      " AND (comments.id is null or NOT comments.topic_deleted)" +
       " ORDER BY event_date DESC LIMIT ?" +
       " OFFSET ?";
 
