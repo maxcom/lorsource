@@ -32,7 +32,7 @@
 <form method=POST action="undelete.jsp">
   <lor:csrf/>
   <input type=hidden name=msgid value="${message.id}">
-  <input type=submit name=undel value="Восстановить">
+  <button type=submit name=undel class="btn btn-primary">Восстановить</button>
 </form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

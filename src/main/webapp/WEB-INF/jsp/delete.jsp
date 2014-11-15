@@ -101,7 +101,7 @@ function change(dest,source)
 
   <div class="control-group">
     <div class="controls">
-      <button type=submit>Удалить</button>
+      <button type=submit class="btn btn-danger">Удалить</button>
     </div>
   </div>
 </form>
