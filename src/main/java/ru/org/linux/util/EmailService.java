@@ -16,21 +16,32 @@
 
 package ru.org.linux.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Properties;
 
 @Service
 public class EmailService {
+  private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+  private static final String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";
+  private static final String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";
 
   @Autowired
   private SiteConfig siteConfig;
@@ -65,11 +76,7 @@ public class EmailService {
     text.append("Код активации: ").append(regcode).append("\n\n");
     text.append("Благодарим за регистрацию!\n");
 
-    Properties props = new Properties();
-    props.put("mail.smtp.host", "localhost");
-    Session mailSession = Session.getDefaultInstance(props, null);
-
-    MimeMessage emailMessage = new MimeMessage(mailSession);
+    MimeMessage emailMessage = prepareMimeMessage();
     emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
     emailMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
@@ -80,4 +87,100 @@ public class EmailService {
     Transport.send(emailMessage);
   }
 
+  private MimeMessage prepareMimeMessage() {
+    Properties props = new Properties();
+    props.put("mail.smtp.host", "localhost");
+    Session mailSession = Session.getDefaultInstance(props, null);
+    return new MimeMessage(mailSession);
+  }
+
+  /**
+   * Отсылка E-mail администраторам.
+   *
+   * @param request   данные запроса от web-клиента
+   * @param exception исключение
+   * @return Строку, содержащую состояние отсылки письма
+   */
+  public String sendExceptionReport(
+    HttpServletRequest request,
+    Exception exception
+  ) {
+    StringBuilder text = new StringBuilder();
+
+    if (exception.getMessage() == null) {
+      text.append(exception.getClass().getName());
+    } else {
+      text.append(exception.getMessage());
+    }
+    text.append("\n\n");
+
+    Object attributeUrl = request.getAttribute("javax.servlet.error.request_uri");
+
+    if (attributeUrl!=null) {
+      text.append("Attribute URL: ").append(attributeUrl).append("\n");
+    }
+
+    Object forwardUrl = request.getAttribute("javax.servlet.forward.request_uri");
+    if (forwardUrl!=null) {
+      text.append("Forward URL: ").append(forwardUrl).append("\n");
+    }
+
+    String mainUrl;
+
+    mainUrl = siteConfig.getMainUrlWithoutSlash();
+
+    text.append("Main URL: ").append(mainUrl).append(request.getServletPath());
+
+    if (request.getQueryString() != null) {
+      text.append('?').append(request.getQueryString()).append('\n');
+    }
+    text.append('\n');
+
+    text.append("IP: " + request.getRemoteAddr() + '\n');
+
+    text.append(" Headers: ");
+    Enumeration<String> enu = request.getHeaderNames();
+    while (enu.hasMoreElements()) {
+      String paramName = enu.nextElement();
+      text.append("\n         ").append(paramName).append(": ").append(request.getHeader(paramName));
+    }
+    text.append("\n\n");
+
+    StringWriter exceptionStackTrace = new StringWriter();
+    exception.printStackTrace(new PrintWriter(exceptionStackTrace));
+    text.append(exceptionStackTrace.toString());
+
+    if (sendErrorMail("Linux.org.ru: " + exception.getClass(), text)) {
+      return EMAIL_SENT;
+    } else {
+      return EMAIL_NOT_SENT;
+    }
+  }
+
+  private boolean sendErrorMail(String subject, CharSequence text) {
+    InternetAddress mail;
+    String adminEmailAddress = siteConfig.getAdminEmailAddress();
+
+    try {
+      mail = new InternetAddress(adminEmailAddress, true);
+    } catch (AddressException e) {
+      logger.warn("Неправильный e-mail адрес: " + adminEmailAddress);
+      return false;
+    }
+
+    MimeMessage emailMessage = prepareMimeMessage();
+    try {
+      emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
+      emailMessage.addRecipient(Message.RecipientType.TO, mail);
+      emailMessage.setSubject(subject);
+      emailMessage.setSentDate(new Date());
+      emailMessage.setText(text.toString(), "UTF-8");
+
+      Transport.send(emailMessage);
+      return true;
+    } catch (Exception e) {
+      logger.error("An error occured while sending e-mail!", e);
+      return false;
+    }
+  }
 }
