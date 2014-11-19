@@ -13,6 +13,7 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
 
 import scala.collection.JavaConversions._
+import scala.util.control.NonFatal
 
 @Service
 class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
@@ -163,7 +164,7 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
       case e: AddressException =>
         logger.warn(s"Неправильный e-mail адрес: $adminEmailAddress")
         false
-      case e: Exception =>
+      case NonFatal(e) =>
         logger.error("An error occured while sending e-mail!", e)
         false
     }
