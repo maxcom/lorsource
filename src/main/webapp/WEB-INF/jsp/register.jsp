@@ -47,7 +47,7 @@
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label for="nick">Login</label></dt>
-        <dd><form:input path="nick" required="required" size="40" cssErrorClass="error"/><form:errors path="nick" element="label" cssClass="error" for="nick"/></dd>
+        <dd><form:input path="nick" required="required" size="40" cssErrorClass="error" autofocus="autofocus"/><form:errors path="nick" element="label" cssClass="error" for="nick"/></dd>
 
         <dt><label for="email">E-mail</label></dt>
         <dd><form:input path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/><form:errors path="email" element="label" cssClass="error" for="email"/></dd>
