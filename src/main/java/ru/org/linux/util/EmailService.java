@@ -76,13 +76,17 @@ public class EmailService {
     text.append("Код активации: ").append(regcode).append("\n\n");
     text.append("Благодарим за регистрацию!\n");
 
+    sendRegistrationMail(email, text.toString());
+  }
+
+  private void sendRegistrationMail(String email, String text) throws MessagingException {
     MimeMessage emailMessage = prepareMimeMessage();
     emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
     emailMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
     emailMessage.setSubject("Linux.org.ru registration");
     emailMessage.setSentDate(new Date());
-    emailMessage.setText(text.toString(), "UTF-8");
+    emailMessage.setText(text, "UTF-8");
 
     Transport.send(emailMessage);
   }
@@ -150,14 +154,14 @@ public class EmailService {
     exception.printStackTrace(new PrintWriter(exceptionStackTrace));
     text.append(exceptionStackTrace.toString());
 
-    if (sendErrorMail("Linux.org.ru: " + exception.getClass(), text)) {
+    if (sendErrorMail("Linux.org.ru: " + exception.getClass(), text.toString())) {
       return EMAIL_SENT;
     } else {
       return EMAIL_NOT_SENT;
     }
   }
 
-  private boolean sendErrorMail(String subject, CharSequence text) {
+  private boolean sendErrorMail(String subject, String text) {
     InternetAddress mail;
     String adminEmailAddress = siteConfig.getAdminEmailAddress();
 
