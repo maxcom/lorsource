@@ -41,7 +41,6 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
          |
          |Если вы не понимаете, о чем идет речь - просто проигнорируйте это сообщение!
          |
-         |
        """.stripMargin)
 
     if (isNew) {
