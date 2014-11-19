@@ -80,6 +80,8 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
     emailMessage.setSentDate(new Date)
     emailMessage.setText(text, "UTF-8")
     Transport.send(emailMessage)
+
+    logger.info(s"Sent new/update registration email to $email")
   }
 
   private def prepareMimeMessage = {
@@ -153,6 +155,8 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
       emailMessage.setSentDate(new Date)
       emailMessage.setText(text.toString, "UTF-8")
       Transport.send(emailMessage)
+
+      logger.info(s"Sent crash report to $adminEmailAddress")
 
       true
     } catch {
