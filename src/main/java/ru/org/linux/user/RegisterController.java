@@ -33,9 +33,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.*;
+import ru.org.linux.email.EmailService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.LorHttpUtils;
 

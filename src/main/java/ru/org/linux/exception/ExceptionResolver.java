@@ -20,9 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import ru.org.linux.email.EmailService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.util.EmailService;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;

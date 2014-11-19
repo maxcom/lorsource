@@ -37,8 +37,8 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.UserDetailsImpl;
 import ru.org.linux.auth.UserDetailsServiceImpl;
+import ru.org.linux.email.EmailService;
 import ru.org.linux.site.Template;
-import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
@@ -72,7 +72,6 @@ public class EditRegisterController {
 
   @Autowired
   private EmailService emailService;
-
 
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
