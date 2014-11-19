@@ -117,7 +117,7 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
       text.append(s"Forward URL: $forwardUrl\n")
     }
     val mainUrl = siteConfig.getMainUrlWithoutSlash
-    text.append(s"Main URL: $mainUrl${request.getServletPath}")
+    text.append(s"${request.getMethod}: $mainUrl${request.getServletPath}")
     if (request.getQueryString != null) {
       text.append(s"?${request.getQueryString}")
     }
