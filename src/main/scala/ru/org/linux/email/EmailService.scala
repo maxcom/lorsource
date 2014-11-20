@@ -6,9 +6,11 @@ import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}
 import javax.mail.{Message, Session, Transport}
 import javax.servlet.http.HttpServletRequest
 
+import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
 
@@ -122,9 +124,14 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
     }
     text.append('\n')
     text.append(s"IP: ${request.getRemoteAddr}\n")
+
+    if (AuthUtil.getNick != null) {
+      text.append(s"Current user: ${AuthUtil.getNick}\n")
+    }
+
     text.append("Headers: ")
 
-    for (name <- request.getHeaderNames) {
+    for (name <- request.getHeaderNames if !name.equalsIgnoreCase(HttpHeaders.COOKIE)) {
       text.append(s"\n         $name: ${request.getHeader(name)}")
     }
 
