@@ -35,7 +35,7 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
 
     text.append(
       s"""
-         |в которой был указал ваш электронный адрес (e-mail).
+         |в которой был указан ваш электронный адрес (e-mail).
          |
          |При заполнении регистрационной формы было указано следующее имя пользователя: '$nick'
          |
