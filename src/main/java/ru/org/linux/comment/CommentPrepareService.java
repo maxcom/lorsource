@@ -15,11 +15,11 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.ApiDeleteInfo;
@@ -33,9 +33,9 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.bbcode.LorCodeService;
-import scala.Option;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,19 +71,21 @@ public class CommentPrepareService {
           boolean secure
   ) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-    return prepareComment(messageText, comment, null, secure, null, null);
+    User author = userDao.getUserCached(comment.getUserid());
+
+    return prepareComment(messageText, author, null, comment, null, secure, null, null);
   }
 
   private PreparedComment prepareComment(
           MessageText messageText,
+          User author,
+          @Nullable String remark,
           @Nonnull Comment comment,
           CommentList comments,
           boolean secure,
           Template tmpl,
           Topic topic
   ) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
-
     String processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
@@ -136,15 +138,6 @@ public class CommentPrepareService {
               topic
           );
         }
-      }
-    }
-
-    String remark = null;
-    if(tmpl != null && tmpl.isSessionAuthorized() ){
-      Option<Remark> remarkObject = remarkDao.getRemark(tmpl.getCurrentUser(), author);
-
-      if (remarkObject.isDefined()) {
-        remark = remarkObject.get().getText();
       }
     }
 
@@ -268,6 +261,16 @@ public class CommentPrepareService {
     return commentsPrepared;
   }
 
+  private Map<Integer, User> loadUsers(Iterable<Integer> userIds) {
+    ImmutableMap.Builder<Integer, User> builder = ImmutableMap.<Integer, User>builder();
+
+    for (Integer id : ImmutableSet.copyOf(userIds)) {
+      builder.put(id, userDao.getUserCached(id));
+    }
+
+    return builder.build();
+  }
+
   public List<PreparedComment> prepareCommentList(
           @Nonnull CommentList comments,
           @Nonnull List<Comment> list,
@@ -280,22 +283,37 @@ public class CommentPrepareService {
     }
 
     Map<Integer, MessageText> texts = msgbaseDao.getMessageText(
-            Lists.newArrayList(
-                    Iterables.transform(list, new Function<Comment, Integer>() {
-                      @Override
-                      public Integer apply(Comment comment) {
-                        return comment.getId();
-                      }
-                    })
-            )
+            ImmutableList.copyOf(Iterables.transform(list, Comment::getId))
     );
+
+    Map<Integer, User> users = loadUsers(Iterables.transform(list, Comment::getUserid));
+    User currentUser = tmpl.getCurrentUser();
+
+    Map<Integer, Remark> remarks;
+
+    if (currentUser!=null) {
+      remarks = remarkDao.getRemarks(currentUser, users.values());
+    } else {
+      remarks = ImmutableMap.of();
+    }
 
     List<PreparedComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
       MessageText text = texts.get(comment.getId());
 
-      commentsPrepared.add(prepareComment(text, comment, comments, secure, tmpl, topic));
+      User author = users.get(comment.getUserid());
+
+      Remark remark = remarks.get(author.getId());
+
+      String remarkText = null;
+
+      if (remark!=null) {
+        remarkText = remark.getText();
+      }
+
+      commentsPrepared.add(prepareComment(text, author, remarkText, comment, comments, secure, tmpl, topic));
     }
+
     return commentsPrepared;
   }
 

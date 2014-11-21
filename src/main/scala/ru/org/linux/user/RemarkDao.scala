@@ -33,8 +33,6 @@ class RemarkDao @Autowired() (ds:DataSource) {
     }.headOption
   }
 
-  def getRemarkOrNull(user: User, ref: User):Remark = getRemark(user, ref).orNull
-
   def getRemarks(user: User, refs:java.lang.Iterable[User]):java.util.Map[Integer, Remark] = {
     val data = for {
       ref <- refs
