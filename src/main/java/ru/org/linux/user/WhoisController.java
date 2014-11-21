@@ -28,6 +28,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -71,6 +72,9 @@ public class WhoisController {
 
   @Autowired
   private TopicDao topicDao;
+
+  @Autowired
+  private RemarkDao remarkDao;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -118,11 +122,14 @@ public class WhoisController {
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
 
-      mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
+      Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
+      if (remark.isDefined()) {
+        mv.getModel().put("remark", remark.get());
+      }
     }
 
     if (tmpl.isSessionAuthorized() && currentUser) {
-      mv.getModel().put("hasRemarks", ( userDao.getRemarkCount(tmpl.getCurrentUser()) > 0 ) );
+      mv.getModel().put("hasRemarks", remarkDao.hasRemarks(tmpl.getCurrentUser()));
     }
 
     String userinfo = userDao.getUserInfo(user);

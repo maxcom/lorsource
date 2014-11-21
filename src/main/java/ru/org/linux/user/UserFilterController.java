@@ -49,6 +49,9 @@ public class UserFilterController {
   @Autowired
   private UserTagService userTagService;
 
+  @Autowired
+  private RemarkDao remarkDao;
+
   @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(
     HttpServletRequest request,
@@ -68,7 +71,7 @@ public class UserFilterController {
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
 
-    Map<Integer, Remark> ignoreRemarks = getIgnoreRemarks(user, ignoreMap.values());
+    Map<Integer, Remark> ignoreRemarks = remarkDao.getRemarks(user, ignoreMap.values());
     modelAndView.addObject("ignoreRemarks", ignoreRemarks);
 
     modelAndView.addObject("ignoreList", ignoreMap);
@@ -88,20 +91,6 @@ public class UserFilterController {
     }
 
     return modelAndView;
-  }
-
-  private Map<Integer, Remark> getIgnoreRemarks(User currentUser, Iterable<User> users) {
-    ImmutableMap.Builder<Integer, Remark> builder = ImmutableMap.builder();
-
-    for (User user : users) {
-      Remark remark = userDao.getRemark(currentUser, user);
-
-      if (remark!=null) {
-        builder.put(user.getId(), remark);
-      }
-    }
-
-    return builder.build();
   }
 
   private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) {

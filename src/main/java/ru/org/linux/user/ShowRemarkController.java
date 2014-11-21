@@ -34,6 +34,9 @@ public class ShowRemarkController {
   private UserDao userDao;
 
   @Autowired
+  private RemarkDao remarkDao;
+
+  @Autowired
   private PreparedRemarkService prepareService;
   
   @RequestMapping("/people/{nick}/remarks")
@@ -47,7 +50,7 @@ public class ShowRemarkController {
       throw new AccessViolationException("Not authorized");
     }
 
-    int count = userDao.getRemarkCount(tmpl.getCurrentUser());
+    int count = remarkDao.remarkCount(tmpl.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("view-remarks");
 
@@ -67,7 +70,7 @@ public class ShowRemarkController {
       }
 
 
-      List<Remark> remarks = userDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
+      List<Remark> remarks = remarkDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
       List<PreparedRemark> preparedRemarks = prepareService.prepareRemarkList(remarks);
 
       mv.getModel().put("remarks", preparedRemarks);
@@ -80,5 +83,4 @@ public class ShowRemarkController {
 
     return mv;
   }
-  
 }

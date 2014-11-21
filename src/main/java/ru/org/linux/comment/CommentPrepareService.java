@@ -33,6 +33,7 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -61,6 +62,9 @@ public class CommentPrepareService {
 
   @Autowired
   private UserAgentDao userAgentDao;
+
+  @Autowired
+  private RemarkDao remarkDao;
 
   private PreparedComment prepareComment(
           @Nonnull Comment comment,
@@ -137,10 +141,10 @@ public class CommentPrepareService {
 
     String remark = null;
     if(tmpl != null && tmpl.isSessionAuthorized() ){
-      Remark remarkObject = userDao.getRemark(tmpl.getCurrentUser(), author);
+      Option<Remark> remarkObject = remarkDao.getRemark(tmpl.getCurrentUser(), author);
 
-      if (remarkObject!=null) {
-        remark = remarkObject.getText();
+      if (remarkObject.isDefined()) {
+        remark = remarkObject.get().getText();
       }
     }
 

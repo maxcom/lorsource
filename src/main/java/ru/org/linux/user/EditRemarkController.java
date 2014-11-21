@@ -25,20 +25,19 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
+import scala.Option;
 
 import javax.servlet.ServletRequest;
 
 @Controller
 @RequestMapping("/people/{nick}/remark")
 public class EditRemarkController {
+  @Autowired
   private UserDao userDao;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private RemarkDao remarkDao;
 
-  
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -51,7 +50,10 @@ public class EditRemarkController {
 
     User user = userDao.getUser(nick);
     if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
-      mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
+      Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
+      if (remark.isDefined()) {
+        mv.getModel().put("remark", remark.get());
+      }
     }else{
       throw new AccessViolationException("Not Authorized");
     }
@@ -74,12 +76,8 @@ public class EditRemarkController {
     }
     User user = tmpl.getCurrentUser();
     User refUser = userDao.getUser(nick);
-    Remark rm = userDao.getRemark(user,refUser);
-    if(rm!=null){
-        userDao.updateRemark(rm.getId(),text);
-    } else {
-      userDao.setRemark(user,refUser,text);
-    }
+    remarkDao.setOrUpdateRemark(user, refUser, text);
+
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
 }

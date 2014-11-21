@@ -50,6 +50,7 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.image.ImageInfo;
+import scala.Option;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -108,6 +109,9 @@ public class TopicPrepareService {
 
   @Autowired
   private TopicTagService topicTagService;
+
+  @Autowired
+  private RemarkDao remarkDao;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
     return prepareMessage(
@@ -262,7 +266,11 @@ public class TopicPrepareService {
       }
       Remark remark = null;
       if (user != null ){
-        remark = userDao.getRemark(user, author);
+        Option<Remark> remarkOption = remarkDao.getRemark(user, author);
+
+        if (remarkOption.isDefined()) {
+          remark = remarkOption.get();
+        }
       }
 
       int postscore = topicPermissionService.getPostscore(group, message);
