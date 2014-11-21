@@ -94,7 +94,7 @@
   </rule>
 
   <rule>
-    <from>\.(css|js)$</from>
+    <from>\.(css|js|woff|svg|ttf)$</from>
     <condition type="path-translated" operator="notequal">.*jquery.*</condition>
     <set type="response-header" name="Cache-Control">max-age=3600</set>
   </rule>
