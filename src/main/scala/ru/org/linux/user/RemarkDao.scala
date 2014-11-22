@@ -39,16 +39,20 @@ class RemarkDao @Autowired() (ds:DataSource) {
   }
 
   def getRemarks(user: User, refs:java.lang.Iterable[User]):java.util.Map[Integer, Remark] = {
-    val r = namedTemplate.query(
-          "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
-          Map("list" -> refs.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId),
-          new RowMapper[(Integer, Remark)]() {
-            override def mapRow(rs: ResultSet, rowNum: Int) = {
-              val remark = new Remark(rs)
-              Integer.valueOf(remark.getRefUserId) -> remark
-            }
+    val r:Map[Integer, Remark] = if (refs.isEmpty) {
+      Map.empty
+    } else {
+      namedTemplate.query(
+        "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
+        Map("list" -> refs.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId),
+        new RowMapper[(Integer, Remark)]() {
+          override def mapRow(rs: ResultSet, rowNum: Int) = {
+            val remark = new Remark(rs)
+            Integer.valueOf(remark.getRefUserId) -> remark
           }
-    ).toMap
+        }
+      ).toMap
+    }
 
     r.asJava
   }
