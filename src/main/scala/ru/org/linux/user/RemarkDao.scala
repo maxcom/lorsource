@@ -1,16 +1,21 @@
 package ru.org.linux.user
 
+import java.sql.ResultSet
 import javax.sql.DataSource
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @Repository
 class RemarkDao @Autowired() (ds:DataSource) {
   private val jdbcTemplate = new JdbcTemplate(ds)
+  private val namedTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.javaTemplate)
 
   def remarkCount(user: User):Int = {
     val count:Option[Int] = jdbcTemplate.queryForObject[Integer](
@@ -34,14 +39,18 @@ class RemarkDao @Autowired() (ds:DataSource) {
   }
 
   def getRemarks(user: User, refs:java.lang.Iterable[User]):java.util.Map[Integer, Remark] = {
-    val data = for {
-      ref <- refs
-      remark <- getRemark(user, ref)
-    } yield new Integer(ref.getId) -> remark
+    val r = namedTemplate.query(
+          "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
+          Map("list" -> refs.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId),
+          new RowMapper[(Integer, Remark)]() {
+            override def mapRow(rs: ResultSet, rowNum: Int) = {
+              val remark = new Remark(rs)
+              Integer.valueOf(remark.getRefUserId) -> remark
+            }
+          }
+    ).toMap
 
-    val map = data.toMap
-
-    map
+    r.asJava
   }
 
   private def setRemark(user: User, ref: User, text: String):Unit = {
@@ -50,7 +59,7 @@ class RemarkDao @Autowired() (ds:DataSource) {
     }
   }
 
-  private def updateRemark(id: Int, text: String) {
+  private def updateRemark(id: Int, text: String):Unit = {
     if (text.isEmpty) {
       jdbcTemplate.update("DELETE FROM user_remarks WHERE id=?", id)
     } else {
