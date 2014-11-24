@@ -62,7 +62,7 @@
 </script>
 
   <!--[if lt IE 9]>
-<script src="/js/html5.js" type="text/javascript"></script>
+<script src="/webjars/html5shiv/3.7.2/html5shiv.min.js" type="text/javascript"></script>
 <![endif]-->
 
 <c:if test="${not pageContext.request.secure}">
