@@ -48,6 +48,8 @@
     <mvc:resources mapping="/gallery/preview/*.png" location="/gallery/preview/" cache-period="31556926"/>
     <mvc:resources mapping="/gallery/preview/*.gif" location="/gallery/preview/" cache-period="31556926"/>
 
+    <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/" cache-period="315360000"/>
+
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>

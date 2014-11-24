@@ -66,16 +66,16 @@
 <![endif]-->
 
 <c:if test="${not pageContext.request.secure}">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
 </c:if>
 
 <c:if test="${pageContext.request.secure}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
 </c:if>
 
 <script type="text/javascript">
   if (!window.jQuery) {
-    document.write('<script src="/js/jquery-1.11.0.min.js"><\/script>');
+    document.write('<script src="/webjars/jquery/1.11.1/jquery.min.js"><\/script>');
   }
 </script>
 
