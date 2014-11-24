@@ -16,10 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.ApiDeleteInfo;
@@ -282,9 +279,7 @@ public class CommentPrepareService {
       return ImmutableList.of();
     }
 
-    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(
-            ImmutableList.copyOf(Iterables.transform(list, Comment::getId))
-    );
+    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(Lists.transform(list, Comment::getId));
 
     Map<Integer, User> users = loadUsers(Iterables.transform(list, Comment::getUserid));
     User currentUser = tmpl.getCurrentUser();

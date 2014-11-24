@@ -15,10 +15,8 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -347,7 +345,6 @@ public class TopicPrepareService {
     ImmutableListMultimap<Integer,TagRef> tags = topicTagService.getTagRefs(messages);
 
     for (Topic message : messages) {
-
       PreparedTopic preparedMessage = prepareMessage(
               message,
               tags.get(message.getId()),
@@ -374,16 +371,7 @@ public class TopicPrepareService {
   }
 
   private Map<Integer, MessageText> loadTexts(List<Topic> messages) {
-    return msgbaseDao.getMessageText(
-            Lists.newArrayList(
-                    Iterables.transform(messages, new Function<Topic, Integer>() {
-                      @Override
-                      public Integer apply(Topic comment) {
-                        return comment.getId();
-                      }
-                    })
-            )
-    );
+    return msgbaseDao.getMessageText(Lists.transform(messages, Topic::getId));
   }
 
   /**
