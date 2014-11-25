@@ -53,7 +53,10 @@
     });
   });
 
-  $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  $script.ready("jquery", function() {
+    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  });
+
   $script.ready("jqueryui", function() {
     $script("/js/tagsAutocomplete.js");
   });

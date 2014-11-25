@@ -20,38 +20,41 @@
 
 <title>Удаление метки</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<script src="/js/jqueryui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
 <script type="text/javascript">
-  $(function() {
-      $( "#tagName" )
-        .bind( "keydown", function( event ) {
-          if ( event.keyCode === $.ui.keyCode.TAB &&
-              $( this ).data( "autocomplete" ).menu.active ) {
-            event.preventDefault();
-          }
-        })
-        .autocomplete({
-          source: function( request, response ) {
-            $.getJSON( "/tags", {
-              term: request.term
-            }, response );
-          },
-          search: function() {
-           // custom minLength
-            if ( this.value.length < 2 ) {
-              return false;
-            }
-          },
-          focus: function() {
-            // prevent value inserted on focus
-            return false;
-          },
-          select: function( event, ui ) {
-            this.value = ui.item.value;
-            return false;
-          }
-        });
-    });
+  $script.ready("jquery", function() {
+    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  });
+
+  $script.ready("jqueryui", function() {
+    $( "#tagName" )
+            .bind( "keydown", function( event ) {
+              if ( event.keyCode === $.ui.keyCode.TAB &&
+                      $( this ).data( "autocomplete" ).menu.active ) {
+                event.preventDefault();
+              }
+            })
+            .autocomplete({
+              source: function( request, response ) {
+                $.getJSON( "/tags", {
+                  term: request.term
+                }, response );
+              },
+              search: function() {
+                // custom minLength
+                if ( this.value.length < 2 ) {
+                  return false;
+                }
+              },
+              focus: function() {
+                // prevent value inserted on focus
+                return false;
+              },
+              select: function( event, ui ) {
+                this.value = ui.item.value;
+                return false;
+              }
+            });
+  });
  </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>

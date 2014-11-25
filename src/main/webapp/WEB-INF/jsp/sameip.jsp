@@ -121,7 +121,6 @@
 <p>
 <input type="submit" name="ban" value="ban ip">
 <script type="text/javascript">
-<!--
 function allowPostingOnChange(object) {
 
   var captchaRequired = $('#captchaRequired');
@@ -143,7 +142,6 @@ function checkCustomBan(idx) {
     custom_ban_div.style.display='block';
   }
 }
-// -->
 </script>
 </form>
 </fieldset>

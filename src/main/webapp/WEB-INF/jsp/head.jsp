@@ -61,26 +61,17 @@
   <c:out value="${scriptminjs}" escapeXml="false"/>
 </script>
 
-  <!--[if lt IE 9]>
-<script src="/webjars/html5shiv/3.7.2/html5shiv.min.js" type="text/javascript"></script>
+<!--[if lt IE 9]>
+  <script src="/webjars/html5shiv/3.7.2/html5shiv.min.js" type="text/javascript"></script>
 <![endif]-->
 
-<c:if test="${not pageContext.request.secure}">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
-</c:if>
-
-<c:if test="${pageContext.request.secure}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
-</c:if>
-
 <script type="text/javascript">
-  if (!window.jQuery) {
-    document.write('<script src="/webjars/jquery/1.11.1/jquery.min.js"><\/script>');
-  }
-</script>
+  $script('/webjars/jquery/1.11.1/jquery.min.js', 'jquery');
 
-<script type="text/javascript">
-  $script('/js/plugins.js', 'plugins');
-  $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+  $script.ready('jquery', function() {
+    $script('/js/plugins.js', 'plugins');
+    $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+  });
+
   $script('/js/highlight.pack.js', function() { hljs.initHighlightingOnLoad(); });
 </script>
