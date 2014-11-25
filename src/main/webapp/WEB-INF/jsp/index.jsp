@@ -36,25 +36,16 @@
 <div id="news">
 
 <c:if test="${showAdsense}">
-<div align="center">
-  <script type="text/javascript"><!--
-  google_ad_client = "ca-pub-6069094673001350";
-
-  if ($(window).width()<728) {
-    /* lor-main-mobile */
-    google_ad_slot = "2628258430";
-    google_ad_width = 320;
-    google_ad_height = 50;
-  } else {
-    /* lor-main-wide */
-    google_ad_slot = "4104991635";
-    google_ad_width = 728;
-    google_ad_height = 90;
-  }
-  //-->
-  </script>
-  <script type="text/javascript"
-  src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+<div align="center" width="100%">
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <!-- lor-main-adaptive-tango -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6069094673001350"
+       data-ad-slot="7413794834"
+       data-ad-format="horizontal"></ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
 </div>
 </c:if>
