@@ -1,13 +1,15 @@
 package ru.org.linux.tag
 
-import org.springframework.validation.Errors
-import scala.collection.JavaConversions._
 import java.util.regex.Pattern
+
+import org.springframework.validation.Errors
 import ru.org.linux.user.UserErrorException
+
+import scala.collection.JavaConversions._
 
 object TagName {
   val MAX_TAGS_PER_TOPIC = 5
-  val MIN_TAG_LENGTH = 2
+  val MIN_TAG_LENGTH = 1
   val MAX_TAG_LENGTH = 25
 
   private[this] val tagRE = Pattern.compile("([\\p{L}\\d-][\\p{L}\\d \\+-.]*[\\p{L}\\d\\+-])", Pattern.CASE_INSENSITIVE)
