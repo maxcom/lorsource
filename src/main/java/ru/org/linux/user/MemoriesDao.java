@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -119,12 +118,7 @@ public class MemoriesDao {
   public MemoriesListItem getMemoriesListItem(int id) {
     List<MemoriesListItem> res = jdbcTemplate.query(
             "SELECT * FROM memories WHERE id=?",
-            new RowMapper<MemoriesListItem>() {
-              @Override
-              public MemoriesListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new MemoriesListItem(rs);
-              }
-            },
+            (rs, rowNum) -> new MemoriesListItem(rs),
             id
     );
 
