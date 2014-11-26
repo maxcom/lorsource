@@ -1,10 +1,11 @@
 package ru.org.linux.tag
 
-import scala.collection.JavaConversions._
-import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
-import TagName._
+import org.scalatest.junit.JUnitRunner
+import ru.org.linux.tag.TagName._
+
+import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
 class TagNameTest extends FunSuite {
@@ -31,6 +32,10 @@ class TagNameTest extends FunSuite {
     assert(isGoodTag(" test") === false)
   }
 
+  test("trailing space in tag is invalid") {
+    assert(isGoodTag("test ") === false)
+  }
+
   test("linux is valid tag") {
     assert(isGoodTag("linux") === true)
   }
@@ -45,6 +50,10 @@ class TagNameTest extends FunSuite {
 
   test("-20 is valid tag") {
     assert(isGoodTag("-20") === true)
+  }
+
+  test("c is valid tag") {
+    assert(isGoodTag("c") === true)
   }
 }
 
