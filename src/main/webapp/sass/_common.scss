@@ -279,12 +279,6 @@ code {
   margin-bottom: 1em;
 }
 
-.error {
-    border: 1px dotted;
-    margin: 1em;
-    padding: 1em;
-}
-
 .message-table {
   width: 100%;
   margin-bottom: 1em;
@@ -315,30 +309,16 @@ code {
 }
 
 input.error {
-    margin: inherit;
-    padding: inherit;
     border: 1px solid #f00;
-    font-weight: inherit;
+    padding-left: inherit;
 }
 
 textarea.error {
-    margin: inherit;
-    padding: inherit;
     border: 1px solid #f00;
-    font-weight: inherit;
+    padding-left: inherit;
 }
 
-label.error {
-    margin: inherit;
-    margin-left: 1em;
-    padding: inherit;
-    border: inherit;
-    vertical-align: top;
-    color: #f00;
-    display: inline-block;
-}
-
-#registerForm input, #activateForm input {
+#activateForm input {
     margin-top: 5px;
     margin-bottom: 5px;
 }

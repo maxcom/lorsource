@@ -23,13 +23,14 @@
   $script.ready("plugins", function() {
     $(function() {
       $("#registerForm").validate({
+        errorElement : "span",
+        errorClass : "error help-inline",
         rules : {
           password2: {
             equalTo: "#password"
           }
         }
       });
-      $("#changeForm").validate();
     });
   });
 </script>
@@ -39,30 +40,55 @@
      session.setAttribute("register-visited", Boolean.TRUE);
 %>
 <H1>Регистрация</H1>
+<p>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
-<a href="../../lostpwd.jsp">сюда</a>.
+<a href="/lostpwd.jsp">сюда</a>.
+</p>
 
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
     <lor:csrf/>
-    <form:errors element="label" cssClass="error"/>
-    <dl>
-        <dt><label for="nick">Login</label></dt>
-        <dd><form:input path="nick" required="required" size="40" cssErrorClass="error" autofocus="autofocus"/><form:errors path="nick" element="label" cssClass="error" for="nick"/></dd>
+    <form:errors element="div" cssClass="error"/>
 
-        <dt><label for="email">E-mail</label></dt>
-        <dd><form:input path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/><form:errors path="email" element="label" cssClass="error" for="email"/></dd>
+  <div class="control-group">
+    <label for="nick">Login</label>
+    <form:input path="nick" required="required" size="40" cssErrorClass="error" autofocus="autofocus"/>
+    <form:errors path="nick" element="span" cssClass="error help-inline" for="nick"/>
+    <div class="help-block">
+      мы сохраняем регистр, в котором введен логин
+    </div>
+  </div>
 
-        <dt><label for="password">Пароль</label></dt>
-        <dd><form:password path="password" size="40" required="required" cssErrorClass="error"/><form:errors path="password" element="label" cssClass="error" for="password"/></dd>
+  <div class="control-group">
+    <label for="email">E-mail</label>
+    <form:input path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/>
+    <form:errors path="email" element="span" cssClass="error help-inline" for="email"/>
+  </div>
 
-        <dt><label for="password2">Подтвердите пароль</label></dt>
-        <dd><form:password path="password2" size="40" required="required" cssErrorClass="error"/><form:errors path="password2" element="label" cssClass="error" for="password"/></dd>
+  <div class="control-group">
+    <label for="password">Пароль</label>
+    <form:password path="password" size="40" required="required" cssErrorClass="error"/>
+    <form:errors path="password" element="span" cssClass="error help-inline" for="password"/>
+  </div>
 
-        <dt><label>Защита от роботов</label></dt>
-        <dd><lor:captcha/></dd>
+  <div class="control-group">
+    <label for="password2">Подтвердите пароль</label>
+    <form:password path="password2" size="40" required="required" cssErrorClass="error"/>
+    <form:errors path="password2" element="span" cssClass="error help-inline" for="password"/>
+  </div>
 
-        <dt class="button"><label for="rules">С <a href="/rules.jsp" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился: <form:checkbox path="rules" value="okay" required="required" cssErrorClass="error"/><form:errors path="rules" element="label" cssClass="error" for="rules"/></label></dd></dt>
-        <dd class="button"><button type=submit class="btn btn-primary">Зарегистрироваться</button></dd>
-    </dl>
+  <div class="control-group">
+    <lor:captcha/>
+  </div>
+
+  <div class="control-group">
+    <label for="rules">С
+      <a href="/rules.jsp" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился:
+      <form:checkbox path="rules" id="rules" value="okay" required="required" cssErrorClass="error"/>
+      <form:errors path="rules" element="span" cssClass="error help-inline" for="rules"/></label>
+  </div>
+
+  <div class="form-actions">
+    <button type=submit class="btn btn-primary">Зарегистрироваться</button>
+  </div>
 </form:form>
 <jsp:include page="footer.jsp"/>

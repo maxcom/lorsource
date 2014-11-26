@@ -1,19 +1,4 @@
-jQuery.extend(jQuery.validator.messages, {
-        required: "Это поле необходимо заполнить",
-        remote: "Исправьте это поле чтобы продолжить",
-        email: "Введите правильный email адрес.",
-        url: "Введите верный URL.",
-        date: "Введите правильную дату.",
-        dateISO: "Введите правильную дату (ISO).",
-        number: "Введите число.",
-        digits: "Введите только цифры.",
-        creditcard: "Введите правильный номер вашей кредитной карты.",
-        equalTo: "Введенные значения не совпадают",
-        accept: "Пожалуйста, введите значение с правильным расширением.",
-        maxlength: jQuery.format("Нельзя вводить более {0} символов."),
-        minlength: jQuery.format("Должно быть не менее {0} символов."),
-        rangelength: jQuery.format("Введите от {0} до {1} символов."),
-        range: jQuery.format("Введите число от {0} до {1}."),
-        max: jQuery.format("Введите число меньше или равное {0}."),
-        min: jQuery.format("Введите число больше или равное {0}.")
-});
+/*! jQuery Validation Plugin - v1.13.1 - 10/14/2014
+ * http://jqueryvalidation.org/
+ * Copyright (c) 2014 Jörn Zaefferer; Licensed MIT */
+!function(a){"function"==typeof define&&define.amd?define(["jquery","../jquery.validate.min"],a):a(jQuery)}(function(a){a.extend(a.validator.messages,{required:"Это поле необходимо заполнить.",remote:"Пожалуйста, введите правильное значение.",email:"Пожалуйста, введите корректный адрес электронной почты.",url:"Пожалуйста, введите корректный URL.",date:"Пожалуйста, введите корректную дату.",dateISO:"Пожалуйста, введите корректную дату в формате ISO.",number:"Пожалуйста, введите число.",digits:"Пожалуйста, вводите только цифры.",creditcard:"Пожалуйста, введите правильный номер кредитной карты.",equalTo:"Пожалуйста, введите такое же значение ещё раз.",extension:"Пожалуйста, выберите файл с правильным расширением.",maxlength:a.validator.format("Пожалуйста, введите не больше {0} символов."),minlength:a.validator.format("Пожалуйста, введите не меньше {0} символов."),rangelength:a.validator.format("Пожалуйста, введите значение длиной от {0} до {1} символов."),range:a.validator.format("Пожалуйста, введите число от {0} до {1}."),max:a.validator.format("Пожалуйста, введите число, меньшее или равное {0}."),min:a.validator.format("Пожалуйста, введите число, большее или равное {0}.")})});

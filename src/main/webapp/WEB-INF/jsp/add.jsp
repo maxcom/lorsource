@@ -106,25 +106,31 @@
   </p>
 
   <c:if test="${not template.sessionAuthorized}">
-    <label>
-        Имя:<br> <input type=text required value="anonymous" name="nick" style="width: 40em">
-    </label>
-    <label>
-        Пароль:<br> <input type=password name=password style="width: 40em">
-    </label>
+    <div class="control-group">
+      <label for="nick">
+        Имя
+      </label>
+      <input id="nick" type=text required value="anonymous" name="nick" style="width: 40em">
+    </div>
+
+    <div class="control-group">
+      <label for="password">
+        Пароль
+      </label>
+      <input id="password" type=password name=password style="width: 40em">
+    </div>
   </c:if>
 
   <form:hidden path="group"/>
   <div class="control-group">
-    <label>Заглавие:<br>
-      <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/>
-    </label>
+    <label for="title">Заглавие</label>
+    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/>
   </div>
 
   <c:if test="${imagepost}">
     <div class="control-group">
-      <label>Изображение: <br>
-      <input type="file" name="image"></label>
+      <label for="image">Изображение:</label>
+      <input id="image" type="file" name="image">
     </div>
   </c:if>
 
@@ -148,44 +154,44 @@
 </c:if>
 
 <div class="control-group">
-  <label for="form_msg">Сообщение:</label>
-    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
-    <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+  <label for="form_msg">Сообщение</label>
+    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+    <div class="help-block"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></div>
 </div>
 
 <c:if test="${group!=null and group.linksAllowed}">
 <div class="control-group">
-  <label>
-    Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
+  <label for="linktext">
+    Текст ссылки
   </label>
+  <form:input path="linktext" style="width: 40em"/>
 </div>
 
 <div class="control-group">
-  <label>
-    Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
-  </label>
+  <label for="url">
+    Ссылка (не забудьте <b>http://</b>)</label>
+    <form:input placeholder="http://" path="url" type="url" style="width: 40em"/>
 </div>
 </c:if>
 
 <div class="control-group">
-  <label>
+  <label for="tags">
     <c:if test="${not section.premoderated}">
-      Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE() %>):<br>
+      Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE() %>)
     </c:if>
 
     <c:if test="${section.premoderated}">
-      Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
+      Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>)
     </c:if>
-
-    <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
   </label>
+  <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
 </div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <div class="form-actions">
-  <button type=submit>Поместить</button>
-  <button type=submit name=preview>Предпросмотр</button>
+  <button type=submit class="btn-primary btn">Поместить</button>
+  <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
 <c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
-  <button type=submit name=draft>Сохранить в черновики</button>
+  <button type=submit name=draft class="btn btn-default">Сохранить в черновики</button>
 </c:if>
 
 </div>
