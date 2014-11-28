@@ -124,9 +124,13 @@
 
   out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
   if (moderateMode) {
-    String shortHost = InternetDomainName.from(URI.create(url).getHost()).topPrivateDomain().toString();
+    try {
+      String shortHost = InternetDomainName.from(URI.create(url).getHost()).topPrivateDomain().toString();
 
-    out.append(" ("+shortHost+")");
+      out.append(" (" + shortHost + ")");
+    } catch (IllegalStateException ex) {
+      out.append(" ("+ ex.getMessage()+")");
+    }
   }
 %>
 </c:if>
