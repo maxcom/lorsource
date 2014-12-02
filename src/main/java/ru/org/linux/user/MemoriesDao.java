@@ -68,10 +68,6 @@ public class MemoriesDao {
 
   /**
    * Get memories id or 0 if not in memories
-   *
-   * @param user
-   * @param topic
-   * @return
    */
   public int getId(User user, Topic topic, boolean watch) {
     List<Integer> res = jdbcTemplate.queryForList(
@@ -91,9 +87,8 @@ public class MemoriesDao {
 
   /**
    * get number of memories/favs for topic
-   * @return list(0) - memories, list(1) - favs
    */
-  public List<Integer> getTopicStats(int topic) {
+  public MemoriesStat getTopicStats(int topic) {
     final List<Integer> res = Lists.newArrayList(0, 0);
 
     jdbcTemplate.query(
@@ -111,8 +106,7 @@ public class MemoriesDao {
             topic
     );
 
-    return res;
-
+    return new MemoriesStat(res.get(0), res.get(1));
   }
 
   public MemoriesListItem getMemoriesListItem(int id) {
@@ -141,7 +135,6 @@ public class MemoriesDao {
     return checkMemoriesPresent(user, false);
   }
 
-
   private boolean checkMemoriesPresent(User user, boolean watch) {
     List<Integer> present = jdbcTemplate.queryForList(
             "select memories.id from memories join topics on memories.topic=topics.id where memories.userid=? and watch=? and not deleted limit 1;",
@@ -160,21 +153,7 @@ public class MemoriesDao {
    */
   public int getWatchCountForUser(User user) {
     List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='t'", Integer.class, user.getId());
-    if(ret == null || ret.isEmpty()) {
-      return 0;
-    } else {
-      return ret.get(0);
-    }
-  }
-
-  /**
-   * get number of favorite memories for user
-   * @param user user
-   * @return count memories
-   */
-  public int getFavCountForUser(User user) {
-    List<Integer> ret = jdbcTemplate.queryForList("select count(id) from memories where userid=? and watch='f'", Integer.class, user.getId());
-    if(ret == null || ret.size() == 0) {
+    if(ret.isEmpty()) {
       return 0;
     } else {
       return ret.get(0);

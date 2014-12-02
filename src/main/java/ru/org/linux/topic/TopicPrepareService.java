@@ -420,7 +420,7 @@ public class TopicPrepareService {
     int favsId;
     boolean deletable;
 
-    List<Integer> topicStats = memoriesDao.getTopicStats(message.getMessage().getId());
+    MemoriesStat topicStats = memoriesDao.getTopicStats(message.getMessage().getId());
 
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
@@ -453,8 +453,8 @@ public class TopicPrepareService {
             resolvable, 
             memoriesId,
             favsId,
-            topicStats.get(0),
-            topicStats.get(1),
+            topicStats.watchCount(),
+            topicStats.favsCount(),
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             userpic
