@@ -62,7 +62,9 @@ public class MemoriesController {
 
     int id = memoriesDao.addToMemories(user, topic, watch);
 
-    int count = watch?memoriesDao.getTopicStats(msgid).watchCount():memoriesDao.getTopicStats(msgid).favsCount();
+    MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(msgid, user);
+
+    int count = watch? memoriesInfo.watchCount(): memoriesInfo.favsCount();
 
     return ImmutableMap.of("id", id, "count", count);
   }
@@ -92,7 +94,8 @@ public class MemoriesController {
 
       memoriesDao.delete(id);
 
-      return m.isWatch()?memoriesDao.getTopicStats(m.getTopic()).watchCount():memoriesDao.getTopicStats(m.getTopic()).favsCount();
+      MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(m.getTopic(), user);
+      return m.isWatch()? memoriesInfo.watchCount(): memoriesInfo.favsCount();
     } else {
       return -1;
     }

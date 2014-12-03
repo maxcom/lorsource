@@ -416,23 +416,17 @@ public class TopicPrepareService {
     boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
     boolean tagsEditable = groupPermissionService.isTagsEditable(message, currentUser);
     boolean resolvable;
-    int memoriesId;
-    int favsId;
     boolean deletable;
 
-    MemoriesStat topicStats = memoriesDao.getTopicStats(message.getMessage().getId());
+    MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(message.getMessage().getId(), currentUser);
 
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
-      memoriesId = memoriesDao.getId(currentUser, message.getMessage(), true);
-      favsId = memoriesDao.getId(currentUser, message.getMessage(), false);
       deletable = groupPermissionService.isDeletable(message.getMessage(), currentUser);
     } else {
       resolvable = false;
-      memoriesId = 0;
-      favsId = 0;
       deletable = false;
     }
 
@@ -451,10 +445,10 @@ public class TopicPrepareService {
             topicEditable,
             tagsEditable,
             resolvable, 
-            memoriesId,
-            favsId,
-            topicStats.watchCount(),
-            topicStats.favsCount(),
+            memoriesInfo.watchId(),
+            memoriesInfo.favId(),
+            memoriesInfo.watchCount(),
+            memoriesInfo.favsCount(),
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             userpic

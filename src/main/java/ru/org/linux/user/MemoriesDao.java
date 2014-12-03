@@ -26,6 +26,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.topic.Topic;
+import scala.Tuple2;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -47,13 +48,13 @@ public class MemoriesDao {
     try {
       return doAddToMemories(user, topic, watch);
     } catch (DuplicateKeyException ignored) {
-      return getId(user, topic, watch);
+      return getId(user, topic.getId(), watch);
     }
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   private int doAddToMemories(User user, Topic topic, boolean watch) {
-    int id = getId(user, topic, watch);
+    int id = getId(user, topic.getId(), watch);
 
     if (id==0) {
       return insertTemplate.executeAndReturnKey(ImmutableMap.<String, Object>of(
@@ -69,12 +70,12 @@ public class MemoriesDao {
   /**
    * Get memories id or 0 if not in memories
    */
-  public int getId(User user, Topic topic, boolean watch) {
+  private int getId(User user, int topic, boolean watch) {
     List<Integer> res = jdbcTemplate.queryForList(
             "SELECT id FROM memories WHERE userid=? AND topic=? AND watch=?",
             Integer.class,
             user.getId(),
-            topic.getId(),
+            topic,
             watch
     );
 
@@ -88,7 +89,7 @@ public class MemoriesDao {
   /**
    * get number of memories/favs for topic
    */
-  public MemoriesStat getTopicStats(int topic) {
+  public MemoriesInfo getTopicInfo(int topic, User currentUser) {
     final List<Integer> res = Lists.newArrayList(0, 0);
 
     jdbcTemplate.query(
@@ -105,8 +106,30 @@ public class MemoriesDao {
             },
             topic
     );
+    
+    if (currentUser!=null) {
+      List<Tuple2<Integer, Boolean>> ids = jdbcTemplate.query(
+              "SELECT id, watch FROM memories WHERE userid=? AND topic=?",
+              (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getBoolean("watch")),
+              currentUser.getId(),
+              topic
+      );
 
-    return new MemoriesStat(res.get(0), res.get(1));
+      int watchId = 0;
+      int favsId = 0;
+
+      for (Tuple2<Integer, Boolean> p : ids) {
+        if (p._2()) {
+          watchId = p._1();
+        } else {
+          favsId = p._1();
+        }
+      }
+
+      return new MemoriesInfo(res.get(0), res.get(1), watchId, favsId);
+    } else {
+      return new MemoriesInfo(res.get(0), res.get(1), 0, 0);
+    }
   }
 
   public MemoriesListItem getMemoriesListItem(int id) {
