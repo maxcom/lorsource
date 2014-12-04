@@ -40,7 +40,7 @@
   <style>
   .lor-main-adaptive-tango { width: 320px; height: 50px; }
   @media(min-width: 500px) { .lor-main-adaptive-tango { width: 468px; height: 60px; } }
-  @media(min-width: 800px) { .lor-main-adaptive-tango { width: 728px; height: 90px; } }
+  @media(min-width: 768px) { .lor-main-adaptive-tango { width: 728px; height: 90px; } }
   </style>
   <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <!-- lor-main-adaptive-tango -->
