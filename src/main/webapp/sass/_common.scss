@@ -662,6 +662,15 @@ pre code .container:before, pre code .container:after {
   display: inherit;
 }
 
+.page-number {
+  padding: 5px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  min-width: 1.5em;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
