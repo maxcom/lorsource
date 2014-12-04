@@ -209,6 +209,8 @@
     </c:if>
 </c:if>
 
-  <c:out value="${commentsLinks}" escapeXml="false"/>
+  <c:if test="${message.commentCount>0}">
+    (<lor:comment-count count="${message.commentCount}"/>)
+  </c:if>
 </article>
 </c:if>
