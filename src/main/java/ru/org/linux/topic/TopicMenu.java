@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import ru.org.linux.user.MemoriesInfo;
 import ru.org.linux.user.Userpic;
 
 import javax.annotation.Nullable;
@@ -24,12 +25,7 @@ public class TopicMenu {
   private final boolean tagsEditable;
   private final boolean resolvable;
 
-  private final int memoriesId;
-  private final int favsId;
-
-  private final int memoriesCount;
-  private final int favsCount;
-
+  private final MemoriesInfo memoriesInfo;
   private final boolean commentsAllowed;
   private final boolean deletable;
 
@@ -40,20 +36,14 @@ public class TopicMenu {
           boolean topicEditable,
           boolean tagsEditable,
           boolean resolvable,
-          int memoriesId,
-          int favsId,
-          int memoriesCount,
-          int favsCount,
+          MemoriesInfo memoriesInfo,
           boolean commentsAllowed,
           boolean deletable,
           @Nullable Userpic userpic) {
     this.topicEditable = topicEditable;
     this.tagsEditable = tagsEditable;
     this.resolvable = resolvable;
-    this.memoriesId = memoriesId;
-    this.favsId = favsId;
-    this.memoriesCount = memoriesCount;
-    this.favsCount = favsCount;
+    this.memoriesInfo = memoriesInfo;
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
     this.userpic = userpic;
@@ -75,8 +65,8 @@ public class TopicMenu {
     return resolvable;
   }
 
-  public int getMemoriesId() {
-    return memoriesId;
+  public MemoriesInfo getMemoriesInfo() {
+    return memoriesInfo;
   }
 
   public boolean isCommentsAllowed() {
@@ -85,18 +75,6 @@ public class TopicMenu {
 
   public boolean isDeletable() {
     return deletable;
-  }
-
-  public int getFavsId() {
-    return favsId;
-  }
-
-  public int getMemoriesCount() {
-    return memoriesCount;
-  }
-
-  public int getFavsCount() {
-    return favsCount;
   }
 
   @Nullable

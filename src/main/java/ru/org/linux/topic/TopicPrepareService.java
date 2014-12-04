@@ -445,10 +445,7 @@ public class TopicPrepareService {
             topicEditable,
             tagsEditable,
             resolvable, 
-            memoriesInfo.watchId(),
-            memoriesInfo.favId(),
-            memoriesInfo.watchCount(),
-            memoriesInfo.favsCount(),
+            memoriesInfo,
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             userpic

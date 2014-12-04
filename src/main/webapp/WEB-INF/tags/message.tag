@@ -98,8 +98,8 @@
   <div class="msg-container">
 
   <div class="fav-buttons">
-    <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.favsCount}</span><br>
-    <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesCount}</span>
+    <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.memoriesInfo.favsCount()}</span><br>
+    <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesInfo.watchCount()}</span>
   </div>
 
   <div class="msg_body">
@@ -253,8 +253,8 @@
 <c:if test="${template.sessionAuthorized}">
 <script type="text/javascript">
   $script.ready('lorjs', function () {
-    topic_memories_form_setup(${messageMenu.memoriesId}, true, ${message.id}, "${fn:escapeXml(csrfToken)}");
-    topic_memories_form_setup(${messageMenu.favsId}, false, ${message.id}, "${fn:escapeXml(csrfToken)}");
+    topic_memories_form_setup(${messageMenu.memoriesInfo.watchId()}, true, ${message.id}, "${fn:escapeXml(csrfToken)}");
+    topic_memories_form_setup(${messageMenu.memoriesInfo.favId()}, false, ${message.id}, "${fn:escapeXml(csrfToken)}");
   });
 </script>
 </c:if>
