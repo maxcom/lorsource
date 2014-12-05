@@ -40,6 +40,10 @@ class TagNameTest extends FunSuite {
     assert(isGoodTag("linux") === true)
   }
 
+  test("linux in mixed case is valid tag") {
+    assert(isGoodTag("lInux") === true)
+  }
+
   test("dot in end is not valid") {
     assert(isGoodTag("linux.") === false)
   }
@@ -54,6 +58,10 @@ class TagNameTest extends FunSuite {
 
   test("c is valid tag") {
     assert(isGoodTag("c") === true)
+  }
+
+  test("tag can't contain comma") {
+    assert(isGoodTag("test,test") === false)
   }
 }
 

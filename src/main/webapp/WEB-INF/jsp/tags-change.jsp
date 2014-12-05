@@ -19,27 +19,27 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Изменение метки</title>
+<title>Изменение тега ${tagRequestChange.oldTagName}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class="nav">
-  <div id="navPath">
-    Изменение метки
-  </div>
-</div>
+<h1>Изменение тега ${tagRequestChange.oldTagName}</h1>
+
 <c:url var="change_url" value="/tags/change">
   <c:param name="firstLetter" value="${firstLetter}"/>
 </c:url>
-<form:form modelAttribute="tagRequestChange" method="POST" action="${change_url}" enctype="multipart/form-data" >
+<form:form modelAttribute="tagRequestChange" method="POST" action="${change_url}">
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
-  Старое название: ${tagRequestChange.oldTagName}<br />
-  Название: <form:input path="tagName" required="required" style="width: 40em" /><br />
-  <input type="submit" value="Изменить" />
-  <c:url var="list_url" value="/tags/${firstLetter}" />
-  <input type="button" value="Отменить" onClick="window.location='${list_url}';" />
+  Старое название: ${tagRequestChange.oldTagName}<br>
+  <label for="tagName">Новое название:</label>
+  <form:input path="tagName" required="required" style="width: 40em" autofocus="autofocus"/>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Изменить</button>
+    <c:url var="list_url" value="/tags/${firstLetter}" />
+    <button onClick="window.location='${list_url}';" class="btn btn-default">Отменить</button>
+  </div>
 </form:form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
