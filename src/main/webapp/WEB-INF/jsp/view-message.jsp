@@ -21,6 +21,7 @@
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="messageMenu" type="ru.org.linux.topic.TopicMenu"--%>
+<%--@elvariable id="memoriesInfo" type="ru.org.linux.user.MemoriesInfo"--%>
 <%--@elvariable id="prevMessage" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="nextMessage" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -191,6 +192,7 @@
 </c:set>
 
 <lor:message
+        memoriesInfo="${memoriesInfo}"
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
         message="${message}"

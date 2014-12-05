@@ -5,6 +5,7 @@
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
+<%@ attribute name="memoriesInfo" required="false" type="ru.org.linux.user.MemoriesInfo" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -97,10 +98,14 @@
 
   <div class="msg-container">
 
-  <div class="fav-buttons">
-    <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span id="favs_count">${messageMenu.memoriesInfo.favsCount()}</span><br>
-    <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span id="memories_count">${messageMenu.memoriesInfo.watchCount()}</span>
-  </div>
+    <c:if test="${memoriesInfo!=null}">
+      <div class="fav-buttons">
+        <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span
+              id="favs_count">${memoriesInfo.favsCount()}</span><br>
+        <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span
+              id="memories_count">${memoriesInfo.watchCount()}</span>
+      </div>
+    </c:if>
 
   <div class="msg_body">
   <c:if test="${preparedMessage.image != null}">
@@ -242,6 +247,7 @@
 </div>
 </article>
 
+<c:if test="${memoriesInfo!=null}">
 <c:if test="${not template.sessionAuthorized}">
 <script type="text/javascript">
   $script.ready('lorjs', function() {
@@ -253,8 +259,9 @@
 <c:if test="${template.sessionAuthorized}">
 <script type="text/javascript">
   $script.ready('lorjs', function () {
-    topic_memories_form_setup(${messageMenu.memoriesInfo.watchId()}, true, ${message.id}, "${fn:escapeXml(csrfToken)}");
-    topic_memories_form_setup(${messageMenu.memoriesInfo.favId()}, false, ${message.id}, "${fn:escapeXml(csrfToken)}");
+    topic_memories_form_setup(${memoriesInfo.watchId()}, true, ${message.id}, "${fn:escapeXml(csrfToken)}");
+    topic_memories_form_setup(${memoriesInfo.favId()}, false, ${message.id}, "${fn:escapeXml(csrfToken)}");
   });
 </script>
+</c:if>
 </c:if>

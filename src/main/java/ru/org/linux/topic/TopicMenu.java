@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic;
 
-import ru.org.linux.user.MemoriesInfo;
 import ru.org.linux.user.Userpic;
 
 import javax.annotation.Nullable;
@@ -25,7 +24,6 @@ public class TopicMenu {
   private final boolean tagsEditable;
   private final boolean resolvable;
 
-  private final MemoriesInfo memoriesInfo;
   private final boolean commentsAllowed;
   private final boolean deletable;
 
@@ -36,14 +34,12 @@ public class TopicMenu {
           boolean topicEditable,
           boolean tagsEditable,
           boolean resolvable,
-          MemoriesInfo memoriesInfo,
           boolean commentsAllowed,
           boolean deletable,
           @Nullable Userpic userpic) {
     this.topicEditable = topicEditable;
     this.tagsEditable = tagsEditable;
     this.resolvable = resolvable;
-    this.memoriesInfo = memoriesInfo;
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
     this.userpic = userpic;
@@ -63,10 +59,6 @@ public class TopicMenu {
 
   public boolean isResolvable() {
     return resolvable;
-  }
-
-  public MemoriesInfo getMemoriesInfo() {
-    return memoriesInfo;
   }
 
   public boolean isCommentsAllowed() {

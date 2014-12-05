@@ -85,9 +85,6 @@ public class TopicPrepareService {
   private SiteConfig siteConfig;
 
   @Autowired
-  private MemoriesDao memoriesDao;
-
-  @Autowired
   private TopicPermissionService topicPermissionService;
   
   @Autowired
@@ -418,8 +415,6 @@ public class TopicPrepareService {
     boolean resolvable;
     boolean deletable;
 
-    MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(message.getMessage().getId(), currentUser);
-
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
@@ -445,7 +440,6 @@ public class TopicPrepareService {
             topicEditable,
             tagsEditable,
             resolvable, 
-            memoriesInfo,
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             userpic

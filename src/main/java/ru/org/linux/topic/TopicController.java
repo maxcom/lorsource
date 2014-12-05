@@ -42,6 +42,7 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.IgnoreListDao;
+import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
@@ -93,6 +94,9 @@ public class TopicController {
 
   @Autowired
   private LorCodeService lorCodeService;
+
+  @Autowired
+  private MemoriesDao memoriesDao;
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
@@ -276,6 +280,8 @@ public class TopicController {
             tmpl.getProf(),
             true
     ));
+
+    params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.getId(), currentUser));
 
     Set<Integer> ignoreList;
 
