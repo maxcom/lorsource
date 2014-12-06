@@ -48,14 +48,20 @@ import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Deadline;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class TopicController {
   public static final int RSS_DEFAULT = 20;
+  private static final FiniteDuration MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS);
+
   @Autowired
   private SectionService sectionService;
 
@@ -179,6 +185,9 @@ public class TopicController {
     String filter,
     String groupName,
     int msgid) throws Exception {
+
+    Deadline deadline = MoreLikeThisTimeout.fromNow();
+
     Topic topic = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
 
@@ -337,9 +346,7 @@ public class TopicController {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 
-    if (moreLikeThis!=null) {
-      params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
-    }
+    params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis, deadline));
 
     return new ModelAndView("view-message", params);
   }

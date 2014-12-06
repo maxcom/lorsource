@@ -97,9 +97,9 @@ class MoreLikeThisService @Autowired() (
       .addFields("title", "postdate", "section", "group")
   }
 
-  def resultsOrNothing(featureResult:Future[Result]):Result = {
+  def resultsOrNothing(featureResult:Future[Result], deadline:Deadline):Result = {
     try {
-      Await.result(featureResult, Timeout)
+      Await.result(featureResult, deadline.timeLeft)
     } catch {
       case ex:ElasticsearchException =>
         logger.warn("Unable to find similar topics", ex)
@@ -144,7 +144,6 @@ class MoreLikeThisService @Autowired() (
 }
 
 object MoreLikeThisService {
-  val Timeout = 500.milliseconds
   val CacheSize = 2000
 }
 
