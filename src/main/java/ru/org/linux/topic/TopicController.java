@@ -198,7 +198,7 @@ public class TopicController {
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);
 
-    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
+    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags, plainText);
 
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
             topic,
