@@ -18,7 +18,6 @@ package ru.org.linux.tag;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
 import org.apache.commons.lang3.text.WordUtils;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -57,19 +56,6 @@ public class TagPageController {
   private static final DateTimeFormatter THIS_YEAR_FORMAT = DateTimeFormat.forPattern("MMMMMMMM YYYY").withLocale(DateFormats.RUSSIAN_LOCALE);
   private static final DateTimeFormatter OLD_YEAR_FORMAT = DateTimeFormat.forPattern("YYYY");
 
-  private static final Function<Topic,DateTime> LASTMOD_EXTRACTOR = new Function<Topic, DateTime>() {
-    @Override
-    public DateTime apply(Topic input) {
-      return new DateTime(input.getLastModified());
-    }
-  };
-
-  private static final Function<Topic,DateTime> COMMITDATE_EXTRACTOR = new Function<Topic, DateTime>() {
-    @Override
-    public DateTime apply(Topic input) {
-      return new DateTime(input.getCommitDate());
-    }
-  };
   public static final int GALLERY_COUNT = 3;
 
   @Autowired
@@ -174,7 +160,7 @@ public class TagPageController {
             false
     );
 
-    ImmutableListMultimap<String, Topic> briefNews = datePartition(briefNewsTopics, COMMITDATE_EXTRACTOR);
+    ImmutableListMultimap<String, Topic> briefNews = datePartition(briefNewsTopics, input -> new DateTime(input.getCommitDate()));
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
 
@@ -209,7 +195,7 @@ public class TagPageController {
     return out.build();
   }
 
-  private ImmutableMap<String, Object> getForumSection(@Nonnull String tag, int tagId) throws TagNotFoundException {
+  private ImmutableMap<String, Object> getForumSection(@Nonnull String tag, int tagId) {
     Section forumSection = sectionService.getSection(Section.SECTION_FORUM);
 
     TopicListDto topicListDto = new TopicListDto();
@@ -224,7 +210,7 @@ public class TagPageController {
 
     List<Topic> forumTopics = topicListService.getTopics(topicListDto);
 
-    ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, LASTMOD_EXTRACTOR);
+    ImmutableListMultimap<String, Topic> sections = datePartition(forumTopics, input -> new DateTime(input.getLastModified()));
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
 
@@ -243,24 +229,21 @@ public class TagPageController {
           Iterable<Topic> topics,
           final Function<Topic, DateTime> dateExtractor
   ) {
-    final DateMidnight startOfToday = new DateMidnight();
-    final DateMidnight startOfYesterday = startOfToday.minusDays(1);
-    final DateMidnight startOfYear = startOfToday.withDayOfYear(1);
+    final DateTime startOfToday = DateTime.now().withTimeAtStartOfDay();
+    final DateTime startOfYesterday = DateTime.now().minusDays(1).withTimeAtStartOfDay();
+    final DateTime startOfYear = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
 
-    return Multimaps.index(topics, new Function<Topic, String>() {
-      @Override
-      public String apply(Topic input) {
-        DateTime date = dateExtractor.apply(input);
+    return Multimaps.index(topics, (input) -> {
+      DateTime date = dateExtractor.apply(input);
 
-        if (date.isAfter(startOfToday)) {
-          return "Сегодня";
-        } else if (date.isAfter(startOfYesterday)) {
-          return "Вчера";
-        } else if (date.isAfter(startOfYear)) {
-          return THIS_YEAR_FORMAT.print(date);
-        } else {
-          return OLD_YEAR_FORMAT.print(date);
-        }
+      if (date.isAfter(startOfToday)) {
+        return "Сегодня";
+      } else if (date.isAfter(startOfYesterday)) {
+        return "Вчера";
+      } else if (date.isAfter(startOfYear)) {
+        return THIS_YEAR_FORMAT.print(date);
+      } else {
+        return OLD_YEAR_FORMAT.print(date);
       }
     });
   }
