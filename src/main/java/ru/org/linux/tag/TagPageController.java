@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.PreparedGalleryItem;
-import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -147,7 +146,7 @@ public class TagPageController {
             false
     );
 
-    ImmutableListMultimap<String, Topic> briefNews = TopicListTools.datePartition(briefNewsTopics);
+    ImmutableListMultimap<String, Topic> briefNewsByDate = TopicListTools.datePartition(briefNewsTopics);
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
 
@@ -158,7 +157,12 @@ public class TagPageController {
     }
 
     out.put("fullNews", fullNews);
-    out.put("briefNews", TopicListTools.split(briefNews));
+
+    out.put("briefNews", TopicListTools.split(
+            Multimaps.transformValues(
+                    briefNewsByDate,
+                    (input) -> BriefTopicRef.apply(input.getLink(), input.getTitle(), input.getCommentCount())
+    )));
 
     return out.build();
   }
@@ -197,7 +201,7 @@ public class TagPageController {
 
     List<Topic> forumTopics = topicListService.getTopics(topicListDto);
 
-    ImmutableListMultimap<String, Topic> sections = TopicListTools.datePartition(forumTopics);
+    ImmutableListMultimap<String, Topic> topicByDate = TopicListTools.datePartition(forumTopics);
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
 
@@ -207,26 +211,12 @@ public class TagPageController {
 
     out.put("addForum", AddTopicController.getAddUrl(forumSection, tag));
 
-    out.put("forum", TopicListTools.split(Multimaps.transformValues(sections, (input) -> new ForumItem(input, groupDao.getGroup(input.getGroupId())))));
+    out.put("forum", TopicListTools.split(
+            Multimaps.transformValues(
+                    topicByDate,
+                    (input) -> BriefTopicRef.apply(input.getLink(), input.getTitle(), input.getCommentCount(), groupDao.getGroup(input.getGroupId()).getTitle()))
+    ));
 
     return out.build();
-  }
-
-  public static class ForumItem {
-    private final Topic topic;
-    private final Group group;
-
-    public ForumItem(Topic topic, Group group) {
-      this.topic = topic;
-      this.group = group;
-    }
-
-    public Topic getTopic() {
-      return topic;
-    }
-
-    public Group getGroup() {
-      return group;
-    }
   }
 }
