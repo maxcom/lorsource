@@ -25,8 +25,8 @@
 <%--@elvariable id="addGallery" type="java.lang.String"--%>
 <%--@elvariable id="moreGallery" type="java.lang.String"--%>
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
-<%--@elvariable id="briefNews" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>"--%>
-<%--@elvariable id="forum" type="java.util.List<java.util.Map<java.lang.String, java.util.Collection<ru.org.linux.tag.TagPageController.ForumItem>>>"--%>
+<%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>>"--%>
+<%--@elvariable id="forum" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>>"--%>
 <%--@elvariable id="showFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
@@ -86,9 +86,9 @@
     <c:forEach var="map" items="${briefNews}" varStatus="iter">
       <section>
         <c:forEach var="entry" items="${map}">
-          <h3>${entry.key}</h3>
+          <h3>${entry._1()}</h3>
           <ul>
-            <c:forEach var="msg" items="${entry.value}">
+            <c:forEach var="msg" items="${entry._2()}">
               <li><a href="${msg.link}"><l:title>${msg.title}</l:title></a> </li>
             </c:forEach>
           </ul>
@@ -146,9 +146,9 @@
       <c:forEach var="map" items="${forum}">
         <section>
           <c:forEach var="entry" items="${map}">
-            <h3>${entry.key}</h3>
+            <h3>${entry._1()}</h3>
             <ul>
-              <c:forEach var="msg" items="${entry.value}">
+              <c:forEach var="msg" items="${entry._2()}">
                 <li>
                   <span class="group-label">${msg.group.title}</span> <a href="${msg.topic.link}">${msg.topic.title}</a>
                   <c:if test="${msg.topic.commentCount>0}">(<lor:comment-count count="${msg.topic.commentCount}"/>)</c:if>
