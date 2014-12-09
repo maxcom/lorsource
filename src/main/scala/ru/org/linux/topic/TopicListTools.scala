@@ -18,15 +18,22 @@ package ru.org.linux.topic
 import com.google.common.collect._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import ru.org.linux.site.DateFormats
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 object TopicListTools {
-  private val ThisYearFormat = DateTimeFormat.forPattern("MMMMMMMM YYYY").withLocale(DateFormats.RUSSIAN_LOCALE)
   private val OldYearFormat = DateTimeFormat.forPattern("YYYY")
+
+  // в локали месяца не в том склонении :-(
+  private val Months = IndexedSeq(
+    "Январь", "Февраль",
+    "Март", "Апрель", "Май",
+    "Июнь", "Июль", "Август",
+    "Сентябрь", "Октябрь", "Ноябрь",
+    "Декабрь"
+  )
 
   def datePartition(topics: java.util.List[Topic]): ImmutableListMultimap[String, Topic] = {
     val startOfToday = DateTime.now.withTimeAtStartOfDay
@@ -38,12 +45,14 @@ object TopicListTools {
         input.getEffectiveDate match {
           case date if date.isAfter(startOfToday)     ⇒ "Сегодня"
           case date if date.isAfter(startOfYesterday) ⇒ "Вчера"
-          case date if date.isAfter(startOfYear)      ⇒ ThisYearFormat.print(date)
+          case date if date.isAfter(startOfYear)      ⇒ s"${monthName(date)} ${date.getYear}"
           case date                                   ⇒ OldYearFormat.print(date)
         }
       }
     })
   }
+
+  def monthName(date:DateTime) = Months(date.getMonthOfYear - date.getChronology.monthOfYear().getMinimumValue)
 
   def split[T](topics: ListMultimap[String, T]): java.util.List[java.util.List[(String, java.util.List[T])]] = {
     if (topics.isEmpty) {
