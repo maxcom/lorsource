@@ -26,7 +26,7 @@
 <%--@elvariable id="moreGallery" type="java.lang.String"--%>
 <%--@elvariable id="gallery" type="java.util.List<ru.org.linux.gallery.PreparedGalleryItem>"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>>"--%>
-<%--@elvariable id="forum" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.Topic>>>>"--%>
+<%--@elvariable id="forum" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.ForumItem>>>>"--%>
 <%--@elvariable id="showFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>

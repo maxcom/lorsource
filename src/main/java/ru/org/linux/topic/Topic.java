@@ -347,7 +347,7 @@ public class Topic implements Serializable {
   /**
    * Дата размещения сообщения на сайте
    *
-   * @return postdate для премодерируемых и commitdate для постмодерируемых, прошедших модерацию
+   * @return postdate для постмодерируемых и commitdate для премодерируемых, прошедших модерацию
    */
   @Nonnull
   public DateTime getEffectiveDate() {

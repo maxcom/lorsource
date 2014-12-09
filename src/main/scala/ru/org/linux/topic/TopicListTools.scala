@@ -28,14 +28,14 @@ object TopicListTools {
   private val ThisYearFormat = DateTimeFormat.forPattern("MMMMMMMM YYYY").withLocale(DateFormats.RUSSIAN_LOCALE)
   private val OldYearFormat = DateTimeFormat.forPattern("YYYY")
 
-  def datePartition(topics: java.util.List[Topic], dateExtractor: com.google.common.base.Function[Topic, DateTime]): ImmutableListMultimap[String, Topic] = {
+  def datePartition(topics: java.util.List[Topic]): ImmutableListMultimap[String, Topic] = {
     val startOfToday = DateTime.now.withTimeAtStartOfDay
     val startOfYesterday = DateTime.now.minusDays(1).withTimeAtStartOfDay
     val startOfYear = DateTime.now.withDayOfYear(1).withTimeAtStartOfDay
 
     Multimaps.index(topics, new com.google.common.base.Function[Topic, String]() {
       override def apply(input: Topic): String = {
-        dateExtractor.apply(input) match {
+        input.getEffectiveDate match {
           case date if date.isAfter(startOfToday)     ⇒ "Сегодня"
           case date if date.isAfter(startOfYesterday) ⇒ "Вчера"
           case date if date.isAfter(startOfYear)      ⇒ ThisYearFormat.print(date)

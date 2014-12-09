@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimaps;
 import org.apache.commons.lang3.text.WordUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -148,7 +147,7 @@ public class TagPageController {
             false
     );
 
-    ImmutableListMultimap<String, Topic> briefNews = TopicListTools.datePartition(briefNewsTopics, input -> new DateTime(input.getCommitDate()));
+    ImmutableListMultimap<String, Topic> briefNews = TopicListTools.datePartition(briefNewsTopics);
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
 
@@ -198,7 +197,7 @@ public class TagPageController {
 
     List<Topic> forumTopics = topicListService.getTopics(topicListDto);
 
-    ImmutableListMultimap<String, Topic> sections = TopicListTools.datePartition(forumTopics, input -> new DateTime(input.getLastModified()));
+    ImmutableListMultimap<String, Topic> sections = TopicListTools.datePartition(forumTopics);
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
 
