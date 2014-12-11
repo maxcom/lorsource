@@ -429,10 +429,8 @@ fieldset legend {
 }
 
 #bd .btn {
-  border: 1px solid transparent;
   border-radius: .2em;
-
-  border-color: $button_border_color;
+  border: 1px solid $button_border_color;
   color: $button_text_color;
 
   &:visited {
@@ -441,6 +439,10 @@ fieldset legend {
   &:hover {
     box-shadow: 0 0 1px 1px $link_color;
   }
+}
+
+#bd nav .btn {
+  border: 1px solid transparent;
 }
 
 #bd .btn-primary {
@@ -458,6 +460,17 @@ fieldset legend {
 #bd .btn-danger {
   background-color: $button_danger_background;
   color: $button_danger_text;
+  &:visited {
+    color: $button_danger_text;
+  }
+}
+
+#bd .btn-selected {
+  background-color: $button_selected_background;
+  color: $button_selected_text_color;
+  &:visited {
+    color: $button_selected_text_color;
+  }
 }
 
 .fav-buttons {

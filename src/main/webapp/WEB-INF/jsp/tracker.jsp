@@ -32,31 +32,23 @@
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class=nav>
-  <div id="navPath">
-    ${title}
-  </div>
+<h1>${title}</h1>
 
-  <div class="nav-buttons">
-    <ul>
-      <c:forEach items="${filters}" var="f">
-        <li>
-          <c:url var="fUrl" value="/tracker/">
-            <c:if test="${f != defaultFilter}">
-              <c:param name="filter">${f.value}</c:param>
-            </c:if>
-          </c:url>
-          <c:if test="${filter != f.value}">
-            <a href="${fUrl}">${f.label}</a>
-          </c:if>
-          <c:if test="${filter==f.value}">
-            <a href="${fUrl}" class="current">${f.label}</a>
-          </c:if>
-        </li>
-      </c:forEach>
-    </ul>
-  </div>
-</div>
+<nav>
+  <c:forEach items="${filters}" var="f">
+      <c:url var="fUrl" value="/tracker/">
+        <c:if test="${f != defaultFilter}">
+          <c:param name="filter">${f.value}</c:param>
+        </c:if>
+      </c:url>
+      <c:if test="${filter != f.value}">
+        <a class="btn btn-default" href="${fUrl}">${f.label}</a>
+      </c:if>
+      <c:if test="${filter==f.value}">
+        <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
+      </c:if>
+  </c:forEach>
+</nav>
 
 <div class=forum>
   <table class="message-table">
