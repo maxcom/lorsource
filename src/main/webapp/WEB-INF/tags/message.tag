@@ -69,7 +69,7 @@
 
         [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
         <c:if test="${preparedMessage.section.premoderated}">
-          [<a href="mt.jsp?msgid=${message.id}">В форум</a>]
+          [<a href="mt.jsp?msgid=${message.id}">В&nbsp;форум</a>]
         </c:if>
         <c:if test="${not preparedMessage.section.premoderated}">
           [<a href="mt.jsp?msgid=${message.id}">Группа</a>]
