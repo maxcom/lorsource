@@ -21,9 +21,7 @@ public enum TrackerFilterEnum {
   ALL("all", "все"),
   MAIN("main", "основные"),
   NOTALKS("notalks", "без talks"),
-  TECH("tech", "тех. разделы форума"),
-  MINE("mine", "мои темы"),
-  ZERO("zero", "без ответов");
+  TECH("tech", "тех. разделы форума");
 
   private final String value;
   private final String label;

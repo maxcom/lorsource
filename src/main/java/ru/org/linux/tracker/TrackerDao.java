@@ -49,28 +49,6 @@ public class TrackerDao {
   @Autowired
   private TopicTagService topicTagService;
 
-  private static final String queryTrackerZeroMain =
-      "SELECT " +
-          "t.userid as author, " +
-          "t.id, lastmod,  " +
-          "t.stat1 AS stat1, " +
-          "g.id AS gid, " +
-          "g.title AS gtitle, " +
-          "t.title AS title, " +
-          "0 as cid, " +
-          "0 as last_comment_by, " +
-          "t.resolved as resolved," +
-          "section," +
-          "urlname," +
-          "postdate, " +
-          "sections.moderate as smod, " +
-          "t.moderate " +
-          "FROM topics AS t, groups AS g, sections " +
-          "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postdate > :interval " +
-          "%s" + /* user!=null ? queryPartIgnored*/
-          " AND t.stat1=0 AND g.id=t.groupid " +
-          "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
-
   private static final String queryTrackerMain =
       "SELECT " +
         "t.userid as author, " +
@@ -138,34 +116,11 @@ public class TrackerDao {
       "FROM wiki_recent_change " +
       "WHERE change_date > :interval ";
 
-  private static final String queryPartWikiMine =      "UNION ALL " +
-      "SELECT " + // wiki
-          "0 as author, " +
-          "0 as id, change_date as lastmod, " +
-          "characters_changed as stat1, " +
-          "0 as gid, " +
-          "'Wiki' as gtitle, " +
-          "topic_name as title, " +
-          "0 as cid, " +
-          "wiki_user_id as last_comment_by, " +
-          "'f' as resolved, " +
-          "0 as section, " +
-          "'' as urlname, " +
-          "change_date as postdate, " +
-          "'f' as smod, " +
-          "'f' as moderate " +
-      "FROM jam_recent_change " +
-      "WHERE topic_id is not null AND change_date > :interval " +
-      " AND wiki_user_id=:userid ";
-  
-  
-
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartTagIgnored = " AND t.id NOT IN (select distinct tags.msgid from tags, user_tags "
     + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
-  private static final String queryPartMine = " AND t.userid=:userid ";
   private static final String queryPartMain = " AND not t.groupid=8404 AND not t.groupid=4068 AND not t.groupid=19392 ";
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
@@ -202,14 +157,6 @@ public class TrackerDao {
       case TECH:
         partFilter = queryPartTech;
         break;
-      case MINE:
-        if(currentUser != null) {
-          partFilter = queryPartMine;
-          partWiki = queryPartWikiMine;
-        } else {
-          partFilter = "";
-        }
-        break;
       default:
         partFilter = "";
     }
@@ -220,11 +167,7 @@ public class TrackerDao {
 
     String query;
 
-    if(filter != TrackerFilterEnum.ZERO) {
-      query = String.format(queryTrackerMain, partUncommited, partIgnored, partFilter, partUncommited, partIgnored, partFilter, partWiki);
-    } else {
-      query = String.format(queryTrackerZeroMain, partIgnored);
-    }
+    query = String.format(queryTrackerMain, partUncommited, partIgnored, partFilter, partUncommited, partIgnored, partFilter, partWiki);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 

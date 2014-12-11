@@ -16,8 +16,6 @@
 package ru.org.linux.tracker;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,9 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.util.*;
 
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
-
 @Controller
 public class TrackerController {
   @Autowired
@@ -52,16 +47,8 @@ public class TrackerController {
   private DeleteInfoDao deleteInfoDao;
 
   @ModelAttribute("filters")
-  public static List<TrackerFilterEnum> getFilter(HttpServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
-
-    List<TrackerFilterEnum> filterValues = Arrays.asList(TrackerFilterEnum.values());
-
-    if (tmpl.isSessionAuthorized()) {
-      return filterValues;
-    } else {
-      return ImmutableList.copyOf(Iterables.filter(filterValues, not(equalTo(TrackerFilterEnum.MINE))));
-    }
+  public static List<TrackerFilterEnum> getFilter() {
+    return Arrays.asList(TrackerFilterEnum.values());
   }
 
   @RequestMapping("/tracker.jsp")
@@ -125,13 +112,7 @@ public class TrackerController {
 
     params.put("defaultFilter", defaultFilter);
 
-    Date startDate;
-
-    if (trackerFilter == TrackerFilterEnum.MINE) {
-      startDate = DateTime.now().minusMonths(6).toDate();
-    } else {
-      startDate = DateTime.now().minusDays(1).toDate();
-    }
+    Date startDate = DateTime.now().minusDays(1).toDate();
 
     int messages = tmpl.getProf().getMessages();
     int topics = tmpl.getProf().getTopics();
@@ -142,13 +123,9 @@ public class TrackerController {
 
     params.put("title", makeTitle(trackerFilter, defaultFilter));
 
-    if (trackerFilter == TrackerFilterEnum.MINE && !tmpl.isSessionAuthorized()) {
-      throw new UserErrorException("Not authorized");
-    }
-
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages));
 
-    if (tmpl.isModeratorSession() && trackerFilter != TrackerFilterEnum.MINE) {
+    if (tmpl.isModeratorSession()) {
       params.put("newUsers", userDao.getNewUsers());
       params.put("deleteStats", deleteInfoDao.getRecentStats());
     }
