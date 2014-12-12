@@ -47,7 +47,7 @@
   Все разделы форума также доступны в виде единой
   <a class="navLink" href="/forum/lenta/">ленты</a>.
 </p>
-<h1>RSS подписки</h1>
+<h2>RSS подписки</h2>
 
 <ul>
   <li><a href="section-rss.jsp?section=${section.id}">Полный RSS форума</a></li>
