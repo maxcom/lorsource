@@ -51,29 +51,24 @@
   });
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<div class=nav>
-<tr>
-    <div id="navPath">
-    ${title}
-    </div>
-    <div class="nav-buttons">
-        <ul>
-        <c:forEach var="f" items="${filterValues}">
-        <c:url var="fUrl" value="/notifications">
-            <c:param name="filter">${f.name}</c:param>
-        </c:url>
-        <c:choose>
-            <c:when test="${f.name == filter}">
-                <li><a href="${fUrl}" class="current">${f.label}</a></li>
-            </c:when>
-            <c:otherwise>
-                <li><a href="${fUrl}">${f.label}</a></li>
-            </c:otherwise>
-        </c:choose>
-        </c:forEach>
-        </ul>
-    </div>
-</div>
+
+<h1>${title}</h1>
+
+<nav>
+  <c:forEach var="f" items="${filterValues}">
+    <c:url var="fUrl" value="/notifications">
+      <c:param name="filter">${f.name}</c:param>
+    </c:url>
+    <c:choose>
+      <c:when test="${f.name == filter}">
+        <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
+      </c:when>
+      <c:otherwise>
+        <a href="${fUrl}" class="btn btn-default">${f.label}</a>
+      </c:otherwise>
+    </c:choose>
+  </c:forEach>
+</nav>
 
 <c:if test="${unreadCount > 0}">
   <div id="counter_block" class="infoblock">
@@ -95,44 +90,14 @@
     <c:if test="${enableReset}">
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
-        <input type="submit" value="Сбросить">
+        <button type="submit">Сбросить</button>
       </form>
     </c:if>
   </div>
 </c:if>
 
-<div style="float: left">
-<c:if test="${not firstPage}">
-<c:choose>
-<c:when test="${not isMyNotifications}">
-  <a rel=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">← назад</a>
-</c:when>
-<c:otherwise>
-  <a rel=prev href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
-</c:otherwise>
-</c:choose>
-</c:if>
-</div>
-
-<div style="float: right">
-<c:if test="${hasMore}">
-<c:choose>
-<c:when test="${not isMyNotifications}">
-  <a rel=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед →</a>
-</c:when>
-<c:otherwise>
-  <a rel=next href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
-</c:otherwise>
-</c:choose>
-</c:if>
-</div>
-
-<p style="clear: both;"> </p>
-
 <div class=forum>
 <table width="100%" class="message-table">
-<thead>
-<tr><th></th><th>Заголовок</th><th>Комментарий</th></tr>
 <tbody>
 
 <c:forEach var="topic" items="${topicsList}">
