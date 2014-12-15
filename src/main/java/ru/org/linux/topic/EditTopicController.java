@@ -443,7 +443,7 @@ public class EditTopicController {
 
       if (changed || commit || publish) {
         if (!newMsg.isDraft()) {
-          searchQueueSender.updateMessage(newMsg.getId(), commit || publish);
+          searchQueueSender.updateMessage(newMsg.getId(), true);
         }
 
         if (commit) {
