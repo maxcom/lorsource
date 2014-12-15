@@ -17,7 +17,7 @@ package ru.org.linux.user;
 import com.google.common.collect.ImmutableSet;
 
 public enum UserEventFilterEnum {
-  ALL("все уведомления", ""),
+  ALL("все", ""),
   ANSWERS("ответы", "REPLY"),
   FAVORITES("отслеживаемое", "WATCH"),
   DELETED("удаленное", "DEL"),
