@@ -139,11 +139,8 @@
     <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
   <td>
-    <lor:dateinterval date="${topic.event.eventDate}"/>
-
-    <c:if test="${topic.event.cid != 0}">
-       (<lor:user user="${topic.commentAuthor}"/>)
-    </c:if>
+    <lor:dateinterval date="${topic.event.eventDate}"/><!--
+    --><c:if test="${topic.event.cid != 0}">, <lor:user user="${topic.commentAuthor}"/> </c:if>
   </td>
 </tr>
 </c:forEach>
