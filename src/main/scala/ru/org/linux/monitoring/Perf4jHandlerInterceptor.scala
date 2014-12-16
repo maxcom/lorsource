@@ -1,27 +1,29 @@
 package ru.org.linux.monitoring
 
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import org.springframework.web.servlet.resource.{DefaultServletHttpRequestHandler, ResourceHttpRequestHandler}
-import org.springframework.web.method.HandlerMethod
-import org.perf4j.slf4j.Slf4JStopWatch
-import org.perf4j.StopWatch
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.springframework.web.servlet.ModelAndView
-import Perf4jHandlerInterceptor._
-import org.springframework.beans.factory.annotation.Autowired
-import org.elasticsearch.client.Client
-import org.apache.commons.io.IOUtils
 import javax.annotation.PostConstruct
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.apache.commons.io.IOUtils
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.action.ActionListener
 import org.elasticsearch.action.index.IndexResponse
+import org.elasticsearch.client.Client
+import org.perf4j.StopWatch
+import org.perf4j.slf4j.Slf4JStopWatch
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.method.HandlerMethod
+import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
+import org.springframework.web.servlet.resource.{DefaultServletHttpRequestHandler, ResourceHttpRequestHandler}
+import ru.org.linux.monitoring.Perf4jHandlerInterceptor._
+
 import scala.collection.JavaConverters._
 
 object Perf4jHandlerInterceptor {
   private val ATTRIBUTE = "perf4jStopWatch"
   private val LOGGING_THRESHOLD = 500
-  private val ELASTIC_THRESHOLD = 500
+  private val ELASTIC_THRESHOLD = 300
   private val PERF_INDEX = "perf"
   private val PERF_TYPE = "metric"
 }
