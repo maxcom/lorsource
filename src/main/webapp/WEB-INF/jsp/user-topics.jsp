@@ -55,6 +55,7 @@
     </div>
 </div>
 
+<c:if test="${showSearch}">
 <div class="infoblock">
   <form method="GET" commandName="query" action="search.jsp">
     <div class="control-group">
@@ -73,6 +74,7 @@
     <input type="hidden" name="usertopic" value="true"/>
   </form>
 </div>
+</c:if>
 
 <c:forEach var="msg" items="${messages}">
   <lor:news

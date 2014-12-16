@@ -199,6 +199,8 @@ public class UserTopicListController {
       modelAndView.setViewName("user-topics");
     }
 
+    modelAndView.addObject("showSearch", true);
+
     return modelAndView;
   }
 
