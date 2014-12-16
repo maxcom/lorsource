@@ -41,10 +41,6 @@
         <li><a href="${whoisLink}">Профиль</a></li>
       </c:if>
 
-      <c:if test="${rssLink != null}">
-        <li><a href="${rssLink}">RSS</a></li>
-      </c:if>
-      </ul>
       <c:if test="${sectionList != null}">
         <li><a href="${url}" <c:if test="${section == null}">class="current"</c:if>>Все</a></li>
 
@@ -55,6 +51,7 @@
           </li>
         </c:forEach>
       </c:if>
+      </ul>
     </div>
 </div>
 
@@ -115,5 +112,14 @@
     </c:if>
   </tr>
 </table>
+
+<c:if test="${rssLink != null}">
+<p>
+  <i class="icon-rss"></i>
+  <a href="${rssLink}">
+    RSS подписка на новые темы
+  </a>
+</p>
+</c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
