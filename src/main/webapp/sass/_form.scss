@@ -83,10 +83,11 @@ select {
 }
 
 .help-block {
-    display: block;
-    margin-bottom: .5em;
-    margin-top: .3em;
-    font-size: 85%;
+  display: block;
+  margin-bottom: .5em;
+  margin-top: .3em;
+  font-size: smaller;
+  line-height: 1.4;
 }
 
 form .error {
