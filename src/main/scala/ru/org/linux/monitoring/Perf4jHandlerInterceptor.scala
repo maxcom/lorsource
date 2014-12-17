@@ -23,7 +23,7 @@ import scala.collection.JavaConverters._
 object Perf4jHandlerInterceptor {
   private val ATTRIBUTE = "perf4jStopWatch"
   private val LOGGING_THRESHOLD = 500
-  private val ELASTIC_THRESHOLD = 300
+  private val ELASTIC_THRESHOLD = 200
   private val PERF_INDEX = "perf"
   private val PERF_TYPE = "metric"
 }
