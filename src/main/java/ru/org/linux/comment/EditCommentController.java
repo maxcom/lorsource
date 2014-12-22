@@ -89,7 +89,8 @@ public class EditCommentController extends ApplicationObjectSupport {
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.GET)
   public ModelAndView editCommentShowHandler(
-          @ModelAttribute("edit") @Valid CommentRequest commentRequest
+          @ModelAttribute("edit") @Valid CommentRequest commentRequest,
+          HttpServletRequest request
   ) throws ServletParameterException {
     if (commentRequest.getTopic() == null) {
       throw new ServletParameterException("тема на задана");
@@ -102,7 +103,9 @@ public class EditCommentController extends ApplicationObjectSupport {
     commentRequest.setMsg(messageText.getText());
     commentRequest.setTitle(original.getTitle());
 
-    return new ModelAndView("edit_comment");
+    Comment comment = commentRequest.getOriginal();
+
+    return new ModelAndView("edit_comment", "comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
   }
 
   /**
