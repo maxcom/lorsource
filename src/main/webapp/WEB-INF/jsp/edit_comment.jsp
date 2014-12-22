@@ -18,6 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="comment" type="ru.org.linux.comment.PreparedComment"--%>
+<%--@elvariable id="deadline" type="java.util.Date"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Изменить комментарий</title>
@@ -27,6 +28,9 @@
 
 <p>
 <a href="${edit.topic.link}?cid=${edit.original.id}">Комментарий</a> написан <lor:date date="${comment.postdate}"/>.
+<c:if test="${deadline!=null}">
+  Редактирование возможно до <lor:date date="${deadline}"/>.
+</c:if>
 </p>
 
 <div class=messages>

@@ -15,6 +15,8 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.base.Optional;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -26,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
@@ -103,9 +104,19 @@ public class EditCommentController extends ApplicationObjectSupport {
     commentRequest.setMsg(messageText.getText());
     commentRequest.setTitle(original.getTitle());
 
+    Map<String, Object> formParams = new HashMap<>();
+
     Comment comment = commentRequest.getOriginal();
 
-    return new ModelAndView("edit_comment", "comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
+    formParams.put("comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
+
+    Optional<DateTime> deadline = topicPermissionService.getEditDeadline(comment);
+
+    if (deadline.isPresent()) {
+      formParams.put("deadline", deadline.get().toDate());
+    }
+
+    return new ModelAndView("edit_comment", formParams);
   }
 
   /**
@@ -145,19 +156,22 @@ public class EditCommentController extends ApplicationObjectSupport {
 
     Template tmpl = Template.getTemplate(request);
 
-    boolean editable = topicPermissionService.isCommentsEditingAllowed(
+    topicPermissionService.checkCommentsEditingAllowed(
             commentRequest.getOriginal(),
             commentRequest.getTopic(),
-            tmpl.getCurrentUser()
+            tmpl.getCurrentUser(),
+            errors
     );
 
-    if (!editable) {
-      throw new AccessViolationException("у Вас нет прав на редактирование этого сообщения");
-    }
-
-    if (commentRequest.isPreviewMode() || errors.hasErrors() && comment == null) {
+    if (commentRequest.isPreviewMode() || errors.hasErrors() || comment == null) {
       ModelAndView modelAndView = new ModelAndView("edit_comment", formParams);
       modelAndView.addObject("ipBlockInfo", ipBlockInfo);
+      Optional<DateTime> deadline = topicPermissionService.getEditDeadline(comment);
+
+      if (deadline.isPresent()) {
+        modelAndView.addObject("deadline", deadline.get().toDate());
+      }
+
       return modelAndView;
     }
 

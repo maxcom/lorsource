@@ -30,7 +30,7 @@ comment.isModeratorAllowedToEdit=false
 # время (в минутах), в течении которого с момента создания коммента его
 # можно редактировать (не распространяется на модераторов).
 # если не установлено или равно 0, то редактировать можно будет всегда.
-comment.expireMinutesForEdit=0
+comment.expireMinutesForEdit=30
 
 # разрешить редактировать комментарии, которые имеют ответы
 comment.isEditingAllowedIfAnswersExists=false
