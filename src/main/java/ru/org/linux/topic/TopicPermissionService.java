@@ -320,10 +320,10 @@ public class TopicPermissionService {
 
       /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
       if (currentUser.getScore() < siteConfig.getCommentScoreValueForEditing()) {
-        errors.reject(null, "У вас не достаточно прав для редактирования этого комментария");
+        errors.reject(null, "У вас недостаточно прав для редактирования этого комментария");
       }
     } else {
-      errors.reject(null, "У вас не достаточно прав для редактирования этого комментария");
+      errors.reject(null, "У вас недостаточно прав для редактирования этого комментария");
     }
   }
 
