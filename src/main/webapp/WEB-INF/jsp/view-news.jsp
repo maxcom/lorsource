@@ -26,62 +26,45 @@
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-  <div class=nav>
-    <div id="navPath">
-      ${navtitle}
-    </div>
-    <div class="nav-buttons">
-      <ul>
 
-      <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
-        <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
-      </c:if>
-      <c:if test="${sectionList == null and section != null}">
-        <c:if test="${section.premoderated}">
-          <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
-        </c:if>
-        <c:choose>
-          <c:when test="${section.pollPostAllowed}">
-            <li><a href="add.jsp?group=19387">Добавить</a></li>
-          </c:when>
-          <c:when test="${group == null}">
-            <li><a href="add-section.jsp?section=${section.id}">Добавить</a></li>
-          </c:when>
-          <c:otherwise>
-            <li><a href="add.jsp?group=${group.id}">Добавить</a></li>
-          </c:otherwise>
-        </c:choose>
-        <c:if test="${section.id == Section.SECTION_FORUM}">
-          <c:choose>
-            <c:when test="${group == null}">
-              <li><a href="/forum/">Таблица</a></li>
-            </c:when>
-            <c:otherwise>
-              <li><a href="/forum/${group.urlName}">Таблица</a></li>
-            </c:otherwise>
-          </c:choose>
-        </c:if>
-      </c:if>
+<h1>${navtitle}</h1>
 
-      <c:if test="${archiveLink != null}">
-        <li><a href="${archiveLink}">Архив</a></li>
-      </c:if>
+<nav>
+  <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
+    <a class="btn btn-default" href="groupmod.jsp?group=${group.id}">Править группу</a>
+  </c:if>
+  <c:if test="${sectionList == null and section != null}">
+    <c:choose>
+      <c:when test="${section.pollPostAllowed}">
+        <a class="btn btn-default" href="add.jsp?group=19387">Добавить</a>
+      </c:when>
+      <c:when test="${group == null}">
+        <a class="btn btn-default" href="add-section.jsp?section=${section.id}">Добавить</a>
+      </c:when>
+      <c:otherwise>
+        <a class="btn btn-default" href="add.jsp?group=${group.id}">Добавить</a>
+      </c:otherwise>
+    </c:choose>
+    <c:if test="${section.premoderated}">
+      <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
+    </c:if>
+    <c:if test="${section.id == Section.SECTION_FORUM}">
+      <c:choose>
+        <c:when test="${group == null}">
+          <a class="btn btn-default" href="/forum/">Таблица</a>
+        </c:when>
+        <c:otherwise>
+          <a class="btn btn-default" href="/forum/${group.urlName}">Таблица</a>
+        </c:otherwise>
+      </c:choose>
+    </c:if>
+  </c:if>
 
-      <c:if test="${rssLink != null}">
-        <li><a href="${rssLink}">RSS</a></li>
-      </c:if>
-      </ul>
-      <c:if test="${sectionList != null}">
-        <form:form commandName="topicListRequest" id="filterForm" action="${url}" method="get">
-          <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
-            <form:option value="0" label="Все" />
-            <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
-          </form:select>
-          <noscript><input type='submit' value='&gt;'></noscript>
-        </form:form>
-      </c:if>
-    </div>
-</div>
+  <c:if test="${archiveLink != null}">
+    <a class="btn btn-default" href="${archiveLink}">Архив</a>
+  </c:if>
+</nav>
+
 <c:forEach var="msg" items="${messages}">
   <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${group==null}" moderateMode="false"/>
 </c:forEach>
@@ -124,6 +107,15 @@
       </c:choose>
     </tr>
   </table>
+</c:if>
+
+<c:if test="${rssLink != null}">
+<p>
+  <i class="icon-rss"></i>
+  <a href="${rssLink}">
+    RSS подписка на новые темы
+  </a>
+</p>
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
