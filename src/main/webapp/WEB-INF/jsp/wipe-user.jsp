@@ -26,20 +26,24 @@
 
 <h1>Блокировка с удалением сообщений ${user.nick}</h1>
 <p>
-  Будет удалено ${commentCount} комментариев вместе с ответами, а так же все темы пользователя
+  Будет удалено ${commentCount} комментариев вместе с ответами, а так же все темы пользователя.
 </p>
 
-<p><strong>Внимание!</strong> простого способа востановить комментарии после удаления нет</p>
+<p><strong>Внимание!</strong> простого способа востановить комментарии после удаления нет.</p>
 
 <form method='post' action='usermod.jsp'>
   <lor:csrf/>
   <input type='hidden' name='id' value='${user.id}'>
-  <c:if test="${user.blocked}">
-    <input type='submit' name='action' value='unblock'>
-  </c:if>
   <c:if test="${not user.blocked}">
-    <label>Причина: <input type="text" name="reason" size="40"></label>
-    <input type='submit' name='action' value='block-n-delete-comments'>
+    <div class="control-group">
+      <label for="reason">Причина</label>
+      <input type="text" id="reason" autofocus name="reason" size="60">
+    </div>
+    <div class="form-actions">
+      <button type=submit name=action value="block-n-delete-comments" class="btn btn-danger">
+        Блокировать с удалением сообщений
+      </button>
+    </div>
   </c:if>
 </form>
 
