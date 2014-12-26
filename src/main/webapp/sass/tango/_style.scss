@@ -426,6 +426,7 @@ fieldset legend {
   border-radius: .2em;
   border: 1px solid $button_border_color;
   color: $button_text_color;
+  background-image: none; // https://bugzilla.mozilla.org/show_bug.cgi?id=763671
 
   &:visited {
     color: $button_text_color;
