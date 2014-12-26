@@ -59,7 +59,7 @@ class Perf4jHandlerInterceptor @Autowired() (elastic:Client) extends HandlerInte
     true
   }
 
-  override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef, modelAndView: ModelAndView) {
+  override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef, modelAndView: ModelAndView):Unit = {
     val stopWatch = request.getAttribute(ATTRIBUTE).asInstanceOf[StopWatch]
 
     if (stopWatch != null) {
