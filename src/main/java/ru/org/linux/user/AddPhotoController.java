@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.SiteConfig;
@@ -56,7 +57,7 @@ public class AddPhotoController {
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView showForm() {
+  public ModelAndView showForm() throws AccessViolationException {
     return new ModelAndView("addphoto");
   }
 

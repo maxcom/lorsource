@@ -22,18 +22,11 @@
 <title>Загрузка фотографии</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <div class=nav>
-    <div id="navPath">
-      Загрузка фотографии
-    </div>
-
-    <div class="nav-buttons">
-      <ul>
-        <li><a href="register.jsp">Редактировать профиль</a></li>
-        <li><a href="rules.jsp">Правила форума</a></li>
-      </ul>
-     </div>
- </div>
+<h1>Загрузка фотографии</h1>
+<nav>
+  <a href="/people/${template.nick}/edit" class="btn btn-default">Редактировать профиль</a>
+  <a href="/people/${template.nick}/settings" class="btn btn-default">Настройки</a>
+</nav>
 
 <p>
 Загрузите вашу фотографию на форум. Изображение должно соответствовать <a href="rules.jsp">правилам</a> сайта.
@@ -54,8 +47,10 @@
     Ошибка! ${error}
   </div>
 </c:if>
-  <input type="file" name="file"><br>
-  <input type="submit" value="Отправить">
+  <input type="file" name="file">
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Отправить</button>
+  </div>
 </form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
