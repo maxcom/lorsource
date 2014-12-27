@@ -23,7 +23,9 @@
   <h2><a href="${main_url}">Опрос</a></h2>
 
   <div class="boxlet_content">
-    ${message.title}
+    <p>
+      ${message.title}
+    </p>
 
     <lor:poll-form poll="${poll}" enabled="true"/>
 
