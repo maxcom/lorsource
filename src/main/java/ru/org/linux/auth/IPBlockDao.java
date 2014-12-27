@@ -19,13 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
-import org.xbill.DNS.TextParseException;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -52,13 +50,11 @@ public class IPBlockDao {
     }
   }
 
-  public void checkBlockIP(@Nonnull String addr, @Nonnull Errors errors, @Nullable User user)
-          throws UnknownHostException, TextParseException {
+  public void checkBlockIP(@Nonnull String addr, @Nonnull Errors errors, @Nullable User user) {
     checkBlockIP(getBlockInfo(addr), errors, user);
   }
 
-  public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user)
-    throws UnknownHostException, TextParseException {
+  public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user) {
 
     if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
       errors.reject(null, "Постинг заблокирован: " + block.getReason());

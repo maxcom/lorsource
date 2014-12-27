@@ -121,8 +121,6 @@ public class SameIPController {
     mv.addObject("allowPosting", allowPosting);
     mv.addObject("captchaRequired", captchaRequired);
 
-    mv.getModel().put("tor", IPBlockDao.getTor(ip));
-
     return mv;
   }
 

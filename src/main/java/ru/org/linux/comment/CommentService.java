@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.xbill.DNS.TextParseException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
@@ -175,9 +174,7 @@ public class CommentService {
     IPBlockInfo ipBlockInfo,
     HttpServletRequest request,
     Errors errors
-  ) throws
-    UnknownHostException,
-    TextParseException {
+  )  {
     if (commentRequest.getMsg() == null) {
       errors.rejectValue("msg", null, "комментарий не задан");
       commentRequest.setMsg("");
