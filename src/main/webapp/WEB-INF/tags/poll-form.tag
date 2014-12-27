@@ -50,6 +50,6 @@
   </c:forEach>
 
 <c:if test="${enabled}">
-    <button type="submit">Голосовать</button>
+    <button type="submit" class="btn btn-small btn-primary">Голосовать</button>
 </form>
 </c:if>
