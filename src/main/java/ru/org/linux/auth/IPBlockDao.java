@@ -17,19 +17,15 @@ package ru.org.linux.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
 import org.xbill.DNS.TextParseException;
 import ru.org.linux.user.User;
-import ru.org.linux.util.DNSBLClient;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.net.UnknownHostException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -45,12 +41,7 @@ public class IPBlockDao {
   public IPBlockInfo getBlockInfo(String addr) {
     List<IPBlockInfo> list = jdbcTemplate.query(
             "SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required FROM b_ips WHERE ip = ?::inet",
-            new RowMapper<IPBlockInfo>() {
-              @Override
-              public IPBlockInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new IPBlockInfo(rs);
-              }
-            },
+            (rs, rowNum) -> new IPBlockInfo(rs),
             addr
     );
 
@@ -61,11 +52,6 @@ public class IPBlockDao {
     }
   }
 
-  public static boolean getTor(String addr) throws TextParseException, UnknownHostException {
-    DNSBLClient dnsbl = new DNSBLClient("tor.ahbl.org");
-    return (dnsbl.checkIP(addr));
-  }
-
   public void checkBlockIP(@Nonnull String addr, @Nonnull Errors errors, @Nullable User user)
           throws UnknownHostException, TextParseException {
     checkBlockIP(getBlockInfo(addr), errors, user);
@@ -73,9 +59,6 @@ public class IPBlockDao {
 
   public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user)
     throws UnknownHostException, TextParseException {
-    if (getTor(block.getIp())) {
-      errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
-    }
 
     if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
       errors.reject(null, "Постинг заблокирован: " + block.getReason());
