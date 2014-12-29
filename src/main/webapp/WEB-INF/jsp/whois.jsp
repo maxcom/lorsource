@@ -192,7 +192,7 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             Вы игнорируете этого пользователя &nbsp;
-            <button type='submit' name='del'>не игнорировать</button>
+            <button type='submit' class="btn btn-small btn-default" name='del'>не игнорировать</button>
         </form>
     </c:if>
 
@@ -201,7 +201,7 @@
             <lor:csrf/>
             <input type='hidden' name='nick' value='${user.nick}'>
             Вы не игнорируете этого пользователя &nbsp;
-            <button type='submit' name='add'>игнорировать</button>
+            <button type='submit' class="btn btn-small btn-default" name='add'>игнорировать</button>
         </form>
     </c:if>
 </c:if>
@@ -387,7 +387,5 @@
         </table>
     </div>
 </c:if>
-
 </div>
-
 <jsp:include page="footer.jsp"/>
