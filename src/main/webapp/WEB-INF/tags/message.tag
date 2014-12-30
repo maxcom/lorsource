@@ -58,7 +58,7 @@
       <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
       <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
       <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-        <span>(не подтверждено)</span>
+        <span> (не подтверждено)</span>
       </c:if>
     </span>
       <c:if test="${template.moderatorSession and not message.deleted}">
