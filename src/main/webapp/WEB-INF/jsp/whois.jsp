@@ -134,7 +134,7 @@
       <form action="/lostpwd.jsp" method="POST" style="display: inline">
         <lor:csrf/>
         <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
-        <button type="submit">Получить забытый пароль</button>
+        <button type="submit" class="btn btn-small btn-default">Получить забытый пароль</button>
       </form>
     </c:if>
 
@@ -154,7 +154,7 @@
         <lor:csrf/>
         <input type="hidden" name="id" value="${user.id}">
         <input type='hidden' name='action' value='score50'>
-        <button type="submit">Установить score=50</button>
+        <button type="submit" class="btn btn-small btn-default">Установить score=50</button>
       </form>
     </c:if>
     <br>
