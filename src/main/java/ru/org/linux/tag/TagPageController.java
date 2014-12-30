@@ -197,7 +197,6 @@ public class TagPageController {
     topicListDto.setTag(tagId);
 
     topicListDto.setLimit(FORUM_TOPIC_COUNT);
-    topicListDto.setLastmodSort(true);
 
     List<Topic> forumTopics = topicListService.getTopics(topicListDto);
 
