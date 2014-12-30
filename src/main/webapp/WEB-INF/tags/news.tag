@@ -205,7 +205,7 @@
 
 <c:if test="${multiPortal}">
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-      <span>(не подтверждено)</span>
+      <span> (не подтверждено)</span>
     </c:if>
 </c:if>
 
