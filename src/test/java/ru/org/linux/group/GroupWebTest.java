@@ -30,8 +30,6 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- */
 public class GroupWebTest {
 
   private WebResource resource;
@@ -73,7 +71,7 @@ public class GroupWebTest {
         .get(ClientResponse.class);
     assertEquals(HttpStatus.SC_OK, cr2.getStatus());
     Document doc2 = Jsoup.parse(cr2.getEntityInputStream(), "UTF-8", resource.getURI().toString());
-    // кстати у форумов без userinfo кнопочки нет (
+    // кстати, у форумов без userinfo кнопочки нет (
     assertTrue(doc2.select(".infoblock").isEmpty());
     assertTrue(doc2.select(".infoblock p").isEmpty());
   }
