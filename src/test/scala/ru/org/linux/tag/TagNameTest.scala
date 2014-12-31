@@ -63,5 +63,9 @@ class TagNameTest extends FunSuite {
   test("tag can't contain comma") {
     assert(isGoodTag("test,test") === false)
   }
+
+  test("функциональное программирование is valid") {
+    assert(isGoodTag("функциональное программирование"))
+  }
 }
 

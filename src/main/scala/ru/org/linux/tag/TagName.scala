@@ -8,7 +8,7 @@ import scala.collection.JavaConversions._
 object TagName {
   val MAX_TAGS_PER_TOPIC = 5
   val MIN_TAG_LENGTH = 1
-  val MAX_TAG_LENGTH = 25
+  val MAX_TAG_LENGTH = 32
 
   private[this] val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
 
@@ -20,7 +20,7 @@ object TagName {
   def checkTag(tag:String):Unit = {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!isGoodTag(tag)) {
-      throw new UserErrorException("Некорректный тег: '" + tag + '\'')
+      throw new UserErrorException(s"Некорректный тег: '$tag'")
     }
   }
 
