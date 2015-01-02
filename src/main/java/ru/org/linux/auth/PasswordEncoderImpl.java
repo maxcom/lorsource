@@ -20,8 +20,6 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-/**
- */
 @Component
 public class PasswordEncoderImpl implements PasswordEncoder {
   static PasswordEncryptor encryptor = new BasicPasswordEncryptor();
