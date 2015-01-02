@@ -35,8 +35,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- */
 public class SecurityFilter extends GenericFilterBean implements InitializingBean {
 
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
