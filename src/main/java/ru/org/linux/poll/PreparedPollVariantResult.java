@@ -15,8 +15,6 @@
 
 package ru.org.linux.poll;
 
-/**
- */
 public class PreparedPollVariantResult extends PollVariantResult {
   final int percentage;
   final int width;
