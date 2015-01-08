@@ -32,8 +32,6 @@ import ru.org.linux.user.UserNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- */
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
   private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);

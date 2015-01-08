@@ -23,8 +23,6 @@ import ru.org.linux.user.User;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- */
 public class UserDetailsImpl implements UserDetails {
   private final User user;
   private final Collection<GrantedAuthority> authorities;
