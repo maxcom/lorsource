@@ -39,7 +39,13 @@
 <h1>${title}</h1>
 
 <nav>
-  <a class="btn btn-default" href="view-all.jsp">Все</a>
+  <c:if test="${section!=null}">
+    <a class="btn btn-default" href="view-all.jsp">Все</a>
+  </c:if>
+
+  <c:if test="${section==null}">
+    <a class="btn btn-selected" href="view-all.jsp">Все</a>
+  </c:if>
 
   <c:forEach items="${sections}" var="item">
     <c:if test="${item.premoderated}">
