@@ -36,38 +36,26 @@
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <c:url var="urlFilterHandler" value="view-all.jsp" />
-  <form action="${urlFilterHandler}">
+<h1>${title}</h1>
 
-  <div class=nav>
-    <div id="navPath">
-      ${title}
-    </div>
+<nav>
+  <a class="btn btn-default" href="view-all.jsp">Все</a>
 
-    <div class="nav-buttons">
-      <ul>
-      <c:if test="${not empty addlink}">
-          <li>
-              <a href="${addlink}">Добавить</a>
-          </li>
+  <c:forEach items="${sections}" var="item">
+    <c:if test="${item.premoderated}">
+      <c:if test="${section!=null && item.id == section.id}">
+        <a href="view-all.jsp?section=${item.id}" class="btn btn-selected">${item.name}</a>
       </c:if>
-      </ul>
-      <select name="section" onChange="submit();" title="Быстрый переход">
-        <option value="0">Все</option>
-        <c:forEach items="${sections}" var="item">
-          <c:if test="${item.premoderated}">
-            <c:if test="${section!=null && item.id == section.id}">
-              <option value="${item.id}" selected>${item.name}</option>
-            </c:if>
-            <c:if test="${item.id != section.id}">
-              <option value="${item.id}">${item.name}</option>
-            </c:if>
-          </c:if>
-        </c:forEach>
-      </select>
-    </div>
-  </div>
-  </form>
+      <c:if test="${item.id != section.id}">
+        <a href="view-all.jsp?section=${item.id}" class="btn btn-default">${item.name}</a>
+      </c:if>
+    </c:if>
+  </c:forEach>
+
+  <c:if test="${not empty addlink}">
+    <a class="btn btn-primary" href="${addlink}">Добавить</a>
+  </c:if>
+</nav>
 
 <strong>Внимание!</strong> Cообщения отображаются точно так же, как
 они будут выглядеть на главной странице. Если ваше сообщение отображается не так, как вы хотели, или
