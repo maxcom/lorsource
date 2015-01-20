@@ -49,10 +49,6 @@ p {
 #hd {
   margin-bottom: 0.5em;
 
-  h1 {
-    color: $header_color;
-  }
-
   .menu a {
     color: $main_menu_color;
   }
@@ -66,7 +62,7 @@ p {
   text-decoration: none;
   display: block;
   float: left;
-  color: $header_color;
+  color: $site_title_color;
   padding-left: 1.5rem;
   padding-right: 0.5em;
   margin-right: 0.5em;
@@ -226,10 +222,6 @@ div.msg_body {
   .code .title {
     margin-left: inherit;
   }
-
-  h1 a {
-    color: $text_color;
-  }
 }
 
 .code {
@@ -344,16 +336,20 @@ a {
   }
 }
 
+#bd h1, #bd h2 {
+  color: $header_color;
+}
+
+#bd h1 a, #bd header h1 a, #bd h2 a {
+  color: $header_color;
+  &:visited {
+    color: $header_color;
+  }
+}
+
 #bd header {
   a:visited {
     color: $link_color;
-  }
-
-  h1 a {
-    color: $text_color;
-    &:visited {
-      color: $text_color;
-    }
   }
 }
 
