@@ -16,8 +16,10 @@
 
 package org.springframework.scala.jdbc.core
 
-import java.sql.{CallableStatement, PreparedStatement, Connection, ResultSet}
+import java.sql.{CallableStatement, Connection, PreparedStatement, ResultSet}
+
 import org.springframework.jdbc.core._
+
 import scala.language.implicitConversions
 
 /**
@@ -67,7 +69,7 @@ object JdbcCallbackConversions {
 	 */
 	implicit def asPreparedStatementSetter(setterCallback: PreparedStatement => Unit): PreparedStatementSetter = {
 		new PreparedStatementSetter() {
-			def setValues(statement: PreparedStatement) {
+			def setValues(statement: PreparedStatement):Unit = {
 				setterCallback(statement)
 			}
 		}
@@ -138,7 +140,7 @@ object JdbcCallbackConversions {
 	 */
 	implicit def asRowCallbackHandler(rowProcessor: ResultSet => Unit): RowCallbackHandler = {
 		new RowCallbackHandler() {
-			def processRow(rs: ResultSet) {
+			def processRow(rs: ResultSet):Unit = {
 				rowProcessor(rs)
 			}
 		}

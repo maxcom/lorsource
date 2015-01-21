@@ -16,17 +16,17 @@
 
 package org.springframework.scala.jdbc.core
 
-import scala.collection.JavaConverters._
-import javax.sql.DataSource
 import java.sql._
-import org.springframework.jdbc.core._
-import java.lang.String
-import org.springframework.jdbc.support.rowset.SqlRowSet
-import JdbcCallbackConversions._
-import org.springframework.jdbc.support.KeyHolder
+import javax.sql.DataSource
+
 import org.springframework.dao.DataAccessException
+import org.springframework.jdbc.core._
+import org.springframework.jdbc.support.KeyHolder
+import org.springframework.jdbc.support.rowset.SqlRowSet
+import org.springframework.scala.jdbc.core.JdbcCallbackConversions._
 import org.springframework.scala.util.TypeTagUtils.typeToClass
-import scala.throws
+
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 /**
@@ -109,7 +109,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 * @throws DataAccessException if there is any problem
 	 */
 	@throws(classOf[DataAccessException])
-	def execute(sql: String) {
+	def execute(sql: String):Unit = {
 		javaTemplate.execute(sql)
 	}
 
@@ -122,7 +122,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 * @throws DataAccessException if there is any problem executing the query
 	 */
 	@throws(classOf[DataAccessException])
-	def queryAndProcess(sql: String)(rowCallback: ResultSet => Unit) {
+	def queryAndProcess(sql: String)(rowCallback: ResultSet => Unit):Unit = {
 		javaTemplate.query(sql, asRowCallbackHandler(rowCallback))
 	}
 
@@ -397,7 +397,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def queryAndProcess(statementCreator: Connection => PreparedStatement)
-	                   (rowProcessor: ResultSet => Unit) {
+	                   (rowProcessor: ResultSet => Unit):Unit = {
 		javaTemplate.query(statementCreator, asRowCallbackHandler(rowProcessor))
 	}
 
@@ -415,7 +415,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryWithSetterAndProcess(sql: String)
 	                             (preparedStatementSetter: PreparedStatement => Unit)
-	                             (rowProcessor: ResultSet => Unit) {
+	                             (rowProcessor: ResultSet => Unit):Unit = {
 		javaTemplate.query(sql, preparedStatementSetter, asRowCallbackHandler(rowProcessor))
 	}
 
@@ -432,7 +432,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def queryAndProcess(sql: String, args: Seq[Any], argTypes: Seq[Int])
-	                   (rowProcessor: ResultSet => Unit) {
+	                   (rowProcessor: ResultSet => Unit):Unit = {
 		javaTemplate.query(sql,
 		                   asInstanceOfAnyRef(args).toArray,
 		                   argTypes.toArray,
@@ -450,7 +450,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 * @throws DataAccessException if the query fails
 	 */
 	@throws(classOf[DataAccessException])
-	def queryAndProcess(sql: String, args: Any*)(rowProcessor: ResultSet => Unit) {
+	def queryAndProcess(sql: String, args: Any*)(rowProcessor: ResultSet => Unit):Unit = {
 		javaTemplate
 				.query(sql, asInstanceOfAnyRef(args).toArray, asRowCallbackHandler(rowProcessor))
 	}
@@ -876,7 +876,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	               (batchSize: => Int)
 	               (setterCallback: (PreparedStatement, Int) => Unit): Seq[Int] = {
 		javaTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-			def setValues(ps: PreparedStatement, i: Int) {
+			def setValues(ps: PreparedStatement, i: Int):Unit = {
 				setterCallback(ps, i)
 			}
 
@@ -940,7 +940,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 		                         batchArgs.asJavaCollection,
 		                         batchSize,
 		                         new ParameterizedPreparedStatementSetter[T] {
-			                         def setValues(ps: PreparedStatement, argument: T) {
+			                         def setValues(ps: PreparedStatement, argument: T):Unit = {
 				                         setterCallback(ps, argument)
 			                         }
 		                         }).map(_.toSeq)
