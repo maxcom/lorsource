@@ -402,7 +402,17 @@
             <artifactId>scala-maven-plugin</artifactId>
             <version>3.2.0</version>
             <configuration>
-              <args><arg>-feature</arg><arg>-Xlint</arg><arg>-language:postfixOps</arg></args>
+              <args>
+                <arg>-deprecation</arg>
+                <arg>-feature</arg>
+                <arg>-unchecked</arg>
+               <!-- <arg>-Xfatal-warnings</arg> -->
+                <arg>-Xlint</arg>
+                <arg>-language:postfixOps</arg>
+                <arg>-Yno-adapted-args</arg>
+                <arg>-Xfuture</arg>
+                <arg>-Ywarn-unused-import</arg>
+              </args>
             </configuration>
             <executions>
               <execution>
