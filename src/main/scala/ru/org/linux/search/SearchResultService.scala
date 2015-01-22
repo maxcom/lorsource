@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
-import ru.org.linux.section.SectionService
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.{User, UserDao}
 import ru.org.linux.util.StringUtil
@@ -137,33 +137,49 @@ class SearchResultsService @Autowired() (
     }
   }
 
-  def buildSectionFacet(sectionFacet: Filter): java.util.List[FacetItem] = {
+  def buildSectionFacet(sectionFacet: Filter, selected:Option[String]): java.util.List[FacetItem] = {
+    def mkItem(urlName:String, count:Long) = {
+      val name = sectionService.nameToSection.get(urlName).map(_.getName).getOrElse(urlName).toLowerCase
+      FacetItem(urlName, s"$name ($count)")
+    }
+
     val agg = sectionFacet.getAggregations.get[Terms]("sections")
 
     val items = for (entry <- agg.getBuckets.toSeq) yield {
-      val urlName = entry.getKey
-      val name = sectionService.nameToSection.get(urlName).map(_.getName).getOrElse(urlName).toLowerCase
-      new FacetItem(entry.getKey, name + " (" + entry.getDocCount + ')')
+      mkItem(entry.getKey, entry.getDocCount)
     }
 
-    val all = new FacetItem("", s"все (${sectionFacet.getDocCount})")
+    val missing = selected.filter(key ⇒ items.forall(_.key !=key)).map(mkItem(_, 0)).toSeq
 
-    all +: items
+    val all = FacetItem("", s"все (${sectionFacet.getDocCount})")
+
+    all +: (missing ++ items)
   }
 
-  def buildGroupFacet(selectedSection: Terms.Bucket): java.util.List[FacetItem] = {
-    val groups = selectedSection.getAggregations.get[Terms]("groups")
+  def buildGroupFacet(maybeSection: Option[Terms.Bucket], selected:Option[(String, String)]): java.util.List[FacetItem] = {
+    def mkItem(section:Section, groupUrlName:String, count:Long) = {
+      val group = groupDao.getGroup(section, groupUrlName)
+      val name = group.getTitle.toLowerCase
+      FacetItem(groupUrlName, s"$name ($count)")
+    }
 
-    if (groups.getBuckets.size > 1) {
-      val all = new FacetItem("", s"все (${selectedSection.getDocCount})")
-      val section = sectionService.getSectionByName(selectedSection.getKey)
+    val facetItems = for {
+      selectedSection <- maybeSection.toSeq
+      groups = selectedSection.getAggregations.get[Terms]("groups")
+      section = sectionService.getSectionByName(selectedSection.getKey)
+      entry <- groups.getBuckets.toSeq
+    } yield {
+      mkItem(section, entry.getKey, entry.getDocCount)
+    }
 
-      val items = for (entry <- groups.getBuckets.toSeq) yield {
-        val groupUrlName = entry.getKey
-        val group = groupDao.getGroup(section, groupUrlName)
-        val name = group.getTitle.toLowerCase
-        new FacetItem(groupUrlName, name + " (" + entry.getDocCount + ')')
-      }
+    val missing = selected.filter(key ⇒ facetItems.forall(_.key != key._2)).map(p ⇒
+      mkItem(sectionService.getSectionByName(p._1), p._2, 0)
+    ).toSeq
+
+    val items = facetItems ++ missing
+
+    if (items.size > 1 || selected.isDefined) {
+      val all = FacetItem("", s"все (${maybeSection.map(_.getDocCount).getOrElse(0)})")
 
       all +: items
     } else {

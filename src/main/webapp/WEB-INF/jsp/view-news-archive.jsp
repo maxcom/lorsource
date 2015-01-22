@@ -33,10 +33,32 @@ ${section.name}
 <H1>
 ${section.name}
   <c:if test="${group!=null}">
-    - ${group.title}
+    «${group.title}»
   </c:if>
   - Архив
 </H1>
+
+<div class="infoblock">
+  <form method="GET" commandName="query" action="search.jsp">
+    <div class="control-group">
+      <input name="q" type="search" size="50" maxlength="250" placeholder="Поиск"/>&nbsp;
+      <button type="submit" class="btn btn-default btn-small">Поиск</button>
+    </div>
+
+    <div class="control-group">
+      <select name="range">
+        <option value="ALL">включая комментарии</option>
+        <option value="TOPICS">без комментариев</option>
+      </select>
+    </div>
+
+    <input type="hidden" name="section" value="${section.urlName}"/>
+    <c:if test="${group!=null}">
+      <input type="hidden" name="group" value="${group.urlName}"/>
+    </c:if>
+  </form>
+</div>
+
 <c:forEach items="${items}" var="item">
   <c:url value="${item.link}" var="item_url"/>
   <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>

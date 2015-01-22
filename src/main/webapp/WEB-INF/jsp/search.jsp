@@ -48,8 +48,6 @@
 <button type="submit" class="btn btn-primary">Поиск</button><BR>
 </div>
 
-<form:hidden path="oldQ"/>
-  
 <div class="control-group">
 <form:select path="range" items="${ranges}"/>
 </div>

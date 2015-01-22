@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 
 public class SearchRequest {
   private String q = "";
-  private String oldQ = "";
   private boolean usertopic = false;
   private User user=null;
   private String section = null;
@@ -80,14 +79,6 @@ public class SearchRequest {
 
   public void setSort(SearchOrder sort) {
     this.sort = sort;
-  }
-
-  public String getOldQ() {
-    return oldQ;
-  }
-
-  public void setOldQ(String oldQ) {
-    this.oldQ = oldQ;
   }
 
   public String getGroup() {

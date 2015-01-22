@@ -43,7 +43,9 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import scala.None$;
 import scala.Option;
+import scala.Tuple2;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Collection;
@@ -122,19 +124,26 @@ public class SearchController {
         Filter countFacet = response.getAggregations().get("sections");
         Terms sectionsFacet = countFacet.getAggregations().get("sections");
 
-        if (sectionsFacet.getBuckets().size()>1) {
-          params.put("sectionFacet", resultsService.buildSectionFacet(countFacet));
+        if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
+          params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection()))));
 
-          if (!Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBucketByKey(query.getSection())!=null) {
-            Terms.Bucket selectedSection = sectionsFacet.getBucketByKey(query.getSection());
+          if (!Strings.isNullOrEmpty(query.getSection())) {
+            Option<Terms.Bucket> selectedSection = Option.apply(sectionsFacet.getBucketByKey(query.getSection()));
 
-            params.put("groupFacet", resultsService.buildGroupFacet(selectedSection));
+            if (!Strings.isNullOrEmpty(query.getGroup())) {
+              params.put("groupFacet", resultsService.buildGroupFacet(
+                      selectedSection, Option.apply(Tuple2.apply(query.getSection(), query.getGroup()))
+              ));
+            } else {
+              params.put("groupFacet", resultsService.buildGroupFacet(selectedSection, None$.empty()));
+            }
+
           }
         } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBuckets().size()==1) {
           Terms.Bucket onlySection = sectionsFacet.getBuckets().iterator().next();
           query.setSection(onlySection.getKey());
 
-          params.put("groupFacet", resultsService.buildGroupFacet(onlySection));
+          params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }
 
         params.put("tags", resultsService.foundTags(response.getAggregations()));
@@ -161,13 +170,6 @@ public class SearchController {
   }
 
   private void sanitizeQuery(SearchRequest query) {
-    if (!query.getQ().equals(query.getOldQ())) {
-      query.setSection(null);
-      query.setGroup(null);
-    }
-
-    query.setOldQ(query.getQ());
-
     if (!Strings.isNullOrEmpty(query.getSection())) {
       Option<Section> section = sectionService.fuzzyNameToSection().get(query.getSection());
 
