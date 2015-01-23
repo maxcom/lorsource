@@ -129,7 +129,7 @@
     </c:if>
     </c:if>
   </th>
-  <th>Число ответов<br>всего/день/час</th>
+  <th>Ответы</th>
 </tr>
 </thead>
 <tbody>
@@ -185,8 +185,9 @@
   </td>
 
   <td class=numbers>
-      <c:if test="${topic.stat1==0}">-</c:if><c:if test="${topic.stat1>0}"><b>${topic.stat1}</b></c:if>/<c:if test="${topic.stat3==0}">-</c:if><c:if test="${topic.stat3>0}"><b>${topic.stat3}</b></c:if>/<c:if test="${topic.stat4==0}">-</c:if><c:if test="${topic.stat4>0}"><b>${topic.stat4}</b></c:if> 
-  </td> </tr>
+      <c:if test="${topic.stat1==0}">-</c:if><c:if test="${topic.stat1>0}">${topic.stat1}</c:if>
+  </td>
+</tr>
 </c:forEach>
 </tbody>
 <c:if test="${not showDeleted}">
