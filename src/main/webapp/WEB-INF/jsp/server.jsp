@@ -57,7 +57,7 @@
       <li>Scala 2.11</li>
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.9</li>
-      <li>Spring 4.0</li>
+      <li>Spring 4.1</li>
       <li>Wiki: JamWiki 1.1.5</li>
       <li>Поиск: Elasticsearch 1.4</li>
     </ul>
@@ -114,6 +114,5 @@
 <li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a></li>
 <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a></li>
 </ul>
-
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
