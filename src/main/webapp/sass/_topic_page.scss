@@ -7,7 +7,7 @@
     margin-top: 0 !important;
   }
 
-  @include respond-to(desktops) {
+  @include respond-to(tablet-and-desktops) {
     @include generate_grid_positions('ul', 6);
 
     ul {
