@@ -23,7 +23,7 @@
         <Arg>
             <New class="org.apache.commons.dbcp.BasicDataSource">
                 <Set name="driverClassName">org.postgresql.Driver</Set>
-                <Set name="url">jdbc:postgresql://127.0.0.1:5432/lor</Set>
+                <Set name="url">jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified</Set>
                 <Set name="username">linuxweb</Set>
                 <Set name="password">linuxweb</Set>
                 <Set name="maxActive">10</Set>

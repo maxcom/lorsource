@@ -25,7 +25,7 @@
       <value>org.postgresql.Driver</value>
     </property>
     <property name="url">
-      <value>jdbc:postgresql://127.0.0.1:5432/lor</value>
+      <value>jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified</value>
     </property>
     <property name="username">
       <value>linuxweb</value>
