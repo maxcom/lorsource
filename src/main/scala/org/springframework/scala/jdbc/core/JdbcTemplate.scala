@@ -264,7 +264,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def batchUpdate(sql: Seq[String]): Seq[Int] = {
-		javaTemplate.batchUpdate(sql.toArray)
+		javaTemplate.batchUpdate(sql: _*)
 	}
 
 	//-------------------------------------------------------------------------

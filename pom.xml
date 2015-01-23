@@ -16,7 +16,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <dependency.spring.version>4.0.9.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.1.4.RELEASE</dependency.spring.version>
     <spring.security.version>3.1.6.RELEASE</spring.security.version>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jdbc.postgresql.version>9.3-1102-jdbc41</jdbc.postgresql.version>
@@ -445,7 +445,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.1</version>
+            <version>3.2</version>
             <configuration>
               <source>1.8</source>
               <target>1.8</target>
