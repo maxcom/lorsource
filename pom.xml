@@ -30,7 +30,7 @@
     <dependency>
     	<groupId>com.sksamuel.elastic4s</groupId>
     	<artifactId>elastic4s_2.11</artifactId>
-    	<version>1.4.10</version>
+    	<version>1.4.11</version>
     </dependency>
 
     <dependency>
