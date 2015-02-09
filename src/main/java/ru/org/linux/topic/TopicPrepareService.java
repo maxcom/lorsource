@@ -54,6 +54,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -309,7 +310,9 @@ public class TopicPrepareService {
       LorURL medURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+mediumName);
       LorURL fullURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+image.getOriginal());
 
-      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image);
+      boolean existsMedium2x = Files.exists(new File(htmlPath, image.getMedium2x()).toPath());
+
+      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image, existsMedium2x);
     } catch (BadImageException e) {
       logger.warn("Failed to prepare image", e);
       return null;

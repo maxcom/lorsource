@@ -32,11 +32,14 @@ public class Screenshot {
 
   private final File mainFile;
   private final File mediumFile;
+  private final File medium2xFile;
   private final File iconFile;
   private final String extension;
 
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
+  private static final int MEDIUM_2X_WIDTH = MEDIUM_WIDTH * 2;
+
 
   public static Screenshot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException {
     boolean error = false;
@@ -88,13 +91,10 @@ public class Screenshot {
   }
 
   private Screenshot(String name, String path, String extension) {
-    String mainname = name + '.' + extension;
-    String iconname = name + "-icon.jpg";
-    String medname = name + "-med.jpg";
-
-    mainFile = new File(path, mainname);
-    iconFile = new File(path, iconname);
-    mediumFile = new File(path, medname);
+    mainFile = new File(path, name + '.' + extension);
+    iconFile = new File(path, name + "-icon.jpg");
+    mediumFile = new File(path, name + "-med.jpg");
+    medium2xFile = new File(path, name + "-med-2x.jpg");
 
     this.extension = extension;
   }
@@ -105,6 +105,7 @@ public class Screenshot {
     Files.move(mainFile.toPath(), dest.mainFile.toPath());
     Files.move(iconFile.toPath(), dest.iconFile.toPath());
     Files.move(mediumFile.toPath(), dest.mediumFile.toPath());
+    Files.move(medium2xFile.toPath(), dest.medium2xFile.toPath());
 
     return dest;
   }
@@ -117,20 +118,14 @@ public class Screenshot {
     try {
       ImageUtil.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
       ImageUtil.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), medium2xFile.getAbsolutePath(), MEDIUM_2X_WIDTH);
       error = false;
     } finally {
       if (error) {
-        if (mainFile.exists()) {
-          mainFile.delete();
-        }
-
-        if (iconFile.exists()) {
-          iconFile.delete();
-        }
-
-        if (mediumFile.exists()) {
-          iconFile.delete();
-        }
+        Files.deleteIfExists(mainFile.toPath());
+        Files.deleteIfExists(iconFile.toPath());
+        Files.deleteIfExists(mediumFile.toPath());
+        Files.deleteIfExists(medium2xFile.toPath());
       }
     }
   }

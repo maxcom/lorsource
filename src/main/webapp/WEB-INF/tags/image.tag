@@ -23,7 +23,13 @@
 <c:if test="${showImage!=null and showImage and preparedMessage.image!=null}">
   <figure class="medium-image" <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <a href="${preparedMessage.image.fullName}"itemprop="contentURL">
-      <img itemprop="thumbnail" class="medium-image" src="${preparedMessage.image.mediumName}" alt="<l:title>${preparedMessage.message.title}</l:title>" ${preparedMessage.image.mediumInfo.code}>
+      <img
+              itemprop="thumbnail"
+              class="medium-image"
+              src="${preparedMessage.image.mediumName}"
+              alt="<l:title>${preparedMessage.message.title}</l:title>"
+              ${preparedMessage.image.srcset()}
+              ${preparedMessage.image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
 
       <c:if test="${enableEdit && not preparedMessage.section.imagepost}">

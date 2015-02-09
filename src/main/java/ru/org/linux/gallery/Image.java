@@ -50,16 +50,24 @@ public class Image {
   }
 
   public String getMedium() {
-    return getMediumName(original);
+    return getMediumName(original, false);
   }
 
-  private static String getMediumName(String name) {
+  public String getMedium2x() {
+    return getMediumName(original, true);
+  }
+
+  private static String getMediumName(String name, boolean doubleSize) {
     Matcher m = GALLERY_NAME.matcher(name);
 
     if (!m.matches()) {
       throw new IllegalArgumentException("Not gallery path: "+name);
     }
 
-    return m.group(1)+"-med.jpg";
+    if (doubleSize) {
+      return m.group(1)+"-med-2x.jpg";
+    } else {
+      return m.group(1)+"-med.jpg";
+    }
   }
 }
