@@ -38,6 +38,28 @@ ${section.name}
   - Архив
 </H1>
 
+<nav>
+  <a class="btn btn-default" href="${section.sectionLink}">Новые темы</a>
+
+  <c:if test="${section.premoderated}">
+    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
+  </c:if>
+
+  <a class="btn btn-selected" href="${section.archiveLink}">Архив</a>
+
+  <c:choose>
+    <c:when test="${section.pollPostAllowed}">
+      <a class="btn btn-primary" href="add.jsp?group=19387">Добавить</a>
+    </c:when>
+    <c:when test="${group == null}">
+      <a class="btn btn-primary" href="add-section.jsp?section=${section.id}">Добавить</a>
+    </c:when>
+    <c:otherwise>
+      <a class="btn btn-primary" href="add.jsp?group=${group.id}">Добавить</a>
+    </c:otherwise>
+  </c:choose>
+</nav>
+
 <div class="infoblock">
   <form method="GET" commandName="query" action="search.jsp">
     <div class="control-group">

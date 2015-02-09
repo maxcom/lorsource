@@ -30,6 +30,10 @@
 <h1>${navtitle}</h1>
 
 <nav>
+  <c:if test="${section!=null and section.premoderated}">
+    <a class="btn btn-selected" href="${section.sectionLink}">Новые темы</a>
+  </c:if>
+
   <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
     <a class="btn btn-default" href="groupmod.jsp?group=${group.id}">Править группу</a>
   </c:if>
