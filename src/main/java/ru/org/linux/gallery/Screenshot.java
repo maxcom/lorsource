@@ -15,7 +15,6 @@
 
 package ru.org.linux.gallery;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.image.ImageParam;
@@ -23,6 +22,8 @@ import ru.org.linux.util.image.ImageUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class Screenshot {
   public static final int MAX_SCREENSHOT_FILESIZE = 3*1024*1024;
@@ -101,19 +102,15 @@ public class Screenshot {
   public Screenshot moveTo(String dir, String name) throws IOException {
     Screenshot dest = new Screenshot(name, dir, extension);
 
-    FileUtils.moveFile(mainFile, dest.mainFile);
-    FileUtils.moveFile(iconFile, dest.iconFile);
-    FileUtils.moveFile(mediumFile, dest.mediumFile);
+    Files.move(mainFile.toPath(), dest.mainFile.toPath());
+    Files.move(iconFile.toPath(), dest.iconFile.toPath());
+    Files.move(mediumFile.toPath(), dest.mediumFile.toPath());
 
     return dest;
   }
 
   private void doResize(File uploadedFile) throws IOException, BadImageException {
-    if (mainFile.exists()) {
-      mainFile.delete();
-    }
-    
-    FileUtils.moveFile(uploadedFile, mainFile);
+    Files.move(uploadedFile.toPath(), mainFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
     boolean error = true;
 
