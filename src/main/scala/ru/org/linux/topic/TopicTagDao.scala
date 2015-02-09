@@ -1,15 +1,18 @@
 package ru.org.linux.topic
 
-import org.springframework.stereotype.Repository
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import javax.sql.DataSource
-import ru.org.linux.tag.TagInfo
-import org.springframework.beans.factory.annotation.Autowired
-import com.google.common.collect.ImmutableMap
-import scala.collection.JavaConversions._
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.core.RowMapper
 import java.sql.ResultSet
+import javax.sql.DataSource
+
+import com.google.common.collect.ImmutableMap
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DuplicateKeyException
+import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.scala.jdbc.core.JdbcTemplate
+import org.springframework.stereotype.Repository
+import ru.org.linux.tag.TagInfo
+
+import scala.collection.JavaConversions._
 
 @Repository
 class TopicTagDao @Autowired() (ds:DataSource) {
@@ -23,8 +26,11 @@ class TopicTagDao @Autowired() (ds:DataSource) {
    * @param tagId идентификационный номер тега
    */
   def addTag(msgId:Int, tagId:Int):Unit = {
-    jdbcTemplate.update("INSERT INTO tags VALUES(?,?)", msgId, tagId)
-
+    try {
+      jdbcTemplate.update("INSERT INTO tags VALUES(?,?)", msgId, tagId)
+    } catch {
+      case _:DuplicateKeyException ⇒
+    }
   }
 
   /**
