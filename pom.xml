@@ -20,7 +20,7 @@
     <spring.security.version>3.1.6.RELEASE</spring.security.version>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jdbc.postgresql.version>9.3-1102-jdbc41</jdbc.postgresql.version>
-    <es.version>1.4.2</es.version>
+    <es.version>1.4.3</es.version>
     <scala.version>2.11.5</scala.version>
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.9.0</activemq.version>
