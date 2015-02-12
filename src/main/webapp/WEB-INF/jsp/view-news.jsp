@@ -31,7 +31,12 @@
 
 <nav>
   <c:if test="${section!=null and section.premoderated}">
-    <a class="btn btn-selected" href="${section.sectionLink}">Новые темы</a>
+    <c:if test="${offsetNavigation}">
+      <a class="btn btn-selected" href="${section.sectionLink}">Новые темы</a>
+    </c:if>
+    <c:if test="${not offsetNavigation}">
+      <a class="btn btn-default" href="${section.sectionLink}">Новые темы</a>
+    </c:if>
   </c:if>
 
   <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
@@ -54,7 +59,12 @@
   </c:if>
 
   <c:if test="${archiveLink != null}">
-    <a class="btn btn-default" href="${archiveLink}">Архив</a>
+    <c:if test="${offsetNavigation}">
+      <a class="btn btn-default" href="${archiveLink}">Архив</a>
+    </c:if>
+    <c:if test="${not offsetNavigation}">
+      <a class="btn btn-selected" href="${archiveLink}">Архив</a>
+    </c:if>
   </c:if>
 
   <c:if test="${section != null}">
