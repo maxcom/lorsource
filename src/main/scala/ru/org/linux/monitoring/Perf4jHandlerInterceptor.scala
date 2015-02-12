@@ -3,11 +3,11 @@ package ru.org.linux.monitoring
 import javax.annotation.PostConstruct
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.mappings.FieldType._
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.commons.io.IOUtils
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.action.ActionListener
-import org.elasticsearch.action.index.IndexResponse
 import org.elasticsearch.client.Client
 import org.perf4j.StopWatch
 import org.perf4j.slf4j.Slf4JStopWatch
@@ -18,27 +18,41 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import org.springframework.web.servlet.resource.{DefaultServletHttpRequestHandler, ResourceHttpRequestHandler}
 import ru.org.linux.monitoring.Perf4jHandlerInterceptor._
 
-import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 object Perf4jHandlerInterceptor {
-  private val ATTRIBUTE = "perf4jStopWatch"
-  private val LOGGING_THRESHOLD = 500
-  private val ELASTIC_THRESHOLD = 200
-  private val PERF_INDEX = "perf"
-  private val PERF_TYPE = "metric"
+  private val Attribute = "perf4jStopWatch"
+  private val LoggingThreshold = 500 millis
+  private val ElasticThreshold = 200 millis
+  private val PerfIndex = "perf"
+  private val PerfType = "metric"
 }
 
-class Perf4jHandlerInterceptor @Autowired() (elastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
+class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
+  private val elastic = ElasticClient.fromClient(javaElastic)
+
   @PostConstruct
   def createIndex():Unit = {
     try {
-      if (!elastic.admin.indices.prepareExists(PERF_INDEX).execute.actionGet.isExists) {
-        val mappingSource: String = IOUtils.toString(getClass.getClassLoader.getResource("perf-mapping.json"))
+      if (!Await.result(elastic.exists(PerfIndex), 30 seconds).isExists) {
         logger.info("Create performance index")
-        elastic.admin.indices.prepareCreate(PERF_INDEX).setSource(mappingSource).execute.actionGet
+
+        Await.result(elastic.execute {
+          create index PerfIndex mappings(
+            PerfType as (
+              "controller" typed StringType index NotAnalyzed,
+              "startdate" typed DateType format "dateTime",
+              "elapsed" typed LongType
+            ) all false
+          )
+        }, 30 seconds)
       }
     } catch {
-      case ex:ElasticsearchException => logger.warn("Unable to create performance index", ex)
+      case NonFatal(ex) ⇒
+        logger.warn("Unable to create performance index", ex)
     }
   }
 
@@ -53,34 +67,31 @@ class Perf4jHandlerInterceptor @Autowired() (elastic:Client) extends HandlerInte
     }
 
     val watch = new Slf4JStopWatch(name)
-    watch.setTimeThreshold(LOGGING_THRESHOLD)
-    request.setAttribute(ATTRIBUTE, watch)
+    watch.setTimeThreshold(LoggingThreshold.toMillis)
+    request.setAttribute(Attribute, watch)
 
     true
   }
 
   override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef, modelAndView: ModelAndView):Unit = {
-    val stopWatch = request.getAttribute(ATTRIBUTE).asInstanceOf[StopWatch]
+    val stopWatch = request.getAttribute(Attribute).asInstanceOf[StopWatch]
 
     if (stopWatch != null) {
       stopWatch.stop
 
-      if (stopWatch.getElapsedTime > ELASTIC_THRESHOLD) {
-        val doc:Map[String, AnyRef] = Map(
-          "controller" -> stopWatch.getTag,
-          "startdate" -> Long.box(stopWatch.getStartTime),
-          "elapsed" -> Long.box(stopWatch.getElapsedTime)
-        )
-
+      if (stopWatch.getElapsedTime > ElasticThreshold.toMillis) {
         try {
-          val result = elastic.prepareIndex(PERF_INDEX, PERF_TYPE).setSource(doc.asJava).execute()
+          val future = elastic execute {
+            index into PerfIndex -> PerfType fields (
+              "controller" -> stopWatch.getTag,
+              "startdate"  -> stopWatch.getStartTime,
+              "elapsed"    -> stopWatch.getElapsedTime
+            )
+          }
 
-          result.addListener(new ActionListener[IndexResponse] {
-            override def onResponse(response: IndexResponse): Unit = {}
-            override def onFailure(e: Throwable): Unit = {
-              logger.info("Unable to log performance metric", e)
-            }
-          })
+          future.onFailure {
+            case error ⇒ logger.info("Unable to log performance metric", error)
+          }
         } catch {
           case ex:ElasticsearchException => logger.info("Unable to log performance metric", ex)
         }
