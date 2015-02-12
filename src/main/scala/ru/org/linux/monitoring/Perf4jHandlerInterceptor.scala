@@ -9,6 +9,8 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.client.Client
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import org.perf4j.StopWatch
 import org.perf4j.slf4j.Slf4JStopWatch
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,29 +29,32 @@ object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
   private val LoggingThreshold = 500 millis
   private val ElasticThreshold = 200 millis
-  private val PerfIndex = "perf"
+  private val IndexPrefix = "perf"
+  private val PerfPattern = s"$IndexPrefix-*"
   private val PerfType = "metric"
+
+  private val indexDateFormat = DateTimeFormat.forPattern("YYYY-MM")
 }
 
 class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
   private val elastic = ElasticClient.fromClient(javaElastic)
 
+  private def indexOf(date:DateTime) = IndexPrefix + "-" + indexDateFormat.print(date)
+
   @PostConstruct
   def createIndex():Unit = {
     try {
-      if (!Await.result(elastic.exists(PerfIndex), 30 seconds).isExists) {
-        logger.info("Create performance index")
+      logger.info("Create performance index template")
 
-        Await.result(elastic.execute {
-          create index PerfIndex mappings(
-            PerfType as (
-              "controller" typed StringType index NotAnalyzed,
-              "startdate" typed DateType format "dateTime",
-              "elapsed" typed LongType
-            ) all false
-          )
-        }, 30 seconds)
-      }
+      Await.result(elastic.execute {
+        create template s"$IndexPrefix-template" pattern PerfPattern mappings (
+          PerfType as(
+            "controller" typed StringType index NotAnalyzed,
+            "startdate" typed DateType format "dateTime",
+            "elapsed" typed LongType
+          ) all false
+        )
+      }, 30 seconds)
     } catch {
       case NonFatal(ex) ⇒
         logger.warn("Unable to create performance index", ex)
@@ -81,10 +86,12 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
 
       if (stopWatch.getElapsedTime > ElasticThreshold.toMillis) {
         try {
+          val date = new DateTime(stopWatch.getStartTime)
+
           val future = elastic execute {
-            index into PerfIndex -> PerfType fields (
+            index into indexOf(date) -> PerfType fields (
               "controller" -> stopWatch.getTag,
-              "startdate"  -> stopWatch.getStartTime,
+              "startdate"  -> date,
               "elapsed"    -> stopWatch.getElapsedTime
             )
           }
