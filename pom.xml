@@ -503,6 +503,7 @@
                 <configuration>
                     <nosuffix>true</nosuffix>
                     <jswarn>false</jswarn>
+                    <encoding>utf-8</encoding>
                     <aggregations>
                         <aggregation>
                             <removeIncluded>true</removeIncluded>
