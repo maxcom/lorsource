@@ -1,5 +1,6 @@
 package ru.org.linux.monitoring
 
+import java.util.concurrent.ThreadLocalRandom
 import javax.annotation.PostConstruct
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -7,7 +8,6 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.client.Client
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -28,7 +28,7 @@ import scala.util.control.NonFatal
 object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
   private val LoggingThreshold = 500 millis
-  private val ElasticThreshold = 200 millis
+  private val ElasticProbability = 0.01
   private val IndexPrefix = "perf"
   private val PerfPattern = s"$IndexPrefix-*"
   private val PerfType = "metric"
@@ -84,7 +84,7 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
     if (stopWatch != null) {
       stopWatch.stop
 
-      if (stopWatch.getElapsedTime > ElasticThreshold.toMillis) {
+      if (ThreadLocalRandom.current().nextDouble() < ElasticProbability) {
         try {
           val date = new DateTime(stopWatch.getStartTime)
 
@@ -100,7 +100,8 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
             case error ⇒ logger.info("Unable to log performance metric", error)
           }
         } catch {
-          case ex:ElasticsearchException => logger.info("Unable to log performance metric", ex)
+          case NonFatal(ex) ⇒
+            logger.info("Unable to log performance metric", ex)
         }
       }
     }
