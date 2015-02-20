@@ -98,6 +98,7 @@
     <c:if test="${addable}">
       <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
     </c:if>
+  </c:if>
 </nav>
 
 <c:if test="${!empty groupImagePath}">
