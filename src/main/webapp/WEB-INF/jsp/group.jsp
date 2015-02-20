@@ -59,16 +59,6 @@
     </div>
 
     <div class="nav-buttons">
-      <ul>
-      <li><a href="${group.url}archive/">Архив</a></li>
-      <c:if test="${year==null}">
-        <c:if test="${template.moderatorSession}">
-          <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
-        </c:if>
-        <c:if test="${addable}">
-          <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
-        </c:if>
-  </ul>
       <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
           <c:if test="${item.id == group.id}">
@@ -89,11 +79,26 @@
           </c:if>
         </c:forEach>
       </select>
-      </c:if>
      </div>
  </div>
 
 </form>
+
+<nav>
+  <c:if test="${year!=null}">
+    <a class="btn btn-default" href="${group.url}">Новые темы</a>
+    <a href="${group.url}archive/" class="btn btn-selected">Архив</a>
+  </c:if>
+  <c:if test="${year==null}">
+    <a class="btn btn-selected" href="${group.url}">Новые темы</a>
+    <a href="${group.url}archive/" class="btn btn-default">Архив</a>
+    <c:if test="${template.moderatorSession}">
+      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править группу</a>
+    </c:if>
+    <c:if test="${addable}">
+      <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
+    </c:if>
+</nav>
 
 <c:if test="${!empty groupImagePath}">
     <div align=center>
