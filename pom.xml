@@ -29,8 +29,8 @@
   <dependencies>
     <dependency>
     	<groupId>com.sksamuel.elastic4s</groupId>
-    	<artifactId>elastic4s_2.11</artifactId>
-    	<version>1.4.11</version>
+    	<artifactId>elastic4s_${scala.suffix}</artifactId>
+    	<version>1.4.12</version>
     </dependency>
 
     <dependency>
