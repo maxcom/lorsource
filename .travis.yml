@@ -12,3 +12,4 @@ before_script:
   - unset GEM_PATH
 before_install:
   - unset GEM_PATH
+install: mvn verify -DskipTests=true -Dmaven.javadoc.skip=true 
