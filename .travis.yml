@@ -1,5 +1,5 @@
 language: java
-script: mvn -T 2C install
+script: mvn -T 2C verify
 jdk:
   - oraclejdk8
 before_script:
