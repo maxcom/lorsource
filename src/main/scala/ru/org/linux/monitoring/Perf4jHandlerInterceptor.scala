@@ -71,7 +71,7 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
       case _ => handler.getClass.getSimpleName
     }
 
-    val watch = new Slf4JStopWatch(name)
+    val watch = new Slf4JStopWatch(name, request.getRequestURI)
     watch.setTimeThreshold(LoggingThreshold.toMillis)
     request.setAttribute(Attribute, watch)
 
