@@ -34,9 +34,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.search.SearchViewer.SearchInterval;
-import ru.org.linux.search.SearchViewer.SearchOrder;
-import ru.org.linux.search.SearchViewer.SearchRange;
+import ru.org.linux.search.SearchEnums.SearchInterval;
+import ru.org.linux.search.SearchEnums.SearchOrder;
+import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
@@ -112,9 +112,9 @@ public class SearchController {
     if (!query.isInitial() && !bindingResult.hasErrors()) {
       sanitizeQuery(query);
 
-      SearchViewer sv = new SearchViewer(query);
+      SearchViewer sv = new SearchViewer(query, client);
 
-      SearchResponse response = sv.performSearch(client);
+      SearchResponse response = sv.performSearch();
 
       long current = System.currentTimeMillis();
 
@@ -155,12 +155,12 @@ public class SearchController {
       params.put("searchTime", response.getTookInMillis());
       params.put("numFound", response.getHits().getTotalHits());
 
-      if (response.getHits().getTotalHits() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
-        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SEARCH_ROWS));
+      if (response.getHits().getTotalHits() > query.getOffset() + SearchViewer.SearchRows()) {
+        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SearchRows()));
       }
 
-      if (query.getOffset() - SearchViewer.SEARCH_ROWS >= 0) {
-        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset() - SearchViewer.SEARCH_ROWS));
+      if (query.getOffset() - SearchViewer.SearchRows() >= 0) {
+        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset() - SearchViewer.SearchRows()));
       }
 
       params.put("time", time);
