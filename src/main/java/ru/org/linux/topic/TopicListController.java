@@ -225,16 +225,20 @@ public class TopicListController {
     TopicListRequest topicListForm = new TopicListRequest();
 
     Section sectionObject = sectionService.getSectionByName(section);
-    topicListForm.setSection(sectionObject.getId());
-    topicListForm.setYear(year);
-    topicListForm.setMonth(month);
 
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
+    if (sectionObject.isPremoderated()) {
+      topicListForm.setSection(sectionObject.getId());
+      topicListForm.setYear(year);
+      topicListForm.setMonth(month);
 
-    modelAndView.addObject("ptitle", calculatePTitle(sectionObject, topicListForm));
-    modelAndView.addObject("url", "/gallery/archive/" + year + '/' + month + '/');
+      ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
 
-    return modelAndView;
+      modelAndView.addObject("ptitle", calculatePTitle(sectionObject, topicListForm));
+
+      return modelAndView;
+    } else {
+      return new ModelAndView(new RedirectView(sectionObject.getSectionLink()));
+    }
   }
 
   @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
