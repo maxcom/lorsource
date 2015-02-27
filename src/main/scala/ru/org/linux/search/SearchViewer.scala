@@ -20,7 +20,12 @@ class SearchViewer(query:SearchRequest, javaElastic: Client) {
       matchall
     } else {
       should(
-        commonQuery("_all") query queryText lowFreqMinimumShouldMatch 2,
+       {
+         // https://github.com/sksamuel/elastic4s/issues/277
+         val q = commonQuery("_all") query queryText
+         q._builder.lowFreqMinimumShouldMatch("2")
+         q
+       },
         matchPhrase("_all", queryText).setLenient(true)
       )
     }
