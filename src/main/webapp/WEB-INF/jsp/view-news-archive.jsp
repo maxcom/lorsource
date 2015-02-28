@@ -39,7 +39,12 @@ ${section.name}
 </H1>
 
 <nav>
-  <a class="btn btn-default" href="${section.sectionLink}">Новые темы</a>
+  <c:if test="${group == null}">
+    <a class="btn btn-default" href="${section.sectionLink}">Новые темы</a>
+  </c:if>
+  <c:if test="${group != null}">
+    <a class="btn btn-default" href="${group.url}">Новые темы</a>
+  </c:if>
 
   <c:if test="${section.premoderated}">
     <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
