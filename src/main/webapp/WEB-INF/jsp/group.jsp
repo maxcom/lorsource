@@ -52,7 +52,7 @@
 <form>
   <div class=nav>
     <div id="navPath">
-      <a href="${group.sectionLink}">${section.name}</a> - ${group.title}
+      ${section.name} «${group.title}»
       <c:if test="${year != null}">
         - Архив ${year}, ${l:getMonthName(month)}
       </c:if>
