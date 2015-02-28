@@ -377,11 +377,11 @@
           <version>0.4.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.imgscalr</groupId>
-            <artifactId>imgscalr-lib</artifactId>
-            <version>4.2</version>
-        </dependency>
+    <dependency>
+      <groupId>org.imgscalr</groupId>
+      <artifactId>imgscalr-lib</artifactId>
+      <version>4.2</version>
+    </dependency>
 
     <dependency>
         <groupId>org.webjars</groupId>
@@ -527,7 +527,7 @@
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.form.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
-                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.min.js</include>
+                                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-validation/1.13.1/jquery.validate.min.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
                             </includes>
@@ -723,6 +723,32 @@
                     </execution>
                 </executions>
             </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.10</version>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.webjars</groupId>
+                      <artifactId>jquery-validation</artifactId>
+                      <version>1.13.1</version>
+                      <includes>**/*.js</includes>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
     </build>
     <profiles>
@@ -876,7 +902,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
-			            <version>2.8</version>
                         <executions>
                             <execution>
                                 <id>copy</id>
