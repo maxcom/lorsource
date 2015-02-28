@@ -521,7 +521,7 @@
                     <encoding>utf-8</encoding>
                     <aggregations>
                         <aggregation>
-                            <removeIncluded>true</removeIncluded>
+                            <removeIncluded>false</removeIncluded>
                             <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/js/plugins.js</output>
                             <includes>
