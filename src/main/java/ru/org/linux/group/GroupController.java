@@ -140,7 +140,7 @@ public class GroupController {
           int messagesInPage
   ) {
     String q =
-            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
+            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.sticky, topics.resolved " +
             "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY postdate DESC";
 
     SqlRowSet rs = jdbcTemplate.queryForRowSet(q, group.getId());
@@ -171,7 +171,7 @@ public class GroupController {
 
    String delq = showDeleted ? "" : " AND NOT deleted ";
 
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved " +
+    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.sticky, topics.resolved " +
             "FROM topics WHERE NOT draft AND NOT sticky AND topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
