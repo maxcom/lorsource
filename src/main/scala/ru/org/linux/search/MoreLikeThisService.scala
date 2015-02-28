@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.client.Client
 import org.elasticsearch.search.SearchHit

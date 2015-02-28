@@ -7,7 +7,7 @@ import javax.mail.{Message, Session, Transport}
 import javax.servlet.http.HttpServletRequest
 
 import com.google.common.net.HttpHeaders
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthUtil

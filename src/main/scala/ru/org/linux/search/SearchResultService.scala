@@ -1,6 +1,6 @@
 package ru.org.linux.search
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.aggregations.Aggregations
 import org.elasticsearch.search.aggregations.bucket.filter.Filter

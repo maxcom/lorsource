@@ -1,31 +1,33 @@
 package ru.org.linux.user
 
-import org.springframework.stereotype.Service
-import org.springframework.beans.factory.annotation.Autowired
 import java.sql.Timestamp
-import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
-import ru.org.linux.section.{Section, SectionService}
-import org.elasticsearch.client.Client
-import ru.org.linux.search.SearchQueueListener
-import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse, SearchType}
-import org.elasticsearch.index.query.{FilterBuilders, QueryBuilders}
-import scala.concurrent._
-import org.elasticsearch.action.ActionListener
-import scala.concurrent.duration._
-import UserStatisticsService._
-import org.elasticsearch.common.unit.TimeValue
+import java.util.Date
+
+import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import scala.concurrent.ExecutionContext.Implicits.global
-import org.joda.time.DateTime
-import QueryBuilders._
-import FilterBuilders._
+import org.elasticsearch.action.ActionListener
+import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse, SearchType}
+import org.elasticsearch.client.Client
+import org.elasticsearch.common.unit.TimeValue
+import org.elasticsearch.index.query.FilterBuilders._
+import org.elasticsearch.index.query.QueryBuilders._
+import org.elasticsearch.index.query.{FilterBuilders, QueryBuilders}
 import org.elasticsearch.search.aggregations.AggregationBuilders._
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
-import scala.util.{Try, Success, Failure}
-import java.util.Date
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
+import org.joda.time.DateTime
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import ru.org.linux.search.SearchQueueListener
+import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.user.UserStatisticsService._
+
+import scala.beans.BeanProperty
+import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 @Service
 class UserStatisticsService @Autowired() (

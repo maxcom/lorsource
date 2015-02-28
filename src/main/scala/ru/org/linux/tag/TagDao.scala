@@ -3,7 +3,7 @@ package ru.org.linux.tag
 import java.sql.ResultSet
 import javax.sql.DataSource
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert

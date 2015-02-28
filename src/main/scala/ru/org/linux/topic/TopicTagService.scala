@@ -1,17 +1,16 @@
 package ru.org.linux.topic
 
-import org.springframework.stereotype.Service
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.google.common.collect.{ImmutableList, ImmutableListMultimap}
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
-import ru.org.linux.tag._
 import org.springframework.scala.transaction.support.TransactionManagement
-import scala.collection.JavaConversions._
-
-import TopicTagService._
-import TagService._
-import com.google.common.collect.{ImmutableListMultimap, ImmutableList}
+import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.tag.TagRef
+import ru.org.linux.tag.TagService._
+import ru.org.linux.tag.{TagRef, _}
+import ru.org.linux.topic.TopicTagService._
+
+import scala.collection.JavaConversions._
 
 @Service
 class TopicTagService @Autowired() (
