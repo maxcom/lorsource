@@ -66,7 +66,7 @@
 <![endif]-->
 
 <script type="text/javascript">
-  $script('/webjars/jquery/1.11.1/jquery.min.js', 'jquery');
+  $script('/webjars/jquery/1.11.2/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
     $script('/js/plugins.js', 'plugins');
