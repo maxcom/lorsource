@@ -3,22 +3,18 @@ package ru.org.linux.user
 import java.sql.Timestamp
 import java.util.Date
 
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, SearchType}
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.action.ActionListener
-import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse, SearchType}
+import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.Client
-import org.elasticsearch.common.unit.TimeValue
-import org.elasticsearch.index.query.FilterBuilders._
-import org.elasticsearch.index.query.QueryBuilders._
-import org.elasticsearch.index.query.{FilterBuilders, QueryBuilders}
-import org.elasticsearch.search.aggregations.AggregationBuilders._
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.org.linux.search.SearchQueueListener
+import ru.org.linux.search.SearchQueueListener.{MESSAGES_INDEX, MESSAGES_TYPE}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService._
 
@@ -34,8 +30,10 @@ class UserStatisticsService @Autowired() (
   userDao: UserDao,
   ignoreListDao: IgnoreListDao,
   sectionService: SectionService,
-  elastic: Client
+  javaElastic: Client
 ) extends StrictLogging {
+  private val elastic = ElasticClient.fromClient(javaElastic)
+
   def getStats(user:User) : UserStats = {
     val commentCountFuture = countComments(user)
     val topicsFuture = topicStats(user)
@@ -74,95 +72,67 @@ class UserStatisticsService @Autowired() (
     )
   }
 
+  private def timeoutHandler(response:SearchResponse):Future[SearchResponse] = {
+    if (response.isTimedOut) {
+      Future failed new RuntimeException("ES Request timed out")
+    } else {
+      Future successful response
+    }
+  }
+
+  private def statSearch = search in MESSAGES_INDEX -> MESSAGES_TYPE searchType SearchType.Count timeout ElasticTimeout
+
   private def countComments(user:User):Future[Long] = {
-    val filter = boolFilter()
-    filter.must(termFilter("author", user.getNick))
-    filter.must(termFilter("is_comment", true))
-
-    val root = filteredQuery(matchAllQuery(), filter)
-
     try {
-      elastic
-        .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
-        .setSearchType(SearchType.COUNT)
-        .setQuery(root)
-        .setTimeout(TimeValue.timeValueMillis(ElasticTimeout.toMillis))
-        .scalaExecute(failOnTimeout = true)
-        .map(_.getHits.getTotalHits)
+      elastic execute {
+        val root = filteredQuery query matchall filter must (
+              termFilter("author", user.getNick),
+              termFilter("is_comment", true)
+        )
+
+        statSearch query root
+      } flatMap timeoutHandler map { _.getHits.getTotalHits }
     } catch {
-      case ex:ElasticsearchException => Future.failed(ex)
+      case ex: ElasticsearchException => Future.failed(ex)
     }
   }
 
   private def topicStats(user:User):Future[TopicStats] = {
-    val filter = boolFilter()
-
-    filter.must(termFilter("author", user.getNick))
-    filter.must(termFilter("is_comment", false))
-
-    val root = filteredQuery(matchAllQuery(), filter)
-
-    val topicStatsAgg = stats("topic_stats").field("postdate")
-    val sectionsAgg = terms("sections").field("section")
-
     try {
-      elastic
-        .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
-        .setSearchType(SearchType.COUNT)
-        .setQuery(root)
-        .addAggregation(topicStatsAgg)
-        .addAggregation(sectionsAgg)
-        .setTimeout(TimeValue.timeValueMillis(ElasticTimeout.toMillis))
-        .scalaExecute(failOnTimeout = true)
-        .map { response =>
-          val topicStatsResult:Stats = response.getAggregations.get("topic_stats")
-          val sectionsResult:Terms = response.getAggregations.get("sections")
+      elastic execute {
+        val root = filteredQuery query matchall filter must(
+          termFilter("author", user.getNick),
+          termFilter("is_comment", false)
+        )
 
-          val (firstTopic, lastTopic) = if (topicStatsResult.getCount>0) {
-            (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
-          } else {
-            (None, None)
-          }
+        statSearch query root aggs(
+          agg stats "topic_stats" field "postdate",
+          agg terms "sections" field "section"
+          )
+      } flatMap timeoutHandler map { response ⇒
+        val topicStatsResult = response.getAggregations.get[Stats]("topic_stats")
+        val sectionsResult = response.getAggregations.get[Terms]("sections")
 
-          val sections = sectionsResult.getBuckets.map { bucket =>
-            (bucket.getKeyAsText.string(), bucket.getDocCount)
-          }.toSeq
-
-          TopicStats(firstTopic, lastTopic, sections)
+        val (firstTopic, lastTopic) = if (topicStatsResult.getCount > 0) {
+          (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
+        } else {
+          (None, None)
         }
+
+        val sections = sectionsResult.getBuckets.map { bucket =>
+          (bucket.getKeyAsText.string(), bucket.getDocCount)
+        }.toSeq
+
+        TopicStats(firstTopic, lastTopic, sections)
+      }
     } catch {
-      case ex:ElasticsearchException => Future.failed(ex)
+      case ex: ElasticsearchException => Future.failed(ex)
     }
   }
 }
 
 object UserStatisticsService {
   val ElasticTimeout = 1.second
-
-  implicit class RichSearchRequestBuilder(request : SearchRequestBuilder) {
-    def scalaExecute(failOnTimeout : Boolean = false):Future[SearchResponse] = {
-
-      try {
-        val promise = Promise[SearchResponse]()
-
-        request.execute(new ActionListener[SearchResponse] {
-          override def onFailure(e: Throwable): Unit = promise.failure(e)
-
-          override def onResponse(response: SearchResponse): Unit = {
-            if (response.isTimedOut && failOnTimeout) {
-              promise.failure(new RuntimeException("ES Request timed out"))
-            } else {
-              promise.success(response)
-            }
-          }
-        })
-
-        promise.future
-      } catch {
-        case ex:ElasticsearchException => Future.failed(ex)
-      }
-    }
-  }
 
   private def extractValue[T](value:Option[Try[T]])(f:(Throwable => Unit)):Option[T] = {
     value flatMap {
