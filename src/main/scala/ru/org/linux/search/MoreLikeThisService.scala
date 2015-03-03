@@ -43,17 +43,16 @@ class MoreLikeThisService @Autowired() (
     .build[Integer, Result]()
 
   def searchSimilar(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[Result] = {
-    val cachedValue = cache.getIfPresent(topic.getId)
-    if (cachedValue != null) {
-      Future.successful(cachedValue)
-    } else {
+    val cachedValue = Option(cache.getIfPresent(topic.getId))
+
+    cachedValue.map(Future.successful).getOrElse {
       try {
         val searchResult = elastic execute makeQuery(topic, plainText, tags)
 
         val result:Future[Result] = searchResult.map(result => if (result.getHits.nonEmpty) {
           val half = result.getHits.size / 2 + result.getHits.size % 2
 
-          result.getHits.map(processHit).grouped(half).map(_.toSeq.asJava).toSeq.asJava
+          result.getHits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
         } else Seq())
 
         result.onSuccess {
@@ -86,16 +85,18 @@ class MoreLikeThisService @Autowired() (
     } fields("title", "postdate", "section", "group")
   }
 
-  def resultsOrNothing(featureResult:Future[Result], deadline:Deadline):Result = {
-    try {
-      Await.result(featureResult, deadline.timeLeft)
-    } catch {
-      case ex:ElasticsearchException =>
-        logger.warn("Unable to find similar topics", ex)
-        Seq()
-      case ex:TimeoutException =>
-        logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
-        Seq()
+  def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
+    Option(cache.getIfPresent(topic.getId)).getOrElse {
+      try {
+        Await.result(featureResult, deadline.timeLeft)
+      } catch {
+        case ex: ElasticsearchException =>
+          logger.warn("Unable to find similar topics", ex)
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+        case ex: TimeoutException =>
+          logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+      }
     }
   }
 
@@ -128,7 +129,7 @@ class MoreLikeThisService @Autowired() (
 }
 
 object MoreLikeThisService {
-  val CacheSize = 2000
+  val CacheSize = 10000
 }
 
 case class MoreLikeThisTopic(

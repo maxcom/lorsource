@@ -362,7 +362,7 @@ public class TopicController {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 
-    params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis, deadline));
+    params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline));
 
     return new ModelAndView("view-message", params);
   }
