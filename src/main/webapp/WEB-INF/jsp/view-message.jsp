@@ -197,7 +197,7 @@
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
         message="${message}"
-        editInfo="${editInfo}"
+        briefEditInfo="${editInfo}"
         showMenu="true" enableSchema="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
