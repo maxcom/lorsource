@@ -24,8 +24,6 @@ import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
 
-import javax.annotation.Nullable;
-import java.util.Date;
 import java.util.List;
 
 public final class PreparedTopic {
@@ -40,14 +38,6 @@ public final class PreparedTopic {
   private final ImmutableList<TagRef> tags;
   private final Group group;
   private final Section section;
-
-  @Nullable
-  private final Date lastEditDate;
-
-  @Nullable
-  private final User lastEditor;
-
-  private final int editCount;
 
   private final PreparedImage image;
   
@@ -66,9 +56,6 @@ public final class PreparedTopic {
           List<TagRef> tags,
           Group group,
           Section section,
-          @Nullable Date lastEditDate,
-          @Nullable User lastEditor,
-          int editorCount,
           boolean lorcode,
           PreparedImage image,
           String postscoreInfo,
@@ -89,9 +76,6 @@ public final class PreparedTopic {
     }
     this.group = group;
     this.section = section;
-    this.lastEditDate = lastEditDate;
-    this.lastEditor = lastEditor;
-    editCount = editorCount;
     this.image = image;
     this.remark = remark;
   }
@@ -122,19 +106,6 @@ public final class PreparedTopic {
 
   public User getCommiter() {
     return commiter;
-  }
-
-  @Nullable
-  public Date getLastEditDate() {
-    return lastEditDate;
-  }
-
-  public User getLastEditor() {
-    return lastEditor;
-  }
-
-  public int getEditCount() {
-    return editCount;
   }
 
   public int getId() {

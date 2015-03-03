@@ -3,15 +3,14 @@ package ru.org.linux.edithistory
 import java.util.Date
 
 case class EditInfoSummary(
-  editCount:Int,
-  lastEditInfo:Option[BriefEditInfo]
+  editCount:Int, // > 0
+  editdate:Date,
+  editor:Int
 )
 
 object EditInfoSummary {
-  val NoEdits = EditInfoSummary(0, None)
-
   // TODO fetch brief info from database
-  def apply(editCount:Int, info:BriefEditInfo) = new EditInfoSummary(editCount, Some(info))
+  def apply(editCount:Int, info:BriefEditInfo) = new EditInfoSummary(editCount, info.editdate, info.editor)
 }
 
 case class BriefEditInfo(

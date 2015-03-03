@@ -27,6 +27,8 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
+import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.group.Group;
 import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.search.MoreLikeThisService;
@@ -47,6 +49,7 @@ import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Deadline;
 import scala.concurrent.duration.Duration;
@@ -56,6 +59,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC;
 
 @Controller
 public class TopicController {
@@ -72,7 +77,7 @@ public class TopicController {
   private CommentPrepareService prepareService;
 
   @Autowired
-  private TopicPrepareService messagePrepareService;
+  private TopicPrepareService topicPrepareService;
 
   @Autowired
   private CommentService commentService;
@@ -103,6 +108,9 @@ public class TopicController {
 
   @Autowired
   private MemoriesDao memoriesDao;
+
+  @Autowired
+  private EditHistoryService editHistoryService;
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
@@ -200,13 +208,21 @@ public class TopicController {
 
     Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags, plainText);
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
             request.isSecure(),
             tmpl.getCurrentUser(),
             messageText
     );
+
+    if (tmpl.isSessionAuthorized()) {
+      Option<EditInfoSummary> editInfoSummary = editHistoryService.editInfoSummary(topic.getId(), TOPIC);
+
+      if (editInfoSummary.nonEmpty()) {
+        params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get()));
+      }
+    }
 
     Group group = preparedMessage.getGroup();
 
@@ -282,7 +298,7 @@ public class TopicController {
       }
     }
 
-    params.put("messageMenu", messagePrepareService.getTopicMenu(
+    params.put("messageMenu", topicPrepareService.getTopicMenu(
             preparedMessage,
             currentUser,
             request.isSecure(),
@@ -366,7 +382,7 @@ public class TopicController {
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
             request.isSecure(),

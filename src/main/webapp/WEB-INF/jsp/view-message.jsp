@@ -33,6 +33,7 @@
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
 <%--@elvariable id="moreLikeThis" type="java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>"--%>
 <%--@elvariable id="ogDescription" type="java.lang.String"--%>
+<%--@elvariable id="editInfo" type="ru.org.linux.topic.PreparedEditInfoSummary"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -196,6 +197,7 @@
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
         message="${message}"
+        editInfo="${editInfo}"
         showMenu="true" enableSchema="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>

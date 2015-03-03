@@ -22,9 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.edithistory.BriefEditInfo;
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
-import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
@@ -95,9 +92,6 @@ public class TopicPrepareService {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private EditHistoryService editHistoryService;
-
-  @Autowired
   private ImageDao imageDao;
 
   @Autowired
@@ -153,6 +147,13 @@ public class TopicPrepareService {
             new MessageText(text, true),
             image
     );
+  }
+
+  public PreparedEditInfoSummary prepareEditInfo(EditInfoSummary editInfo) {
+    String lastEditor = userDao.getUserCached(editInfo.editor()).getNick();
+    int editCount = editInfo.editCount();
+    Date lastEditDate = editInfo.editdate();
+    return PreparedEditInfoSummary.apply(lastEditor, editCount, lastEditDate);
   }
 
   /**
@@ -214,23 +215,6 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      EditInfoSummary editInfoSummary = editHistoryService.editInfoSummary(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
-
-      User lastEditor;
-      int editCount;
-      Date lastEditDate;
-
-      if (editInfoSummary.editCount() > 0) {
-        BriefEditInfo editHistoryDto = editInfoSummary.lastEditInfo().get();
-        lastEditor = userDao.getUserCached(editHistoryDto.editor());
-        editCount = editInfoSummary.editCount();
-        lastEditDate = editHistoryDto.editdate();
-      } else {
-        lastEditDate = null;
-        lastEditor = null;
-        editCount = 0;
-      }
-
       String processedMessage;
 
       if (text.isLorcode()) {
@@ -282,9 +266,6 @@ public class TopicPrepareService {
               tags,
               group,
               section,
-              lastEditDate,
-              lastEditor, 
-              editCount,
               text.isLorcode(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(postscore),

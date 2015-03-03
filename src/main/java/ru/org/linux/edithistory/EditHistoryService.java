@@ -32,6 +32,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -241,13 +242,13 @@ public class EditHistoryService {
     );
   }
 
-  public EditInfoSummary editInfoSummary(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+  public Option<EditInfoSummary> editInfoSummary(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     List<BriefEditInfo> history = editHistoryDao.getBriefEditInfo(id, objectTypeEnum);
 
     if (history.isEmpty()) {
-      return EditInfoSummary.NoEdits();
+      return Option.empty();
     } else {
-      return EditInfoSummary.apply(history.size(), history.get(0));
+      return Option.apply(EditInfoSummary.apply(history.size(), history.get(0)));
     }
   }
 }

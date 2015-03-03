@@ -8,6 +8,7 @@
 <%@ attribute name="memoriesInfo" required="false" type="ru.org.linux.user.MemoriesInfo" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="editInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -180,17 +181,12 @@
       </c:if>
     </c:if>
   </c:if>
-  <c:if test="${template.sessionAuthorized}">
-  <%
-  if (preparedMessage.getEditCount()>0) {
-  %>
-  <br>
-  Последнее исправление: <%= preparedMessage.getLastEditor().getNick() %><c:out value=" "/><lor:date date="${preparedMessage.lastEditDate}"/>
-    (всего <a href="${message.link}/history">исправлений: ${preparedMessage.editCount}</a>)
-  <%
-  }
-%>
-    </c:if>
+  <c:if test="${editInfo!=null}">
+    <br>
+    Последнее исправление: ${editInfo.lastEditor()}<c:out value=" "/><lor:date
+          date="${editInfo.lastEditDate()}"/>
+    (всего <a href="${message.link}/history">исправлений: ${editInfo.editCount()}</a>)
+  </c:if>
    </span>
 </div>
 </footer>
