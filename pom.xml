@@ -31,7 +31,7 @@
     <dependency>
     	<groupId>com.sksamuel.elastic4s</groupId>
     	<artifactId>elastic4s_${scala.suffix}</artifactId>
-    	<version>1.4.12</version>
+    	<version>1.4.13</version>
     </dependency>
 
     <dependency>
