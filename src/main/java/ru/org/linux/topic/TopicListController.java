@@ -453,13 +453,10 @@ public class TopicListController {
     } else if (section != null) {
       navTitle.setLength(0);
       navTitle
-              .append("<a href=\"")
-              .append(section.getNewsViewerLink())
-              .append("\">")
               .append(section.getName())
-              .append("</a> - <strong>")
+              .append(" «")
               .append(group.getTitle())
-              .append("</strong>");
+              .append("»");
     }
     if (topicListForm.getMonth() != null) {
       navTitle
