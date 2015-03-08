@@ -55,7 +55,7 @@ public class ReplyFeedView extends AbstractRomeView {
       String link;
 
       if (item.getCid()!=0) {
-        feedEntry.setAuthor(preparedUserEvent.getCommentAuthor().getNick());
+        feedEntry.setAuthor(preparedUserEvent.getAuthor().getNick());
 
         link = String.format(
           "http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",

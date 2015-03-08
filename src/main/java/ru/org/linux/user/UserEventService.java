@@ -85,6 +85,14 @@ public class UserEventService {
         text = null;
       }
 
+      User topicAuthor;
+
+      if (event.getTopicAuthor()!=0) {
+        topicAuthor = userDao.getUserCached(event.getTopicAuthor());
+      } else {
+        topicAuthor = null;
+      }
+
       User commentAuthor;
       int bonus = 0;
 
@@ -110,7 +118,7 @@ public class UserEventService {
 
       Group group = groupDao.getGroup(event.getGroupId());
 
-      prepared.add(new PreparedUserEvent(event, text, commentAuthor, bonus, group));
+      prepared.add(new PreparedUserEvent(event, text, topicAuthor, commentAuthor, bonus, group));
     }
 
     return prepared;

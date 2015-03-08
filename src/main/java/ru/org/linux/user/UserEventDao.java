@@ -45,6 +45,7 @@ public class UserEventDao {
       " lastmod, topics.id as msgid, " +
       " comments.id AS cid, " +
       " comments.userid AS cAuthor, " +
+      " topics.userid AS tAuthor, " +
       " unread, " +
       " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
@@ -61,6 +62,7 @@ public class UserEventDao {
       " lastmod, topics.id as msgid, " +
       " comments.id AS cid, " +
       " comments.userid AS cAuthor, " +
+      " topics.userid AS tAuthor, " +
       " unread, " +
       " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
@@ -242,7 +244,7 @@ public class UserEventDao {
       boolean unread = resultSet.getBoolean("unread");
 
       return new UserEvent(cid, cAuthor,
-              groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
+              groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"));
     }, userId, topics, offset);
   }
 

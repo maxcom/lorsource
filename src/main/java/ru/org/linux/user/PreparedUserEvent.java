@@ -20,14 +20,18 @@ import ru.org.linux.group.Group;
 public class PreparedUserEvent {
   private final UserEvent event;
   private final String messageText;
-  private final User commentAuthor;
+  private final User author;
   private final int bonus;
   private final Group group;
 
-  public PreparedUserEvent(UserEvent event, String messageText, User commentAuthor, int bonus, Group group) {
+  public PreparedUserEvent(UserEvent event, String messageText, User topicAuthor, User commentAuthor, int bonus, Group group) {
     this.event = event;
     this.messageText = messageText;
-    this.commentAuthor = commentAuthor;
+    if (commentAuthor!=null) {
+      this.author = commentAuthor;
+    } else {
+      this.author = topicAuthor;
+    }
     this.bonus = bonus;
     this.group = group;
   }
@@ -40,8 +44,8 @@ public class PreparedUserEvent {
     return messageText;
   }
 
-  public User getCommentAuthor() {
-    return commentAuthor;
+  public User getAuthor() {
+    return author;
   }
 
   public int getBonus() {
