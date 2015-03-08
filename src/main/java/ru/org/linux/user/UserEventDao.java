@@ -44,7 +44,6 @@ public class UserEventDao {
       " topics.title as subj, " +
       " lastmod, topics.id as msgid, " +
       " comments.id AS cid, " +
-      " comments.postdate AS cDate, " +
       " comments.userid AS cAuthor, " +
       " unread, " +
       " groupid, comments.deleted," +
@@ -61,7 +60,6 @@ public class UserEventDao {
       " topics.title as subj, " +
       " lastmod, topics.id as msgid, " +
       " comments.id AS cid, " +
-      " comments.postdate AS cDate, " +
       " comments.userid AS cAuthor, " +
       " unread, " +
       " groupid, comments.deleted," +
@@ -231,12 +229,9 @@ public class UserEventDao {
       Timestamp eventDate = resultSet.getTimestamp("event_date");
       int cid = resultSet.getInt("cid");
       int cAuthor;
-      Timestamp cDate;
       if (!resultSet.wasNull()) {
         cAuthor = resultSet.getInt("cAuthor");
-        cDate = resultSet.getTimestamp("cDate");
       } else {
-        cDate = null;
         cAuthor = 0;
       }
       int groupId = resultSet.getInt("groupid");
@@ -246,7 +241,7 @@ public class UserEventDao {
 
       boolean unread = resultSet.getBoolean("unread");
 
-      return new UserEvent(cid, cAuthor, cDate,
+      return new UserEvent(cid, cAuthor,
               groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
     }, userId, topics, offset);
   }

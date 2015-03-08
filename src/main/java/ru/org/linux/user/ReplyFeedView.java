@@ -49,7 +49,7 @@ public class ReplyFeedView extends AbstractRomeView {
       UserEvent item = preparedUserEvent.getEvent();
       
       SyndEntry feedEntry = new SyndEntryImpl();
-      feedEntry.setPublishedDate(item.getCommentDate());
+      feedEntry.setPublishedDate(item.getEventDate());
       feedEntry.setTitle(StringEscapeUtils.unescapeHtml(item.getSubj()));
 
       String link;

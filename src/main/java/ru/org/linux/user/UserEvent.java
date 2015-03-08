@@ -24,7 +24,6 @@ import java.sql.Timestamp;
 public class UserEvent implements Serializable {
   private final int cid;
   private final int cAuthor;
-  private final Timestamp cDate;
   private final int groupId;
   private static final long serialVersionUID = -8433869244309809050L;
   private final String subj;
@@ -35,13 +34,12 @@ public class UserEvent implements Serializable {
   private final Timestamp eventDate;
   private final boolean unread;
 
-  public UserEvent(int cid, int cAuthor, Timestamp cDate,
+  public UserEvent(int cid, int cAuthor,
                    int groupId, String subj,
                    Timestamp lastmod, int msgid, UserEventFilterEnum type, String eventMessage,
                    Timestamp eventDate, boolean unread) {
     this.cid = cid;
     this.cAuthor = cAuthor;
-    this.cDate = cDate;
     this.groupId = groupId;
     this.subj = subj;
     this.lastmod = lastmod;
@@ -62,10 +60,6 @@ public class UserEvent implements Serializable {
 
   public int getCommentAuthor() {
     return cAuthor;
-  }
-
-  public Timestamp getCommentDate() {
-    return cDate;
   }
 
   public String getSubj() {
