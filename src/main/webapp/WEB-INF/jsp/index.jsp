@@ -64,12 +64,12 @@
         {
           type: 'img',
           src: '/adv/selectel/728x90.png',
-          href: 'http://selectel.ru/services/dedicated/?utm_source=siliconrus.com&utm_medium=banner&utm_content=dedicated-spb-e5-2630v3-18400&utm_campaign=090315'
+          href: 'http://selectel.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_content=dedicated-spb-e5-2630v3-18400&utm_campaign=090315'
         },
         {
           type: 'img',
           src: '/adv/selectel/728x90-2.png',
-          href: 'http://selectel.ru/services/dedicated/?utm_source=siliconrus.com&utm_medium=banner&utm_content=dedicated-spb-e5-1650v3-13800&utm_campaign=090315'
+          href: 'http://selectel.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_content=dedicated-spb-e5-1650v3-13800&utm_campaign=090315'
         }
       ];
 
