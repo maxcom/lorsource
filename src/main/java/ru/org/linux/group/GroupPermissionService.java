@@ -37,7 +37,7 @@ public class GroupPermissionService {
   private static final int EDIT_SELF_ALWAYS_SCORE = 300;
   private static final Duration DELETE_PERIOD = Duration.standardHours(6);
   private static final Duration EDIT_PERIOD = DELETE_PERIOD.multipliedBy(2);
-  private static final int CREATE_TAG_SCORE = 200;
+  private static final int CREATE_TAG_SCORE = 400;
 
   private SectionService sectionService;
 
