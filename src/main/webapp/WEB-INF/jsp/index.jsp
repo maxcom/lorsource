@@ -35,6 +35,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
   <style>
@@ -53,8 +54,31 @@
   </script>
 </div>
 </c:if>
+--%>
 
-<c:if test="${template.moderatorSession or template.correctorSession}">
+  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
+  </div>
+  <script type="text/javascript">
+    $script.ready('lorjs', function () {
+      var ads = [
+        {
+          type: 'img',
+          src: '/adv/selectel/728x90.png',
+          href: 'http://selectel.ru/services/dedicated/?utm_source=siliconrus.com&utm_medium=banner&utm_content=dedicated-spb-e5-2630v3-18400&utm_campaign=090315'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/728x90-2.png',
+          href: 'http://selectel.ru/services/dedicated/?utm_source=siliconrus.com&utm_medium=banner&utm_content=dedicated-spb-e5-1650v3-13800&utm_campaign=090315'
+        }
+      ];
+
+      init_interpage_adv(ads);
+    });
+  </script>
+
+
+  <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
     [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},

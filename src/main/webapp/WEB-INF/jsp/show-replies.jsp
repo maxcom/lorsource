@@ -140,7 +140,7 @@
   </td>
   <td>
     <lor:dateinterval date="${topic.event.eventDate}"/><!--
-    --><c:if test="${topic.event.cid != 0}">, <lor:user user="${topic.commentAuthor}"/> </c:if>
+    --><c:if test="${topic.author != null}">,<br> <lor:user user="${topic.author}"/> </c:if>
   </td>
 </tr>
 </c:forEach>
