@@ -43,6 +43,9 @@ public class UserEventController {
   private UserEventService userEventService;
 
   @Autowired
+  private UserEventPrepareService prepareService;
+
+  @Autowired
   private UserEventApiController apiController;
 
   @ModelAttribute("filterValues")
@@ -124,7 +127,7 @@ public class UserEventController {
 
     response.addHeader("Cache-Control", "no-cache");
     List<UserEvent> list = userEventService.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
-    List<PreparedUserEvent> prepared = userEventService.prepare(list, false, request.isSecure());
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, false, request.isSecure());
 
     if (!list.isEmpty()) {
       params.put("enableReset", true);
@@ -205,7 +208,7 @@ public class UserEventController {
     }
 
     List<UserEvent> list = userEventService.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
-    List<PreparedUserEvent> prepared = userEventService.prepare(list, feedRequested, request.isSecure());
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
     params.put("topicsList", prepared);

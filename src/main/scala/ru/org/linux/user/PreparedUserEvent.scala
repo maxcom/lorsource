@@ -6,12 +6,15 @@ import scala.beans.BeanProperty
 
 case class PreparedUserEvent(
   @BeanProperty event: UserEvent,
-  @BeanProperty messageText: String,
+  messageText: Option[String],
   topicAuthor: User,
-  commentAuthor: User,
-  @BeanProperty bonus: Int,
+  commentAuthor: Option[User],
+  bonus: Option[Int],
   @BeanProperty group: Group
 ) {
-  @BeanProperty
-  val author = Option(commentAuthor) getOrElse topicAuthor
+  def getAuthor = commentAuthor getOrElse topicAuthor
+
+  def getMessageText = messageText.orNull
+
+  def getBonus = bonus.getOrElse(0)
 }

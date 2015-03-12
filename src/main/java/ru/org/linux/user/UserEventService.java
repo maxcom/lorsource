@@ -22,15 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.group.Group;
-import ru.org.linux.group.GroupDao;
-import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MessageText;
-import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.util.bbcode.LorCodeService;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -42,87 +34,7 @@ public class UserEventService {
   private static final Logger logger = LoggerFactory.getLogger(UserEventService.class);
 
   @Autowired
-  private LorCodeService lorCodeService;
-
-  @Autowired
-  private UserDao userDao;
-
-  @Autowired
-  private MsgbaseDao msgbaseDao;
-
-  @Autowired
   private UserEventDao userEventDao;
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
-
-  @Autowired
-  private GroupDao groupDao;
-
-
-  /**
-   * @param events      список событий
-   * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
-   * @param secure      является ли текущие соединение https
-   * @return
-   */
-  public List<PreparedUserEvent> prepare(List<UserEvent> events, boolean readMessage, boolean secure) {
-    List<PreparedUserEvent> prepared = new ArrayList<>(events.size());
-
-    for (UserEvent event : events) {
-      String text;
-      if (readMessage) {
-        MessageText messageText;
-
-        if (event.isComment()) {
-          messageText = msgbaseDao.getMessageText(event.getCid());
-        } else { // Топик
-          messageText = msgbaseDao.getMessageText(event.getMsgid());
-        }
-
-        text = lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());
-      } else {
-        text = null;
-      }
-
-      User topicAuthor;
-
-      if (event.getTopicAuthor()!=0) {
-        topicAuthor = userDao.getUserCached(event.getTopicAuthor());
-      } else {
-        topicAuthor = null;
-      }
-
-      User commentAuthor;
-      int bonus = 0;
-
-      if (event.isComment()) {
-        if("DEL".equals(event.getType().getType())) {
-          DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(event.getCid());
-          if(deleteInfo != null) {
-            bonus = deleteInfo.getBonus();
-          }
-        }
-
-        commentAuthor = userDao.getUserCached(event.getCommentAuthor());
-      } else {
-        commentAuthor = null;
-        if("DEL".equals(event.getType().getType())) {
-
-          DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(event.getMsgid());
-          if(deleteInfo != null) {
-            bonus = deleteInfo.getBonus();
-          }
-        }
-      }
-
-      Group group = groupDao.getGroup(event.getGroupId());
-
-      prepared.add(new PreparedUserEvent(event, text, topicAuthor, commentAuthor, bonus, group));
-    }
-
-    return prepared;
-  }
 
   /**
    * Добавление уведомления об упоминании пользователей в комментарии.
