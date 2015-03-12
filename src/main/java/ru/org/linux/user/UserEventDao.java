@@ -42,7 +42,7 @@ public class UserEventDao {
   private static final String QUERY_ALL_REPLIES_FOR_USER =
     "SELECT event_date, " +
       " topics.title as subj, " +
-      " lastmod, topics.id as msgid, " +
+      " topics.id as msgid, " +
       " comments.id AS cid, " +
       " comments.userid AS cAuthor, " +
       " topics.userid AS tAuthor, " +
@@ -59,7 +59,7 @@ public class UserEventDao {
   private static final String QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE =
     "SELECT event_date, " +
       " topics.title as subj, " +
-      " lastmod, topics.id as msgid, " +
+      " topics.id as msgid, " +
       " comments.id AS cid, " +
       " comments.userid AS cAuthor, " +
       " topics.userid AS tAuthor, " +
@@ -224,10 +224,6 @@ public class UserEventDao {
     }
     return jdbcTemplate.query(queryString, (resultSet, i) -> {
       String subj = StringUtil.makeTitle(resultSet.getString("subj"));
-      Timestamp lastmod = resultSet.getTimestamp("lastmod");
-      if (lastmod == null) {
-        lastmod = new Timestamp(0);
-      }
       Timestamp eventDate = resultSet.getTimestamp("event_date");
       int cid = resultSet.getInt("cid");
       int cAuthor;
@@ -244,7 +240,7 @@ public class UserEventDao {
       boolean unread = resultSet.getBoolean("unread");
 
       return new UserEvent(cid, cAuthor,
-              groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"));
+              groupId, subj, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"));
     }, userId, topics, offset);
   }
 

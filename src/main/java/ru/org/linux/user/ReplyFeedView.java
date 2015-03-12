@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ru.org.linux.spring.AbstractRomeView;
 import ru.org.linux.util.StringUtil;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,12 +36,15 @@ public class ReplyFeedView extends AbstractRomeView {
     feed.setUri("http://www.linux.org.ru");
     feed.setAuthor("");
     feed.setDescription(s);
-    Date lastModified = new Date();
+
+    Date lastModified;
     if (!list.isEmpty()) {
-      Timestamp timestamp = list.get(0).getEvent().getLastmod();
-      lastModified = new Date(timestamp.getTime());
+      lastModified = list.get(0).getEvent().getEventDate();
+    } else {
+      lastModified = new Date();
     }
     feed.setPublishedDate(lastModified);
+
     List<SyndEntry> entries = new ArrayList<>();
     feed.setEntries(entries);
     for (PreparedUserEvent preparedUserEvent : list) {
