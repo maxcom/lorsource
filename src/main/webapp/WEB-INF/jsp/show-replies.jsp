@@ -120,18 +120,16 @@
   </td>
   <td>
     <a href="${topic.link}">
-    <c:if test="${topic.event.type != 'DELETED'}">
+      <span class="group-label">${topic.section.name}</span>
       <c:forEach var="tag" items="${topic.tags}">
-         <span class="group-label">${topic.section.name}</span> <span class="tag">${tag}</span><br>
-      </c:forEach>
+         <span class="tag">${tag}</span>
+      </c:forEach><br>
       <l:title>${topic.event.subj}</l:title>
-    </c:if>
 
-    <c:if test="${topic.event.type == 'DELETED'}">
-      <l:title>${topic.event.subj}</l:title>
-      <br>
-      <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
-    </c:if>
+      <c:if test="${topic.event.type == 'DELETED'}">
+        <br>
+        <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
+      </c:if>
     </a>
 
     <c:if test="${topic.event.unread}">&bull;</c:if>

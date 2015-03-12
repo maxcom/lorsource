@@ -484,10 +484,10 @@ fieldset legend {
   background-color: $tagpage_group_label_background;
   color: $tagpage_group_label_color;
   white-space: nowrap;
-}
 
-a:visited .group-label {
-  color: $text_color;
+  a:visited & {
+    color: $text_color;
+  }
 }
 
 #bd .search-hl {
