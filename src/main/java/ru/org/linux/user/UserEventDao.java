@@ -173,7 +173,7 @@ public class UserEventDao {
   }
 
   /**
-   * Получение списка первых 10 идентификационных номеров пользователей,
+   * Получение списка первых 20 идентификационных номеров пользователей,
    * количество уведомлений которых превышает максимально допустимое значение.
    *
    * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
@@ -181,7 +181,7 @@ public class UserEventDao {
    */
   public List<Integer> getUserIdListByOldEvents(int maxEventsPerUser) {
     return jdbcTemplate.queryForList(
-      "select userid from user_events group by userid having count(user_events.id) > ? order by count(user_events.id) DESC limit 10",
+      "select userid from user_events group by userid having count(user_events.id) > ? order by count(user_events.id) DESC limit 20",
       Integer.class,
       maxEventsPerUser
     );
