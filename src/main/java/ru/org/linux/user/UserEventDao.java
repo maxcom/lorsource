@@ -47,9 +47,9 @@ public class UserEventDao {
       " comments.userid AS cAuthor, " +
       " topics.userid AS tAuthor, " +
       " unread, " +
-      " groupid, comments.deleted," +
+      " groups.section as sectionid, comments.deleted," +
       " type, user_events.message as ev_msg" +
-      " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
+      " FROM user_events INNER JOIN topics ON (topics.id = message_id) JOIN groups ON (groups.id = topics.groupid)" +
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " %s " +
@@ -64,9 +64,9 @@ public class UserEventDao {
       " comments.userid AS cAuthor, " +
       " topics.userid AS tAuthor, " +
       " unread, " +
-      " groupid, comments.deleted," +
+      " groups.section as sectionid, comments.deleted," +
       " type, user_events.message as ev_msg" +
-      " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
+      " FROM user_events INNER JOIN topics ON (topics.id = message_id) JOIN groups ON (groups.id = topics.groupid) " +
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " AND NOT private " +
@@ -233,7 +233,7 @@ public class UserEventDao {
       } else {
         cAuthor = 0;
       }
-      int groupId = resultSet.getInt("groupid");
+      int sectionId = resultSet.getInt("sectionid");
       int msgid = resultSet.getInt("msgid");
       UserEventFilterEnum type = UserEventFilterEnum.valueOfByType(resultSet.getString("type"));
       String eventMessage = resultSet.getString("ev_msg");
@@ -241,7 +241,7 @@ public class UserEventDao {
       boolean unread = resultSet.getBoolean("unread");
 
       return new UserEvent(cid, cAuthor,
-              groupId, subj, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"));
+              sectionId, subj, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"));
     }, userId, topics, offset);
   }
 

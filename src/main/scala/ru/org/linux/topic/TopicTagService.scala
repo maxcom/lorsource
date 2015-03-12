@@ -109,8 +109,6 @@ class TopicTagService @Autowired() (
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
    *
-   * @param msgId идентификационный номер сообщения
-   * @return все теги сообщения
    */
   def getTags(topic:Topic):java.util.List[String] = topicTagDao.getTags(topic.getId).map(_.name)
 
@@ -122,7 +120,7 @@ class TopicTagService @Autowired() (
   def getTagRefs(topics:java.util.List[Topic]):ImmutableListMultimap[Integer, TagRef] = {
     val builder = ImmutableListMultimap.builder[Integer,TagRef]()
 
-    val tags = topicTagDao.getTags(topics)
+    val tags = topicTagDao.getTags(topics.map(_.getId))
 
     for ((msgid, tag) <- tags) {
       builder.put(msgid, tagRef(tag))
@@ -130,6 +128,8 @@ class TopicTagService @Autowired() (
 
     builder.build()
   }
+
+  def tagRefs(topics:Seq[Int]) = topicTagDao.getTags(topics).groupBy(_._1).toMap.mapValues(_.map(_._2))
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.

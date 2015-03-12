@@ -102,11 +102,11 @@ class TopicTagDao @Autowired() (ds:DataSource) {
     jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)")
   }
 
-  def getTags(topics:Seq[Topic]):Vector[(Int, TagInfo)] = {
+  def getTags(topics:Seq[Int]):Vector[(Int, TagInfo)] = {
     if (topics.isEmpty) {
       Vector.empty
     } else {
-      val topicIds:java.util.List[Int] = topics.map(_.getId)
+      val topicIds:java.util.List[Int] = topics
 
       namedJdbcTemplate.query(
         "SELECT msgid, tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",

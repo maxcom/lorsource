@@ -61,13 +61,13 @@ public class ReplyFeedView extends AbstractRomeView {
 
         link = String.format(
           "http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
-          String.valueOf(item.getMsgid()),
+          String.valueOf(item.getTopicId()),
           String.valueOf(item.getCid())
         );
       } else {
         link = String.format(
           "http://www.linux.org.ru/view-message.jsp?msgid=%s",
-          String.valueOf(item.getMsgid())
+          String.valueOf(item.getTopicId())
         );
       }
 

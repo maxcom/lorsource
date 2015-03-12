@@ -2,15 +2,21 @@ package ru.org.linux.user
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.org.linux.group.GroupDao
+import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
+import ru.org.linux.topic.TopicTagService
 import ru.org.linux.util.bbcode.LorCodeService
 
 import scala.collection.JavaConverters._
 
 @Service
 class UserEventPrepareService @Autowired() (
-  msgbaseDao:MsgbaseDao, lorCodeService: LorCodeService, userDao:UserDao, deleteInfoDao:DeleteInfoDao, groupDao:GroupDao
+  msgbaseDao:MsgbaseDao,
+  lorCodeService: LorCodeService,
+  userDao:UserDao,
+  deleteInfoDao:DeleteInfoDao,
+  sectionService:SectionService,
+  tagService: TopicTagService
 ) {
   /**
    * @param events      список событий
@@ -26,8 +32,10 @@ class UserEventPrepareService @Autowired() (
       user.getId -> user
     }.toMap
 
+    val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).mapValues(_.map(_.name))
+
     val prepared = evts map { event ⇒
-      val msgid = if (event.isComment) event.getCid else event.getMsgid
+      val msgid = if (event.isComment) event.getCid else event.getTopicId
 
       val text = if (readMessage) {
         val messageText = msgbaseDao.getMessageText(msgid)
@@ -51,7 +59,9 @@ class UserEventPrepareService @Autowired() (
         None
       }) map (_.getBonus)
 
-      PreparedUserEvent(event, text, topicAuthor, commentAuthor, bonus, groupDao.getGroup(event.getGroupId))
+      PreparedUserEvent(
+        event, text, topicAuthor, commentAuthor, bonus, sectionService.getSection(event.getSectionId), tags.get(event.getTopicId).getOrElse(Seq.empty)
+      )
     }
 
     prepared.asJava

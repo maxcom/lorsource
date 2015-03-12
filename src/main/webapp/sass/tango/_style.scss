@@ -486,6 +486,10 @@ fieldset legend {
   white-space: nowrap;
 }
 
+a:visited .group-label {
+  color: $text_color;
+}
+
 #bd .search-hl {
   color: $button_selected_text_color;
   background-color: $button_selected_background;

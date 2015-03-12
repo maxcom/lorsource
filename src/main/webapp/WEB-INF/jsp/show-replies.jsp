@@ -100,8 +100,6 @@
 
 <div class=forum>
 <table width="100%" class="message-table">
-<tbody>
-
 <c:forEach var="topic" items="${topicsList}">
 <tr>
   <td align="center">
@@ -121,22 +119,20 @@
     </c:choose>
   </td>
   <td>
+    <a href="${topic.link}">
     <c:if test="${topic.event.type != 'DELETED'}">
-      <c:if test="${topic.event.cid>0}">
-        <a href="jump-message.jsp?msgid=${topic.event.msgid}&amp;cid=${topic.event.cid}"><l:title>${topic.event.subj}</l:title></a>
-      </c:if>
-      <c:if test="${topic.event.cid==0}">
-        <a href="jump-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
-      </c:if>
-      (${topic.group.title})
+      <c:forEach var="tag" items="${topic.tags}">
+         <span class="group-label">${topic.section.name}</span> <span class="tag">${tag}</span><br>
+      </c:forEach>
+      <l:title>${topic.event.subj}</l:title>
     </c:if>
 
     <c:if test="${topic.event.type == 'DELETED'}">
-      <a href="view-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
-      (${topic.group.title})
+      <l:title>${topic.event.subj}</l:title>
       <br>
       <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
     </c:if>
+    </a>
 
     <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
@@ -147,7 +143,6 @@
 </tr>
 </c:forEach>
 
-</tbody>
 </table>
 </div>
 
