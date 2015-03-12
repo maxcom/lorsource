@@ -24,6 +24,7 @@
 <%--@elvariable id="unreadCount" type="Integer"--%>
 <%--@elvariable id="enableReset" type="Boolean"--%>
 <%--@elvariable id="isMyNotifications" type="java.lang.Boolean"--%>
+<%--@elvariable id="topId" type="Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -90,6 +91,7 @@
     <c:if test="${enableReset}">
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
+        <input type="hidden" name="topId" value="${topId}"/>
         <button type="submit">Сбросить</button>
       </form>
     </c:if>

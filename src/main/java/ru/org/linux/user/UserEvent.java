@@ -33,11 +33,12 @@ public class UserEvent implements Serializable {
   private final String eventMessage;
   private final Timestamp eventDate;
   private final boolean unread;
+  private final int id;
 
   public UserEvent(int cid, int cAuthor,
                    int groupId, String subj,
                    int msgid, UserEventFilterEnum type, String eventMessage,
-                   Timestamp eventDate, boolean unread, int tAuthor) {
+                   Timestamp eventDate, boolean unread, int tAuthor, int id) {
     this.cid = cid;
     this.cAuthor = cAuthor;
     this.groupId = groupId;
@@ -48,6 +49,7 @@ public class UserEvent implements Serializable {
     this.eventDate = eventDate;
     this.unread = unread;
     this.tAuthor = tAuthor;
+    this.id = id;
   }
   
   public boolean isComment() {
@@ -92,5 +94,9 @@ public class UserEvent implements Serializable {
 
   public int getGroupId() {
     return groupId;
+  }
+
+  public int getId() {
+    return id;
   }
 }

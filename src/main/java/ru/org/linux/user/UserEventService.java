@@ -247,9 +247,10 @@ public class UserEventService {
    * Сброс уведомлений.
    *
    * @param user пользователь которому сбрасываем
+   * @param topId
    */
-  public void resetUnreadReplies(User user) {
-    userEventDao.resetUnreadReplies(user.getId());
+  public void resetUnreadReplies(User user, int topId) {
+    userEventDao.resetUnreadReplies(user.getId(), topId);
   }
 
   /**

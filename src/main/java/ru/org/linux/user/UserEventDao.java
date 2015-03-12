@@ -40,7 +40,7 @@ import java.util.Map;
 public class UserEventDao {
 
   private static final String QUERY_ALL_REPLIES_FOR_USER =
-    "SELECT event_date, " +
+    "SELECT user_events.id, event_date, " +
       " topics.title as subj, " +
       " topics.id as msgid, " +
       " comments.id AS cid, " +
@@ -57,7 +57,7 @@ public class UserEventDao {
       " OFFSET ?";
 
   private static final String QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE =
-    "SELECT event_date, " +
+    "SELECT user_events.id, event_date, " +
       " topics.title as subj, " +
       " topics.id as msgid, " +
       " comments.id AS cid, " +
@@ -153,11 +153,12 @@ public class UserEventDao {
    * Сброс уведомлений.
    *
    * @param userId идентификационный номер пользователь которому сбрасываем
+   * @param topId сбрасываем уведомления с идентификатором не больше этого
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void resetUnreadReplies(int userId) {
-    jdbcTemplate.update("UPDATE users SET unread_events=0 where id=?", userId);
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread", userId);
+  public void resetUnreadReplies(int userId, int topId) {
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId);
+    recalcEventCount(ImmutableList.of(userId));
   }
 
   public void recalcEventCount(Collection<Integer> userids) {
@@ -240,7 +241,7 @@ public class UserEventDao {
       boolean unread = resultSet.getBoolean("unread");
 
       return new UserEvent(cid, cAuthor,
-              groupId, subj, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"));
+              groupId, subj, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"));
     }, userId, topics, offset);
   }
 

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
@@ -47,7 +48,8 @@ public class UserEventApiController {
   @RequestMapping(value="/notifications-reset", method = RequestMethod.POST)
   @ResponseBody
   public String resetNotifications(
-    HttpServletRequest request
+    HttpServletRequest request,
+    @RequestParam int topId
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
@@ -56,7 +58,7 @@ public class UserEventApiController {
 
     User currentUser = tmpl.getCurrentUser();
 
-    userEventService.resetUnreadReplies(currentUser);
+    userEventService.resetUnreadReplies(currentUser, topId);
 
     return "ok";
   }

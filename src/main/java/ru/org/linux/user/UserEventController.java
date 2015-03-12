@@ -52,9 +52,10 @@ public class UserEventController {
 
   @RequestMapping(value="/notifications", method = RequestMethod.POST)
   public RedirectView resetNotifications(
-    HttpServletRequest request
+    HttpServletRequest request,
+    @RequestParam int topId
   ) throws Exception {
-    apiController.resetNotifications(request);
+    apiController.resetNotifications(request, topId);
 
     RedirectView view = new RedirectView("/notifications");
 
@@ -125,7 +126,10 @@ public class UserEventController {
     List<UserEvent> list = userEventService.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
     List<PreparedUserEvent> prepared = userEventService.prepare(list, false, request.isSecure());
 
-    params.put("enableReset", true);
+    if (!list.isEmpty()) {
+      params.put("enableReset", true);
+      params.put("topId", list.get(0).getId());
+    }
 
     params.put("topicsList", prepared);
     params.put("hasMore", list.size() == topics);
