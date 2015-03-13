@@ -1,5 +1,6 @@
 package ru.org.linux.user
 
+import ru.org.linux.group.Group
 import ru.org.linux.section.Section
 
 import scala.beans.BeanProperty
@@ -12,6 +13,7 @@ case class PreparedUserEvent(
   commentAuthor: Option[User],
   bonus: Option[Int],
   @BeanProperty section: Section,
+  group: Group,
   tags: Seq[String]
 ) {
   def getAuthor = commentAuthor getOrElse topicAuthor
@@ -24,12 +26,12 @@ case class PreparedUserEvent(
 
   def getLink:String = {
     if (event.getType==UserEventFilterEnum.DELETED) {
-      s"view-message.jsp?msgid=${event.getTopicId}"
+      s"${group.getUrl}${event.getTopicId}"
     } else {
       if (event.getCid>0) {
-        s"jump-message.jsp?msgid=${event.getTopicId}&cid=${event.getCid}"
+        s"${group.getUrl}${event.getTopicId}?cid=${event.getCid}"
       } else {
-        s"jump-message.jsp?msgid=${event.getTopicId}"
+        s"${group.getUrl}${event.getTopicId}"
       }
     }
   }

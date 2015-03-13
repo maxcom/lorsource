@@ -25,7 +25,7 @@ public class UserEvent implements Serializable {
   private final int cid;
   private final int cAuthor;
   private final int tAuthor;
-  private final int sectionId;
+  private final int groupId;
   private static final long serialVersionUID = -8433869244309809050L;
   private final String subj;
   private final int msgid;
@@ -36,12 +36,12 @@ public class UserEvent implements Serializable {
   private final int id;
 
   public UserEvent(int cid, int cAuthor,
-                   int sectionId, String subj,
+                   int groupId, String subj,
                    int msgid, UserEventFilterEnum type, String eventMessage,
                    Timestamp eventDate, boolean unread, int tAuthor, int id) {
     this.cid = cid;
     this.cAuthor = cAuthor;
-    this.sectionId = sectionId;
+    this.groupId = groupId;
     this.subj = subj;
     this.msgid = msgid;
     this.type = type;
@@ -92,11 +92,11 @@ public class UserEvent implements Serializable {
     return unread;
   }
 
-  public int getSectionId() {
-    return sectionId;
-  }
-
   public int getId() {
     return id;
+  }
+
+  public int getGroupId() {
+    return groupId;
   }
 }

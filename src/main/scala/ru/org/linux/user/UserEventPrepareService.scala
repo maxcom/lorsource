@@ -2,6 +2,7 @@ package ru.org.linux.user
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.org.linux.group.GroupDao
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
@@ -16,6 +17,7 @@ class UserEventPrepareService @Autowired() (
   userDao:UserDao,
   deleteInfoDao:DeleteInfoDao,
   sectionService:SectionService,
+  groupDao:GroupDao,
   tagService: TopicTagService
 ) {
   /**
@@ -59,13 +61,16 @@ class UserEventPrepareService @Autowired() (
         None
       }) map (_.getBonus)
 
+      val group = groupDao.getGroup(event.getGroupId)
+
       PreparedUserEvent(
         event = event,
         messageText = text,
         topicAuthor = topicAuthor,
         commentAuthor = commentAuthor,
         bonus = bonus,
-        section = sectionService.getSection(event.getSectionId),
+        section = sectionService.getSection(group.getSectionId),
+        group = group,
         tags = tags.getOrElse(event.getTopicId, Seq.empty).take(TopicTagService.MaxTagsInTitle)
       )
     }
