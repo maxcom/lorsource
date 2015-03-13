@@ -60,7 +60,13 @@ class UserEventPrepareService @Autowired() (
       }) map (_.getBonus)
 
       PreparedUserEvent(
-        event, text, topicAuthor, commentAuthor, bonus, sectionService.getSection(event.getSectionId), tags.get(event.getTopicId).getOrElse(Seq.empty)
+        event = event,
+        messageText = text,
+        topicAuthor = topicAuthor,
+        commentAuthor = commentAuthor,
+        bonus = bonus,
+        section = sectionService.getSection(event.getSectionId),
+        tags = tags.getOrElse(event.getTopicId, Seq.empty).take(TopicTagService.MaxTagsInTitle)
       )
     }
 

@@ -139,11 +139,11 @@ class TopicTagService @Autowired() (
    * @return все теги сообщения
    */
   def getTagsForTitle(msgId:Int):ImmutableList[String] = {
-    val tags = topicTagDao.getTags(msgId).map(_.name).take(MAX_TAGS_IN_TITLE)
+    val tags = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
     ImmutableList.copyOf(tags.toIterable)
   }
 }
 
 object TopicTagService {
-  val MAX_TAGS_IN_TITLE = 3
+  val MaxTagsInTitle = 3
 }
