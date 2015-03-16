@@ -16,22 +16,21 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.WebDataBinder;
 import ru.org.linux.tag.*;
+import scala.collection.JavaConverters;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserTagService {
@@ -96,10 +95,8 @@ public class UserTagService {
    * @param user    объект пользователя
    * @param tagName название тега
    */
-  public void ignoreAdd(User user, String tagName)
-    throws TagNotFoundException {
-    int tagId = tagService.getTagId(tagName);
-    userTagDao.addTag(user.getId(), tagId, false);
+  public void ignoreAdd(User user, String tagName) throws TagNotFoundException {
+    userTagDao.addTag(user.getId(), tagService.getTagId(tagName), false);
   }
 
   /**
@@ -108,10 +105,8 @@ public class UserTagService {
    * @param user    объект пользователя
    * @param tagName название тега
    */
-  public void ignoreDel(User user, String tagName)
-    throws TagNotFoundException {
-    int tagId = tagService.getTagId(tagName);
-    userTagDao.deleteTag(user.getId(), tagId, false);
+  public void ignoreDel(User user, String tagName) throws TagNotFoundException {
+    userTagDao.deleteTag(user.getId(), tagService.getTagId(tagName), false);
   }
 
   /**
@@ -151,34 +146,8 @@ public class UserTagService {
    * @param tags список тегов через запятую
    * @return список тегов
    */
-  public ImmutableList<String> parseTags(String tags, Errors errors) {
-    Set<String> tagSet = new HashSet<>();
-
-    // Теги разделяются пайпом или запятой
-    tags = tags.replaceAll("\\|", ",");
-    String[] tagsArr = tags.split(",");
-
-    if (tagsArr.length == 0) {
-      return ImmutableList.of();
-    }
-
-    for (String aTagsArr : tagsArr) {
-      String tag = StringUtils.stripToNull(aTagsArr);
-      // плохой тег - выбрасываем
-      if (tag == null) {
-        continue;
-      }
-
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (!TagName.isGoodTag(tag)) {
-        errors.reject("Некорректный тег: '" + tag + '\'');
-        continue;
-      }
-
-      tagSet.add(tag);
-    }
-
-    return ImmutableList.copyOf(tagSet);
+  private List<String> parseTags(String tags, Errors errors) {
+    return JavaConverters.seqAsJavaListConverter(TagName.parseAndValidateTags(tags, errors, Integer.MAX_VALUE)).asJava();
   }
 
   /**
@@ -189,8 +158,7 @@ public class UserTagService {
    * @return true если у пользователя есть тег
    */
   public boolean hasFavoriteTag(User user, String tagName) {
-    ImmutableList<String> tags = favoritesGet(user);
-    return tags.contains(tagName);
+    return favoritesGet(user).contains(tagName);
   }
 
   /**
@@ -201,8 +169,7 @@ public class UserTagService {
    * @return true если у пользователя есть тег
    */
   public boolean hasIgnoreTag(User user, String tagName) {
-    ImmutableList<String> tags = ignoresGet(user);
-    return tags.contains(tagName);
+    return ignoresGet(user).contains(tagName);
   }
 
   /**
@@ -214,9 +181,8 @@ public class UserTagService {
    * @return null если не было ошибок; строка если были ошибки при добавлении.
    */
   public List<String> addMultiplyTags(User user, String tagsStr, boolean isFavorite) {
-    WebDataBinder binder = new WebDataBinder("");
-    Errors errors = binder.getBindingResult();
-    ImmutableList<String> tagList = parseTags(tagsStr, errors);
+    Errors errors = new MapBindingResult(ImmutableMap.of(), "");
+    List<String> tagList = parseTags(tagsStr, errors);
     for (String tag : tagList) {
       try {
         if (isFavorite) {
@@ -240,14 +206,11 @@ public class UserTagService {
    * @return массив строк, содержащий описания ошибок
    */
   private static List<String> errorsToStringList(Errors errors) {
-    List<String> strErrors = new ArrayList<>();
-
     if (errors.hasErrors()) {
-      for (ObjectError objectError : errors.getAllErrors()) {
-        strErrors.add(objectError.getCode());
-      }
+      return errors.getAllErrors().stream().map(ObjectError::getCode).collect(Collectors.toList());
+    } else {
+      return ImmutableList.of();
     }
-    return strErrors;
   }
 
   public int countFavs(int id) {

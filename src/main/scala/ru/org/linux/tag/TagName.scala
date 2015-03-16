@@ -6,14 +6,14 @@ import ru.org.linux.user.UserErrorException
 import scala.collection.JavaConversions._
 
 object TagName {
-  val MAX_TAGS_PER_TOPIC = 5
-  val MIN_TAG_LENGTH = 1
-  val MAX_TAG_LENGTH = 32
+  val MaxTagsPerTopic = 5
+  val MinTagLength = 1
+  val MaxTagLength = 32
 
-  private[this] val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
+  private val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
 
   def isGoodTag(tag:String):Boolean = {
-    tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH
+    tagRE.matcher(tag).matches() && tag.length() >= MinTagLength && tag.length() <= MaxTagLength
   }
 
   @throws[UserErrorException]
@@ -46,20 +46,20 @@ object TagName {
    * @param errors класс для ошибок валидации (параметр 'tags')
    * @return список тегов
    */
-  def parseAndValidateTags(tags:String, errors:Errors):Seq[String] = {
+  def parseAndValidateTags(tags:String, errors:Errors, maxTags:Int):Seq[String] = {
     val (goodTags, badTags) = parseTags(tags).partition(isGoodTag)
 
     for (tag <- badTags) {
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (tag.length() > MAX_TAG_LENGTH) {
-        errors.rejectValue("tags", null, "Слишком длинный тег: '" + tag + "\' (максимум " + MAX_TAG_LENGTH + " символов)")
+      if (tag.length() > MaxTagLength) {
+        errors.rejectValue("tags", null, "Слишком длинный тег: '" + tag + "\' (максимум " + MaxTagLength + " символов)")
       } else if (!isGoodTag(tag)) {
         errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'')
       }
     }
 
-    if (goodTags.size > MAX_TAGS_PER_TOPIC) {
-      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + MAX_TAGS_PER_TOPIC + ')')
+    if (goodTags.size > maxTags) {
+      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + maxTags + ')')
     }
 
     goodTags.toVector

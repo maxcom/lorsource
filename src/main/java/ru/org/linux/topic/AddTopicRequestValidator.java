@@ -89,7 +89,7 @@ public class AddTopicRequestValidator implements Validator {
     }
 
     if (form.getTags()!=null) {
-      TagName.parseAndValidateTags(form.getTags(), errors);
+      TagName.parseAndValidateTags(form.getTags(), errors, TagName.MaxTagsPerTopic());
     }
   }
 }
