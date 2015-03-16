@@ -53,7 +53,7 @@ public class UserEventDao {
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " %s " +
-      " ORDER BY event_date DESC LIMIT ?" +
+      " ORDER BY id DESC LIMIT ?" +
       " OFFSET ?";
 
   private static final String QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE =
@@ -70,7 +70,7 @@ public class UserEventDao {
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " AND NOT private " +
-      " ORDER BY event_date DESC LIMIT ?" +
+      " ORDER BY id DESC LIMIT ?" +
       " OFFSET ?";
 
   private SimpleJdbcInsert insert;
