@@ -113,17 +113,7 @@
 <table class="message-table">
 <thead>
 <tr>
-  <th>Тема<br>
-    <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
-      фильтр:
-      <c:if test="${lastmod}">
-        <input type="hidden" name="lastmod" value="true">
-      </c:if>
-        <select name="showignored" onchange="submit();">
-          <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
-          <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
-          </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
-    </form>
+  <th>Тема
   </th>
   <th>Последнее сообщение<br>
     <c:if test="${year==null}">
@@ -196,9 +186,26 @@
 </tr>
 </c:forEach>
 </tbody>
-<c:if test="${not showDeleted}">
 <tfoot>
-<tr><td colspan=3><p>
+  <tr>
+    <td colspan="3">
+      <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
+        фильтр:
+        <c:if test="${lastmod}">
+          <input type="hidden" name="lastmod" value="true">
+        </c:if>
+          <select name="showignored" onchange="submit();">
+            <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
+            <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
+            </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
+      </form>
+    </td>
+  </tr>
+</tfoot>
+</table>
+
+<c:if test="${not showDeleted}">
+<div class="container">
 <div style="float: left">
 <c:if test="${prevPage>=0}">
   <spring:url value="${url}" var="prevUrl">
@@ -235,10 +242,11 @@
     <a href="${group.url}archive/">архив</a>
   </c:if>
 </div>
-</tfoot>
-</c:if>
-</table>
 </div>
+</c:if>
+
+</div>
+
 <c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
   <hr>
   <form action="${url}" method=POST>

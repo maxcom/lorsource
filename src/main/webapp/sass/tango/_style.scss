@@ -184,7 +184,7 @@ p {
       }
     }
 
-    thead {
+    thead, tfoot {
       background-color: $table_header_background;
       color: $table_header_color;
 
