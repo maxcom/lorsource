@@ -150,8 +150,6 @@ class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
 }
 
 object TagDao {
-  private final val TOP_TAGS_COUNT: Int = 50
-
   private def escapeLikeWildcards(str: String): String = {
     str.replaceAll("[_%]", "\\\\$0")
   }
