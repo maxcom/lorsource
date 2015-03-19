@@ -38,14 +38,14 @@ object TopicListTools {
   def datePartition(topics: java.util.List[Topic]): ImmutableListMultimap[String, Topic] = {
     val startOfToday = DateTime.now.withTimeAtStartOfDay
     val startOfYesterday = DateTime.now.minusDays(1).withTimeAtStartOfDay
-    val startOfYear = DateTime.now.withDayOfYear(1).withTimeAtStartOfDay
+    val yearAgo = DateTime.now.withDayOfMonth(1).minusMonths(12).withTimeAtStartOfDay
 
     Multimaps.index(topics, new com.google.common.base.Function[Topic, String]() {
       override def apply(input: Topic): String = {
         input.getEffectiveDate match {
           case date if date.isAfter(startOfToday)     ⇒ "Сегодня"
           case date if date.isAfter(startOfYesterday) ⇒ "Вчера"
-          case date if date.isAfter(startOfYear)      ⇒ s"${monthName(date)} ${date.getYear}"
+          case date if date.isAfter(yearAgo)          ⇒ s"${monthName(date)} ${date.getYear}"
           case date                                   ⇒ OldYearFormat.print(date)
         }
       }
