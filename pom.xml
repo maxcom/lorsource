@@ -525,6 +525,15 @@
                         <aggregation>
                             <removeIncluded>false</removeIncluded>
                             <insertNewLine>true</insertNewLine>
+                            <output>${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js</output>
+                            <includes>
+                                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch_uncompressed.js</include>
+                            </includes>
+                        </aggregation>
+
+                        <aggregation>
+                            <removeIncluded>false</removeIncluded>
+                            <insertNewLine>true</insertNewLine>
                             <output>${project.build.directory}/${project.build.finalName}/js/plugins.js</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-form/${jquery.form.version}/jquery.form.js</include>
@@ -749,6 +758,12 @@
                       <groupId>org.webjars</groupId>
                       <artifactId>jquery-form</artifactId>
                       <version>${jquery.form.version}</version>
+                      <includes>**/*.js</includes>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.webjars</groupId>
+                      <artifactId>google-diff-match-patch</artifactId>
+                      <version>20121119-1</version>
                       <includes>**/*.js</includes>
                     </artifactItem>
                   </artifactItems>
