@@ -140,7 +140,8 @@ public class WhoisController {
               lorCodeService.parseComment(
                       userinfo,
                       request.isSecure(),
-                      !topicPermissionService.followAuthorLinks(user)
+                      !topicPermissionService.followAuthorLinks(user),
+                      null
               )
       );
     }

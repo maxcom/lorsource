@@ -92,11 +92,15 @@ public class ToHtmlFormatter {
    * @param nofollow
    * @return отфарматированный текст
    */
-  public String format(String text, boolean secure, boolean nofollow) {
-    return format(text, secure, nofollow, null);
+  public String format(String text, boolean secure, boolean nofollow, User author) {
+    return format(text, secure, nofollow, null, author);
   }
 
-  public String format(String text, boolean secure, boolean nofollow, RuTypoChanger changer) {
+  public String format(String text, boolean secure, boolean nofollow) {
+    return format(text, secure, nofollow, null, null);
+  }
+
+  public String format(String text, boolean secure, boolean nofollow, RuTypoChanger changer, User author) {
     String escapedText = StringUtil.escapeHtml(text);
 
 
@@ -105,7 +109,7 @@ public class ToHtmlFormatter {
 
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
-      String formattedToken = formatURL(token, secure, nofollow, changer);
+      String formattedToken = formatURL(token, secure, nofollow, changer, author);
       sb.append(formattedToken);
     }
 
@@ -137,7 +141,7 @@ public class ToHtmlFormatter {
     return (new URI(scheme, null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
   }
 
-  protected String formatURL(String line, boolean secure, boolean nofollow, RuTypoChanger changer) {
+  protected String formatURL(String line, boolean secure, boolean nofollow, RuTypoChanger changer, User author) {
     StringBuilder out = new StringBuilder();
     Matcher m = URL_PATTERN.matcher(line);
     int index = 0;
@@ -160,7 +164,7 @@ public class ToHtmlFormatter {
       }
 
       try {
-        processUrl(secure, nofollow, out, urlHref, null);
+        processUrl(secure, nofollow, out, urlHref, null, author);
       } catch (URIException e) {
         // e.printStackTrace();
         // ссылка не ссылка
@@ -182,7 +186,8 @@ public class ToHtmlFormatter {
           boolean nofollow,
           @Nonnull StringBuilder out,
           @Nonnull String urlHref,
-          @Nullable String linktext
+          @Nullable String linktext,
+          User author
   ) throws URIException {
     LorURL url = new LorURL(siteConfig.getMainURI(), urlHref);
 
@@ -190,6 +195,13 @@ public class ToHtmlFormatter {
       processMessageUrl(secure, out, url, linktext);
     } else if(url.isTrueLorUrl()) {
       processGenericLorUrl(secure, out, url, linktext);
+    } else if (author!=null && author.getScore()>=50 && url.toString().startsWith("https:") &&
+            (url.toString().endsWith(".gif") || url.toString().endsWith(".png") || url.toString().endsWith(".jpg"))) {
+      if (author.getMaxScore() - author.getScore() > 200 && url.toString().hashCode()%3 == 0) {
+        out.append("<picture class=\"user-image power-user\"><img src=\"" + url.toString() + "\"></picture>");
+      } else {
+        out.append("<picture class=\"user-image\"><img src=\"" + url.toString() + "\"></picture>");
+      }
     } else {
       // ссылка не из lorsource
       String fixedUrlHref = url.toString();

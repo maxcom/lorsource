@@ -63,12 +63,12 @@ public class LorCodeService {
    * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseComment(String text, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
+  public String parseComment(String text, boolean secure, boolean nofollow, User author) {
+    return defaultParser.parseRoot(prepareCommentRootNode(secure, false, nofollow, author), text).renderXHtml();
   }
 
   String parseCommentRSS(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
+    return defaultParser.parseRoot(prepareCommentRootNode(secure, true, false, null), text).renderXHtml();
   }
 
   /**
@@ -78,7 +78,7 @@ public class LorCodeService {
    * @return извлеченный текст
    */
   public String extractPlainTextFromLorcode(String text) {
-    return defaultParser.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
+    return defaultParser.parseRoot(prepareCommentRootNode(false, true, false, null), text).renderOg();
   }
 
   /**
@@ -129,7 +129,7 @@ public class LorCodeService {
    * @return множество пользователей
    */
   public Set<User> getReplierFromMessage(String text) {
-    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false, false), text);
+    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false, false, null), text);
     rootNode.renderXHtml();
     return rootNode.getReplier();
   }
@@ -142,7 +142,7 @@ public class LorCodeService {
    * @return HTML
    */
   public String parseTopicWithMinimizedCut(String text, String cutURL, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure, nofollow), text).renderXHtml();
+    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure, nofollow, null), text).renderXHtml();
   }
   /**
    * Преобразует LORCODE в HTML для топиков со развернутым содержимым тэга cut
@@ -152,11 +152,11 @@ public class LorCodeService {
    * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseTopic(String text, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure, nofollow), text).renderXHtml();
+  public String parseTopic(String text, boolean secure, boolean nofollow, User author) {
+    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure, nofollow, author), text).renderXHtml();
   }
 
-  private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow) {
+  private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow, User author) {
     RootNode rootNode = defaultParser.getRootNode();
     rootNode.setCommentCutOptions();
     rootNode.setUserDao(userDao);
@@ -164,11 +164,12 @@ public class LorCodeService {
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setRss(rss);
     rootNode.setNofollow(nofollow);
+    rootNode.setAuthor(author);
 
     return rootNode;
   }
 
-  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure, boolean nofollow) {
+  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure, boolean nofollow, User author) {
     RootNode rootNode = defaultParser.getRootNode();
     if(minimizeCut) {
       try {
@@ -189,6 +190,7 @@ public class LorCodeService {
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setNofollow(nofollow);
+    rootNode.setAuthor(author);
 
     return rootNode;
   }

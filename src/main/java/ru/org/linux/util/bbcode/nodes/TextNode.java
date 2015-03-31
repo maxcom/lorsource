@@ -85,7 +85,8 @@ public class TextNode extends Node {
               text,
               state.getRootNode().isSecure(),
               state.getRootNode().isNofollow(),
-              state.getTypoChanger()
+              state.getTypoChanger(),
+              state.getRootNode().getAuthor()
               );
         } else {
           return toHtmlFormatter.simpleFormat(state.getTypoChanger().format(text));

@@ -678,6 +678,20 @@ pre code .container:before, pre code .container:after {
   min-width: 1.5em;
 }
 
+.user-image {
+  max-width: 32em;
+  height: auto;
+  max-height: 64em;
+}
+
+.power-user img {
+  transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";

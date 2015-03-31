@@ -83,7 +83,8 @@ public class CommentPrepareService {
           Template tmpl,
           Topic topic
   ) throws UserNotFoundException {
-    String processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
+    String processedMessage;
+    processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author), author);
 
     ReplyInfo replyInfo = null;
     boolean deletable = false;
@@ -226,7 +227,7 @@ public class CommentPrepareService {
    */
   public PreparedComment prepareCommentForEdit(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = lorCodeService.parseComment(message, secure, false);
+    String processedMessage = lorCodeService.parseComment(message, secure, false, null);
 
     ApiUserRef ref = userService.ref(author, null);
 
@@ -319,9 +320,9 @@ public class CommentPrepareService {
    * @param secure https соединение?
    * @return строку html комментария
    */
-  private String prepareCommentText(MessageText messageText, final boolean secure, boolean nofollow) {
+  private String prepareCommentText(MessageText messageText, final boolean secure, boolean nofollow, User author) {
     if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.getText(), secure, nofollow);
+      return lorCodeService.parseComment(messageText.getText(), secure, nofollow, author);
     } else {
       return "<p>" + messageText.getText() + "</p>";
     }

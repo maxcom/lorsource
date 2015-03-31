@@ -55,7 +55,7 @@ public class PreparedEditHistory {
     this.editor = editor;
 
     if (message!=null) {
-      this.message = lorCodeService.parseComment(message, secure, false);
+      this.message = lorCodeService.parseComment(message, secure, false, null);
     } else {
       this.message = null;
     }

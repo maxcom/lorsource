@@ -102,7 +102,8 @@ public class UrlTag extends Tag {
                 rootNode.isNofollow(),
                 out,
                 escapedUrl,
-                linkText
+                linkText,
+                rootNode.getAuthor()
         );
 
         ret.append(out);

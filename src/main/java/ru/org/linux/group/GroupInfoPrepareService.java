@@ -28,7 +28,7 @@ public class GroupInfoPrepareService {
     String longInfo;
 
     if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), secure, false);
+      longInfo = lorCodeService.parseComment(group.getLongInfo(), secure, false, null);
     } else {
       longInfo = null;
     }

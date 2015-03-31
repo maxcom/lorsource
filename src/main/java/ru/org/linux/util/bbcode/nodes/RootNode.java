@@ -77,6 +77,7 @@ public class RootNode extends Node {
   private boolean secure;
   private boolean rss;
   private boolean nofollow = false;
+  private User author;
 
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
@@ -125,6 +126,14 @@ public class RootNode extends Node {
 
   public boolean isNofollow() {
     return nofollow;
+  }
+
+  public User getAuthor() {
+    return author;
+  }
+
+  public void setAuthor(User author) {
+    this.author = author;
   }
 
   public void setNofollow(boolean nofollow) {
