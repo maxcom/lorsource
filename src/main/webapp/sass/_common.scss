@@ -679,9 +679,13 @@ pre code .container:before, pre code .container:after {
 }
 
 .user-image img {
-  max-width: 32em;
+  max-width: 100%;
   height: auto;
   max-height: 64em;
+
+  @include respond-to(tablet-and-desktops) {
+    max-width: 32em;
+  }
 }
 
 .power-user img {
