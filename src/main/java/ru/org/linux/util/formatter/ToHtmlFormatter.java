@@ -197,11 +197,33 @@ public class ToHtmlFormatter {
       processGenericLorUrl(secure, out, url, linktext);
     } else if (author!=null && author.getScore()>=50 && url.toString().startsWith("https:") &&
             (url.toString().endsWith(".gif") || url.toString().endsWith(".png") || url.toString().endsWith(".jpg"))) {
-      if (author.getMaxScore() - author.getScore() > 200 && url.toString().hashCode()%3 == 0) {
-        out.append("<picture class=\"user-image power-user\"><img src=\"" + url.toString() + "\"></picture>");
-      } else {
-        out.append("<picture class=\"user-image\"><img src=\"" + url.toString() + "\"></picture>");
+      // ссылка не из lorsource
+      String fixedUrlHref = url.toString();
+      String fixedUrlBody = url.formatUrlBody(maxLength);
+
+      out.append("<a href=\"").append(fixedUrlHref).append("\"");
+      if (nofollow) {
+        out.append(" rel=nofollow");
       }
+      out.append(">");
+
+      if (author.getMaxScore() - author.getScore() > 200 && url.toString().hashCode()%3 == 0) {
+        out.append("<picture class=\"user-image power-user\"><img src=\"" + url.toString() + "\">");
+      } else {
+        out.append("<picture class=\"user-image\"><img src=\"" + url.toString() + "\">");
+      }
+
+      out.append("<br>");
+
+      if (linktext!=null) {
+        out.append(simpleFormat(linktext));
+      } else {
+        out.append(simpleFormat(fixedUrlBody));
+      }
+
+      out.append("</a>");
+
+      out.append("</picture>");
     } else {
       // ссылка не из lorsource
       String fixedUrlHref = url.toString();
