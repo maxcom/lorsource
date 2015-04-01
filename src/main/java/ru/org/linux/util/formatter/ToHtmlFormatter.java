@@ -196,7 +196,7 @@ public class ToHtmlFormatter {
     } else if(url.isTrueLorUrl()) {
       processGenericLorUrl(secure, out, url, linktext);
     } else if (author!=null && author.getScore()>=50 &&
-            (url.toString().endsWith(".gif") || url.toString().endsWith(".png") || url.toString().endsWith(".jpg"))) {
+            (url.toString().endsWith(".gif") || url.toString().endsWith(".png")  || url.toString().endsWith(".jpeg") || url.toString().endsWith(".jpg"))) {
       // ссылка не из lorsource
       String fixedUrlHref = url.toString();
       String fixedUrlBody = url.formatUrlBody(maxLength);
@@ -207,7 +207,7 @@ public class ToHtmlFormatter {
       }
       out.append(">");
 
-      if (author.getMaxScore() - author.getScore() > 200 && url.toString().hashCode()%3 == 0) {
+      if (url.toString().hashCode()%10 == 0) {
         out.append("<picture class=\"user-image power-user\"><img src=\"" + url.toString() + "\">");
       } else {
         out.append("<picture class=\"user-image\"><img src=\"" + url.toString() + "\">");
