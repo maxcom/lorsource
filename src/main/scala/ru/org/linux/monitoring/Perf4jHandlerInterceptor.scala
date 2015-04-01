@@ -15,10 +15,11 @@
 
 package ru.org.linux.monitoring
 
-import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import javax.annotation.PostConstruct
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.google.common.base.Stopwatch
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
@@ -26,8 +27,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.client.Client
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import org.perf4j.StopWatch
-import org.perf4j.slf4j.Slf4JStopWatch
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.ModelAndView
@@ -49,6 +48,28 @@ object Perf4jHandlerInterceptor {
   private val PerfType = "metric"
 
   private val indexDateFormat = DateTimeFormat.forPattern("YYYY-MM")
+
+  private class Metrics(val name:String, val path:String, val start:DateTime, controller:Stopwatch, view:Stopwatch) {
+    def controllerDone():Unit = {
+      controller.stop()
+      view.start()
+    }
+
+    def complete():Unit = view.stop()
+
+    def controllerTime = controller.elapsed(TimeUnit.MILLISECONDS)
+
+    def controllerTimeHuman = controller.toString
+
+    def viewTime = view.elapsed(TimeUnit.MILLISECONDS)
+
+    def viewTimeHuman = view.toString
+  }
+
+  private object Metrics {
+    def start(name:String, path:String) =
+      new Metrics(name, path, DateTime.now, Stopwatch.createStarted(), Stopwatch.createUnstarted())
+  }
 }
 
 class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
@@ -66,7 +87,8 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
           PerfType as(
             "controller" typed StringType index NotAnalyzed,
             "startdate" typed DateType format "dateTime",
-            "elapsed" typed LongType
+            "elapsed" typed LongType,
+            "view" typed LongType
           ) all false
         )
       }, 30 seconds)
@@ -86,28 +108,46 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
       case _ => handler.getClass.getSimpleName
     }
 
-    val watch = new Slf4JStopWatch(name, request.getRequestURI)
-    watch.setTimeThreshold(LoggingThreshold.toMillis)
+    val watch = Metrics.start(name, request.getRequestURI)
     request.setAttribute(Attribute, watch)
 
     true
   }
 
-  override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef, modelAndView: ModelAndView):Unit = {
-    val stopWatch = request.getAttribute(Attribute).asInstanceOf[StopWatch]
+  override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef,
+                          modelAndView: ModelAndView):Unit = {
+    val stopWatch = request.getAttribute(Attribute).asInstanceOf[Metrics]
 
     if (stopWatch != null) {
-      stopWatch.stop
+      stopWatch.controllerDone()
+    }
+  }
+
+  override def afterCompletion(request: HttpServletRequest, response: HttpServletResponse,
+                               handler: scala.Any, ex: Exception): Unit = {
+    val stopWatch = request.getAttribute(Attribute).asInstanceOf[Metrics]
+
+    if (stopWatch != null) {
+      stopWatch.complete()
+
+      if (stopWatch.controllerTime > LoggingThreshold.toMillis) {
+        logger.warn(s"Slow controller ${stopWatch.name} ${stopWatch.path} took ${stopWatch.controllerTimeHuman}")
+      }
+
+      if (stopWatch.viewTime > LoggingThreshold.toMillis) {
+        logger.warn(s"Slow view ${stopWatch.name} ${stopWatch.path} took ${stopWatch.viewTimeHuman}")
+      }
 
       if (ThreadLocalRandom.current().nextDouble() < ElasticProbability) {
         try {
-          val date = new DateTime(stopWatch.getStartTime)
+          val date = stopWatch.start
 
           val future = elastic execute {
             index into indexOf(date) -> PerfType fields (
-              "controller" -> stopWatch.getTag,
+              "controller" -> stopWatch.name,
               "startdate"  -> date,
-              "elapsed"    -> stopWatch.getElapsedTime
+              "elapsed"    -> stopWatch.controllerTime,
+              "view"       -> stopWatch.viewTime
             )
           }
 
@@ -115,10 +155,11 @@ class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends Handler
             case error ⇒ logger.info("Unable to log performance metric", error)
           }
         } catch {
-          case NonFatal(ex) ⇒
-            logger.info("Unable to log performance metric", ex)
+          case NonFatal(failure) ⇒
+            logger.info("Unable to log performance metric", failure)
         }
       }
     }
+
   }
 }
