@@ -101,8 +101,6 @@ public class TopicDao {
 
   private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
 
-  private static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
-
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
 
@@ -120,7 +118,7 @@ public class TopicDao {
    * @return время
    */
   public Timestamp getTimeFirstTopic() {
-    return jdbcTemplate.queryForObject(queryTimeFirstTopic, Timestamp.class);
+    return jdbcTemplate.queryForObject("SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp", Timestamp.class);
   }
 
   /**
@@ -180,11 +178,8 @@ public class TopicDao {
     Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
     calendar.add(Calendar.MONTH, 1);
     Timestamp ts_end = new Timestamp(calendar.getTimeInMillis());
-    return jdbcTemplate.query(queryTopicsIdByTime, new RowMapper<Integer>() {
-      @Override
-      public Integer mapRow(ResultSet resultSet, int i) throws SQLException {
-        return resultSet.getInt("id");
-      }
+    return jdbcTemplate.query(queryTopicsIdByTime, (resultSet, i) -> {
+      return resultSet.getInt("id");
     }, ts_start, ts_end);
   }
 
