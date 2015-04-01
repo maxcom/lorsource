@@ -195,7 +195,7 @@ public class ToHtmlFormatter {
       processMessageUrl(secure, out, url, linktext);
     } else if(url.isTrueLorUrl()) {
       processGenericLorUrl(secure, out, url, linktext);
-    } else if (author!=null && author.getScore()>=50 && url.toString().startsWith("https:") &&
+    } else if (author!=null && author.getScore()>=50 &&
             (url.toString().endsWith(".gif") || url.toString().endsWith(".png") || url.toString().endsWith(".jpg"))) {
       // ссылка не из lorsource
       String fixedUrlHref = url.toString();
