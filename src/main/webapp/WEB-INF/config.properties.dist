@@ -14,7 +14,7 @@
 #
 
 MainUrl=http://127.0.0.1:8080/
-SecureUrl=https://127.0.0.1:8443/
+SecureUrl=http://127.0.0.1:8080/
 PathPrefix=target/tmp/
 HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
 Secret=secret

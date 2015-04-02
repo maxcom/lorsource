@@ -55,7 +55,11 @@ object Perf4jHandlerInterceptor {
       view.start()
     }
 
-    def complete():Unit = view.stop()
+    def complete():Unit = {
+      if (view.isRunning) {
+        view.stop()
+      }
+    }
 
     def controllerTime = controller.elapsed(TimeUnit.MILLISECONDS)
 

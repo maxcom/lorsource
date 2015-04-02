@@ -208,8 +208,7 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.4</version>
-            <scope>provided</scope>
+            <version>1.4.6</version>
         </dependency>
         <dependency>
             <groupId>rome</groupId>
@@ -606,11 +605,6 @@
                 <version>${jdbc.postgresql.version}</version>
               </dependency>
               <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.4</version>
-              </dependency>
-              <dependency>
                   <groupId>log4j</groupId>
                   <artifactId>log4j</artifactId>
                   <version>1.2.17</version>
@@ -797,9 +791,9 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.mortbay.jetty</groupId>
+                        <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>8.1.14.v20131031</version>
+                        <version>9.2.9.v20150224</version>
                         <configuration>
                             <stopKey>foo</stopKey>
                             <stopPort>9999</stopPort>
@@ -830,12 +824,9 @@
                                 <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>8080</port>
                                 </connector>
-                                <connector implementation="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
-                                    <port>8443</port>
-                                    <keystore>${project.build.testOutputDirectory}/test.jks</keystore>
-                                    <password>qwerty</password>
-                                    <keyPassword>qwerty</keyPassword>
-                                </connector>
+                              <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <port>8443</port>
+                              </connector>
                             </connectors>
                         </configuration>
                     </plugin>

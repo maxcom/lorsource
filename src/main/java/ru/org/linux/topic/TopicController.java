@@ -58,6 +58,7 @@ import scala.concurrent.duration.FiniteDuration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC;
@@ -362,7 +363,9 @@ public class TopicController {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 
-    params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline));
+    params.put("moreLikeThisGetter", (Callable<List<List<MoreLikeThisTopic>>>) () ->
+            moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
+    );
 
     return new ModelAndView("view-message", params);
   }

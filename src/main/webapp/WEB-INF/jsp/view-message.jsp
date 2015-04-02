@@ -31,7 +31,7 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
-<%--@elvariable id="moreLikeThis" type="java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>"--%>
+<%--@elvariable id="moreLikeThisGetter" type="java.util.concurrent.Callable<java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>>"--%>
 <%--@elvariable id="ogDescription" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.topic.PreparedEditInfoSummary"--%>
 
@@ -292,6 +292,10 @@
     </form>
     <hr>
 </c:if>
+
+<% out.flush(); %>
+
+<c:set var="moreLikeThis" value="${moreLikeThisGetter.call()}"/>
 
 <c:if test="${not empty moreLikeThis}">
   <section id="related-topics">
