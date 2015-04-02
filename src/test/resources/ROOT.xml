@@ -2,10 +2,7 @@
 
 <Resource name="jdbc/lor" auth="Container"
           type="javax.sql.DataSource" driverClassName="org.postgresql.Driver"
-          url="jdbc:postgresql://127.0.0.1:5432/lor"
+          url="jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified"
           username="linuxweb" password="linuxweb" maxActive="10" maxIdle="-1" removeAbandoned="true" removeAbandonedTimeout="600" logAbandoned="true"  maxWait="10000" />
-
-<Environment name="solr/url" type="java.lang.String" value="http://127.0.0.1:8080/solr" override="true" />
-
 </Context>
 
