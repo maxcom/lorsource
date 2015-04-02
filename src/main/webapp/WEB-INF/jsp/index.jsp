@@ -137,6 +137,8 @@
     </div>
   </c:if>
 
+  <% out.flush(); %>
+
   <lor:boxlets var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
