@@ -310,15 +310,6 @@ public class TopicListController {
       topicListForm.setSection(1);
     }
 
-    String userAgent = request.getHeader("User-Agent");
-    final boolean feedBurner = userAgent != null && userAgent.contains("FeedBurner");
-
-    if (topicListForm.getSection() == 1 &&
-            groupId == 0 && !notalks && !tech && !feedBurner
-      && request.getParameter("noredirect") == null) {
-      return new ModelAndView(new RedirectView("http://feeds.feedburner.com/org/LOR"));
-    }
-
     Section section = sectionService.getSection(topicListForm.getSection());
     String ptitle = section.getName();
 
@@ -340,8 +331,7 @@ public class TopicListController {
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -3);
 
-    List<Topic> messages =
-      topicListService.getRssTopicsFeed(section, group, calendar.getTime(), notalks, tech, feedBurner);
+    List<Topic> messages = topicListService.getRssTopicsFeed(section, group, calendar.getTime(), notalks, tech);
 
     modelAndView.addObject("messages", prepareService.prepareMessages(messages, request.isSecure()));
     return modelAndView;

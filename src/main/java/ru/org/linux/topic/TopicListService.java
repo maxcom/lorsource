@@ -199,8 +199,7 @@ public class TopicListService {
     Group group,
     Date fromDate,
     boolean noTalks,
-    boolean tech,
-    boolean feedBurner
+    boolean tech
   ) {
     logger.debug(
       new StringBuilder()
@@ -210,7 +209,6 @@ public class TopicListService {
         .append("; fromDate=").append(fromDate)
         .append("; noTalks=").append(noTalks)
         .append("; tech=").append(tech)
-        .append("; feedBurner=").append(feedBurner)
         .toString()
     );
 
@@ -235,9 +233,7 @@ public class TopicListService {
     } else {
       topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
     }
-    return (feedBurner)
-      ? topicListDao.getTopics(topicListDto)
-      : topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto);
   }
 
   public List<Topic> getAllTopicsFeed(
