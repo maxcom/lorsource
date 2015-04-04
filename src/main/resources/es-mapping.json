@@ -25,7 +25,7 @@
                     "format": "dateTime",
                     "include_in_all": "false",
                     "fielddata": {
-                      "digest": "doc_values"
+                      "format": "doc_values"
                     }
                 },
                 "author": {
@@ -37,7 +37,7 @@
                     "index": "not_analyzed",
                     "include_in_all": "false",
                     "fielddata": {
-                      "digest": "doc_values"
+                      "format": "doc_values"
                     }
                 },
                 "topic_author": {
