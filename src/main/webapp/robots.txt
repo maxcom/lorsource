@@ -26,6 +26,7 @@ Disallow: /delete_image
 Disallow: /add-section.jspobots
 
 Disallow: /wiki/en/Special:History
+Disallow: /wiki/en/Special:Setup
 Disallow: /wiki/en/Special:Diff
 Disallow: /wiki/en/Special:Logout
 Disallow: /wiki/en/Special:Print
