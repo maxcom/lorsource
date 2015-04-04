@@ -23,7 +23,10 @@
                 "postdate": {
                     "type": "date",
                     "format": "dateTime",
-                    "include_in_all": "false"
+                    "include_in_all": "false",
+                    "fielddata": {
+                      "digest": "doc_values"
+                    }
                 },
                 "author": {
                     "type": "string",
@@ -32,7 +35,10 @@
                 "tag": {
                     "type": "string",
                     "index": "not_analyzed",
-                    "include_in_all": "false"
+                    "include_in_all": "false",
+                    "fielddata": {
+                      "digest": "doc_values"
+                    }
                 },
                 "topic_author": {
                     "type": "string",
