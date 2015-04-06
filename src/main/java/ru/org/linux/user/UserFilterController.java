@@ -117,7 +117,13 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User addUser = userDao.getUser(nick);
+    User addUser;
+
+    try {
+      addUser = userDao.getUser(nick);
+    } catch (UserNotFoundException ex) {
+      throw new BadInputException("указанный пользователь не существует");
+    }
 
     // Add nick to ignore list
     if (nick.equals(user.getNick())) {
