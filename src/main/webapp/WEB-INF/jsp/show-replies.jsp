@@ -108,13 +108,13 @@
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
       <c:when test="${topic.event.type == 'ANSWERS'}">
-        <i class="icon-reply" title="Ответ"></i>
+        <i class="icon-reply icon-reply-color" title="Ответ"></i>
       </c:when>
       <c:when test="${topic.event.type == 'REFERENCE'}">
         <img src="/img/tuxlor.png" title="Упоминание" alt="[U]" width="7" height="16">
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
-        <i class="icon-tag" title="Избранный тег"></i>
+        <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
     </c:choose>
   </td>
