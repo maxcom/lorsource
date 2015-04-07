@@ -145,7 +145,7 @@
       </c:choose>
     </c:if>
     <c:if test="${topic.sticky and not topic.deleted}">
-      <img src="/img/paper_clip.gif" width="15" height="15" alt="Прикреплено" title="Прикреплено">
+      <i class="icon-pin" title="Прикрепленная тема"></i>
     </c:if>
     <c:if test="${topic.resolved}">
       <img src="/img/solved.png" width="15" height="15" alt="Решено" title="Решено"/>

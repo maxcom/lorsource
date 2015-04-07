@@ -108,7 +108,7 @@
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
       <c:when test="${topic.event.type == 'ANSWERS'}">
-        <img src="/img/mail_reply.png" title="Ответ" alt="[R]" width="16" height="16">
+        <i class="icon-reply" title="Ответ"></i>
       </c:when>
       <c:when test="${topic.event.type == 'REFERENCE'}">
         <img src="/img/tuxlor.png" title="Упоминание" alt="[U]" width="7" height="16">
