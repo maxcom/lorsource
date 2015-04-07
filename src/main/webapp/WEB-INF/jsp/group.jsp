@@ -125,7 +125,7 @@
     </c:if>
     </c:if>
   </th>
-  <th>Ответы</th>
+  <th><i class="icon-reply"></i></th>
 </tr>
 </thead>
 <tbody>
