@@ -1,0 +1,20 @@
+{
+    "version": "2",
+    "api_version": 3,
+
+    "layout": {
+        "logo": "http://www.linux.org.ru/tango/img/ya-widget.png",
+        "color": "#2e3436"
+    },
+
+    "feed": {
+        "url": "https://www.linux.org.ru/yandex-tableau",
+        "format": "json",
+        "notifiers": [
+            {
+                "icon": "%BELL%",
+                "name": "notifications"
+            }
+        ]
+    }
+}

@@ -22,7 +22,6 @@
 </c:if>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
-<meta name="referrer" content="always">
 
 <c:if test="${pageContext.request.secure}">
   <base href="${fn:escapeXml(template.secureMainUrl)}">

@@ -17,7 +17,6 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-<link rel="yandex-tableau-widget" href="/tango/manifest.json" />
 <meta name="viewport" content="initial-scale=1.0">
 </head>
 <% out.flush(); %>

@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Controller
 public class UserEventApiController {
@@ -61,5 +63,18 @@ public class UserEventApiController {
     userEventService.resetUnreadReplies(currentUser, topId);
 
     return "ok";
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "/yandex-tableau", method = RequestMethod.GET, produces={"application/json"})
+  public Map<String, Integer> getYandexWidget(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      return ImmutableMap.of();
+    } else {
+      response.setHeader("Cache-control", "no-cache");
+
+      return ImmutableMap.of("notifications", tmpl.getCurrentUser().getUnreadEvents());
+    }
   }
 }

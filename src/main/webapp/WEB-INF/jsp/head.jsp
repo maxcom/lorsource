@@ -46,6 +46,9 @@
   <link rel=STYLESHEET type="text/css" href="/black/hover.css">
 </c:if>
 
+<link rel="yandex-tableau-widget" href="/manifest.json" />
+<meta name="referrer" content="always">
+
 <script type="text/javascript">
   <c:set var="scriptminjs">
   <%
