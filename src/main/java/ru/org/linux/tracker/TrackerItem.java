@@ -99,10 +99,6 @@ public class TrackerItem {
     return section == 0;
   }
 
-  public User getAuthor() {
-    return author;
-  }
-
   public int getMsgid() {
     return msgid;
   }
@@ -147,8 +143,12 @@ public class TrackerItem {
     return pages;
   }
 
-  public User getLastCommentBy() {
-    return lastCommentBy;
+  public User getAuthor() {
+    if (lastCommentBy!=null) {
+      return lastCommentBy;
+    } else {
+      return author;
+    }
   }
 
   public boolean isResolved() {
@@ -157,10 +157,6 @@ public class TrackerItem {
 
   public int getSection() {
     return section;
-  }
-
-  public String getGroupUrlName() {
-    return groupUrlName;
   }
 
   public Timestamp getPostdate() {

@@ -87,16 +87,10 @@
               <l:title>${msg.title}</l:title>
             </a>
 
-                (<%--
-                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}"/><%--
-                  --%><span class="hideon-desktop"> в </span><%--
-                  --%></c:if><span class="hideon-desktop">${groupLink}</span>)
+            <span class="hideon-desktop">(${groupLink})</span>
         </td>
         <td class="dateinterval">
-          <lor:dateinterval date="${msg.postdate}"/><%--
-          --%><c:if test="${msg.lastCommentBy != null}"><%--
-            --%>, <lor:user user="${msg.lastCommentBy}"/>
-          </c:if>
+          <lor:dateinterval date="${msg.postdate}"/>, <lor:user user="${msg.author}"/>
         </td>
         <td class='numbers'>
             <c:choose>
