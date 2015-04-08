@@ -1,7 +1,10 @@
+@charset "UTF-8";
 
+ 
 .icon-eye:before { content: '\2b'; } /* '+' */
+.icon-user:before { content: '\40'; } /* '@' */
+.icon-reply:before { content: '\52'; } /* 'R' */
+.icon-pin:before { content: '\2022'; } /* '•' */
 .icon-star:before { content: '\2605'; } /* '★' */
-.icon-tag:before { content: '\e70c'; } /* '' */
 .icon-rss:before { content: '\e800'; } /* '' */
-.icon-reply:before { content: '\e801'; } /* '' */
-.icon-pin:before { content: '\e802'; } /* '' */
+.icon-tag:before { content: '🔖'; } /* '\1f516' */

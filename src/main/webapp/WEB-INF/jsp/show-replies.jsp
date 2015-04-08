@@ -111,7 +111,7 @@
         <i class="icon-reply icon-reply-color" title="Ответ"></i>
       </c:when>
       <c:when test="${topic.event.type == 'REFERENCE'}">
-        <img src="/img/tuxlor.png" title="Упоминание" alt="[U]" width="7" height="16">
+        <i class="icon-user icon-user-color"></i>
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
