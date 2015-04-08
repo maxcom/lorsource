@@ -57,7 +57,7 @@
       <th class="hideon-tablet">Группа</th>
       <th>Заголовок</th>
       <th>Последнее сообщение</th>
-      <th>Ответы</th>
+      <th><i class="icon-reply"></i></th>
     </tr>
     </thead>
     <tbody>
