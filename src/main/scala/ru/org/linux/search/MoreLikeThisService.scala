@@ -27,7 +27,7 @@ import org.elasticsearch.search.SearchHit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.SearchQueueListener.{COLUMN_TOPIC_AWAITS_COMMIT, MESSAGES_INDEX, MESSAGES_TYPE}
+import ru.org.linux.search.SearchQueueListener.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageType}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
@@ -95,7 +95,7 @@ class MoreLikeThisService @Autowired() (
       ) not idsFilter(topic.getId.toString)
     }
 
-    search in MESSAGES_INDEX -> MESSAGES_TYPE query {
+    search in MessageIndex -> MessageType query {
       filteredQuery filter rootFilter query bool { should(queries:_*) }
     } fields("title", "postdate", "section", "group")
   }

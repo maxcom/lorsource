@@ -29,7 +29,7 @@ import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.org.linux.search.SearchQueueListener.{MESSAGES_INDEX, MESSAGES_TYPE}
+import ru.org.linux.search.SearchQueueListener.{MessageIndex, MessageType}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService._
 
@@ -95,7 +95,7 @@ class UserStatisticsService @Autowired() (
     }
   }
 
-  private def statSearch = search in MESSAGES_INDEX -> MESSAGES_TYPE searchType SearchType.Count timeout ElasticTimeout
+  private def statSearch = search in MessageIndex -> MessageType searchType SearchType.Count timeout ElasticTimeout
 
   private def countComments(user:User):Future[Long] = {
     try {
