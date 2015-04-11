@@ -23,7 +23,7 @@
     <es.version>1.5.1</es.version>
     <scala.version>2.11.6</scala.version>
     <scala.suffix>2.11</scala.suffix>
-    <activemq.version>5.9.0</activemq.version>
+    <activemq.version>5.11.2</activemq.version>
     <slf4j.version>1.7.5</slf4j.version>
     <jquery.validation.version>1.13.1</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
