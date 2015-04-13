@@ -135,7 +135,7 @@ public class UserService {
       }
     }
 
-    if (user.hasGravatar()) {
+    if (user.hasGravatar() && !"".equals(user.getPhoto())) {
       return new Userpic(
           user.getGravatar(avatarMode, 150, secure),
           150,
