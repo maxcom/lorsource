@@ -119,7 +119,7 @@ public class UserService {
       );
     }
 
-    if (user.getPhoto() != null) {
+    if (user.getPhoto() != null && !user.getPhoto().isEmpty()) {
       try {
         ImageInfo info = new ImageInfo(siteConfig.getHTMLPathPrefix() + "/photos/" + user.getPhoto());
 

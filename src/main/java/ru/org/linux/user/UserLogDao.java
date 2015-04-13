@@ -51,12 +51,14 @@ public class UserLogDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logResetUserpic(@Nonnull User user, @Nonnull User actionUser, int bonus) {
-    ImmutableMap<String, Object> options;
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
     if (bonus!=0) {
-      options = ImmutableMap.<String, Object>of(OPTION_BONUS, bonus, OPTION_OLD_USERPIC, user.getPhoto());
-    } else {
-      options = ImmutableMap.<String, Object>of(OPTION_OLD_USERPIC, user.getPhoto());
+      builder.put(OPTION_BONUS, bonus);
+    }
+
+    if (user.getPhoto()!=null) {
+      builder.put(OPTION_OLD_USERPIC, user.getPhoto());
     }
 
     jdbcTemplate.update(
@@ -64,7 +66,7 @@ public class UserLogDao {
             user.getId(),
             actionUser.getId(),
             UserLogAction.RESET_USERPIC.toString(),
-            options
+            builder.build()
     );
   }
 

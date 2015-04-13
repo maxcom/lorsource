@@ -238,7 +238,13 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
   public boolean resetUserpic(User user, User cleaner) {
-    boolean r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
+    boolean r;
+
+    if (user.hasGravatar()) {
+      r = jdbcTemplate.update("UPDATE users SET photo='' WHERE id=? and photo is null", user.getId()) > 0;
+    } else {
+      r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
+    }
 
     if (!r) {
       return false;

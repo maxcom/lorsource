@@ -289,7 +289,7 @@ public class UserModificationController {
       throw new AccessViolationException("Not permitted");
     }
 
-    if (user.getPhoto() != null && userDao.resetUserpic(user, currentUser)) {
+    if (userDao.resetUserpic(user, currentUser)) {
       logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
     } else {
       logger.debug("SKIP Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
