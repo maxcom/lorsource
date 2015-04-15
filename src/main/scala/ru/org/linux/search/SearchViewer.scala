@@ -20,7 +20,7 @@ import com.sksamuel.elastic4s.HighlightEncoder.Html
 import com.sksamuel.elastic4s.{ElasticClient, FilterDefinition, QueryDefinition}
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.Client
-import ru.org.linux.search.SearchQueueListener.{MessageIndex, MessageType}
+import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -87,7 +87,7 @@ class SearchViewer(query:SearchRequest, javaElastic: Client) {
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search in MessageIndex -> MessageType fields (
+      search in MessageIndexTypes fields (
           Fields: _*
         ) query esQuery sort (
           by field query.getSort.getColumn order query.getSort.order
