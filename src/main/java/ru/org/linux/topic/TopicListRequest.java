@@ -20,7 +20,6 @@ package ru.org.linux.topic;
  */
 public class TopicListRequest {
   private Integer section;
-  private Integer group;
   private Integer offset;
   private String output;
   private Integer month;

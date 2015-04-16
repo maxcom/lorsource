@@ -52,13 +52,9 @@ public class UserTopicListController {
   @RequestMapping(value="favs", params="!output")
   public ModelAndView showUserFavs(
     HttpServletRequest request,
-    TopicListRequest topicListForm,
     @PathVariable String nick,
-    HttpServletResponse response,
     @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
-    TopicListController.setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
-
     ModelAndView modelAndView = new ModelAndView();
 
     User user = getUserByNickname(modelAndView, nick);
@@ -74,12 +70,9 @@ public class UserTopicListController {
     offset = topicListService.fixOffset(offset);
     modelAndView.addObject("offset", offset);
 
-    modelAndView.addObject("topicListForm", topicListForm);
-
     List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, true, false);
-    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
 
-    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
+    prepareTopicsForPlainOrRss(request, modelAndView, false, messages);
 
     modelAndView.setViewName("user-topics");
 
@@ -89,14 +82,10 @@ public class UserTopicListController {
   @RequestMapping(value="drafts")
   public ModelAndView showUserDrafts(
           HttpServletRequest request,
-          TopicListRequest topicListForm,
           @PathVariable String nick,
-          HttpServletResponse response,
           @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
-
-    TopicListController.setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
 
     ModelAndView modelAndView = new ModelAndView();
 
@@ -117,12 +106,9 @@ public class UserTopicListController {
     offset = topicListService.fixOffset(offset);
     modelAndView.addObject("offset", offset);
 
-    modelAndView.addObject("topicListForm", topicListForm);
-
     List<Topic> messages = topicListService.getDrafts(user, offset);
-    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
 
-    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
+    prepareTopicsForPlainOrRss(request, modelAndView, false, messages);
 
     modelAndView.setViewName("user-topics");
 
@@ -207,13 +193,9 @@ public class UserTopicListController {
   @RequestMapping(value = "tracked", params="!output")
   public ModelAndView showUserWatches(
     HttpServletRequest request,
-    TopicListRequest topicListForm,
     @PathVariable String nick,
-    HttpServletResponse response,
     @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
-    TopicListController.setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
-
     ModelAndView modelAndView = new ModelAndView();
 
     User user = getUserByNickname(modelAndView, nick);
@@ -228,12 +210,10 @@ public class UserTopicListController {
 
     offset = topicListService.fixOffset(offset);
     modelAndView.addObject("offset", offset);
-    modelAndView.addObject("topicListForm", topicListForm);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, true, true);
-    boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
 
-    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages);
+    prepareTopicsForPlainOrRss(request, modelAndView, false, messages);
 
     modelAndView.setViewName("user-topics");
 
