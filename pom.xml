@@ -16,14 +16,14 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <dependency.spring.version>4.1.5.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.1.6.RELEASE</dependency.spring.version>
     <spring.security.version>3.1.6.RELEASE</spring.security.version>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <jdbc.postgresql.version>9.3-1102-jdbc41</jdbc.postgresql.version>
     <es.version>1.5.1</es.version>
     <scala.version>2.11.6</scala.version>
     <scala.suffix>2.11</scala.suffix>
-    <activemq.version>5.9.0</activemq.version>
+    <activemq.version>5.11.1</activemq.version>
     <slf4j.version>1.7.5</slf4j.version>
     <jquery.validation.version>1.13.1</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
