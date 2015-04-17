@@ -300,13 +300,13 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.5</version>
+      <version>2.7</version>
     </dependency>
 
     <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-convert</artifactId>
-      <version>1.5</version>
+      <version>1.7</version>
     </dependency>
 
     <!-- Spring Security -->
@@ -339,7 +339,7 @@
         <artifactId>commons-httpclient</artifactId>
         <version>3.1</version>
       </dependency>
-
+      
         <dependency>
         	<groupId>com.sun.jersey</groupId>
         	<artifactId>jersey-client</artifactId>
@@ -363,13 +363,13 @@
         <dependency>
           <groupId>de.neuland-bfi</groupId>
           <artifactId>jade4j</artifactId>
-          <version>0.4.0</version>
+          <version>0.4.2</version>
         </dependency>
 
         <dependency>
           <groupId>de.neuland-bfi</groupId>
           <artifactId>spring-jade4j</artifactId>
-          <version>0.4.0</version>
+          <version>0.4.2</version>
         </dependency>
 
     <dependency>
