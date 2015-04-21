@@ -34,9 +34,9 @@
 <p>
   Технические требования к изображению:
   <ul>
-    <li>Ширина x Высота: от <%= UserService.MIN_IMAGESIZE %>x<%= UserService.MIN_IMAGESIZE %> до <%= UserService.MAX_IMAGESIZE %>x<%= UserService.MAX_IMAGESIZE %> пикселей</li>
+    <li>Ширина x Высота: от <%= UserService.MinImageSize() %>x<%= UserService.MinImageSize() %> до <%= UserService.MaxImageSize() %>x<%= UserService.MaxImageSize() %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= UserService.MAX_USERPIC_FILESIZE / 1024 %> Kb</li>
+    <li>Размер не более <%= UserService.MaxFileSize() / 1024 %> Kb</li>
   </ul>
 </p>
 
