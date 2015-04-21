@@ -131,7 +131,7 @@ class UserTopicListController @Autowired()
       modelAndView.addObject("sectionList", sectionService.getSectionList)
     }
 
-    modelAndView.addObject("params", section.map(s ⇒ s"section=$s").getOrElse(""))
+    modelAndView.addObject("params", section.map(s ⇒ s"section=${s.getId}").getOrElse(""))
 
     prepareTopicsForPlainOrRss(request, modelAndView, rss, messages)
 
