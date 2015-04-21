@@ -18,6 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
+<%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
@@ -30,30 +31,28 @@
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-  <div class=nav>
-    <div id="navPath">
-      ${navtitle}
-    </div>
-    <div class="nav-buttons">
-      <ul>
 
-      <c:if test="${whoisLink != null}">
-        <li><a href="${whoisLink}">Профиль</a></li>
+<h1>${navtitle}<%= " "%><a href="${whoisLink}">${user.nick}</a></h1>
+
+<nav>
+  <c:if test="${sectionList != null}">
+    <c:if test="${section == null}">
+      <a href="${url}" class="btn btn-selected">Все</a>
+    </c:if>
+    <c:if test="${section != null}">
+      <a href="${url}" class="btn btn-default">Все</a>
+    </c:if>
+
+    <c:forEach items="${sectionList}" var="cursection">
+      <c:if test="${section == cursection}">
+        <a href="${url}?section=${cursection.id}" class="btn btn-selected">${cursection.name}</a>
       </c:if>
-
-      <c:if test="${sectionList != null}">
-        <li><a href="${url}" <c:if test="${section == null}">class="current"</c:if>>Все</a></li>
-
-        <c:forEach items="${sectionList}" var="cursection">
-          <li>
-            <a href="${url}?section=${cursection.id}"
-               <c:if test="${section == cursection}">class="current"</c:if>>${cursection.name}</a>
-          </li>
-        </c:forEach>
+      <c:if test="${section != cursection}">
+        <a href="${url}?section=${cursection.id}" class="btn btn-default">${cursection.name}</a>
       </c:if>
-      </ul>
-    </div>
-</div>
+    </c:forEach>
+  </c:if>
+</nav>
 
 <c:if test="${showSearch}">
 <div class="infoblock">

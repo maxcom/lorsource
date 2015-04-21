@@ -50,7 +50,7 @@ class UserTopicListController @Autowired()
       UriComponentsBuilder.fromUriString("/people/{nick}/favs").buildAndExpand(nick).encode.toUriString)
 
     modelAndView.addObject("ptitle", s"Избранные сообщения ${user.getNick}")
-    modelAndView.addObject("navtitle", s"Избранные сообщения ${user.getNick}")
+    modelAndView.addObject("navtitle", s"Избранные сообщения")
 
     val offset = topicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
@@ -78,7 +78,7 @@ class UserTopicListController @Autowired()
       UriComponentsBuilder.fromUriString("/people/{nick}/drafts").buildAndExpand(nick).encode.toUriString)
 
     modelAndView.addObject("ptitle", s"Черновики ${user.getNick}")
-    modelAndView.addObject("navtitle", s"Черновики ${user.getNick}")
+    modelAndView.addObject("navtitle", s"Черновики")
     val offset = topicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getDrafts(user, offset)
@@ -117,7 +117,7 @@ class UserTopicListController @Autowired()
     modelAndView.addObject("url",
       UriComponentsBuilder.fromUriString("/people/{nick}/").buildAndExpand(nick).encode.toUriString)
     modelAndView.addObject("ptitle", s"Сообщения ${user.getNick}")
-    modelAndView.addObject("navtitle", s"Сообщения ${user.getNick}")
+    modelAndView.addObject("navtitle", s"Сообщения")
     modelAndView.addObject("rssLink",
       UriComponentsBuilder.fromUriString("/people/{nick}/?output=rss").buildAndExpand(nick).encode.toUriString)
 
@@ -156,7 +156,7 @@ class UserTopicListController @Autowired()
       UriComponentsBuilder.fromUriString("/people/{nick}/tracked").buildAndExpand(nick).encode.toUriString)
 
     modelAndView.addObject("ptitle", s"Отслеживаемые сообщения ${user.getNick}")
-    modelAndView.addObject("navtitle", s"Отслеживаемые сообщения ${user.getNick}")
+    modelAndView.addObject("navtitle", s"Отслеживаемые сообщения")
 
     val offset = topicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
