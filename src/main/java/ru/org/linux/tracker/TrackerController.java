@@ -28,8 +28,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
@@ -41,7 +41,7 @@ public class TrackerController {
   private TrackerDao trackerDao;
 
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private DeleteInfoDao deleteInfoDao;
@@ -126,7 +126,7 @@ public class TrackerController {
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages));
 
     if (tmpl.isModeratorSession()) {
-      params.put("newUsers", userDao.getNewUsers());
+      params.put("newUsers", userService.getNewUsers());
       params.put("deleteStats", deleteInfoDao.getRecentStats());
     }
 

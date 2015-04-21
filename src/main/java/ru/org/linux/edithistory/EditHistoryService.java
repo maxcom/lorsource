@@ -31,6 +31,7 @@ import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 
@@ -44,6 +45,9 @@ public class EditHistoryService {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private LorCodeService lorCodeService;
@@ -221,7 +225,7 @@ public class EditHistoryService {
   public ImmutableSet<User> getEditorUsers(final Topic message, List<EditHistoryDto> editInfoList) {
     ImmutableSet<Integer> editors = getEditors(message, editInfoList);
 
-    return ImmutableSet.copyOf(userDao.getUsersCached(editors));
+    return ImmutableSet.copyOf(userService.getUsersCached(editors));
   }
 
   public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {

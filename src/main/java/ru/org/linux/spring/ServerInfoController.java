@@ -20,23 +20,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 
 import java.util.List;
 
 @Controller
 public class ServerInfoController {
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @RequestMapping("/about")
   public ModelAndView serverInfo() {
-    List<User> moderators = userDao.getModerators();
+    List<User> moderators = userService.getModerators();
 
     ModelAndView mv = new ModelAndView("server");
     mv.getModel().put("moderators", moderators);
 
-    List<User> correctors = userDao.getCorrectors();
+    List<User> correctors = userService.getCorrectors();
 
     mv.getModel().put("correctors", correctors);
 

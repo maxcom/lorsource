@@ -29,7 +29,7 @@ import scala.collection.JavaConverters._
 class UserEventPrepareService @Autowired() (
   msgbaseDao:MsgbaseDao,
   lorCodeService: LorCodeService,
-  userDao:UserDao,
+  userService:UserService,
   deleteInfoDao:DeleteInfoDao,
   sectionService:SectionService,
   groupDao:GroupDao,
@@ -45,7 +45,7 @@ class UserEventPrepareService @Autowired() (
 
     val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0).distinct
 
-    val users = userDao.getUsersCached(userIds.map(Integer.valueOf).asJavaCollection).asScala.map { user ⇒
+    val users = userService.getUsersCached(userIds.map(Integer.valueOf).asJavaCollection).asScala.map { user ⇒
       user.getId -> user
     }.toMap
 

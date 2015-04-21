@@ -40,8 +40,6 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -214,8 +212,8 @@ public class UserDao {
    * Получить список новых пользователей зарегистрирововавшихся за последние 3(три) дня
    * @return список новых пользователей
    */
-  public List<User> getNewUsers() {
-    return getUsersCached(jdbcTemplate.queryForList(queryNewUsers, Integer.class));
+  public List<Integer> getNewUserIds() {
+    return jdbcTemplate.queryForList(queryNewUsers, Integer.class);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -410,30 +408,12 @@ public class UserDao {
     }
   }
 
-  public List<User> getModerators() {
-    return getUsersCached(jdbcTemplate.queryForList(
-            "SELECT id FROM users WHERE canmod ORDER BY id",
-            Integer.class
-    ));
+  public List<Integer> getModeratorIds() {
+    return jdbcTemplate.queryForList("SELECT id FROM users WHERE canmod ORDER BY id", Integer.class);
   }
 
-  public List<User> getCorrectors() {
-    return getUsersCached(jdbcTemplate.queryForList(
-            "SELECT id FROM users WHERE corrector ORDER BY id",
-            Integer.class
-    ));
-  }
-
-  // TODO кеш тут не работает, так как аннотации оборачивают
-  // TODO только внешние вызовы. Надо что-то с этим сделать.
-  public List<User> getUsersCached(Collection<Integer> ids) {
-    List<User> users = new ArrayList<>(ids.size());
-
-    for (int id : ids) {
-      users.add(getUserCached(id));
-    }
-
-    return users;
+  public List<Integer> getCorrectorIds() {
+    return jdbcTemplate.queryForList("SELECT id FROM users WHERE corrector ORDER BY id", Integer.class);
   }
 
   public User getByEmail(String email, boolean searchBlocked) {

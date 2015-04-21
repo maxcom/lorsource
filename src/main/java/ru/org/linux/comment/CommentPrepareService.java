@@ -261,8 +261,8 @@ public class CommentPrepareService {
   private Map<Integer, User> loadUsers(Iterable<Integer> userIds) {
     ImmutableMap.Builder<Integer, User> builder = ImmutableMap.<Integer, User>builder();
 
-    for (Integer id : ImmutableSet.copyOf(userIds)) {
-      builder.put(id, userDao.getUserCached(id));
+    for (User user : userService.getUsersCached(ImmutableSet.copyOf(userIds))) {
+      builder.put(user.getId(), user);
     }
 
     return builder.build();

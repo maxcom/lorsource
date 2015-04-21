@@ -25,12 +25,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
+import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest._
-import ru.org.linux.user.{UserDao, UserLogDao}
+import ru.org.linux.user.{UserDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
 
-@RunWith (classOf[SpringJUnit4ClassRunner] )
+@RunWith (classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
 class TopicDaoIntegrationTest {
   @Autowired
@@ -61,7 +62,7 @@ object TopicDaoIntegrationTest {
 }
 
 @Configuration
-@ImportResource (Array ("classpath:database.xml") )
+@ImportResource (Array ("classpath:database.xml", "classpath:common.xml") )
 class TopicDaoIntegrationTestConfiguration {
   @Bean
   def groupDao = new GroupDao()
@@ -77,6 +78,9 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def userDao = new UserDao()
+
+  @Bean
+  def userService(siteConfig:SiteConfig, userDao:UserDao) = new UserService(siteConfig, userDao)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

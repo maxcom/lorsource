@@ -38,7 +38,7 @@ object UserService {
 }
 
 @Service
-class UserService @Autowired() (siteConfig: SiteConfig) extends StrictLogging {
+class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
   @throws(classOf[UserErrorException])
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
@@ -121,4 +121,13 @@ class UserService @Autowired() (siteConfig: SiteConfig) extends StrictLogging {
     val base = siteConfig.getSecret
     StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + tm.getTime.toString + ":reset")
   }
+
+  def getUsersCached(ids: java.lang.Iterable[Integer]): java.util.List[User] =
+    ids.asScala.map(x ⇒ userDao.getUserCached(x)).toSeq.asJava
+
+  def getNewUsers = getUsersCached(userDao.getNewUserIds)
+
+  def getModerators = getUsersCached(userDao.getModeratorIds)
+
+  def getCorrectors = getUsersCached(userDao.getCorrectorIds)
 }
