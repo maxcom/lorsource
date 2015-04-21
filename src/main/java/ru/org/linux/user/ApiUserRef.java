@@ -21,13 +21,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.site.PublicApi;
 
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @PublicApi
 public class ApiUserRef {
   private final String nick;
   private final boolean blocked;
   private final boolean anonymous;
-  private final ImmutableList<Boolean> stars;
+  private final List<Boolean> stars;
   private final Integer score;
   private final Integer maxScore;
 
@@ -48,7 +50,7 @@ public class ApiUserRef {
           @JsonProperty("nick") String nick,
           @JsonProperty("blocked") boolean blocked,
           @JsonProperty("anonymous") boolean anonymous,
-          @JsonProperty("stars") ImmutableList<Boolean> stars,
+          @JsonProperty("stars") List<Boolean> stars,
           Integer score, Integer maxScore) {
     this.nick = nick;
     this.blocked = blocked;
@@ -70,7 +72,7 @@ public class ApiUserRef {
     return anonymous;
   }
 
-  public ImmutableList<Boolean> getStars() {
+  public List<Boolean> getStars() {
     return stars;
   }
 
