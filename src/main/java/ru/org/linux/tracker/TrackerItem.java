@@ -151,6 +151,10 @@ public class TrackerItem {
     }
   }
 
+  public User getTopicAuthor() {
+    return author;
+  }
+
   public boolean isResolved() {
     return resolved;
   }

@@ -87,7 +87,10 @@
               <l:title>${msg.title}</l:title>
             </a>
 
-            <span class="hideon-desktop">(${groupLink})</span>
+            (<%--
+            --%><c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/><%--
+            --%><span class="hideon-desktop"> в </span><%--
+            --%></c:if><span class="hideon-desktop">${groupLink}</span>)
         </td>
         <td class="dateinterval">
           <lor:dateinterval date="${msg.postdate}"/>, <lor:user user="${msg.author}"/>
