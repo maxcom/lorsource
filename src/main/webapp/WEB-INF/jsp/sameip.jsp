@@ -31,16 +31,15 @@
 %>
 <div class=nav>
     <div id="navPath">
-      <strong>Интерфейс модератора - Сообщения с ${ip}</strong>
+      <strong>Сообщения с ${ip}</strong>
     </div>
 
     <div class="nav-buttons">
-      [<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=${ip}">NSLOOKUP</a>]
       [WHOIS
       <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
-      <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a> /
       <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
+      <a href='http://bgp.he.net/ip/${ip}'>BGP</a>
       ]
     </div>
 </div>
