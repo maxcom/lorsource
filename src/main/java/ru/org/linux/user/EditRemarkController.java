@@ -33,7 +33,7 @@ import javax.servlet.ServletRequest;
 @RequestMapping("/people/{nick}/remark")
 public class EditRemarkController {
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private RemarkDao remarkDao;
@@ -48,13 +48,13 @@ public class EditRemarkController {
 
     ModelAndView mv = new ModelAndView("edit-remark");
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUserCached(nick);
     if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
       Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
       if (remark.isDefined()) {
         mv.getModel().put("remark", remark.get());
       }
-    }else{
+    } else {
       throw new AccessViolationException("Not Authorized");
     }
     return mv;
@@ -75,7 +75,7 @@ public class EditRemarkController {
       text=text.substring(0,255);
     }
     User user = tmpl.getCurrentUser();
-    User refUser = userDao.getUser(nick);
+    User refUser = userService.getUserCached(nick);
     remarkDao.setOrUpdateRemark(user, refUser, text);
 
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));

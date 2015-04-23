@@ -24,15 +24,15 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class ShowCommentsController {
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private CommentService commentService;
@@ -41,7 +41,7 @@ public class ShowCommentsController {
   public RedirectView showComments(
           @RequestParam String nick
   ) throws Exception {
-    User user = userDao.getUser(nick);
+    User user = userService.getUserCached(nick);
 
     return new RedirectView("search.jsp?range=COMMENTS&user="+user.getNick()+"&sort=DATE");
   }
@@ -58,7 +58,7 @@ public class ShowCommentsController {
 
     ModelAndView mv = new ModelAndView("deleted-comments");
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUserCached(nick);
 
     mv.getModel().put("user", user);
 

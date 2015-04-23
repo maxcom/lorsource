@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
@@ -38,7 +38,7 @@ public class MemberTagTest {
 
   @Before
   public void initTest() throws Exception {
-    UserDao userDao = mock(UserDao.class);
+    UserService userService = mock(UserService.class);
     User splinter = mock(User.class);
 
     maxcom = mock(User.class);
@@ -54,12 +54,12 @@ public class MemberTagTest {
 
     when(splinter.isBlocked()).thenReturn(false);
     when(splinter.getNick()).thenReturn("splinter");
-    when(userDao.getUser("splinter")).thenReturn(splinter);
+    when(userService.getUserCached("splinter")).thenReturn(splinter);
 
-    when(userDao.getUser("maxcom")).thenReturn(maxcom);
-    when(userDao.getUser("JB")).thenReturn(JB);
-    when(userDao.getUser("isden")).thenReturn(isden);
-    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
+    when(userService.getUserCached("maxcom")).thenReturn(maxcom);
+    when(userService.getUserCached("JB")).thenReturn(JB);
+    when(userService.getUserCached("isden")).thenReturn(isden);
+    when(userService.getUserCached("hizel")).thenThrow(new UserNotFoundException("hizel"));
 
     String mainUrl = "http://127.0.0.1:8080/";
     URI mainURI = new URI(mainUrl, true, "UTF-8");
@@ -73,7 +73,7 @@ public class MemberTagTest {
     toHtmlFormatter.setSiteConfig(siteConfig);
 
     lorCodeService = new LorCodeService();
-    lorCodeService.setUserDao(userDao);
+    lorCodeService.setUserService(userService);
     lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
   }

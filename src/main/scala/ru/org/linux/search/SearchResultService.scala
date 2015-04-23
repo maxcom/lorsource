@@ -29,7 +29,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.{TagRef, TagService}
-import ru.org.linux.user.{User, UserDao}
+import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil._
 
@@ -50,14 +50,14 @@ case class SearchItem (
 
 @Service
 class SearchResultsService @Autowired() (
-  userDao:UserDao, sectionService:SectionService, groupDao:GroupDao
+  userService:UserService, sectionService:SectionService, groupDao:GroupDao
 ) extends StrictLogging {
   import ru.org.linux.search.SearchResultsService._
 
   def prepareAll(docs:java.lang.Iterable[SearchHit]) = (docs map prepare).asJavaCollection
 
   def prepare(doc:SearchHit):SearchItem = {
-    val author = userDao.getUser(doc.getFields.get("author").getValue[String])
+    val author = userService.getUserCached(doc.getFields.get("author").getValue[String])
 
     val postdate = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
 

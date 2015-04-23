@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -48,7 +48,7 @@ public class Simple2ParserTest {
 
 
     lorCodeService = new LorCodeService();
-    lorCodeService.setUserDao(mock(UserDao.class));
+    lorCodeService.setUserService(mock(UserService.class));
     lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 

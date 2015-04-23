@@ -19,7 +19,7 @@ import org.apache.commons.httpclient.URI;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import static org.junit.Assert.assertEquals;
@@ -34,8 +34,6 @@ public class SimpleParserTest {
 
   @Before
   public void init() throws Exception {
-    UserDao userDao = mock(UserDao.class);
-
     String mainUrl = "http://127.0.0.1:8080/";
     URI mainURI = new URI(mainUrl, true, "UTF-8");
     SiteConfig siteConfig = mock(SiteConfig.class);
@@ -45,9 +43,8 @@ public class SimpleParserTest {
     ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
 
-
     lorCodeService = new LorCodeService();
-    lorCodeService.setUserDao(userDao);
+    lorCodeService.setUserService(mock(UserService.class));
     lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 

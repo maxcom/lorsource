@@ -76,6 +76,10 @@ public class UserDao {
   }
 
   public User getUser(String nick) throws UserNotFoundException {
+    return getUser(findUserId(nick));
+  }
+
+  public int findUserId(String nick) throws UserNotFoundException {
     if (nick == null) {
       throw new NullPointerException();
     }
@@ -99,7 +103,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    return getUser(list.get(0));
+    return list.get(0);
   }
 
   @Cacheable("Users")
@@ -123,15 +127,7 @@ public class UserDao {
   }
 
   private User getUserInternal(int id) throws UserNotFoundException {
-    List<User> list = jdbcTemplate.query(
-            queryUserById, new RowMapper<User>() {
-      @Override
-      public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new User(rs);
-      }
-    },
-            id
-    );
+    List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> { return new User(rs); }, id);
 
     if (list.isEmpty()) {
       throw new UserNotFoundException(id);

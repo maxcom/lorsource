@@ -55,7 +55,7 @@ package ru.org.linux.util.bbcode.nodes;
 
 import org.apache.commons.httpclient.URI;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.ParserParameters.CutType;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -71,7 +71,7 @@ public class RootNode extends Node {
   //
   private CutType cutType;
   private URI cutURI;
-  private UserDao userDao;
+  private UserService userService;
   private ToHtmlFormatter toHtmlFormatter;
   private final Set<User> replier;
   private boolean secure;
@@ -98,12 +98,12 @@ public class RootNode extends Node {
     this.toHtmlFormatter = toHtmlFormatter;
   }
 
-  public UserDao getUserDao() {
-    return userDao;
+  public UserService getUserService() {
+    return userService;
   }
 
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
 

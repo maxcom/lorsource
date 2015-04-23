@@ -41,7 +41,7 @@ import java.util.Set;
 @Controller
 public class UserFilterController {
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private IgnoreListDao ignoreListDao;
@@ -97,7 +97,7 @@ public class UserFilterController {
     Map<Integer, User> ignoreMap = new HashMap<>(ignoreList.size());
 
     for (int id : ignoreList) {
-      ignoreMap.put(id, userDao.getUserCached(id));
+      ignoreMap.put(id, userService.getUserCached(id));
     }
 
     return ignoreMap;
@@ -120,7 +120,7 @@ public class UserFilterController {
     User addUser;
 
     try {
-      addUser = userDao.getUser(nick);
+      addUser = userService.getUserCached(nick);
     } catch (UserNotFoundException ex) {
       throw new BadInputException("указанный пользователь не существует");
     }
@@ -153,7 +153,7 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User delUser = userDao.getUserCached(id);
+    User delUser = userService.getUserCached(id);
 
     ignoreListDao.remove(user, delUser);
 

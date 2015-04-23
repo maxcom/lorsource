@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.LorURL;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.RootNode;
@@ -35,18 +35,18 @@ import java.util.Set;
 public class LorCodeService {
   private static final Parser defaultParser = new Parser(new DefaultParserParameters());
 
-  private UserDao userDao;
+  private UserService userService;
   private SiteConfig siteConfig;
   private ToHtmlFormatter toHtmlFormatter;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
+  public void setSiteConfig(SiteConfig siteConfig) {
+    this.siteConfig = siteConfig;
   }
 
   @Autowired
-  public void setSiteConfig(SiteConfig siteConfig) {
-    this.siteConfig = siteConfig;
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
   @Autowired
@@ -159,7 +159,7 @@ public class LorCodeService {
   private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow) {
     RootNode rootNode = defaultParser.getRootNode();
     rootNode.setCommentCutOptions();
-    rootNode.setUserDao(userDao);
+    rootNode.setUserService(userService);
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setRss(rss);
@@ -185,7 +185,7 @@ public class LorCodeService {
     } else {
       rootNode.setMaximizedTopicCutOptions();
     }
-    rootNode.setUserDao(userDao);
+    rootNode.setUserService(userService);
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setNofollow(nofollow);

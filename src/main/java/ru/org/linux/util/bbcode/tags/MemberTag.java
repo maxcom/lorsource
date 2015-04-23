@@ -55,7 +55,7 @@ package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableSet;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
@@ -80,11 +80,11 @@ public class MemberTag extends Tag {
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
     boolean secure = rootNode.isSecure();
-    UserDao userDao = rootNode.getUserDao();
+    UserService userService = rootNode.getUserService();
     String result;
     try {
-      if(userDao != null && toHtmlFormatter != null){
-        User user = rootNode.getUserDao().getUser(memberName);
+      if(userService != null && toHtmlFormatter != null){
+        User user = userService.getUserCached(memberName);
         if (!user.isBlocked()) {
           result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
               toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
@@ -93,7 +93,7 @@ public class MemberTag extends Tag {
           result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
               toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
         }
-      }else{
+      } else {
         result = Parser.escape(memberName);
       }
     } catch (Exception ex) {

@@ -34,6 +34,7 @@ class UserTopicListController @Autowired()
 (
   topicListService: TopicListService,
   userDao: UserDao,
+  userService: UserService,
   sectionService: SectionService,
   prepareService: TopicPrepareService,
   topicPermissionService: TopicPermissionService
@@ -187,7 +188,7 @@ class UserTopicListController @Autowired()
   private def mkModel(nick: String): (ModelAndView, User) = {
     val modelAndView = new ModelAndView()
 
-    val user = userDao.getUser(nick)
+    val user = userService.getUserCached(nick)
 
     if (user.getId == User.ANONYMOUS_ID) {
       throw new UserErrorException("Лента для пользователя anonymous не доступна")

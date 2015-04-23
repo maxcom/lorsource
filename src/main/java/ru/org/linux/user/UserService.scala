@@ -130,4 +130,8 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
   def getModerators = getUsersCached(userDao.getModeratorIds)
 
   def getCorrectors = getUsersCached(userDao.getCorrectorIds)
+
+  def getUserCached(nick: String) = userDao.getUserCached(userDao.findUserId(nick))
+
+  def getUserCached(id: Int) = userDao.getUserCached(id)
 }
