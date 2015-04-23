@@ -39,8 +39,8 @@
       <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a> /
       <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
-      <a href='http://bgp.he.net/ip/${ip}'>BGP</a>
       ]
+      [<a href='http://bgp.he.net/ip/${ip}'>BGP</a>]
     </div>
 </div>
 
