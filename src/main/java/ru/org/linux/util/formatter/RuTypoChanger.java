@@ -15,6 +15,8 @@
 
 package ru.org.linux.util.formatter;
 
+import java.util.regex.Pattern;
+
 public class RuTypoChanger {
 
   /*
@@ -36,7 +38,19 @@ public class RuTypoChanger {
   private static final char[] PUNCTUATION = {'.', ',', ':', ';', '-', '!', '?', '(', ')'};
 
   private int quoteDepth = 0;
-  private String localBuff = "";
+  private CharSequence localBuff = "";
+
+  private final static Pattern QUOTE_PATTERN = Pattern.compile("&quot;", Pattern.LITERAL);
+  private final static Pattern QUOTE_CHAR_PATTERN = Pattern.compile("(''|\")");
+
+  private final static Pattern QUOTE_IN_OPEN_PATTERN =
+          Pattern.compile(Character.toString(QUOTE_IN_OPEN), Pattern.LITERAL);
+  private final static Pattern QUOTE_IN_CLOSE_PATTERN =
+          Pattern.compile(Character.toString(QUOTE_IN_CLOSE), Pattern.LITERAL);
+  private final static Pattern QUOTE_OUT_OPEN_PATTERN =
+          Pattern.compile(Character.toString(QUOTE_OUT_OPEN), Pattern.LITERAL);
+  private final static Pattern QUOTE_OUT_CLOSE_PATTERN =
+          Pattern.compile(Character.toString(QUOTE_OUT_CLOSE), Pattern.LITERAL);
 
   private static boolean isQuoteChar(char ch) {
     return ch == QUOTE_SYMBOL ||
@@ -51,8 +65,7 @@ public class RuTypoChanger {
     return false;
   }
 
-  private static char firstNonQuote(String buff, int start) {
-
+  private static char firstNonQuote(CharSequence buff, int start) {
     for (int pt = start - 1; pt >= 0; pt--) {
       if (!isQuoteChar(buff.charAt(pt)))
         return buff.charAt(pt);
@@ -60,8 +73,7 @@ public class RuTypoChanger {
     return buff.charAt(0);
   }
 
-  private static char lastNonQuote(String buff, int start) {
-
+  private static char lastNonQuote(CharSequence buff, int start) {
     for (int pt = start + 1; pt < buff.length(); pt++) {
       if (!isQuoteChar(buff.charAt(pt)))
         return buff.charAt(pt);
@@ -70,7 +82,7 @@ public class RuTypoChanger {
   }
 
 
-  private static boolean isQuoteOpening(String buff, int position) {
+  private static boolean isQuoteOpening(CharSequence buff, int position) {
     char before, after;
 
     if (position == buff.length() - 1)
@@ -92,10 +104,10 @@ public class RuTypoChanger {
     return true;
   }
 
-  private boolean isQuoteClosing(String buff, int position) {
+  private boolean isQuoteClosing(CharSequence buff, int position) {
     char before, after;
 
-    if (position == 0 && localBuff.equals(""))
+    if (position == 0 && localBuff.length()==0)
       return false;
     else if (position == buff.length() - 1)
       return true;
@@ -124,12 +136,11 @@ public class RuTypoChanger {
    */
 
   public String format(String input) {
-
-    StringBuffer buff = new StringBuffer(input.replaceAll("&quot;", "\""));
+    StringBuilder buff = new StringBuilder(QUOTE_PATTERN.matcher(input).replaceAll("\""));
 
     for (int iter = 0; iter < buff.length(); iter++) {
       if (buff.charAt(iter) == QUOTE_SYMBOL) {
-        if (isQuoteClosing(buff.toString(), iter) && quoteDepth > 0) {
+        if (isQuoteClosing(buff, iter) && quoteDepth > 0) {
           if (quoteDepth == 1)
             buff.setCharAt(iter, QUOTE_OUT_CLOSE);
           else
@@ -137,7 +148,7 @@ public class RuTypoChanger {
           quoteDepth--;
         }
         else
-        if (isQuoteOpening(buff.toString(), iter)) { //убеждаемся, что всё так
+        if (isQuoteOpening(buff, iter)) { //убеждаемся, что всё так
           if (quoteDepth == 0)
             buff.setCharAt(iter, QUOTE_OUT_OPEN);
           else
@@ -149,15 +160,14 @@ public class RuTypoChanger {
 
     }
 
-    localBuff = buff.toString();
-    input = buff.toString().replaceAll("(''|\")", "&quot;");
+    localBuff = buff;
+    input = QUOTE_CHAR_PATTERN.matcher(buff).replaceAll("&quot;");
 
-    input = input.replaceAll(Character.toString(QUOTE_IN_OPEN), QUOTE_IN_OPEN_HTML);
-    input = input.replaceAll(Character.toString(QUOTE_IN_CLOSE), QUOTE_IN_CLOSE_HTML);
-    input = input.replaceAll(Character.toString(QUOTE_OUT_OPEN), QUOTE_OUT_OPEN_HTML);
-    input = input.replaceAll(Character.toString(QUOTE_OUT_CLOSE), QUOTE_OUT_CLOSE_HTML);
+    input = QUOTE_IN_OPEN_PATTERN.matcher(input).replaceAll(QUOTE_IN_OPEN_HTML);
+    input = QUOTE_IN_CLOSE_PATTERN.matcher(input).replaceAll(QUOTE_IN_CLOSE_HTML);
+    input = QUOTE_OUT_OPEN_PATTERN.matcher(input).replaceAll(QUOTE_OUT_OPEN_HTML);
+    input = QUOTE_OUT_CLOSE_PATTERN.matcher(input).replaceAll(QUOTE_OUT_CLOSE_HTML);
 
     return input;
   }
-
 }
