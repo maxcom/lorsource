@@ -16,10 +16,10 @@ package ru.org.linux.user
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
-import java.util.concurrent.Callable
+import java.util.concurrent.ExecutionException
 import javax.annotation.Nullable
 
-import com.google.common.cache.CacheBuilder
+import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -46,7 +46,11 @@ object UserService {
 @Service
 class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
   private val nameToIdCache =
-    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer]()
+    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
+      new CacheLoader() {
+        override def load(nick: String): Integer = userDao.findUserId(nick)
+      }
+    )
 
   @throws(classOf[UserErrorException])
   @throws(classOf[IOException])
@@ -141,9 +145,11 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
   def getCorrectors = getUsersCached(userDao.getCorrectorIds)
 
   private def findUserIdCached(nick:String):Int = {
-    nameToIdCache.get(nick, new Callable[Integer] {
-      override def call() = userDao.findUserId(nick)
-    })
+    try {
+      nameToIdCache.get(nick)
+    } catch {
+      case ex:ExecutionException ⇒ throw ex.getCause
+    }
   }
 
   def getUserCached(nick: String) = userDao.getUserCached(findUserIdCached(nick))
