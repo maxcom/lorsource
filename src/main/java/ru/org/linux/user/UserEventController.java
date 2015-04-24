@@ -37,7 +37,7 @@ public class UserEventController {
   private ReplyFeedView feedView;
 
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private UserEventService userEventService;
@@ -194,7 +194,7 @@ public class UserEventController {
     int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     boolean showPrivate = tmpl.isModeratorSession();
 

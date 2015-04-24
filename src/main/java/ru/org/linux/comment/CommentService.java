@@ -78,6 +78,9 @@ public class CommentService {
   private UserDao userDao;
 
   @Autowired
+  private UserService userService;
+
+  @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
 
   @Autowired
@@ -154,7 +157,7 @@ public class CommentService {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userService));
   }
 
   /**
@@ -300,7 +303,7 @@ public class CommentService {
 
       return commentRequest.getNick();
     } else {
-      return userDao.getAnonymous();
+      return userService.getAnonymous();
     }
   }
 

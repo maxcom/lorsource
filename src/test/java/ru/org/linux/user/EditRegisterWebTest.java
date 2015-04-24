@@ -62,7 +62,7 @@ public class EditRegisterWebTest {
   private UserDao userDao;
 
   private void rescueMaxcom() throws Exception {
-    final User user = userDao.getUser("maxcom");
+    final User user = userDao.getUser(userDao.findUserId("maxcom"));
     userDao.updateUser(
         user,
         MAXCOM_NAME,
@@ -76,7 +76,7 @@ public class EditRegisterWebTest {
   }
 
   private void rescueJB() throws Exception {
-    final User user = userDao.getUser("JB");
+    final User user = userDao.getUser(userDao.findUserId("JB"));
     userDao.updateUser(
         user,
         JB_NAME,

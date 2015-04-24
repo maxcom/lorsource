@@ -18,10 +18,10 @@ package ru.org.linux.user;
 import java.beans.PropertyEditorSupport;
 
 public class UserPropertyEditor extends PropertyEditorSupport {
-  private final UserDao userDao;
+  private final UserService userService;
 
-  public UserPropertyEditor(UserDao userDao) {
-    this.userDao = userDao;
+  public UserPropertyEditor(UserService userService) {
+    this.userService = userService;
   }
 
   @Override
@@ -32,7 +32,7 @@ public class UserPropertyEditor extends PropertyEditorSupport {
     }
 
     try {
-      setValue(userDao.getUser(s));
+      setValue(userService.getUser(s));
     } catch (UserNotFoundException e) {
       throw new IllegalArgumentException(e);
     }

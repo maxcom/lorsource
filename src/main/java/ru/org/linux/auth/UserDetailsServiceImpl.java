@@ -24,10 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import ru.org.linux.user.ProfileDao;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +35,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private ProfileDao profileDao;
@@ -53,7 +53,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       }
     } else {
       try {
-        user = userDao.getUser(username);
+        user = userService.getUser(username);
       } catch (UserNotFoundException e) {
         throw new UsernameNotFoundException(username);
       }

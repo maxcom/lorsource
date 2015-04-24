@@ -51,7 +51,7 @@ public class ResetPasswordController {
     @RequestParam("nick") String nick,
     @RequestParam("code") String formCode
   ) throws Exception {
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     user.checkBlocked();
     user.checkAnonymous();

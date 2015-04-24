@@ -40,8 +40,8 @@ import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import scala.None$;
 import scala.Option;
@@ -57,7 +57,7 @@ public class SearchController {
   private SectionService sectionService;
 
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private GroupDao groupDao;
@@ -230,7 +230,7 @@ public class SearchController {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userService));
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }

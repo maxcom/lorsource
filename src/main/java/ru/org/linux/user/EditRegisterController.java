@@ -71,6 +71,9 @@ public class EditRegisterController {
   private UserDao userDao;
 
   @Autowired
+  private UserService userService;
+
+  @Autowired
   private EmailService emailService;
 
   @RequestMapping(method = RequestMethod.GET)
@@ -161,7 +164,7 @@ public class EditRegisterController {
 
     boolean emailChanged = false;
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     if (Strings.isNullOrEmpty(form.getOldpass())) {
       errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль");

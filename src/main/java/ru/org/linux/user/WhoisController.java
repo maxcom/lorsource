@@ -80,7 +80,7 @@ public class WhoisController {
   public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user));
@@ -169,7 +169,7 @@ public class WhoisController {
       throw new AccessViolationException("not moderator");
     }
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     user.checkAnonymous();
     user.checkBlocked();

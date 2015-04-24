@@ -75,10 +75,6 @@ public class UserDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public User getUser(String nick) throws UserNotFoundException {
-    return getUser(findUserId(nick));
-  }
-
   public int findUserId(String nick) throws UserNotFoundException {
     if (nick == null) {
       throw new NullPointerException();
@@ -170,14 +166,11 @@ public class UserDao {
    * @return информация о бане :-)
    */
   public BanInfo getBanInfoClass(User user) {
-    List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, new RowMapper<BanInfo>() {
-      @Override
-      public BanInfo mapRow(ResultSet resultSet, int i) throws SQLException {
-        Timestamp date = resultSet.getTimestamp("bandate");
-        String reason = resultSet.getString("reason");
-        User moderator = getUser(resultSet.getInt("ban_by"));
-        return new BanInfo(date, reason, moderator);
-      }
+    List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, (resultSet, i) -> {
+      Timestamp date = resultSet.getTimestamp("bandate");
+      String reason = resultSet.getString("reason");
+      User moderator = getUser(resultSet.getInt("ban_by"));
+      return new BanInfo(date, reason, moderator);
     }, user.getId());
 
     if (infoList.isEmpty()) {
@@ -196,11 +189,8 @@ public class UserDao {
   }
 
   public Tuple2<Timestamp, Timestamp> getFirstAndLastCommentDate(User user) {
-    return jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<Tuple2<Timestamp, Timestamp>>() {
-      @Override
-      public Tuple2<Timestamp, Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-      }
+    return jdbcTemplate.queryForObject(queryCommentDates, (resultSet, i) -> {
+      return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
     }, user.getId());
   }
 
@@ -393,15 +383,6 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
     userLogDao.logUnblockUser(user, moderator);
-  }
-
-  @Nonnull
-  public User getAnonymous() {
-    try {
-      return getUserCached(2);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException("Anonymous not found!?", e);
-    }
   }
 
   public List<Integer> getModeratorIds() {

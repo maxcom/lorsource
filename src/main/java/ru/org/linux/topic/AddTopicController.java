@@ -53,9 +53,9 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
@@ -89,7 +89,8 @@ public class AddTopicController {
   @Autowired
   private TagService tagService;
 
-  private UserDao userDao;
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private TopicPrepareService prepareService;
@@ -129,11 +130,6 @@ public class AddTopicController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
   }
 
   @Autowired
@@ -216,7 +212,7 @@ public class AddTopicController {
       if (form.getNick() != null) {
         user = form.getNick();
       } else {
-        user = userDao.getAnonymous();
+        user = userService.getAnonymous();
       }
     } else {
       user = tmpl.getCurrentUser();
@@ -440,7 +436,7 @@ public class AddTopicController {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userService));
   }
 
   @InitBinder("form")

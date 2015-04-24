@@ -16,8 +16,10 @@ package ru.org.linux.user
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
+import java.util.concurrent.Callable
 import javax.annotation.Nullable
 
+import com.google.common.cache.CacheBuilder
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -35,10 +37,17 @@ object UserService {
   val MaxImageSize = 150
 
   val DisabledUserpic = new Userpic("/img/p.gif", 1, 1)
+
+  val AnonymousUserId = 2
+
+  private val NameCacheSize = 10000
 }
 
 @Service
 class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
+  private val nameToIdCache =
+    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer]()
+
   @throws(classOf[UserErrorException])
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
@@ -131,7 +140,24 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
 
   def getCorrectors = getUsersCached(userDao.getCorrectorIds)
 
-  def getUserCached(nick: String) = userDao.getUserCached(userDao.findUserId(nick))
+  private def findUserIdCached(nick:String):Int = {
+    nameToIdCache.get(nick, new Callable[Integer] {
+      override def call() = userDao.findUserId(nick)
+    })
+  }
+
+  def getUserCached(nick: String) = userDao.getUserCached(findUserIdCached(nick))
 
   def getUserCached(id: Int) = userDao.getUserCached(id)
+
+  def getUser(nick:String) = userDao.getUser(findUserIdCached(nick))
+
+  def getAnonymous: User = {
+    try {
+      userDao.getUserCached(UserService.AnonymousUserId)
+    } catch {
+      case e: UserNotFoundException ⇒
+        throw new RuntimeException("Anonymous not found!?", e)
+    }
+  }
 }
