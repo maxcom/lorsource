@@ -47,7 +47,7 @@ object UserService {
 class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
-      new CacheLoader() {
+      new CacheLoader[String, Integer] {
         override def load(nick: String): Integer = userDao.findUserId(nick)
       }
     )
