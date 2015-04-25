@@ -16,10 +16,10 @@ package ru.org.linux.user
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
-import java.util.concurrent.ExecutionException
 import javax.annotation.Nullable
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
+import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -148,7 +148,7 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
     try {
       nameToIdCache.get(nick)
     } catch {
-      case ex:ExecutionException ⇒ throw ex.getCause
+      case ex:UncheckedExecutionException ⇒ throw ex.getCause
     }
   }
 
