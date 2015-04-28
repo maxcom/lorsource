@@ -114,7 +114,11 @@ class ElasticsearchIndexService @Autowired()
   }
 
   def createIndexIfNeeded():Unit = {
-    if (!elastic.exists(MessageIndex).await.isExists) {
+    val indexExists = elastic execute {
+      index exists MessageIndex
+    } await
+
+    if (!indexExists.isExists) {
       val mappingSource = IOUtils.toString(getClass.getClassLoader.getResource("es-mapping.json"))
 
       elastic.java
