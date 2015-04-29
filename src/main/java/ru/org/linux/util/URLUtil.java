@@ -31,27 +31,7 @@ public final class URLUtil {
     Pattern.CASE_INSENSITIVE
   );
 
-  private static final Pattern requestMessagePattern = Pattern.compile("\\w+/\\w+/(\\d+)");
-  private static final Pattern requestCommentPattern = Pattern.compile("#comment-(\\d+)");
-
   private URLUtil() {
-  }
-
-  @Deprecated
-  public static String checkAndFixURL(String url) throws BadURLException {
-    url = url.trim();
-
-    if (isUrl(url)) {
-      if (url.toLowerCase().startsWith("www.")) {
-        return "http://" + url;
-      }
-      if (url.toLowerCase().startsWith("ftp.")) {
-        return "ftp://" + url;
-      }
-      return url;
-    }
-
-    throw new BadURLException(url);
   }
 
   public static String fixURL(String url) {
@@ -128,5 +108,4 @@ public final class URLUtil {
   public static boolean isUrl(String x) {
     return isUrl.matcher(x).matches();
   }
-
 }
