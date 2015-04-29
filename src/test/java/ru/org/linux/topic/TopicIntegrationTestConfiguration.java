@@ -22,6 +22,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
+import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.spring.FeedPinger;
@@ -48,6 +49,7 @@ import static org.mockito.Mockito.mock;
                                 SearchQueueSender.class,
                                 FeedPinger.class,
                                 TopicListService.class,
+                                MoreLikeThisService.class
                         }
                 )
         }
@@ -73,6 +75,11 @@ public class TopicIntegrationTestConfiguration {
   }
 
   @Bean
+  public MoreLikeThisService moreLikeThisService() {
+    return Mockito.mock(MoreLikeThisService.class);
+  }
+
+  @Bean
   public Client elasticsearch() {
     Client mockClient = Mockito.mock(Client.class);
 
@@ -80,5 +87,4 @@ public class TopicIntegrationTestConfiguration {
 
     return mockClient;
   }
-
 }

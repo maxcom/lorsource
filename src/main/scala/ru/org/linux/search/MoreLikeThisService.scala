@@ -17,6 +17,8 @@ package ru.org.linux.search
 
 import java.util.concurrent.TimeUnit
 
+import akka.actor.Scheduler
+import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
@@ -43,7 +45,8 @@ import scala.concurrent.{Await, Future, TimeoutException}
 @Service
 class MoreLikeThisService @Autowired() (
   client:Client,
-  sectionService:SectionService
+  sectionService:SectionService,
+  scheduler:Scheduler
 ) extends StrictLogging {
   import ru.org.linux.search.MoreLikeThisService._
 
@@ -57,26 +60,38 @@ class MoreLikeThisService @Autowired() (
     .expireAfterWrite(1, TimeUnit.HOURS)
     .build[Integer, Result]()
 
+  private val breaker = new CircuitBreaker(
+    scheduler = scheduler,
+    maxFailures = 5,
+    callTimeout = 2.seconds,
+    resetTimeout = 1.minute
+  )
+
+  breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
+  breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
+
   def searchSimilar(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.getId))
 
     cachedValue.map(Future.successful).getOrElse {
-      try {
-        val searchResult = elastic execute makeQuery(topic, plainText, tags)
+      breaker.withCircuitBreaker {
+        try {
+          val searchResult = elastic execute makeQuery(topic, plainText, tags)
 
-        val result:Future[Result] = searchResult.map(result => if (result.getHits.nonEmpty) {
-          val half = result.getHits.size / 2 + result.getHits.size % 2
+          val result: Future[Result] = searchResult.map(result => if (result.getHits.nonEmpty) {
+            val half = result.getHits.size / 2 + result.getHits.size % 2
 
-          result.getHits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
-        } else Seq())
+            result.getHits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
+          } else Seq())
 
-        result.onSuccess {
-          case v => cache.put(topic.getId, v)
+          result.onSuccess {
+            case v => cache.put(topic.getId, v)
+          }
+
+          result
+        } catch {
+          case ex: ElasticsearchException => Future.failed(ex)
         }
-
-        result
-      } catch {
-        case ex: ElasticsearchException => Future.failed(ex)
       }
     }
   }
@@ -105,10 +120,13 @@ class MoreLikeThisService @Autowired() (
       try {
         Await.result(featureResult, deadline.timeLeft)
       } catch {
-        case ex: ElasticsearchException =>
+        case ex: CircuitBreakerOpenException ⇒
+          logger.debug(s"Similar topics circuit breaker is open")
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+        case ex: ElasticsearchException ⇒
           logger.warn("Unable to find similar topics", ex)
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
-        case ex: TimeoutException =>
+        case ex: TimeoutException ⇒
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
       }
