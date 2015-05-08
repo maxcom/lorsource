@@ -324,7 +324,6 @@ public class AddTopicController {
       TopicMenu topicMenu = prepareService.getTopicMenu(
               preparedTopic,
               tmpl.getCurrentUser(),
-              request.isSecure(),
               tmpl.getProf(),
               true
       );

@@ -340,7 +340,6 @@ public class TopicPrepareService {
       TopicMenu topicMenu = getTopicMenu(
               preparedMessage,
               user,
-              secure,
               profile,
               loadUserpics
       );
@@ -390,7 +389,6 @@ public class TopicPrepareService {
   public TopicMenu getTopicMenu(
           @Nonnull PreparedTopic message,
           @Nullable User currentUser,
-          boolean secure,
           Profile profile,
           boolean loadUserpics
   ) {
@@ -414,7 +412,6 @@ public class TopicPrepareService {
     if (loadUserpics && profile.isShowPhotos()) {
       userpic = userService.getUserpic(
               message.getAuthor(),
-              secure,
               profile.getAvatarMode(),
               true
       );

@@ -32,7 +32,6 @@ import scala.Option;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -77,7 +76,7 @@ public class WhoisController {
   private RemarkDao remarkDao;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     User user = userService.getUser(nick);
@@ -92,7 +91,6 @@ public class WhoisController {
 
     mv.getModel().put("userpic", userService.getUserpic(
             user,
-            request.isSecure(),
             tmpl.getProf().getAvatarMode(),
             true
     ));

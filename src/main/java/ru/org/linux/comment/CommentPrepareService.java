@@ -143,7 +143,6 @@ public class CommentPrepareService {
     if (tmpl != null && tmpl.getProf().isShowPhotos()) {
       userpic = userService.getUserpic(
               author,
-              secure,
               tmpl.getProf().getAvatarMode(),
               false
       );

@@ -302,7 +302,6 @@ public class TopicController {
     params.put("messageMenu", topicPrepareService.getTopicMenu(
             preparedMessage,
             currentUser,
-            request.isSecure(),
             tmpl.getProf(),
             true
     ));

@@ -131,7 +131,6 @@ public class EditTopicController {
             preparedMessage,
             form,
             tmpl.getCurrentUser(),
-            request.isSecure(),
             tmpl.getProf()
     );
 
@@ -166,7 +165,6 @@ public class EditTopicController {
             preparedMessage,
             form,
             tmpl.getCurrentUser(),
-            request.isSecure(),
             tmpl.getProf()
     );
   }
@@ -175,7 +173,6 @@ public class EditTopicController {
     PreparedTopic preparedTopic,
     EditTopicRequest form,
     User currentUser,
-    boolean secure,
     Profile profile
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<>();
@@ -195,7 +192,6 @@ public class EditTopicController {
     TopicMenu topicMenu = prepareService.getTopicMenu(
             preparedTopic,
             currentUser,
-            secure,
             profile,
             true
     );
@@ -295,7 +291,6 @@ public class EditTopicController {
     params.put("topicMenu", prepareService.getTopicMenu(
             preparedTopic,
             tmpl.getCurrentUser(),
-            request.isSecure(),
             tmpl.getProf(),
             true
     ));
