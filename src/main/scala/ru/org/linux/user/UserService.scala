@@ -94,6 +94,18 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
     }
   }
 
+  private def gravatar(email: String, avatarStyle: String, size: Int, secure: Boolean): String = {
+    val nonExist: String = if ("empty" == avatarStyle) {
+      "blank"
+    } else {
+      avatarStyle
+    }
+
+    val grUrl = if (secure) "https://secure.gravatar.com/avatar/" else "http://www.gravatar.com/avatar/"
+
+    grUrl + StringUtil.md5hash(email.toLowerCase) + "?s=" + size + "&r=g&d=" + nonExist
+  }
+
   def getUserpic(user: User, secure: Boolean, avatarStyle: String, misteryMan: Boolean): Userpic = {
     val avatarMode = if (misteryMan && ("empty" == avatarStyle)) {
        "mm"
@@ -102,7 +114,7 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
     }
 
     val userpic = if (user.isAnonymous && misteryMan) {
-      Some(new Userpic(User.getGravatar("anonymous@linux.org.ru", avatarMode, 150, secure), 150, 150))
+      Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150, secure), 150, 150))
     } else if (user.getPhoto != null && !user.getPhoto.isEmpty) {
       Try {
         val info = new ImageInfo(siteConfig.getHTMLPathPrefix + "/photos/" + user.getPhoto)
@@ -122,8 +134,8 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
     }
 
     userpic.getOrElse {
-      if (user.hasGravatar && !("" == user.getPhoto)) {
-        new Userpic(user.getGravatar(avatarMode, 150, secure), 150, 150)
+      if (user.hasGravatar && user.getPhoto.nonEmpty) {
+        new Userpic(gravatar(user.getEmail, avatarMode, 150, secure), 150, 150)
       } else {
         UserService.DisabledUserpic
       }
