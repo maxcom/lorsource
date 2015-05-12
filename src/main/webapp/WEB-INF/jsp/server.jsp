@@ -84,13 +84,19 @@
 
   Модераторы:
   <ul>
-<c:forEach var="user" items="${moderators}">
-  <li>
-    <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" link="true"/>)
-  </li>
-</c:forEach>
-
-</ul>
+    <c:forEach var="user" items="${moderators}">
+      <li>
+        <c:choose>
+            <c:when test="${not empty user.name}">
+                <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" link="true"/>)
+            </c:when>
+            <c:otherwise>
+                <lor:user user="${user}" link="true"/>
+            </c:otherwise>
+        </c:choose>
+      </li>
+    </c:forEach>
+  </ul>
 
   Корректоры новостей:
   <ul>
