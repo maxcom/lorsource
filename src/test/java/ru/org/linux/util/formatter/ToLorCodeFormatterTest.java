@@ -42,10 +42,10 @@ public class ToLorCodeFormatterTest {
     assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest")); // 1
     assertEquals("test\n\n[quote]test[/quote]", toLorCodeTexFormatter.format("test\n\n>test")); // 7
     assertEquals("test &", toLorCodeTexFormatter.format("test &")); // 8
-    assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest", true)); // 9
-    assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest", true)); // 10
-    assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest", true)); // 11
-    assertEquals("[quote]test[br]test[/quote]", toLorCodeFormatter.format(">test\n>test", true)); // 12
+    assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest")); // 9
+    assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest")); // 10
+    assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest")); // 11
+    assertEquals("[quote]test[br]test[/quote]", toLorCodeFormatter.format(">test\n>test")); // 12
   }
 
   @Test
@@ -61,21 +61,12 @@ public class ToLorCodeFormatterTest {
     assertEquals("][[code]]", ToLorCodeTexFormatter.escapeCode("][code]"));
     assertEquals("[[code]] [[code]]", ToLorCodeTexFormatter.escapeCode("[code] [code]"));
     assertEquals("[[code]] [[/code]]", ToLorCodeTexFormatter.escapeCode("[code] [/code]"));
-
-    // TODO
-    //     assertEquals("[[code]][[code]]", ToLorCodeTexFormatter.escapeCode("[code][code]"));
   }
 
   @Test
   public void codeEscape() {
-    assertEquals("[code][/code]",
-        toLorCodeTexFormatter.format("[code][/code]"));
-    assertEquals("[code=perl][/code]",
-        toLorCodeTexFormatter.format("[code=perl][/code]"));
-    assertEquals("[[code]] [[/code]]",
-        toLorCodeFormatter.format("[code] [/code]", true));
-    assertEquals("[[code=perl]] [[/code]]",
-        toLorCodeFormatter.format("[code=perl] [/code]", true));
+    assertEquals("[code][/code]", toLorCodeTexFormatter.format("[code][/code]"));
+    assertEquals("[code=perl][/code]", toLorCodeTexFormatter.format("[code=perl][/code]"));
   }
 
   @Test
@@ -154,7 +145,7 @@ public class ToLorCodeFormatterTest {
   @Test
   public void againQuoteFormatter() {
     assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
-        toLorCodeFormatter.format(">one\n>>two\n>one\n>>>three", true));
+        toLorCodeFormatter.format(">one\n>>two\n>one\n>>>three"));
     assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
         toLorCodeTexFormatter.format(">one\n>>two\n>one\n>>>three"));
   }

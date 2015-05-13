@@ -788,7 +788,7 @@ public class CommentService {
    */
   private String processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg, true);
+      return toLorCodeFormatter.format(msg);
     } else {
       return toLorCodeTexFormatter.format(msg);
     }

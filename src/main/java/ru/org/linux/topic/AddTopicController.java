@@ -59,6 +59,7 @@ import ru.org.linux.user.UserService;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
+import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -95,7 +96,11 @@ public class AddTopicController {
   @Autowired
   private TopicPrepareService prepareService;
 
+  @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
+
+  @Autowired
+  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
   private GroupPermissionService groupPermissionService;
@@ -130,11 +135,6 @@ public class AddTopicController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
-    this.toLorCodeFormatter = toLorCodeFormatter;
   }
 
   @ModelAttribute("ipBlockInfo")
@@ -175,9 +175,9 @@ public class AddTopicController {
     }
 
     if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg, false);
+      return toLorCodeFormatter.format(msg);
     } else {
-      return msg;
+      return toLorCodeTexFormatter.format(msg);
     }
   }
 

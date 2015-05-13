@@ -221,26 +221,6 @@ public final class StringUtil {
     return res.toString();
   }
 
-  /**
-   * Повторить строку n раз
-   * @param s строка
-   * @param n сколько повторять строку
-   * @return повторенная n раз строка
-   */
-  public static String repeat(String s, int n) {
-    if(s == null) {
-      return null;
-    }
-    if(n <= 0) {
-      return s;
-    }
-    final StringBuilder sb = new StringBuilder(s.length()*n);
-    for(int i = 0; i < n; i++) {
-        sb.append(s);
-    }
-    return sb.toString();
-  }
-
   public static boolean isUnsignedPositiveNumber(String s) {
     return s.matches("\\d+");
   }

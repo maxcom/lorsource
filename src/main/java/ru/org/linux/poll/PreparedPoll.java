@@ -15,6 +15,7 @@
 
 package ru.org.linux.poll;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.util.StringUtil;
 
@@ -73,7 +74,7 @@ public class PreparedPoll {
           percentage,
           variantWidth,
           variantPercent,
-          StringUtil.repeat("*", variantWidth)
+              Strings.repeat("*", variantWidth)
           ));
     }
     variants = variantsBuilder.build();
