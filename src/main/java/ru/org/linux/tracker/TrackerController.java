@@ -26,7 +26,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserService;
@@ -42,9 +41,6 @@ public class TrackerController {
 
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
 
   @ModelAttribute("filters")
   public static List<TrackerFilterEnum> getFilter() {
@@ -127,7 +123,6 @@ public class TrackerController {
 
     if (tmpl.isModeratorSession()) {
       params.put("newUsers", userService.getNewUsers());
-      params.put("deleteStats", deleteInfoDao.getRecentStats());
     }
 
     return new ModelAndView("tracker", params);

@@ -150,29 +150,4 @@
   (всего ${fn:length(newUsers)})
 </c:if>
 
-<c:if test="${deleteStats!=null and fn:length(deleteStats)!=0}">
-  <h2>Статистика удаленных за 24 часа</h2>
-  <div class=forum>
-
-  <table width="100%" class="message-table">
-    <thead>
-    <tr>
-      <th>Причина</th>
-      <th>Количество</th>
-      <th>Сумма score</th>
-      <th>Средний score</th>
-    </tr>
-    </thead>
-    <tbody>
-      <c:forEach items="${deleteStats}" var="stat">
-          <tr>
-              <td><c:out escapeXml="true" value="${stat.reason}"/></td>
-              <td>${stat.count}</td>
-              <td>${stat.sum}</td>
-              <td><ftm:formatNumber value="${stat.avg}" maxFractionDigits="2"/></td>
-          </tr>
-      </c:forEach>
-  </table>
-  </div>
-</c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
