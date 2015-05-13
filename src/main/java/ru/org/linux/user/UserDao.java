@@ -224,7 +224,7 @@ public class UserDao {
   public boolean resetUserpic(User user, User cleaner) {
     boolean r;
 
-    if (user.hasGravatar()) {
+    if (user.getPhoto()==null) {
       r = jdbcTemplate.update("UPDATE users SET photo='' WHERE id=? and photo is null", user.getId()) > 0;
     } else {
       r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
@@ -235,7 +235,7 @@ public class UserDao {
     }
 
     // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
-    if(cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
+    if(cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()) {
       changeScore(user.getId(), -10);
       userLogDao.logResetUserpic(user, cleaner, -10);
     } else {
