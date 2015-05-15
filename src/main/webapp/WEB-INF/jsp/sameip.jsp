@@ -26,12 +26,9 @@
 
 <title>Поиск писем с IP-адреса</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<%
-  String ip = (String) request.getAttribute("ip");
-%>
 <div class=nav>
     <div id="navPath">
-      <strong>Сообщения с ${ip}</strong>
+      Поиск писем с IP-адреса
     </div>
 
     <div class="nav-buttons">
@@ -43,6 +40,13 @@
       [<a href='http://bgp.he.net/ip/${ip}'>BGP</a>]
     </div>
 </div>
+
+<form action="sameip.jsp">
+  <div class="control-group">
+    Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}">&nbsp;
+    <button type="submit" class="btn btn-default">Изменить</button><BR>
+  </div>
+</form>
 
 <strong>Текущий статус: </strong>
 
@@ -81,7 +85,7 @@
 <legend>забанить/разбанить IP</legend>
 <form method="post" action="banip.jsp">
 <lor:csrf/>
-<input type="hidden" name="ip" value="<%= ip %>">
+<input type="hidden" name="ip" value="${ip}">
  по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 <select name="time" onchange="checkCustomBan(this.selectedIndex);">
@@ -113,7 +117,7 @@
 <label><input id="captchaRequired" type="checkbox" name="captcha_required" value="true" ${checked2} ${disabled}>требовать ввод каптчи</label><br/>
 
 <p>
-<input type="submit" name="ban" value="ban ip">
+<button type="submit" name="ban" class="btn btn-default">ban ip</button>
 <script type="text/javascript">
 function allowPostingOnChange(object) {
 
@@ -144,7 +148,7 @@ function checkCustomBan(idx) {
 <legend>Удалить темы и сообщения с IP</legend>
 <form method="post" action="delip.jsp">
 <lor:csrf/>
-<input type="hidden" name="ip" value="<%= ip %>">
+<input type="hidden" name="ip" value="${ip}">
 по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
@@ -153,7 +157,7 @@ function checkCustomBan(idx) {
 <option value="3day">3 дня</option>
 </select>
 <p>
-<input type="submit" name="del" value="del from ip">
+<button type="submit" name="del" class="btn btn-danger">del from ip</button>
 </form>
 </fieldset>
 
