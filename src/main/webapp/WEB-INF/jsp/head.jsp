@@ -78,3 +78,5 @@
 
   $script('/js/highlight.pack.js', function() { hljs.initHighlightingOnLoad(); });
 </script>
+
+  <script type="text/javascript">window.qbaka_vision=window.qbaka_vision||function(g,a){var d=[],c=function(){d.push(arguments)},b=a.createElement("script"),e=a.getElementsByTagName("script")[0],f=function(){e.parentNode.insertBefore(b,e)};c._=d;b.type="text/javascript";b.async=!0;b.src=("https:"==a.location.protocol?"https:":"http:")+"//cdn.qbaka.net/qba.js";"undefined"==typeof b.async&&a.addEventListener?a.addEventListener("DOMContentLoaded",f):f();c("api_key","c5eaf1708b3080082f9d3115c0e6964e");return c}(window,document);</script>
