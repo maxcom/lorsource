@@ -31,10 +31,10 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
+import static ru.org.linux.util.bbcode.Parser.DEFAULT_PARSER;
+
 @Service
 public class LorCodeService {
-  private static final Parser defaultParser = new Parser(new DefaultParserParameters());
-
   private UserService userService;
   private SiteConfig siteConfig;
   private ToHtmlFormatter toHtmlFormatter;
@@ -64,11 +64,11 @@ public class LorCodeService {
    * @return HTML
    */
   public String parseComment(String text, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
+    return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
   }
 
   String parseCommentRSS(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
+    return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
   }
 
   /**
@@ -78,7 +78,7 @@ public class LorCodeService {
    * @return извлеченный текст
    */
   public String extractPlainTextFromLorcode(String text) {
-    return defaultParser.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
+    return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
   }
 
   /**
@@ -129,7 +129,7 @@ public class LorCodeService {
    * @return множество пользователей
    */
   public Set<User> getReplierFromMessage(String text) {
-    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false, false), text);
+    RootNode rootNode = DEFAULT_PARSER.parseRoot(prepareCommentRootNode(false, false, false), text);
     rootNode.renderXHtml();
     return rootNode.getReplier();
   }
@@ -142,7 +142,7 @@ public class LorCodeService {
    * @return HTML
    */
   public String parseTopicWithMinimizedCut(String text, String cutURL, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure, nofollow), text).renderXHtml();
+    return DEFAULT_PARSER.parseRoot(prepareTopicRootNode(true, cutURL, secure, nofollow), text).renderXHtml();
   }
   /**
    * Преобразует LORCODE в HTML для топиков со развернутым содержимым тэга cut
@@ -153,11 +153,11 @@ public class LorCodeService {
    * @return HTML
    */
   public String parseTopic(String text, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure, nofollow), text).renderXHtml();
+    return DEFAULT_PARSER.parseRoot(prepareTopicRootNode(false, null, secure, nofollow), text).renderXHtml();
   }
 
   private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow) {
-    RootNode rootNode = defaultParser.getRootNode();
+    RootNode rootNode = DEFAULT_PARSER.createRootNode();
     rootNode.setCommentCutOptions();
     rootNode.setUserService(userService);
     rootNode.setSecure(secure);
@@ -169,7 +169,7 @@ public class LorCodeService {
   }
 
   private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure, boolean nofollow) {
-    RootNode rootNode = defaultParser.getRootNode();
+    RootNode rootNode = DEFAULT_PARSER.createRootNode();
     if(minimizeCut) {
       try {
         LorURL lorCutURL = new LorURL(siteConfig.getMainURI(), cutURL);

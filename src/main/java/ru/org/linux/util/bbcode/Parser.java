@@ -68,6 +68,8 @@ import java.util.regex.Pattern;
  * Основной класс преобразования LORCODE в html
  */
 public class Parser {
+  public static final Parser DEFAULT_PARSER = new Parser(new DefaultParserParameters());
+
   /**
    * Регулярное выражение поиска тэга
    */
@@ -93,7 +95,7 @@ public class Parser {
     return StringUtil.escapeHtml(html);
   }
 
-  public RootNode getRootNode() {
+  public RootNode createRootNode() {
     return new RootNode(parserParameters);
   }
 
