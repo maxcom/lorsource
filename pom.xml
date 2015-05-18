@@ -61,9 +61,16 @@
     </dependency>
 
     <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_${scala.suffix}</artifactId>
-      <version>2.2.4</version>
+      <groupId>org.specs2</groupId>
+      <artifactId>specs2-core_${scala.suffix}</artifactId>
+      <version>3.6</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.specs2</groupId>
+      <artifactId>specs2-junit_${scala.suffix}</artifactId>
+      <version>3.6</version>
       <scope>test</scope>
     </dependency>
 
@@ -696,8 +703,9 @@
                             <!-- Never skip running the tests when the test phase is invoked -->
                             <skip>false</skip>
                             <includes>
-                                <!-- Include unit tests within integration-test phase. -->
-                                <include>**/*Test.java</include>
+                              <!-- Include unit tests within integration-test phase. -->
+                              <include>**/*Test.java</include>
+                              <include>**/*Spec.java</include>
                             </includes>
                             <excludes>
                                 <!-- Exclude integration tests within (unit) test phase. -->
@@ -951,17 +959,18 @@
             </build>
         </profile>
     </profiles>
-    <repositories>
-        <repository>
-            <id>java.net</id>
-            <name>java.net Maven Repository</name>
-            <url>http://download.java.net/maven/2/</url>
-        </repository>
+  <repositories>
+    <repository>
+      <id>java.net</id>
+      <name>java.net Maven Repository</name>
+      <url>http://download.java.net/maven/2/</url>
+    </repository>
 
-      <repository>
-        <id>typesafe</id>
-        <name>typesafe-releases</name>
-        <url>http://repo.typesafe.com/typesafe/repo1</url>
-      </repository>
-    </repositories>
+    <repository>
+      <id>scalaz-bintray</id>
+      <name>scalaz-bintray</name>
+      <url>http://dl.bintray.com/scalaz/releases</url>
+    </repository>
+
+  </repositories>
 </project>
