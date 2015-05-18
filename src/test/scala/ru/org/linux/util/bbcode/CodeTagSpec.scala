@@ -35,6 +35,8 @@ class CodeTagSpec extends Specification {
     "preserve lorcode in case of extra braces" in {
       parse("[code][i]][/code]") must be equalTo
         """<div class="code"><pre class="no-highlight"><code>[i]]</code></pre></div>"""
+      parse("[code][[i][/code]") must be equalTo
+        """<div class="code"><pre class="no-highlight"><code>[[i]</code></pre></div>"""
     }.pendingUntilFixed
 
     "remove leading \\n" in {
