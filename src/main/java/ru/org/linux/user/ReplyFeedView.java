@@ -16,7 +16,7 @@
 package ru.org.linux.user;
 
 import com.sun.syndication.feed.synd.*;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import ru.org.linux.spring.AbstractRomeView;
 import ru.org.linux.util.StringUtil;
 
@@ -52,7 +52,7 @@ public class ReplyFeedView extends AbstractRomeView {
       
       SyndEntry feedEntry = new SyndEntryImpl();
       feedEntry.setPublishedDate(item.getEventDate());
-      feedEntry.setTitle(StringEscapeUtils.unescapeHtml(item.getSubj()));
+      feedEntry.setTitle(StringEscapeUtils.unescapeHtml4(item.getSubj()));
 
       String link;
 

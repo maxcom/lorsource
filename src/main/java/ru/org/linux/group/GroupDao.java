@@ -16,25 +16,20 @@
 package ru.org.linux.group;
 
 import com.google.common.base.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -60,12 +55,9 @@ public class GroupDao {
     try {
       return jdbcTemplate.queryForObject(
         "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
-        new RowMapper<Group>() {
-          @Override
-          public Group mapRow(ResultSet resultSet, int i) throws SQLException {
-            return Group.buildGroup(resultSet);
-          }
-        },
+              (resultSet, i) -> {
+                return Group.buildGroup(resultSet);
+              },
         id
       );
     } catch (EmptyResultDataAccessException ex) {
@@ -82,12 +74,9 @@ public class GroupDao {
   public List<Group> getGroups(Section section) {
     return jdbcTemplate.query(
       "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments, stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
-      new RowMapper<Group>() {
-        @Override
-        public Group mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return Group.buildGroup(rs);
-        }
-      },
+            (rs, rowNum) -> {
+              return Group.buildGroup(rs);
+            },
       section.getId()
     );
   }
@@ -161,32 +150,29 @@ public class GroupDao {
   public void setParams(final Group group, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
     jdbcTemplate.execute(
       "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?",
-      new PreparedStatementCallback<String>() {
-        @Override
-        public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-          pst.setString(1, title);
+            (PreparedStatement pst) -> {
+              pst.setString(1, title);
 
-          if (!info.isEmpty()) {
-            pst.setString(2, info);
-          } else {
-            pst.setString(2, null);
-          }
+              if (!info.isEmpty()) {
+                pst.setString(2, info);
+              } else {
+                pst.setString(2, null);
+              }
 
-          if (!longInfo.isEmpty()) {
-            pst.setString(3, longInfo);
-          } else {
-            pst.setString(3, null);
-          }
+              if (!longInfo.isEmpty()) {
+                pst.setString(3, longInfo);
+              } else {
+                pst.setString(3, null);
+              }
 
-          pst.setBoolean(4, resolvable);
-          pst.setString(5, urlName);
-          pst.setInt(6, group.getId());
+              pst.setBoolean(4, resolvable);
+              pst.setString(5, urlName);
+              pst.setInt(6, group.getId());
 
-          pst.executeUpdate();
+              pst.executeUpdate();
 
-          return null;
-        }
-      }
+              return null;
+            }
     );
   }
 }

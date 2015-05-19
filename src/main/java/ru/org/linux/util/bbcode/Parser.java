@@ -53,7 +53,7 @@
 
 package ru.org.linux.util.bbcode;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.Tag;

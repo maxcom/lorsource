@@ -15,18 +15,14 @@
 
 package ru.org.linux.tag;
 
-import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,37 +40,31 @@ public class TagCloudDao {
     String sql = "select value,counter from tags_values where counter>=10 order by counter desc limit ?";
     final MutableDouble maxc = new MutableDouble(1);
     final MutableDouble minc = new MutableDouble(-1);
-    List<TagDTO> result = jdbcTemplate.query(sql, new RowMapper<TagDTO>() {
-      @Override
-      public TagDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        TagDTO result = new TagDTO();
-        result.setValue(rs.getString("value"));
-        double counter = Math.log(rs.getInt("counter"));
-        result.setCounter(counter);
+    List<TagDTO> result = jdbcTemplate.query(sql, (rs, rowNum) -> {
+      TagDTO result1 = new TagDTO();
+      result1.setValue(rs.getString("value"));
+      double counter = Math.log(rs.getInt("counter"));
+      result1.setCounter(counter);
 
-        if (maxc.doubleValue() < counter){
-          maxc.setValue(counter);
-        }
-
-        if (minc.doubleValue() < 0 || counter < minc.doubleValue()){
-          minc.setValue(counter);
-        }
-
-        return result;
+      if (maxc.doubleValue() < counter){
+        maxc.setValue(counter);
       }
+
+      if (minc.doubleValue() < 0 || counter < minc.doubleValue()){
+        minc.setValue(counter);
+      }
+
+      return result1;
     }, tagcount);
 
     if (minc.doubleValue() < 0){
       minc.setValue(0);
     }
 
-    CollectionUtils.forAllDo(result, new Closure() {
-      @Override
-      public void execute(Object o) {
-        TagDTO tag = (TagDTO) o;
-        tag.setWeight((int) Math.round(10*(tag.getCounter() - minc.doubleValue())
-          / (maxc.doubleValue() - minc.doubleValue())));
-      }
+    CollectionUtils.forAllDo(result, o -> {
+      TagDTO tag = (TagDTO) o;
+      tag.setWeight((int) Math.round(10*(tag.getCounter() - minc.doubleValue())
+        / (maxc.doubleValue() - minc.doubleValue())));
     });
 
     Collections.sort(result);

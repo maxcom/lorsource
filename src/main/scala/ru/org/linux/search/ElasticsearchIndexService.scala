@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang3.StringEscapeUtils
 import org.elasticsearch.client.Client
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
@@ -157,7 +157,7 @@ class ElasticsearchIndexService @Autowired()
         .filter(_.nonEmpty)
         .filterNot(_ == topicTitle)
         .filterNot(_.startsWith("Re:"))
-        .map(StringEscapeUtils.unescapeHtml)
+        .map(StringEscapeUtils.unescapeHtml4)
 
     index into MessageIndexType id comment.getId.toString fields (
       Map("section" -> section.getUrlName,

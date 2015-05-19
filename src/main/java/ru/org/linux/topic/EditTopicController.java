@@ -18,7 +18,7 @@ package ru.org.linux.topic;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -225,7 +225,7 @@ public class EditTopicController {
       form.setUrl(message.getUrl());
     }
 
-    form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
+    form.setTitle(StringEscapeUtils.unescapeHtml4(message.getTitle()));
     form.setMsg(msgbaseDao.getMessageText(message.getId()).getText());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
@@ -503,5 +503,4 @@ public class EditTopicController {
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
-
 }

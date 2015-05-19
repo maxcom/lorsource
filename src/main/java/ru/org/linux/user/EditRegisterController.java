@@ -15,9 +15,8 @@
 
 package ru.org.linux.user;
 
-
 import com.google.common.base.Strings;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +98,7 @@ public class EditRegisterController {
     form.setUrl(userInfo.getUrl());
     form.setTown(userInfo.getTown());
     form.setName(user.getName());
-    form.setInfo(StringEscapeUtils.unescapeHtml(userDao.getUserInfo(user)));
+    form.setInfo(StringEscapeUtils.unescapeHtml4(userDao.getUserInfo(user)));
 
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 

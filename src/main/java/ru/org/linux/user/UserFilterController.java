@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -348,7 +348,7 @@ public class UserFilterController {
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
     if (!errorMessage.isEmpty()) {
-      return ImmutableMap.of("error", StringUtils.join(errorMessage,"; "));
+      return ImmutableMap.of("error", Joiner.on("; ").join(errorMessage));
     }
 
     return ImmutableMap.of();
