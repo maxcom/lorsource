@@ -110,10 +110,6 @@
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
     </bean>
 
-    <!-- unfortunately shutdown method do not kill all threads, we need to call shutdownAll -->
-    <bean id="httpConnectionManager" destroy-method="shutdownAll"
-          class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
-
     <bean id="messageListener"
           class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
         <constructor-arg ref="searchQueueListener"/>
