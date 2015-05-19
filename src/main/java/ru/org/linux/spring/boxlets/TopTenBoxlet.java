@@ -42,9 +42,7 @@ public class TopTenBoxlet extends AbstractBoxlet {
 
     List<TopTenMessageDTO> list = topTenDao.getMessages();
 
-    list.forEach(dto -> {
-      dto.setPages(Topic.getPageCount(profile.getMessages(), dto.getCommentCount()));
-    });
+    list.forEach(dto -> dto.setPages(Topic.getPageCount(dto.getCommentCount(), profile.getMessages())));
 
     Map<String, Object> params = new HashMap<>();
     params.put("messages", list);
