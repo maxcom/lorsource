@@ -44,7 +44,6 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
@@ -66,9 +65,6 @@ import java.util.Map;
 public class EditTopicController {
   @Autowired
   private SearchQueueSender searchQueueSender;
-
-  @Autowired
-  private FeedPinger feedPinger;
 
   @Autowired
   private TopicDao messageDao;
@@ -439,10 +435,6 @@ public class EditTopicController {
       if (changed || commit || publish) {
         if (!newMsg.isDraft()) {
           searchQueueSender.updateMessage(newMsg.getId(), true);
-        }
-
-        if (commit) {
-          feedPinger.pingFeedburner();
         }
 
         if (!publish || !preparedTopic.getSection().isPremoderated()) {

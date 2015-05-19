@@ -79,8 +79,6 @@
         <property name="includeNoscript" value="true"/>
     </bean>
 
-    <bean class="org.apache.xmlrpc.client.XmlRpcClientConfigImpl"/>
-
     <!-- enabling jmx causes tomcat stop lock -->
     <amq:broker useJmx="false" persistent="true" dataDirectory="${PathPrefix}/activemq">
         <amq:transportConnectors>

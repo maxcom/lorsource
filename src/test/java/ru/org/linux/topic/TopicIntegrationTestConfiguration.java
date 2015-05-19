@@ -25,7 +25,6 @@ import org.springframework.stereotype.Controller;
 import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.spring.FeedPinger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,7 +46,6 @@ import static org.mockito.Mockito.mock;
                         value = {
                                 SearchQueueListener.class,
                                 SearchQueueSender.class,
-                                FeedPinger.class,
                                 TopicListService.class,
                                 MoreLikeThisService.class
                         }
