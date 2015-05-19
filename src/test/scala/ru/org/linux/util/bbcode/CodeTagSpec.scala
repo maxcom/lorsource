@@ -37,7 +37,9 @@ class CodeTagSpec extends Specification {
         """<div class="code"><pre class="no-highlight"><code>[i]]</code></pre></div>"""
       parse("[code][[i][/code]") must be equalTo
         """<div class="code"><pre class="no-highlight"><code>[[i]</code></pre></div>"""
-    }.pendingUntilFixed
+      parse("[code]Apple ][[/code]") must be equalTo
+        """<div class="code"><pre class="no-highlight"><code>Apple ][</code></pre></div>"""
+    }
 
     "remove leading \\n" in {
       parse("[code]\nsimple code[/code]") must be equalTo

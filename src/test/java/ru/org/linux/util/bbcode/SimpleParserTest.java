@@ -292,5 +292,4 @@ public class SimpleParserTest {
     assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/code]]</code></pre></div>",
         lorCodeService.parseComment("[code][[/code]][/code]", true, false));
   }
-
 }

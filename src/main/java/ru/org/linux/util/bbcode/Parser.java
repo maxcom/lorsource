@@ -320,7 +320,17 @@ public class Parser {
 
   private Node processTag(ParserAutomatonState automatonState, Node currentNode, boolean tagNameIsCode) {
     if (automatonState.isCode() && !tagNameIsCode) {
-      currentNode = pushTextNode(automatonState, currentNode, automatonState.getWholematch());
+      String text = automatonState.getWholematch();
+
+      if (text.startsWith("[[")) {
+        text = text.substring(1);
+      }
+
+      if (text.endsWith("]]")) {
+        text = text.substring(0, text.length()-1);
+      }
+
+      currentNode = pushTextNode(automatonState, currentNode, text);
     } else if (tagNameIsCode) {
       automatonState.setCode(true);
       automatonState.setFirstCode(true);
