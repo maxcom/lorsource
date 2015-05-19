@@ -15,7 +15,6 @@
 
 package ru.org.linux.tag;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,7 +27,6 @@ import java.util.List;
 
 @Repository
 public class TagCloudDao {
-
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -61,11 +59,8 @@ public class TagCloudDao {
       minc.setValue(0);
     }
 
-    CollectionUtils.forAllDo(result, o -> {
-      TagDTO tag = (TagDTO) o;
-      tag.setWeight((int) Math.round(10*(tag.getCounter() - minc.doubleValue())
-        / (maxc.doubleValue() - minc.doubleValue())));
-    });
+    result.forEach(tag -> tag.setWeight((int) Math.round(10 * (tag.getCounter() - minc.doubleValue())
+            / (maxc.doubleValue() - minc.doubleValue()))));
 
     Collections.sort(result);
 
