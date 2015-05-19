@@ -17,14 +17,10 @@ package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.SectionService;
 
 import javax.sql.DataSource;
-import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -48,49 +44,41 @@ public class TopTenDao {
       " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and not notop " +
       " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
 
-    return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDTO>() {
-      @Override
-      public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
-        TopTenMessageDTO result = new TopTenMessageDTO();
-        result.setUrl(sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
-        result.setTitle(rs.getString("title"));
-        result.setLastmod(rs.getTimestamp("lastmod"));
-        result.setAnswers(rs.getInt("c"));
-        return result;
-      }
+    return jdbcTemplate.query(sql, (rs, i) -> {
+      TopTenMessageDTO result = new TopTenMessageDTO(
+              sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"),
+              rs.getString("title"),
+              rs.getTimestamp("lastmod"),
+              rs.getInt("c")
+      );
+      return result;
     });
   }
 
-  public static class TopTenMessageDTO implements Serializable{
-    private String url;
-    private Timestamp lastmod;
-    private String title;
+  public static class TopTenMessageDTO {
+    private final String url;
+    private final Timestamp lastmod;
+    private final String title;
     private Integer pages;
-    private int answers;
-    private static final long serialVersionUID = 166352344159392938L;
+    private final int commentCount;
+
+    public TopTenMessageDTO(String url, String title, Timestamp lastmod, int commentCount) {
+      this.url = url;
+      this.title = title;
+      this.lastmod = lastmod;
+      this.commentCount = commentCount;
+    }
 
     public String getUrl() {
       return url;
-    }
-
-    public void setUrl(String url) {
-      this.url = url;
     }
 
     public Timestamp getLastmod() {
       return lastmod;
     }
 
-    public void setLastmod(Timestamp lastmod) {
-      this.lastmod = lastmod;
-    }
-
     public String getTitle() {
       return title;
-    }
-
-    public void setTitle(String title) {
-      this.title = title;
     }
 
     public Integer getPages() {
@@ -101,12 +89,8 @@ public class TopTenDao {
       this.pages = pages;
     }
 
-    public Integer getAnswers() {
-      return answers;
-    }
-
-    public void setAnswers(int answers) {
-      this.answers = answers;
+    public int getCommentCount() {
+      return commentCount;
     }
   }
 }

@@ -12,6 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.TopTenDao.TopTenMessageDTO>"--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
@@ -36,7 +37,7 @@
         </c:url>
         (стр.&nbsp;<a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
       </c:if>
-      (${message.answers})
+      (${message.commentCount})
       </li>
     </c:forEach>
   </ul>
