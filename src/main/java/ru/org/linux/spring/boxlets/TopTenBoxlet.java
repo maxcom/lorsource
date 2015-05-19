@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring.boxlets;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +27,7 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.user.Profile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class TopTenBoxlet extends AbstractBoxlet {
@@ -44,9 +43,6 @@ public class TopTenBoxlet extends AbstractBoxlet {
 
     list.forEach(dto -> dto.setPages(Topic.getPageCount(dto.getCommentCount(), profile.getMessages())));
 
-    Map<String, Object> params = new HashMap<>();
-    params.put("messages", list);
-
-    return new ModelAndView("boxlets/top10", params);
+    return new ModelAndView("boxlets/top10", ImmutableMap.of("messages", list));
   }
 }
