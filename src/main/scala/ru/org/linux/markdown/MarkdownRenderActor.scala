@@ -24,6 +24,7 @@ class MarkdownRenderActor extends Actor {
   private lazy val processor = new PegDownProcessor()
 
   override def receive: Receive = {
+    // TODO handle exception of PegDownProcessor
     case Render(text) ⇒ sender() ! processor.markdownToHtml(text)
   }
 }
