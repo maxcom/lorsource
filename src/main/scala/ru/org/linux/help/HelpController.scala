@@ -20,21 +20,34 @@ import javax.servlet.ServletRequest
 import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestMapping, ResponseBody}
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.markdown.MarkdownRenderService
 
+import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @Controller
 class HelpController @Autowired() (renderService: MarkdownRenderService) {
+  import HelpController._
+
   @RequestMapping(Array("/help/lorcode.md"))
-  @ResponseBody
   def helpPage(request:ServletRequest) = {
     val source = IOUtils.toString(request.getServletContext.getResource("/help/lorcode.md"))
 
     // TODO use DeferredResult ?
     // TODO handle timeout
-    Await.result(renderService.render(source), 10.seconds)
+    // TODO deadline
+    val result = Await.result(renderService.render(source), RenderTimeout)
+
+    new ModelAndView("help", Map(
+      "title" -> "Разметка сообщений (LORCODE)",
+      "helpText" -> result
+    ).asJava)
   }
+}
+
+object HelpController {
+  private val RenderTimeout = 30.seconds
 }

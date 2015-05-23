@@ -16,16 +16,17 @@
 package ru.org.linux.markdown
 
 import akka.actor.{Actor, Props}
-import org.pegdown.PegDownProcessor
+import org.pegdown.{Extensions, PegDownProcessor}
 import ru.org.linux.markdown.MarkdownRenderActor._
 
 class MarkdownRenderActor extends Actor {
-  // TODO setup processor options
-  private lazy val processor = new PegDownProcessor()
+  // processor with HTML support - not for user input
+  private lazy val nonsafeProcessor =
+    new PegDownProcessor(Extensions.STRIKETHROUGH, PegDownProcessor.DEFAULT_MAX_PARSING_TIME)
 
   override def receive: Receive = {
     // TODO handle exception of PegDownProcessor
-    case Render(text) ⇒ sender() ! processor.markdownToHtml(text)
+    case Render(text) ⇒ sender() ! nonsafeProcessor.markdownToHtml(text)
   }
 }
 
