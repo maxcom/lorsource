@@ -19,6 +19,7 @@ import akka.actor.{Actor, Props}
 import org.pegdown.{Extensions, PegDownProcessor}
 import ru.org.linux.markdown.MarkdownRenderActor._
 
+import scala.concurrent.duration.Deadline
 import scala.util.control.NonFatal
 
 class MarkdownRenderActor extends Actor {
@@ -27,7 +28,7 @@ class MarkdownRenderActor extends Actor {
     new PegDownProcessor(Extensions.STRIKETHROUGH, PegDownProcessor.DEFAULT_MAX_PARSING_TIME)
 
   override def receive: Receive = {
-    case Render(text) ⇒
+    case Render(text, deadline) if deadline.hasTimeLeft() ⇒
       val result = try {
         RenderedText(nonsafeProcessor.markdownToHtml(text))
       } catch {
@@ -40,7 +41,7 @@ class MarkdownRenderActor extends Actor {
 }
 
 object MarkdownRenderActor {
-  case class Render(text:String)
+  case class Render(text:String, deadline:Deadline)
 
   def props = Props[MarkdownRenderActor]()
 

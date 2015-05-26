@@ -25,10 +25,12 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class MarkdownRenderService(renderActor:ActorRef) {
-  private implicit val askTimeout:Timeout = 2.seconds
+  def render(text:String, deadline:Deadline):Future[String] = {
+    implicit val askTimeout:Timeout = deadline.timeLeft
 
-  def render(text:String):Future[String] = (renderActor ? MarkdownRenderActor.Render(text)).mapTo[RenderResult].flatMap {
-    case RenderedText(rendered) ⇒ Future.successful(rendered)
-    case RenderFailure(ex)      ⇒ Future.failed(ex)
+    (renderActor ? MarkdownRenderActor.Render(text, deadline)).mapTo[RenderResult].flatMap {
+      case RenderedText(rendered) ⇒ Future.successful(rendered)
+      case RenderFailure(ex) ⇒ Future.failed(ex)
+    }
   }
 }

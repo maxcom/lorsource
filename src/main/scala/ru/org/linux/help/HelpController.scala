@@ -37,9 +37,7 @@ class HelpController @Autowired() (renderService: MarkdownRenderService) {
     val source = IOUtils.toString(request.getServletContext.getResource("/help/lorcode.md"))
 
     // TODO use DeferredResult ?
-    // TODO handle timeout
-    // TODO deadline
-    val result = Await.result(renderService.render(source), RenderTimeout)
+    val result = Await.result(renderService.render(source, RenderTimeout.fromNow), RenderTimeout)
 
     new ModelAndView("help", Map(
       "title" -> "Разметка сообщений (LORCODE)",
