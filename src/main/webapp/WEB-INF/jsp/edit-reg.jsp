@@ -98,7 +98,7 @@ $script.ready("plugins", function() {
         <dd>
             <form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/>
             <form:errors path="info" element="label" cssClass="error" for="info"/>
-            <span class="help-block"><a href="/wiki/en/Lorcode" target="_blank" title="справка откроется в новом окне">справка по разметке LORCODE</a></span>
+            <span class="help-block"><a href="/help/lorcode.md" target="_blank" title="справка откроется в новом окне">справка по разметке LORCODE</a></span>
         </dd>
 
         <dt><label for="oldpass">Пароль</label></dt>

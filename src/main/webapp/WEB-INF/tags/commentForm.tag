@@ -69,7 +69,7 @@
     <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
     <div class="help-block">Пустая строка (два раза Enter) начинает новый абзац.
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования.<br>
-      <b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank" title="[br] - перевод строки
+      <b>Внимание:</b> <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
 
 [b]жирный текст[/b]
 
