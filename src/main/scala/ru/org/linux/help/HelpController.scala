@@ -21,12 +21,15 @@ import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.markdown.MarkdownRenderService
 
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 @Controller
 class HelpController @Autowired() (renderService: MarkdownRenderService) {
@@ -36,16 +39,29 @@ class HelpController @Autowired() (renderService: MarkdownRenderService) {
   def helpPage(request:ServletRequest) = {
     val source = IOUtils.toString(request.getServletContext.getResource("/help/lorcode.md"))
 
-    // TODO use DeferredResult ?
-    val result = Await.result(renderService.render(source, RenderTimeout.fromNow), RenderTimeout)
-
-    new ModelAndView("help", Map(
-      "title" -> "Разметка сообщений (LORCODE)",
-      "helpText" -> result
-    ).asJava)
+    renderService.render(source, RenderTimeout.fromNow).map { result ⇒
+      new ModelAndView("help", Map(
+        "title" -> "Разметка сообщений (LORCODE)",
+        "helpText" -> result
+      ).asJava)
+    }.toDeferredResult
   }
 }
 
 object HelpController {
   private val RenderTimeout = 30.seconds
+
+  implicit class RichFuture[T](val future:Future[T]) extends AnyVal {
+    def toDeferredResult(implicit executor : ExecutionContext):DeferredResult[T] = {
+      val result = new DeferredResult[T]()
+
+      future.onComplete {
+        case Success(r) => result.setResult(r)
+        case Failure(t) =>
+          result.setErrorResult(t)
+      }
+
+      result
+    }
+  }
 }
