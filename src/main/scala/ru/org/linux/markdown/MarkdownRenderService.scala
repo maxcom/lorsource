@@ -18,12 +18,17 @@ package ru.org.linux.markdown
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import ru.org.linux.markdown.MarkdownRenderActor.{RenderFailure, RenderResult, RenderedText}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class MarkdownRenderService(renderActor:ActorRef) {
   private implicit val askTimeout:Timeout = 2.seconds
 
-  def render(text:String):Future[String] = (renderActor ? MarkdownRenderActor.Render(text)).mapTo[String]
+  def render(text:String):Future[String] = (renderActor ? MarkdownRenderActor.Render(text)).mapTo[RenderResult].flatMap {
+    case RenderedText(rendered) ⇒ Future.successful(rendered)
+    case RenderFailure(ex)      ⇒ Future.failed(ex)
+  }
 }

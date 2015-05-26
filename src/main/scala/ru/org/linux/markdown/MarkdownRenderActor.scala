@@ -19,14 +19,23 @@ import akka.actor.{Actor, Props}
 import org.pegdown.{Extensions, PegDownProcessor}
 import ru.org.linux.markdown.MarkdownRenderActor._
 
+import scala.util.control.NonFatal
+
 class MarkdownRenderActor extends Actor {
   // processor with HTML support - not for user input
   private lazy val nonsafeProcessor =
     new PegDownProcessor(Extensions.STRIKETHROUGH, PegDownProcessor.DEFAULT_MAX_PARSING_TIME)
 
   override def receive: Receive = {
-    // TODO handle exception of PegDownProcessor
-    case Render(text) ⇒ sender() ! nonsafeProcessor.markdownToHtml(text)
+    case Render(text) ⇒
+      val result = try {
+        RenderedText(nonsafeProcessor.markdownToHtml(text))
+      } catch {
+        case NonFatal(ex) ⇒
+          RenderFailure(ex)
+      }
+
+      sender() ! result
   }
 }
 
@@ -34,4 +43,8 @@ object MarkdownRenderActor {
   case class Render(text:String)
 
   def props = Props[MarkdownRenderActor]()
+
+  sealed trait RenderResult
+  final case class RenderedText(text:String) extends RenderResult
+  final case class RenderFailure(ex:Throwable) extends RenderResult
 }
