@@ -16,12 +16,12 @@
 package ru.org.linux.tracker;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
@@ -33,6 +33,7 @@ import ru.org.linux.user.UserService;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class TrackerController {
@@ -74,6 +75,50 @@ public class TrackerController {
     } else {
       return "Последние сообщения";
     }
+  }
+
+  @RequestMapping(value = "/tracker/json", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+  @ResponseBody
+  public Map<String, Object> getMessage(
+          @RequestParam(value = "filter", required = false) String filterAction,
+          @RequestParam(value = "offset", required = false) Integer offset,
+          HttpServletRequest request
+  ) throws Exception {
+    if (offset==null) {
+      offset = 0;
+    } else {
+      if (offset<0 || offset>300) {
+        throw new UserErrorException("Некорректное значение offset");
+      }
+    }
+
+    Template tmpl = Template.getTemplate(request);
+    TrackerFilterEnum defaultFilter = tmpl.getProf().getTrackerMode();
+    TrackerFilterEnum trackerFilter = TrackerFilterEnum.getByValue(filterAction).or(defaultFilter);
+    Date startDate = DateTime.now().minusDays(1).toDate();
+
+    int messages = tmpl.getProf().getMessages();
+    int topics = tmpl.getProf().getTopics();
+    User user = tmpl.getCurrentUser();
+    List<TrackerItem> trackerItems = trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages);
+
+    List<ImmutableMap> trackerProperties = trackerItems.stream().map(trackerItem -> ImmutableMap.builder()
+            .put("id", trackerItem.getCid())
+            .put("link", trackerItem.getUrl())
+            .put("title", trackerItem.getTitle())
+            .put("groupId", trackerItem.getGroupId())
+            .put("groupUrl", trackerItem.getGroupUrl())
+            .put("postdate", trackerItem.getPostdate())
+            .put("lastmodified", trackerItem.getLastmod())
+            .put("lastcommentedby", trackerItem.getAuthor().getNick())
+            .put("pages", trackerItem.getPages())
+            .put("tags", trackerItem.getTags())
+            .put("author", trackerItem.getTopicAuthor().getNick())
+            .build()).collect(Collectors.toList());
+
+    return ImmutableMap.of(
+            "trackerItems", trackerProperties
+    );
   }
 
   @RequestMapping("/tracker")
