@@ -83,23 +83,24 @@ public class TopicApiController {
         permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
 
         MessageText messageText = msgbaseDao.getMessageText(msgid);
-        String user = userDao.getUser(topic.getCommitby()).getNick();
+        String author = userDao.getUser(topic.getCommitby()).getNick();
 
         return ImmutableMap.of(
                 "topic", ImmutableMap.builder()
                         .put("id", topic.getId())
                         .put("link", topic.getLink())
                         .put("title", topic.getTitle())
+                        .put("groupId", topic.getGroupId())
+                        .put("groupUrl", topic.getGroupUrl())
                         .put("message", messageText.getText())
                         .put("postdate", topic.getPostdate())
                         .put("lastmodified", topic.getLastModified())
                         .put("sticky", topic.isSticky())
                         .put("commited", topic.isCommited())
-                        .put("commitedby", topic.getCommitby())
                         .put("commitdate", topic.getCommitDate())
                         .put("commentsCount", topic.getCommentCount())
                         .put("postScore", topic.getPostscore())
-                        .put("author", user)
+                        .put("author", author)
                         .build()
         );
     }
