@@ -29,6 +29,10 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.user.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -37,76 +41,135 @@ import java.util.Map;
 @Controller
 @PublicApi
 public class TopicApiController {
-  @Autowired
-  private TopicDao topicDao;
+    @Autowired
+    private TopicDao topicDao;
 
-  @Autowired
-  private GroupDao groupDao;
+    @Autowired
+    private GroupDao groupDao;
 
-  @Autowired
-  private SectionService sectionService;
+    @Autowired
+    private SectionService sectionService;
 
-  @Autowired
-  private TopicPermissionService permissionService;
+    @Autowired
+    private TopicPermissionService permissionService;
 
-  @Autowired
-  private CommentService commentService;
+    @Autowired
+    private MsgbaseDao msgbaseDao;
 
-  @Autowired
-  private CommentPrepareService prepareService;
+    @Autowired
+    private CommentService commentService;
 
-  @RequestMapping(value="/{section}/{group}/{id}/comments", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
-  @ResponseBody
-  public Map<String, Object> getComments(
-          @PathVariable("section") String sectionName,
-          @PathVariable("group") String groupName,
-          @PathVariable("id") int msgid,
-          @RequestParam(value = "page", defaultValue = "0") int page,
-          HttpServletRequest request
-  ) throws Exception {
-    Topic topic = topicDao.getById(msgid);
-    Group group = groupDao.getGroup(topic.getGroupId());
-    Section section = sectionService.getSection(group.getSectionId());
+    @Autowired
+    private CommentPrepareService prepareService;
 
-    if (!section.getUrlName().equals(sectionName)
-            || !group.getUrlName().equals(groupName)
-            || page<0 ) {
-      throw new MessageNotFoundException(msgid);
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private TopicTagService topicTagService;
+
+    @Autowired
+    private MemoriesDao memoriesDao;
+
+    @RequestMapping(value = "/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> getMessage(
+            @PathVariable("section") String sectionName,
+            @PathVariable("group") String groupName,
+            @PathVariable("id") int msgid
+    ) throws Exception {
+        Topic topic = topicDao.getById(msgid);
+        Group group = groupDao.getGroup(topic.getGroupId());
+        Section section = sectionService.getSection(group.getSectionId());
+
+        if (!section.getUrlName().equals(sectionName)
+                || !group.getUrlName().equals(groupName)) {
+            throw new MessageNotFoundException(msgid);
+        }
+
+        permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
+
+        MessageText messageText = msgbaseDao.getMessageText(msgid);
+        String author = userDao.getUser(topic.getCommitby()).getNick();
+
+        int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
+        int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
+
+        return ImmutableMap.of(
+                "topic", ImmutableMap.builder()
+                        .put("id", topic.getId())
+                        .put("link", topic.getLink())
+                        .put("title", topic.getTitle())
+                        .put("groupId", topic.getGroupId())
+                        .put("groupUrl", topic.getGroupUrl())
+                        .put("message", messageText.getText())
+                        .put("postdate", topic.getPostdate())
+                        .put("lastmodified", topic.getLastModified())
+                        .put("sticky", topic.isSticky())
+                        .put("commited", topic.isCommited())
+                        .put("commitdate", topic.getCommitDate())
+                        .put("commentsCount", topic.getCommentCount())
+                        .put("favsCount", favsCount)
+                        .put("watchCount", watchCount)
+                        .put("postScore", topic.getPostscore())
+                        .put("tags", topicTagService.getTags(topic))
+                        .put("author", author)
+                        .build()
+        );
     }
 
-    permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
+    @RequestMapping(value = "/{section}/{group}/{id}/comments", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> getComments(
+            @PathVariable("section") String sectionName,
+            @PathVariable("group") String groupName,
+            @PathVariable("id") int msgid,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            HttpServletRequest request
+    ) throws Exception {
+        Topic topic = topicDao.getById(msgid);
+        Group group = groupDao.getGroup(topic.getGroupId());
+        Section section = sectionService.getSection(group.getSectionId());
 
-    CommentList comments = commentService.getCommentList(topic, false);
+        if (!section.getUrlName().equals(sectionName)
+                || !group.getUrlName().equals(groupName)
+                || page < 0) {
+            throw new MessageNotFoundException(msgid);
+        }
 
-    CommentFilter cv = new CommentFilter(comments);
+        permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
 
-    int messagesPerPage = AuthUtil.getProfile().getMessages();
+        CommentList comments = commentService.getCommentList(topic, false);
 
-    List<Comment> commentsFiltered = cv.getCommentsForPage(
-            false,
-            page,
-            messagesPerPage,
-            ImmutableSet.<Integer>of()
-    );
+        CommentFilter cv = new CommentFilter(comments);
 
-    List<PreparedComment> preparedComments = prepareService.prepareCommentList(
-            comments,
-            commentsFiltered,
-            request.isSecure(),
-            Template.getTemplate(request),
-            topic
-    );
+        int messagesPerPage = AuthUtil.getProfile().getMessages();
 
-    return ImmutableMap.of(
-            "comments", preparedComments,
-            "topic", new ApiCommentTopicInfo(
-            topic.getId(),
-            topic.getLink(),
-            permissionService.isCommentsAllowed(
-                    group,
-                    topic,
-                    AuthUtil.getCurrentUser())
-    )
-    );
-  }
+        List<Comment> commentsFiltered = cv.getCommentsForPage(
+                false,
+                page,
+                messagesPerPage,
+                ImmutableSet.<Integer>of()
+        );
+
+        List<PreparedComment> preparedComments = prepareService.prepareCommentList(
+                comments,
+                commentsFiltered,
+                request.isSecure(),
+                Template.getTemplate(request),
+                topic
+        );
+
+        return ImmutableMap.of(
+                "comments", preparedComments,
+                "topic", new ApiCommentTopicInfo(
+                        topic.getId(),
+                        topic.getLink(),
+                        permissionService.isCommentsAllowed(
+                                group,
+                                topic,
+                                AuthUtil.getCurrentUser())
+                )
+        );
+    }
 }
