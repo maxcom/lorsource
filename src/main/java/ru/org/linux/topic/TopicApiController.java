@@ -64,6 +64,9 @@ public class TopicApiController {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private TopicTagService topicTagService;
+
     @RequestMapping(value = "/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getMessage(
@@ -100,6 +103,7 @@ public class TopicApiController {
                         .put("commitdate", topic.getCommitDate())
                         .put("commentsCount", topic.getCommentCount())
                         .put("postScore", topic.getPostscore())
+                        .put("tags", topicTagService.getTags(topic))
                         .put("author", author)
                         .build()
         );
