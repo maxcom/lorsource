@@ -31,6 +31,7 @@ import ru.org.linux.site.PublicApi;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,6 +68,9 @@ public class TopicApiController {
     @Autowired
     private TopicTagService topicTagService;
 
+    @Autowired
+    private MemoriesDao memoriesDao;
+
     @RequestMapping(value = "/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getMessage(
@@ -88,6 +92,9 @@ public class TopicApiController {
         MessageText messageText = msgbaseDao.getMessageText(msgid);
         String author = userDao.getUser(topic.getCommitby()).getNick();
 
+        int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
+        int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
+
         return ImmutableMap.of(
                 "topic", ImmutableMap.builder()
                         .put("id", topic.getId())
@@ -102,6 +109,8 @@ public class TopicApiController {
                         .put("commited", topic.isCommited())
                         .put("commitdate", topic.getCommitDate())
                         .put("commentsCount", topic.getCommentCount())
+                        .put("favsCount", favsCount)
+                        .put("watchCount", watchCount)
                         .put("postScore", topic.getPostscore())
                         .put("tags", topicTagService.getTags(topic))
                         .put("author", author)
