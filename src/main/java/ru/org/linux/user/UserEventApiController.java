@@ -102,6 +102,6 @@ public class UserEventApiController {
     int topics = tmpl.getProf().getTopics();
     UserEventFilterEnum eventFilter = UserEventFilterEnum.fromNameOrDefault(filterAction);
 
-    return ImmutableMap.of("notificationsList", userEventService.getRepliesForUser(user, true, topics, offset, eventFilter));
+    return ImmutableMap.of("notificationsList", userEventService.getRepliesForUser(user, false, topics, offset, eventFilter));
   }
 }
