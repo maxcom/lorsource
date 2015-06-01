@@ -89,7 +89,7 @@ public class UserEventApiController {
       offset = 0;
     } else {
       if (offset < 0 || offset > 300) {
-        throw new UserErrorException("Некорректное значение offset");
+        return ImmutableMap.of("error", "Некорректное значение offset");
       }
     }
 
