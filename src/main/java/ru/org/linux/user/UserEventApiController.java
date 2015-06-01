@@ -77,4 +77,31 @@ public class UserEventApiController {
       return ImmutableMap.of("notifications", tmpl.getCurrentUser().getUnreadEvents());
     }
   }
+
+  @RequestMapping(value = "/notifications-list", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+  @ResponseBody
+  public Map<String, Object> listNotifications(
+          @RequestParam(value = "filter", required = false) String filterAction,
+          @RequestParam(value = "offset", required = false) Integer offset,
+          HttpServletRequest request
+  ) throws Exception {
+    if (offset == null) {
+      offset = 0;
+    } else {
+      if (offset < 0 || offset > 300) {
+        throw new UserErrorException("Некорректное значение offset");
+      }
+    }
+
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    int topics = tmpl.getProf().getTopics();
+    UserEventFilterEnum eventFilter = UserEventFilterEnum.fromNameOrDefault(filterAction);
+
+    return ImmutableMap.of("notificationsList", userEventService.getRepliesForUser(user, true, topics, offset, eventFilter));
+  }
 }
