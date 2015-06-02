@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
@@ -35,6 +36,7 @@ import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +75,7 @@ public class TopicApiController {
 
   @RequestMapping(value = "/api/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
-  public Map<String, Object> getMessage(
+  public Object getMessage(
           @PathVariable("section") String sectionName,
           @PathVariable("group") String groupName,
           @PathVariable("id") int msgid
@@ -84,7 +86,7 @@ public class TopicApiController {
 
     if (!section.getUrlName().equals(sectionName)
             || !group.getUrlName().equals(groupName)) {
-      throw new MessageNotFoundException(msgid);
+      return new ModelAndView("redirect:" + "/api" + topic.getLink() + "/topic");
     }
 
     permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
