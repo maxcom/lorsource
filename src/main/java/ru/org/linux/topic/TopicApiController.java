@@ -71,7 +71,7 @@ public class TopicApiController {
   @Autowired
   private CommentPrepareService prepareService;
 
-  @RequestMapping(value = "/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+  @RequestMapping(value = "/api/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
   public Map<String, Object> getMessage(
           @PathVariable("section") String sectionName,
