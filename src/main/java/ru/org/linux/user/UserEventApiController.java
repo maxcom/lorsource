@@ -35,7 +35,7 @@ public class UserEventApiController {
   private UserEventService userEventService;
 
   @ResponseBody
-  @RequestMapping(value = "/notifications-count", method= RequestMethod.GET)
+  @RequestMapping(value = "/api/notifications-count", method= RequestMethod.GET)
   public int getEventsCount(HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
@@ -47,7 +47,7 @@ public class UserEventApiController {
     return tmpl.getCurrentUser().getUnreadEvents();
   }
 
-  @RequestMapping(value="/notifications-reset", method = RequestMethod.POST)
+  @RequestMapping(value="/api/notifications-reset", method = RequestMethod.POST)
   @ResponseBody
   public String resetNotifications(
     HttpServletRequest request,
@@ -66,7 +66,7 @@ public class UserEventApiController {
   }
 
   @ResponseBody
-  @RequestMapping(value = "/yandex-tableau", method = RequestMethod.GET, produces={"application/json"})
+  @RequestMapping(value = "/api/yandex-tableau", method = RequestMethod.GET, produces={"application/json"})
   public Map<String, Integer> getYandexWidget(HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
@@ -78,7 +78,7 @@ public class UserEventApiController {
     }
   }
 
-  @RequestMapping(value = "/notifications-list", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+  @RequestMapping(value = "/api/notifications-list", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
   @ResponseBody
   public Map<String, Object> listNotifications(
           @RequestParam(value = "filter", required = false) String filterAction,
