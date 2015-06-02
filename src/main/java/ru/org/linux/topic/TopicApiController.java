@@ -90,7 +90,7 @@ public class TopicApiController {
     permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
 
     MessageText messageText = msgbaseDao.getMessageText(msgid);
-    String author = userDao.getUser(topic.getCommitby()).getNick();
+    String author = userDao.getUserCached(topic.getCommitby()).getNick();
     int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
     int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
 
