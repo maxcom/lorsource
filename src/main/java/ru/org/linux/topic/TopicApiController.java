@@ -34,6 +34,8 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -73,6 +75,9 @@ public class TopicApiController {
   @Autowired
   private CommentPrepareService prepareService;
 
+  @Autowired
+  private LorCodeService lorCodeService;
+
   @RequestMapping(value = "/api/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
   public Object getMessage(
@@ -92,6 +97,12 @@ public class TopicApiController {
     permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
 
     MessageText messageText = msgbaseDao.getMessageText(msgid);
+    String message;
+    if (messageText.isLorcode()) {
+      message = lorCodeService.parseTopic(messageText.getText(), false, false);
+    } else {
+      message = messageText.getText();
+    }
     String author = userDao.getUserCached(topic.getCommitby()).getNick();
     int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
     int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
@@ -100,7 +111,7 @@ public class TopicApiController {
             "topic", ImmutableMap.builder()
                     .put("url", topic.getLink())
                     .put("title", topic.getTitle())
-                    .put("message", messageText.getText())
+                    .put("message", message)
                     .put("postDate", topic.getPostdate())
                     .put("lastModified", topic.getLastModified())
                     .put("sticky", topic.isSticky())
