@@ -116,7 +116,7 @@ public class TopicApiController {
     );
   }
 
-  @RequestMapping(value="/{section}/{group}/{id}/comments", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+  @RequestMapping(value="/api/{section}/{group}/{id}/comments", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
   public Map<String, Object> getComments(
           @PathVariable("section") String sectionName,
