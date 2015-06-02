@@ -96,7 +96,6 @@ public class TopicApiController {
 
     return ImmutableMap.of(
             "topic", ImmutableMap.builder()
-                    .put("id", topic.getId())
                     .put("url", topic.getLink())
                     .put("title", topic.getTitle())
                     .put("groupId", topic.getGroupId())
