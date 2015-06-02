@@ -98,8 +98,6 @@ public class TopicApiController {
             "topic", ImmutableMap.builder()
                     .put("url", topic.getLink())
                     .put("title", topic.getTitle())
-                    .put("groupId", topic.getGroupId())
-                    .put("groupUrl", topic.getGroupUrl())
                     .put("message", messageText.getText())
                     .put("postDate", topic.getPostdate())
                     .put("lastModified", topic.getLastModified())
