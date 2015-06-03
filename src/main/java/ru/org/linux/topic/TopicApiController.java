@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
@@ -29,8 +30,15 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -44,10 +52,22 @@ public class TopicApiController {
   private GroupDao groupDao;
 
   @Autowired
+  private MsgbaseDao msgbaseDao;
+
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
+  private MemoriesDao memoriesDao;
+
+  @Autowired
   private SectionService sectionService;
 
   @Autowired
   private TopicPermissionService permissionService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   @Autowired
   private CommentService commentService;
@@ -55,7 +75,59 @@ public class TopicApiController {
   @Autowired
   private CommentPrepareService prepareService;
 
-  @RequestMapping(value="/{section}/{group}/{id}/comments", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+  @Autowired
+  private LorCodeService lorCodeService;
+
+  @RequestMapping(value = "/api/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+  @ResponseBody
+  public Object getMessage(
+          @PathVariable("section") String sectionName,
+          @PathVariable("group") String groupName,
+          @PathVariable("id") int msgid
+  ) throws Exception {
+    Topic topic = topicDao.getById(msgid);
+    Group group = groupDao.getGroup(topic.getGroupId());
+    Section section = sectionService.getSection(group.getSectionId());
+
+    if (!section.getUrlName().equals(sectionName)
+            || !group.getUrlName().equals(groupName)) {
+      return new ModelAndView("redirect:" + "/api" + topic.getLink() + "/topic");
+    }
+
+    permissionService.checkView(group, topic, AuthUtil.getCurrentUser(), false);
+
+    MessageText messageText = msgbaseDao.getMessageText(msgid);
+    String message;
+    if (messageText.isLorcode()) {
+      message = lorCodeService.parseTopic(messageText.getText(), false, false);
+    } else {
+      message = messageText.getText();
+    }
+    String author = userDao.getUserCached(topic.getCommitby()).getNick();
+    int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
+    int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
+
+    return ImmutableMap.of(
+            "topic", ImmutableMap.builder()
+                    .put("url", topic.getLink())
+                    .put("title", topic.getTitle())
+                    .put("message", message)
+                    .put("postDate", topic.getPostdate())
+                    .put("lastModified", topic.getLastModified())
+                    .put("sticky", topic.isSticky())
+                    .put("commited", topic.isCommited())
+                    .put("commitDate", topic.getCommitDate())
+                    .put("commentsCount", topic.getCommentCount())
+                    .put("favsCount", favsCount)
+                    .put("watchсount", watchCount)
+                    .put("postscore", topic.getPostscore())
+                    .put("tags", topicTagService.getTags(topic))
+                    .put("author", author)
+                    .build()
+    );
+  }
+
+  @RequestMapping(value="/api/{section}/{group}/{id}/comments", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
   public Map<String, Object> getComments(
           @PathVariable("section") String sectionName,
