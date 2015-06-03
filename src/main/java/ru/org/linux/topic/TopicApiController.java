@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 @PublicApi
@@ -103,27 +105,33 @@ public class TopicApiController {
     } else {
       message = messageText.getText();
     }
-    String author = userDao.getUserCached(topic.getCommitby()).getNick();
+
     int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
     int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
+    String author = userDao.getUserCached(topic.getUid()).getNick();
+
+    ImmutableMap.Builder<String, Object> builder = new ImmutableMap.Builder<>();
+
+    builder.put("url", topic.getLink())
+            .put("title", topic.getTitle())
+            .put("message", message)
+            .put("postDate", topic.getPostdate())
+            .put("lastModified", topic.getLastModified())
+            .put("sticky", topic.isSticky())
+            .put("commentsCount", topic.getCommentCount())
+            .put("favsCount", favsCount)
+            .put("watchсount", watchCount)
+            .put("postscore", topic.getPostscore())
+            .put("tags", topicTagService.getTags(topic))
+            .put("author", author);
+
+    if (topic.isCommited()) {
+      builder.put("commitDate", topic.getCommitDate())
+              .put("commitedBy", userDao.getUserCached(topic.getCommitby()).getNick());
+    }
 
     return ImmutableMap.of(
-            "topic", ImmutableMap.builder()
-                    .put("url", topic.getLink())
-                    .put("title", topic.getTitle())
-                    .put("message", message)
-                    .put("postDate", topic.getPostdate())
-                    .put("lastModified", topic.getLastModified())
-                    .put("sticky", topic.isSticky())
-                    .put("commited", topic.isCommited())
-                    .put("commitDate", topic.getCommitDate())
-                    .put("commentsCount", topic.getCommentCount())
-                    .put("favsCount", favsCount)
-                    .put("watchсount", watchCount)
-                    .put("postscore", topic.getPostscore())
-                    .put("tags", topicTagService.getTags(topic))
-                    .put("author", author)
-                    .build()
+            "topic", builder.build()
     );
   }
 
