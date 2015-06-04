@@ -46,7 +46,7 @@ public class DevconfController {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  @RequestMapping(value = "/devconf2014", method = RequestMethod.POST)
+  @RequestMapping(value = "/devconf", method = RequestMethod.POST)
   @CSRFNoAuto
   public ModelAndView add(HttpServletRequest request, @RequestParam("msg") String msg) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -59,7 +59,7 @@ public class DevconfController {
 
     UserInfo info = userDao.getUserInfoClass(user);
 
-    if (!"devconf2014".equals(msg)) {
+    if (!"devconf2015".equals(msg)) {
       throw new UserErrorException("Неправильный код, прочитайте текст новости");
     }
 
