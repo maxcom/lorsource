@@ -279,6 +279,7 @@ public class TopicPermissionService {
                                       boolean haveAnswers, @Nonnull Topic topic) {
     Errors errors = new MapBindingResult(ImmutableMap.of(), "obj");
 
+    checkCommentsAllowed(topic, currentUser, errors);
     checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors);
 
     return !errors.hasErrors();
