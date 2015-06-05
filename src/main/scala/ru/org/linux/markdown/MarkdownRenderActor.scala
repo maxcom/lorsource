@@ -25,7 +25,7 @@ import scala.util.control.NonFatal
 class MarkdownRenderActor extends Actor {
   // processor with HTML support - not for user input
   private lazy val nonsafeProcessor =
-    new PegDownProcessor(Extensions.STRIKETHROUGH, PegDownProcessor.DEFAULT_MAX_PARSING_TIME)
+    new PegDownProcessor(Extensions.NONE, PegDownProcessor.DEFAULT_MAX_PARSING_TIME)
 
   override def receive: Receive = {
     case Render(text, deadline) if deadline.hasTimeLeft() ⇒
