@@ -35,6 +35,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
   <style>
@@ -53,8 +54,41 @@
   </script>
 </div>
 </c:if>
+--%>
 
-<c:if test="${template.moderatorSession or template.correctorSession}">
+  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
+  </div>
+  <script type="text/javascript">
+    $script.ready('lorjs', function () {
+      var ads = [
+        {
+          type: 'img',
+          src: '/adv/selectel/728X90 dedic red.png',
+          href: 'https://selectel.ru/services/dedicated/?utm_campaign=dedicated_sale_red3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/728X90 dedic blue.png',
+          href: 'https://selectel.ru/services/dedicated/?utm_campaign=dedicated_sale_blue3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/728X90 VPC red.png',
+          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_red3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
+        },
+        {
+          type: 'img',
+          src: '/adv/selectel/728X90 VPC blue.png',
+          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_blue3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
+        }
+      ];
+
+      init_interpage_adv(ads);
+    });
+  </script>
+
+
+  <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
     [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
