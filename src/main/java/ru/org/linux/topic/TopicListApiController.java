@@ -22,14 +22,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.PublicApi;
+import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.user.UserDao;
 
 import java.sql.Date;
-import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +46,16 @@ public class TopicListApiController {
   private GroupDao groupDao;
 
   @Autowired
+  private MemoriesDao memoriesDao;
+
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
   private TopicListService topicListService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   @RequestMapping(value = "/api/topics-simple", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
@@ -58,7 +70,7 @@ public class TopicListApiController {
     }
 
     List<Topic> allTopics = topicListService.getAllTopicsFeed(section, Date.valueOf(fromDate));
-    return ImmutableMap.of("topics", allTopics);
+    return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
   }
 
   @RequestMapping(value = "/api/topics-complex", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
@@ -96,6 +108,24 @@ public class TopicListApiController {
 
     List<Topic> allTopics = topicListService.getTopics(topicListDto);
 
-    return ImmutableMap.of("topics", allTopics);
+    return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
+  }
+
+  private ImmutableMap<String, Object> shortenTopicInfo(List<Topic> allTopics) {
+    List<ImmutableMap<String, Object>> listOfTopics = new ArrayList<>();
+
+    for (Topic topic : allTopics) {
+      ImmutableMap.Builder<String, Object> builder = new ImmutableMap.Builder<>();
+      builder.put("url", topic.getLink())
+              .put("title", topic.getTitle())
+              .put("postDate", topic.getPostdate())
+              .put("commentsCount", topic.getCommentCount())
+              .put("favsCount", memoriesDao.getTopicInfo(topic.getId(), AuthUtil.getCurrentUser()).favsCount())
+              .put("watchcount", memoriesDao.getTopicInfo(topic.getId(), AuthUtil.getCurrentUser()).watchCount())
+              .put("tags", topicTagService.getTags(topic))
+              .put("author", userDao.getUserCached(topic.getUid()).getNick());
+      listOfTopics.add(builder.build());
+    }
+    return ImmutableMap.of("topics", listOfTopics);
   }
 }
