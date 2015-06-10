@@ -52,7 +52,7 @@ public class TopicListApiController {
   private UserDao userDao;
 
   @Autowired
-  private TopicListService topicListService;
+  private TopicListDao topicListDao;
 
   @Autowired
   private TopicTagService topicTagService;
@@ -69,7 +69,10 @@ public class TopicListApiController {
       return ImmutableMap.of("error", "Invalid arguments");
     }
 
-    List<Topic> allTopics = topicListService.getAllTopicsFeed(section, Date.valueOf(fromDate));
+    TopicListDto topicListDto = new TopicListDto();
+    topicListDto.setSection(section.getId());
+
+    List<Topic> allTopics = topicListDao.getTopics(topicListDto);
     return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
   }
 
@@ -106,7 +109,7 @@ public class TopicListApiController {
     topicListDto.setNotalks(notalks);
     topicListDto.setTech(tech);
 
-    List<Topic> allTopics = topicListService.getTopics(topicListDto);
+    List<Topic> allTopics = topicListDao.getTopics(topicListDto);
 
     return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
   }
