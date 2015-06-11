@@ -100,8 +100,8 @@ public class TrackerDao {
   private static final String queryPartTagIgnored = " AND t.id NOT IN (select distinct tags.msgid from tags, user_tags "
     + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid in (8404, 19390) ";
-  private static final String queryPartTech = " AND not t.groupid in (8404, 4068, 19392, 19390) AND section=2 ";
-  private static final String queryPartMain = " AND not t.groupid in (8404, 4068, 19392, 19390) ";
+  private static final String queryPartTech = " AND not t.groupid in (8404, 4068, 19392, 19390, 9326, 19405) AND section=2 ";
+  private static final String queryPartMain = " AND not t.groupid in (8404, 4068, 19392, 19390, 19405) ";
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
