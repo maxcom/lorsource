@@ -36,4 +36,4 @@ tracker | получить последние темы | offset (Integer), filte
 ------|----------|-----------|-----------------------
 notifications-count (plaintext), yandex-tableau (JSON) | количество непрочитанных уведомлений | Нет | Да
 notifications-reset | сбросить счетчик уведомлений | Нет | Да
-notifications-list | получить список уведомлений | offset (Integer), filter (String) | Да
+notifications-list | получить список уведомлений | offset (Integer), filter (String *ALL*) | Да
