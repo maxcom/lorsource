@@ -46,7 +46,7 @@ public class ScoreUpdater {
             "(select distinct comments.userid from comments, topics " +
             "where comments.postdate>CURRENT_TIMESTAMP-'2 days'::interval " +
             "and topics.id=comments.topic and " +
-            "groupid!=8404 and groupid!=4068 and groupid!=19390 and " +
+            "groupid!=8404 and groupid!=4068 and groupid!=19390 and groupid!=19405score and " +
             "not comments.deleted and not topics.deleted)");
 
     updateMaxScore();
