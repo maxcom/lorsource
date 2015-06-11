@@ -99,7 +99,6 @@ public class ToHtmlFormatter {
   public String format(String text, boolean secure, boolean nofollow, RuTypoChanger changer) {
     String escapedText = StringUtil.escapeHtml(text);
 
-
     StringTokenizer st = new StringTokenizer(escapedText, " \n", true);
     StringBuilder sb = new StringBuilder();
 
@@ -137,7 +136,7 @@ public class ToHtmlFormatter {
     return (new URI(scheme, null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
   }
 
-  protected String formatURL(String line, boolean secure, boolean nofollow, RuTypoChanger changer) {
+  private String formatURL(String line, boolean secure, boolean nofollow, RuTypoChanger changer) {
     StringBuilder out = new StringBuilder();
     Matcher m = URL_PATTERN.matcher(line);
     int index = 0;
@@ -219,7 +218,7 @@ public class ToHtmlFormatter {
   ) throws URIException {
     // ссылка внутри lorsource исправляем scheme
     String fixedUrlHref = url.fixScheme(secure);
-    String fixedUrlBody = linktext!=null?simpleFormat(linktext):url.formatUrlBody(maxLength);
+    String fixedUrlBody = linktext!=null?simpleFormat(linktext):StringUtil.escapeHtml(url.formatUrlBody(maxLength));
     out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
   }
 
@@ -257,13 +256,13 @@ public class ToHtmlFormatter {
         out.append("<s>");
       }
 
-      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">").append(fixedUrlBody).append("</a>");
+      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">").append(StringUtil.escapeHtml(fixedUrlBody)).append("</a>");
 
       if (deleted) {
         out.append("</s>");
       }
     } catch (MessageNotFoundException ex) {
-      out.append("<a href=\"").append(url.toString()).append("\">").append(url.formatUrlBody(maxLength)).append("</a>");
+      out.append("<a href=\"").append(url.toString()).append("\">").append(StringUtil.escapeHtml(url.formatUrlBody(maxLength))).append("</a>");
     }
   }
 }

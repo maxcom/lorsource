@@ -584,4 +584,10 @@ public class HTMLFormatterTest {
 
   }
 
+  @Test
+  public void encodeLorUrl() {
+    assertEquals(
+            "<p><a href=\"http://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>",
+            lorCodeService.parseComment("www.linux.org.ru/forum/linux%3C%3E-org-ru/", false, false));
+  }
 }
