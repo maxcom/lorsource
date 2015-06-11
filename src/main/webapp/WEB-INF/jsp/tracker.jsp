@@ -66,8 +66,6 @@
                          --%><a href="${msg.groupUrl}" class="secondary">${msg.groupTitle}</a><%--
 
                          --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
-                        --%><c:if test="${msg.wikiArticle}">, статья</c:if><%--
-                         --%><c:if test="${msg.wikiComment}">, комментарий</c:if><%--
                         --%></c:set>
       <tr>
         <td class="hideon-tablet">${groupLink}</td>
@@ -99,9 +97,6 @@
             <c:choose>
                 <c:when test="${msg.stat1==0}">
                     -
-                </c:when>
-                <c:when test="${msg.stat1 > 0 && msg.wiki}">
-                    +${msg.stat1}
                 </c:when>
                 <c:otherwise>
                     ${msg.stat1}

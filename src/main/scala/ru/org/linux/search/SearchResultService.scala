@@ -31,7 +31,6 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
-import ru.org.linux.util.URLUtil._
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
@@ -114,41 +113,20 @@ class SearchResultsService @Autowired() (
     }
   }
 
-  private def getUrl(doc:SearchHit): String = {
+  private def getUrl(doc: SearchHit): String = {
     val section = SearchResultsService.section(doc)
     val msgid = doc.getId
 
-    if ("wiki" == section) {
-      val virtualWiki = {
-        val msgIds = msgid.split("-")
-        if (msgIds.length != 2) {
-          throw new RuntimeException("Invalid wiki ID")
-        }
+    val comment = doc.getFields.get("is_comment").getValue[Boolean]
+    val topic = doc.getFields.get("topic_id").getValue[Int]
+    val group = SearchResultsService.group(doc)
 
-        msgIds(0)
-      }
-
-      val title = doc.getFields.get("title").getValue[String]
-
-      try {
-        buildWikiURL(virtualWiki, title)
-      } catch {
-        case e: Exception =>
-          logger.warn(s"Fail build topic url for $title in $virtualWiki")
-          "#"
-      }
+    if (comment) {
+      val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
+      builder.buildAndExpand(section, group, new Integer(topic), msgid).toUriString
     } else {
-      val comment = doc.getFields.get("is_comment").getValue[Boolean]
-      val topic = doc.getFields.get("topic_id").getValue[Int]
-      val group = SearchResultsService.group(doc)
-
-      if (comment) {
-        val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
-        builder.buildAndExpand(section, group, new Integer(topic), msgid).toUriString
-      } else {
-        val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-        builder.buildAndExpand(section, group, new Integer(topic)).toUriString
-      }
+      val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
+      builder.buildAndExpand(section, group, new Integer(topic)).toUriString
     }
   }
 

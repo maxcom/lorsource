@@ -19,10 +19,6 @@
 
 package ru.org.linux.util;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.regex.Pattern;
 
 public final class URLUtil {
@@ -48,61 +44,6 @@ public final class URLUtil {
     }
 
     return url;
-  }
-
-  // from JAMWiki (LGPL2.1)
-  // VVVVVVVVVVVVVVVVVVVVVV
-
-  /**
- 	 * Encode a topic name for use in a URL.  This method will replace spaces
- 	 * with underscores and URL encode the value, but it will not URL encode
- 	 * colons.
- 	 *
- 	 * @param url The topic name to be encoded for use in a URL.
- 	 * @return The encoded topic name value.
- 	 */
- 	public static String encodeAndEscapeTopicName(String url) {
- 		if (StringUtils.isBlank(url)) {
- 			return url;
- 		}
- 		String result = encodeTopicName(url);
- 		try {
- 			result = URLEncoder.encode(result, "UTF-8");
- 		} catch (UnsupportedEncodingException e) {
- 			// this should never happen
- 			throw new IllegalStateException("Unsupporting encoding UTF-8");
- 		}
- 		// un-encode colons
- 		result = StringUtils.replace(result, "%3A", ":");
- 		// un-encode forward slashes
- 		result = StringUtils.replace(result, "%2F", "/");
- 		return result;
- 	}
-
-  /**
- 	 * Encode a value for use a topic name.  This method will replace any
- 	 * spaces with underscores.
- 	 *
- 	 * @param url The decoded value that is to be encoded.
- 	 * @return An encoded value.
- 	 */
- 	public static String encodeTopicName(String url) {
- 		if (StringUtils.isBlank(url)) {
- 			return url;
- 		}
- 		return StringUtils.replace(url, " ", "_");
- 	}
-
-  // ^^^^^^^^^^^^^^^^^^^^^^^^
-  // from JAMWiki (LGPL2.1)
-
-  public static String buildWikiURL(String virtualWiki, String topic) {
-    StringBuilder url = new StringBuilder();
-    url.append("/wiki/");
-    url.append(encodeAndEscapeTopicName(virtualWiki));
-    url.append('/');
-    url.append(encodeAndEscapeTopicName(topic));
-    return url.toString();
   }
 
   public static boolean isUrl(String x) {

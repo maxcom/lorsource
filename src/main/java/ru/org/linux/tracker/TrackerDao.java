@@ -94,27 +94,7 @@ public class TrackerDao {
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           " AND t.stat1=0 AND g.id=t.groupid " +
-      "%s" + /* wikiPart */
      "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
-
-  private static final String queryPartWiki = "UNION ALL " +
-      "SELECT " + // wiki
-          "0 as author, " +
-          "0 as id, change_date as lastmod, " +
-          "characters_changed as stat1, " +
-          "0 as gid, " +
-          "'Wiki' as gtitle, " +
-          "topic_name as title, " +
-          "0 as cid, " +
-          "wiki_user_id as last_comment_by, " +
-          "'f' as resolved, " +
-          "0 as section, " +
-          "'' as urlname, " +
-          "change_date as postdate, " +
-          "'f' as smod, " +
-          "'f' as moderate " +
-      "FROM wiki_recent_change " +
-      "WHERE change_date > :interval ";
 
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartTagIgnored = " AND t.id NOT IN (select distinct tags.msgid from tags, user_tags "
@@ -143,7 +123,6 @@ public class TrackerDao {
     }
 
     String partFilter;
-    String partWiki = queryPartWiki;
     switch (filter) {
       case ALL:
         partFilter = "";
@@ -167,20 +146,14 @@ public class TrackerDao {
 
     String query;
 
-    query = String.format(queryTrackerMain, partUncommited, partIgnored, partFilter, partUncommited, partIgnored, partFilter, partWiki);
+    query = String.format(queryTrackerMain, partUncommited, partIgnored, partFilter, partUncommited, partIgnored, partFilter);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
     List<TrackerItem> res = new ArrayList<>(topics);
     
     while (resultSet.next()) {
-      User author;
-      int author_id = resultSet.getInt("author");
-      if (author_id != 0) {
-        author = userDao.getUserCached(author_id);
-      } else {
-        author = null;
-      }
+      User author = userDao.getUserCached(resultSet.getInt("author"));
       int msgid = resultSet.getInt("id");
       Timestamp lastmod = resultSet.getTimestamp("lastmod");
       int stat1 = resultSet.getInt("stat1");
@@ -209,11 +182,7 @@ public class TrackerDao {
 
       ImmutableList<String> tags;
 
-      if (msgid != 0) {
-        tags = topicTagService.getTagsForTitle(msgid);
-      } else {
-        tags = ImmutableList.of();
-      }
+      tags = topicTagService.getTagsForTitle(msgid);
 
       res.add(new TrackerItem(author, msgid, lastmod, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,

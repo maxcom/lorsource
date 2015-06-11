@@ -18,7 +18,6 @@ package ru.org.linux.tracker;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
-import ru.org.linux.util.URLUtil;
 
 import java.sql.Timestamp;
 
@@ -68,23 +67,15 @@ public class TrackerItem {
   }
 
   public String getUrl() {
-    if(section != 0) {
-      if (pages > 1) {
-        return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
-      } else {
-        return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
-      }
+    if (pages > 1) {
+      return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
     } else {
-      return String.format("/wiki/en/%s", URLUtil.encodeAndEscapeTopicName(title));
+      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
     }
   }
 
   public String getUrlReverse() {
-    if(section != 0) {
-      return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
-    } else {
-      return String.format("/wiki/en/%s", URLUtil.encodeAndEscapeTopicName(title));
-    }
+    return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
   }
 
   public String getGroupUrl() {
@@ -93,10 +84,6 @@ public class TrackerItem {
     } else {
       return "/wiki/";
     }
-  }
-
-  public boolean isWiki() {
-    return section == 0;
   }
 
   public int getMsgid() {
@@ -129,14 +116,6 @@ public class TrackerItem {
         return title;
       }
     }
-  }
-
-  public boolean isWikiArticle() {
-    return isWiki() && !title.startsWith("Comments:");
-  }
-
-  public boolean isWikiComment() {
-    return isWiki() && title.startsWith("Comments:");
   }
 
   public int getPages() {
