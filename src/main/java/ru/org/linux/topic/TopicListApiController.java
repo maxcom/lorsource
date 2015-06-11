@@ -110,7 +110,7 @@ public class TopicListApiController {
     return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
   }
 
-  private ImmutableMap<String, Object> shortenTopicInfo(List<Topic> allTopics) {
+  private List<ImmutableMap<String, Object>> shortenTopicInfo(List<Topic> allTopics) {
     List<ImmutableMap<String, Object>> listOfTopics = new ArrayList<>();
 
     for (Topic topic : allTopics) {
@@ -125,6 +125,6 @@ public class TopicListApiController {
               .put("author", userDao.getUserCached(topic.getUid()).getNick());
       listOfTopics.add(builder.build());
     }
-    return ImmutableMap.of("topics", listOfTopics);
+    return listOfTopics;
   }
 }
