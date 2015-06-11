@@ -28,6 +28,7 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.PublicApi;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.UserDao;
 
@@ -52,65 +53,60 @@ public class TopicListApiController {
   private UserDao userDao;
 
   @Autowired
+  private TagService tagService;
+
+  @Autowired
   private TopicListDao topicListDao;
 
   @Autowired
   private TopicTagService topicTagService;
 
-  @RequestMapping(value = "/api/topics-simple", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
+  @RequestMapping(value = "/api/topics", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
-  public Map<String, Object> getTopicsSimple(
+  public Map<String, Object> getTopics(
           @RequestParam(value = "section") String sectionName,
-          @RequestParam(value = "fromDate") String fromDate
-  ) throws Exception {
-    Section section = sectionService.getSectionByName(sectionName);
-
-    if (!section.getUrlName().equals(sectionName) || !fromDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
-      return ImmutableMap.of("error", "Invalid arguments");
-    }
-
-    TopicListDto topicListDto = new TopicListDto();
-    topicListDto.setSection(section.getId());
-
-    List<Topic> allTopics = topicListDao.getTopics(topicListDto);
-    return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
-  }
-
-  @RequestMapping(value = "/api/topics-complex", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
-  @ResponseBody
-  public Map<String, Object> getTopicsComplex(
-          @RequestParam(value = "section") String sectionName,
-          @RequestParam(value = "group") String groupName,
+          @RequestParam(value = "group", required = false) String groupName,
           @RequestParam(value = "fromDate") String fromDate,
           @RequestParam(value = "toDate") String toDate,
-          @RequestParam(value = "offset") Integer offset,
-          @RequestParam(value = "notalks") Boolean notalks,
-          @RequestParam(value = "tech") Boolean tech
+          @RequestParam(value = "limit", required = false) Integer limit,
+          @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+          @RequestParam(value = "tag", required = false) String tag,
+          @RequestParam(value = "notalks", required = false, defaultValue = "false") Boolean notalks,
+          @RequestParam(value = "tech", required = false, defaultValue = "false") Boolean tech,
+          @RequestParam(value = "commitMode", required = false, defaultValue = "ALL") String commitMode,
+          @RequestParam(value = "author", required = false) String author
   ) throws Exception {
     Section section = sectionService.getSectionByName(sectionName);
-    Group group = groupDao.getGroup(section, groupName);
-
-    if (!section.getUrlName().equals(sectionName)
-            ||!group.getUrlName().equals(groupName)
-            || !fromDate.matches("\\d{4}-\\d{2}-\\d{2}")
-            || !toDate.matches("\\d{4}-\\d{2}-\\d{2}")
-            || offset < 0
-            || notalks == null
-            || tech == null) {
-      return ImmutableMap.of("error", "Invalid arguments");
-    }
 
     TopicListDto topicListDto = new TopicListDto();
     topicListDto.setSection(section.getId());
-    topicListDto.setGroup(group.getId());
+
+    if (groupName != null) {
+      Group group = groupDao.getGroup(section, groupName);
+      topicListDto.setGroup(group.getId());
+    }
+
     topicListDto.setFromDate(Date.valueOf(fromDate));
     topicListDto.setToDate(Date.valueOf(toDate));
+
+    if (limit != null) {
+      topicListDto.setLimit(limit);
+    }
+
     topicListDto.setOffset(offset);
     topicListDto.setNotalks(notalks);
     topicListDto.setTech(tech);
+    topicListDto.setCommitMode(TopicListDao.CommitMode.valueOf(commitMode));
+
+    if (author != null) {
+      topicListDto.setUserId(userDao.findUserId(author));
+    }
+
+    if (tag != null) {
+      topicListDto.setTag(tagService.getTagId(tag));
+    }
 
     List<Topic> allTopics = topicListDao.getTopics(topicListDto);
-
     return ImmutableMap.of("topics", shortenTopicInfo(allTopics));
   }
 
