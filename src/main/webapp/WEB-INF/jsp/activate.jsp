@@ -51,7 +51,7 @@
     </div>
 
     <div class="control-group">
-      <label for="field_code" class="control-label">Код активациии</label>
+      <label for="field_code" class="control-label">Код активации</label>
       <div class="controls">
         <input type="text" name="activation" required id="field_code">
       </div>
@@ -70,7 +70,7 @@
   <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
     <dl>
-      <dt><label>Код активациии:</label></dt>
+      <dt><label>Код активации:</label></dt>
       <dd><input type="text" name="activation" required autofocus/></dd>
     </dl>
 
