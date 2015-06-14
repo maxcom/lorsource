@@ -63,23 +63,8 @@
       var ads = [
         {
           type: 'img',
-          src: '/adv/selectel/728X90 dedic red.png',
-          href: 'https://selectel.ru/services/dedicated/?utm_campaign=dedicated_sale_red3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/728X90 dedic blue.png',
-          href: 'https://selectel.ru/services/dedicated/?utm_campaign=dedicated_sale_blue3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/728X90 VPC red.png',
-          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_red3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/728X90 VPC blue.png',
-          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_blue3&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=728x90'
+          src: '/adv/simplecloud.png',
+          href: 'http://simplecloud.ru/?utm_source=lor&utm_medium=banner&utm_campaign=250'
         }
       ];
 
