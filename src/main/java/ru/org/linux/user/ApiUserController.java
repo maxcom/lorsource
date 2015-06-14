@@ -54,7 +54,7 @@ public class ApiUserController {
       ArrayList<String> ignoredUsers = new ArrayList<>();
 
       for (Integer id : ignoredIds) {
-        ignoredUsers.add(userDao.getUser(id).getNick());
+        ignoredUsers.add(userDao.getUserCached(id).getNick());
       }
 
       ImmutableMap.Builder<String, Object> builder = new ImmutableMap.Builder<>();
