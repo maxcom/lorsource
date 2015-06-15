@@ -25,7 +25,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +36,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -64,7 +62,6 @@ public class UserDao {
                                                 "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
                                               "ORDER BY regdate";
 
-  private static final String queryUserInfoClass = "SELECT url, town, lastlogin, regdate FROM users WHERE id=?";
   private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
@@ -152,11 +149,8 @@ public class UserDao {
    * @return информация
    */
   public UserInfo getUserInfoClass(User user) {
-    return jdbcTemplate.queryForObject(queryUserInfoClass, new RowMapper<UserInfo>() {
-      @Override
-      public UserInfo mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new UserInfo(resultSet);
-      }
+    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> {
+      return new UserInfo(resultSet);
     }, user.getId());
   }
 
