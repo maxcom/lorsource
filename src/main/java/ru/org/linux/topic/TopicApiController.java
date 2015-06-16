@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +32,15 @@ import ru.org.linux.site.PublicApi;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.LorCodeService;
-import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Controller
 @PublicApi
@@ -80,6 +78,9 @@ public class TopicApiController {
   @Autowired
   private LorCodeService lorCodeService;
 
+  @Autowired
+  private UserService userService;
+
   @RequestMapping(value = "/api/{section}/{group}/{id}/topic", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
   public Object getMessage(
@@ -108,7 +109,7 @@ public class TopicApiController {
 
     int favsCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).favsCount();
     int watchCount = memoriesDao.getTopicInfo(msgid, AuthUtil.getCurrentUser()).watchCount();
-    String author = userDao.getUserCached(topic.getUid()).getNick();
+    ApiUserRef author = userService.ref(userDao.getUserCached(topic.getUid()), AuthUtil.getCurrentUser());
 
     ImmutableMap.Builder<String, Object> builder = new ImmutableMap.Builder<>();
 
