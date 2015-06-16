@@ -15,20 +15,15 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.BadPasswordException;
-import ru.org.linux.auth.LoginController;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.util.StringUtil;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -313,33 +308,6 @@ public class User implements Serializable {
 
   public boolean isAnonymousScore() {
     return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
-  }
-
-  public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
-    String username = nick;
-    //String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-    String cookieName = LoginController.ACEGI_COOKIE_NAME; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-    long tokenValiditySeconds = 1209600; // 14 days
-    String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
-    long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
-
-    // construct token to put in cookie; format is:
-    // username + ":" + expiryTime + ":" + Md5Hex(username + ":" +
-    // expiryTime + ":" + password + ":" + key)
-
-    String signatureValue = StringUtil.md5hash(username + ':' + expiryTime + ':' + password + ':' + key);
-    String tokenValue = username + ':' + expiryTime + ':' + signatureValue;
-    String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
-
-    // Add remember me cookie
-    Cookie acegi = new Cookie(cookieName, tokenValueBase64);
-    acegi.setMaxAge(Long.valueOf(expiryTime).intValue());
-    acegi.setPath("/wiki");
-    acegi.setHttpOnly(true);
-    response.addCookie(acegi);
-
-    // Remove ACEGI_SECURITY_CONTEXT and session
-    session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
   }
 
   public boolean isCorrector() {
