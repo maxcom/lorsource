@@ -55,8 +55,6 @@ public class User implements Serializable {
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
-  private static final int BLOCK_MAX_SCORE = 400;
-  private static final int BLOCK_SCORE = 200;
 
   public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 
@@ -203,10 +201,6 @@ public class User implements Serializable {
     return anonymous;
   }
 
-  public String getMD5(String base) {
-    return StringUtil.md5hash(base + password);
-  }
-
   public String getActivationCode(String base) {
     return getActivationCode(base, nick, email);
   }
@@ -307,8 +301,6 @@ public class User implements Serializable {
     }
 
     return !canmod;
-
-    // return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 
   public boolean isActivated() {
