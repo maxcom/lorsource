@@ -97,7 +97,7 @@ public class GroupPermissionService {
       case 300:
       case 400:
       case 500:
-        return "<b>Ограничение на добавление сообщений</b>: " + User.getStars(postscore, postscore);
+        return "<b>Ограничение на добавление сообщений</b>: " + User.getStars(postscore, postscore, true);
       case TopicPermissionService.POSTSCORE_MODERATORS_ONLY:
         return "<b>Ограничение на добавление сообщений</b>: только для модераторов";
       case TopicPermissionService.POSTSCORE_REGISTERED_ONLY:

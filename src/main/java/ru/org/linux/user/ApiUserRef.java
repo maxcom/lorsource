@@ -18,19 +18,22 @@ package ru.org.linux.user;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 import ru.org.linux.site.PublicApi;
 
-import java.util.List;
-
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @PublicApi
 public class ApiUserRef {
   private final String nick;
+
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private final boolean blocked;
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private final boolean anonymous;
-  private final List<Boolean> stars;
+
+  private final String stars;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final Integer score;
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final Integer maxScore;
 
   /*
@@ -40,7 +43,7 @@ public class ApiUserRef {
     nick = null;
     blocked = false;
     anonymous = false;
-    stars = ImmutableList.of();
+    stars = "";
     score = null;
     maxScore = null;
   }
@@ -50,7 +53,7 @@ public class ApiUserRef {
           @JsonProperty("nick") String nick,
           @JsonProperty("blocked") boolean blocked,
           @JsonProperty("anonymous") boolean anonymous,
-          @JsonProperty("stars") List<Boolean> stars,
+          @JsonProperty("stars") String stars,
           Integer score, Integer maxScore) {
     this.nick = nick;
     this.blocked = blocked;
@@ -72,7 +75,7 @@ public class ApiUserRef {
     return anonymous;
   }
 
-  public List<Boolean> getStars() {
+  public String getStars() {
     return stars;
   }
 

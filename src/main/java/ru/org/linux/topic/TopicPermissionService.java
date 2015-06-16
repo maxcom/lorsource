@@ -67,7 +67,7 @@ public class TopicPermissionService {
       case 300:
       case 400:
       case 500:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore, true);
       case POSTSCORE_MOD_AUTHOR:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
       case POSTSCORE_MODERATORS_ONLY:

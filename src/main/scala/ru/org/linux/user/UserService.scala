@@ -81,16 +81,13 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
     param
   }
 
-  private def getStars(user: User): java.util.List[java.lang.Boolean] =
-    (Seq.fill(user.getGreenStars)(java.lang.Boolean.TRUE)
-      ++ Seq.fill(user.getGreyStars)(java.lang.Boolean.FALSE)).asJava
-
-
   def ref(user: User, @Nullable requestUser: User): ApiUserRef = {
     if (requestUser != null && requestUser.isModerator && !user.isAnonymous) {
-      new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous, getStars(user), user.getScore, user.getMaxScore)
+      new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous,
+        User.getStars(user.getScore, user.getMaxScore, false), user.getScore, user.getMaxScore)
     } else {
-      new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous, getStars(user), null, null)
+      new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous,
+        User.getStars(user.getScore, user.getMaxScore, false), null, null)
     }
   }
 

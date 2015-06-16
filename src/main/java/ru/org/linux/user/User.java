@@ -237,10 +237,10 @@ public class User implements Serializable {
 
   @Deprecated
   public String getStars() {
-    return getStars(score, maxScore);
+    return getStars(score, maxScore, true);
   }
 
-  public static int getGreenStars(int score) {
+  private static int getGreenStars(int score) {
     if (score < 0) {
       score = 0;
     }
@@ -251,7 +251,7 @@ public class User implements Serializable {
     return (int) Math.floor(score / 100.0);
   }
 
-  public static int getGreyStars(int score, int maxScore) {
+  private static int getGreyStars(int score, int maxScore) {
     if (maxScore < 0) {
       maxScore = 0;
     }
@@ -266,21 +266,15 @@ public class User implements Serializable {
     return (int) Math.floor(maxScore / 100.0) - stars;
   }
 
-  public int getGreenStars() {
-    return getGreenStars(score);
-  }
-
-  public int getGreyStars() {
-    return getGreyStars(score, maxScore);
-  }
-
-  public static String getStars(int score, int maxScore) {
+  public static String getStars(int score, int maxScore, boolean html) {
     StringBuilder out = new StringBuilder();
 
     int stars = getGreenStars(score);
     int greyStars = getGreyStars(score, maxScore);
 
-    out.append("<span class=\"stars\">");
+    if (html) {
+      out.append("<span class=\"stars\">");
+    }
 
     for (int i = 0; i < stars; i++) {
       out.append("★");
@@ -290,7 +284,9 @@ public class User implements Serializable {
       out.append("☆");
     }
 
-    out.append("</span>");
+    if (html) {
+      out.append("</span>");
+    }
 
     return out.toString();
   }
@@ -301,7 +297,7 @@ public class User implements Serializable {
     } else if (score < 100 && maxScore < 100) {
       return "новый пользователь";
     } else {
-      return getStars(score, maxScore);
+      return getStars(score, maxScore, true);
     }
   }
 
