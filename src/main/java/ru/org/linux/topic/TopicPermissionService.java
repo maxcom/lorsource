@@ -63,15 +63,11 @@ public class TopicPermissionService {
       case 50:
         return "Закрыто добавление комментариев для недавно зарегистрированных пользователей.";
       case 100:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
       case 200:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(200, 200);
       case 300:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(300, 300);
       case 400:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(400, 400);
       case 500:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(500, 500);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore);
       case POSTSCORE_MOD_AUTHOR:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
       case POSTSCORE_MODERATORS_ONLY:
