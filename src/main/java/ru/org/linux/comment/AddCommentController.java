@@ -15,14 +15,13 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -42,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class AddCommentController {
@@ -184,10 +184,61 @@ public class AddCommentController {
       request.getHeader("X-Forwarded-For"),
       request.getHeader("user-agent")
     );
+
     searchQueueSender.updateComment(msgid);
 
-    String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
-    return new ModelAndView(new RedirectView(returnUrl));
+    return new ModelAndView(new RedirectView(add.getTopic().getLink()+"?cid="+msgid));
+  }
+
+  /**
+   * Добавление комментария.
+   *
+   * @param add      WEB-форма, содержащая данные
+   * @param errors   обработчик ошибок ввода для формы
+   * @param request  данные запроса от web-клиента
+   * @return объект web-модели
+   * @throws Exception
+   */
+  @RequestMapping(value = "/add_comment_ajax", produces = "application/json; charset=UTF-8", method = RequestMethod.POST)
+  @ResponseBody
+  public Map<String, Object> addCommentAjax(
+          @ModelAttribute("add") @Valid CommentRequest add,
+          Errors errors,
+          HttpServletRequest request,
+          @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
+  ) throws Exception {
+    User user = commentService.getCommentUser(add, request, errors);
+
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors);
+
+    String msg = commentService.getCommentBody(add, user, errors);
+    Comment comment = commentService.getComment(add, user, request);
+
+    if (add.getTopic() != null) {
+      topicPermissionService.checkCommentsAllowed(add.getTopic(), user, errors);
+    }
+
+    if (add.isPreviewMode() || errors.hasErrors() || comment == null) {
+      return ImmutableMap.of(
+              "errors",
+              errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList()),
+              "preview",
+              commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure())
+      );
+    } else {
+      int msgid = commentService.create(
+              user,
+              comment,
+              msg,
+              request.getRemoteAddr(),
+              request.getHeader("X-Forwarded-For"),
+              request.getHeader("user-agent")
+      );
+
+      searchQueueSender.updateComment(msgid);
+
+      return ImmutableMap.of("url", add.getTopic().getLink() + "?cid=" + msgid);
+    }
   }
 
   @InitBinder("add")
