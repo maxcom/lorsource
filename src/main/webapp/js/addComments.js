@@ -23,13 +23,13 @@ $script.ready('jquery', function() {
     }
 
     if (type == 1) {
-      reply_to = $("input[name='replyto']", element);
+      var reply_to = $("input[name='replyto']", element);
       if (reply_to.attr('value') != id) {
         element.hide();
       }
 
       if (element.is(':hidden')) {
-        reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
+        var reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
         reply.append(element);
         reply_to.attr('value', id);
         element.slideDown('slow', function() { $("#msg").focus(); });
@@ -37,7 +37,7 @@ $script.ready('jquery', function() {
         element.slideUp('slow');
       }
     } else if (type == 0) {
-      topic_id = $("input[name='topic']", element).attr('value');
+      var topic_id = $("input[name='topic']", element).attr('value');
 
       reply_to = $("input[name='replyto']", element);
       if (reply_to.attr('value') != 0) {
@@ -45,7 +45,7 @@ $script.ready('jquery', function() {
       }
 
       if (element.is(':hidden')) {
-        reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
+        var reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
         reply.append(element);
         reply_to.attr('value', '0');
         element.slideDown('slow', function() { $("#msg").focus(); });
@@ -56,7 +56,9 @@ $script.ready('jquery', function() {
   }
 
   $(document).ready(function() {
-    element = $("#commentForm").parent();
+    var commentForm = $("#commentForm");
+
+    element = commentForm.parent();
 
     if (document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/)) {
       csrf = document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/);
@@ -86,12 +88,22 @@ $script.ready('jquery', function() {
       }
     };
 
-    $("#commentForm").bind("submit", function() {
+    commentForm.bind("submit", function() {
       window.onbeforeunload = null;
     });
 
-    $("#commentForm").bind("reset", function() {
+    commentForm.bind("reset", function() {
       element.slideUp('slow');
+    });
+
+    var previewButton = commentForm.find("button[name=preview]");
+    previewButton.attr("type", "button");
+    previewButton.click(function() {
+      var form = commentForm.serialize();
+      form = form+"&preview=preview";
+      $.post("/add_comment_ajax", form).done(function(data) {
+        alert(data['preview']['processedMessage']);
+      });
     })
   });
 });
