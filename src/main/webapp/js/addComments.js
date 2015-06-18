@@ -111,7 +111,20 @@ $script.ready('jquery', function() {
           title = data['preview']['title'];
         }
 
+        $("div[error]").remove();
+
         commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+
+        if (data['errors']) {
+          var errors = $("<div class=error>");
+          $.each(data['errors'], function(idx, v) {
+            errors.append($("<span>").text(v));
+            errors.append($("<br>"));
+          });
+
+          commentPreview.prepend(errors);
+        }
+
         commentPreview.show();
 
         var visible_area_start = $(window).scrollTop();
