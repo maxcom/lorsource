@@ -105,9 +105,33 @@ $script.ready('jquery', function() {
       previewButton.prop("disabled", true);
       var form = commentForm.serialize();
       form = form+"&preview=preview";
+
+      function showPreview() {
+        commentPreview.show();
+
+        var visible_area_start = $(window).scrollTop();
+        var visible_area_end = visible_area_start + window.innerHeight;
+
+        var offset = commentPreview.offset().top;
+
+        if(offset < visible_area_start || offset > visible_area_end) {
+          $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
+          return false;
+        }
+      }
+
+      $("div[error]").remove();
+
       $.post("/add_comment_ajax", form)
               .always(function() {
                 previewButton.prop("disabled", false);
+              })
+              .fail(function( jqXHR, textStatus, errorThrown ) {
+                commentPreview.empty().append(
+                   $("<div class=error>")
+                        .text("Не удалось выполнить запрос, попробуйте повторить еще раз. "+errorThrown)
+                );
+                showPreview();
               })
               .done(function(data) {
         var title = "Предпросмотр";
@@ -115,8 +139,6 @@ $script.ready('jquery', function() {
         if (data['preview']['title']) {
           title = data['preview']['title'];
         }
-
-        $("div[error]").remove();
 
         commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
 
@@ -130,18 +152,7 @@ $script.ready('jquery', function() {
           commentPreview.prepend(errors);
         }
 
-        commentPreview.show();
-
-        var visible_area_start = $(window).scrollTop();
-        var visible_area_end = visible_area_start + window.innerHeight;
-
-        var offset = commentPreview.offset().top;
-
-        if(offset < visible_area_start || offset > visible_area_end) {
-          // Not in view so scroll to it
-          $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
-          return false;
-        }
+        showPreview();
       });
     })
   });
