@@ -102,9 +102,14 @@ $script.ready('jquery', function() {
     var previewButton = commentForm.find("button[name=preview]");
     previewButton.attr("type", "button");
     previewButton.click(function() {
+      previewButton.prop("disabled", true);
       var form = commentForm.serialize();
       form = form+"&preview=preview";
-      $.post("/add_comment_ajax", form).done(function(data) {
+      $.post("/add_comment_ajax", form)
+              .always(function() {
+                previewButton.prop("disabled", false);
+              })
+              .done(function(data) {
         var title = "Предпросмотр";
 
         if (data['preview']['title']) {
