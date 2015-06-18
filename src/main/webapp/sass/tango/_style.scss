@@ -511,3 +511,8 @@ fieldset legend {
 .icon-user-color {
   color: $icon_user_color;
 }
+
+#commentPreview {
+  border: 1px solid $preview_border_color;
+  padding: 0.3rem;
+}

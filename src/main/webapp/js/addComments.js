@@ -14,55 +14,56 @@
  */
 
 $script.ready('jquery', function() {
-  var element = '';
-  var csrf = '';
-
-  function sh(type, id) {
-    if (csrf.length>0) {
-      $("input[name='csrf']").attr('value', csrf);
-    }
-
-    if (type == 1) {
-      var reply_to = $("input[name='replyto']", element);
-      if (reply_to.attr('value') != id) {
-        element.hide();
-      }
-
-      if (element.is(':hidden')) {
-        var reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
-        reply.append(element);
-        reply_to.attr('value', id);
-        element.slideDown('slow', function() { $("#msg").focus(); });
-      } else {
-        element.slideUp('slow');
-      }
-    } else if (type == 0) {
-      var topic_id = $("input[name='topic']", element).attr('value');
-
-      reply_to = $("input[name='replyto']", element);
-      if (reply_to.attr('value') != 0) {
-        element.hide();
-      }
-
-      if (element.is(':hidden')) {
-        var reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
-        reply.append(element);
-        reply_to.attr('value', '0');
-        element.slideDown('slow', function() { $("#msg").focus(); });
-      } else {
-        element.slideUp('slow');
-      }
-    }
-  }
-
   $(document).ready(function() {
     var commentForm = $("#commentForm");
+    commentForm.append($("<div id=commentPreview>").hide());
+    var commentPreview = $('#commentPreview');
 
-    element = commentForm.parent();
+    var commentFormContainer = commentForm.parent();
+
+    var csrf = '';
 
     if (document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/)) {
       csrf = document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/);
       csrf = csrf[1];
+    }
+
+    function sh(type, id) {
+      if (csrf.length>0) {
+        $("input[name='csrf']").attr('value', csrf);
+      }
+
+      if (type == 1) {
+        var reply_to = $("input[name='replyto']", commentFormContainer);
+        if (reply_to.attr('value') != id) {
+          commentFormContainer.hide();
+        }
+
+        if (commentFormContainer.is(':hidden')) {
+          var reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
+          reply.append(commentFormContainer);
+          reply_to.attr('value', id);
+          commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
+        } else {
+          commentFormContainer.slideUp('slow');
+        }
+      } else if (type == 0) {
+        var topic_id = $("input[name='topic']", commentFormContainer).attr('value');
+
+        reply_to = $("input[name='replyto']", commentFormContainer);
+        if (reply_to.attr('value') != 0) {
+          commentFormContainer.hide();
+        }
+
+        if (commentFormContainer.is(':hidden')) {
+          var reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
+          reply.append(commentFormContainer);
+          reply_to.attr('value', '0');
+          commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
+        } else {
+          commentFormContainer.slideUp('slow');
+        }
+      }
     }
 
     $('div.reply').each(function() {
@@ -93,7 +94,9 @@ $script.ready('jquery', function() {
     });
 
     commentForm.bind("reset", function() {
-      element.slideUp('slow');
+      commentFormContainer.slideUp('slow');
+      commentPreview.hide();
+      commentPreview.html('');
     });
 
     var previewButton = commentForm.find("button[name=preview]");
@@ -102,7 +105,25 @@ $script.ready('jquery', function() {
       var form = commentForm.serialize();
       form = form+"&preview=preview";
       $.post("/add_comment_ajax", form).done(function(data) {
-        alert(data['preview']['processedMessage']);
+        var title = "Предпросмотр";
+
+        if (data['preview']['title']) {
+          title = data['preview']['title'];
+        }
+
+        commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+        commentPreview.show();
+
+        var visible_area_start = $(window).scrollTop();
+        var visible_area_end = visible_area_start + window.innerHeight;
+
+        var offset = commentPreview.offset().top;
+
+        if(offset < visible_area_start || offset > visible_area_end) {
+          // Not in view so scroll to it
+          $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
+          return false;
+        }
       });
     })
   });
