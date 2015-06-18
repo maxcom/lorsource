@@ -122,10 +122,12 @@ $script.ready('jquery', function() {
 
       $("div[error]").remove();
 
-      $.post("/add_comment_ajax", form)
-              .always(function() {
-                previewButton.prop("disabled", false);
-              })
+      $.ajax({
+        type: "POST",
+        url: "/add_comment_ajax",
+        data: form,
+        timeout: 10000
+      }).always(function() { previewButton.prop("disabled", false); })
               .fail(function( jqXHR, textStatus, errorThrown ) {
                 commentPreview.empty().append(
                    $("<div class=error>")
