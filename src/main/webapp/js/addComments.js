@@ -101,10 +101,23 @@ $script.ready('jquery', function() {
 
     var previewButton = commentForm.find("button[name=preview]");
     previewButton.attr("type", "button");
+
+    function startSpinner() {
+      var spinner = $("<i class='icon-spin spinner' style='margin-left: 0.5em'>");
+
+      commentForm.find(".form-actions button").last().after(spinner);
+    }
+
+    function stopSpinner() {
+      commentForm.find(".spinner").remove();
+    }
+
     previewButton.click(function() {
       previewButton.prop("disabled", true);
       var form = commentForm.serialize();
       form = form+"&preview=preview";
+
+      startSpinner();
 
       function showPreview() {
         commentPreview.show();
@@ -127,7 +140,7 @@ $script.ready('jquery', function() {
         url: "/add_comment_ajax",
         data: form,
         timeout: 10000
-      }).always(function() { previewButton.prop("disabled", false); })
+      }).always(function() { previewButton.prop("disabled", false); stopSpinner(); })
               .fail(function( jqXHR, textStatus, errorThrown ) {
                 commentPreview.empty().append(
                    $("<div class=error>")
