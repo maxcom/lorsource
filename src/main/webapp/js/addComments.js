@@ -14,53 +14,56 @@
  */
 
 $script.ready('jquery', function() {
-  var element = '';
-  var csrf = '';
-
-  function sh(type, id) {
-    if (csrf.length>0) {
-      $("input[name='csrf']").attr('value', csrf);
-    }
-
-    if (type == 1) {
-      reply_to = $("input[name='replyto']", element);
-      if (reply_to.attr('value') != id) {
-        element.hide();
-      }
-
-      if (element.is(':hidden')) {
-        reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
-        reply.append(element);
-        reply_to.attr('value', id);
-        element.slideDown('slow', function() { $("#msg").focus(); });
-      } else {
-        element.slideUp('slow');
-      }
-    } else if (type == 0) {
-      topic_id = $("input[name='topic']", element).attr('value');
-
-      reply_to = $("input[name='replyto']", element);
-      if (reply_to.attr('value') != 0) {
-        element.hide();
-      }
-
-      if (element.is(':hidden')) {
-        reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
-        reply.append(element);
-        reply_to.attr('value', '0');
-        element.slideDown('slow', function() { $("#msg").focus(); });
-      } else {
-        element.slideUp('slow');
-      }
-    }
-  }
-
   $(document).ready(function() {
-    element = $("#commentForm").parent();
+    var commentForm = $("#commentForm");
+    commentForm.append($("<div id=commentPreview>").hide());
+    var commentPreview = $('#commentPreview');
+
+    var commentFormContainer = commentForm.parent();
+
+    var csrf = '';
 
     if (document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/)) {
       csrf = document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/);
       csrf = csrf[1];
+    }
+
+    function sh(type, id) {
+      if (csrf.length>0) {
+        $("input[name='csrf']").attr('value', csrf);
+      }
+
+      if (type == 1) {
+        var reply_to = $("input[name='replyto']", commentFormContainer);
+        if (reply_to.attr('value') != id) {
+          commentFormContainer.hide();
+        }
+
+        if (commentFormContainer.is(':hidden')) {
+          var reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
+          reply.append(commentFormContainer);
+          reply_to.attr('value', id);
+          commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
+        } else {
+          commentFormContainer.slideUp('slow');
+        }
+      } else if (type == 0) {
+        var topic_id = $("input[name='topic']", commentFormContainer).attr('value');
+
+        reply_to = $("input[name='replyto']", commentFormContainer);
+        if (reply_to.attr('value') != 0) {
+          commentFormContainer.hide();
+        }
+
+        if (commentFormContainer.is(':hidden')) {
+          var reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
+          reply.append(commentFormContainer);
+          reply_to.attr('value', '0');
+          commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
+        } else {
+          commentFormContainer.slideUp('slow');
+        }
+      }
     }
 
     $('div.reply').each(function() {
@@ -86,13 +89,123 @@ $script.ready('jquery', function() {
       }
     };
 
-    $("#commentForm").bind("submit", function() {
+    commentForm.bind("submit", function() {
       window.onbeforeunload = null;
     });
 
-    $("#commentForm").bind("reset", function() {
-      element.slideUp('slow');
-    })
+    commentForm.bind("reset", function() {
+      commentFormContainer.slideUp('slow');
+      commentPreview.hide();
+      commentPreview.html('');
+    });
+
+    var previewButton = commentForm.find("button[name=preview]");
+    previewButton.attr("type", "button");
+
+    function startSpinner() {
+      var spinner = $("<i class='icon-spin spinner' style='margin-left: 0.5em'>");
+
+      commentForm.find(".form-actions button").last().after(spinner);
+    }
+
+    function stopSpinner() {
+      commentForm.find(".spinner").remove();
+    }
+
+    function showPreview() {
+      commentPreview.show();
+
+      var visible_area_start = $(window).scrollTop();
+      var visible_area_end = visible_area_start + window.innerHeight;
+
+      var offset = commentPreview.offset().top;
+
+      if(offset < visible_area_start || offset > visible_area_end) {
+        $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
+        return false;
+      }
+    }
+
+    function displayPreview(data) {
+      var title = "Предпросмотр";
+
+      if (data['preview']['title']) {
+        title = data['preview']['title'];
+      }
+
+      commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+
+      if (data['errors']) {
+        var errors = $("<div class=error>");
+        $.each(data['errors'], function(idx, v) {
+          errors.append($("<span>").text(v));
+          errors.append($("<br>"));
+        });
+
+        commentPreview.prepend(errors);
+      }
+
+      showPreview();
+    }
+
+    function ajaxError(jqXHR, textStatus, errorThrown) {
+      commentPreview.empty().append(
+          $("<div class=error>")
+              .text("Не удалось выполнить запрос, попробуйте повторить еще раз. " + errorThrown)
+      );
+      showPreview();
+    }
+
+    previewButton.click(function() {
+      previewButton.prop("disabled", true);
+      var form = commentForm.serialize();
+      form = form+"&preview=preview";
+
+      startSpinner();
+
+      $("div[error]").remove();
+
+      $.ajax({
+        type: "POST",
+        url: "/add_comment_ajax",
+        data: form,
+        timeout: 10000
+      }).always(function () {
+        previewButton.prop("disabled", false);
+        stopSpinner();
+      }).fail(ajaxError).done(displayPreview);
+    });
+
+    var submitInProcess = false;
+
+    commentForm.submit(function() {
+      if (!submitInProcess) {
+        submitInProcess = true;
+
+        var form = commentForm.serialize();
+
+        startSpinner();
+
+        $("div[error]").remove();
+
+        $.ajax({
+          type: "POST",
+          url: "/add_comment_ajax",
+          data: form,
+          timeout: 30000
+        }).always(function() { submitInProcess = false; stopSpinner(); })
+            .fail(ajaxError)
+            .done(function(data) {
+              if (data['url']) {
+                window.location.href = data['url'];
+              } else {
+                displayPreview(data);
+              }
+            });
+      }
+
+      return false;
+    });
   });
 });
 

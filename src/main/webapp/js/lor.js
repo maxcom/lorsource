@@ -269,18 +269,8 @@ $script.ready('plugins', function() {
     }
   }
 
-  function initCommentFormValidation() {
-    $("#commentForm").validate({
-      messages : {
-        msg :  "Введите сообщение",
-        title : "Введите заголовок"
-      }
-    });
-  }
-
   $(function() {
     initLoginForm();
-    initCommentFormValidation();
   });
 });
 

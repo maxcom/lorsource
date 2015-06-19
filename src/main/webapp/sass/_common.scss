@@ -678,6 +678,22 @@ pre code .container:before, pre code .container:after {
   min-width: 1.5em;
 }
 
+@keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+.spinner {
+  animation: spinner 2s infinite linear;
+  -webkit-animation: spinner 2s infinite linear;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
