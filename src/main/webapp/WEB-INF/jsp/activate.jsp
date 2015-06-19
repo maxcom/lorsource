@@ -27,12 +27,18 @@
 <c:if test="${template.sessionAuthorized}">
   <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
-    <dl>
-      <dt><label>Код активации:</label></dt>
-      <dd><input type="text" name="activation" required autofocus/></dd>
-    </dl>
-
-    <input type=submit value="Активировать">
+    <div class="control-group">
+      <label for="field_code" class="control-label">Код активации</label>
+      <div class="controls">
+        <input type="text" name="activation" required id="field_code">
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <div class="controls">
+        <button type=submit class="btn btn-primary">Активировать</button>
+      </div>
+    </div>
   </form>
 </c:if>
 
