@@ -112,26 +112,56 @@ $script.ready('jquery', function() {
       commentForm.find(".spinner").remove();
     }
 
+    function showPreview() {
+      commentPreview.show();
+
+      var visible_area_start = $(window).scrollTop();
+      var visible_area_end = visible_area_start + window.innerHeight;
+
+      var offset = commentPreview.offset().top;
+
+      if(offset < visible_area_start || offset > visible_area_end) {
+        $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
+        return false;
+      }
+    }
+
+    function displayPreview(data) {
+      var title = "Предпросмотр";
+
+      if (data['preview']['title']) {
+        title = data['preview']['title'];
+      }
+
+      commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+
+      if (data['errors']) {
+        var errors = $("<div class=error>");
+        $.each(data['errors'], function(idx, v) {
+          errors.append($("<span>").text(v));
+          errors.append($("<br>"));
+        });
+
+        commentPreview.prepend(errors);
+      }
+
+      showPreview();
+    }
+
+    function ajaxError(jqXHR, textStatus, errorThrown) {
+      commentPreview.empty().append(
+          $("<div class=error>")
+              .text("Не удалось выполнить запрос, попробуйте повторить еще раз. " + errorThrown)
+      );
+      showPreview();
+    }
+
     previewButton.click(function() {
       previewButton.prop("disabled", true);
       var form = commentForm.serialize();
       form = form+"&preview=preview";
 
       startSpinner();
-
-      function showPreview() {
-        commentPreview.show();
-
-        var visible_area_start = $(window).scrollTop();
-        var visible_area_end = visible_area_start + window.innerHeight;
-
-        var offset = commentPreview.offset().top;
-
-        if(offset < visible_area_start || offset > visible_area_end) {
-          $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
-          return false;
-        }
-      }
 
       $("div[error]").remove();
 
@@ -140,36 +170,42 @@ $script.ready('jquery', function() {
         url: "/add_comment_ajax",
         data: form,
         timeout: 10000
-      }).always(function() { previewButton.prop("disabled", false); stopSpinner(); })
-              .fail(function( jqXHR, textStatus, errorThrown ) {
-                commentPreview.empty().append(
-                   $("<div class=error>")
-                        .text("Не удалось выполнить запрос, попробуйте повторить еще раз. "+errorThrown)
-                );
-                showPreview();
-              })
-              .done(function(data) {
-        var title = "Предпросмотр";
+      }).always(function () {
+        previewButton.prop("disabled", false);
+        stopSpinner();
+      }).fail(ajaxError).done(displayPreview);
+    });
 
-        if (data['preview']['title']) {
-          title = data['preview']['title'];
-        }
+    var submitInProcess = false;
 
-        commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+    commentForm.submit(function() {
+      if (!submitInProcess) {
+        submitInProcess = true;
 
-        if (data['errors']) {
-          var errors = $("<div class=error>");
-          $.each(data['errors'], function(idx, v) {
-            errors.append($("<span>").text(v));
-            errors.append($("<br>"));
-          });
+        var form = commentForm.serialize();
 
-          commentPreview.prepend(errors);
-        }
+        startSpinner();
 
-        showPreview();
-      });
-    })
+        $("div[error]").remove();
+
+        $.ajax({
+          type: "POST",
+          url: "/add_comment_ajax",
+          data: form,
+          timeout: 30000
+        }).always(function() { submitInProcess = false; stopSpinner(); })
+            .fail(ajaxError)
+            .done(function(data) {
+              if (data['url']) {
+                window.location.href = data['url'];
+              } else {
+                displayPreview(data);
+              }
+            });
+      }
+
+      return false;
+    });
   });
 });
 
