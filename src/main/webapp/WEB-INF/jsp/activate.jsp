@@ -24,7 +24,25 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>Активация</h1>
 
-<c:if test="${not template.sessionAuthorized}">
+<c:if test="${template.sessionAuthorized}">
+  <form method=POST action="/activate.jsp" id="activateForm">
+    <lor:csrf/>
+    <div class="control-group">
+      <label for="field_code" class="control-label">Код активации</label>
+      <div class="controls">
+        <input type="text" name="activation" required autofocus id="field_code">
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <div class="controls">
+        <button type=submit class="btn btn-primary">Активировать</button>
+      </div>
+    </div>
+  </form>
+</c:if>
+
+<c:else>
   <form method=POST action="/activate.jsp" id="activateForm" class="form-horizontal">
     <lor:csrf/>
 
@@ -64,18 +82,6 @@
     </div>
     <input type="hidden" name="action" value="new" />
   </form>
-</c:if>
-
-<c:if test="${template.sessionAuthorized}">
-  <form method=POST action="/activate.jsp" id="activateForm">
-    <lor:csrf/>
-    <dl>
-      <dt><label>Код активации:</label></dt>
-      <dd><input type="text" name="activation" required autofocus/></dd>
-    </dl>
-
-    <input type=submit value="Активировать">
-  </form>
-</c:if>
+</c:else>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
