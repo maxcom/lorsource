@@ -151,7 +151,13 @@ class UserTopicListController @Autowired()
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
   ): ModelAndView = {
+    val tmpl = Template.getTemplate(request)
+
     val (modelAndView, user) = mkModel(nick)
+
+    if (!tmpl.isModeratorSession && !(user == tmpl.getCurrentUser)) {
+      throw new AccessViolationException("Вы не можете смотреть отслеживаемые темы другого пользователя")
+    }
 
     modelAndView.addObject("url",
       UriComponentsBuilder.fromUriString("/people/{nick}/tracked").buildAndExpand(nick).encode.toUriString)
