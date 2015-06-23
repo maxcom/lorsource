@@ -90,7 +90,7 @@ class SearchViewer(query:SearchRequest, javaElastic: Client) {
       search in MessageIndexTypes fields (
           Fields: _*
         ) query esQuery sort (
-          by field query.getSort.getColumn order query.getSort.order
+          sortby field query.getSort.getColumn order query.getSort.order
         ) aggs(
           agg filter "sections" filter matchAllFilter aggs (
             agg terms "sections" field "section" size 0 aggs (
