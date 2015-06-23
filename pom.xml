@@ -635,7 +635,6 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
-                                <mkdir dir="${project.build.directory}/tmp/jamwiki/upload"/>
 				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery"/>
 				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery/preview"/>
                                 <mkdir dir="${project.build.directory}/${project.build.finalName}/photos"/>
@@ -909,49 +908,6 @@
           </plugins>
         </build>
       </profile>
-
-        <profile>
-            <id>jamwiki</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.jamwiki</groupId>
-                                            <artifactId>jamwiki-war</artifactId>
-                                            <version>1.1.5</version>
-                                            <type>war</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                            <destFileName>wiki.war</destFileName>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.postgresql</groupId>
-                                            <artifactId>postgresql</artifactId>
-                                            <version>${jdbc.postgresql.version}</version>
-                                            <type>jar</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
-                                            <destFileName>postgresql.jar</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
   <repositories>
     <repository>
