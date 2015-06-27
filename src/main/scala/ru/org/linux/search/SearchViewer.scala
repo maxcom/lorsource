@@ -35,8 +35,12 @@ class SearchViewer(query:SearchRequest, javaElastic: Client) {
       matchall
     } else {
       should(
-        commonQuery("_all") query queryText lowFreqMinimumShouldMatch 2,
-        matchPhrase("_all", queryText).setLenient(true)
+        commonQuery("message") query queryText lowFreqMinimumShouldMatch 2,
+        matchPhrase("message", queryText).setLenient(true),
+        commonQuery("title") query queryText lowFreqMinimumShouldMatch 2,
+        matchPhrase("title", queryText).setLenient(true),
+        commonQuery("topic_title") query queryText lowFreqMinimumShouldMatch 2,
+        matchPhrase("topic_title", queryText).setLenient(true)
       )
     }
   }
