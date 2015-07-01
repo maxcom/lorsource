@@ -297,10 +297,10 @@ public class TopicPermissionService {
       errors.reject(null, "Анонимный пользователь");
     }
 
-    boolean authored = currentUser.getId() == comment.getUserid();
+    boolean authored = currentUser!=null && (currentUser.getId() == comment.getUserid());
 
     /* Проверка на то, что пользователь модератор */
-    boolean editable = currentUser.isModerator() && siteConfig.isModeratorAllowedToEditComments();
+    boolean editable = currentUser!=null && (currentUser.isModerator() && siteConfig.isModeratorAllowedToEditComments());
 
     if (editable || authored) {
       /* проверка на то, что время редактирования не вышло */
