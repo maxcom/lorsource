@@ -66,7 +66,8 @@ public class TrackerApiController {
 
     List<ImmutableMap> trackerProperties = trackerItems.stream().map(trackerItem -> ImmutableMap.builder()
             .put("id", trackerItem.getCid())
-            .put("url", trackerItem.getUrl())
+            .put("section", trackerItem.getSection())
+            .put("url", trackerItem.getGroupUrl() + trackerItem.getMsgid())
             .put("title", trackerItem.getTitle())
             .put("groupTitle", trackerItem.getGroupTitle())
             .put("postDate", trackerItem.getPostdate())
