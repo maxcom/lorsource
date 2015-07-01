@@ -28,20 +28,20 @@ public class ReplyInfo {
   private final int id;
   private final String author;
   private final String title;
-  private final Date postdate;
+  private final Date postDate;
   private final boolean samePage;
 
   public ReplyInfo(
           int id,
           @Nonnull String author,
           @Nullable String title,
-          @Nonnull Date postdate,
+          @Nonnull Date postDate,
           boolean samePage
   ) {
     this.id = id;
     this.author = author;
     this.title = title;
-    this.postdate = postdate;
+    this.postDate = postDate;
     this.samePage = samePage;
   }
 
@@ -57,8 +57,8 @@ public class ReplyInfo {
     return title;
   }
 
-  public Date getPostdate() {
-    return postdate;
+  public Date getPostDate() {
+    return postDate;
   }
 
   public boolean isSamePage() {

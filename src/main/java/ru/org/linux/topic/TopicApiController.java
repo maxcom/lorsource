@@ -121,14 +121,14 @@ public class TopicApiController {
             .put("sticky", topic.isSticky())
             .put("commentsCount", topic.getCommentCount())
             .put("favsCount", favsCount)
-            .put("watchсount", watchCount)
-            .put("postscore", topic.getPostscore())
+            .put("watchCount", watchCount)
+            .put("postScore", topic.getPostscore())
             .put("tags", topicTagService.getTags(topic))
             .put("author", author);
 
     if (topic.isCommited()) {
       builder.put("commitDate", topic.getCommitDate())
-              .put("commitedBy", userDao.getUserCached(topic.getCommitby()).getNick());
+              .put("committedBy", userDao.getUserCached(topic.getCommitby()).getNick());
     }
 
     return ImmutableMap.of(
