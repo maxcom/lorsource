@@ -41,7 +41,7 @@ public class PreparedComment {
   private final boolean editable;
   private final String remark;
   private final boolean deleted;
-  private final Date postdate;
+  private final Date postDate;
 
   @Nullable
   private final Userpic userpic;
@@ -95,7 +95,7 @@ public class PreparedComment {
     }
 
     deleted = comment.isDeleted();
-    postdate = comment.getPostdate();
+    postDate = comment.getPostdate();
   }
 
   public ApiUserRef getAuthor() {
@@ -151,8 +151,8 @@ public class PreparedComment {
     return deleted;
   }
 
-  public Date getPostdate() {
-    return postdate;
+  public Date getPostDate() {
+    return postDate;
   }
 
   @Nullable
