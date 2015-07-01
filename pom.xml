@@ -811,13 +811,6 @@
 
                             <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
 
-                            <contextHandlers>
-                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                                    <war>${project.build.directory}/test-wars/wiki.war</war>
-                                    <contextPath>/wiki</contextPath>
-                                    <extraClasspath>${project.build.directory}/test-classes;${project.build.directory}/test-wars/postgresql.jar</extraClasspath>
-                                </contextHandler>
-                            </contextHandlers>
                             <useTestClasspath>true</useTestClasspath>
                             <systemProperties>
                                 <systemProperty>
