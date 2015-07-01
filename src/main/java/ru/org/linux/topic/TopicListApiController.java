@@ -120,7 +120,7 @@ public class TopicListApiController {
               .put("postDate", topic.getPostdate())
               .put("commentsCount", topic.getCommentCount())
               .put("favsCount", memoriesDao.getTopicInfo(topic.getId(), AuthUtil.getCurrentUser()).favsCount())
-              .put("watchcount", memoriesDao.getTopicInfo(topic.getId(), AuthUtil.getCurrentUser()).watchCount())
+              .put("watchСount", memoriesDao.getTopicInfo(topic.getId(), AuthUtil.getCurrentUser()).watchCount())
               .put("tags", topicTagService.getTags(topic))
               .put("author", userDao.getUserCached(topic.getUid()).getNick());
       listOfTopics.add(builder.build());
