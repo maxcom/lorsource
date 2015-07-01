@@ -56,7 +56,6 @@
 
       <li><a href="/forum/">Форум</a></li>
       <li><a href="/tracker/">Трекер</a></li>
-      <li><a href="/wiki/">Wiki</a></li>
       <c:if test="${template.sessionAuthorized}">
         <li>
           <lor:events/>

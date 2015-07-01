@@ -52,7 +52,6 @@
                     <lor:events/> - 
                 </c:if>
                 <a style="text-decoration: none" href="/tracker/">Трекер</a> -
-                <a style="text-decoration: none" href="/wiki">Wiki</a> -
                 <a style="text-decoration: none" href="search.jsp">Поиск</a>
         </td>
 </tr>
