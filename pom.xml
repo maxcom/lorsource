@@ -39,7 +39,7 @@
     <dependency>
     	<groupId>com.sksamuel.elastic4s</groupId>
     	<artifactId>elastic4s-core_${scala.suffix}</artifactId>
-    	<version>1.6.0</version>
+    	<version>1.6.2</version>
     </dependency>
 
     <dependency>
