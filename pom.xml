@@ -27,6 +27,7 @@
     <slf4j.version>1.7.5</slf4j.version>
     <jquery.validation.version>1.13.1</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
+    <jetty.version>9.3.0.v20150612</jetty.version>
   </properties>
 
   <dependencies>
@@ -402,7 +403,7 @@
           <plugin>
             <groupId>net.alchim31.maven</groupId>
             <artifactId>scala-maven-plugin</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.2</version>
             <configuration>
               <args>
                 <arg>-deprecation</arg>
@@ -799,7 +800,7 @@
                     <plugin>
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
-                        <version>9.2.9.v20150224</version>
+                        <version>${jetty.version}</version>
                         <configuration>
                             <stopKey>foo</stopKey>
                             <stopPort>9999</stopPort>
@@ -893,11 +894,26 @@
             <plugin>
               <groupId>net.alchim31.maven</groupId>
               <artifactId>scala-maven-plugin</artifactId>
-              <version>3.2.0</version>
               <configuration>
                 <recompileMode>all</recompileMode>
               </configuration>
             </plugin>
+
+            <plugin>
+              <groupId>org.eclipse.jetty</groupId>
+               <artifactId>jetty-jspc-maven-plugin</artifactId>
+               <version>${jetty.version}</version>
+               <executions>
+                 <execution>
+                   <id>jspc</id>
+                   <goals>
+                     <goal>jspc</goal>
+                   </goals>
+                   <configuration>
+                   </configuration>
+                 </execution>
+               </executions>
+             </plugin>
           </plugins>
         </build>
       </profile>
