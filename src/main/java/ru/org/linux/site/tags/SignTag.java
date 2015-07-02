@@ -32,7 +32,7 @@ public class SignTag extends TagSupport {
   private ApiUserRef user;
   private boolean shortMode;
   private boolean author;
-  private Date postdate;
+  private Date postDate;
   private String timeprop;
 
   public void setUser(ApiUserRef user) {
@@ -47,8 +47,8 @@ public class SignTag extends TagSupport {
     this.author = author;
   }
 
-  public void setPostdate(Date postdate) {
-    this.postdate = postdate;
+  public void setPostDate(Date postDate) {
+    this.postDate = postDate;
   }
 
   public void setTimeprop(String timeprop) {
@@ -67,7 +67,7 @@ public class SignTag extends TagSupport {
     data.put("user", user);
     data.put("shortMode", shortMode);
     data.put("author", author);
-    data.put("postdate", postdate);
+    data.put("postDate", postDate);
 
     // TODO: move to globals
     data.put("dateFormat", new DateFormatHandler());

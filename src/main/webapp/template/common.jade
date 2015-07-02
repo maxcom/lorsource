@@ -22,9 +22,9 @@ mixin user(user, link, rel, itemprop)
     user - класс ApiUserRef
     shortMode - boolean; короткий режим (для новостей)
     author - boolean; является ли автором страницы
-    postdate - дата; дата написания
+    postDate - дата; дата написания
     timeprop - атрибут itemprop даты
-mixin sign(user, shortMode, author, postdate, timeprop)
+mixin sign(user, shortMode, author, postDate, timeprop)
     if author
         mixin user(user, true, "author", itemprop="creator")
     else
@@ -40,12 +40,12 @@ mixin sign(user, shortMode, author, postdate, timeprop)
 
     |  (
 
-    mixin time(postdate, timeprop)
+    mixin time(postDate, timeprop)
 
     | )
 
-mixin time(postdate, timeprop)
-    time(datetime='#{ dateFormat.iso(postdate) }', itemprop='#{timeprop}') #{ dateFormat.apply(postdate) }
+mixin time(postDate, timeprop)
+    time(datetime='#{ dateFormat.iso(postDate) }', itemprop='#{timeprop}') #{ dateFormat.apply(postDate) }
 
 mixin userpic(userpic)
     div.userpic

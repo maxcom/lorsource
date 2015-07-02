@@ -202,7 +202,7 @@ public class TopicListDto {
     private final int id;
     private final String title;
     private final String reason;
-    private final Timestamp postdate;
+    private final Timestamp postDate;
     private final Timestamp delDate;
 
     public DeletedTopic(ResultSet rs) throws SQLException {
@@ -210,7 +210,7 @@ public class TopicListDto {
       id = rs.getInt("msgid");
       title = rs.getString("subj");
       reason = rs.getString("reason");
-      postdate = rs.getTimestamp("postdate");
+      postDate = rs.getTimestamp("postDate");
       delDate = rs.getTimestamp("delDate");
     }
 
@@ -230,8 +230,8 @@ public class TopicListDto {
       return reason;
     }
 
-    public Timestamp getPostdate() {
-      return postdate;
+    public Timestamp getPostDate() {
+      return postDate;
     }
 
     public Timestamp getDelDate() {

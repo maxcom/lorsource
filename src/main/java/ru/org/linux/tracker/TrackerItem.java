@@ -37,7 +37,7 @@ public class TrackerItem {
   private final boolean resolved;
   private final int section;
   private final String groupUrlName;
-  private final Timestamp postdate;
+  private final Timestamp postDate;
   private final boolean uncommited;
   private final int pages;
   private final ImmutableList<String> tags;
@@ -47,7 +47,7 @@ public class TrackerItem {
                      int groupId, String groupTitle, String title,
                      int cid, User lastCommentBy, boolean resolved,
                      int section, String groupUrlName,
-                     Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags) {
+                     Timestamp postDate, boolean uncommited, int pages, ImmutableList<String> tags) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -60,7 +60,7 @@ public class TrackerItem {
     this.resolved =resolved;
     this.section = section;
     this.groupUrlName = groupUrlName;
-    this.postdate = postdate;
+    this.postDate = postDate;
     this.uncommited = uncommited;
     this.pages = pages;
     this.tags = tags;
@@ -142,8 +142,8 @@ public class TrackerItem {
     return section;
   }
 
-  public Timestamp getPostdate() {
-    return postdate;
+  public Timestamp getPostDate() {
+    return postDate;
   }
 
   public boolean isUncommited() {

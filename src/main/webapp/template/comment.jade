@@ -38,7 +38,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                     else
                         | комментарий
                 |  от #{comment.reply.author}#{' '}
-                mixin time(comment.reply.postdate, false)
+                mixin time(comment.reply.postDate, false)
 
         div.msg-container
             if comment.userpic
@@ -54,7 +54,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                 | !{comment.processedMessage}
 
                 div.sign
-                    mixin sign(comment.author, false, false, comment.postdate, 'commentTime')
+                    mixin sign(comment.author, false, false, comment.postDate, 'commentTime')
         
                     if comment.remark
                         | #{' '}

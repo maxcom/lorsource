@@ -109,7 +109,7 @@ public class CommentPrepareService {
                   reply.getId(),
                   replyAuthor,
                   Strings.emptyToNull(reply.getTitle().trim()),
-                  reply.getPostdate(),
+                  reply.getPostDate(),
                   samePage
           );
         }

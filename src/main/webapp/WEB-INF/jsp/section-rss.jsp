@@ -40,7 +40,7 @@
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
       </c:if>
       <c:if test="${msg.message.commitDate==null}">
-        <pubDate><lor:rfc822date date="${msg.message.postdate}"/></pubDate>
+        <pubDate><lor:rfc822date date="${msg.message.postDate}"/></pubDate>
       </c:if>
       <lor:message-rss preparedMessage="${msg}"/>
     </item>

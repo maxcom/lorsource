@@ -135,7 +135,7 @@ public class GroupPermissionService {
       return true;
     }
 
-    DateTime deleteDeadline = new DateTime(topic.getPostdate()).plus(DELETE_PERIOD);
+    DateTime deleteDeadline = new DateTime(topic.getPostDate()).plus(DELETE_PERIOD);
 
     return (
         deleteDeadline.isAfterNow() &&
@@ -169,7 +169,7 @@ public class GroupPermissionService {
     }
 
     // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
-    if(section.isPremoderated() && topic.isCommited() && topic.getPostdate().compareTo(monthDeltaTime) >= 0) {
+    if(section.isPremoderated() && topic.isCommited() && topic.getPostDate().compareTo(monthDeltaTime) >= 0) {
       ret = true;
     }
 
@@ -238,7 +238,7 @@ public class GroupPermissionService {
         return !message.isExpired();
       }
 
-      DateTime editDeadline = new DateTime(message.getPostdate()).plus(EDIT_PERIOD);
+      DateTime editDeadline = new DateTime(message.getPostDate()).plus(EDIT_PERIOD);
 
       return editDeadline.isAfterNow();
     }
@@ -291,7 +291,7 @@ public class GroupPermissionService {
         return !message.isExpired();
       }
 
-      DateTime editDeadline = new DateTime(message.getPostdate()).plus(EDIT_PERIOD);
+      DateTime editDeadline = new DateTime(message.getPostDate()).plus(EDIT_PERIOD);
 
       return editDeadline.isAfterNow();
     }

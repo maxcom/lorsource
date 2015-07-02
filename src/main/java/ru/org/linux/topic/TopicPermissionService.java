@@ -258,7 +258,7 @@ public class TopicPermissionService {
 
   public Optional<DateTime> getEditDeadline(Comment comment) {
     if (siteConfig.getCommentExpireMinutesForEdit() != 0) {
-      DateTime editDeadline = new DateTime(comment.getPostdate()).plusMinutes(siteConfig.getCommentExpireMinutesForEdit());
+      DateTime editDeadline = new DateTime(comment.getPostDate()).plusMinutes(siteConfig.getCommentExpireMinutesForEdit());
 
       return Optional.of(editDeadline);
     } else {
@@ -347,7 +347,7 @@ public class TopicPermissionService {
     boolean moderatorMode = currentUser.isModerator();
     boolean authored = currentUser.getId() == comment.getUserid();
 
-    DateTime deleteDeadline = new DateTime(comment.getPostdate()).plus(DELETE_PERIOD);
+    DateTime deleteDeadline = new DateTime(comment.getPostDate()).plus(DELETE_PERIOD);
 
     return moderatorMode ||
         (!topic.isExpired() &&

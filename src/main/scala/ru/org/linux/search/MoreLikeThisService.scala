@@ -112,7 +112,7 @@ class MoreLikeThisService @Autowired() (
 
     search in MessageIndexTypes query {
       filteredQuery filter rootFilter query bool { should(queries:_*) }
-    } fields("title", "postdate", "section", "group")
+    } fields("title", "postDate", "section", "group")
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
@@ -140,14 +140,14 @@ class MoreLikeThisService @Autowired() (
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
     val link = builder.buildAndExpand(section, group, new Integer(hit.getId)).toUriString
 
-    val postdate = SearchResultsService.postdate(hit)
+    val postDate = SearchResultsService.postDate(hit)
 
     val title = hit.getFields.get("title").getValue[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
       link = link,
-      year = postdate.year().get(),
+      year = postDate.year().get(),
       sectionService.getSectionByName(section).getTitle
     )
   }

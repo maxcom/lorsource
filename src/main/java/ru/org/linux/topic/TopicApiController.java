@@ -116,7 +116,7 @@ public class TopicApiController {
     builder.put("url", topic.getLink())
             .put("title", topic.getTitle())
             .put("message", message)
-            .put("postDate", topic.getPostdate())
+            .put("postDate", topic.getPostDate())
             .put("lastModified", topic.getLastModified())
             .put("sticky", topic.isSticky())
             .put("commentsCount", topic.getCommentCount())

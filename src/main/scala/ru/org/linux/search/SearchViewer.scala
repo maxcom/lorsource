@@ -44,7 +44,7 @@ class SearchViewer(query:SearchRequest, javaElastic: Client) {
   private def boost(query: QueryDefinition) = {
     functionScoreQuery(query) scorers (
         weightScore(TopicBoost) filter termFilter("is_comment", "false"),
-        weightScore(RecentBoost) filter rangeFilter("postdate").gte("now/d-3y"))
+        weightScore(RecentBoost) filter rangeFilter("postDate").gte("now/d-3y"))
   }
 
   private def wrapQuery(q:QueryDefinition, filters:Seq[FilterDefinition]) = {
@@ -126,6 +126,6 @@ object SearchViewer {
   val SearchTimeout = 1.minute
   val SearchHardTimeout = SearchTimeout + 10.seconds
 
-  private val Fields = Seq("title", "topic_title", "author", "postdate", "topic_id",
+  private val Fields = Seq("title", "topic_title", "author", "postDate", "topic_id",
     "section", "message", "group", "is_comment", "tag")
 }

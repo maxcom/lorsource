@@ -141,7 +141,7 @@ public class GroupController {
   ) {
     String q =
             "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.sticky, topics.resolved " +
-            "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY postdate DESC";
+            "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY postDate DESC";
 
     SqlRowSet rs = jdbcTemplate.queryForRowSet(q, group.getId());
 
@@ -175,7 +175,7 @@ public class GroupController {
             "FROM topics WHERE NOT draft AND NOT sticky AND topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
-      q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+      q+=" AND postDate>='" + year + '-' + month + "-01'::timestamp AND (postDate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
     }
 
     String ignq = "";
@@ -197,12 +197,12 @@ public class GroupController {
     if (!lastmod) {
       if (year==null) {
         if (offset==0) {
-          q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
+          q += " AND postDate>CURRENT_TIMESTAMP-'3 month'::interval ";
         }
 
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset);
+        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postDate DESC LIMIT " + topics + " OFFSET " + offset);
       } else {
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset);
+        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postDate DESC LIMIT " + topics + " OFFSET " + offset);
       }
     } else {
       rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);

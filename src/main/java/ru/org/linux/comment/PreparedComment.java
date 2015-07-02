@@ -95,7 +95,7 @@ public class PreparedComment {
     }
 
     deleted = comment.isDeleted();
-    postDate = comment.getPostdate();
+    postDate = comment.getPostDate();
   }
 
   public ApiUserRef getAuthor() {

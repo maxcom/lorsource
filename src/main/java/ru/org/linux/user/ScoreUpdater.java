@@ -44,7 +44,7 @@ public class ScoreUpdater {
     jdbcTemplate.update("update users set score=score+1 " +
           "where id in " +
             "(select distinct comments.userid from comments, topics " +
-            "where comments.postdate>CURRENT_TIMESTAMP-'2 days'::interval " +
+            "where comments.postDate>CURRENT_TIMESTAMP-'2 days'::interval " +
             "and topics.id=comments.topic and " +
             "groupid!=8404 and groupid!=4068 and groupid!=19390 and groupid!=19405 and " +
             "not comments.deleted and not topics.deleted)");

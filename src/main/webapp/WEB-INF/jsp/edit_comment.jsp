@@ -27,7 +27,7 @@
 <h1>Изменить комментарий</h1>
 
 <p>
-<a href="${edit.topic.link}?cid=${edit.original.id}">Комментарий</a> написан <lor:date date="${comment.postdate}"/>.
+<a href="${edit.topic.link}?cid=${edit.original.id}">Комментарий</a> написан <lor:date date="${comment.postDate}"/>.
 <c:if test="${deadline!=null}">
   Редактирование возможно до <lor:date date="${deadline}"/>.
 </c:if>

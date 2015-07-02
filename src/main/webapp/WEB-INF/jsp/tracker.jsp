@@ -91,7 +91,7 @@
             --%></c:if><span class="hideon-desktop">${groupLink}</span>)
         </td>
         <td class="dateinterval">
-          <lor:dateinterval date="${msg.postdate}"/>, <lor:user user="${msg.author}"/>
+          <lor:dateinterval date="${msg.postDate}"/>, <lor:user user="${msg.author}"/>
         </td>
         <td class='numbers'>
             <c:choose>

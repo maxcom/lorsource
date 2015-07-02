@@ -20,7 +20,7 @@
                     "type": "boolean",
                     "include_in_all": "false"
                 },
-                "postdate": {
+                "postDate": {
                     "type": "date",
                     "format": "dateTime",
                     "include_in_all": "false",

@@ -126,13 +126,13 @@ public class SameIPController {
 
   private List<TopicItem> getTopics(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
+            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postDate, deleted " +
                     "FROM topics, groups, sections, users " +
                     "WHERE topics.groupid=groups.id " +
                     "AND sections.id=groups.section " +
                     "AND users.id=topics.userid " +
                     "AND topics.postip=?::inet " +
-                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
+                    "AND postDate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
             new RowMapper<TopicItem>() {
               @Override
               public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -145,14 +145,14 @@ public class SameIPController {
 
   private List<TopicItem> getComments(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
+            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postDate, comments.deleted " +
                     "FROM sections, groups, topics, comments " +
                     "WHERE sections.id=groups.section " +
                     "AND groups.id=topics.groupid " +
                     "AND comments.topic=topics.id " +
                     "AND comments.postip=?::inet " +
-                    "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
-                    "ORDER BY postdate DESC",
+                    "AND comments.postDate>CURRENT_TIMESTAMP-'24 hour'::interval " +
+                    "ORDER BY postDate DESC",
             new RowMapper<TopicItem>() {
               @Override
               public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -165,12 +165,12 @@ public class SameIPController {
 
   private List<UserItem> getUsers(String ip, final int uaId) {
     return jdbcTemplate.query(
-            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
+            "SELECT MAX(c.postDate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
                     "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
                     "JOIN users u ON c.userid = u.id " +
                     "WHERE c.postip=?::inet " +
                     "GROUP BY u.nick, c.ua_id, ua.name " +
-                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
+                    "ORDER BY MAX(c.postDate) DESC, u.nick, ua.name",
             new RowMapper<UserItem>() {
               @Override
               public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -186,7 +186,7 @@ public class SameIPController {
     private final String gtitle;
     private final int id;
     private final String title;
-    private final Timestamp postdate;
+    private final Timestamp postDate;
     private final int topicId;
     private final boolean deleted;
 
@@ -195,7 +195,7 @@ public class SameIPController {
       gtitle = rs.getString("gtitle");
       id = rs.getInt("msgid");
       title = StringUtil.makeTitle(rs.getString("title"));
-      postdate = rs.getTimestamp("postdate");
+      postDate = rs.getTimestamp("postDate");
 
       if (isComment) {
         topicId = rs.getInt("topicid");
@@ -222,8 +222,8 @@ public class SameIPController {
       return title;
     }
 
-    public Timestamp getPostdate() {
-      return postdate;
+    public Timestamp getPostDate() {
+      return postDate;
     }
 
     public int getTopicId() {

@@ -120,7 +120,7 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>postdate</name>
+            <name>postDate</name>
             <required>true</required>
             <type>java.util.Date</type>
             <rtexprvalue>true</rtexprvalue>

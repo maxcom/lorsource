@@ -186,7 +186,7 @@ function checkCustomBan(idx) {
     </c:if>
   </td>
   <td>
-    <lor:date date="${topic.postdate}"/>
+    <lor:date date="${topic.postDate}"/>
   </td>
 </tr>
 </c:forEach>
@@ -214,7 +214,7 @@ function checkCustomBan(idx) {
     </c:if>
   </td>
   <td>
-    <lor:date date="${topic.postdate}"/>
+    <lor:date date="${topic.postDate}"/>
   </td>
 </tr>
 </c:forEach>

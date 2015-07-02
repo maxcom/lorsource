@@ -224,7 +224,7 @@ public class GroupPermissionServiceTest {
     // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetModerateOld.getBoolean(anyString())).thenReturn(false);
     when(resultSetModerateOld.getBoolean("moderate")).thenReturn(true);
-    when(resultSetModerateOld.getTimestamp("postdate")).thenReturn(new Timestamp(oldTime));
+    when(resultSetModerateOld.getTimestamp("postDate")).thenReturn(new Timestamp(oldTime));
 
 
     ResultSet resultSetNotModerateOld = mock(ResultSet.class);
@@ -239,7 +239,7 @@ public class GroupPermissionServiceTest {
     // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetNotModerateOld.getBoolean(anyString())).thenReturn(false);
     when(resultSetNotModerateOld.getBoolean("moderate")).thenReturn(false);
-    when(resultSetNotModerateOld.getTimestamp("postdate")).thenReturn(new Timestamp(oldTime));
+    when(resultSetNotModerateOld.getTimestamp("postDate")).thenReturn(new Timestamp(oldTime));
 
 
     ResultSet resultSetModerateNew = mock(ResultSet.class);
@@ -254,7 +254,7 @@ public class GroupPermissionServiceTest {
     // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetModerateNew.getBoolean(anyString())).thenReturn(false);
     when(resultSetModerateNew.getBoolean("moderate")).thenReturn(true);
-    when(resultSetModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
+    when(resultSetModerateNew.getTimestamp("postDate")).thenReturn(new Timestamp(newTime));
 
 
     ResultSet resultSetNotModerateNew = mock(ResultSet.class);
@@ -269,7 +269,7 @@ public class GroupPermissionServiceTest {
     // vote, sticky, expired, bbcode, resolved, minor
     when(resultSetNotModerateNew.getBoolean(anyString())).thenReturn(false);
     when(resultSetNotModerateNew.getBoolean("moderate")).thenReturn(false);
-    when(resultSetNotModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
+    when(resultSetNotModerateNew.getTimestamp("postDate")).thenReturn(new Timestamp(newTime));
 
 
     User user = mock(User.class);
@@ -296,10 +296,10 @@ public class GroupPermissionServiceTest {
     assertFalse(resultSetNotModerateNew.getBoolean("moderate"));
     assertFalse(resultSetNotModerateOld.getBoolean("moderate"));
 
-    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postdate")));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postdate")));
-    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postdate")));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")));
+    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postDate")));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postDate")));
+    assertEquals(0, (new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postDate")));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postDate")));
 
 
     Topic messageModerateOld = new Topic(resultSetModerateOld);
@@ -313,10 +313,10 @@ public class GroupPermissionServiceTest {
     assertFalse(messageNotModerateNew.isCommited());
     assertFalse(messageNotModerateOld.isCommited());
 
-    assertEquals(0, (new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()));
-    assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()));
-    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()));
+    assertEquals(0, (new Timestamp(newTime)).compareTo(messageModerateNew.getPostDate()));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageModerateOld.getPostDate()));
+    assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostDate()));
+    assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostDate()));
     
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
     assertFalse(permissionService.isDeletable(messageModerateOld, user));

@@ -20,7 +20,7 @@
 <%@ attribute name="shortMode" type="java.lang.Boolean" %><%@
         attribute name="user" type="ru.org.linux.user.User" %><%@
         attribute name="author" type="java.lang.Boolean" required="false" %><%@
-        attribute name="postdate" type="java.util.Date" %><%@
+        attribute name="postDate" type="java.util.Date" %><%@
         attribute name="timeprop" type="java.lang.String" required="false" %>
 
 <c:if test="${author}">
@@ -38,5 +38,5 @@
   </c:if>
 </c:if>
 
-(<lor:date date="${postdate}" itemprop="${timeprop}"/>)
+(<lor:date date="${postDate}" itemprop="${timeprop}"/>)
 

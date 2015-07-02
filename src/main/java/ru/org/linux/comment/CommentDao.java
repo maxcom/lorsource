@@ -41,7 +41,7 @@ public class CommentDao {
   private static final Logger logger = LoggerFactory.getLogger(CommentDao.class);
 
   private static final String queryCommentById = "SELECT " +
-    "postdate, topic, userid, comments.id as msgid, comments.title, " +
+    "postDate, topic, userid, comments.id as msgid, comments.title, " +
     "deleted, replyto, edit_count, edit_date, editor_id, " +
     "ua_id, comments.postip " +
     "FROM comments " +
@@ -51,7 +51,7 @@ public class CommentDao {
    * Запрос списка комментариев для топика ВКЛЮЧАЯ удаленные
    */
   private static final String queryCommentListByTopicId = "SELECT " +
-    "comments.title, topic, postdate, userid, comments.id as msgid, " +
+    "comments.title, topic, postDate, userid, comments.id as msgid, " +
     "replyto, edit_count, edit_date, editor_id, deleted, " +
     "ua_id, comments.postip " +
     "FROM comments " +
@@ -61,7 +61,7 @@ public class CommentDao {
    * Запрос списка комментариев для топика ИСКЛЮЧАЯ удаленные
    */
   private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
-    "comments.title, topic, postdate, userid, comments.id as msgid, " +
+    "comments.title, topic, postDate, userid, comments.id as msgid, " +
     "replyto, edit_count, edit_date, editor_id, deleted, " +
     "ua_id, comments.postip " +
     "FROM comments " +
@@ -170,7 +170,7 @@ public class CommentDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public List<Integer> getCommentsByIPAddressForUpdate(String ip, Timestamp timedelta) {
-    return jdbcTemplate.queryForList("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
+    return jdbcTemplate.queryForList("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postDate>? ORDER BY id DESC FOR update",
             Integer.class,
             ip, timedelta);
   }
@@ -185,7 +185,7 @@ public class CommentDao {
     final int msgid = jdbcTemplate.queryForObject("select nextval('s_msgid') as msgid", Integer.class);
 
     jdbcTemplate.execute(
-      "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
+      "INSERT INTO comments (id, userid, title, postDate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
             (PreparedStatement pst) -> {
               pst.setInt(1, msgid);
               pst.setInt(2, comment.getUserid());

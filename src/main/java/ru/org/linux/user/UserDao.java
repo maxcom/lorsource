@@ -65,7 +65,7 @@ public class UserDao {
   private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
-  private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
+  private static final String queryCommentDates = "SELECT min(postDate) as first,max(postDate) as last FROM comments WHERE comments.userid=?";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
