@@ -38,7 +38,7 @@
 
 <%--<% } %>--%>
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
-<a href="rules.jsp">правилами</a> сайта.</font><p>
+<a href="/help/rules.md">правилами</a> сайта.</font><p>
 
 <c:url var="form_action_url" value="/add_comment.jsp" />
 

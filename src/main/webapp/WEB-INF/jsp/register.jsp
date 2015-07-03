@@ -82,7 +82,7 @@
 
   <div class="control-group">
     <label for="rules">С
-      <a href="/rules.jsp" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился:
+      <a href="/help/rules.md" target="_blank" title="правила откроются в новом окне">правилами</a> ознакомился:
       <form:checkbox path="rules" id="rules" value="okay" required="required" cssErrorClass="error"/>
       <form:errors path="rules" element="span" cssClass="error help-inline" for="rules"/></label>
   </div>

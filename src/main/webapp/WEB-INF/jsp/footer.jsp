@@ -20,7 +20,7 @@
 
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
-  <a href="/rules.jsp">Правила форума</a><br>
+  <a href="/help/rules.md">Правила форума</a><br>
   <c:if test="${not pageContext.request.secure}">
     <a href="${template.mainUrl}">${template.mainUrl}</a>
   </c:if>
