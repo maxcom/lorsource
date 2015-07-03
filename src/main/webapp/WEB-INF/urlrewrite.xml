@@ -64,6 +64,12 @@
     <from>^/rss.xml$</from>
     <to type="redirect">/section-rss.jsp</to>
   </rule>
+
+  <rule>
+    <from>^/rules.jsp$</from>
+    <to type="redirect">/help/rules.md</to>
+  </rule>
+
   <rule>
     <from>^/profile/([^/]+)/(.*)$</from>
     <to type="redirect">/$2</to>
