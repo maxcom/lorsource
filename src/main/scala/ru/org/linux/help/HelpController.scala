@@ -17,10 +17,12 @@ package ru.org.linux.help
 
 import javax.servlet.ServletRequest
 
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
 import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.markdown.MarkdownRenderService
@@ -32,21 +34,32 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Controller
-class HelpController @Autowired() (renderService: MarkdownRenderService) {
+class HelpController @Autowired() (renderService: MarkdownRenderService) extends StrictLogging {
   import HelpController._
 
-  @RequestMapping(Array("/help/lorcode.md"))
-  def helpPage(request:ServletRequest) = {
-    val source = IOUtils.toString(request.getServletContext.getResource("/help/lorcode.md"))
+  @RequestMapping(Array("/help/{page}"))
+  def helpPage(request:ServletRequest, @PathVariable page:String) = {
+    val title = HelpPages.getOrElse(page, {
+      logger.info(s"Help page not found $page")
+      throw new HelpPageNotFoundException()
+    })
+
+    val source = IOUtils.toString(request.getServletContext.getResource(s"/help/$page"))
 
     renderService.render(source, RenderTimeout.fromNow).map { result ⇒
       new ModelAndView("help", Map(
-        "title" -> "Разметка сообщений (LORCODE)",
+        "title" -> title,
         "helpText" -> result
       ).asJava)
     }.toDeferredResult
   }
+
+  @ExceptionHandler(Array(classOf[HelpPageNotFoundException]))
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  def handleNotFoundException = new ModelAndView("code404")
 }
+
+class HelpPageNotFoundException extends RuntimeException
 
 object HelpController {
   private val RenderTimeout = 30.seconds
@@ -64,4 +77,9 @@ object HelpController {
       result
     }
   }
+
+  val HelpPages = Map(
+    "lorcode.md" -> "Разметка сообщений (LORCODE)",
+    "rules.md" -> "Правила форума"
+  )
 }
