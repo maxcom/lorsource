@@ -406,11 +406,9 @@ public class EditTopicController {
     if (form.getEditorBonus() != null) {
       ImmutableSet<Integer> editors = editHistoryService.getEditors(message, editInfoList);
 
-      for (int userid : form.getEditorBonus().keySet()) {
-        if (!editors.contains(userid)) {
-          errors.reject("editorBonus", "некорректный корректор?!");
-        }
-      }
+      form.getEditorBonus().keySet().stream().filter(userid -> !editors.contains(userid)).forEach(userid -> {
+        errors.reject("editorBonus", "некорректный корректор?!");
+      });
     }
 
     if (!preview && !errors.hasErrors() && ipBlockInfo.isCaptchaRequired()) {

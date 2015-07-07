@@ -35,16 +35,17 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.*;
 
@@ -69,9 +70,6 @@ public class TopicService {
 
   @Autowired
   private UserEventService userEventService;
-
-  @Autowired
-  private TagModificationService tagService;
 
   @Autowired
   private TopicTagService topicTagService;
@@ -159,12 +157,11 @@ public class TopicService {
     // оповещение пользователей по тегам
     List<Integer> userIdListByTags = userTagService.getUserIdListByTags(author, tags);
 
-    final Set<Integer> userRefIds = new HashSet<>();
-    for (User userRef : userRefs) {
-      if (!notifiedUsers.contains(userRef.getId())) {
-        userRefIds.add(userRef.getId());
-      }
-    }
+    Set<Integer> userRefIds = userRefs
+            .stream()
+            .filter(userRef -> !notifiedUsers.contains(userRef.getId()))
+            .map(User::getId)
+            .collect(Collectors.toSet());
 
     // не оповещать пользователей. которые ранее были оповещены через упоминание
     Iterable<Integer> tagUsers = Iterables.filter(
@@ -262,7 +259,7 @@ public class TopicService {
           Topic newMsg,
           Topic oldMsg,
           User user,
-          List<String> newTags,
+          @Nullable List<String> newTags,
           String newText,
           boolean commit,
           Integer changeGroupId,
@@ -276,7 +273,7 @@ public class TopicService {
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());
 
-      if (sendTagEventsNeeded(section, oldMsg, commit)) {
+      if (newTags!=null && sendTagEventsNeeded(section, oldMsg, commit)) {
         sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
       } else {
         sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
