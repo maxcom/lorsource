@@ -18,10 +18,10 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>О Сервере</title>
+<title>О сервере</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>О Проекте</h1>
+<h1>О проекте</h1>
 
 Некоммерческий проект &laquo;<i>LINUX.ORG.RU: Русская информация об&nbsp;ОС&nbsp;Linux</i>&raquo; был
 основан в&nbsp;октябре
@@ -42,7 +42,7 @@
 Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
 ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;.
 <p>
-	Статистику сервера можно посмотреть тут: <a href="http://linuxhacker.ru/stats">статистика</a>.
+Статистику сервера можно посмотреть тут: <a href="http://linuxhacker.ru/stats">статистика</a>.
   <a href="http://www.pingdom.com" style="float: right">
     <img src="https://share.pingdom.com/banners/94fe3af1" alt="Uptime Report for LOR Main Page: Last 30 days" title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
   </a>
@@ -119,6 +119,7 @@
 <li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты</li>
 <li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a></li>
 <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a></li>
+<li><a href="http://lorwiki.ru/">Продолжение развития LOR Wiki, бывшей части проекта</a></li>
 </ul>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
