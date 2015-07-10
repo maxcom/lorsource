@@ -41,8 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
-  public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
-
   @Autowired
   private UserDao userDao;
 

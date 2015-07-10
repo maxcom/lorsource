@@ -23,7 +23,7 @@
 http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/security
-http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
     <http pattern="/css/**" security="none"/>
     <http pattern="/img/**" security="none"/>
@@ -43,7 +43,6 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager" create-session="stateless" entry-point-ref="authenticationEntryPoint">
         <intercept-url pattern="/**" access="permitAll"/>
         <remember-me key="${Secret}" services-ref="rememberMeServices"/>
-        <!-- TODO: LoginController.ACEGI_COOKIE_NAME -->
         <logout logout-url="/logout" logout-success-url="/"
                 delete-cookies="password,profile,JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"/>
         <anonymous username="anonymous" granted-authority="ROLE_SYSTEM_ANONYMOUS"/>

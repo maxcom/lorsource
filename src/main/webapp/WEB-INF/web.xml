@@ -56,6 +56,7 @@
     <url-pattern>/*</url-pattern>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>ERROR</dispatcher>
+    <dispatcher>ASYNC</dispatcher>
   </filter-mapping>
   <error-page>
     <error-code>404</error-code>
