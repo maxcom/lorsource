@@ -35,7 +35,6 @@
 <div id="mainpage">
 <div id="news">
 
-<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
   <style>
@@ -54,24 +53,6 @@
   </script>
 </div>
 </c:if>
---%>
-
-  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
-  </div>
-  <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'img',
-          src: '/adv/simplecloud.png',
-          href: 'http://simplecloud.ru/?utm_source=lor&utm_medium=banner&utm_campaign=250'
-        }
-      ];
-
-      init_interpage_adv(ads);
-    });
-  </script>
-
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
