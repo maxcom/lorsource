@@ -15,6 +15,10 @@
 
 $script.ready('jquery', function() {
   $(document).ready(function() {
+    function getCookie(name) {
+      return(document.cookie.match('(^|; )'+name+'=([^;]*)')||0)[2];
+    }
+
     var commentForm = $("#commentForm");
     commentForm.append($("<div id=commentPreview>").hide());
     var commentPreview = $('#commentPreview');
@@ -23,9 +27,8 @@ $script.ready('jquery', function() {
 
     var csrf = '';
 
-    if (document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/)) {
-      csrf = document.cookie.match(/CSRF_TOKEN\=(\w+)\;?/);
-      csrf = csrf[1];
+    if (getCookie("CSRF_TOKEN")) {
+      csrf = getCookie("CSRF_TOKEN");
     }
 
     function sh(type, id) {
@@ -41,7 +44,7 @@ $script.ready('jquery', function() {
 
         if (commentFormContainer.is(':hidden')) {
           var reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
-          reply.append(commentFormContainer);
+          reply.after(commentFormContainer);
           reply_to.attr('value', id);
           commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
         } else {
@@ -57,7 +60,7 @@ $script.ready('jquery', function() {
 
         if (commentFormContainer.is(':hidden')) {
           var reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
-          reply.append(commentFormContainer);
+          reply.after(commentFormContainer);
           reply_to.attr('value', '0');
           commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
         } else {
