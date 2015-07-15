@@ -28,7 +28,7 @@ $script.ready('jquery', function() {
     var csrf = '';
 
     if (getCookie("CSRF_TOKEN")) {
-      csrf = getCookie("CSRF_TOKEN");
+      csrf = getCookie("CSRF_TOKEN").replace(/(^")|("$)/g, "");
     }
 
     function sh(type, id) {
