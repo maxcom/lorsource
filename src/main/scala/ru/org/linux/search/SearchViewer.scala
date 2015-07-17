@@ -32,11 +32,11 @@ class SearchViewer(query:SearchRequest, javaElastic: Client) {
 
   private def processQueryString(queryText: String) = {
     if (queryText.isEmpty) {
-      matchall
+      matchAllQuery
     } else {
       should(
         commonQuery("_all") query queryText lowFreqMinimumShouldMatch 2,
-        matchPhrase("_all", queryText).setLenient(true)
+        matchPhraseQuery("_all", queryText).setLenient(true)
       )
     }
   }

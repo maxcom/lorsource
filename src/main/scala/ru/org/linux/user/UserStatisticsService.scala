@@ -100,7 +100,7 @@ class UserStatisticsService @Autowired() (
   private def countComments(user:User):Future[Long] = {
     try {
       elastic execute {
-        val root = filteredQuery query matchall filter must (
+        val root = filteredQuery query matchAllQuery filter must (
               termFilter("author", user.getNick),
               termFilter("is_comment", true)
         )
@@ -115,7 +115,7 @@ class UserStatisticsService @Autowired() (
   private def topicStats(user:User):Future[TopicStats] = {
     try {
       elastic execute {
-        val root = filteredQuery query matchall filter must(
+        val root = filteredQuery query matchAllQuery filter must(
           termFilter("author", user.getNick),
           termFilter("is_comment", false)
         )
