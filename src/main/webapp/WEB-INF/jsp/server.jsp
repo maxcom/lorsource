@@ -58,8 +58,7 @@
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.11</li>
       <li>Spring 4.1</li>
-      <li>Wiki: JamWiki 1.1.5</li>
-      <li>Поиск: Elasticsearch 1.6</li>
+      <li>Поиск: Elasticsearch 1.7</li>
     </ul>
 
 <h1>Исходные тексты</h1>
