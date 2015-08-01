@@ -205,25 +205,24 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
-<%--
-    <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
---%>
-  </div>
-  <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'img',
-          src: '/adv/qrtr728x90.gif',
-          href: 'http://qrator.net/'
-        }
-      ];
+  <div align="center" width="100%">
+    <style>
+    .lor-topic-adaptive-tango { width: 320px; height: 100px; }
+    @media(min-width: 500px) { .lor-topic-adaptive-tango { width: 468px; height: 60px; } }
+    @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 728px; height: 90px; } }
+    </style>
 
-      init_interpage_adv(ads);
-    });
-  </script>
-  <br>
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- lor-topic-adaptive-tango -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-6069094673001350"
+         data-ad-slot="2435162839"
+         data-ad-format="auto"></ins>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
 </c:if>
 
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">

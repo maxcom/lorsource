@@ -134,6 +134,12 @@
 
   <% out.flush(); %>
 
+  <div align="center">
+    <a href="http://qrator.net/" rel="nofollow" target="_blank">
+      <img src="/adv/qrator-box.png" width="250" height="250" alt="Protected by Qrator">
+    </a>
+  </div>
+
   <lor:boxlets var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
