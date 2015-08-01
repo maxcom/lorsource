@@ -205,9 +205,9 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <div align="center" width="100%">
+  <div align="center" width="100%" style="margin-bottom: 1em">
     <style>
-    .lor-topic-adaptive-tango { width: 320px; height: 100px; margin-bottom: 1em; }
+    .lor-topic-adaptive-tango { width: 320px; height: 100px; }
     @media(min-width: 500px) { .lor-topic-adaptive-tango { width: 468px; height: 60px; } }
     @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 728px; height: 90px; } }
     </style>
