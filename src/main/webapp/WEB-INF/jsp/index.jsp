@@ -134,7 +134,7 @@
 
   <% out.flush(); %>
 
-  <div align="center" style="padding-bottom: 0.5em">
+  <div align="center" style="margin-bottom: 0.5em">
     <a href="http://qrator.net/" rel="nofollow" target="_blank">
       <img src="/adv/qrator-box.png" width="250" height="250" alt="Protected by Qrator">
     </a>

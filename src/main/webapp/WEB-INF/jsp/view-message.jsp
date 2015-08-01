@@ -207,7 +207,7 @@
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
     <style>
-    .lor-topic-adaptive-tango { width: 320px; height: 100px; padding-bottom: 1em; }
+    .lor-topic-adaptive-tango { width: 320px; height: 100px; margin-bottom: 1em; }
     @media(min-width: 500px) { .lor-topic-adaptive-tango { width: 468px; height: 60px; } }
     @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 728px; height: 90px; } }
     </style>
