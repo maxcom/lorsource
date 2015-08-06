@@ -57,7 +57,7 @@
       <li>Scala 2.11</li>
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.11</li>
-      <li>Spring 4.1</li>
+      <li>Spring 4.2</li>
       <li>Поиск: Elasticsearch 1.7</li>
     </ul>
 
