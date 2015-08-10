@@ -23,7 +23,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div id="warning-body">
-    <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
+    <div id="warning-logo"><img src="/img/good-penguin.png" alt="good-penguin" /></div>
     <div id="warning-text">
         <h1>Слишком крупное изображение</h1>
         <p>Размер изображения превышает лимит в ${exception.maxUploadSize} Байт</p>
