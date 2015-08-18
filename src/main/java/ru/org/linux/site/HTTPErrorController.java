@@ -19,10 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class HTTPErrorController {
-
   @RequestMapping("/errors/404")
   public String handle404() {
     return "errors/code404";
   }
 
+  @RequestMapping("/errors/403")
+  public String handle403() {
+    return "errors/code403";
+  }
 }

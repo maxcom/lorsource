@@ -63,6 +63,10 @@
     <location>/errors/404</location>
   </error-page>
   <error-page>
+    <error-code>403</error-code>
+    <location>/errors/403</location>
+  </error-page>
+  <error-page>
     <exception-type>java.lang.Throwable</exception-type>
     <location>/ExceptionResolver</location>
   </error-page>

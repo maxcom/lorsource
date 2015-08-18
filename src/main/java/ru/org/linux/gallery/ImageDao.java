@@ -146,6 +146,14 @@ public class ImageDao {
     }
   }
 
+  public List<Image> imageByFile(String path) {
+    return jdbcTemplate.query(
+            "SELECT id, topic, original, icon FROM images WHERE original=?",
+            new ImageRowMapper(),
+            path
+    );
+  }
+
   @Nonnull
   public Image getImage(int id) {
     return jdbcTemplate.queryForObject(
