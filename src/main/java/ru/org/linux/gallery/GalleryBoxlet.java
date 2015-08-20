@@ -27,15 +27,16 @@ import java.util.List;
 @Controller
 public class GalleryBoxlet extends AbstractBoxlet {
   private static final int COUNT_ITEMS = 3;
+
   @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @Override
   @RequestMapping("/gallery.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(COUNT_ITEMS));
+    List<PreparedGalleryItem> list = imageService.prepare(imageService.getGalleryItems(COUNT_ITEMS));
     mav.addObject("items", list);
     return mav;
   }

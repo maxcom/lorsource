@@ -15,7 +15,6 @@
 
 package ru.org.linux.gallery;
 
-import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +23,11 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.topic.Topic;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.image.ImageInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -54,12 +46,6 @@ public class ImageDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  @Autowired
-  private SiteConfig siteConfig;
-
-  @Autowired
-  private UserDao userDao;
-
   /**
    * Возвращает последние объекты галереи.
    *
@@ -74,17 +60,6 @@ public class ImageDao {
             "AND NOT topics.deleted AND commitdate IS NOT NULL ORDER BY commitdate DESC LIMIT ?) " +
             "as t JOIN images ON t.msgid = images.topic";
 
-/*
-    проверить на PostgreSQL 9.2, возможно там этот вариант лучше будет
-
-    String sql = "SELECT topics.id as msgid, " +
-      " topics.stat1, topics.title, images.icon, images.original, userid, urlname, images.id as imageid " +
-      "FROM topics " +
-      " JOIN groups ON topics.groupid = groups.id " +
-      " JOIN images ON topics.id = images.topic "+
-      " WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
-      " AND NOT topics.deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
-*/
     return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), countItems);
   }
 
@@ -93,7 +68,7 @@ public class ImageDao {
    *
    * @return список GalleryDto объектов
    */
-  public List<GalleryItem> getGalleryItems(int countItems, int tagId) throws TagNotFoundException {
+  public List<GalleryItem> getGalleryItems(int countItems, int tagId) {
     final Section gallery = sectionService.getSection(Section.SECTION_GALLERY);
 
     String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.icon, images.original, images.id AS imageid, t.commitdate " +
@@ -103,30 +78,6 @@ public class ImageDao {
             "as t JOIN images ON t.msgid = images.topic";
 
     return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), tagId, countItems);
-  }
-
-  public List<PreparedGalleryItem> prepare(List<GalleryItem> items) {
-    String htmlPath = siteConfig.getHTMLPathPrefix();
-
-    ImmutableList.Builder<PreparedGalleryItem> builder = ImmutableList.builder();
-
-    for (GalleryItem item : items) {
-      try {
-        ImageInfo iconInfo = new ImageInfo(htmlPath + item.getImage().getIcon());
-        ImageInfo fullInfo = new ImageInfo(htmlPath + item.getImage().getOriginal());
-
-        builder.add(new PreparedGalleryItem(
-                item,
-                userDao.getUserCached(item.getUserid()),
-                iconInfo, fullInfo));
-      } catch (FileNotFoundException e) {
-        logger.error("Image not found! id={}: {}", item.getImage().getId(), e.getMessage());
-      } catch (BadImageException | IOException e) {
-        logger.error("Bad image id={}", item.getImage().getId(), e);
-      }
-    }
-
-    return builder.build();
   }
 
   @Nullable

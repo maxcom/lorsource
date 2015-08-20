@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.gallery.PreparedGalleryItem;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
@@ -69,7 +69,7 @@ public class TagPageController {
   private UserTagService userTagService;
 
   @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView tagPage(
@@ -167,8 +167,8 @@ public class TagPageController {
     return out.build();
   }
 
-  private Map<String, Object> getGallerySection(String tag, int tagId, Template tmpl) throws TagNotFoundException {
-    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(GALLERY_COUNT, tagId));
+  private Map<String, Object> getGallerySection(String tag, int tagId, Template tmpl) {
+    List<PreparedGalleryItem> list = imageService.prepare(imageService.getGalleryItems(GALLERY_COUNT, tagId));
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
     Section section = sectionService.getSection(Section.SECTION_GALLERY);
