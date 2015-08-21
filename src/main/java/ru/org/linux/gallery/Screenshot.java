@@ -83,7 +83,7 @@ public class Screenshot {
 
         return scrn;
       } finally {
-        tempFile.delete();
+        Files.delete(tempFile.toPath());
       }
     } else {
       return null;

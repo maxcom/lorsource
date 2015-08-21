@@ -14,6 +14,9 @@
  */
 package ru.org.linux.gallery
 
+import ru.org.linux.user.User
+import ru.org.linux.util.image.ImageInfo
+
 import scala.beans.BeanProperty
 
 object Image {
@@ -42,3 +45,10 @@ case class Image(
   def getMedium = Image.mediumName(original, doubleSize = false)
   def getMedium2x = Image.mediumName(original, doubleSize = true)
 }
+
+case class PreparedGalleryItem(
+  @BeanProperty item:GalleryItem,
+  @BeanProperty user:User,
+  @BeanProperty iconInfo:ImageInfo,
+  @BeanProperty fullInfo:ImageInfo
+)

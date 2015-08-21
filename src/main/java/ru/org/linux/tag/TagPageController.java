@@ -168,7 +168,7 @@ public class TagPageController {
   }
 
   private Map<String, Object> getGallerySection(String tag, int tagId, Template tmpl) {
-    List<PreparedGalleryItem> list = imageService.prepare(imageService.getGalleryItems(GALLERY_COUNT, tagId));
+    List<PreparedGalleryItem> list = imageService.prepareGalleryItem(imageService.getGalleryItems(GALLERY_COUNT, tagId));
 
     ImmutableMap.Builder<String, Object> out = ImmutableMap.builder();
     Section section = sectionService.getSection(Section.SECTION_GALLERY);

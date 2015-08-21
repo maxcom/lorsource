@@ -15,16 +15,13 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.gallery.Image;
-import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -41,17 +38,11 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
-import ru.org.linux.util.image.ImageInfo;
 import scala.Option;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,8 +50,6 @@ import java.util.Map;
 
 @Service
 public class TopicPrepareService {
-  private static final Logger logger = LoggerFactory.getLogger(TopicPrepareService.class);
-
   @Autowired
   private GroupDao groupDao;
 
@@ -92,7 +81,7 @@ public class TopicPrepareService {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @Autowired
   private UserService userService;
@@ -141,7 +130,7 @@ public class TopicPrepareService {
             message,
             tags,
             false,
-            newPoll!=null?pollPrepareService.preparePollPreview(newPoll):null,
+            newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
             secure,
             null,
             new MessageText(text, true),
@@ -237,11 +226,15 @@ public class TopicPrepareService {
 
       if (section.isImagepost() || section.isImageAllowed()) {
         if (message.getId()!=0) {
-          image = imageDao.imageForTopic(message);
+          image = imageService.imageForTopic(message);
         }
 
         if (image != null) {
-          preparedImage = prepareImage(image, secure);
+          Option<PreparedImage> maybeImage = imageService.prepareImage(image, secure);
+
+          if (maybeImage.isDefined()) {
+            preparedImage = maybeImage.get();
+          }
         }
       }
       Remark remark = null;
@@ -272,34 +265,6 @@ public class TopicPrepareService {
               remark);
     } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
-    }
-  }
-  
-  private PreparedImage prepareImage(@Nonnull Image image, boolean secure) {
-    Preconditions.checkNotNull(image);
-
-    String mediumName = image.getMedium();
-
-    String htmlPath = siteConfig.getHTMLPathPrefix();
-    if (!new File(htmlPath, mediumName).exists()) {
-      mediumName = image.getIcon();
-    }
-
-    try {
-      ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
-      ImageInfo fullInfo = new ImageInfo(htmlPath + image.getOriginal());
-      LorURL medURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+mediumName);
-      LorURL fullURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+image.getOriginal());
-
-      boolean existsMedium2x = Files.exists(new File(htmlPath, image.getMedium2x()).toPath());
-
-      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image, existsMedium2x);
-    } catch (BadImageException e) {
-      logger.warn("Failed to prepare image", e);
-      return null;
-    } catch (IOException e) {
-      logger.warn("Failed to prepare image", e);
-      return null;
     }
   }
 
