@@ -15,9 +15,7 @@
 
 package ru.org.linux.gallery;
 
-import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.image.ImageParam;
 import ru.org.linux.util.image.ImageUtil;
 
 import java.io.File;
@@ -40,57 +38,7 @@ public class Screenshot {
   private static final int MEDIUM_WIDTH = 500;
   private static final int MEDIUM_2X_WIDTH = MEDIUM_WIDTH * 2;
 
-
-  public static Screenshot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException {
-    boolean error = false;
-
-    if (!file.isFile()) {
-      errors.reject(null, "Сбой загрузки изображения: не файл");
-      error = true;
-    }
-
-    if (!file.canRead()) {
-      errors.reject(null, "Сбой загрузки изображения: файл нельзя прочитать");
-      error = true;
-    }
-
-    if (file.length() > MAX_SCREENSHOT_FILESIZE) {
-      errors.reject(null, "Сбой загрузки изображения: слишком большой файл");
-      error = true;
-    }
-
-    ImageParam imageParam = ImageUtil.imageCheck(file);
-
-    if (imageParam.getHeight()< MIN_SCREENSHOT_SIZE || imageParam.getHeight() > MAX_SCREENSHOT_SIZE) {
-      errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
-      error = true;
-    }
-
-    if (imageParam.getWidth()<MIN_SCREENSHOT_SIZE || imageParam.getWidth() > MAX_SCREENSHOT_SIZE) {
-      errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
-      error = true;
-    }
-
-    if (!error) {
-      File tempFile = File.createTempFile("preview-", "", new File(dir));
-
-      try {
-        String name = tempFile.getName();
-
-        Screenshot scrn = new Screenshot(name, dir, imageParam.getExtension());
-
-        scrn.doResize(file);
-
-        return scrn;
-      } finally {
-        Files.delete(tempFile.toPath());
-      }
-    } else {
-      return null;
-    }
-  }
-
-  private Screenshot(String name, String path, String extension) {
+  Screenshot(String name, File path, String extension) {
     mainFile = new File(path, name + '.' + extension);
     iconFile = new File(path, name + "-icon.jpg");
     mediumFile = new File(path, name + "-med.jpg");
@@ -99,7 +47,7 @@ public class Screenshot {
     this.extension = extension;
   }
 
-  public Screenshot moveTo(String dir, String name) throws IOException {
+  public Screenshot moveTo(File dir, String name) throws IOException {
     Screenshot dest = new Screenshot(name, dir, extension);
 
     Files.move(mainFile.toPath(), dest.mainFile.toPath());
@@ -110,7 +58,7 @@ public class Screenshot {
     return dest;
   }
 
-  private void doResize(File uploadedFile) throws IOException, BadImageException {
+  void doResize(File uploadedFile) throws IOException, BadImageException {
     Files.move(uploadedFile.toPath(), mainFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
     boolean error = true;

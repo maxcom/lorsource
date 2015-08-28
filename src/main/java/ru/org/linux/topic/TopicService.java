@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PollDao;
@@ -63,7 +63,7 @@ public class TopicService {
   private SiteConfig siteConfig;
 
   @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @Autowired
   private PollDao pollDao;
@@ -111,13 +111,7 @@ public class TopicService {
     }
 
     if (scrn!=null) {
-      Screenshot screenShot = scrn.moveTo(siteConfig.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
-
-      imageDao.saveImage(
-              msgid,
-              "gallery/" + screenShot.getMainFile().getName(),
-              "gallery/" + screenShot.getIconFile().getName()
-      );
+      imageService.saveScreenshot(scrn, msgid);
     }
 
     if (section.isPollPostAllowed()) {

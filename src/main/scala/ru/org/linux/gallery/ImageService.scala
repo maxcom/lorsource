@@ -14,7 +14,7 @@
  */
 package ru.org.linux.gallery
 
-import java.io.{File, FileNotFoundException}
+import java.io.{File, FileNotFoundException, IOException}
 import java.nio.file.Files
 
 import com.google.common.base.Preconditions
@@ -23,12 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.validation.Errors
 import ru.org.linux.edithistory.{EditHistoryDto, EditHistoryObjectTypeEnum, EditHistoryService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserDao}
-import ru.org.linux.util.LorURL
-import ru.org.linux.util.image.ImageInfo
+import ru.org.linux.util.image.{ImageInfo, ImageUtil}
+import ru.org.linux.util.{BadImageException, LorURL}
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -38,6 +39,9 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
                                  topicDao: TopicDao, userDao: UserDao, siteConfig: SiteConfig,
                                  val transactionManager:PlatformTransactionManager)
   extends StrictLogging with TransactionManagement {
+
+  private val previewPath = new File(siteConfig.getHTMLPathPrefix + "/gallery/preview")
+  private val galleryPath = new File(siteConfig.getHTMLPathPrefix + "/gallery")
 
   def deleteImage(editor: User, image: Image):Unit = {
     transactional() { _ ⇒
@@ -66,8 +70,8 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
     val htmlPath = siteConfig.getHTMLPathPrefix
 
     try {
-      val iconInfo: ImageInfo = new ImageInfo(htmlPath + item.getImage.getIcon)
-      val fullInfo: ImageInfo = new ImageInfo(htmlPath + item.getImage.getOriginal)
+      val iconInfo = new ImageInfo(htmlPath + item.getImage.getIcon)
+      val fullInfo = new ImageInfo(htmlPath + item.getImage.getOriginal)
       Some(new PreparedGalleryItem(item, userDao.getUserCached(item.getUserid), iconInfo, fullInfo))
     } catch prepareException(item.getImage)
   }
@@ -109,4 +113,51 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems)
 
   def imageForTopic(topic:Topic):Image = imageDao.imageForTopic(topic)
+
+  @throws(classOf[IOException])
+  @throws(classOf[BadImageException])
+  def createScreenshot(file: File, errors: Errors): Screenshot = {
+    if (!file.isFile) {
+      errors.reject(null, "Сбой загрузки изображения: не файл")
+    }
+
+    if (!file.canRead) {
+      errors.reject(null, "Сбой загрузки изображения: файл нельзя прочитать")
+    }
+
+    if (file.length > Screenshot.MAX_SCREENSHOT_FILESIZE) {
+      errors.reject(null, "Сбой загрузки изображения: слишком большой файл")
+    }
+
+    val imageParam = ImageUtil.imageCheck(file)
+
+    if (imageParam.getHeight < Screenshot.MIN_SCREENSHOT_SIZE || imageParam.getHeight > Screenshot.MAX_SCREENSHOT_SIZE) {
+      errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
+    }
+
+    if (imageParam.getWidth < Screenshot.MIN_SCREENSHOT_SIZE || imageParam.getWidth > Screenshot.MAX_SCREENSHOT_SIZE) {
+      errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
+    }
+
+    if (!errors.hasErrors) {
+      val tempFile = File.createTempFile("preview-", "", previewPath)
+
+      try {
+        val name = tempFile.getName
+        val scrn = new Screenshot(name, previewPath, imageParam.getExtension)
+        scrn.doResize(file)
+        scrn
+      } finally {
+        Files.delete(tempFile.toPath)
+      }
+    } else {
+      null
+    }
+  }
+
+  def saveScreenshot(scrn:Screenshot, msgid:Int):Unit = {
+    val screenShot = scrn.moveTo(galleryPath, msgid.toString)
+
+    imageDao.saveImage(msgid, "gallery/" + screenShot.getMainFile.getName, "gallery/" + screenShot.getIconFile.getName)
+  }
 }

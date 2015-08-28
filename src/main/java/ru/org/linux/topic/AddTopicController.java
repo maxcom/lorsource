@@ -38,6 +38,7 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -49,7 +50,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
@@ -106,10 +106,10 @@ public class AddTopicController {
   private GroupPermissionService groupPermissionService;
 
   @Autowired
-  private SiteConfig siteConfig;
+  private AddTopicRequestValidator addTopicRequestValidator;
 
   @Autowired
-  private AddTopicRequestValidator addTopicRequestValidator;
+  private ImageService imageService;
 
   @Autowired
   private TopicService topicService;
@@ -232,7 +232,7 @@ public class AddTopicController {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
-    String image = processUploadImage(request);
+    File image = processUploadImage(request);
 
     Group group = form.getGroup();
 
@@ -458,7 +458,7 @@ public class AddTopicController {
    */
   private Screenshot processUpload(
           HttpSession session,
-          String image,
+          File image,
           Errors errors
   ) throws IOException {
     if (session==null) {
@@ -467,18 +467,12 @@ public class AddTopicController {
 
     Screenshot screenShot = null;
 
-    if (image != null && !image.isEmpty()) {
-      File uploadedFile = new File(image);
-
+    if (image != null) {
       try {
-        screenShot = Screenshot.createScreenshot(
-                uploadedFile,
-                errors,
-                siteConfig.getHTMLPathPrefix() + "/gallery/preview"
-        );
+        screenShot = imageService.createScreenshot(image, errors);
 
         if (screenShot != null) {
-          logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
+          logger.info("SCREEN: " + image.getAbsolutePath() + "\nINFO: SCREEN: " + image);
 
           session.setAttribute("image", screenShot);
         }
@@ -496,23 +490,14 @@ public class AddTopicController {
     return screenShot;
   }
 
-  private String processUploadImage(HttpServletRequest request) throws IOException, ScriptErrorException {
+  private File processUploadImage(HttpServletRequest request) throws IOException, ScriptErrorException {
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
       if (multipartFile != null && !multipartFile.isEmpty()) {
-        File uploadedFile = File.createTempFile("preview", "", new File(siteConfig.getPathPrefix() + "/linux-storage/tmp/"));
-        String image = uploadedFile.getPath();
-        if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
-          try {
-            logger.debug("Transfering upload to: " + image);
-            multipartFile.transferTo(uploadedFile);
-            return image;
-          } catch (Exception e) {
-            throw new ScriptErrorException("Failed to write uploaded file", e);
-          }
-        } else {
-          logger.info("Bad target file name: " + image);
-        }
+        File uploadedFile = File.createTempFile("lor-image-", "");
+        logger.debug("Transfering upload to: " + uploadedFile);
+        multipartFile.transferTo(uploadedFile);
+        return uploadedFile;
       }
     }
 
