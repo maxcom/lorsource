@@ -35,7 +35,6 @@
 <div id="mainpage">
 <div id="news">
 
-<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
   <style>
@@ -54,44 +53,6 @@
   </script>
 </div>
 </c:if>
---%>
-
-  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
-  </div>
-  <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'img',
-          src: '/adv/selectel/vscale-promo.png',
-          href: 'https://vscale.io/?utm_campaign=vscale_scalet&utm_medium=display&utm_source=linux.org&utm_content=banner&utm_term=728*90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/vscale.png',
-          href: 'https://vscale.io/?utm_campaign=vscale_io&utm_medium=display&utm_source=linux.org&utm_content=banner&utm_term=728*90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/vpc-dark.png',
-          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_1&utm_medium=display&utm_source=linux.org&utm_content=banner&utm_term=728*90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/vpc-red.png',
-          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_red&utm_medium=display&utm_source=linux.org&utm_content=banner&utm_term=728*90'
-        },
-        {
-          type: 'img',
-          src: '/adv/selectel/vpc-blue-red.png',
-          href: 'https://selectel.ru/services/vpc/?utm_campaign=vpc_color&utm_medium=display&utm_source=linux.org&utm_content=banner&utm_term=728*90'
-        }
-      ];
-
-      init_interpage_adv(ads);
-    });
-  </script>
-
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
