@@ -51,7 +51,7 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 20</li>
+      <li>Fedora 21</li>
       <li>СУБД PostgreSQL 9.3</li>
       <li>OpenJDK 1.8.0</li>
       <li>Scala 2.11</li>
