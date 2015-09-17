@@ -271,7 +271,7 @@ public class AddTopicController {
     Screenshot scrn = null;
 
     if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
-      scrn = processUpload(session, image, errors);
+      scrn = processUpload(tmpl.getCurrentUser(), session, image, errors);
 
       if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
         errors.reject(null, "Изображение отсутствует");
@@ -457,6 +457,7 @@ public class AddTopicController {
    * @throws IOException
    */
   private Screenshot processUpload(
+          User currentUser,
           HttpSession session,
           File image,
           Errors errors
@@ -469,7 +470,7 @@ public class AddTopicController {
 
     if (image != null) {
       try {
-        screenShot = imageService.createScreenshot(image, errors);
+        screenShot = imageService.createScreenshot(currentUser, image, errors);
 
         if (screenShot != null) {
           logger.info("SCREEN: " + image.getAbsolutePath() + "\nINFO: SCREEN: " + image);

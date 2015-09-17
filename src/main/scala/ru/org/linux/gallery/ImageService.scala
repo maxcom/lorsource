@@ -116,7 +116,7 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
-  def createScreenshot(file: File, errors: Errors): Screenshot = {
+  def createScreenshot(user:User, file: File, errors: Errors): Screenshot = {
     if (!file.isFile) {
       errors.reject(null, "Сбой загрузки изображения: не файл")
     }
@@ -140,7 +140,7 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
     }
 
     if (!errors.hasErrors) {
-      val tempFile = File.createTempFile("preview-", "", previewPath)
+      val tempFile = File.createTempFile(s"preview-${user.getId}-", "", previewPath)
 
       try {
         val name = tempFile.getName
