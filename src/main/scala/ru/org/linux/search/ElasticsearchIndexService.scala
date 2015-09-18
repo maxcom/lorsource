@@ -5,7 +5,6 @@ import com.sksamuel.elastic4s._
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
-import org.elasticsearch.client.Client
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -40,11 +39,9 @@ class ElasticsearchIndexService @Autowired()
   msgbaseDao: MsgbaseDao,
   topicDao: TopicDao,
   commentService: CommentService,
-  javaElastic: Client
+  elastic: ElasticClient
 ) extends StrictLogging {
   import ElasticsearchIndexService._
-
-  private val elastic = ElasticClient.fromClient(javaElastic)
 
   private def isTopicSearchable(msg: Topic) = !msg.isDeleted && !msg.isDraft
 

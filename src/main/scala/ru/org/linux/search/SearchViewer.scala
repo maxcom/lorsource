@@ -19,16 +19,13 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.HighlightEncoder.Html
 import com.sksamuel.elastic4s.{ElasticClient, FilterDefinition, QueryDefinition}
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.client.Client
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class SearchViewer(query:SearchRequest, javaElastic: Client) {
+class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
   import ru.org.linux.search.SearchViewer._
-
-  private val elastic = ElasticClient.fromClient(javaElastic)
 
   private def processQueryString(queryText: String) = {
     if (queryText.isEmpty) {

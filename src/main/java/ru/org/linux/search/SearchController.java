@@ -19,8 +19,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
+import com.sksamuel.elastic4s.ElasticClient;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +63,7 @@ public class SearchController {
   private GroupDao groupDao;
 
   @Autowired
-  private Client client;
+  private ElasticClient client;
 
   @Autowired
   private SearchResultsService resultsService;

@@ -23,7 +23,6 @@ import com.sksamuel.elastic4s.{ElasticClient, SearchType}
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.client.Client
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
@@ -45,10 +44,8 @@ class UserStatisticsService @Autowired() (
   userDao: UserDao,
   ignoreListDao: IgnoreListDao,
   sectionService: SectionService,
-  javaElastic: Client
+  elastic: ElasticClient
 ) extends StrictLogging {
-  private val elastic = ElasticClient.fromClient(javaElastic)
-
   def getStats(user:User) : UserStats = {
     val commentCountFuture = countComments(user)
     val topicsFuture = topicStats(user)

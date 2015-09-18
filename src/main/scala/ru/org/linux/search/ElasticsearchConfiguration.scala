@@ -15,9 +15,7 @@
 
 package ru.org.linux.search
 
-import org.elasticsearch.client.Client
-import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.transport.InetSocketTransportAddress
+import com.sksamuel.elastic4s.ElasticClient
 import org.elasticsearch.node.NodeBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -29,17 +27,16 @@ class ElasticsearchConfiguration {
   var config:SiteConfig = _
 
   @Bean(destroyMethod = "close")
-  def elasticsearch: Client = {
+  def elasticsearch: ElasticClient = {
     config.getElasticsearch match {
-      case "embedded" =>
+      case "embedded" ⇒
         val builder = NodeBuilder.nodeBuilder().local(true)
 
         builder.settings().put("path.data", "target/elasticsearch-data")
 
-        builder.node().client();
-
-      case address =>
-        new TransportClient().addTransportAddress(new InetSocketTransportAddress(address, 9300))
+        ElasticClient.fromNode(builder.node())
+      case address ⇒
+        ElasticClient.remote(address, 9300)
     }
   }
 }

@@ -24,7 +24,6 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 import com.typesafe.scalalogging.StrictLogging
-import org.elasticsearch.client.Client
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.springframework.beans.factory.annotation.Autowired
@@ -76,9 +75,7 @@ object Perf4jHandlerInterceptor {
   }
 }
 
-class Perf4jHandlerInterceptor @Autowired() (javaElastic:Client) extends HandlerInterceptorAdapter with StrictLogging {
-  private val elastic = ElasticClient.fromClient(javaElastic)
-
+class Perf4jHandlerInterceptor @Autowired() (elastic:ElasticClient) extends HandlerInterceptorAdapter with StrictLogging {
   private def indexOf(date:DateTime) = IndexPrefix + "-" + indexDateFormat.print(date)
 
   @PostConstruct

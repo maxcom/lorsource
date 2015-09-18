@@ -24,7 +24,6 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.client.Client
 import org.elasticsearch.search.SearchHit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -44,15 +43,13 @@ import scala.concurrent.{Await, Future, TimeoutException}
 
 @Service
 class MoreLikeThisService @Autowired() (
-  client:Client,
+  elastic:ElasticClient,
   sectionService:SectionService,
   scheduler:Scheduler
 ) extends StrictLogging {
   import ru.org.linux.search.MoreLikeThisService._
 
   type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
-
-  private val elastic = ElasticClient.fromClient(client)
 
   private val cache = CacheBuilder
     .newBuilder()
