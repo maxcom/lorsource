@@ -221,7 +221,8 @@ public class EditRegisterController {
     }
 
     if (emailChanged) {
-      String msg = "Обновление регистрации прошло успешно. Ожидайте письма с кодом активации смены email.";
+      String msg = "Обновление регистрации прошло успешно. " +
+              "Ожидайте письма на "+StringUtil.escapeHtml(newEmail)+" с кодом активации смены email.";
 
       return new ModelAndView("action-done", "message", msg);
     } else {
