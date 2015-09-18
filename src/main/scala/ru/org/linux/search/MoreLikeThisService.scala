@@ -150,10 +150,10 @@ class MoreLikeThisService @Autowired() (
   }
 
   private def titleQuery(topic:Topic) =
-    morelikeThisQuery("title") likeText topic.getTitleUnescaped minTermFreq 0 minDocFreq 0 maxDocFreq 20000
+    morelikeThisQuery("title") likeText topic.getTitleUnescaped minTermFreq 0 minDocFreq 0 maxDocFreq 20000 minWordLength 3
 
   private def textQuery(plainText:String) =
-    morelikeThisQuery("message") likeText plainText maxDocFreq 50000 minTermFreq 1
+    morelikeThisQuery("message") likeText plainText maxDocFreq 50000 minTermFreq 1 minWordLength 3
 
   private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags:_*)
 }
