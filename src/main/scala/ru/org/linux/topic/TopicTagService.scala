@@ -144,7 +144,7 @@ class TopicTagService @Autowired() (
     builder.build()
   }
 
-  def tagRefs(topics:Seq[Int]) = topicTagDao.getTags(topics).groupBy(_._1).toMap.mapValues(_.map(_._2))
+  def tagRefs(topics:Seq[Int]) = topicTagDao.getTags(topics).groupBy(_._1).mapValues(_.map(_._2))
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
