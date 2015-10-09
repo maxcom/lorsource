@@ -23,6 +23,9 @@ import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.lucene.analysis.ru.RussianAnalyzer
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
+import org.apache.lucene.analysis.util.CharArraySet
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.search.SearchHit
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,6 +40,7 @@ import ru.org.linux.util.StringUtil
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, TimeoutException}
@@ -150,16 +154,32 @@ class MoreLikeThisService @Autowired() (
   }
 
   private def titleQuery(topic:Topic) =
-    morelikeThisQuery("title") likeText topic.getTitleUnescaped minTermFreq 0 minDocFreq 0 maxDocFreq 20000 minWordLength 3
+    morelikeThisQuery("title") likeText topic.getTitleUnescaped minTermFreq 0 minDocFreq 0 stopWords (StopWords: _*)
 
   private def textQuery(plainText:String) =
-    morelikeThisQuery("message") likeText plainText maxDocFreq 50000 minTermFreq 1 minWordLength 3
+    morelikeThisQuery("message") likeText plainText minTermFreq 1 stopWords (StopWords: _*)
 
   private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags:_*)
 }
 
 object MoreLikeThisService {
   val CacheSize = 10000
+
+  val StopWords = {
+    val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr ⇒ new String(arr.asInstanceOf[Array[Char]]))
+    val analyzedStream = new RussianAnalyzer(CharArraySet.EMPTY_SET).tokenStream(null, stop.mkString(" "))
+
+    analyzedStream.reset()
+
+    val b = new ArrayBuffer[String](initialSize = stop.size)
+
+    while (analyzedStream.incrementToken()) {
+      b += analyzedStream.getAttribute(classOf[CharTermAttribute]).toString
+    }
+
+    b.toVector
+  }
+
 }
 
 case class MoreLikeThisTopic(
