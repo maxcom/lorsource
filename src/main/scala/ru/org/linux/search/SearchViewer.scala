@@ -74,7 +74,7 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
     val boostedQuery = if (query.getMlt==0) {
       boost(processQueryString(query.getQ))
     } else {
-      morelikeThisQuery("message") ids query.getMlt.toString maxDocFreq 50000 minTermFreq 1 minWordLength 3
+      morelikeThisQuery("message") ids query.getMlt.toString minTermFreq 1 stopWords (MoreLikeThisService.StopWords: _*)
     }
 
     val esQuery = wrapQuery(boostedQuery, queryFilters)

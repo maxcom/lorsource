@@ -62,7 +62,8 @@
                 },
                 "message": {
                     "type": "string",
-                    "analyzer": "text_analyzer"
+                    "analyzer": "text_analyzer",
+                    "term_vector" : "with_positions_offsets"
                 },
                 "topic_awaits_commit": {
                     "type": "boolean",
