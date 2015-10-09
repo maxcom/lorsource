@@ -71,7 +71,13 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
 
     val queryFilters = (typeFilter ++ dateFilter ++ userFilter).toSeq
 
-    val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
+    val boostedQuery = if (query.getMlt==0) {
+      boost(processQueryString(query.getQ))
+    } else {
+      morelikeThisQuery("message") ids query.getMlt.toString maxDocFreq 50000 minTermFreq 1 minWordLength 3
+    }
+
+    val esQuery = wrapQuery(boostedQuery, queryFilters)
 
     val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section ⇒
       termFilter("section", this.query.getSection)

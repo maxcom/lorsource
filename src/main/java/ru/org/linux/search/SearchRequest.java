@@ -36,6 +36,7 @@ public class SearchRequest {
   private SearchInterval interval = SearchInterval.ALL;
   private SearchRange range = SearchRange.ALL;
   private int offset = 0;
+  private int mlt = 0;
 
   public String getQ() {
     return q;
@@ -113,6 +114,14 @@ public class SearchRequest {
     this.offset = offset;
   }
 
+  public int getMlt() {
+    return mlt;
+  }
+
+  public void setMlt(int mlt) {
+    this.mlt = mlt;
+  }
+
   public String getQuery(int newOffset) {
     Map<String, String> params = new LinkedHashMap<>();
 
@@ -151,6 +160,10 @@ public class SearchRequest {
 
     if (newOffset!=0) {
       params.put("offset", Integer.toString(newOffset));
+    }
+
+    if (mlt!=0) {
+      params.put("mlt", Integer.toString(mlt));
     }
 
     return buildParams(params);
