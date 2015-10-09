@@ -47,7 +47,7 @@ public class SearchRequest {
   }
 
   public boolean isInitial() {
-    return q.isEmpty() && user==null;
+    return q.isEmpty() && user==null && mlt==0;
   }
 
   public boolean isUsertopic() {
