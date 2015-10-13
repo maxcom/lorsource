@@ -40,8 +40,8 @@ import scala.util.control.NonFatal
 
 object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
-  private val LoggingThreshold = 500 millis
-  private val ElasticProbability = 0.1
+  private val LoggingThreshold = 1 second
+  private val ElasticProbability = 0.2
   private val IndexPrefix = "perf"
   private val PerfPattern = s"$IndexPrefix-*"
   private val PerfType = "metric"
