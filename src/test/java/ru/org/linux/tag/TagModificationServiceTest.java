@@ -36,7 +36,7 @@ public class TagModificationServiceTest {
   @Autowired
   private TagModificationService tagModificationService;
 
- @Autowired
+  @Autowired
   private TagDao tagDao;
 
   WebDataBinder binder;
