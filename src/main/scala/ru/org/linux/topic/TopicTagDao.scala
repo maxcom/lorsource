@@ -27,7 +27,7 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.tag.TagInfo
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @Repository
 class TopicTagDao @Autowired() (ds:DataSource) {
@@ -117,11 +117,11 @@ class TopicTagDao @Autowired() (ds:DataSource) {
     jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)")
   }
 
-  def getTags(topics:Seq[Int]):Vector[(Int, TagInfo)] = {
+  def getTags(topics:Seq[Int]):Seq[(Int, TagInfo)] = {
     if (topics.isEmpty) {
       Vector.empty
     } else {
-      val topicIds:java.util.List[Int] = topics
+      val topicIds = topics.asJava
 
       namedJdbcTemplate.query(
         "SELECT msgid, tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
@@ -133,7 +133,7 @@ class TopicTagDao @Autowired() (ds:DataSource) {
               resultSet.getInt("counter"),
               resultSet.getInt("id")
             )
-        }).toVector
+        }).asScala
     }
   }
 
@@ -145,15 +145,5 @@ class TopicTagDao @Autowired() (ds:DataSource) {
    */
   def increaseCounterById(tagId: Int, tagCount: Int):Unit = {
     jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId)
-  }
-
-  /**
-   * Уменьшить счётчик использования тега.
-   *
-   * @param tagId    идентификационный номер тега
-   * @param tagCount на какое значение изменить счётчик
-   */
-  def decreaseCounterById(tagId: Int, tagCount: Int):Unit = {
-    jdbcTemplate.update("UPDATE tags_values SET counter=counter-? WHERE id=?", tagCount, tagId)
   }
 }

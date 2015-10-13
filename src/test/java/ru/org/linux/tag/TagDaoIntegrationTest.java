@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import scala.Option;
 import scala.collection.Seq;
 
-import java.util.List;
-
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,7 +53,7 @@ public class TagDaoIntegrationTest {
     tagDao.createTag("zest");
     tagDao.createTag("zesd");
 
-    List<TagInfo> tags = tagDao.getTagsByPrefix("zest", 0);
+    scala.collection.Seq<TagInfo> tags = tagDao.getTagsByPrefix("zest", 0);
 
     assertEquals(1, tags.size());
   }
@@ -75,11 +73,11 @@ public class TagDaoIntegrationTest {
     int zest = tagDao.createTag("zest");
     int zesd = tagDao.createTag("zesd");
 
-    List<TagInfo> tags = tagDao.getTagsByPrefix("ze", 0);
+    scala.collection.Seq<TagInfo> tags = tagDao.getTagsByPrefix("ze", 0);
 
     assertEquals(2, tags.size());
-    assertEquals(zesd, tags.get(0).id());
-    assertEquals(zest, tags.get(1).id());
+    assertEquals(zesd, tags.apply(0).id());
+    assertEquals(zest, tags.apply(1).id());
   }
 
   @Test
@@ -92,7 +90,7 @@ public class TagDaoIntegrationTest {
 
   @Test
   public void testRelatedTags() {
-    List<String> tags = tagDao.relatedTags(30);
+    scala.collection.Seq<String> tags = tagDao.relatedTags(30);
 
     assertNotNull(tags);
   }

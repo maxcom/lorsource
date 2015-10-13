@@ -107,18 +107,6 @@ class TopicTagService @Autowired() (
             oldTags,
             newTags
     )
-
-    for (tag <- newTags if !oldTags.contains(tag)) {
-      val id = tagService.getOrCreateTag(tag)
-      logger.trace("Увеличен счётчик для тега " + tag)
-      topicTagDao.increaseCounterById(id, 1)
-    }
-
-    for (tag <- oldTags if !newTags.contains(tag)) {
-      val id = tagService.getOrCreateTag(tag)
-      logger.trace("Уменьшен счётчик для тега " + tag)
-      topicTagDao.decreaseCounterById(id, 1)
-    }
   }
 
   /**

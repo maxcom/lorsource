@@ -17,15 +17,20 @@ package ru.org.linux.tag
 
 import java.util
 
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, SearchType}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 import ru.org.linux.topic.TagTopicListController
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.immutable.SortedMap
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @Service
-class TagService @Autowired () (tagDao:TagDao) {
+class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
   import ru.org.linux.tag.TagService._
 
   /**
@@ -44,11 +49,17 @@ class TagService @Autowired () (tagDao:TagDao) {
     tagDao.getTagInfo(tagId)
   }
 
-  def getNewTags(tags:util.List[String]):util.List[String] =
-    tags.filterNot(tag => tagDao.getTagId(tag, skipZero = true).isDefined)
+  def countTagTopics(tag: String): Future[Long] = {
+    elastic execute {
+      search in MessageIndexTypes searchType SearchType.Count query
+        filteredQuery.query(matchAllQuery).filter(must(termFilter("is_comment", "false"), termFilter("tag", tag)))
+    } map { _.getHits.getTotalHits }
+  }
 
-  def getRelatedTags(tagId: Int): java.util.List[TagRef] =
-    namesToRefs(tagDao.relatedTags(tagId)).sorted
+  def getNewTags(tags:util.List[String]):util.List[String] =
+    tags.asScala.filterNot(tag ⇒ tagDao.getTagId(tag, skipZero = true).isDefined).asJava
+
+  def getRelatedTags(tagId: Int): Seq[TagRef] = namesToRefs(tagDao.relatedTags(tagId)).sorted
 
   /**
    * Получить список популярных тегов по префиксу.
@@ -58,14 +69,14 @@ class TagService @Autowired () (tagDao:TagDao) {
    * @return список тегов по первому символу
    */
   def suggestTagsByPrefix(prefix: String, count: Int): util.List[String] =
-    tagDao.getTopTagsByPrefix(prefix, 2, count)
+    tagDao.getTopTagsByPrefix(prefix, 2, count).asJava
 
   /**
    * Получить уникальный список первых букв тегов.
    *
    * @return список первых букв тегов
    */
-  def getFirstLetters: util.List[String] = tagDao.getFirstLetters
+  def getFirstLetters: util.List[String] = tagDao.getFirstLetters.asJava
 
   /**
    * Получить список тегов по префиксу.
@@ -78,7 +89,7 @@ class TagService @Autowired () (tagDao:TagDao) {
       info <- tagDao.getTagsByPrefix(prefix, threshold)
     ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
 
-    mapAsJavaMap(SortedMap(result: _*))
+    SortedMap(result: _*).asJava
   }
 }
 
@@ -97,7 +108,8 @@ object TagService {
       None
     })
 
-  def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.map(tagRef)
+  def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.asScala.map(tagRef).asJava
+  def namesToRefs(tags:Seq[String]):Seq[TagRef] = tags.map(tagRef)
 
-  def tagsToString(tags: util.Collection[String]): String = tags.mkString(",")
+  def tagsToString(tags: util.Collection[String]): String = tags.asScala.mkString(",")
 }

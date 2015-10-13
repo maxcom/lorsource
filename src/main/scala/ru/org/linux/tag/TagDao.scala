@@ -89,7 +89,7 @@ class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
    * @param prefix       префикс имени тега
    * @return список тегов
    */
-  private[tag] def getTagsByPrefix(prefix: String, minCount: Int): java.util.List[TagInfo] = {
+  private[tag] def getTagsByPrefix(prefix: String, minCount: Int): Seq[TagInfo] = {
     jdbcTemplate.queryAndMap(
       "select counter, value, id from tags_values " +
         "where value like ? and counter >= ?  " +
@@ -140,7 +140,7 @@ class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
     )(tagInfoMapper).get
   }
 
-  def relatedTags(tagid: Int): java.util.List[String] = {
+  def relatedTags(tagid: Int): Seq[String] = {
     jdbcTemplate.queryForSeq[String](
       "select value from " +
         "(select st.tagid, count(*) as cnt from tags as mt join tags as st on mt.msgid=st.msgid " +

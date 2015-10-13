@@ -32,10 +32,9 @@ object TopicListTools {
     "Март", "Апрель", "Май",
     "Июнь", "Июль", "Август",
     "Сентябрь", "Октябрь", "Ноябрь",
-    "Декабрь"
-  )
+    "Декабрь")
 
-  def datePartition(topics: java.util.List[Topic]): ImmutableListMultimap[String, Topic] = {
+  def datePartition(topics: Seq[Topic]): ImmutableListMultimap[String, Topic] = {
     val startOfToday = DateTime.now.withTimeAtStartOfDay
     val startOfYesterday = DateTime.now.minusDays(1).withTimeAtStartOfDay
     val yearAgo = DateTime.now.withDayOfMonth(1).minusMonths(12).withTimeAtStartOfDay
