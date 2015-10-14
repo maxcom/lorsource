@@ -2,59 +2,48 @@
     "mappings": {
         "message": {
             "_all": {
-                "enabled": true,
-                "analyzer": "text_analyzer"
+                "enabled": false
             },
             "properties": {
                 "group": {
                     "type": "string",
-                    "index": "not_analyzed",
-                    "include_in_all": "false"
+                    "index": "not_analyzed"
                 },
                 "section": {
                     "type": "string",
-                    "index": "not_analyzed",
-                    "include_in_all": "false"
+                    "index": "not_analyzed"
                 },
                 "is_comment": {
-                    "type": "boolean",
-                    "include_in_all": "false"
+                    "type": "boolean"
                 },
                 "postdate": {
                     "type": "date",
                     "format": "dateTime",
-                    "include_in_all": "false",
                     "fielddata": {
                       "format": "doc_values"
                     }
                 },
                 "author": {
                     "type": "string",
-                    "index": "not_analyzed",
-                    "include_in_all": "false"
+                    "index": "not_analyzed"
                 },
                 "tag": {
                     "type": "string",
                     "index": "not_analyzed",
-                    "include_in_all": "false",
                     "fielddata": {
                       "format": "doc_values"
                     }
                 },
                 "topic_author": {
                     "type": "string",
-                    "index": "not_analyzed",
-                    "include_in_all": "false"
+                    "index": "not_analyzed"
                 },
                 "topic_id": {
-                    "type": "long",
-                    "include_in_all": "false"
+                    "type": "long"
                 },
                 "topic_title": {
                     "type": "string",
-                    "include_in_all": "false",
-                    "index": "no",
-                    "analyzer": "text_analyzer"
+                    "index": "no"
                 },
                 "title": {
                     "type": "string",
@@ -62,11 +51,11 @@
                 },
                 "message": {
                     "type": "string",
-                    "analyzer": "text_analyzer"
+                    "analyzer": "text_analyzer",
+                    "term_vector" : "with_positions_offsets"
                 },
                 "topic_awaits_commit": {
-                    "type": "boolean",
-                    "include_in_all": "false"
+                    "type": "boolean"
                 }
             }
         }

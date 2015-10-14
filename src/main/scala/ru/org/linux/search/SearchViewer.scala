@@ -32,14 +32,17 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
       matchAllQuery
     } else {
       bool {
-        must(commonQuery("_all") query queryText lowFreqMinimumShouldMatch 2)
-        should(matchPhraseQuery("_all", queryText).setLenient(true))
+        must(
+          should(
+            commonQuery("title") query queryText lowFreqMinimumShouldMatch 1,
+            commonQuery("message") query queryText lowFreqMinimumShouldMatch 2)
+        ) should matchPhraseQuery("message", queryText).setLenient(true)
       }
     }
   }
 
   private def boost(query: QueryDefinition) = {
-    functionScoreQuery(query) scorers (
+    functionScoreQuery(query) scorers(
         weightScore(TopicBoost) filter termFilter("is_comment", "false"),
         weightScore(RecentBoost) filter rangeFilter("postdate").gte("now/d-3y"))
   }
@@ -96,7 +99,7 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
           ),
           agg sigTerms "tags" field "tag" minDocCount 30
         ) highlighting(
-          options encoder Html preTags "<em class=search-hl>" postTags "</em>",
+          options encoder Html preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight field "title" numberOfFragments 0,
           highlight field "topicTitle" numberOfFragments 0,
           highlight field "message" numberOfFragments 1 fragmentSize MessageFragment
