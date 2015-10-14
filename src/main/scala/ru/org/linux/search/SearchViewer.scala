@@ -34,7 +34,7 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
       bool {
         must(
           should(
-            commonQuery("title") query queryText lowFreqMinimumShouldMatch 1,
+            commonQuery("title") query queryText lowFreqMinimumShouldMatch 2,
             commonQuery("message") query queryText lowFreqMinimumShouldMatch 2)
         ) should matchPhraseQuery("message", queryText).setLenient(true)
       }
