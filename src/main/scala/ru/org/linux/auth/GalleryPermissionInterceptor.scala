@@ -20,7 +20,9 @@ class GalleryPermissionInterceptor @Autowired() (imageDao:ImageDao, topicDao:Top
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)
 
-    val continue = if (uri.startsWith("gallery/")) {
+    val continue = if (uri.startsWith("gallery/preview/")) {
+      AuthUtil.isSessionAuthorized
+    } else if (uri.startsWith("gallery/")) {
       logger.debug(s"Checking ${request.getRequestURI}")
 
       val topics = imageDao.imageByFile(uri).asScala.map { image ⇒ topicDao.getById(image.getTopicId) }
