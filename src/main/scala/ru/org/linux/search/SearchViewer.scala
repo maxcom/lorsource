@@ -31,10 +31,10 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
     if (queryText.isEmpty) {
       matchAllQuery
     } else {
-      should(
-        commonQuery("_all") query queryText lowFreqMinimumShouldMatch 2,
-        matchPhraseQuery("_all", queryText).setLenient(true)
-      )
+      bool {
+        must(commonQuery("_all") query queryText lowFreqMinimumShouldMatch 2)
+        should(matchPhraseQuery("_all", queryText).setLenient(true))
+      }
     }
   }
 
