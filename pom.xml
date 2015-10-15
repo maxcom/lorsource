@@ -17,10 +17,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.2.1.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.2.2.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.8.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.3-1102-jdbc41</jdbc.postgresql.version>
-    <es.version>1.7.2</es.version>
+    <es.version>1.7.3</es.version>
     <scala.version>2.11.7</scala.version>
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
