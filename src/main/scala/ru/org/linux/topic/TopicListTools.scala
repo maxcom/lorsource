@@ -15,13 +15,10 @@
 
 package ru.org.linux.topic
 
-import com.google.common.collect._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
 
 object TopicListTools {
   private val OldYearFormat = DateTimeFormat.forPattern("YYYY")
@@ -34,45 +31,65 @@ object TopicListTools {
     "Сентябрь", "Октябрь", "Ноябрь",
     "Декабрь")
 
-  def datePartition(topics: Seq[Topic]): ImmutableListMultimap[String, Topic] = {
+  def datePartition(topics: Seq[Topic]): Seq[(String, Topic)] = {
     val startOfToday = DateTime.now.withTimeAtStartOfDay
     val startOfYesterday = DateTime.now.minusDays(1).withTimeAtStartOfDay
     val yearAgo = DateTime.now.withDayOfMonth(1).minusMonths(12).withTimeAtStartOfDay
 
-    Multimaps.index(topics, new com.google.common.base.Function[Topic, String]() {
-      override def apply(input: Topic): String = {
-        input.getEffectiveDate match {
-          case date if date.isAfter(startOfToday)     ⇒ "Сегодня"
-          case date if date.isAfter(startOfYesterday) ⇒ "Вчера"
-          case date if date.isAfter(yearAgo)          ⇒ s"${monthName(date)} ${date.getYear}"
-          case date                                   ⇒ OldYearFormat.print(date)
-        }
-      }
-    })
+    topics.map { topic ⇒
+      val key = topic.getEffectiveDate match {
+                case date if date.isAfter(startOfToday)     ⇒ "Сегодня"
+                case date if date.isAfter(startOfYesterday) ⇒ "Вчера"
+                case date if date.isAfter(yearAgo)          ⇒ s"${monthName(date)} ${date.getYear}"
+                case date                                   ⇒ OldYearFormat.print(date)
+              }
+
+      key -> topic
+    }
   }
 
-  def monthName(date:DateTime) = Months(date.getMonthOfYear - date.getChronology.monthOfYear().getMinimumValue)
+  def monthName(date: DateTime) = Months(date.getMonthOfYear - date.getChronology.monthOfYear().getMinimumValue)
 
-  def split[T](topics: ListMultimap[String, T]): java.util.List[java.util.List[(String, java.util.List[T])]] = {
-    if (topics.isEmpty) {
-      Seq()
-    } else {
-      val splitAt = topics.size / 2 + (topics.size % 2)
-      val first: ArrayBuffer[(String, java.util.List[T])] = ArrayBuffer()
-      val second: ArrayBuffer[(String, java.util.List[T])] = ArrayBuffer()
-      var total: Int = 0
+  private def grouped[T](seq: Seq[(String, T)]):java.util.List[(String, java.util.List[T])] = {
+    val start = (Vector.empty[(String, java.util.List[T])], "", Vector.empty[T])
 
-      for (entry <- topics.asMap.entrySet) {
-        val currentSize = entry.getValue.size
-        if (total + (currentSize / 2) <= splitAt) {
-          first.append(entry.getKey -> entry.getValue.toSeq)
-        } else {
-          second.append(entry.getKey -> entry.getValue.toSeq)
-        }
-        total += currentSize
+    val folded = seq.foldLeft(start) { (current, tuple) ⇒
+      val (acc, currentKey, currentSeq) = current
+      val (newKey, value) = tuple
+
+      if (newKey == currentKey) {
+        (acc, currentKey, currentSeq :+ value)
+      } else if (currentSeq.nonEmpty) {
+        (acc :+ (currentKey -> currentSeq.asJava), newKey, Vector(value))
+      } else {
+        (acc, newKey, Vector(value))
       }
+    }
 
-      Seq(first.asJava, second.asJava)
+    (folded._1 :+ (folded._2 -> folded._3.asJava)).asJava
+  }
+
+  private def spacers[T](seq: Seq[(String, T)], count: Int):Seq[Option[(String, T)]] = {
+    seq.foldLeft((Vector.empty[Option[(String, T)]], "")) { (current, tuple) ⇒
+      val (acc, currentKey) = current
+      val (newKey, _) = tuple
+
+      if (currentKey!=newKey && currentKey.nonEmpty) {
+        (acc ++ Vector.fill(count)(None) :+ Some(tuple), newKey)
+      } else {
+        (acc :+ Some(tuple), newKey)
+      }
+    }._1
+  }
+
+  def split[T](topics: Seq[(String, T)]): java.util.List[java.util.List[(String, java.util.List[T])]] = {
+    if (topics.isEmpty) {
+      Seq().asJava
+    } else {
+      val withSpacers = spacers(topics, 1)
+      val (first, second) = withSpacers.splitAt(withSpacers.size / 2 + withSpacers.size % 2)
+
+      Seq(grouped(first.flatten), grouped(second.flatten)).asJava
     }
   }
 }

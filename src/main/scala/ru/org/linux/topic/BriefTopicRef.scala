@@ -25,10 +25,7 @@ case class BriefTopicRef(
 )
 
 object BriefTopicRef {
-  def apply(url:String, title:String, commentCount:Int, group:String):BriefTopicRef = 
-    BriefTopicRef(url, title, commentCount, Some(group))
+  def fromTopicNoGroup(input:Topic) = BriefTopicRef(input.getLink, input.getTitle, input.getCommentCount, None)
+  def fromTopic(input:Topic, group:String) = BriefTopicRef(input.getLink, input.getTitle, input.getCommentCount, Some(group))
 
-  def apply(url:String, title:String, commentCount:Int):BriefTopicRef =
-    BriefTopicRef(url, title, commentCount, None)
-  
 }

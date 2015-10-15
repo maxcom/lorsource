@@ -18,7 +18,6 @@ import javax.annotation.Nonnull
 import javax.servlet.http.HttpServletRequest
 
 import akka.actor.ActorSystem
-import com.google.common.collect.Multimaps
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.text.WordUtils
 import org.elasticsearch.ElasticsearchException
@@ -128,12 +127,7 @@ class TagPageController @Autowired()
     Map(
       "fullNews" -> fullNews,
       "addNews" -> AddTopicController.getAddUrl(newsSection, tag),
-      "briefNews" -> TopicListTools.split(Multimaps.transformValues(briefNewsByDate,
-            new com.google.common.base.Function[Topic, BriefTopicRef]() {
-              override def apply(input: Topic): BriefTopicRef = {
-                BriefTopicRef.apply(input.getLink, input.getTitle, input.getCommentCount)
-              }
-            }))
+      "briefNews" -> TopicListTools.split(briefNewsByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopicNoGroup(p._2)))
     ) ++ more
   }
 
@@ -178,13 +172,8 @@ class TagPageController @Autowired()
 
     Map(
       "addForum" -> AddTopicController.getAddUrl(forumSection, tag),
-      "forum" -> TopicListTools.split(Multimaps.transformValues(topicByDate,
-            new com.google.common.base.Function[Topic, BriefTopicRef]() {
-              override def apply(input: Topic): BriefTopicRef = {
-                BriefTopicRef.apply(input.getLink, input.getTitle, input.getCommentCount, groupDao.getGroup(input.getGroupId).getTitle)
-              }
-            })
-      )
+      "forum" -> TopicListTools.split(
+        topicByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.getGroupId).getTitle)))
     ) ++ more
   }
 }
