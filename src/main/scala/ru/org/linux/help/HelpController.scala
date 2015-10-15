@@ -23,15 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
-import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.markdown.MarkdownRenderService
+import ru.org.linux.util.RichFuture._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 @Controller
 class HelpController @Autowired() (renderService: MarkdownRenderService) extends StrictLogging {
@@ -63,20 +61,6 @@ class HelpPageNotFoundException extends RuntimeException
 
 object HelpController {
   private val RenderTimeout = 30.seconds
-
-  implicit class RichFuture[T](val future:Future[T]) extends AnyVal {
-    def toDeferredResult(implicit executor : ExecutionContext):DeferredResult[T] = {
-      val result = new DeferredResult[T]()
-
-      future.onComplete {
-        case Success(r) => result.setResult(r)
-        case Failure(t) =>
-          result.setErrorResult(t)
-      }
-
-      result
-    }
-  }
 
   val HelpPages = Map(
     "lorcode.md" -> "Разметка сообщений (LORCODE)",

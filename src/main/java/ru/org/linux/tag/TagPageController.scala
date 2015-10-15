@@ -14,17 +14,18 @@
  */
 package ru.org.linux.tag
 
-import java.util.Map
 import javax.annotation.Nonnull
 import javax.servlet.http.HttpServletRequest
 
-import com.google.common.collect.{ImmutableMap, Multimaps}
+import akka.actor.ActorSystem
+import com.google.common.collect.Multimaps
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.text.WordUtils
 import org.elasticsearch.ElasticsearchException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
+import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
@@ -32,8 +33,10 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.topic._
 import ru.org.linux.user.UserTagService
+import ru.org.linux.util.RichFuture._
 
 import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
 
@@ -41,16 +44,23 @@ object TagPageController {
   val TotalNewsCount = 21
   val ForumTopicCount = 20
   val GalleryCount = 3
+
+  val Timeout = 500 millis
 }
 
 @Controller
 @RequestMapping(value = Array("/tag/{tag}"), params = Array("!section"))
 class TagPageController @Autowired()
 (tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
- sectionService: SectionService, groupDao: GroupDao, userTagService: UserTagService, imageService: ImageService) extends StrictLogging {
+ sectionService: SectionService, groupDao: GroupDao, userTagService: UserTagService, imageService: ImageService,
+ actorSystem: ActorSystem) extends StrictLogging {
+
+  private implicit val akka = actorSystem
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(request: HttpServletRequest, @PathVariable tag: String): ModelAndView = {
+  def tagPage(request: HttpServletRequest, @PathVariable tag: String): DeferredResult[ModelAndView] = {
+    val deadline = TagPageController.Timeout.fromNow
+
     val tmpl = Template.getTemplate(request)
 
     if (!TagName.isGoodTag(tag)) {
@@ -59,45 +69,48 @@ class TagPageController @Autowired()
 
     val futureCount = tagService.countTagTopics(tag)
 
-    val mv = new ModelAndView("tag-page")
-    mv.addObject("tag", tag)
-    mv.addObject("title", WordUtils.capitalize(tag))
-
     val tagInfo = tagService.getTagInfo(tag, skipZero = true)
 
-    if (tmpl.isSessionAuthorized) {
-      mv.addObject("showFavoriteTagButton", !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag))
-      mv.addObject("showUnFavoriteTagButton", userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag))
+    val favs = if (tmpl.isSessionAuthorized) {
+      Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
+        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag))
+    } else {
+      Seq.empty
     }
 
     val tagId = tagInfo.id
 
-    mv.addObject("favsCount", userTagService.countFavs(tagId))
+    val related = {
+      val relatedTags = tagService.getRelatedTags(tagId)
 
-    val relatedTags = tagService.getRelatedTags(tagId)
-    if (relatedTags.size > 1) {
-      mv.addObject("relatedTags", relatedTags.asJava)
+      if (relatedTags.size > 1) {
+        Some("relatedTags" -> relatedTags.asJava)
+      } else {
+        None
+      }
     }
 
-    mv.addAllObjects(getNewsSection(request, tag))
-    mv.addAllObjects(getGallerySection(tag, tagId, tmpl))
-    mv.addAllObjects(getForumSection(tag, tagId))
+    val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagId, tmpl) ++ getForumSection(tag, tagId)
 
-    try {
-      mv.addObject("counter", Await.result(futureCount, 300 millis))
-    } catch {
+    val model = Map(
+      "tag" -> tag,
+      "title" -> WordUtils.capitalize(tag),
+      "favsCount" -> userTagService.countFavs(tagId)
+    ) ++ sections ++ related ++ favs
+
+    futureCount.withTimeout(deadline.timeLeft).recover {
       case ex: ElasticsearchException ⇒
         logger.warn("Unable to count tag topics", ex)
-        mv.addObject("counter", tagInfo.topicCount)
+        tagInfo.topicCount
       case ex: TimeoutException ⇒
         logger.warn(s"Tag topics count timed out (${ex.getMessage})")
-        mv.addObject("counter", tagInfo.topicCount)
-    }
-
-    mv
+        tagInfo.topicCount
+    } map { counter ⇒
+      new ModelAndView("tag-page", (model + ("counter" -> counter)).asJava)
+    } toDeferredResult
   }
 
-  private def getNewsSection(request: HttpServletRequest, tag: String): Map[String, AnyRef] = {
+  private def getNewsSection(request: HttpServletRequest, tag: String) = {
     val tmpl = Template.getTemplate(request)
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount)
@@ -106,44 +119,46 @@ class TagPageController @Autowired()
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
-    val out = ImmutableMap.builder[String, AnyRef]
-    out.put("addNews", AddTopicController.getAddUrl(newsSection, tag))
-
-    if (newsTopics.size == TagPageController.TotalNewsCount) {
-      out.put("moreNews", TagTopicListController.tagListUrl(tag, newsSection))
+    val more = if (newsTopics.size == TagPageController.TotalNewsCount) {
+      Some("moreNews" -> TagTopicListController.tagListUrl(tag, newsSection))
+    } else {
+      None
     }
 
-    out.put("fullNews", fullNews)
-
-    out.put("briefNews", TopicListTools.split(Multimaps.transformValues(briefNewsByDate,
-      new com.google.common.base.Function[Topic, BriefTopicRef]() {
-        override def apply(input: Topic): BriefTopicRef = {
-          BriefTopicRef.apply(input.getLink, input.getTitle, input.getCommentCount)
-        }
-      })))
-
-    out.build
+    Map(
+      "fullNews" -> fullNews,
+      "addNews" -> AddTopicController.getAddUrl(newsSection, tag),
+      "briefNews" -> TopicListTools.split(Multimaps.transformValues(briefNewsByDate,
+            new com.google.common.base.Function[Topic, BriefTopicRef]() {
+              override def apply(input: Topic): BriefTopicRef = {
+                BriefTopicRef.apply(input.getLink, input.getTitle, input.getCommentCount)
+              }
+            }))
+    ) ++ more
   }
 
-  private def getGallerySection(tag: String, tagId: Int, tmpl: Template): Map[String, AnyRef] = {
+  private def getGallerySection(tag: String, tagId: Int, tmpl: Template) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId))
-    val out = ImmutableMap.builder[String, AnyRef]
     val section = sectionService.getSection(Section.SECTION_GALLERY)
 
-    if (tmpl.isSessionAuthorized) {
-      out.put("addGallery", AddTopicController.getAddUrl(section, tag))
+    val add = if (tmpl.isSessionAuthorized) {
+      Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
+    } else {
+      None
     }
 
-    if (list.size == TagPageController.GalleryCount) {
-      out.put("moreGallery", TagTopicListController.tagListUrl(tag, section))
+    val more = if (list.size == TagPageController.GalleryCount) {
+      Some("moreGallery" -> TagTopicListController.tagListUrl(tag, section))
+    } else {
+      None
     }
 
-    out.put("gallery", list)
-
-    out.build
+    Map(
+      "gallery" -> list
+    ) ++ add ++ more
   }
 
-  private def getForumSection(@Nonnull tag: String, tagId: Int): ImmutableMap[String, AnyRef] = {
+  private def getForumSection(@Nonnull tag: String, tagId: Int) = {
     val forumSection = sectionService.getSection(Section.SECTION_FORUM)
 
     val topicListDto = new TopicListDto
@@ -155,22 +170,21 @@ class TagPageController @Autowired()
     val forumTopics = topicListService.getTopics(topicListDto)
     val topicByDate = TopicListTools.datePartition(forumTopics.asScala)
 
-    val out = ImmutableMap.builder[String, AnyRef]
-
-    if (forumTopics.size == TagPageController.ForumTopicCount) {
-      out.put("moreForum", TagTopicListController.tagListUrl(tag, forumSection))
+    val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
+      Some("moreForum" -> TagTopicListController.tagListUrl(tag, forumSection))
+    } else {
+      None
     }
 
-    out.put("addForum", AddTopicController.getAddUrl(forumSection, tag))
-
-    out.put("forum", TopicListTools.split(Multimaps.transformValues(topicByDate,
-      new com.google.common.base.Function[Topic, BriefTopicRef]() {
-        override def apply(input: Topic): BriefTopicRef = {
-          BriefTopicRef.apply(input.getLink, input.getTitle, input.getCommentCount, groupDao.getGroup(input.getGroupId).getTitle)
-        }
-      }
-      )))
-
-    out.build
+    Map(
+      "addForum" -> AddTopicController.getAddUrl(forumSection, tag),
+      "forum" -> TopicListTools.split(Multimaps.transformValues(topicByDate,
+            new com.google.common.base.Function[Topic, BriefTopicRef]() {
+              override def apply(input: Topic): BriefTopicRef = {
+                BriefTopicRef.apply(input.getLink, input.getTitle, input.getCommentCount, groupDao.getGroup(input.getGroupId).getTitle)
+              }
+            })
+      )
+    ) ++ more
   }
 }
