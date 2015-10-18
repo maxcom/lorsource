@@ -208,7 +208,7 @@ public class TopicPrepareService {
 
       if (text.isLorcode()) {
         if (minimizeCut) {
-          String url = siteConfig.getMainUrl() + message.getLink();
+          String url = siteConfig.getMainUrlNoSlash() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
                   text.getText(),
                   url,
