@@ -208,7 +208,7 @@ public class TopicPrepareService {
 
       if (text.isLorcode()) {
         if (minimizeCut) {
-          String url = siteConfig.getMainUrlNoSlash() + message.getLink();
+          String url = siteConfig.getMainUrlWithoutSlash() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
                   text.getText(),
                   url,
@@ -216,7 +216,7 @@ public class TopicPrepareService {
                   ! topicPermissionService.followInTopic(message, author)
           );
         } else {
-          processedMessage = lorCodeService.parseTopic(text.getText(), secure, ! topicPermissionService.followInTopic(message, author));
+          processedMessage = lorCodeService.parseTopic(text.getText(), secure, !topicPermissionService.followInTopic(message, author));
         }
       } else {
         processedMessage = "<p>" + text.getText();
