@@ -16,9 +16,11 @@
 package ru.org.linux.tag
 
 import java.util
+import java.util.regex.Pattern
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, SearchType}
+import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
@@ -63,7 +65,22 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
   def getNewTags(tags:util.List[String]):util.List[String] =
     tags.asScala.filterNot(tag ⇒ tagDao.getTagId(tag, skipZero = true).isDefined).asJava
 
-  def getRelatedTags(tagId: Int): Seq[TagRef] = namesToRefs(tagDao.relatedTags(tagId)).sorted
+  def getRelatedTags(tag: String): Future[Seq[TagRef]] = {
+    Future.successful(elastic) flatMap {
+      _ execute {
+        search in MessageIndexTypes searchType SearchType.Count query
+          filteredQuery.query(matchAllQuery).filter(must(termFilter("is_comment", "false"), termFilter("tag", tag))) aggs(
+            agg sigTerms "related" field "tag" exclude Pattern.quote(tag)
+          )
+      }
+    } map { r ⇒
+      (for {
+        bucket <- r.getAggregations.get[SignificantTerms]("related").asScala
+      } yield {
+        tagRef(bucket.getKey)
+      }).toSeq.sorted
+    }
+  }
 
   /**
    * Получить список популярных тегов по префиксу.
@@ -98,14 +115,14 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
 }
 
 object TagService {
-  def tagRef(tag: TagInfo) = new TagRef(tag.name,
+  def tagRef(tag: TagInfo) = TagRef(tag.name,
     if (TagName.isGoodTag(tag.name)) {
       Some(TagTopicListController.tagListUrl(tag.name))
     } else {
       None
     })
 
-  def tagRef(name: String) = new TagRef(name,
+  def tagRef(name: String) = TagRef(name,
     if (TagName.isGoodTag(name)) {
       Some(TagTopicListController.tagListUrl(name))
     } else {
@@ -113,7 +130,6 @@ object TagService {
     })
 
   def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.asScala.map(tagRef).asJava
-  def namesToRefs(tags:Seq[String]):Seq[TagRef] = tags.map(tagRef)
 
   def tagsToString(tags: util.Collection[String]): String = tags.asScala.mkString(",")
 }

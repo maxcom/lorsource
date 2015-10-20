@@ -24,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import scala.Option;
 import scala.collection.Seq;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TagIntegrationTestConfiguration.class)
@@ -86,12 +87,5 @@ public class TagDaoIntegrationTest {
 
     assertEquals(0, tagDao.getTagsByPrefix("zest_", 0).size());
     assertEquals(0, tagDao.getTagsByPrefix("zest%", 0).size());
-  }
-
-  @Test
-  public void testRelatedTags() {
-    scala.collection.Seq<String> tags = tagDao.relatedTags(30);
-
-    assertNotNull(tags);
   }
 }

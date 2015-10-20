@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.text.WordUtils
-import org.elasticsearch.ElasticsearchException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
@@ -66,9 +65,17 @@ class TagPageController @Autowired()
       throw new TagNotFoundException
     }
 
-    val futureCount = tagService.countTagTopics(tag)
+    val countF = tagService.countTagTopics(tag)
 
-    val tagInfo = tagService.getTagInfo(tag, skipZero = true)
+    val relatedF = {
+      tagService.getRelatedTags(tag) map { relatedTags ⇒
+        if (relatedTags.size > 1) {
+          Some("relatedTags" -> relatedTags.asJava)
+        } else {
+          None
+        }
+      }
+    }
 
     val favs = if (tmpl.isSessionAuthorized) {
       Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
@@ -77,36 +84,40 @@ class TagPageController @Autowired()
       Seq.empty
     }
 
-    val tagId = tagInfo.id
+    val tagInfo = tagService.getTagInfo(tag, skipZero = true)
 
-    val related = {
-      val relatedTags = tagService.getRelatedTags(tagId)
-
-      if (relatedTags.size > 1) {
-        Some("relatedTags" -> relatedTags.asJava)
-      } else {
-        None
-      }
-    }
-
-    val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagId, tmpl) ++ getForumSection(tag, tagId)
+    val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++ getForumSection(tag, tagInfo.id)
 
     val model = Map(
       "tag" -> tag,
       "title" -> WordUtils.capitalize(tag),
-      "favsCount" -> userTagService.countFavs(tagId)
-    ) ++ sections ++ related ++ favs
+      "favsCount" -> userTagService.countFavs(tagInfo.id)
+    ) ++ sections ++ favs
 
-    futureCount.withTimeout(deadline.timeLeft).recover {
-      case ex: ElasticsearchException ⇒
-        logger.warn("Unable to count tag topics", ex)
-        tagInfo.topicCount
+    val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
+      case ex: TimeoutException ⇒
+        logger.warn(s"Tag related search timed out (${ex.getMessage})")
+        None
+      case ex ⇒
+        logger.warn("Unable to find related tags", ex)
+        None
+    }
+
+    val safeCountF = countF withTimeout deadline.timeLeft recover {
       case ex: TimeoutException ⇒
         logger.warn(s"Tag topics count timed out (${ex.getMessage})")
-        tagInfo.topicCount
-    } map { counter ⇒
-      new ModelAndView("tag-page", (model + ("counter" -> counter)).asJava)
-    } toDeferredResult
+        tagInfo.topicCount.toLong
+      case ex ⇒
+        logger.warn("Unable to count tag topics", ex)
+        tagInfo.topicCount.toLong
+    }
+
+    (for {
+      counter <- safeCountF
+      related <- safeRelatedF
+    } yield {
+      new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
+    }) toDeferredResult
   }
 
   private def getNewsSection(request: HttpServletRequest, tag: String) = {
