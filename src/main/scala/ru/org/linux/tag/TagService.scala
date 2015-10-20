@@ -16,7 +16,6 @@
 package ru.org.linux.tag
 
 import java.util
-import java.util.regex.Pattern
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, SearchType}
@@ -67,7 +66,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
-      val sigterms = agg sigTerms "related" field "tag" exclude Pattern.quote(tag)
+      val sigterms = agg sigTerms "related" field "tag"
 
       sigterms.builder.exclude(Array(tag))
 
