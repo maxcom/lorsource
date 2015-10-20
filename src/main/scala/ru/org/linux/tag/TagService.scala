@@ -66,7 +66,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
-      val sigterms = agg sigTerms "related" field "tag"
+      val sigterms = agg sigTerms "related" field "tag" backgroundFilter termFilter("is_comment", "false")
 
       sigterms.builder.exclude(Array(tag))
 
