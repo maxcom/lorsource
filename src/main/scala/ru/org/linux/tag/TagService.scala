@@ -50,10 +50,14 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
   }
 
   def countTagTopics(tag: String): Future[Long] = {
-    elastic execute {
-      search in MessageIndexTypes searchType SearchType.Count query
-        filteredQuery.query(matchAllQuery).filter(must(termFilter("is_comment", "false"), termFilter("tag", tag)))
-    } map { _.getHits.getTotalHits }
+    Future.successful(elastic) flatMap {
+      _ execute {
+        search in MessageIndexTypes searchType SearchType.Count query
+          filteredQuery.query(matchAllQuery).filter(must(termFilter("is_comment", "false"), termFilter("tag", tag)))
+      }
+    } map {
+      _.getHits.getTotalHits
+    }
   }
 
   def getNewTags(tags:util.List[String]):util.List[String] =
