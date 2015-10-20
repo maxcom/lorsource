@@ -67,11 +67,15 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
+      val sigterms = agg sigTerms "related" field "tag" exclude Pattern.quote(tag)
+
+      sigterms.builder.exclude(Array(tag))
+
       _ execute {
         search in MessageIndexTypes searchType SearchType.Count query
-          filteredQuery.query(matchAllQuery).filter(must(termFilter("is_comment", "false"), termFilter("tag", tag))) aggs(
-            agg sigTerms "related" field "tag" exclude Pattern.quote(tag)
-          )
+          filteredQuery
+            .query(matchAllQuery)
+            .filter(must(termFilter("is_comment", "false"), termFilter("tag", tag))) aggs sigterms
       }
     } map { r ⇒
       (for {
