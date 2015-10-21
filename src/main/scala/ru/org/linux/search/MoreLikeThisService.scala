@@ -71,13 +71,13 @@ class MoreLikeThisService @Autowired() (
   breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
   breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
 
-  def searchSimilar(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[Result] = {
+  def searchSimilar(topic:Topic, tags:java.util.List[TagRef]):Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.getId))
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
         try {
-          val searchResult = elastic execute makeQuery(topic, plainText, tags)
+          val searchResult = elastic execute makeQuery(topic, tags)
 
           val result: Future[Result] = searchResult.map(result => if (result.getHits.nonEmpty) {
             val half = result.getHits.size / 2 + result.getHits.size % 2
@@ -97,12 +97,12 @@ class MoreLikeThisService @Autowired() (
     }
   }
 
-  private def makeQuery(topic: Topic, plainText: String, tags: Seq[TagRef]) = {
+  private def makeQuery(topic: Topic, tags: Seq[TagRef]) = {
     val tagsQ = if (tags.nonEmpty) {
       Seq(tagsQuery(tags.map(_.name)))
     } else Seq.empty
 
-    val queries = Seq(titleQuery(topic), textQuery(plainText)) ++ tagsQ
+    val queries = Seq(titleQuery(topic), textQuery(topic.getId)) ++ tagsQ
 
     val rootFilter = bool {
       must(
@@ -157,9 +157,13 @@ class MoreLikeThisService @Autowired() (
     morelikeThisQuery("title") likeText
       topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords(StopWords: _*) maxDocFreq 5000
 
-  private def textQuery(plainText:String) =
-    morelikeThisQuery("message") likeText
-      plainText minTermFreq 1 stopWords (StopWords: _*) minWordLength 3 maxDocFreq 100000
+  private def textQuery(id:Int) = {
+    val q = morelikeThisQuery("message") minTermFreq 1 stopWords (StopWords: _*) minWordLength 3 maxDocFreq 100000
+
+    q.builder.ids(id.toString)
+
+    q
+  }
 
   private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags:_*)
 }

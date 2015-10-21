@@ -198,16 +198,14 @@ public class TopicController {
     Deadline deadline = MoreLikeThisTimeout.fromNow();
 
     Topic topic = messageDao.getById(msgid);
-    Template tmpl = Template.getTemplate(request);
-
-    Map<String, Object> params = new HashMap<>();
-
     List<TagRef> tags = topicTagService.getTagRefs(topic);
+
+    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags);
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);
 
-    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags, plainText);
+    Template tmpl = Template.getTemplate(request);
 
     PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
@@ -216,6 +214,8 @@ public class TopicController {
             tmpl.getCurrentUser(),
             messageText
     );
+
+    Map<String, Object> params = new HashMap<>();
 
     if (tmpl.isSessionAuthorized()) {
       Option<EditInfoSummary> editInfoSummary = editHistoryService.editInfoSummary(topic.getId(), TOPIC);
