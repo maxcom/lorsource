@@ -15,6 +15,8 @@
 
 package ru.org.linux.topic
 
+import ru.org.linux.util.StringUtil
+
 import scala.beans.BeanProperty
 
 case class BriefTopicRef(
@@ -25,7 +27,10 @@ case class BriefTopicRef(
 )
 
 object BriefTopicRef {
-  def fromTopicNoGroup(input:Topic) = BriefTopicRef(input.getLink, input.getTitle, input.getCommentCount, None)
-  def fromTopic(input:Topic, group:String) = BriefTopicRef(input.getLink, input.getTitle, input.getCommentCount, Some(group))
+  def fromTopicNoGroup(input:Topic) =
+    BriefTopicRef(input.getLink, StringUtil.processTitle(input.getTitle), input.getCommentCount, None)
+
+  def fromTopic(input:Topic, group:String) =
+    BriefTopicRef(input.getLink, StringUtil.processTitle(input.getTitle), input.getCommentCount, Some(group))
 
 }
