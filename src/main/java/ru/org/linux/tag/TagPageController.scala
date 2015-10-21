@@ -69,7 +69,7 @@ class TagPageController @Autowired()
 
     val relatedF = {
       tagService.getRelatedTags(tag) map { relatedTags ⇒
-        if (relatedTags.size > 1) {
+        if (relatedTags.nonEmpty) {
           Some("relatedTags" -> relatedTags.asJava)
         } else {
           None
