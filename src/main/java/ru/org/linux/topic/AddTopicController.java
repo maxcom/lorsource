@@ -271,7 +271,9 @@ public class AddTopicController {
     Screenshot scrn = null;
 
     if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
-      scrn = processUpload(tmpl.getCurrentUser(), session, image, errors);
+      if (groupPermissionService.isTopicPostingAllowed(group, user)) {
+        scrn = processUpload(tmpl.getCurrentUser(), session, image, errors);
+      }
 
       if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
         errors.reject(null, "Изображение отсутствует");
