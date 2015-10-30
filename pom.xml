@@ -25,7 +25,7 @@
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
     <slf4j.version>1.7.5</slf4j.version>
-    <jquery.validation.version>1.13.1</jquery.validation.version>
+    <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.0.v20150612</jetty.version>
   </properties>
