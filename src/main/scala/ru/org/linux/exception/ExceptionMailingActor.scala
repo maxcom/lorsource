@@ -24,13 +24,14 @@ class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogg
   override def receive: Receive = {
     case Report(ex, msg) ⇒
       count += 1
-      currentTypes = currentTypes + ex.toString
 
       if (count < MaxMessages || !currentTypes.contains(ex.toString)) {
         sendErrorMail(s"Linux.org.ru: $ex", msg)
       } else {
         log.warning(s"Too many errors; skipped logging of $ex")
       }
+
+      currentTypes = currentTypes + ex.toString
     case Reset ⇒
       if (count >= MaxMessages) {
         sendErrorMail(s"Linux.org.ru: high exception rate ($count in $ResetAt)", currentTypes.mkString("\n"))
