@@ -52,7 +52,7 @@
   </p>
     <ul>
       <li>Fedora 21</li>
-      <li>СУБД PostgreSQL 9.3</li>
+      <li>СУБД PostgreSQL 9.4</li>
       <li>OpenJDK 1.8.0</li>
       <li>Scala 2.11</li>
       <li>Apache Tomcat 7</li>
