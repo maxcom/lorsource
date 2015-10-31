@@ -17,23 +17,26 @@ package ru.org.linux.email
 
 import java.io.{PrintWriter, StringWriter}
 import java.util.{Date, Properties}
-import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}
+import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, Session, Transport}
 import javax.servlet.http.HttpServletRequest
 
+import akka.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthUtil
+import ru.org.linux.exception.ExceptionMailingActor
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
 
 import scala.collection.JavaConversions._
-import scala.util.control.NonFatal
 
 @Service
-class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
+class EmailService @Autowired () (siteConfig:SiteConfig,
+                                  @Qualifier("exceptionMailingActor") exceptionMailingActor:ActorRef
+                                   ) extends StrictLogging {
   def sendEmail(nick: String, email: String, isNew: Boolean):Unit = {
     val regcode = User.getActivationCode(siteConfig.getSecret, nick, email)
 
@@ -90,7 +93,7 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
   }
 
   private def sendRegistrationMail(email: String, text: String):Unit = {
-    val emailMessage = prepareMimeMessage
+    val emailMessage = EmailService.createMessage
     emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"))
     emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(email))
     emailMessage.setSubject("Linux.org.ru registration")
@@ -99,12 +102,6 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
     Transport.send(emailMessage)
 
     logger.info(s"Sent new/update registration email to $email")
-  }
-
-  private def prepareMimeMessage = {
-    val props = new Properties
-    props.put("mail.smtp.host", "localhost")
-    new MimeMessage(Session.getDefaultInstance(props, null))
   }
 
   /**
@@ -156,38 +153,16 @@ class EmailService @Autowired () (siteConfig:SiteConfig) extends StrictLogging {
     exception.printStackTrace(new PrintWriter(exceptionStackTrace))
     text.append(exceptionStackTrace.toString)
 
-    if (sendErrorMail(s"Linux.org.ru: ${exception.getClass}", text.toString())) {
-      "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал."
-    } else {
-      "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках."
-    }
+    exceptionMailingActor ! ExceptionMailingActor.Report(exception.getClass, text.toString())
+
+    "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал."
   }
+}
 
-  private def sendErrorMail(subject: String, text: String): Boolean = {
-    val adminEmailAddress = siteConfig.getAdminEmailAddress
-
-    val emailMessage = prepareMimeMessage
-
-    try {
-      val mail = new InternetAddress(adminEmailAddress, true)
-
-      emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"))
-      emailMessage.addRecipient(Message.RecipientType.TO, mail)
-      emailMessage.setSubject(subject)
-      emailMessage.setSentDate(new Date)
-      emailMessage.setText(text.toString, "UTF-8")
-      Transport.send(emailMessage)
-
-      logger.info(s"Sent crash report to $adminEmailAddress")
-
-      true
-    } catch {
-      case e: AddressException =>
-        logger.warn(s"Неправильный e-mail адрес: $adminEmailAddress")
-        false
-      case NonFatal(e) =>
-        logger.error("An error occured while sending e-mail!", e)
-        false
-    }
+object EmailService {
+  def createMessage = {
+    val props = new Properties
+    props.put("mail.smtp.host", "localhost")
+    new MimeMessage(Session.getDefaultInstance(props, null))
   }
 }

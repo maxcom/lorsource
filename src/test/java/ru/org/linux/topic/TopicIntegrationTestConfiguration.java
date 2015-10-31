@@ -23,6 +23,8 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
+import ru.org.linux.email.EmailService;
+import ru.org.linux.exception.ExceptionResolver;
 import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
@@ -48,11 +50,14 @@ import static org.mockito.Mockito.mock;
                                 SearchQueueListener.class,
                                 SearchQueueSender.class,
                                 TopicListService.class,
-                                MoreLikeThisService.class
+                                MoreLikeThisService.class,
+                                EmailService.class,
+                                ExceptionResolver.class
                         }
                 )
         }
 )
+
 public class TopicIntegrationTestConfiguration {
   @Bean
   public TopicController topicController() {
