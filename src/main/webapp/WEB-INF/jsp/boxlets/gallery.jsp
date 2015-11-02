@@ -27,7 +27,7 @@
         <c:url var="url" value="${item.item.link}"/>
         <a href="${url}">
           <img    sizes="(min-width: 60em) 24vw, 100vw"
-                  srcset="${item.item.image.medium2x} 1000w, ${item.item.image.medium} 500w, ${item.item.image.icon} 200w"
+                  srcset="${item.item.image.srcset}"
                   src="${item.item.image.icon}"
                   alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a>
