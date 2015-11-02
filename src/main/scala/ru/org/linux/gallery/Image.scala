@@ -44,6 +44,8 @@ case class Image(
 ) {
   def getMedium = Image.mediumName(original, doubleSize = false)
   def getMedium2x = Image.mediumName(original, doubleSize = true)
+
+  def srcset = s"$getMedium2x ${Screenshot.MEDIUM_2X_WIDTH}w, $getMedium ${Screenshot.MEDIUM_WIDTH}w, $icon ${Screenshot.ICON_WIDTH}w"
 }
 
 case class PreparedGalleryItem(

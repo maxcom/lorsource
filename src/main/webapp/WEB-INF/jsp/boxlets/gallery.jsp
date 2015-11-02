@@ -20,13 +20,16 @@
 
   <h2><a href="/gallery/">Галерея</a></h2>
 
-  <div class="boxlet_content">
+  <div class="boxlet_content boxlet-gallery">
     <c:forEach var="item" items="${items}">
       <div style="margin-bottom: 1em">
       <div align="center">
         <c:url var="url" value="${item.item.link}"/>
         <a href="${url}">
-          <img src="${item.item.image.icon}" alt="Скриншот: <l:title>${item.item.title}</l:title>" ${item.iconInfo.code}>
+          <img    sizes="(min-width: 60em) 24vw, 100vw"
+                  srcset="${item.item.image.medium2x} 1000w, ${item.item.image.medium} 500w, ${item.item.image.icon} 200w"
+                  src="${item.item.image.icon}"
+                  alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a>
       </div>
       <i>

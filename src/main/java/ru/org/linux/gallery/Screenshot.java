@@ -34,9 +34,9 @@ public class Screenshot {
   private final File iconFile;
   private final String extension;
 
-  private static final int ICON_WIDTH = 200;
-  private static final int MEDIUM_WIDTH = 500;
-  private static final int MEDIUM_2X_WIDTH = MEDIUM_WIDTH * 2;
+  public static final int ICON_WIDTH = 200;
+  public static final int MEDIUM_WIDTH = 500;
+  public static final int MEDIUM_2X_WIDTH = MEDIUM_WIDTH * 2;
 
   Screenshot(String name, File path, String extension) {
     mainFile = new File(path, name + '.' + extension);
