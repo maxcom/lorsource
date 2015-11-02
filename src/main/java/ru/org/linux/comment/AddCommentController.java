@@ -40,6 +40,7 @@ import ru.org.linux.util.StringUtil;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -219,12 +220,19 @@ public class AddCommentController {
     }
 
     if (add.isPreviewMode() || errors.hasErrors() || comment == null) {
-      return ImmutableMap.of(
-              "errors",
-              errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList()),
-              "preview",
-              commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure())
-      );
+      List<String> errorsList = errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+
+      if (comment!=null) {
+        return ImmutableMap.of(
+                "errors",
+                errorsList,
+                "preview",
+                commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
+      } else {
+        return ImmutableMap.of(
+                "errors",
+                errorsList);
+      }
     } else {
       int msgid = commentService.create(
               user,
