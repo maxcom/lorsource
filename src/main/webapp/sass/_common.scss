@@ -606,8 +606,9 @@ a img { border: none; }
   }
 
   article img {
-    max-width: 100%;
+    width: 100%;
     height: auto;
+    max-width: 1000px;
   }
 
   article h3 {

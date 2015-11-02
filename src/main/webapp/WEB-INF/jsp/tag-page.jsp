@@ -124,7 +124,11 @@
         <c:url var="url" value="${item.item.link}"/>
         <h3><a href="${url}"><l:title>${item.item.title}</l:title></a></h3>
         <a href="${url}">
-          <img src="${item.item.image.medium}" alt="Скриншот: <l:title>${item.item.title}</l:title>">
+          <img
+                  src="${item.item.image.medium}"
+                  srcset="${item.item.image.srcset}"
+                  sizes="(min-width: 40em) 32vw, 100vw"
+                  alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a><br>
         <lor:dateinterval date="${item.item.commitDate}"/>
       </article>
