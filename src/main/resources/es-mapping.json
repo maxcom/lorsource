@@ -61,6 +61,7 @@
         }
     },
     "settings": {
+        "index.cache.query.enable": true,
         "analysis": {
             "analyzer": {
                 "text_analyzer": {
