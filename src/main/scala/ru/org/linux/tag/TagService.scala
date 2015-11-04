@@ -23,6 +23,7 @@ import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
+import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
 import scala.collection.JavaConverters._
@@ -79,6 +80,27 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
     } map { r ⇒
       (for {
         bucket <- r.getAggregations.get[SignificantTerms]("related").asScala
+      } yield {
+        tagRef(bucket.getKey)
+      }).toSeq.sorted
+    }
+  }
+
+  def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
+    Future.successful(elastic) flatMap {
+      _ execute {
+        search in MessageIndexTypes searchType SearchType.Count query
+          filteredQuery
+            .query(matchAllQuery)
+            .filter(must(
+              termFilter("is_comment", "false"),
+              termFilter("section", section.getUrlName),
+              rangeFilter("postdate").gte("now/d-1y"))
+            ) aggs (agg terms "active" field "tag" minDocCount 10)
+      }
+    } map { r ⇒
+      (for {
+        bucket <- r.getAggregations.get[SignificantTerms]("active").asScala
       } yield {
         tagRef(bucket.getKey)
       }).toSeq.sorted

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
@@ -18,6 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
+<%--@elvariable id="activeTags" type="java.util.List<java.lang.String>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
@@ -81,6 +83,12 @@
     </c:choose>
   </c:if>
 </nav>
+
+<c:if test="${not empty activeTags}">
+  <div class="infoblock" style="font-size: medium">
+    Активные теги: <l:tags list="${activeTags}"/>
+  </div>
+</c:if>
 
 <c:forEach var="msg" items="${messages}">
   <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${group==null}" moderateMode="false"/>

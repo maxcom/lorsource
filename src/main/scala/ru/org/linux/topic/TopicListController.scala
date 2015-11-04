@@ -17,18 +17,27 @@ package ru.org.linux.topic
 import java.net.URLEncoder
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import akka.actor.ActorSystem
+import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
+import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
+import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.user.UserErrorException
+import ru.org.linux.util.RichFuture._
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
+
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 
 object TopicListController {
   def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer):Unit = {
@@ -77,7 +86,11 @@ class TopicListController @Autowired()
 (sectionService: SectionService,
  topicListService: TopicListService,
  prepareService: TopicPrepareService,
- groupDao: GroupDao) {
+ tagService: TagService,
+ groupDao: GroupDao,
+ actorSystem: ActorSystem) extends StrictLogging {
+
+  private implicit val akka = actorSystem
 
   private def mainTopicsFeedHandler(section: Section, request: HttpServletRequest,
                                     topicListForm: TopicListRequest, response: HttpServletResponse,
@@ -116,8 +129,20 @@ class TopicListController @Autowired()
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:gallery)}/"))
   def topics(request: HttpServletRequest, @PathVariable("section") sectionName: String,
-             topicListForm: TopicListRequest, response: HttpServletResponse): ModelAndView = {
+             topicListForm: TopicListRequest, response: HttpServletResponse): DeferredResult[ModelAndView] = {
+    val deadline = TagPageController.Timeout.fromNow
+
     val section = sectionService.getSectionByName(sectionName)
+
+    val activeTagsF = {
+      tagService.getActiveTopTags(section) map { activeTags ⇒
+        if (activeTags.nonEmpty) {
+          Some(activeTags)
+        } else {
+          None
+        }
+      }
+    }
 
     val modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, None)
 
@@ -125,7 +150,20 @@ class TopicListController @Autowired()
     modelAndView.addObject("url", "/gallery/")
     modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
 
-    modelAndView
+    activeTagsF withTimeout deadline.timeLeft recover {
+      case ex: TimeoutException ⇒
+        logger.warn(s"Active top tags search timed out (${ex.getMessage})")
+        None
+      case ex ⇒
+        logger.warn("Unable to find active top tags", ex)
+        None
+    } map { activeTags ⇒
+      activeTags foreach { tags ⇒
+        modelAndView.addObject("activeTags", tags.asJava)
+      }
+
+      modelAndView
+    } toDeferredResult
   }
 
   @RequestMapping(Array("/forum/lenta"))
