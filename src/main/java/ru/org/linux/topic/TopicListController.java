@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -40,7 +41,10 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 public class TopicListController {
@@ -58,16 +62,12 @@ public class TopicListController {
   private GroupDao groupDao;
 
   private ModelAndView mainTopicsFeedHandler(
+    Section section,
     HttpServletRequest request,
     TopicListRequest topicListForm,
     HttpServletResponse response,
     @Nullable Group group
   ) throws Exception {
-    Section section = null;
-    if (topicListForm.getSection() != null && topicListForm.getSection()!=0) {
-      section = sectionService.getSection(topicListForm.getSection());
-    }
-
     checkRequestConditions(section, group, topicListForm);
     Template tmpl = Template.getTemplate(request);
 
@@ -76,11 +76,9 @@ public class TopicListController {
     modelAndView.addObject("group", group);
 
     modelAndView.addObject("url", "view-news.jsp");
-    if (section != null) {
-      modelAndView.addObject("section", section);
+    modelAndView.addObject("section", section);
 
-      modelAndView.addObject("archiveLink", section.getArchiveLink());
-    }
+    modelAndView.addObject("archiveLink", section.getArchiveLink());
 
     setExpireHeaders(response, topicListForm.getYear(), topicListForm.getMonth());
 
@@ -122,11 +120,11 @@ public class TopicListController {
     TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
+    Section section = sectionService.getSection(Section.SECTION_GALLERY);
 
-    topicListForm.setSection(Section.SECTION_GALLERY);
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
+    ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
 
-    modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_GALLERY), topicListForm));
+    modelAndView.addObject("ptitle", calculatePTitle(section, topicListForm));
     modelAndView.addObject("url", "/gallery/");
     modelAndView.addObject("rssLink", "section-rss.jsp?section=3");
 
@@ -139,10 +137,10 @@ public class TopicListController {
     TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
-    topicListForm.setSection(Section.SECTION_FORUM);
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
+    Section section = sectionService.getSection(Section.SECTION_FORUM);
 
-    modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_FORUM), topicListForm));
+    ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
+    modelAndView.addObject("ptitle", calculatePTitle(section, topicListForm));
     modelAndView.addObject("url", "/forum/lenta");
     modelAndView.addObject("rssLink", "section-rss.jsp?section=2");
 
@@ -155,12 +153,12 @@ public class TopicListController {
     TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
-    topicListForm.setSection(Section.SECTION_POLLS);
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
+    Section section = sectionService.getSection(Section.SECTION_POLLS);
+    ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/polls/");
     modelAndView.addObject("params", null);
-    modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_POLLS), topicListForm));
+    modelAndView.addObject("ptitle", calculatePTitle(section, topicListForm));
 
     return modelAndView;
   }
@@ -171,11 +169,11 @@ public class TopicListController {
     TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
-    topicListForm.setSection(Section.SECTION_NEWS);
-    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
+    Section section = sectionService.getSection(Section.SECTION_NEWS);
+    ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
 
     modelAndView.addObject("url", "/news/");
-    modelAndView.addObject("ptitle", calculatePTitle(sectionService.getSection(Section.SECTION_NEWS), topicListForm));
+    modelAndView.addObject("ptitle", calculatePTitle(section, topicListForm));
     modelAndView.addObject("rssLink", "section-rss.jsp?section=1");
 
     return modelAndView;
@@ -188,8 +186,9 @@ public class TopicListController {
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
-    topicListForm.setSection(Section.SECTION_GALLERY);
-    return group(request, topicListForm, groupName, response);
+    Section section = sectionService.getSection(Section.SECTION_GALLERY);
+
+    return group(section, request, topicListForm, groupName, response);
   }
 
   @RequestMapping("/news/{group}")
@@ -199,8 +198,9 @@ public class TopicListController {
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
-    topicListForm.setSection(Section.SECTION_NEWS);
-    return group(request, topicListForm, groupName, response);
+    Section section = sectionService.getSection(Section.SECTION_NEWS);
+
+    return group(section, request, topicListForm, groupName, response);
   }
 
   @RequestMapping("/polls/{group}")
@@ -210,8 +210,9 @@ public class TopicListController {
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
-    topicListForm.setSection(Section.SECTION_POLLS);
-    return group(request, topicListForm, groupName, response);
+    Section section = sectionService.getSection(Section.SECTION_POLLS);
+
+    return group(section, request, topicListForm, groupName, response);
   }
 
   @RequestMapping("/{section}/archive/{year}/{month}")
@@ -227,11 +228,10 @@ public class TopicListController {
     Section sectionObject = sectionService.getSectionByName(section);
 
     if (sectionObject.isPremoderated()) {
-      topicListForm.setSection(sectionObject.getId());
       topicListForm.setYear(year);
       topicListForm.setMonth(month);
 
-      ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response, null);
+      ModelAndView modelAndView = mainTopicsFeedHandler(sectionObject, request, topicListForm, response, null);
 
       modelAndView.addObject("ptitle", calculatePTitle(sectionObject, topicListForm));
 
@@ -257,11 +257,12 @@ public class TopicListController {
   @RequestMapping(value = "/view-news.jsp", params = {"section", "!tag"})
   public View oldLink(
     TopicListRequest topicListForm,
+    @RequestParam("section") int sectionId,
     @RequestParam(value="group", defaultValue = "0") int groupId
   ) throws Exception {
-    StringBuilder redirectLink = new StringBuilder();
+    Section section = sectionService.getSection(sectionId);
 
-    Section section = sectionService.getSection(topicListForm.getSection());
+    StringBuilder redirectLink = new StringBuilder();
 
     redirectLink.append(section.getNewsViewerLink());
 
@@ -280,6 +281,7 @@ public class TopicListController {
     String queryStr = topicListForm.getOffset() == null ?
         "" :
         URLEncoder.encode("offset=" + topicListForm.getOffset(), "UTF-8");
+
     if (!queryStr.isEmpty()) {
       redirectLink
         .append('?')
@@ -293,24 +295,21 @@ public class TopicListController {
   public ModelAndView showRSS(
     HttpServletRequest request,
     TopicListRequest topicListForm,
-    @RequestParam(value="group", defaultValue = "0") int groupId
+    @RequestParam(value="section", defaultValue = "1") int sectionId,
+    @RequestParam(value="group", defaultValue = "0") int groupId,
+    @RequestParam(value="filter", required = false) String filter
   ) throws Exception {
 
     final String[] filterValues = {"all", "notalks", "tech"};
     final Set<String> filterValuesSet = new HashSet<>(Arrays.asList(filterValues));
 
-    if (topicListForm.getFilter() != null && !filterValuesSet.contains(topicListForm.getFilter())) {
+    if (filter != null && !filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
     }
-    boolean notalks = topicListForm.getFilter() != null && "notalks".equals(topicListForm.getFilter());
-    boolean tech = topicListForm.getFilter() != null && "tech".equals(topicListForm.getFilter());
+    boolean notalks = filter != null && "notalks".equals(filter);
+    boolean tech = filter != null && "tech".equals(filter);
 
-
-    if (topicListForm.getSection() == null) {
-      topicListForm.setSection(1);
-    }
-
-    Section section = sectionService.getSection(topicListForm.getSection());
+    Section section = sectionService.getSection(sectionId);
     String ptitle = section.getName();
 
     Group group = null;
@@ -327,41 +326,32 @@ public class TopicListController {
     modelAndView.addObject("section", section);
     modelAndView.addObject("ptitle", ptitle);
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(new Date());
-    calendar.add(Calendar.MONTH, -3);
+    DateTime fromDate = DateTime.now().minusMonths(3);
 
-    List<Topic> messages = topicListService.getRssTopicsFeed(section, group, calendar.getTime(), notalks, tech);
+    List<Topic> messages = topicListService.getRssTopicsFeed(section, group, fromDate.toDate(), notalks, tech);
 
     modelAndView.addObject("messages", prepareService.prepareMessages(messages, request.isSecure()));
     return modelAndView;
   }
 
   private ModelAndView group(
+    Section section,
     HttpServletRequest request,
     TopicListRequest topicListForm,
     String groupName,
     HttpServletResponse response
   ) throws Exception {
-    Section section = sectionService.getSection(topicListForm.getSection());
-
     Group group = groupDao.getGroup(section, groupName);
 
     ModelAndView modelAndView = mainTopicsFeedHandler(
+      section,
       request,
       topicListForm,
       response,
       group
     );
 
-    StringBuilder ptitle = new StringBuilder();
-
-    ptitle.append(section.getName());
-    if (group != null) {
-      ptitle.append(" - ").append(group.getTitle());
-    }
-
-    modelAndView.addObject("ptitle", ptitle.toString());
+    modelAndView.addObject("ptitle", section.getName() + " - " + group.getTitle());
 
     modelAndView.addObject("url", group.getUrl());
 
@@ -376,20 +366,10 @@ public class TopicListController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
       response.setDateHeader("Last-Modified", System.currentTimeMillis());
     } else {
-      long expires = System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L;
+      DateTime endOfMonth = new DateTime(year, month, 1, 0, 0).plusMonths(1);
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.set(
-        year,
-        month - 1, 1
-      );
-      calendar.add(Calendar.MONTH, 1);
-
-      long lastmod = calendar.getTimeInMillis();
-
-      if (lastmod < System.currentTimeMillis()) {
-        response.setDateHeader("Expires", expires);
-        response.setDateHeader("Last-Modified", lastmod);
+      if (endOfMonth.isBeforeNow()) {
+        response.setDateHeader("Last-Modified", endOfMonth.getMillis());
       } else {
         response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
         response.setDateHeader("Last-Modified", System.currentTimeMillis());
@@ -412,22 +392,16 @@ public class TopicListController {
 
   private static String calculatePTitle(Section section, TopicListRequest topicListForm)
     throws BadDateException {
-    StringBuilder ptitle = new StringBuilder();
 
     if (topicListForm.getMonth() == null) {
-      if (section != null) {
-        ptitle.append(section.getName());
-      }
+      return section.getName();
     } else {
-      ptitle.append("Архив: ").append(section.getName());
-
-      ptitle
-        .append(", ")
-        .append(topicListForm.getYear())
-        .append(", ")
-        .append(DateUtil.getMonth(topicListForm.getMonth()));
+      return "Архив: " + section.getName()
+              + ", " +
+              topicListForm.getYear() +
+              ", " +
+              DateUtil.getMonth(topicListForm.getMonth());
     }
-    return ptitle.toString();
   }
 
   private static String calculateNavTitle(Section section, Group group, TopicListRequest topicListForm)
@@ -436,11 +410,9 @@ public class TopicListController {
     StringBuilder navTitle = new StringBuilder();
 
     if (group == null) {
-      if (section != null) {
-        navTitle.setLength(0);
-        navTitle.append(section.getName());
-      }
-    } else if (section != null) {
+      navTitle.setLength(0);
+      navTitle.append(section.getName());
+    } else {
       navTitle.setLength(0);
       navTitle
               .append(section.getName())
@@ -448,6 +420,7 @@ public class TopicListController {
               .append(group.getTitle())
               .append("»");
     }
+
     if (topicListForm.getMonth() != null) {
       navTitle
         .append(" - Архив ")

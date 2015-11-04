@@ -19,20 +19,10 @@ package ru.org.linux.topic;
  * @author Viachaslau Zanko
  */
 public class TopicListRequest {
-  private Integer section;
   private Integer offset;
   private String output;
   private Integer month;
   private Integer year;
-  private String filter;
-
-  public Integer getSection() {
-    return section;
-  }
-
-  public void setSection(Integer section) {
-    this.section = section;
-  }
 
   public Integer getOffset() {
     return offset;
@@ -64,13 +54,5 @@ public class TopicListRequest {
 
   public void setYear(Integer year) {
     this.year = year;
-  }
-
-  public String getFilter() {
-    return filter;
-  }
-
-  public void setFilter(String filter) {
-    this.filter = filter;
   }
 }
