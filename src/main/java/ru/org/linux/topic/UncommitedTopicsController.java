@@ -16,12 +16,12 @@
 package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 
@@ -107,5 +107,11 @@ public class UncommitedTopicsController {
     modelAndView.addObject("sections", sectionService.getSectionList());
 
     return modelAndView;
+  }
+
+  @ExceptionHandler(SectionNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleNotFoundException() {
+    return new ModelAndView("errors/code404");
   }
 }
