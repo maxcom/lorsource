@@ -114,13 +114,14 @@ public class TopicListController {
     return modelAndView;
   }
 
-  @RequestMapping("/gallery/")
-  public ModelAndView gallery(
+  @RequestMapping("/{section:(?:news)|(?:polls)|(?:gallery)}/")
+  public ModelAndView topics(
     HttpServletRequest request,
+    @PathVariable("section") String sectionName,
     TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
-    Section section = sectionService.getSection(Section.SECTION_GALLERY);
+    Section section = sectionService.getSectionByName(sectionName);
 
     ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
 
@@ -147,70 +148,15 @@ public class TopicListController {
     return modelAndView;
   }
 
-  @RequestMapping("/polls/")
-  public ModelAndView polls(
-    HttpServletRequest request,
-    TopicListRequest topicListForm,
-    HttpServletResponse response
-  ) throws Exception {
-    Section section = sectionService.getSection(Section.SECTION_POLLS);
-    ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
-
-    modelAndView.addObject("url", "/polls/");
-    modelAndView.addObject("params", null);
-    modelAndView.addObject("ptitle", calculatePTitle(section, topicListForm));
-
-    return modelAndView;
-  }
-
-  @RequestMapping("/news/")
-  public ModelAndView news(
-    HttpServletRequest request,
-    TopicListRequest topicListForm,
-    HttpServletResponse response
-  ) throws Exception {
-    Section section = sectionService.getSection(Section.SECTION_NEWS);
-    ModelAndView modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, null);
-
-    modelAndView.addObject("url", "/news/");
-    modelAndView.addObject("ptitle", calculatePTitle(section, topicListForm));
-    modelAndView.addObject("rssLink", "section-rss.jsp?section=1");
-
-    return modelAndView;
-  }
-
-  @RequestMapping("/gallery/{group}")
-  public ModelAndView galleryGroup(
+  @RequestMapping("/{section:(?:news)|(?:polls)|(?:gallery)}/{group}")
+  public ModelAndView topicsByGroup(
+    @PathVariable("section") String sectionName,
     HttpServletRequest request,
     TopicListRequest topicListForm,
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
-    Section section = sectionService.getSection(Section.SECTION_GALLERY);
-
-    return group(section, request, topicListForm, groupName, response);
-  }
-
-  @RequestMapping("/news/{group}")
-  public ModelAndView newsGroup(
-    HttpServletRequest request,
-    TopicListRequest topicListForm,
-    @PathVariable("group") String groupName,
-    HttpServletResponse response
-  ) throws Exception {
-    Section section = sectionService.getSection(Section.SECTION_NEWS);
-
-    return group(section, request, topicListForm, groupName, response);
-  }
-
-  @RequestMapping("/polls/{group}")
-  public ModelAndView pollsGroup(
-    HttpServletRequest request,
-    TopicListRequest topicListForm,
-    @PathVariable("group") String groupName,
-    HttpServletResponse response
-  ) throws Exception {
-    Section section = sectionService.getSection(Section.SECTION_POLLS);
+    Section section = sectionService.getSectionByName(sectionName);
 
     return group(section, request, topicListForm, groupName, response);
   }
