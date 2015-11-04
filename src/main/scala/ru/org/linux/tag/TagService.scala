@@ -20,6 +20,7 @@ import java.util
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{ElasticClient, SearchType}
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
+import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
@@ -100,7 +101,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
       }
     } map { r ⇒
       (for {
-        bucket <- r.getAggregations.get[SignificantTerms]("active").asScala
+        bucket <- r.getAggregations.get[Terms]("active").getBuckets.asScala
       } yield {
         tagRef(bucket.getKey)
       }).toSeq.sorted
