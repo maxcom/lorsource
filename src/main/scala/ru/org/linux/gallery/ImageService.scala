@@ -66,13 +66,8 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
       None
   }
 
-  def prepareGalleryItem(item: GalleryItem):Option[PreparedGalleryItem] = {
-    val htmlPath = siteConfig.getHTMLPathPrefix
-
-    try {
-      val fullInfo = new ImageInfo(htmlPath + item.getImage.getOriginal)
-      Some(new PreparedGalleryItem(item, userDao.getUserCached(item.getUserid), fullInfo))
-    } catch prepareException(item.getImage)
+  def prepareGalleryItem(item: GalleryItem):PreparedGalleryItem = {
+    new PreparedGalleryItem(item, userDao.getUserCached(item.getUserid))
   }
 
   def prepareImage(image: Image, secure: Boolean): Option[PreparedImage] = {
@@ -104,7 +99,7 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
   }
 
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
-    items.asScala.map(prepareGalleryItem).flatMap(_.toSeq).asJava
+    items.asScala.map(prepareGalleryItem).asJava
 
   def getGalleryItems(countItems: Int, tagId: Int): java.util.List[GalleryItem] =
     imageDao.getGalleryItems(countItems, tagId)

@@ -15,7 +15,6 @@
 package ru.org.linux.gallery
 
 import ru.org.linux.user.User
-import ru.org.linux.util.image.ImageInfo
 
 import scala.beans.BeanProperty
 
@@ -50,6 +49,4 @@ case class Image(
 
 case class PreparedGalleryItem(
   @BeanProperty item:GalleryItem,
-  @BeanProperty user:User,
-  @BeanProperty fullInfo:ImageInfo
-)
+  @BeanProperty user:User)
