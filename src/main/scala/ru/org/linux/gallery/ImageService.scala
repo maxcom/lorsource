@@ -70,9 +70,8 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
     val htmlPath = siteConfig.getHTMLPathPrefix
 
     try {
-      val iconInfo = new ImageInfo(htmlPath + item.getImage.getIcon)
       val fullInfo = new ImageInfo(htmlPath + item.getImage.getOriginal)
-      Some(new PreparedGalleryItem(item, userDao.getUserCached(item.getUserid), iconInfo, fullInfo))
+      Some(new PreparedGalleryItem(item, userDao.getUserCached(item.getUserid), fullInfo))
     } catch prepareException(item.getImage)
   }
 

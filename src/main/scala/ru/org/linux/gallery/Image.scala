@@ -51,6 +51,5 @@ case class Image(
 case class PreparedGalleryItem(
   @BeanProperty item:GalleryItem,
   @BeanProperty user:User,
-  @BeanProperty iconInfo:ImageInfo,
   @BeanProperty fullInfo:ImageInfo
 )

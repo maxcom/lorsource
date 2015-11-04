@@ -32,9 +32,7 @@
                   alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a>
       </div>
-      <i>
-        ${item.fullInfo.width}x${item.fullInfo.height}
-      </i> <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
+      <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
       </div>
     </c:forEach>
     <a href="/gallery/">другие скриншоты...</a>

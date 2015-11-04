@@ -130,7 +130,7 @@
                   sizes="(min-width: 40em) 32vw, 100vw"
                   alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a><br>
-        <lor:dateinterval date="${item.item.commitDate}"/>
+        ${item.user.nick}, <lor:dateinterval date="${item.item.commitDate}"/>
       </article>
     </c:forEach>
   </div>
