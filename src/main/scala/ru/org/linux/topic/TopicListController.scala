@@ -147,7 +147,7 @@ class TopicListController @Autowired()
     val modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, None)
 
     modelAndView.addObject("ptitle", TopicListController.calculatePTitle(section, topicListForm))
-    modelAndView.addObject("url", "/gallery/")
+    modelAndView.addObject("url", section.getNewsViewerLink)
     modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
 
     activeTagsF withTimeout deadline.timeLeft recover {
@@ -172,7 +172,7 @@ class TopicListController @Autowired()
 
     val modelAndView: ModelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, None)
     modelAndView.addObject("ptitle", TopicListController.calculatePTitle(section, topicListForm))
-    modelAndView.addObject("url", "/forum/lenta")
+    modelAndView.addObject("url", section.getNewsViewerLink)
     modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
 
     modelAndView
@@ -197,7 +197,9 @@ class TopicListController @Autowired()
 
       topicListForm.setYear(year)
       topicListForm.setMonth(month)
-      val modelAndView: ModelAndView = mainTopicsFeedHandler(sectionObject, request, topicListForm, response, None)
+
+      val modelAndView = mainTopicsFeedHandler(sectionObject, request, topicListForm, response, None)
+
       modelAndView.addObject("ptitle", TopicListController.calculatePTitle(sectionObject, topicListForm))
 
       modelAndView
@@ -250,8 +252,6 @@ class TopicListController @Autowired()
       throw new UserErrorException("Некорректное значение filter")
     }
 
-    val notalks = "notalks" == filter
-    val tech = "tech" == filter
     val section = sectionService.getSection(sectionId)
     var ptitle = section.getName
 
@@ -272,6 +272,9 @@ class TopicListController @Autowired()
 
     modelAndView.addObject("section", section)
     modelAndView.addObject("ptitle", ptitle)
+
+    val notalks = "notalks" == filter
+    val tech = "tech" == filter
 
     val fromDate = DateTime.now.minusMonths(3)
     val messages = topicListService.getRssTopicsFeed(section, group.orNull, fromDate.toDate, notalks, tech)
