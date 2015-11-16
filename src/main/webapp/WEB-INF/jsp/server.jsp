@@ -70,6 +70,10 @@
   <a href="http://www.entypo.com">http://www.entypo.com</a>. Шрифт с нужным нам набором символов
   сгенерирован при помощи <a href="http://fontello.com/">fontello.com</a>.
 
+  <h2>BSD Daemon</h2>
+  Права на изображение <a href="https://www.mckusick.com/beastie/">BSD Daemon</a>
+  принадлежат <a href="https://www.mckusick.com/beastie/mainpage/copyright.html">Marshall Kirk McKusick</a>.
+
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
   <ul>
