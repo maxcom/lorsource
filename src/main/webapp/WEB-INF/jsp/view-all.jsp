@@ -97,7 +97,7 @@
   <td>${topic.reason}</td>
   <c:if test="${template.moderatorSession}">
     <td>
-      написано <lor:dateinterval date="${topic.postdate}"/><br>
+      написано <lor:dateinterval date="${topic.postDate}"/><br>
       удалено <lor:dateinterval date="${topic.delDate}"/>
     </td>
   </c:if>

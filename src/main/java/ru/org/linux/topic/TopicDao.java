@@ -83,10 +83,10 @@ public class TopicDao {
    * Запрос получения полной информации о топике
    */
   private static final String queryMessage = "SELECT " +
-        "postdate, topics.id as msgid, userid, topics.title, " +
+        "postDate, topics.id as msgid, userid, topics.title, " +
         "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
         "urlname, section, topics.sticky, topics.postip, " +
-        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+        "postDate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
         "topics.resolved, minor, draft " +
         "FROM topics " +
@@ -99,7 +99,7 @@ public class TopicDao {
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
   private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
-  private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
+  private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postDate>=? AND postDate<?";
 
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -118,7 +118,7 @@ public class TopicDao {
    * @return время
    */
   public Timestamp getTimeFirstTopic() {
-    return jdbcTemplate.queryForObject("SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp", Timestamp.class);
+    return jdbcTemplate.queryForObject("SELECT min(postDate) FROM topics WHERE postDate!='epoch'::timestamp", Timestamp.class);
   }
 
   /**
@@ -224,7 +224,7 @@ public class TopicDao {
     final String finalUrl = url;
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
-            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
+            "INSERT INTO topics (groupid, userid, title, url, moderate, postDate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
             new PreparedStatementCallback<String>() {
               @Override
               public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
@@ -344,7 +344,7 @@ public class TopicDao {
 
   public void publish(Topic msg) {
     jdbcTemplate.update(
-            "UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=? AND draft",
+            "UPDATE topics SET draft='f',postDate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=? AND draft",
             msg.getId()
     );
   }
@@ -383,19 +383,19 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT topics.id " +
                           "FROM topics " +
-                          "WHERE NOT draft AND topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate DESC LIMIT 1",
+                          "WHERE NOT draft AND topics.postDate<? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postDate DESC LIMIT 1",
                   Integer.class,
-                  message.getPostdate(),
+                  message.getPostDate(),
                   message.getGroupId()
           );
         } else {
             res = jdbcTemplate.queryForList(
                     "SELECT topics.id as msgid " +
                             "FROM topics " +
-                            "WHERE NOT draft AND topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
-                            "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate DESC LIMIT 1",
+                            "WHERE NOT draft AND topics.postDate<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
+                            "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postDate DESC LIMIT 1",
                     Integer.class,
-                    message.getPostdate(),
+                    message.getPostDate(),
                     message.getGroupId(),
                     currentUser.getId()
             );
@@ -451,19 +451,19 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT topics.id as msgid " +
                           "FROM topics " +
-                          "WHERE NOT draft AND topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate ASC LIMIT 1",
+                          "WHERE NOT draft AND topics.postDate>? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postDate ASC LIMIT 1",
                   Integer.class,
-                  message.getPostdate(),
+                  message.getPostDate(),
                   message.getGroupId()
           );
         } else {
           res = jdbcTemplate.queryForList(
                   "SELECT topics.id as msgid " +
                           "FROM topics " +
-                          "WHERE NOT draft AND topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
-                          "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate ASC LIMIT 1",
+                          "WHERE NOT draft AND topics.postDate>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
+                          "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postDate ASC LIMIT 1",
                   Integer.class,
-                  message.getPostdate(),
+                  message.getPostDate(),
                   message.getGroupId(),
                   currentUser.getId()
           );
@@ -565,7 +565,7 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public List<Integer> getAllByIPForUpdate(String ip, Timestamp startTime) {
-    return jdbcTemplate.queryForList("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
+    return jdbcTemplate.queryForList("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postDate>? FOR UPDATE",
             Integer.class,
             ip,
             startTime
@@ -574,14 +574,14 @@ public class TopicDao {
 
   public int getUncommitedCount() {
     return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
+            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postDate>(CURRENT_TIMESTAMP-'3 month'::interval)",
             Integer.class
     );
   }
 
   public int getUncommitedCount(int section) {
     return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
+            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postDate>(CURRENT_TIMESTAMP-'3 month'::interval)",
             Integer.class,
             section
     );

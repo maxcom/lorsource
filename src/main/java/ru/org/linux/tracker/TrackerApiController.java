@@ -69,7 +69,7 @@ public class TrackerApiController {
             .put("url", trackerItem.getUrl())
             .put("title", trackerItem.getTitle())
             .put("groupTitle", trackerItem.getGroupTitle())
-            .put("postDate", trackerItem.getPostdate())
+            .put("postDate", trackerItem.getPostDate())
             .put("lastModified", trackerItem.getLastmod())
             .put("lastCommentedBy", trackerItem.getAuthor().getNick())
             .put("pages", trackerItem.getPages())

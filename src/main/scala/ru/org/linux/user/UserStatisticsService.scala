@@ -118,7 +118,7 @@ class UserStatisticsService @Autowired() (
         )
 
         statSearch query root aggs(
-          agg stats "topic_stats" field "postdate",
+          agg stats "topic_stats" field "postDate",
           agg terms "sections" field "section"
           )
       } flatMap timeoutHandler map { response ⇒

@@ -16,7 +16,7 @@
                 "is_comment": {
                     "type": "boolean"
                 },
-                "postdate": {
+                "postDate": {
                     "type": "date",
                     "format": "dateTime",
                     "fielddata": {

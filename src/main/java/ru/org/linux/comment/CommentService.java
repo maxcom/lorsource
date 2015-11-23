@@ -491,7 +491,7 @@ public class CommentService {
     commentDao.updateLatestEditorInfo(
       original.getId(),
       editor.getId(),
-      comment.getPostdate(),
+      comment.getPostDate(),
       editCount
     );
   }

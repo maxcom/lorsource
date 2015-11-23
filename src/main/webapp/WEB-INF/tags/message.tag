@@ -165,7 +165,7 @@
   </c:if>
  
   <br>
-  <lor:date date="${message.postdate}" itemprop="dateCreated"/>
+  <lor:date date="${message.postDate}" itemprop="dateCreated"/>
 
   <c:if test="${template.moderatorSession and not empty message.postIP}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
@@ -176,7 +176,7 @@
     <c:if test="${preparedMessage.commiter != preparedMessage.author}">
       <br>Проверено: <lor:user link="true" user="${preparedMessage.commiter}"/>
 
-      <c:if test="${message.commitDate!=null && message.commitDate != message.postdate}">
+      <c:if test="${message.commitDate!=null && message.commitDate != message.postDate}">
         (<lor:date date="${message.commitDate}" itemprop="datePublished"/>)
       </c:if>
     </c:if>

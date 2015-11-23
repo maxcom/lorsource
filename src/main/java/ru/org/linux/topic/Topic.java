@@ -44,7 +44,7 @@ public class Topic implements Serializable {
   private final boolean deleted;
   private final boolean expired;
   private final int commitby;
-  private final Timestamp postdate;
+  private final Timestamp postDate;
   private final Timestamp commitDate;
   private final String groupUrl;
   private final Timestamp lastModified;
@@ -72,7 +72,7 @@ public class Topic implements Serializable {
                 boolean deleted,
                 boolean expired,
                 int commitBy,
-                Timestamp postdate,
+                Timestamp postDate,
                 Timestamp commitDate,
                 String groupUrl,
                 Timestamp lastModified,
@@ -98,7 +98,7 @@ public class Topic implements Serializable {
     this.deleted = deleted;
     this.expired = expired;
     commitby = commitBy;
-    this.postdate = postdate;
+    this.postDate = postDate;
     this.commitDate = commitDate;
     this.groupUrl = groupUrl;
     this.lastModified = lastModified;
@@ -128,7 +128,7 @@ public class Topic implements Serializable {
       rs.getBoolean("deleted"),
       !rs.getBoolean("sticky") && rs.getBoolean("expired"),
       rs.getInt("commitby"),
-            rs.getTimestamp("postdate"),
+            rs.getTimestamp("postDate"),
       rs.getTimestamp("commitdate"),
       rs.getString("urlname"),
       rs.getTimestamp("lastmod"),
@@ -180,7 +180,7 @@ public class Topic implements Serializable {
     deleted = false;
     expired = false;
     commitby = 0;
-    postdate = new Timestamp(System.currentTimeMillis());
+    postDate = new Timestamp(System.currentTimeMillis());
     commitDate = null;
     groupUrl = "";
     lastModified = new Timestamp(System.currentTimeMillis());
@@ -226,7 +226,7 @@ public class Topic implements Serializable {
     deleted = original.deleted;
     expired = original.expired;
     commitby = original.commitby;
-    postdate = original.postdate;
+    postDate = original.postDate;
     commitDate = original.commitDate;
     groupUrl = original.groupUrl;
     lastModified = new Timestamp(System.currentTimeMillis());
@@ -328,8 +328,8 @@ public class Topic implements Serializable {
     return userAgent;
   }
 
-  public Timestamp getPostdate() {
-    return postdate;
+  public Timestamp getPostDate() {
+    return postDate;
   }
 
   public String getPostIP() {
@@ -347,14 +347,14 @@ public class Topic implements Serializable {
   /**
    * Дата размещения сообщения на сайте
    *
-   * @return postdate для постмодерируемых и commitdate для премодерируемых, прошедших модерацию
+   * @return postDate для постмодерируемых и commitdate для премодерируемых, прошедших модерацию
    */
   @Nonnull
   public DateTime getEffectiveDate() {
     if (moderate && commitDate!=null) {
       return new DateTime(commitDate.getTime());
     } else {
-      return new DateTime(postdate.getTime());
+      return new DateTime(postDate.getTime());
     }
   }
 

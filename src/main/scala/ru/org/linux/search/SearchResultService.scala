@@ -38,7 +38,7 @@ import scala.collection.JavaConverters._
 
 case class SearchItem (
   @BeanProperty title:String,
-  @BeanProperty postdate:DateTime,
+  @BeanProperty postDate:DateTime,
   @BeanProperty user:User, // TODO use UserRef
   @BeanProperty message:String,
   @BeanProperty url:String,
@@ -58,7 +58,7 @@ class SearchResultsService @Autowired() (
   def prepare(doc:SearchHit):SearchItem = {
     val author = userService.getUserCached(doc.getFields.get("author").getValue[String])
 
-    val postdate = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
+    val postDate = isoDateTime.parseDateTime(doc.getFields.get("postDate").getValue[String])
 
     val comment = doc.getFields.get("is_comment").getValue[Boolean]
 
@@ -75,7 +75,7 @@ class SearchResultsService @Autowired() (
 
     SearchItem(
       title = getTitle(doc),
-      postdate = postdate,
+      postDate = postDate,
       user = author,
       url = getUrl(doc),
       score = doc.getScore,
@@ -190,7 +190,7 @@ class SearchResultsService @Autowired() (
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
-  def postdate(doc:SearchHit) = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
+  def postDate(doc:SearchHit) = isoDateTime.parseDateTime(doc.getFields.get("postDate").getValue[String])
   def section(doc:SearchHit) = doc.getFields.get("section").getValue[String]
   def group(doc:SearchHit) = doc.getFields.get("group").getValue[String]
 }

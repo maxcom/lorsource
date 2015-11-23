@@ -43,7 +43,7 @@ public class LastMiniNewsDao {
             "from topics " +
             "join groups on groups.id = topics.groupid" +
             " where " +
-            "  topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and " + // За последнйи месяйц
+            "  topics.postDate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and " + // За последнйи месяйц
             "  not deleted and " +                                                   // Неудаленные
             "  groups.section = 1 and topics.moderate and commitdate is not null and not draft " + // Новости
             "  and minor order by topics.commitdate desc limit 10";                        // 10 штук

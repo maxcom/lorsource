@@ -57,7 +57,7 @@ public class CommentDaoIntegrationTest {
 
   private void addComment(int commentId, Integer replyToId, String title, String body) {
     jdbcTemplate.update(
-      "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) " +
+      "INSERT INTO comments (id, userid, title, postDate, replyto, deleted, topic, postip, ua_id) " +
         "VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
       commentId,
       1,

@@ -68,14 +68,14 @@ public class SearchEnums {
     }
 
     public String getColumn() {
-      return "postdate";
+      return "postDate";
     }
   }
 
   public enum SearchOrder {
     RELEVANCE("по релевантности", "_score", SortOrder.DESC),
-    DATE("по дате: от новых к старым", "postdate", SortOrder.DESC),
-    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate", SortOrder.ASC);
+    DATE("по дате: от новых к старым", "postDate", SortOrder.DESC),
+    DATE_OLD_TO_NEW("по дате: от старых к новым", "postDate", SortOrder.ASC);
 
     private final String name;
     private final String param;

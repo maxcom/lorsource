@@ -40,7 +40,7 @@
       <author>${comment.author.nick}</author>
       <link>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
       <guid>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
-      <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
+      <pubDate><lor:rfc822date date="${comment.comment.postDate}"/></pubDate>
       <description ><![CDATA[${comment.processedMessage}]]>
       </description>
     </item>

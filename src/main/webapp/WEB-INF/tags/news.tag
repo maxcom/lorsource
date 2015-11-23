@@ -169,10 +169,10 @@
   <div class=sign>
   <c:choose>
     <c:when test="${preparedMessage.section.premoderated and message.commited}">
-      <lor:sign shortMode="true" postdate="${message.commitDate}" user="${preparedMessage.author}" timeprop="datePublished"/>
+      <lor:sign shortMode="true" postDate="${message.commitDate}" user="${preparedMessage.author}" timeprop="datePublished"/>
     </c:when>
     <c:otherwise>
-      <lor:sign shortMode="true" postdate="${message.postdate}" user="${preparedMessage.author}" timeprop="dateCreated"/>
+      <lor:sign shortMode="true" postDate="${message.postDate}" user="${preparedMessage.author}" timeprop="dateCreated"/>
     </c:otherwise>
   </c:choose>
   <c:if test="${preparedMessage.remark != null}">

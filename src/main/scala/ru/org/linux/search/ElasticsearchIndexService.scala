@@ -165,7 +165,7 @@ class ElasticsearchIndexService @Autowired()
         "topic_title" -> topicTitle,
         COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
         "message" -> message,
-        "postdate" -> new DateTime(comment.getPostdate),
+        "postDate" -> new DateTime(comment.getPostDate),
         "tag" -> topicTagService.getTags(topic),
         "is_comment" -> true) ++ title.map("title" -> _)
       )
@@ -191,7 +191,7 @@ class ElasticsearchIndexService @Autowired()
       "title" -> topic.getTitleUnescaped,
       "topic_title" -> topic.getTitleUnescaped,
       "message" -> lorCodeService.extractPlainText(msgbaseDao.getMessageText(topic.getId)),
-      "postdate" -> new DateTime(topic.getPostdate),
+      "postDate" -> new DateTime(topic.getPostDate),
       "tag" -> topicTagService.getTags(topic),
       COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
       "is_comment" -> false

@@ -49,10 +49,10 @@ public class TopicListDao {
 
     query
       .append("SELECT ")
-      .append("postdate, topics.id as msgid, topics.userid, topics.title, ")
+      .append("postDate, topics.id as msgid, topics.userid, topics.title, ")
       .append("topics.groupid as guid, topics.url, topics.linktext, ua_id, ")
       .append("urlname, section, topics.sticky, topics.postip, ")
-      .append("postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
+      .append("postDate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
       .append("commitdate, topics.stat1, postscore, topics.moderate, notop, ")
       .append("topics.resolved, minor, draft ")
       .append("FROM topics ")
@@ -92,7 +92,7 @@ public class TopicListDao {
     query
       .append("SELECT ")
       .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
-      .append("reason, topics.postdate, del_info.delDate ")
+      .append("reason, topics.postDate, del_info.delDate ")
       .append("FROM topics,groups,users,sections,del_info ")
       .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
@@ -142,12 +142,12 @@ public class TopicListDao {
 
     switch (request.getDateLimitType()) {
       case BETWEEN:
-        where.append(" AND postdate>=:fromDate AND postdate<:toDate");
+        where.append(" AND postDate>=:fromDate AND postDate<:toDate");
         paramsBuilder.put("fromDate", request.getFromDate());
         paramsBuilder.put("toDate", request.getToDate());
         break;
       case FROM_DATE:
-        where.append(" AND postdate>=:fromDate");
+        where.append(" AND postDate>=:fromDate");
         paramsBuilder.put("fromDate", request.getFromDate());
         break;
       default:
@@ -211,11 +211,11 @@ public class TopicListDao {
       case COMMITED_ONLY:
         return " ORDER BY commitdate DESC";
       case UNCOMMITED_ONLY:
-        return " ORDER BY postdate DESC";
+        return " ORDER BY postDate DESC";
       case POSTMODERATED_ONLY:
-        return " ORDER BY postdate DESC";
+        return " ORDER BY postDate DESC";
       default:
-        return " ORDER BY COALESCE(commitdate, postdate) DESC";
+        return " ORDER BY COALESCE(commitdate, postDate) DESC";
     }
   }
 

@@ -62,12 +62,12 @@ public class TrackerDao {
         "t.resolved as resolved," +
         "section," +
         "urlname," +
-        "comments.postdate, " +
+        "comments.postDate, " +
         "sections.moderate as smod, " +
         "t.moderate " +
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
-        "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
+        "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postDate DESC LIMIT 1) " +
         "AND t.lastmod > :interval " +
         "%s" + /* noUncommited */
         "%s" + /* user!=null ? queryPartIgnored*/
@@ -85,11 +85,11 @@ public class TrackerDao {
           "t.resolved as resolved," +
           "section," +
           "urlname," +
-          "postdate, " +
+          "postDate, " +
           "sections.moderate as smod, " +
           "t.moderate " +
       "FROM topics AS t, groups AS g, sections " +
-      "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postdate > :interval " +
+      "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postDate > :interval " +
           "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
@@ -176,7 +176,7 @@ public class TrackerDao {
       boolean resolved = resultSet.getBoolean("resolved");
       int section = resultSet.getInt("section");
       String groupUrlName = resultSet.getString("urlname");
-      Timestamp postdate = resultSet.getTimestamp("postdate");
+      Timestamp postDate = resultSet.getTimestamp("postDate");
       boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
       int pages = Topic.getPageCount(stat1, messagesInPage);
 
@@ -186,7 +186,7 @@ public class TrackerDao {
 
       res.add(new TrackerItem(author, msgid, lastmod, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,
-              section, groupUrlName, postdate, uncommited, pages, tags));
+              section, groupUrlName, postDate, uncommited, pages, tags));
     }
     
     return res;
