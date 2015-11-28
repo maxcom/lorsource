@@ -17,8 +17,8 @@ package ru.org.linux.tag
 
 import java.util
 
+import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, SearchType}
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,7 +55,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
   def countTagTopics(tag: String): Future[Long] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search in MessageIndexTypes searchType SearchType.Count query
+        search in MessageIndexTypes size 0 query
           filteredQuery.query(matchAllQuery).filter(must(termQuery("is_comment", "false"), termQuery("tag", tag)))
       }
     } map {
@@ -73,7 +73,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
       sigterms.builder.exclude(Array(tag))
 
       _ execute {
-        search in MessageIndexTypes searchType SearchType.Count query
+        search in MessageIndexTypes size 0 query
           filteredQuery
             .query(matchAllQuery)
             .filter(must(termQuery("is_comment", "false"), termQuery("tag", tag))) aggs sigterms
@@ -90,7 +90,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search in MessageIndexTypes searchType SearchType.Count query
+        search in MessageIndexTypes size 0 query
           filteredQuery
             .query(matchAllQuery)
             .filter(must(

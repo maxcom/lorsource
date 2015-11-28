@@ -19,7 +19,7 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, RichSearchResponse, SearchType}
+import com.sksamuel.elastic4s.{ElasticClient, RichSearchResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
@@ -91,7 +91,7 @@ class UserStatisticsService @Autowired() (
     }
   }
 
-  private def statSearch = search in MessageIndexTypes searchType SearchType.Count timeout ElasticTimeout
+  private def statSearch = search in MessageIndexTypes size 0 timeout ElasticTimeout
 
   private def countComments(user:User):Future[Long] = {
     try {

@@ -21,13 +21,12 @@ import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, MoreLikeThisQueryDefinition, TermsQueryDefinition}
+import com.sksamuel.elastic4s.{ElasticClient, MoreLikeThisQueryDefinition, RichSearchHit, TermsQueryDefinition}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.lucene.analysis.util.CharArraySet
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.search.SearchHit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
@@ -79,10 +78,10 @@ class MoreLikeThisService @Autowired() (
         try {
           val searchResult = elastic execute makeQuery(topic, tags)
 
-          val result: Future[Result] = searchResult.map(result => if (result.getHits.nonEmpty) {
-            val half = result.getHits.size / 2 + result.getHits.size % 2
+          val result: Future[Result] = searchResult.map(result => if (result.hits.nonEmpty) {
+            val half = result.hits.length / 2 + result.hits.length % 2
 
-            result.getHits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
+            result.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
           } else Seq())
 
           result.onSuccess {
@@ -134,16 +133,16 @@ class MoreLikeThisService @Autowired() (
     }
   }
 
-  private def processHit(hit: SearchHit): MoreLikeThisTopic = {
+  private def processHit(hit: RichSearchHit): MoreLikeThisTopic = {
     val section = SearchResultsService.section(hit)
     val group = SearchResultsService.group(hit)
 
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-    val link = builder.buildAndExpand(section, group, new Integer(hit.getId)).toUriString
+    val link = builder.buildAndExpand(section, group, new Integer(hit.id)).toUriString
 
     val postdate = SearchResultsService.postdate(hit)
 
-    val title = hit.getFields.get("title").getValue[String]
+    val title = hit.field("title").value[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
