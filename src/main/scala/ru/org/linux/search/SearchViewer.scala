@@ -17,8 +17,7 @@ package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.HighlightEncoder.Html
-import com.sksamuel.elastic4s.{ElasticClient, FilterDefinition, QueryDefinition}
-import org.elasticsearch.action.search.SearchResponse
+import com.sksamuel.elastic4s.{ElasticClient, QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
@@ -43,11 +42,11 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
 
   private def boost(query: QueryDefinition) = {
     functionScoreQuery(query) scorers(
-        weightScore(TopicBoost) filter termFilter("is_comment", "false"),
-        weightScore(RecentBoost) filter rangeFilter("postdate").gte("now/d-3y"))
+        weightScore(TopicBoost) filter termQuery("is_comment", "false"),
+        weightScore(RecentBoost) filter rangeQuery("postdate").gte("now/d-3y"))
   }
 
-  private def wrapQuery(q:QueryDefinition, filters:Seq[FilterDefinition]) = {
+  private def wrapQuery(q:QueryDefinition, filters:Seq[QueryDefinition]) = {
     if (filters.nonEmpty) {
       filteredQuery query q filter must(filters)
     } else {
@@ -55,20 +54,20 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
     }
   }
 
-  def performSearch: SearchResponse = {
+  def performSearch: RichSearchResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value ⇒
-      termFilter(query.getRange.getColumn, value)
+      termQuery(query.getRange.getColumn, value)
     }
 
     val dateFilter = Option(query.getInterval.getRange) map { range ⇒
-      rangeFilter(query.getInterval.getColumn) from range
+      rangeQuery(query.getInterval.getColumn) from range
     }
 
     val userFilter = Option(query.getUser) map { user ⇒
       if (query.isUsertopic) {
-        termFilter("topic_author", user.getNick)
+        termQuery("topic_author", user.getNick)
       } else {
-        termFilter("author", user.getNick)
+        termQuery("author", user.getNick)
       }
     }
 
@@ -77,11 +76,11 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
     val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
 
     val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section ⇒
-      termFilter("section", this.query.getSection)
+      termQuery("section", this.query.getSection)
     }
 
     val groupFilter = Option(query.getGroup) filter (_.nonEmpty) map { group ⇒
-      termFilter("group", this.query.getGroup)
+      termQuery("group", this.query.getGroup)
     }
 
     val postFilters = (sectionFilter ++ groupFilter).toSeq
@@ -92,7 +91,7 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
         ) query esQuery sort (
           field sort query.getSort.getColumn order query.getSort.order
         ) aggs(
-          agg filter "sections" filter matchAllFilter aggs (
+          agg filter "sections" filter matchAllQuery aggs (
             agg terms "sections" field "section" size 0 aggs (
               agg terms "groups" field "group" size 0
             )
@@ -109,9 +108,9 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
     Await.result(future, SearchHardTimeout)
   }
 
-  private def andFilters(filters: Seq[FilterDefinition]) = {
+  private def andFilters(filters: Seq[QueryDefinition]) = {
     filters match {
-      case Seq()       ⇒ matchAllFilter
+      case Seq()       ⇒ matchAllQuery
       case Seq(single) ⇒ single
       case other       ⇒ must(other)
     }

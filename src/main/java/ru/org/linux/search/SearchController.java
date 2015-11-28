@@ -114,7 +114,7 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query, client);
 
-      SearchResponse response = sv.performSearch();
+      SearchResponse response = sv.performSearch().original();
 
       long current = System.currentTimeMillis();
 
@@ -141,7 +141,7 @@ public class SearchController {
           }
         } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBuckets().size()==1) {
           Terms.Bucket onlySection = sectionsFacet.getBuckets().iterator().next();
-          query.setSection(onlySection.getKey());
+          query.setSection(onlySection.getKeyAsString());
 
           params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }

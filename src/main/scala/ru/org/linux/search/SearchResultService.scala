@@ -139,7 +139,7 @@ class SearchResultsService @Autowired() (
     val agg = sectionFacet.getAggregations.get[Terms]("sections")
 
     val items = for (entry <- agg.getBuckets.toSeq) yield {
-      mkItem(entry.getKey, entry.getDocCount)
+      mkItem(entry.getKeyAsString, entry.getDocCount)
     }
 
     val missing = selected.filter(key ⇒ items.forall(_.key !=key)).map(mkItem(_, 0)).toSeq
@@ -159,10 +159,10 @@ class SearchResultsService @Autowired() (
     val facetItems = for {
       selectedSection <- maybeSection.toSeq
       groups = selectedSection.getAggregations.get[Terms]("groups")
-      section = sectionService.getSectionByName(selectedSection.getKey)
+      section = sectionService.getSectionByName(selectedSection.getKeyAsString)
       entry <- groups.getBuckets.toSeq
     } yield {
-      mkItem(section, entry.getKey, entry.getDocCount)
+      mkItem(section, entry.getKeyAsString, entry.getDocCount)
     }
 
     val missing = selected.filter(key ⇒ facetItems.forall(_.key != key._2)).map(p ⇒
@@ -183,7 +183,7 @@ class SearchResultsService @Autowired() (
   def foundTags(agg:Aggregations):java.util.List[TagRef] = {
     val tags = agg.get[SignificantTerms]("tags")
 
-    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKey)).toSeq
+    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKeyAsString)).toSeq
   }
 }
 

@@ -19,10 +19,9 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, SearchType}
+import com.sksamuel.elastic4s.{ElasticClient, RichSearchResponse, SearchType}
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
@@ -84,7 +83,7 @@ class UserStatisticsService @Autowired() (
     )
   }
 
-  private def timeoutHandler(response:SearchResponse):Future[SearchResponse] = {
+  private def timeoutHandler(response:RichSearchResponse):Future[RichSearchResponse] = {
     if (response.isTimedOut) {
       Future failed new RuntimeException("ES Request timed out")
     } else {
@@ -98,8 +97,8 @@ class UserStatisticsService @Autowired() (
     try {
       elastic execute {
         val root = filteredQuery query matchAllQuery filter must (
-              termFilter("author", user.getNick),
-              termFilter("is_comment", true)
+              termQuery("author", user.getNick),
+              termQuery("is_comment", true)
         )
 
         statSearch query root
@@ -113,8 +112,8 @@ class UserStatisticsService @Autowired() (
     try {
       elastic execute {
         val root = filteredQuery query matchAllQuery filter must(
-          termFilter("author", user.getNick),
-          termFilter("is_comment", false)
+          termQuery("author", user.getNick),
+          termQuery("is_comment", false)
         )
 
         statSearch query root aggs(
@@ -132,7 +131,7 @@ class UserStatisticsService @Autowired() (
         }
 
         val sections = sectionsResult.getBuckets.map { bucket =>
-          (bucket.getKeyAsText.string(), bucket.getDocCount)
+          (bucket.getKeyAsString, bucket.getDocCount)
         }.toSeq
 
         TopicStats(firstTopic, lastTopic, sections)

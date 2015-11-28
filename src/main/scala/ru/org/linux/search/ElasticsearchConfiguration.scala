@@ -15,7 +15,7 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import org.elasticsearch.node.NodeBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -32,11 +32,11 @@ class ElasticsearchConfiguration {
       case "embedded" ⇒
         val builder = NodeBuilder.nodeBuilder().local(true)
 
-        builder.settings().put("path.data", "target/elasticsearch-data")
+        builder.settings().put("path.home", "target/elasticsearch-data")
 
         ElasticClient.fromNode(builder.node())
       case address ⇒
-        ElasticClient.remote(address, 9300)
+        ElasticClient.transport(ElasticsearchClientUri(address, 9300))
     }
   }
 }

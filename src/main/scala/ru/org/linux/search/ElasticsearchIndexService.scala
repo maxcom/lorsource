@@ -22,8 +22,8 @@ object ElasticsearchIndexService {
   val MessageIndex = "messages"
   private val MessageType = "message"
 
-  val MessageIndexType = IndexType(MessageIndex, MessageType)
-  val MessageIndexTypes = IndexesTypes(MessageIndexType)
+  val MessageIndexType = IndexAndTypes(MessageIndex, MessageType)
+  val MessageIndexTypes = IndexesAndTypes(MessageIndexType)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
 }
@@ -48,7 +48,7 @@ class ElasticsearchIndexService @Autowired()
   private def reindexComments(topic: Topic, comments: CommentList):Seq[BulkCompatibleDefinition] = {
     for (comment <- comments.getList.asScala) yield {
       if (comment.isDeleted) {
-        delete id comment.getId.toString from MessageIndexTypes
+        delete id comment.getId.toString from MessageIndexType
       } else {
         val message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
         indexOfComment(topic, comment, message)
@@ -68,13 +68,13 @@ class ElasticsearchIndexService @Autowired()
 
       executeBulk(bulk(topicIndex +: commentsIndex))
     } else {
-      val topicDelete = delete id topic.getId.toString from MessageIndexTypes
+      val topicDelete = delete id topic.getId.toString from MessageIndexType
 
       val commentsDelete = if (withComments) {
         val comments = commentService.getCommentList(topic, true).getList.asScala
 
         comments.map {
-          comment ⇒ delete id comment.getId.toString from MessageIndexTypes
+          comment ⇒ delete id comment.getId.toString from MessageIndexType
         }
       } else Seq.empty
 
@@ -100,7 +100,7 @@ class ElasticsearchIndexService @Autowired()
       val topic = topicDao.getById(comment.getTopicId)
 
       if (!isTopicSearchable(topic) || comment.isDeleted) {
-        delete id comment.getId.toString from MessageIndexTypes
+        delete id comment.getId.toString from MessageIndexType
       } else {
         val message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
         indexOfComment(topic, comment, message)
