@@ -21,7 +21,7 @@ import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, MoreLikeThisQueryDefinition, RichSearchHit, TermsQueryDefinition}
+import com.sksamuel.elastic4s.{ElasticClient, RichSearchHit, TermsQueryDefinition}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
@@ -156,14 +156,9 @@ class MoreLikeThisService @Autowired() (
     moreLikeThisQuery("title") like
       topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords(StopWords: _*) maxDocFreq 5000
 
-  private def textQuery(id:Int) = {
-    val q = MoreLikeThisQueryDefinition(Seq("message"), Seq.empty) minTermFreq 1 stopWords
-      (StopWords: _*) minWordLength 3 maxDocFreq 100000
-
-    q.builder.ids(id.toString)
-
-    q
-  }
+  private def textQuery(id:Int) =
+    moreLikeThisQuery("message") minTermFreq 1 stopWords
+      (StopWords: _*) minWordLength 3 maxDocFreq 100000 ids id.toString
 
   private def tagsQuery(tags:Seq[String]) = TermsQueryDefinition("tag", tags)
 }
