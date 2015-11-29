@@ -48,7 +48,7 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
 
   private def wrapQuery(q:QueryDefinition, filters:Seq[QueryDefinition]) = {
     if (filters.nonEmpty) {
-      filteredQuery query q filter must(filters)
+      bool { must(q) filter filters }
     } else {
       q
     }

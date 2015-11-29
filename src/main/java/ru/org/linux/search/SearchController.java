@@ -121,8 +121,8 @@ public class SearchController {
 
       Collection<SearchItem> res = resultsService.prepareAll(Arrays.asList(response.hits()));
 
-      if (response.getAggregations() != null) {
-        Filter countFacet = response.getAggregations().get("sections");
+      if (response.aggregations() != null) {
+        Filter countFacet = response.aggregations().get("sections");
         Terms sectionsFacet = countFacet.getAggregations().get("sections");
 
         if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
@@ -147,7 +147,7 @@ public class SearchController {
           params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }
 
-        params.put("tags", resultsService.foundTags(response.getAggregations()));
+        params.put("tags", resultsService.foundTags(response.aggregations()));
       }
 
       long time = System.currentTimeMillis() - current;

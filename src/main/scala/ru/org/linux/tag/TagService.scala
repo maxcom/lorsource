@@ -17,8 +17,8 @@ package ru.org.linux.tag
 
 import java.util
 
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient}
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.springframework.beans.factory.annotation.Autowired
@@ -56,10 +56,10 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
     Future.successful(elastic) flatMap {
       _ execute {
         search in MessageIndexTypes size 0 query
-          filteredQuery.query(matchAllQuery).filter(must(termQuery("is_comment", "false"), termQuery("tag", tag)))
+          new BoolQueryDefinition().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
       }
     } map {
-      _.getHits.getTotalHits
+      _.totalHits
     }
   }
 
@@ -74,13 +74,12 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
 
       _ execute {
         search in MessageIndexTypes size 0 query
-          filteredQuery
-            .query(matchAllQuery)
-            .filter(must(termQuery("is_comment", "false"), termQuery("tag", tag))) aggs sigterms
+          new BoolQueryDefinition()
+            .filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
       }
     } map { r ⇒
       (for {
-        bucket <- r.getAggregations.get[SignificantTerms]("related").asScala
+        bucket <- r.aggregations.get[SignificantTerms]("related").asScala
       } yield {
         tagRef(bucket.getKeyAsString)
       }).toSeq.sorted
@@ -91,17 +90,16 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
     Future.successful(elastic) flatMap {
       _ execute {
         search in MessageIndexTypes size 0 query
-          filteredQuery
-            .query(matchAllQuery)
-            .filter(must(
+          new BoolQueryDefinition()
+            .filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
-              rangeQuery("postdate").gte("now/d-1y"))
+              rangeQuery("postdate").gte("now/d-1y")
             ) aggs (agg terms "active" field "tag" minDocCount 10)
       }
     } map { r ⇒
       (for {
-        bucket <- r.getAggregations.get[Terms]("active").getBuckets.asScala
+        bucket <- r.aggregations.get[Terms]("active").getBuckets.asScala
       } yield {
         tagRef(bucket.getKeyAsString)
       }).toSeq.sorted

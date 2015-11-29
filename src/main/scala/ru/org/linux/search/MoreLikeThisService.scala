@@ -103,15 +103,10 @@ class MoreLikeThisService @Autowired() (
 
     val queries = Seq(titleQuery(topic), textQuery(topic.getId)) ++ tagsQ
 
-    val rootFilter = bool {
-      must(
-        termQuery("is_comment", "false"),
-        termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")
-      ) not idsQuery(topic.getId.toString)
-    }
+    val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
     search in MessageIndexTypes query {
-      filteredQuery filter rootFilter query bool { should(queries:_*) }
+      bool { should(queries:_*) filter rootFilters minimumShouldMatch 1 not idsQuery(topic.getId.toString) }
     } fields("title", "postdate", "section", "group")
   }
 

@@ -19,7 +19,7 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, RichSearchResponse}
+import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient, RichSearchResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
@@ -96,13 +96,12 @@ class UserStatisticsService @Autowired() (
   private def countComments(user:User):Future[Long] = {
     try {
       elastic execute {
-        val root = filteredQuery query matchAllQuery filter must (
+        val root = new BoolQueryDefinition() filter (
               termQuery("author", user.getNick),
-              termQuery("is_comment", true)
-        )
+              termQuery("is_comment", true))
 
         statSearch query root
-      } flatMap timeoutHandler map { _.getHits.getTotalHits }
+      } flatMap timeoutHandler map { _.totalHits }
     } catch {
       case ex: ElasticsearchException => Future.failed(ex)
     }
@@ -111,18 +110,16 @@ class UserStatisticsService @Autowired() (
   private def topicStats(user:User):Future[TopicStats] = {
     try {
       elastic execute {
-        val root = filteredQuery query matchAllQuery filter must(
+        val root = new BoolQueryDefinition filter (
           termQuery("author", user.getNick),
-          termQuery("is_comment", false)
-        )
+          termQuery("is_comment", false))
 
         statSearch query root aggs(
           agg stats "topic_stats" field "postdate",
-          agg terms "sections" field "section"
-          )
+          agg terms "sections" field "section")
       } flatMap timeoutHandler map { response ⇒
-        val topicStatsResult = response.getAggregations.get[Stats]("topic_stats")
-        val sectionsResult = response.getAggregations.get[Terms]("sections")
+        val topicStatsResult = response.aggregations.get[Stats]("topic_stats")
+        val sectionsResult = response.aggregations.get[Terms]("sections")
 
         val (firstTopic, lastTopic) = if (topicStatsResult.getCount > 0) {
           (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
