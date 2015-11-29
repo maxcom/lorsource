@@ -409,9 +409,7 @@
                 <arg>-deprecation</arg>
                 <arg>-feature</arg>
                 <arg>-unchecked</arg>
-<!--
                 <arg>-Xfatal-warnings</arg>
--->
                 <arg>-Xlint</arg>
                 <arg>-language:postfixOps</arg>
                 <arg>-Yno-adapted-args</arg>

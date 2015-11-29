@@ -20,7 +20,7 @@ import scala.collection.JavaConverters._
 
 object ElasticsearchIndexService {
   val MessageIndex = "messages"
-  private val MessageType = "message"
+  val MessageType = "message"
 
   val MessageIndexType = IndexAndTypes(MessageIndex, MessageType)
   val MessageIndexTypes = IndexesAndTypes(MessageIndexType)

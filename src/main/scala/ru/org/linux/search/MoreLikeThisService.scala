@@ -21,7 +21,7 @@ import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, RichSearchHit, TermsQueryDefinition}
+import com.sksamuel.elastic4s.{ElasticClient, Item, RichSearchHit, TermsQueryDefinition}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
@@ -30,7 +30,7 @@ import org.elasticsearch.ElasticsearchException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndexTypes}
+import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageIndexTypes, MessageType}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
@@ -153,7 +153,7 @@ class MoreLikeThisService @Autowired() (
 
   private def textQuery(id:Int) =
     moreLikeThisQuery("message") minTermFreq 1 stopWords
-      (StopWords: _*) minWordLength 3 maxDocFreq 100000 ids id.toString
+      (StopWords: _*) minWordLength 3 maxDocFreq 100000 like Item(MessageIndex, MessageType, id.toString)
 
   private def tagsQuery(tags:Seq[String]) = TermsQueryDefinition("tag", tags)
 }
