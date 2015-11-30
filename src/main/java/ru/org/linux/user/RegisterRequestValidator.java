@@ -69,7 +69,8 @@ public class RegisterRequestValidator implements Validator {
           "solvemail.info",
           "burstmail.info",
           "coldemail.info",
-          "mailtemp.info"
+          "mailtemp.info",
+          "one-time.email"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
