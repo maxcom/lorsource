@@ -20,18 +20,17 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, Item, RichSearchHit, TermsQueryDefinition}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.lucene.analysis.util.CharArraySet
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.search.SearchHit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndexTypes}
+import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageIndexTypes, MessageType}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
@@ -79,10 +78,10 @@ class MoreLikeThisService @Autowired() (
         try {
           val searchResult = elastic execute makeQuery(topic, tags)
 
-          val result: Future[Result] = searchResult.map(result => if (result.getHits.nonEmpty) {
-            val half = result.getHits.size / 2 + result.getHits.size % 2
+          val result: Future[Result] = searchResult.map(result => if (result.hits.nonEmpty) {
+            val half = result.hits.length / 2 + result.hits.length % 2
 
-            result.getHits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
+            result.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
           } else Seq())
 
           result.onSuccess {
@@ -104,15 +103,10 @@ class MoreLikeThisService @Autowired() (
 
     val queries = Seq(titleQuery(topic), textQuery(topic.getId)) ++ tagsQ
 
-    val rootFilter = bool {
-      must(
-        termFilter("is_comment", "false"),
-        termFilter(COLUMN_TOPIC_AWAITS_COMMIT, "false")
-      ) not idsFilter(topic.getId.toString)
-    }
+    val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
     search in MessageIndexTypes query {
-      filteredQuery filter rootFilter query bool { should(queries:_*) }
+      bool { should(queries:_*) filter rootFilters minimumShouldMatch 1 not idsQuery(topic.getId.toString) }
     } fields("title", "postdate", "section", "group")
   }
 
@@ -134,16 +128,16 @@ class MoreLikeThisService @Autowired() (
     }
   }
 
-  private def processHit(hit: SearchHit): MoreLikeThisTopic = {
+  private def processHit(hit: RichSearchHit): MoreLikeThisTopic = {
     val section = SearchResultsService.section(hit)
     val group = SearchResultsService.group(hit)
 
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-    val link = builder.buildAndExpand(section, group, new Integer(hit.getId)).toUriString
+    val link = builder.buildAndExpand(section, group, new Integer(hit.id)).toUriString
 
     val postdate = SearchResultsService.postdate(hit)
 
-    val title = hit.getFields.get("title").getValue[String]
+    val title = hit.field("title").value[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
@@ -154,18 +148,14 @@ class MoreLikeThisService @Autowired() (
   }
 
   private def titleQuery(topic:Topic) =
-    morelikeThisQuery("title") likeText
+    moreLikeThisQuery("title") like
       topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords(StopWords: _*) maxDocFreq 5000
 
-  private def textQuery(id:Int) = {
-    val q = morelikeThisQuery("message") minTermFreq 1 stopWords (StopWords: _*) minWordLength 3 maxDocFreq 100000
+  private def textQuery(id:Int) =
+    moreLikeThisQuery("message") minTermFreq 1 stopWords
+      (StopWords: _*) minWordLength 3 maxDocFreq 100000 like Item(MessageIndex, MessageType, id.toString)
 
-    q.builder.ids(id.toString)
-
-    q
-  }
-
-  private def tagsQuery(tags:Seq[String]) = termsQuery("tag", tags:_*)
+  private def tagsQuery(tags:Seq[String]) = TermsQueryDefinition("tag", tags)
 }
 
 object MoreLikeThisService {

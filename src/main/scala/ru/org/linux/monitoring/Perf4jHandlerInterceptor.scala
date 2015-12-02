@@ -85,11 +85,11 @@ class Perf4jHandlerInterceptor @Autowired() (elastic:ElasticClient) extends Hand
 
       Await.result(elastic.execute {
         create template s"$IndexPrefix-template" pattern PerfPattern mappings (
-          PerfType as(
-            "controller" typed StringType index NotAnalyzed,
-            "startdate" typed DateType format "dateTime",
-            "elapsed" typed LongType,
-            "view" typed LongType
+          mapping(PerfType) fields (
+            field("controller", StringType) index NotAnalyzed,
+            field("startdate", DateType) format "dateTime",
+            field("elapsed", LongType),
+            field("view", LongType)
           ) all false
         )
       }, 30 seconds)

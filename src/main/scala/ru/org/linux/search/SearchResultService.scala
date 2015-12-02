@@ -15,8 +15,8 @@
 
 package ru.org.linux.search
 
+import com.sksamuel.elastic4s.RichSearchHit
 import com.typesafe.scalalogging.StrictLogging
-import org.elasticsearch.search.SearchHit
 import org.elasticsearch.search.aggregations.Aggregations
 import org.elasticsearch.search.aggregations.bucket.filter.Filter
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
@@ -53,20 +53,20 @@ class SearchResultsService @Autowired() (
 ) extends StrictLogging {
   import ru.org.linux.search.SearchResultsService._
 
-  def prepareAll(docs:java.lang.Iterable[SearchHit]) = (docs map prepare).asJavaCollection
+  def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs map prepare).asJavaCollection
 
-  def prepare(doc:SearchHit):SearchItem = {
-    val author = userService.getUserCached(doc.getFields.get("author").getValue[String])
+  def prepare(doc:RichSearchHit):SearchItem = {
+    val author = userService.getUserCached(doc.field("author").value[String])
 
-    val postdate = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
+    val postdate = isoDateTime.parseDateTime(doc.field("postdate").value[String])
 
-    val comment = doc.getFields.get("is_comment").getValue[Boolean]
+    val comment = doc.field("is_comment").value[Boolean]
 
     val tags = if (comment) {
       Seq()
     } else {
-      if (doc.getFields.containsKey("tag")) {
-        doc.getFields.get("tag").getValues.map(
+      if (doc.fields.containsKey("tag")) {
+        doc.field("tag").values.map(
           tag => TagService.tagRef(tag.toString))
       } else {
         Seq()
@@ -78,47 +78,34 @@ class SearchResultsService @Autowired() (
       postdate = postdate,
       user = author,
       url = getUrl(doc),
-      score = doc.getScore,
+      score = doc.score,
       comment = comment,
       message = getMessage(doc),
       tags = tags
     )
   }
 
-  private def getTitle(doc: SearchHit):String = {
-    val itemTitle = if (doc.getHighlightFields.containsKey("title")) {
-      Some(doc.getHighlightFields.get("title").fragments()(0).string)
-    } else if (doc.getFields.containsKey("title")) {
-      Some(StringUtil.escapeHtml(doc.getFields.get("title").getValue[String]))
-    } else {
-      None
-    }
+  private def getTitle(doc: RichSearchHit):String = {
+    val itemTitle = doc.highlightFields.get("title").map(_.fragments()(0).string)
+      .orElse(doc.fields.get("title") map { v ⇒ StringUtil.escapeHtml(v.value[String]) } )
 
-    val topicTitle = if (doc.getHighlightFields.containsKey("topic_title")) {
-      doc.getHighlightFields.get("topic_title").fragments()(0).string
-    } else {
-      StringUtil.escapeHtml(doc.getFields.get("topic_title").getValue[String])
-    }
-
-    itemTitle.filter(!_.trim.isEmpty).getOrElse(topicTitle)
+    itemTitle.filter(!_.trim.isEmpty).orElse(
+      doc.highlightFields.get("topic_title").map(_.fragments()(0).string))
+        .getOrElse(StringUtil.escapeHtml(doc.fields("topic_title").value[String]))
   }
 
-  private def getMessage(doc: SearchHit): String = {
-    if (doc.getHighlightFields.containsKey("message")) {
-      doc.getHighlightFields.get("message").fragments()(0).string
-    } else {
-      val rawMessage = doc.getFields.get("message").getValue[String].take(SearchViewer.MessageFragment)
-
-      StringUtil.escapeHtml(rawMessage)
+  private def getMessage(doc: RichSearchHit): String = {
+    doc.highlightFields.get("message").map(_.fragments()(0).string) getOrElse {
+      StringUtil.escapeHtml(doc.fields("message").value[String].take(SearchViewer.MessageFragment))
     }
   }
 
-  private def getUrl(doc: SearchHit): String = {
+  private def getUrl(doc: RichSearchHit): String = {
     val section = SearchResultsService.section(doc)
-    val msgid = doc.getId
+    val msgid = doc.id
 
-    val comment = doc.getFields.get("is_comment").getValue[Boolean]
-    val topic = doc.getFields.get("topic_id").getValue[Int]
+    val comment = doc.field("is_comment").value[Boolean]
+    val topic = doc.field("topic_id").value[Int]
     val group = SearchResultsService.group(doc)
 
     if (comment) {
@@ -139,7 +126,7 @@ class SearchResultsService @Autowired() (
     val agg = sectionFacet.getAggregations.get[Terms]("sections")
 
     val items = for (entry <- agg.getBuckets.toSeq) yield {
-      mkItem(entry.getKey, entry.getDocCount)
+      mkItem(entry.getKeyAsString, entry.getDocCount)
     }
 
     val missing = selected.filter(key ⇒ items.forall(_.key !=key)).map(mkItem(_, 0)).toSeq
@@ -159,10 +146,10 @@ class SearchResultsService @Autowired() (
     val facetItems = for {
       selectedSection <- maybeSection.toSeq
       groups = selectedSection.getAggregations.get[Terms]("groups")
-      section = sectionService.getSectionByName(selectedSection.getKey)
+      section = sectionService.getSectionByName(selectedSection.getKeyAsString)
       entry <- groups.getBuckets.toSeq
     } yield {
-      mkItem(section, entry.getKey, entry.getDocCount)
+      mkItem(section, entry.getKeyAsString, entry.getDocCount)
     }
 
     val missing = selected.filter(key ⇒ facetItems.forall(_.key != key._2)).map(p ⇒
@@ -183,16 +170,16 @@ class SearchResultsService @Autowired() (
   def foundTags(agg:Aggregations):java.util.List[TagRef] = {
     val tags = agg.get[SignificantTerms]("tags")
 
-    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKey)).toSeq
+    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKeyAsString)).toSeq
   }
 }
 
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
-  def postdate(doc:SearchHit) = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
-  def section(doc:SearchHit) = doc.getFields.get("section").getValue[String]
-  def group(doc:SearchHit) = doc.getFields.get("group").getValue[String]
+  def postdate(doc:RichSearchHit) = isoDateTime.parseDateTime(doc.field("postdate").value[String])
+  def section(doc:RichSearchHit) = doc.field("section").value[String]
+  def group(doc:RichSearchHit) = doc.field("group").value[String]
 }
 
 case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)

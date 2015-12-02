@@ -19,10 +19,9 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, SearchType}
+import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient, RichSearchResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
@@ -84,7 +83,7 @@ class UserStatisticsService @Autowired() (
     )
   }
 
-  private def timeoutHandler(response:SearchResponse):Future[SearchResponse] = {
+  private def timeoutHandler(response:RichSearchResponse):Future[RichSearchResponse] = {
     if (response.isTimedOut) {
       Future failed new RuntimeException("ES Request timed out")
     } else {
@@ -92,18 +91,17 @@ class UserStatisticsService @Autowired() (
     }
   }
 
-  private def statSearch = search in MessageIndexTypes searchType SearchType.Count timeout ElasticTimeout
+  private def statSearch = search in MessageIndexTypes size 0 timeout ElasticTimeout
 
   private def countComments(user:User):Future[Long] = {
     try {
       elastic execute {
-        val root = filteredQuery query matchAllQuery filter must (
-              termFilter("author", user.getNick),
-              termFilter("is_comment", true)
-        )
+        val root = new BoolQueryDefinition() filter (
+              termQuery("author", user.getNick),
+              termQuery("is_comment", true))
 
         statSearch query root
-      } flatMap timeoutHandler map { _.getHits.getTotalHits }
+      } flatMap timeoutHandler map { _.totalHits }
     } catch {
       case ex: ElasticsearchException => Future.failed(ex)
     }
@@ -112,18 +110,16 @@ class UserStatisticsService @Autowired() (
   private def topicStats(user:User):Future[TopicStats] = {
     try {
       elastic execute {
-        val root = filteredQuery query matchAllQuery filter must(
-          termFilter("author", user.getNick),
-          termFilter("is_comment", false)
-        )
+        val root = new BoolQueryDefinition filter (
+          termQuery("author", user.getNick),
+          termQuery("is_comment", false))
 
         statSearch query root aggs(
           agg stats "topic_stats" field "postdate",
-          agg terms "sections" field "section"
-          )
+          agg terms "sections" field "section")
       } flatMap timeoutHandler map { response ⇒
-        val topicStatsResult = response.getAggregations.get[Stats]("topic_stats")
-        val sectionsResult = response.getAggregations.get[Terms]("sections")
+        val topicStatsResult = response.aggregations.get[Stats]("topic_stats")
+        val sectionsResult = response.aggregations.get[Terms]("sections")
 
         val (firstTopic, lastTopic) = if (topicStatsResult.getCount > 0) {
           (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
@@ -132,7 +128,7 @@ class UserStatisticsService @Autowired() (
         }
 
         val sections = sectionsResult.getBuckets.map { bucket =>
-          (bucket.getKeyAsText.string(), bucket.getDocCount)
+          (bucket.getKeyAsString, bucket.getDocCount)
         }.toSeq
 
         TopicStats(firstTopic, lastTopic, sections)

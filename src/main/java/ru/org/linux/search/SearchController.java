@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import com.sksamuel.elastic4s.ElasticClient;
-import org.elasticsearch.action.search.SearchResponse;
+import com.sksamuel.elastic4s.RichSearchResponse;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +48,7 @@ import scala.Option;
 import scala.Tuple2;
 
 import java.beans.PropertyEditorSupport;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -114,14 +115,14 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query, client);
 
-      SearchResponse response = sv.performSearch();
+      RichSearchResponse response = sv.performSearch();
 
       long current = System.currentTimeMillis();
 
-      Collection<SearchItem> res = resultsService.prepareAll(response.getHits());
+      Collection<SearchItem> res = resultsService.prepareAll(Arrays.asList(response.hits()));
 
-      if (response.getAggregations() != null) {
-        Filter countFacet = response.getAggregations().get("sections");
+      if (response.aggregations() != null) {
+        Filter countFacet = response.aggregations().get("sections");
         Terms sectionsFacet = countFacet.getAggregations().get("sections");
 
         if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
@@ -141,21 +142,21 @@ public class SearchController {
           }
         } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBuckets().size()==1) {
           Terms.Bucket onlySection = sectionsFacet.getBuckets().iterator().next();
-          query.setSection(onlySection.getKey());
+          query.setSection(onlySection.getKeyAsString());
 
           params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }
 
-        params.put("tags", resultsService.foundTags(response.getAggregations()));
+        params.put("tags", resultsService.foundTags(response.aggregations()));
       }
 
       long time = System.currentTimeMillis() - current;
 
       params.put("result", res);
-      params.put("searchTime", response.getTookInMillis());
-      params.put("numFound", response.getHits().getTotalHits());
+      params.put("searchTime", response.tookInMillis());
+      params.put("numFound", response.totalHits());
 
-      if (response.getHits().getTotalHits() > query.getOffset() + SearchViewer.SearchRows()) {
+      if (response.totalHits() > query.getOffset() + SearchViewer.SearchRows()) {
         params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SearchRows()));
       }
 
