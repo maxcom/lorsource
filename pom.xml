@@ -28,13 +28,20 @@
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.0.v20150612</jetty.version>
+    <akka.version>2.4.1</akka.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-actor_${scala.suffix}</artifactId>
-      <version>2.4.0</version>
+      <version>${akka.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-slf4j_${scala.suffix}</artifactId>
+      <version>${akka.version}</version>
     </dependency>
 
     <dependency>
