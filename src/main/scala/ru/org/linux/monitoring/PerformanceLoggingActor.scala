@@ -87,7 +87,7 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
   }
 
   private def createIndex() = {
-    log.debug("Create performance index template")
+    log.info("Create performance index template")
 
     elastic.execute {
       create template s"$IndexPrefix-template" pattern PerfPattern mappings (
