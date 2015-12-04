@@ -16,25 +16,19 @@
 package ru.org.linux.monitoring
 
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
-import javax.annotation.PostConstruct
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import akka.actor.ActorRef
 import com.google.common.base.Stopwatch
-import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.mappings.FieldType._
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import org.springframework.web.servlet.resource.{DefaultServletHttpRequestHandler, ResourceHttpRequestHandler}
 import ru.org.linux.monitoring.Perf4jHandlerInterceptor._
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
@@ -42,11 +36,7 @@ object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
   private val LoggingThreshold = 1 second
   private val ElasticProbability = 0.2
-  private val IndexPrefix = "perf"
-  private val PerfPattern = s"$IndexPrefix-*"
-  private val PerfType = "metric"
 
-  private val indexDateFormat = DateTimeFormat.forPattern("YYYY-MM")
 
   private class Metrics(val name:String, val path:String, val start:DateTime, controller:Stopwatch, view:Stopwatch) {
     def controllerDone():Unit = {
@@ -75,29 +65,7 @@ object Perf4jHandlerInterceptor {
   }
 }
 
-class Perf4jHandlerInterceptor @Autowired() (elastic:ElasticClient) extends HandlerInterceptorAdapter with StrictLogging {
-  private def indexOf(date:DateTime) = IndexPrefix + "-" + indexDateFormat.print(date)
-
-  @PostConstruct
-  def createIndex():Unit = {
-    try {
-      logger.info("Create performance index template")
-
-      Await.result(elastic.execute {
-        create template s"$IndexPrefix-template" pattern PerfPattern mappings (
-          mapping(PerfType) fields (
-            field("controller", StringType) index NotAnalyzed,
-            field("startdate", DateType) format "dateTime",
-            field("elapsed", LongType),
-            field("view", LongType)
-          ) all false
-        )
-      }, 30 seconds)
-    } catch {
-      case NonFatal(ex) ⇒
-        logger.warn("Unable to create performance index", ex)
-    }
-  }
+class Perf4jHandlerInterceptor @Autowired() (@Qualifier("loggingActor") loggingActor:ActorRef) extends HandlerInterceptorAdapter with StrictLogging {
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef): Boolean = {
     if (handler.isInstanceOf[ResourceHttpRequestHandler] || handler.isInstanceOf[DefaultServletHttpRequestHandler]) {
@@ -143,18 +111,7 @@ class Perf4jHandlerInterceptor @Autowired() (elastic:ElasticClient) extends Hand
         try {
           val date = stopWatch.start
 
-          val future = elastic execute {
-            index into indexOf(date) -> PerfType fields (
-              "controller" -> stopWatch.name,
-              "startdate"  -> date,
-              "elapsed"    -> stopWatch.controllerTime,
-              "view"       -> stopWatch.viewTime
-            )
-          }
-
-          future.onFailure {
-            case error ⇒ logger.info("Unable to log performance metric", error)
-          }
+          loggingActor ! Metric(stopWatch.name, date, stopWatch.controllerTime, stopWatch.viewTime)
         } catch {
           case NonFatal(failure) ⇒
             logger.info("Unable to log performance metric", failure)
