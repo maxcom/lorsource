@@ -56,7 +56,7 @@
       <li>OpenJDK 1.8.0</li>
       <li>Scala 2.11</li>
       <li>Apache Tomcat 7</li>
-      <li>ActiveMQ 5.11</li>
+      <li>ActiveMQ 5.13</li>
       <li>Spring 4.2</li>
       <li>Поиск: Elasticsearch 2.1</li>
     </ul>
