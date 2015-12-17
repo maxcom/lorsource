@@ -20,7 +20,7 @@
     <dependency.spring.version>4.2.4.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.8.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4-1204-jdbc42</jdbc.postgresql.version>
-    <es.version>2.1.0</es.version>
+    <es.version>2.1.1</es.version>
     <scala.version>2.11.7</scala.version>
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.13.0</activemq.version>
