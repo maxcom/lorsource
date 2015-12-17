@@ -133,7 +133,7 @@ class ElasticsearchIndexService @Autowired()
       val bulkResponse = elastic.execute(bulkRequest).await
 
       if (bulkResponse.hasFailures) {
-        logger.warn(s"Bulk index failed: ${bulkResponse.buildFailureMessage}")
+        logger.warn(s"Bulk index failed: ${bulkResponse.failureMessage}")
         throw new RuntimeException("Bulk request failed")
       }
     }
