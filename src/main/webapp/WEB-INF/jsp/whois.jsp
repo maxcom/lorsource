@@ -225,6 +225,23 @@
         </form>
     </div>
 </c:if>
+
+<c:if test="${(template.moderatorSession) or template.currentUser.administrator}">
+    <br>
+
+    <div style="border: 1px dotted; padding: 1em;">
+        <form method='post' action='usermod.jsp'>
+            <lor:csrf/>
+	    <strong>изменение score</strong>
+            <input type='hidden' name='id' value='${user.id}'>
+	    <label>Изменение: <input type='number' name='score_change'> (от -20 до 20)</label>
+            <label>Причина: <input type="text" name="reason" size="40" required></label>
+            <button type='submit' name='action' value="setScore">изменить score</button><br>
+        </form>
+    </div>
+</c:if>
+
+
 <p>
     <c:if test="${template.sessionAuthorized or user.maxScore>=50}">
     <div>

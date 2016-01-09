@@ -289,6 +289,18 @@ public class UserDao {
       userLogDao.setCorrector(user, moderator);
     }
   }
+
+  /**
+   * Смена score для пользователя
+   * @param user пользователь у которого меняется score
+   * @param score_change изменение score
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
+  public void setScore(int score_change, User user, User moderator) {
+      changeScore(user.getID(), score_change);
+      userLogDao.logSetScore(score_change, user, moderator);
+  }
   
   /**
    * Смена стиля\темы пользователя

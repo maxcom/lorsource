@@ -127,6 +127,34 @@ public class UserModificationController {
     return redirectToProfile(user);
   }
 
+
+  /**
+   * Управление score
+   *
+   * @param request http запрос
+   * @param user кому ставим score
+   * @param score_change изменение score
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователь блокирован
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=setScore")
+  public ModelAndView setScore(
+          HttpServletRequest request,
+          @RequestParam("id") User user
+  ) throws Exception {
+    User moderator = getModerator(request);
+    if (user.isBlocked() || user.isAnonymous()){
+      throw new AccessViolationException("Нельзя изменить score пользователю " + user.getNick());
+    }
+    if (abs(score_change) > 20 ) {
+	throw new AccessViolationException("Изменение score не должно быть больше 20");
+    }
+
+    userDao.setScore(score_change, user, moderator);
+
+    return redirectToProfile(user);
+  }
+
   /**
    * Контроллер разблокировки пользователя
    * @param request http запрос

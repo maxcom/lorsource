@@ -111,6 +111,17 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logSetScore(@Nonnull int score_change, @Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '')",
+            user.getId()
+	    
+            moderator.getId(),
+            UserLogAction.SETSCORE.toString()
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logUnblockUser(@Nonnull User user, @Nonnull User moderator) {
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
