@@ -141,7 +141,8 @@ public class UserModificationController {
   public ModelAndView setScore(
           HttpServletRequest request,
           @RequestParam("id") User user,
-	  @RequestParam("score_change") int score_change
+	  @RequestParam("score_change") int score_change,
+	  @RequestParam("reason") String reason
   ) throws Exception {
     User moderator = getModerator(request);
     if (user.isBlocked() || user.isAnonymous()){
@@ -151,7 +152,7 @@ public class UserModificationController {
 	throw new AccessViolationException("Изменение score не должно быть больше 20");
     }
 
-    userDao.setScore(score_change, user, moderator);
+    userDao.setScore(score_change, reason, user, moderator);
 
     return redirectToProfile(user);
   }

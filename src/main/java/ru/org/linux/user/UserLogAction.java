@@ -20,7 +20,7 @@ public enum UserLogAction {
   SET_USERPIC("set_userpic", "Установлена фотография"),
   BLOCK_USER("block_user", "Заблокирован"),
   SCORE50("score50", "Задан score=50"),
-  SETSCORE("set_score", "Изменен score"),
+  SET_SCORE("set_score", "Изменен score"),
   UNBLOCK_USER("unblock_user", "Разблокирован"),
   ACCEPT_NEW_EMAIL("accept_new_email", "Установлен новый email"),
   RESET_INFO("reset_info", "Сброшен текст информации"),

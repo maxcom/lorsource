@@ -111,12 +111,13 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void logSetScore(@Nonnull int score_change, @Nonnull User user, @Nonnull User moderator) {
+  public void logSetScore(@Nonnull User user, @Nonnull User moderator, @Nonnull String reason) {
     jdbcTemplate.update(
-            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '')",
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '?')",
             user.getId(),
             moderator.getId(),
-            UserLogAction.SETSCORE.toString()
+            UserLogAction.SET_SCORE.toString(),
+	    ImmutableMap.of(OPTION_REASON, reason)
     );
   }
 

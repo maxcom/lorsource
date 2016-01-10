@@ -294,12 +294,13 @@ public class UserDao {
    * Смена score для пользователя
    * @param user пользователь у которого меняется score
    * @param score_change изменение score
+   * @param reason причина
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void setScore(int score_change, User user, User moderator) {
+  public void setScore(int score_change, String reason,  User user, User moderator) {
       changeScore(user.getId(), score_change);
-      userLogDao.logSetScore(score_change, user, moderator);
+      userLogDao.logSetScore(user, moderator, reason+" ("+score_change+")");
   }
   
   /**
