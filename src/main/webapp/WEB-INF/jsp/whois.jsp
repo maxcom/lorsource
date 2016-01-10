@@ -232,10 +232,10 @@
     <div style="border: 1px dotted; padding: 1em;">
         <form method='post' action='usermod.jsp'>
             <lor:csrf/>
-	    <strong>изменение score</strong>
+	    <strong>Изменение score</strong>
             <input type='hidden' name='id' value='${user.id}'>
-	    <label>Изменение: <input type='number' name='score_change'> (от -20 до 20)</label>
-            <label>Причина: <input type="text" name="reason" size="40" required></label>
+	    <label>Изменение: <input type='number' name='score_change' required value=0> (от -20 до 20)</label>
+            <label>Причина: <input type="text" name="reason" size="40"></label>
             <button type='submit' name='action' value="setScore">изменить score</button><br>
         </form>
     </div>
