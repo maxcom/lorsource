@@ -183,7 +183,7 @@ public class WhoisController {
 
     return mv;
   }
-    
+
   @RequestMapping("/whois.jsp")
   public View getInfo(@RequestParam("nick") String nick) throws UnsupportedEncodingException{
     return new RedirectView("/people/"+ URLEncoder.encode(nick, "UTF-8")+"/profile");
