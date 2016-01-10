@@ -234,7 +234,7 @@
             <lor:csrf/>
 	    <strong>Изменение score</strong>
             <input type='hidden' name='id' value='${user.id}'>
-	    <label>Изменение: <input type='number' name='score_change' required value=0> (от -20 до 20)</label>
+	    <label>Изменение: <input type='number' name='score_change' min="-20" max="20" required value="0"> (от -20 до 20)</label>
             <label>Причина: <input type="text" name="reason" size="40"></label>
             <button type='submit' name='action' value="setScore">изменить score</button><br>
         </form>
