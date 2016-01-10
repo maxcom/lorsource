@@ -183,32 +183,6 @@ public class WhoisController {
 
     return mv;
   }
-
-  @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="setScore")
-  public ModelAndView setScore(@PathVariable String nick, ServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    if (!tmpl.isModeratorSession()) {
-      throw new AccessViolationException("not moderator");
-    }
-
-    User user = userService.getUser(nick);
-
-    user.checkAnonymous();
-    user.checkBlocked();
-
-    if (!user.isBlockable()) {
-      throw new AccessViolationException("Пользователя нельзя заблокировать");
-    }
-
-    ModelAndView mv = new ModelAndView("wipe-user");
-    mv.getModel().put("user", user);
-
-    mv.getModel().put("commentCount", userDao.getExactCommentCount(user));
-
-    return mv;
-  }
-
     
   @RequestMapping("/whois.jsp")
   public View getInfo(@RequestParam("nick") String nick) throws UnsupportedEncodingException{
