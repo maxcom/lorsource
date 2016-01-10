@@ -140,13 +140,14 @@ public class UserModificationController {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=setScore")
   public ModelAndView setScore(
           HttpServletRequest request,
-          @RequestParam("id") User user
+          @RequestParam("id") User user,
+	  @RequestParam("score_change") int score_change
   ) throws Exception {
     User moderator = getModerator(request);
     if (user.isBlocked() || user.isAnonymous()){
       throw new AccessViolationException("Нельзя изменить score пользователю " + user.getNick());
     }
-    if (abs(score_change) > 20 ) {
+    if (Math.abs(score_change) > 20 ) {
 	throw new AccessViolationException("Изменение score не должно быть больше 20");
     }
 

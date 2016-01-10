@@ -298,7 +298,7 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
   public void setScore(int score_change, User user, User moderator) {
-      changeScore(user.getID(), score_change);
+      changeScore(user.getId(), score_change);
       userLogDao.logSetScore(score_change, user, moderator);
   }
   
