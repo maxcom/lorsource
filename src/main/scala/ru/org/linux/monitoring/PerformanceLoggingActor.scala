@@ -75,6 +75,7 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
       context.become(ready)
     case Failure(ex) ⇒
       log.error(ex, "Failed to write perf metrics")
+      context.become(ready)
   }
 
   private def enqueue(m:Metric):Unit = {
