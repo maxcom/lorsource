@@ -3,11 +3,10 @@ package ru.org.linux.monitoring
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.pattern.PipeToSupport
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType.{DateType, LongType, StringType}
+import com.sksamuel.elastic4s.{BulkResult, ElasticClient}
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse
-import org.elasticsearch.action.bulk.BulkResponse
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -57,7 +56,7 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
             )
           }
         }
-      } pipeTo self onFailure { case ex ⇒ log.error(ex, "Error callback :-(") }
+      } pipeTo self
 
       queue = Vector.empty[Metric]
 
@@ -67,11 +66,11 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
   private val waiting:Receive = {
     case m:Metric ⇒
       enqueue(m)
-    case r:BulkResponse ⇒
+    case r:BulkResult ⇒
       if (r.hasFailures) {
-        log.warning(s"Failed to write perf metrics: ${r.buildFailureMessage()}")
+        log.warning(s"Failed to write perf metrics: ${r.failureMessage}")
       }
-      log.debug(s"Logged ${r.getItems.length} metrics")
+      log.debug(s"Logged ${r.items.length} metrics")
       context.become(ready)
     case Failure(ex) ⇒
       log.error(ex, "Failed to write perf metrics")
