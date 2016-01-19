@@ -57,7 +57,7 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
             )
           }
         }
-      } pipeTo self
+      } pipeTo self onFailure { case ex ⇒ log.error(ex, "Error callback :-(") }
 
       queue = Vector.empty[Metric]
 
