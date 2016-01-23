@@ -36,9 +36,6 @@
 </script>
 
 <jsp:include page="header.jsp"/>
-<%
-     session.setAttribute("register-visited", Boolean.TRUE);
-%>
 <H1>Регистрация</H1>
 <p>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
