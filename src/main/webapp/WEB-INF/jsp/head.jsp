@@ -69,10 +69,10 @@
 <![endif]-->
 
 <script type="text/javascript">
-  $script('/webjars/jquery/1.11.2/jquery.min.js', 'jquery');
+  $script('/webjars/jquery/1.12.0/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
-    $script('/js/plugins.js', 'plugins');
+    $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
     $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
   });
 
