@@ -548,6 +548,7 @@
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/jquery.validate.min.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
+                                <include>${project.build.directory}/${project.build.finalName}/js/pattern.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
                             </includes>
                         </aggregation>

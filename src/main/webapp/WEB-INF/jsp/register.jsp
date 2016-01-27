@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.user.User" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -48,7 +49,10 @@
 
   <div class="control-group">
     <label for="nick">Login</label>
-    <form:input path="nick" required="required" size="40" cssErrorClass="error" autofocus="autofocus"/>
+    <form:input path="nick" required="required" size="40" cssErrorClass="error"
+                title="Только латинские буквы, цифры и знаки _-, в первом символе только буквы"
+                pattern="[a-zA-Z][a-zA-Z0-9_-]*"
+                autofocus="autofocus" maxlength="<%= Integer.toString(User.MAX_NICK_LENGTH) %>"/>
     <form:errors path="nick" element="span" cssClass="error help-inline" for="nick"/>
     <div class="help-block">
       мы сохраняем регистр, в котором введен логин
@@ -63,7 +67,7 @@
 
   <div class="control-group">
     <label for="password">Пароль</label>
-    <form:password path="password" size="40" required="required" cssErrorClass="error"/>
+    <form:password path="password" size="40" required="required" cssErrorClass="error" minlength="5"/>
     <form:errors path="password" element="span" cssClass="error help-inline" for="password"/>
   </div>
 
