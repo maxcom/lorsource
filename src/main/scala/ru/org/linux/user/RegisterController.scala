@@ -63,13 +63,13 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
 
       ipBlockDao.checkBlockIP(request.getRemoteAddr, errors, tmpl.getCurrentUser)
 
-      if (userDao.isUserExists(form.getNick)) {
-        errors.rejectValue("nick", null, "пользователь " + form.getNick + " уже существует")
+      if (userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick)) {
+        errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
       }
 
       if (userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, false) != null) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
-          "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля")
+          "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
       }
     }
 
