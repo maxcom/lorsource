@@ -79,7 +79,9 @@ class TagPageController @Autowired()
 
     val favs = if (tmpl.isSessionAuthorized) {
       Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
-        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag))
+        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
+	"showIgnoreTagButton" -> !userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag),
+	"showUnIgnoreTagButton" -> userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag))
     } else {
       Seq.empty
     }
@@ -91,7 +93,8 @@ class TagPageController @Autowired()
     val model = Map(
       "tag" -> tag,
       "title" -> WordUtils.capitalize(tag),
-      "favsCount" -> userTagService.countFavs(tagInfo.id)
+      "favsCount" -> userTagService.countFavs(tagInfo.id),
+      "ignoreCount" -> userTagService.countIgnore(tagInfo.id)
     ) ++ sections ++ favs
 
     val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {

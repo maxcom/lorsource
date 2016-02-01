@@ -224,6 +224,49 @@ function tag_memories_form_setup(tag, csrf_token) {
 
     $("#tagFavAdd").bind("click", tag_filter);
   });
+
+  $(function() {
+    function tag_ignore(event) {
+      event.preventDefault();
+
+      var data = { tagName: tag};
+
+      var el = $('#tagIgnore');
+      var add = !el.hasClass("selected");
+
+      if (add) {
+        data['add'] = 'add';
+      } else {
+        data['del'] = 'del';
+      }
+
+      data['csrf'] = csrf_token;
+
+      $.ajax({
+        url: "/user-filter/ignore-tag",
+        type: "POST",
+        dataType: "json",
+        data: data
+      }).done(function (t) {
+            if (t.error) {
+              alert(t.error);
+            } else {
+              el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
+
+              $('#ignoreCount').text(t['count']);
+
+              if (add) {
+                el.addClass("selected");
+              } else {
+                el.removeClass("selected");
+              }
+            }
+          });
+    }
+
+    $("#tagIgnore").bind("click", tag_ignore);
+  });
+ 
 }
 
 $script.ready('plugins', function() {

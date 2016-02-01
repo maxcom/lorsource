@@ -38,7 +38,7 @@
         <c:if test="${isShowIgnoreTagButton}">
           <li>
           <c:url var="tagIgnUrl" value="/user-filter">
-            <c:param name="newIgnoredTagName" value="${tag}"/>
+            <c:param name="newIgnoreTagName" value="${tag}"/>
           </c:url>
 
           <a id="tagIgnAdd" href="${tagIgnUrl}">Игнорировать тег</a>

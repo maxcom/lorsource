@@ -95,8 +95,10 @@ public class UserTagService {
    * @param user    объект пользователя
    * @param tagName название тега
    */
-  public void ignoreAdd(User user, String tagName) throws TagNotFoundException {
+  public int ignoreAdd(User user, String tagName) throws TagNotFoundException {
+    int tagId = tagService.getTagId(tagName);
     userTagDao.addTag(user.getId(), tagService.getTagId(tagName), false);
+    return tagId;
   }
 
   /**
@@ -105,8 +107,10 @@ public class UserTagService {
    * @param user    объект пользователя
    * @param tagName название тега
    */
-  public void ignoreDel(User user, String tagName) throws TagNotFoundException {
+  public int ignoreDel(User user, String tagName) throws TagNotFoundException {
+    int tagId = tagService.getTagId(tagName);
     userTagDao.deleteTag(user.getId(), tagService.getTagId(tagName), false);
+    return tagId;
   }
 
   /**
@@ -215,5 +219,9 @@ public class UserTagService {
 
   public int countFavs(int id) {
     return userTagDao.countFavs(id);
+  }
+
+  public int countIgnore(int id) {
+    return userTagDao.countIgnore(id);
   }
 }
