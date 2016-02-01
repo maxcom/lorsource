@@ -10,6 +10,7 @@ before_script:
   - createdb -U maxcom lor
   - psql -f sql/demo.db -U maxcom lor
   - psql -c 'create extension hstore;' -U postgres lor
+  - psql -c 'create extension fuzzystrmatch;' -U postgres lor
   - unset GEM_PATH
 before_install:
   - unset GEM_PATH

@@ -281,12 +281,22 @@ public class User implements Serializable {
   }
 
   public String getStatus() {
+    String text;
+
     if (score < ANONYMOUS_LEVEL_SCORE) {
-      return "анонимный";
+      text = "анонимный";
     } else if (score < 100 && maxScore < 100) {
-      return "новый пользователь";
+      text = "новый пользователь";
     } else {
+      text = "";
+    }
+
+    if (maxScore>=100 && text.isEmpty()) {
       return getStars(score, maxScore, true);
+    } else if (maxScore>=100 && !text.isEmpty()) {
+      return text + " " + getStars(score, maxScore, true);
+    } else {
+      return text;
     }
   }
 
