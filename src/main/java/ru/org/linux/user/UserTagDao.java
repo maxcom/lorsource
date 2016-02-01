@@ -178,4 +178,12 @@ public class UserTagDao {
             Integer.class
     );
   }
+
+   public int countIgnore(int tagId) {
+    return jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND NOT is_favorite",
+            ImmutableMap.of("tagId", tagId),
+            Integer.class
+    );
+  }
 }
