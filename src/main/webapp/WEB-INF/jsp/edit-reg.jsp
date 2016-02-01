@@ -35,18 +35,13 @@ $script.ready("plugins", function() {
 
 <jsp:include page="header.jsp"/>
 
-<div class=nav>
-    <div id="navPath">
-      Редактирование профиля
-    </div>
+<h1>Редактирование профиля</h1>
 
-    <div class="nav-buttons">
-      <ul>
-        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="/people/${form.nick}/settings">Настройки</a></li>
-      </ul>
-     </div>
-</div>
+<nav>
+  <a href="/people/${template.nick}/edit" class="btn btn-selected">Редактировать профиль</a>
+  <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  <a class="btn btn-default" href="/people/${form.nick}/settings">Настройки</a>
+</nav>
 
 <form:form modelAttribute="form" method="POST" action="/people/${form.nick}/edit" id="editRegForm">
     <lor:csrf/>

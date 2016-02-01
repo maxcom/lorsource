@@ -42,7 +42,7 @@
 Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
 ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;.
 <p>
-Статистику сервера можно посмотреть тут: <a href="http://linuxhacker.ru/stats">статистика</a>.
+Статистику сервера можно посмотреть <a href="http://linuxhacker.ru/stats">тут</a>.
   <a href="http://www.pingdom.com" style="float: right">
     <img src="https://share.pingdom.com/banners/94fe3af1" alt="Uptime Report for LOR Main Page: Last 30 days" title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
   </a>
@@ -56,7 +56,7 @@
       <li>OpenJDK 1.8.0</li>
       <li>Scala 2.11</li>
       <li>Apache Tomcat 7</li>
-      <li>ActiveMQ 5.13</li>
+      <li>ActiveMQ 5.11</li>
       <li>Spring 4.2</li>
       <li>Поиск: Elasticsearch 2.1</li>
     </ul>

@@ -1,5 +1,8 @@
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="ru.org.linux.auth.AuthUtil" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8" isErrorPage="true" %>
 <%--
   ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +19,17 @@
   --%>
 
 <%
-   response.setStatus(403);
+  Logger logger = LoggerFactory.getLogger("ru.org.linux");
+
+  response.setStatus(403);
+
+  if (exception==null) {
+    exception = (Throwable) request.getAttribute("exception");
+  }
+
+  String message = exception.getMessage()==null?"":exception.getMessage();
+
+  logger.info("Forbidden. {} ({})", message, AuthUtil.getNick());
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
