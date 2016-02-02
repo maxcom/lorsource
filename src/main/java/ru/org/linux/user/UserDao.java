@@ -492,7 +492,7 @@ public class UserDao {
 
   public boolean hasSimilarUsers(String nick) {
     int c = jdbcTemplate.queryForObject("SELECT count(*) FROM users WHERE " +
-            "NOT blocked AND score>100 AND lastlogin<CURRENT_TIMESTAMP-'3 years'::INTERVAL " +
+            "NOT blocked AND score>=200 AND lastlogin>CURRENT_TIMESTAMP-'3 years'::INTERVAL " +
             "AND levenshtein_less_equal(lower(nick), ?, 1)<=1", Integer.class, nick);
 
     return c>0;
