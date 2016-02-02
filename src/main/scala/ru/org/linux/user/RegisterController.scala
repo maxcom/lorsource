@@ -15,7 +15,7 @@
 package ru.org.linux.user
 
 import javax.mail.internet.InternetAddress
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.validation.Valid
 
 import com.typesafe.scalalogging.StrictLogging
@@ -34,7 +34,7 @@ import ru.org.linux.auth._
 import ru.org.linux.email.EmailService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils}
+import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
 @Controller
 class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBlockDao,
@@ -54,8 +54,6 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
   def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
                  errors: Errors): ModelAndView = {
-    val session: HttpSession = request.getSession
-
     if (!errors.hasErrors) {
       captcha.checkCaptcha(request, errors)
 
@@ -159,6 +157,22 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
     userDao.acceptNewEmail(user, newEmail)
 
     new ModelAndView(new RedirectView("/people/" + user.getNick + "/profile"))
+  }
+
+  @ResponseBody
+  @RequestMapping(Array("check-login"))
+  def ajaxLoginCheck(@RequestParam nick: String):String = {
+    if (nick.isEmpty) {
+      "Не задан nick."
+    } else if (!StringUtil.checkLoginName(nick)) {
+      "Некорректное имя пользователя."
+    } else if (nick != null && nick.length > User.MAX_NICK_LENGTH) {
+      "Слишком длинное имя пользователя."
+    } else if (userDao.isUserExists(nick) || userDao.hasSimilarUsers(nick)) {
+      "Это имя пользователя уже используется. Пожалуйста выберите другое имя."
+    } else {
+      "true"
+    }
   }
 
   @InitBinder(Array("form"))

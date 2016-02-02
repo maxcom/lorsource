@@ -29,6 +29,9 @@
         rules : {
           password2: {
             equalTo: "#password"
+          },
+          nick: {
+            remote: "/check-login"
           }
         }
       });
