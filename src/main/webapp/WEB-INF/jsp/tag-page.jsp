@@ -68,15 +68,15 @@
                 <c:param name="newIgnoreTagName" value="${tag}"/>
             </c:url>
 
-            <a id="tagIgnore" href="${tagIgnUrl}" title="Игнорировать"><i class="icon-block"></i></a>
+            <a id="tagIgnore" href="${tagIgnUrl}" title="Игнорировать"><i class="icon-eye-with-line"></i></a>
         </c:if>
         <c:if test="${not template.sessionAuthorized}">
-            <a id="tagIgnNoth" href="#"><i class="icon-eye-cross"  title="Игнорировать"></i></a>
+            <a id="tagIgnNoth" href="#"><i class="icon-eye-with-line"  title="Игнорировать"></i></a>
         </c:if>
         <c:if test="${showUnIgnoreTagButton}">
             <c:url var="tagIgnUrl" value="/user-filter"/>
 
-            <a id="tagIgnore" href="${tagFavUrl}" title="Перестать игнорировать" class="selected"><i class="icon-block"></i></a>
+            <a id="tagIgnore" href="${tagFavUrl}" title="Перестать игнорировать" class="selected"><i class="icon-eye-with-line"></i></a>
         </c:if>
         <br><span id="ignoreCount" title="Кол-во пользователей, игнорирующих тег">${ignoreCount}</span>
     </div>
