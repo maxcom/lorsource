@@ -55,6 +55,7 @@
     <form:input path="nick" required="required" size="40" cssErrorClass="error"
                 title="Только латинские буквы, цифры и знаки _-, в первом символе только буквы"
                 pattern="[a-zA-Z][a-zA-Z0-9_-]*"
+                autocapitalize="off"
                 autofocus="autofocus" maxlength="<%= Integer.toString(User.MAX_NICK_LENGTH) %>"/>
     <form:errors path="nick" element="span" cssClass="error help-inline" for="nick"/>
     <div class="help-block">
