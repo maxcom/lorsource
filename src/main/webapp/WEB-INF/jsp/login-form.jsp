@@ -22,11 +22,17 @@
 
 <h1>Вход</h1>
 
-<c:if test="${param.error == 'true'}">
-    <div class="error">Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.</div>
-</c:if>
-
 <form method=POST action="${template.secureMainUrl}/login_process">
+  <c:if test="${param.error == 'true'}">
+    <div class="error">Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.</div>
+  </c:if>
+
+  <c:if test="${param.error == 'not_activated'}">
+    <div class="error">
+      Регистрация не завершена! Инструкция по активации отправлена на указанный при регистрации email.
+    </div>
+  </c:if>
+
   <lor:csrf/>
   <label>Имя/email:<br><input autofocus autocapitalize="off" type=text name=nick size=40></label>
   <label>Пароль:<br><input type=password name=passwd size=40></label>

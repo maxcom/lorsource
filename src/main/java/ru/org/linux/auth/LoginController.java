@@ -68,16 +68,19 @@ public class LoginController {
       token.setDetails(details);
       Authentication auth = authenticationManager.authenticate(token);
       UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
+
       if(!userDetails.getUser().isActivated()) {
-        throw new AccessViolationException("User not activated");
+        return new ModelAndView(new RedirectView("/login.jsp?error=not_activated"));
+      } else {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        rememberMeServices.loginSuccess(request, response, auth);
+        AuthUtil.updateLastLogin(auth, userDao);
+
+        return new ModelAndView(new RedirectView("/"));
       }
-      SecurityContextHolder.getContext().setAuthentication(auth);
-      rememberMeServices.loginSuccess(request, response, auth);
-      AuthUtil.updateLastLogin(auth, userDao);
     } catch (Exception e) {
       return new ModelAndView(new RedirectView("/login.jsp?error=true"));
     }
-    return new ModelAndView(new RedirectView("/"));
   }
 
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
