@@ -205,7 +205,6 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-<%--
   <div align="center" width="100%" style="margin-bottom: 1em">
     <style>
     .lor-topic-adaptive-tango { width: 320px; height: 100px; }
@@ -225,7 +224,7 @@
     </script>
   </div>
 
---%>
+<%--
   <div style="text-align: center; margin-top: 0.5em; margin-bottom: 1em; height: 91px" id="interpage-adv">
   </div>
   <script type="text/javascript">
@@ -241,6 +240,7 @@
       init_interpage_adv(ads);
     });
   </script>
+--%>
 </c:if>
 
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
