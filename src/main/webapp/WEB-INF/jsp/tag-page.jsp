@@ -29,6 +29,8 @@
 <%--@elvariable id="forum" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
 <%--@elvariable id="showFavoriteTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="showUnFavoriteTagButton" type="java.lang.Boolean"--%>
+<%--@elvariable id="showIgnoreTagButton" type="java.lang.Boolean"--%>
+<%--@elvariable id="showUnIgnoreTagButton" type="java.lang.Boolean"--%>
 <%--@elvariable id="favsCount" type="java.lang.Integer"--%>
 <%--@elvariable id="counter" type="java.lang.Integer"--%>
 <%--@elvariable id="relatedTags" type="java.util.List<java.lang.String>"--%>
@@ -58,6 +60,25 @@
             <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-eye"></i></a>
         </c:if>
         <br><span id="favsCount" title="Кол-во пользователей, добавивших в избранное">${favsCount}</span>
+
+	<br>
+
+        <c:if test="${showIgnoreTagButton}">
+            <c:url var="tagIgnUrl" value="/user-filter">
+                <c:param name="newIgnoreTagName" value="${tag}"/>
+            </c:url>
+
+            <a id="tagIgnore" href="${tagIgnUrl}" title="Игнорировать"><i class="icon-eye-with-line"></i></a>
+        </c:if>
+        <c:if test="${!showIgnoreTagButton && !showUnIgnoreTagButton}">
+            <a id="tagIgnNoth" href="#"><i class="icon-eye-with-line" title="Игнорировать"></i></a>
+        </c:if>
+        <c:if test="${showUnIgnoreTagButton}">
+            <c:url var="tagIgnUrl" value="/user-filter"/>
+
+            <a id="tagIgnore" href="${tagFavUrl}" title="Перестать игнорировать" class="selected"><i class="icon-eye-with-line"></i></a>
+        </c:if>
+        <br><span id="ignoreCount" title="Кол-во пользователей, игнорирующих тег">${ignoreCount}</span>
     </div>
     <p>
       Всего сообщений: ${counter}

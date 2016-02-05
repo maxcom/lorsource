@@ -56,7 +56,7 @@ public class UserFilterController {
   public ModelAndView showList(
     HttpServletRequest request,
     @RequestParam(value = "newFavoriteTagName", required = false) String newFavoriteTagName,
-    @RequestParam(value = "newIgnoredTagName", required = false) String newIgnoredTagName
+    @RequestParam(value = "newIgnoreTagName", required = false) String newIgnoreTagName
   ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
@@ -86,8 +86,8 @@ public class UserFilterController {
       modelAndView.addObject("newFavoriteTagName", newFavoriteTagName);
     }
 
-    if (newIgnoredTagName != null && TagName.isGoodTag(newIgnoredTagName)) {
-      modelAndView.addObject("newIgnoredTagName", newIgnoredTagName);
+    if (newIgnoreTagName != null && TagName.isGoodTag(newIgnoreTagName)) {
+      modelAndView.addObject("newIgnoreTagName", newIgnoreTagName);
     }
 
     return modelAndView;
@@ -330,7 +330,7 @@ public class UserFilterController {
   @ResponseBody
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   public
-  Map<String, String> ignoreTagAddJSON(
+  Map<String, Object> ignoreTagAddJSON(
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
@@ -350,8 +350,15 @@ public class UserFilterController {
     if (!errorMessage.isEmpty()) {
       return ImmutableMap.of("error", Joiner.on("; ").join(errorMessage));
     }
+    
+    try {
+      int tagId = userTagService.ignoreAdd(user, tagName);
 
-    return ImmutableMap.of();
+      return ImmutableMap.<String, Object>of("count", userTagService.countIgnore(tagId));
+    } catch (TagNotFoundException e) {
+      return ImmutableMap.<String, Object>of("error", e.getMessage());
+    }
+    
   }
 
   /**
@@ -398,7 +405,7 @@ public class UserFilterController {
   @ResponseBody
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
-  Map<String, String> ignoreTagDelJSON(
+  Map<String, Object> ignoreTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
@@ -415,8 +422,8 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    userTagService.ignoreDel(user, tagName);
+    int tagId = userTagService.ignoreDel(user, tagName);
 
-    return ImmutableMap.of();
+    return ImmutableMap.<String, Object>of("count", userTagService.countIgnore(tagId));
   }
 }
