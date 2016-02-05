@@ -80,8 +80,8 @@ class TagPageController @Autowired()
     val favs = if (tmpl.isSessionAuthorized) {
       Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
         "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
-	"showIgnoreTagButton" -> !userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag),
-	"showUnIgnoreTagButton" -> userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag))
+        "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag)),
+	      "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag)))
     } else {
       Seq.empty
     }

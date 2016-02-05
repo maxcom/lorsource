@@ -176,9 +176,16 @@ function tag_memories_form_setup(tag, csrf_token) {
         event.preventDefault();
         event.stopPropagation();
         $("#tagFavNoth").popover('show');
-      });
-      $("#tagFavNoth").popover({
+      }).popover({
         content: "Для добавления в избранное надо залогиниться!"
+      });
+
+      $("#tagIgnNoth").click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $("#tagIgnNoth").popover('show');
+      }).popover({
+        content: "Для добавления в список игнорирования надо залогиниться!"
       });
     });
   });

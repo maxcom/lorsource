@@ -70,8 +70,8 @@
 
             <a id="tagIgnore" href="${tagIgnUrl}" title="Игнорировать"><i class="icon-eye-with-line"></i></a>
         </c:if>
-        <c:if test="${not template.sessionAuthorized}">
-            <a id="tagIgnNoth" href="#"><i class="icon-eye-with-line"  title="Игнорировать"></i></a>
+        <c:if test="${!showIgnoreTagButton && !showUnIgnoreTagButton}">
+            <a id="tagIgnNoth" href="#"><i class="icon-eye-with-line" title="Игнорировать"></i></a>
         </c:if>
         <c:if test="${showUnIgnoreTagButton}">
             <c:url var="tagIgnUrl" value="/user-filter"/>
