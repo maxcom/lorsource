@@ -90,16 +90,20 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
     }
   }
 
-  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.GET))
-  def activateForm(@RequestParam(required = false) nick: String,
-                   @RequestParam(required = false) activation: String): ModelAndView = {
+  private def formParams(nick: String, activation: String) = {
     val nickSanitized = Option(nick).filter(StringUtil.checkLoginName).orNull
     val activationSanitized = Option(activation).filter(_.forall(_.isLetterOrDigit)).orNull
 
-    new ModelAndView("activate", Map(
+    Map(
       "nick" -> nickSanitized,
       "activation" -> activationSanitized
-    ).asJava)
+    )
+  }
+
+  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.GET))
+  def activateForm(@RequestParam(required = false) nick: String,
+                   @RequestParam(required = false) activation: String): ModelAndView = {
+    new ModelAndView("activate", formParams(nick, activation).asJava)
   }
 
   @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("action"))
@@ -131,16 +135,19 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
 
           new ModelAndView(new RedirectView("/"))
         } else {
-          new ModelAndView("activate", "error", "Неправильный код активации")
+          val params = formParams(nick, activation) + ("error" -> "Неправильный код активации")
+          new ModelAndView("activate", params.asJava)
         }
       } else {
         new ModelAndView(new RedirectView("/"))
       }
     } catch {
       case e: UsernameNotFoundException ⇒
-        new ModelAndView("activate", "error", "Пользователь не найден")
+        val params = formParams(nick, activation) + ("error" -> "Пользователь не найден")
+        new ModelAndView("activate", params.asJava)
       case e: BadCredentialsException ⇒
-        new ModelAndView("activate", "error", "Неправильный логин или пароль")
+        val params = formParams(nick, activation) + ("error" -> "Неправильный логин или пароль")
+        new ModelAndView("activate", params.asJava)
     }
   }
 
