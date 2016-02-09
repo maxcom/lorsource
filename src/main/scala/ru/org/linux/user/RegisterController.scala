@@ -122,7 +122,7 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
         val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
         val regcode = userDetails.getUser.getActivationCode(siteConfig.getSecret)
 
-        if (regcode == activation) {
+        if (regcode.equalsIgnoreCase(activation)) {
           userDao.activateUser(userDetails.getUser)
 
           val updatedDetails = userDetailsService.loadUserByUsername(nick).asInstanceOf[UserDetailsImpl]
@@ -167,7 +167,7 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
 
     val regcode = user.getActivationCode(siteConfig.getSecret, newEmail)
 
-    if (regcode != activation) {
+    if (!regcode.equalsIgnoreCase(activation)) {
       throw new AccessViolationException("Bad activation code")
     }
 
