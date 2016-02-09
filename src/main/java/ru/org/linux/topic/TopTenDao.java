@@ -42,16 +42,15 @@ public class TopTenDao {
         "from topics " +
         "join groups on groups.id = topics.groupid" +
       " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and not notop " +
-      " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
+      " and groupid!=8404 and groupid!=4068 and groupid!=19390 order by c desc, msgid limit 10";
 
     return jdbcTemplate.query(sql, (rs, i) -> {
-      TopTenMessageDTO result = new TopTenMessageDTO(
+      return new TopTenMessageDTO(
               sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"),
               rs.getString("title"),
               rs.getTimestamp("lastmod"),
               rs.getInt("c")
       );
-      return result;
     });
   }
 
