@@ -36,6 +36,8 @@ import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
+import scala.collection.JavaConverters._
+
 @Controller
 class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBlockDao,
                                        rememberMeServices: RememberMeServices,
@@ -88,11 +90,19 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
     }
   }
 
-  @RequestMapping(value = Array("/activate.jsp"), method = Array(RequestMethod.GET))
-  def activateForm: ModelAndView = new ModelAndView("activate")
+  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.GET))
+  def activateForm(@RequestParam(required = false) nick: String,
+                   @RequestParam(required = false) activation: String): ModelAndView = {
+    val nickSanitized = Option(nick).filter(StringUtil.checkLoginName).orNull
+    val activationSanitized = Option(activation).filter(_.forall(_.isLetterOrDigit)).orNull
 
-  @RequestMapping(value = Array("/activate.jsp"), method = Array(RequestMethod.POST), params = Array("action"))
-  @throws(classOf[Exception])
+    new ModelAndView("activate", Map(
+      "nick" -> nickSanitized,
+      "activation" -> activationSanitized
+    ).asJava)
+  }
+
+  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("action"))
   def activateNew(request: HttpServletRequest, response: HttpServletResponse,
                   @RequestParam activation: String, @RequestParam nick: String,
                   @RequestParam passwd: String): ModelAndView = {
@@ -134,7 +144,7 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
     }
   }
 
-  @RequestMapping(value = Array("/activate.jsp"), method = Array(RequestMethod.POST), params = Array("!action"))
+  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("!action"))
   def activate(request: HttpServletRequest, @RequestParam activation: String): ModelAndView = {
     val tmpl = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) {

@@ -16,6 +16,7 @@
 package ru.org.linux.email
 
 import java.io.{PrintWriter, StringWriter}
+import java.net.URLEncoder
 import java.util.{Date, Properties}
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, Session, Transport}
@@ -81,9 +82,11 @@ class EmailService @Autowired () (siteConfig:SiteConfig,
 
     text.append(
       s"""
-         |Для активации перейдите по ссылке https://www.linux.org.ru/activate.jsp
+         |Для активации перейдите по ссылке:
          |
-         |Код активации: $regcode
+         |https://www.linux.org.ru/activate?nick=$nick&activation=${URLEncoder.encode(regcode, "utf-8")}
+         |
+         |(код активации: $regcode)
          |
          |Благодарим за регистрацию!
          |
