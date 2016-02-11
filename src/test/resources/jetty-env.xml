@@ -19,20 +19,19 @@
     <New class="org.eclipse.jetty.plus.jndi.Resource">
         <Arg><Ref id="wac"/></Arg>
         <Arg>jdbc/lor</Arg>
-
         <Arg>
-            <New class="org.apache.commons.dbcp.BasicDataSource">
-                <Set name="driverClassName">org.postgresql.Driver</Set>
-                <Set name="url">jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified</Set>
-                <Set name="username">linuxweb</Set>
-                <Set name="password">linuxweb</Set>
-                <Set name="maxActive">10</Set>
-                <Set name="maxIdle">-1</Set>
-                <Set name="maxWait">-1</Set>
-                <Set name="removeAbandoned">true</Set>
-                <Set name="removeAbandonedTimeout">600</Set>
-                <Set name="logAbandoned">true</Set>
-            </New>
+            <New class="com.zaxxer.hikari.HikariDataSource">
+                <Arg>
+                    <New class="com.zaxxer.hikari.HikariConfig">
+                        <Set name="driverClassName">org.postgresql.Driver</Set>
+                        <Set name="username">jdbc.user</Set>
+                        <Set name="password">jdbc.pass</Set>
+                        <Set name="jdbcUrl">jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified</Set>
+                        <Set name="username">linuxweb</Set>
+                        <Set name="password">linuxweb</Set>
+                   </New>
+               </Arg>
+           </New>
         </Arg>
     </New>
 </Configure>
