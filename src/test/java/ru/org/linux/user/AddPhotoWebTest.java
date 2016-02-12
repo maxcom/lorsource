@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.test.WebHelper;
 
@@ -35,10 +36,11 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
+})
 public class AddPhotoWebTest {
   private WebResource resource;
 

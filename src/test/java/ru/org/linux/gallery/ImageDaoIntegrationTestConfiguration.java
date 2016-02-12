@@ -27,7 +27,7 @@ import ru.org.linux.user.UserLogDao;
 import static org.mockito.Mockito.mock;
 
 @Configuration
-@ImportResource({"classpath:database.xml","classpath:common.xml"})
+@ImportResource("classpath:common.xml")
 public class ImageDaoIntegrationTestConfiguration {
   @Bean
   public ImageDao imageDao() {

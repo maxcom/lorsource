@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ public final class Template {
   private final SiteConfig siteConfig;
 
   public Template(WebApplicationContext ctx) {
-    siteConfig = (SiteConfig)ctx.getBean("siteConfig");
+    siteConfig = ctx.getBean(SiteConfig.class);
     userProfile = AuthUtil.getProfile();
   }
 

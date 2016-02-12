@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,10 @@ import javax.sql.DataSource;
 
 import static org.junit.Assert.*;
 
-@ContextConfiguration(classes=UserDaoIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = UserDaoIntegrationTestConfiguration.class)
+})
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
 public class UserDaoIntegrationTest {

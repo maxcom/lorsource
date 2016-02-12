@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,13 +20,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes= ProfileDaoIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = ProfileDaoIntegrationTestConfiguration.class)
+})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ProfileDaoIntegrationTest {
   @Autowired
