@@ -24,8 +24,6 @@
                 <Arg>
                     <New class="com.zaxxer.hikari.HikariConfig">
                         <Set name="driverClassName">org.postgresql.Driver</Set>
-                        <Set name="username">jdbc.user</Set>
-                        <Set name="password">jdbc.pass</Set>
                         <Set name="jdbcUrl">jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified</Set>
                         <Set name="username">linuxweb</Set>
                         <Set name="password">linuxweb</Set>
