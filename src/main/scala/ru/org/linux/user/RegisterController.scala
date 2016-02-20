@@ -168,12 +168,14 @@ class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBl
     val regcode = user.getActivationCode(siteConfig.getSecret, newEmail)
 
     if (!regcode.equalsIgnoreCase(activation)) {
-      throw new AccessViolationException("Bad activation code")
+      val params = formParams(user.getNick, activation) + ("error" -> "Неправильный код активации")
+
+      new ModelAndView("activate", params.asJava)
+    } else {
+      userDao.acceptNewEmail(user, newEmail)
+
+      new ModelAndView(new RedirectView("/people/" + user.getNick + "/profile"))
     }
-
-    userDao.acceptNewEmail(user, newEmail)
-
-    new ModelAndView(new RedirectView("/people/" + user.getNick + "/profile"))
   }
 
   @ResponseBody

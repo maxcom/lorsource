@@ -69,6 +69,11 @@
 <c:if test="${template.sessionAuthorized}">
   <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
+
+    <c:if test="${not empty error}">
+      <div class="error">${error}</div>
+    </c:if>
+
     <dl>
       <dt><label for="field_code">Код активации:</label></dt>
       <dd><input type="text" name="activation" required autofocus id="field_code" value="${fn:escapeXml(activation)}"></dd>
