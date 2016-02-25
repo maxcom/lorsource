@@ -17,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.2.4.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.2.5.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.8.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4.1207</jdbc.postgresql.version>
     <es.version>2.1.2</es.version>
@@ -28,7 +28,7 @@
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.0.v20150612</jetty.version>
-    <akka.version>2.4.1</akka.version>
+    <akka.version>2.4.2</akka.version>
   </properties>
 
   <dependencies>
