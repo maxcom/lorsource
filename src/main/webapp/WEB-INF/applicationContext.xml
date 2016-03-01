@@ -89,9 +89,6 @@
     <property name="privateKey" value="${recaptcha.private}"/>
     <property name="publicKey" value="${recaptcha.public}"/>
     <property name="recaptchaServer" value="https://www.google.com/recaptcha/api"/>
-    <!-- Or, if you want to use SSL, then use this:
-                <property name="recaptchaServer" value="http://secure-api.recaptcha.net" />
-        -->
     <property name="includeNoscript" value="true"/>
   </bean>
 
