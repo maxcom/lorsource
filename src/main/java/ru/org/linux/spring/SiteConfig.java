@@ -84,10 +84,6 @@ public class SiteConfig {
     return mainURI;
   }
 
-  public String getPathPrefix() {
-    return properties.getProperty("PathPrefix");
-  }
-
   public String getElasticsearch() {
     return properties.getProperty("Elasticsearch");
   }

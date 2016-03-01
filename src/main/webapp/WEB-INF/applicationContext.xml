@@ -96,7 +96,7 @@
   </bean>
 
   <!-- enabling jmx causes tomcat stop lock -->
-  <amq:broker useJmx="false" persistent="true" dataDirectory="${PathPrefix}/activemq">
+  <amq:broker useJmx="false" persistent="true" dataDirectory="${activemq.path}">
     <amq:transportConnectors>
       <amq:transportConnector uri="vm://localhost"/>
     </amq:transportConnectors>
