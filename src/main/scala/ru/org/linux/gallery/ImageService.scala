@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -40,8 +40,8 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
                                  val transactionManager:PlatformTransactionManager)
   extends StrictLogging with TransactionManagement {
 
-  private val previewPath = new File(siteConfig.getHTMLPathPrefix + "/gallery/preview")
-  private val galleryPath = new File(siteConfig.getHTMLPathPrefix + "/gallery")
+  private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
+  private val galleryPath = new File(siteConfig.getUploadPath + "/gallery")
 
   def deleteImage(editor: User, image: Image):Unit = {
     transactional() { _ ⇒
@@ -73,7 +73,7 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
   def prepareImage(image: Image, secure: Boolean): Option[PreparedImage] = {
     Preconditions.checkNotNull(image)
 
-    val htmlPath = siteConfig.getHTMLPathPrefix
+    val htmlPath = siteConfig.getUploadPath
 
     val mediumName = if (!new File(htmlPath, image.getMedium).exists) {
       image.getIcon

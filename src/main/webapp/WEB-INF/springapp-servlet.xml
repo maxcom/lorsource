@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -41,13 +41,6 @@
 
     <mvc:default-servlet-handler/>
 
-    <mvc:resources mapping="/gallery/*.jpg" location="/gallery/" cache-period="31556926"/>
-    <mvc:resources mapping="/gallery/*.png" location="/gallery/" cache-period="31556926"/>
-    <mvc:resources mapping="/gallery/*.gif" location="/gallery/" cache-period="31556926"/>
-    <mvc:resources mapping="/gallery/preview/*.jpg" location="/gallery/preview/" cache-period="31556926"/>
-    <mvc:resources mapping="/gallery/preview/*.png" location="/gallery/preview/" cache-period="31556926"/>
-    <mvc:resources mapping="/gallery/preview/*.gif" location="/gallery/preview/" cache-period="31556926"/>
-
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/" cache-period="315360000"/>
 
     <bean id="viewResolver"
@@ -84,11 +77,6 @@
         <property name="maxUploadSize" value="3500000"/>
     </bean>
 
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
-            id="feedConfigurer">
-        <property name="location" value="/WEB-INF/feeds.properties"/>
-    </bean>
-
     <bean id="absractRomeView" class="ru.org.linux.spring.AbstractRomeView" abstract="true">
         <property name="contentTypes">
             <map>
@@ -102,10 +90,10 @@
                 <entry key="atom" value="atom_1.0"/>
             </map>
         </property>
-        <property name="defaultType" value="${feeds.defaultType}"/>
-        <property name="defaultCount" value="${feeds.defaultCount}"/>
-        <property name="minimalCount" value="${feeds.minimalCount}"/>
-        <property name="maximalCount" value="${feeds.maximalCount}"/>
+        <property name="defaultType" value="rss"/>
+        <property name="defaultCount" value="20"/>
+        <property name="minimalCount" value="10"/>
+        <property name="maximalCount" value="30"/>
     </bean>
     <bean id="replyFeed" class="ru.org.linux.user.ReplyFeedView" parent="absractRomeView" scope="prototype"/>
 

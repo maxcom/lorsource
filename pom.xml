@@ -648,9 +648,9 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
-				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery"/>
-				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery/preview"/>
-                                <mkdir dir="${project.build.directory}/${project.build.finalName}/photos"/>
+				                <mkdir dir="${project.build.directory}/uploads/gallery"/>
+				                <mkdir dir="${project.build.directory}/uploads/gallery/preview"/>
+                                <mkdir dir="${project.build.directory}/uploads/photos"/>
                                 <copy file="${basedir}/src/main/webapp/img/good-penguin.png" todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
                             </tasks>
                         </configuration>
