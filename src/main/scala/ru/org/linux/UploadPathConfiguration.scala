@@ -43,7 +43,7 @@ class UploadPathConfiguration extends WebMvcConfigurerAdapter with StrictLogging
       .addResourceHandler("/gallery/preview/*.jpg", "/gallery/preview/*.png", "/gallery/preview/*.gif")
       .addResourceLocations(s"$base/gallery/preview/").setCachePeriod(CachePeriod)
 
-    registry.addResourceHandler("/photos/*").addResourceLocations(s"base/photos/").setCachePeriod(CachePeriod)
+    registry.addResourceHandler("/photos/*").addResourceLocations(s"$base/photos/").setCachePeriod(CachePeriod)
   }
 
 }
