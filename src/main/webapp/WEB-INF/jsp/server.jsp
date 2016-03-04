@@ -40,12 +40,33 @@
 
 <h1>Хостинг</h1>
 Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
-ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;.
+ООО &laquo;<a href="http://www.ratel.ru" target="_blank">НИИР-РадиоНет</a>&raquo;.
 <p>
+<%--
 Статистику сервера можно посмотреть <a href="http://linuxhacker.ru/stats">тут</a>.
-  <a href="http://www.pingdom.com" style="float: right">
-    <img src="https://share.pingdom.com/banners/94fe3af1" alt="Uptime Report for LOR Main Page: Last 30 days" title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
+--%>
+  <a href="http://www.pingdom.com">
+    <img src="https://share.pingdom.com/banners/94fe3af1"
+         alt="Uptime Report for LOR Main Page: Last 30 days"
+         title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
   </a>
+
+<h1>Сервер</h1>
+<p>
+Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/"target="_blank">ITTelo</a>&raquo;.
+</p>
+
+<p>
+Конфигурация
+</p>
+<ul>
+  <li>Supermicro 6016T-UF</li>
+  <li>2 x Intel Xeon E5620 12M Cache, 2.40 GHz, 4 ядра</li>
+  <li>48 GB DDR3, ECC, REG</li>
+  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm)</li>
+  <li>2x 240Gb OCZ Trion 1000 (RAID1 with HDD, «write mostly»)</li>
+</ul>
+
 <h1>Софт</h1>
   <p>
 Мы работаем на
@@ -59,6 +80,7 @@
       <li>ActiveMQ 5.11</li>
       <li>Spring 4.2</li>
       <li>Поиск: Elasticsearch 2.1</li>
+      <li>Nginx 1.8</li>
     </ul>
 
 <h1>Исходные тексты</h1>

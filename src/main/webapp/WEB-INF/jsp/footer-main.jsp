@@ -24,7 +24,8 @@
 
   Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2016<br>
   Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
-  ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
+  ООО &laquo;<a href="http://www.ratel.ru" target="_blank">НИИР-РадиоНет</a>&raquo;<br>
+  Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/" target="_blank">ITTelo</a>&raquo;
   </p>
 
 <script type="text/javascript">
