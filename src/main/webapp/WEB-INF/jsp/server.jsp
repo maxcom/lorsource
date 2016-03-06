@@ -39,8 +39,17 @@
   </p>
 
 <h1>Хостинг</h1>
-Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
-ООО &laquo;<a href="http://www.ratel.ru" target="_blank">НИИР-РадиоНет</a>&raquo;.
+<p>
+  Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
+  ООО &laquo;<a href="http://www.selectel.ru" target="_blank">Селектел</a>&raquo;.
+</p>
+<p>
+  DDoS защиту сайта осуществляет <a href="http://qrator.net/">QRATOR</a>.
+</p>
+<p>
+  Размещение старого (резервного) сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
+  ООО &laquo;<a href="http://www.ratel.ru" target="_blank">НИИР-РадиоНет</a>&raquo;.
+</p>
 <p>
 <%--
 Статистику сервера можно посмотреть <a href="http://linuxhacker.ru/stats">тут</a>.
