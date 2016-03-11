@@ -45,7 +45,7 @@
         </c:if>
 
         <c:if test="${template.moderatorSession and not message.expired}">
-            [<a href="/undelete.jsp?msgid=${message.id}">восстановить</a>]
+            [<a href="/undelete?msgid=${message.id}">восстановить</a>]
         </c:if>
     </div>
   </c:if>

@@ -130,7 +130,7 @@ public class DeleteTopicController {
     return new ModelAndView("action-done", "message", "Сообщение удалено");
   }
 
-  @RequestMapping(value = "/undelete.jsp", method = RequestMethod.GET)
+  @RequestMapping(value = "/undelete", method = RequestMethod.GET)
   public ModelAndView undeleteForm(
     HttpServletRequest request,
     @RequestParam int msgid
@@ -152,7 +152,7 @@ public class DeleteTopicController {
     return mv;
   }
 
-  @RequestMapping(value="/undelete.jsp", method=RequestMethod.POST)
+  @RequestMapping(value="/undelete", method=RequestMethod.POST)
   public ModelAndView undelete(
     HttpServletRequest request,
     @RequestParam int msgid

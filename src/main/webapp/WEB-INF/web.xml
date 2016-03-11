@@ -256,10 +256,6 @@
     <servlet-name>springapp</servlet-name>
     <url-pattern>/view-all.jsp</url-pattern>
   </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>springapp</servlet-name>
-    <url-pattern>/undelete.jsp</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>springapp</servlet-name>
