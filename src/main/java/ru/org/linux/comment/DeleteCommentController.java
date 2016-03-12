@@ -16,7 +16,6 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,12 +121,7 @@ public class DeleteCommentController {
 
     return Iterables.tryFind(
             commentList.getList(),
-            new Predicate<Comment>() {
-              @Override
-              public boolean apply(Comment input) {
-                return input.getId() >= comment.getId();
-              }
-            }
+            input -> input.getId() >= comment.getId()
     );
   }
 
