@@ -29,14 +29,18 @@ object GroupPermissionService {
   private val DeletePeriod = Duration.standardHours(6)
   private val EditPeriod = DeletePeriod.multipliedBy(2)
   private val CreateTagScore = 400
+}
 
+@Service
+class GroupPermissionService @Autowired() (sectionService: SectionService) {
+  import GroupPermissionService._
   /**
     * Проверка может ли пользователь удалить топик
     *
     * @param user пользователь удаляющий сообщение
     * @return признак возможности удаления
     */
-  private def isDeletableByUser(topic: Topic, user: User): Boolean = {
+  private def isDeletableByUser(topic: Topic, user: User) = {
     if (topic.getUid != user.getId) {
       false
     } else if (topic.isDraft) {
@@ -47,10 +51,7 @@ object GroupPermissionService {
       deleteDeadline.isAfterNow && topic.getCommentCount == 0
     }
   }
-}
 
-@Service
-class GroupPermissionService @Autowired() (sectionService: SectionService) {
   private def effectivePostscore(group: Group) = {
     val section = sectionService.getSection(group.getSectionId)
 
@@ -101,16 +102,16 @@ class GroupPermissionService @Autowired() (sectionService: SectionService) {
   }
 
   def isDeletable(topic: Topic, user: User): Boolean = {
-    var perm = GroupPermissionService.isDeletableByUser(topic, user)
-
-    if (!perm && user.isModerator) {
-      perm = isDeletableByModerator(topic, user)
-    }
-
-    if (!perm) {
-      user.isAdministrator
+    if (user.isAdministrator) {
+      true
     } else {
-      perm
+      val deletableByUser = isDeletableByUser(topic, user)
+
+      if (!deletableByUser && user.isModerator) {
+        isDeletableByModerator(topic, user)
+      } else {
+        deletableByUser
+      }
     }
   }
 
@@ -120,7 +121,7 @@ class GroupPermissionService @Autowired() (sectionService: SectionService) {
     * @param moderator пользователь удаляющий сообщение
     * @return признак возможности удаления
     */
-  private def isDeletableByModerator(topic: Topic, moderator: User): Boolean = {
+  private def isDeletableByModerator(topic: Topic, moderator: User) = {
     val deleteDeadline = new DateTime(topic.getPostdate).plusMonths(1)
 
     val section = sectionService.getSection(topic.getSectionId)
@@ -169,10 +170,10 @@ class GroupPermissionService @Autowired() (sectionService: SectionService) {
         true
       } else if (message.isDraft) {
         true
-      } else if (author.getScore >= GroupPermissionService.EditSelfAlwaysScore) {
+      } else if (author.getScore >= EditSelfAlwaysScore) {
         !message.isExpired
       } else {
-        val editDeadline = new DateTime(message.getPostdate).plus(GroupPermissionService.EditPeriod)
+        val editDeadline = new DateTime(message.getPostdate).plus(EditPeriod)
 
         editDeadline.isAfterNow
       }
@@ -208,10 +209,10 @@ class GroupPermissionService @Autowired() (sectionService: SectionService) {
         true
       } else if (section.isPremoderated) {
         true
-      } else if (author.getScore >= GroupPermissionService.EditSelfAlwaysScore) {
+      } else if (author.getScore >= EditSelfAlwaysScore) {
         !message.isExpired
       } else {
-        val editDeadline = new DateTime(message.getPostdate).plus(GroupPermissionService.EditPeriod)
+        val editDeadline = new DateTime(message.getPostdate).plus(EditPeriod)
 
         editDeadline.isAfterNow
       }
@@ -224,7 +225,7 @@ class GroupPermissionService @Autowired() (sectionService: SectionService) {
     if (section.isPremoderated) {
       true
     } else {
-      user != null && user.getScore >= GroupPermissionService.CreateTagScore
+      user != null && user.getScore >= CreateTagScore
     }
   }
 }
