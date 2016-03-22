@@ -97,8 +97,14 @@ class DeleteCommentController @Autowired() (searchQueueSender: SearchQueueSender
       throw new UserErrorException("комментарий нельзя удалить")
     }
 
-    val deleted:Seq[Integer] = if (user.isModerator) {
-      commentService.deleteWithReplys(topic, comment, reason, user, bonus).asScala
+    val deleted: Seq[Integer] = if (user.isModerator) {
+      val effectiveBonus = if (user.getId!=comment.getId) {
+        bonus
+      } else {
+        0
+      }
+
+      commentService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
     } else {
       if (commentService.deleteComment(msgid, reason, user)) {
         Seq(msgid)
