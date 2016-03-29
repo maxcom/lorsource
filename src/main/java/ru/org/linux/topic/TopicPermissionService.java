@@ -61,7 +61,7 @@ public class TopicPermissionService {
       case POSTSCORE_UNRESTRICTED:
         return "";
       case 50:
-        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей.";
+        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей (со score < 50)";
       case 100:
       case 200:
       case 300:
