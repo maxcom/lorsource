@@ -39,6 +39,6 @@
   } else if (c.isAfter(yesterday)) {
     out.print("вчера " + DateFormats.time().print(c));
   } else {
-    out.print(DateFormats.getShort().print(c).replaceFirst("^01\\.04\\.2016", "32.03.2016"));
+    out.print(DateFormats.getShort().print(c).replaceFirst("^01\\.04\\.16", "32.03.16"));
   }
 %></time>
