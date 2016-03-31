@@ -93,7 +93,7 @@ public class SignTag extends TagSupport {
 
   public static class DateFormatHandler {
     public String apply(Date input) {
-      return DateFormats.getDefault().print(input.getTime());
+      return DateFormats.getDefault().print(input.getTime()).replaceFirst("^01\\.04\\.2016", "32.03.2016");
     }
 
     public String iso(Date input) {
