@@ -70,7 +70,8 @@ public class RegisterRequestValidator implements Validator {
           "burstmail.info",
           "coldemail.info",
           "mailtemp.info",
-          "one-time.email"
+          "one-time.email",
+          "trbvn.com"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
