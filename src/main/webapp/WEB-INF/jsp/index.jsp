@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -136,7 +136,7 @@
 
   <div align="center" style="margin-bottom: 0.5em">
     <a href="http://qrator.net/" rel="nofollow" target="_blank">
-      <img src="/adv/qrator-box.png" width="250" height="250" alt="Protected by Qrator">
+      <img src="/adv/qrator-box.png" width="250" style="max-width: 100%; height: auto" alt="Protected by Qrator">
     </a>
   </div>
 
