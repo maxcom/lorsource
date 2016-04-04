@@ -28,7 +28,7 @@
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.0.v20150612</jetty.version>
-    <akka.version>2.4.2</akka.version>
+    <akka.version>2.4.3</akka.version>
   </properties>
 
   <dependencies>
@@ -71,14 +71,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>3.6</version>
+      <version>3.7.2</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>3.6</version>
+      <version>3.7.2</version>
       <scope>test</scope>
     </dependency>
 
