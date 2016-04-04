@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class EditTopicController {
@@ -200,16 +200,9 @@ public class EditTopicController {
 
       ImmutableSet<User> editors = editHistoryService.getEditorUsers(message, editInfoList);
 
-      ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
-      for (User editor : editors) {
-        if (currentUser.getId() == editor.getId()) {
-          editorBonus.put(editor.getId(), 0);
-        } else {
-          editorBonus.put(editor.getId(), 1);
-        }
-      }
+      editors.stream().collect(Collectors.toMap(User::getId, u -> 0));
 
-      form.setEditorBonus(editorBonus.build());
+      form.setEditorBonus(editors.stream().collect(Collectors.toMap(User::getId, u -> 0)));
       
       params.put("editors", editors);
     }
