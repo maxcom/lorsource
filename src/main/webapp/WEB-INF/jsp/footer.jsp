@@ -20,7 +20,8 @@
 
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
-  <a href="/help/rules.md">Правила форума</a><br>
+  <a href="/help/rules.md">Правила форума</a> -
+  <a href="/help/lorcode.md">Правила разметки</a><br>
   <c:if test="${not pageContext.request.secure}">
     <a href="${template.mainUrl}">${template.mainUrl}</a>
   </c:if>
