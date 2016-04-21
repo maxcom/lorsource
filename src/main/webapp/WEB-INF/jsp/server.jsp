@@ -88,15 +88,16 @@
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.11</li>
       <li>Spring 4.2</li>
-      <li>Поиск: Elasticsearch 2.1</li>
+      <li>Поиск: Elasticsearch 2.2</li>
       <li>Nginx 1.8</li>
     </ul>
 
 <h1>Исходные тексты</h1>
 
-  Исходные тексты доступны под лицензией Apache License 2.0: <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
+  Исходные тексты доступны под лицензией Apache License 2.0:
+  <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
 
-  <h2>Entype font</h2>
+  <h2>Entypo font</h2>
   На сайте используется иконочный шрифт Entypo, Copyright (C) 2012 by Daniel Bruce,
   <a href="http://www.entypo.com">http://www.entypo.com</a>. Шрифт с нужным нам набором символов
   сгенерирован при помощи <a href="http://fontello.com/">fontello.com</a>.
