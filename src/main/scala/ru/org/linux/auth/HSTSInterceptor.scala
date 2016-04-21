@@ -27,6 +27,10 @@ class HstsInterceptor @Autowired() (config:SiteConfig) extends HandlerIntercepto
       response.addHeader("Strict-Transport-Security", "max-age=7776000")
     }
 
+    response.addHeader("X-Content-Type-Options", "nosniff")
+    response.addHeader("X-Frame-Options", "SAMEORIGIN")
+
+
     true
   }
 }
