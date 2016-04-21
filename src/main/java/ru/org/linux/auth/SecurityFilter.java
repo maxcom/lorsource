@@ -31,9 +31,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
 
 public class SecurityFilter extends GenericFilterBean implements InitializingBean {
+  private final Locale russian = new Locale("ru");
 
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
       throws IOException, ServletException {
@@ -43,6 +45,7 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     request.setAttribute("configuration", ctx.getBean(SiteConfig.class));
     request.setAttribute("template", new Template(ctx));
     request.setCharacterEncoding("utf-8"); // блядский tomcat
+    res.setLocale(russian);
     CSRFManipulation(request, (HttpServletResponse) res);
     chain.doFilter(req, res);
   }
