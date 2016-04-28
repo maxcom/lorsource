@@ -44,7 +44,7 @@
   ООО &laquo;<a href="http://www.selectel.ru" target="_blank">Селектел</a>&raquo;.
 </p>
 <p>
-  DDoS защиту сайта осуществляет <a href="http://qrator.net/">QRATOR</a>.
+  Защиту сайта от DDoS-атак осуществляет <a href="http://qrator.net/">QRATOR</a>.
 </p>
 <p>
   Размещение старого (резервного) сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
@@ -88,7 +88,7 @@
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.11</li>
       <li>Spring 4.2</li>
-      <li>Поиск: Elasticsearch 2.2</li>
+      <li>Поиск: Elasticsearch 2.3</li>
       <li>Nginx 1.8</li>
     </ul>
 
