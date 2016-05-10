@@ -34,6 +34,5 @@
     </ol>
 </div>
 <div class="poll-sum">
-    <p>Всего голосов: ${poll.totalVotes}</p>
-    <c:if test="${poll.poll.multiSelect}">, всего проголосовавших: ${poll.totalOfVotesPerson} </c:if>
+    <p>Всего голосов: ${poll.totalVotes} <c:if test="${poll.poll.multiSelect}">, всего проголосовавших: ${poll.totalOfVotesPerson} </c:if> </p>
 </div>
