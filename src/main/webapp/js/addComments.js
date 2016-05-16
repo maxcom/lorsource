@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-$script.ready('jquery', function() {
+$script.ready(['jquery', 'hljs'], function() {
   $(document).ready(function() {
     function getCookie(name) {
       return(document.cookie.match('(^|; )'+name+'=([^;]*)')||0)[2];
@@ -137,6 +137,9 @@ $script.ready('jquery', function() {
       }
 
       commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+      $('pre code', commentPreview).each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
 
       if (data['errors']) {
         var errors = $("<div class=error>");
@@ -211,4 +214,3 @@ $script.ready('jquery', function() {
     });
   });
 });
-
