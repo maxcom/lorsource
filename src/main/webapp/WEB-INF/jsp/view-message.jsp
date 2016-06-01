@@ -204,7 +204,6 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
-<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%" style="margin-bottom: 1em">
     <style>
@@ -224,39 +223,25 @@
     (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
   </div>
-</c:if>
+
+<%--
+  <div style="text-align: center; margin-top: 0.5em; margin-bottom: 1em; height: 91px" id="interpage-adv">
+  </div>
+  <script type="text/javascript">
+    $script.ready('lorjs', function () {
+      var ads = [
+        {
+          type: 'img',
+          src: '/adv/pgconf.png',
+          href: 'https://pgconf.ru/'
+        }
+      ];
+
+      init_interpage_adv(ads);
+    });
+  </script>
 --%>
-
-    <div style="text-align: center; margin-top: 0.5em; margin-bottom: 1em; height: 91px" id="interpage-adv">
-    </div>
-    <script type="text/javascript">
-      $script.ready('lorjs', function () {
-        var ads = [
-          {
-            type: 'img',
-            src: '/adv/rit.png',
-            href: 'http://ritfest.ru/?utm_source=linux.org.ru&utm_medium=cpw&utm_campaign=ritfest.2016&utm_content=ritfest.2016'
-          },
-          {
-            type: 'img',
-            src: '/adv/rc.png',
-            href: 'http://rootconf.ru/?utm_source=linux.org.ru&utm_medium=cpw&utm_campaign=rootconf.2016&utm_content=rootconf.2016'
-          },
-          {
-            type: 'img',
-            src: '/adv/hlj.png',
-            href: 'http://junior.highload.ru/?utm_source=linux.org.ru&utm_medium=cpw&utm_campaign=junior.2016&utm_content=junior.2016'
-          },
-          {
-            type: 'img',
-            src: '/adv/bc.png',
-            href: 'http://backendconf.ru/?utm_source=linux.org.ru&utm_medium=cpw&utm_campaign=backendconf.2016&utm_content=backendconf.2016'
-          }
-        ];
-
-        init_interpage_adv(ads);
-      });
-    </script>
+</c:if>
 
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
   <div class=nav>
