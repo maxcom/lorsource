@@ -133,6 +133,14 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
     }
 
+    if (imageParam.getHeight / (imageParam.getWidth+1d) > 2) {
+      errors.reject(null, "Сбой загрузки изображения: слишком узкое изображение")
+    }
+
+    if (imageParam.getWidth / (imageParam.getHeight+1d) > 5) {
+      errors.reject(null, "Сбой загрузки изображения: слишком широкое изображение")
+    }
+
     if (!errors.hasErrors) {
       val tempFile = File.createTempFile(s"preview-${user.getId}-", "", previewPath)
 

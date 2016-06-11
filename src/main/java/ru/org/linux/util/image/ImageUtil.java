@@ -114,7 +114,7 @@ public class ImageUtil {
   public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
     try {
       BufferedImage source = ImageIO.read(new File(filename));
-      BufferedImage destination = Scalr.resize(source, size);
+      BufferedImage destination = Scalr.resize(source, Scalr.Mode.FIT_TO_WIDTH, size);
       ImageIO.write(destination, "JPEG", new File(iconname));
     } catch (IIOException ex) {
       throw new BadImageException("Can't resize image", ex);
