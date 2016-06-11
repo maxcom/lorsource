@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class EditCommentController {
@@ -94,10 +94,13 @@ public class EditCommentController {
     if (commentRequest.getTopic() == null) {
       throw new ServletParameterException("тема на задана");
     }
+
     Comment original = commentRequest.getOriginal();
+
     if (original == null) {
       throw new ServletParameterException("Комментарий на задан");
     }
+
     MessageText messageText = msgbaseDao.getMessageText(original.getId());
     commentRequest.setMsg(messageText.getText());
     commentRequest.setTitle(original.getTitle());
@@ -108,11 +111,7 @@ public class EditCommentController {
 
     formParams.put("comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
 
-    Optional<DateTime> deadline = topicPermissionService.getEditDeadline(comment);
-
-    if (deadline.isPresent()) {
-      formParams.put("deadline", deadline.get().toDate());
-    }
+    topicPermissionService.getEditDeadline(comment).ifPresent(value -> formParams.put("deadline", value.toDate()));
 
     return new ModelAndView("edit_comment", formParams);
   }
