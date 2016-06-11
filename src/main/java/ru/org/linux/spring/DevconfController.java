@@ -22,23 +22,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserInfo;
-import ru.org.linux.csrf.CSRFNoAuto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.util.Date;
 import java.util.List;
 
 @Controller
 public class DevconfController {
-  @Autowired
-  private UserDao userDao;
-
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -57,9 +51,7 @@ public class DevconfController {
 
     User user = tmpl.getCurrentUser();
 
-    UserInfo info = userDao.getUserInfoClass(user);
-
-    if (!"devconf2015".equals(msg)) {
+    if (!"devconf2016".equals(msg)) {
       throw new UserErrorException("Неправильный код, прочитайте текст новости");
     }
 
