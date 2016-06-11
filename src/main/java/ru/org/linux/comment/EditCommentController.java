@@ -18,7 +18,6 @@ package ru.org.linux.comment;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -45,8 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class EditCommentController extends ApplicationObjectSupport {
-
+public class EditCommentController {
   @Autowired
   private CommentService commentService;
 
@@ -166,7 +164,7 @@ public class EditCommentController extends ApplicationObjectSupport {
     if (commentRequest.isPreviewMode() || errors.hasErrors() || comment == null) {
       ModelAndView modelAndView = new ModelAndView("edit_comment", formParams);
       modelAndView.addObject("ipBlockInfo", ipBlockInfo);
-      Optional<DateTime> deadline = topicPermissionService.getEditDeadline(comment);
+      Optional<DateTime> deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal());
 
       if (deadline.isPresent()) {
         modelAndView.addObject("deadline", deadline.get().toDate());
