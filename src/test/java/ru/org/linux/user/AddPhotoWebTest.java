@@ -84,12 +84,11 @@ public class AddPhotoWebTest {
    */
   public void testInvalidImage() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/ROOT.xml", auth);
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/database.xml", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Invalid image", doc.select(".error").text()); // сообщение об ошипке
-
-  }
+ }
 
   @Test
   /**

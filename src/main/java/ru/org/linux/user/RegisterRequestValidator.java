@@ -78,7 +78,8 @@ public class RegisterRequestValidator implements Validator {
 	  "abyssmail.com",
 	  "a.asu.mx",
 	  "10mail.org",
-	  "zasod.com"
+	  "zasod.com",
+          "trbvn.com"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {

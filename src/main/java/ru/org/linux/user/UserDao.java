@@ -430,19 +430,16 @@ public class UserDao {
           @Nonnull User user,
           String name,
           String url,
-          String new_email,
+          @Nullable String newEmail,
           String town,
           @Nullable String password,
           String info
   ) {
-    jdbcTemplate.update(
-            "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
-            name,
-            url,
-            new_email,
-            town,
-            user.getId()
-    );
+    jdbcTemplate.update("UPDATE users SET name=?, url=?, town=? WHERE id=?", name, url, town, user.getId());
+
+    if (newEmail!=null) {
+      jdbcTemplate.update("UPDATE users SET new_email=? WHERE id=?", newEmail, user.getId());
+    }
 
     if (password != null) {
       setPassword(user, password);

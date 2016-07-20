@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
@@ -36,6 +35,7 @@ import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 @Service
 public class TopicPermissionService {
@@ -61,7 +61,7 @@ public class TopicPermissionService {
       case POSTSCORE_UNRESTRICTED:
         return "";
       case 50:
-        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей.";
+        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей (со score < 50)";
       case 100:
       case 200:
       case 300:
@@ -262,7 +262,7 @@ public class TopicPermissionService {
 
       return Optional.of(editDeadline);
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -114,7 +114,7 @@ class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extend
       Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
     } else if (user.getPhoto != null && !user.getPhoto.isEmpty) {
       Try {
-        val info = new ImageInfo(siteConfig.getHTMLPathPrefix + "/photos/" + user.getPhoto)
+        val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto)
         new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
       } match {
         case Failure(e: FileNotFoundException) ⇒

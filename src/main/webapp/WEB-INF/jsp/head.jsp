@@ -69,12 +69,12 @@
 <![endif]-->
 
 <script type="text/javascript">
-  $script('/webjars/jquery/1.12.0/jquery.min.js', 'jquery');
+  $script('/webjars/jquery/1.12.3/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
     $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
     $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
   });
 
-  $script('/js/highlight.pack.js', function() { hljs.initHighlightingOnLoad(); });
+  $script('/js/highlight.pack.js', 'hljs', function() { hljs.initHighlightingOnLoad(); });
 </script>

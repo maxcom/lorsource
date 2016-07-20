@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 
 <h1>О проекте</h1>
 
-Некоммерческий проект &laquo;<i>LINUX.ORG.RU: Русская информация об&nbsp;ОС&nbsp;Linux</i>&raquo; был
+Проект &laquo;<i>LINUX.ORG.RU: Русская информация об&nbsp;ОС&nbsp;Linux</i>&raquo; был
 основан в&nbsp;октябре
 1998&nbsp;года. Нашей целью является создание основного информационного ресурса об
 операционной системе Linux в&nbsp;России. Мы&nbsp;стараемся обеспечить возможность
@@ -39,33 +39,65 @@
   </p>
 
 <h1>Хостинг</h1>
-Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
-ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;.
 <p>
+  Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
+  ООО &laquo;<a href="http://www.selectel.ru" target="_blank">Селектел</a>&raquo;.
+</p>
+<p>
+  Защиту сайта от DDoS-атак осуществляет <a href="http://qrator.net/">QRATOR</a>.
+</p>
+<p>
+  Размещение старого (резервного) сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
+  ООО &laquo;<a href="http://www.ratel.ru" target="_blank">НИИР-РадиоНет</a>&raquo;.
+</p>
+<p>
+<%--
 Статистику сервера можно посмотреть <a href="http://linuxhacker.ru/stats">тут</a>.
-  <a href="http://www.pingdom.com" style="float: right">
-    <img src="https://share.pingdom.com/banners/94fe3af1" alt="Uptime Report for LOR Main Page: Last 30 days" title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
+--%>
+  <a href="http://www.pingdom.com">
+    <img src="https://share.pingdom.com/banners/94fe3af1"
+         alt="Uptime Report for LOR Main Page: Last 30 days"
+         title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
   </a>
+
+<h1>Сервер</h1>
+<p>
+Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/"target="_blank">ITTelo</a>&raquo;.
+</p>
+
+<p>
+Конфигурация
+</p>
+<ul>
+  <li>Supermicro 6016T-UF</li>
+  <li>2 x Intel Xeon E5620 12M Cache, 2.40 GHz, 4 ядра</li>
+  <li>48 GB DDR3, ECC, REG</li>
+  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm)</li>
+  <li>2x 240Gb OCZ Trion 1000 (RAID1 with HDD, «write mostly»)</li>
+</ul>
+
 <h1>Софт</h1>
   <p>
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 22</li>
+      <li>CentOS 7.x</li>
       <li>СУБД PostgreSQL 9.4</li>
       <li>OpenJDK 1.8.0</li>
       <li>Scala 2.11</li>
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.11</li>
-      <li>Spring 4.2</li>
-      <li>Поиск: Elasticsearch 2.1</li>
+      <li>Spring 4.3</li>
+      <li>Поиск: Elasticsearch 2.3</li>
+      <li>Nginx 1.8</li>
     </ul>
 
 <h1>Исходные тексты</h1>
 
-  Исходные тексты доступны под лицензией Apache License 2.0: <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
+  Исходные тексты доступны под лицензией Apache License 2.0:
+  <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
 
-  <h2>Entype font</h2>
+  <h2>Entypo font</h2>
   На сайте используется иконочный шрифт Entypo, Copyright (C) 2012 by Daniel Bruce,
   <a href="http://www.entypo.com">http://www.entypo.com</a>. Шрифт с нужным нам набором символов
   сгенерирован при помощи <a href="http://fontello.com/">fontello.com</a>.

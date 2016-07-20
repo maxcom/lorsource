@@ -131,7 +131,7 @@
         String shortHost = InternetDomainName.from(host).topPrivateDomain().toString();
 
         out.append(" (" + shortHost + ")");
-      } catch (IllegalStateException ex) {
+      } catch (IllegalArgumentException ex) {
         out.append(" (" + ex.getMessage() + ")");
       }
     } else {

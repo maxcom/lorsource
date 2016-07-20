@@ -17,18 +17,18 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.2.4.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.3.1.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.8.RELEASE</spring.security.version>
-    <jdbc.postgresql.version>9.4.1207</jdbc.postgresql.version>
-    <es.version>2.1.2</es.version>
-    <scala.version>2.11.7</scala.version>
+    <jdbc.postgresql.version>9.4.1208</jdbc.postgresql.version>
+    <es.version>2.3.4</es.version>
+    <scala.version>2.11.8</scala.version>
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
-    <slf4j.version>1.7.5</slf4j.version>
+    <slf4j.version>1.7.21</slf4j.version>
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.0.v20150612</jetty.version>
-    <akka.version>2.4.1</akka.version>
+    <akka.version>2.4.8</akka.version>
   </properties>
 
   <dependencies>
@@ -47,7 +47,7 @@
     <dependency>
     	<groupId>com.sksamuel.elastic4s</groupId>
     	<artifactId>elastic4s-core_${scala.suffix}</artifactId>
-    	<version>2.1.2</version>
+    	<version>2.3.0</version>
     </dependency>
 
     <dependency>
@@ -71,14 +71,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>3.6</version>
+      <version>3.7.2</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>3.6</version>
+      <version>3.7.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -139,7 +139,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${jdbc.postgresql.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -287,17 +286,9 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>2.4.3</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -310,13 +301,13 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.4.3</version>
+        <version>2.6.2</version>
       </dependency>
 
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>2.4.3</version>
+        <version>2.6.2</version>
       </dependency>
 
     <dependency>
@@ -403,7 +394,7 @@
     <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>jquery</artifactId>
-        <version>1.12.0</version>
+        <version>1.12.3</version>
     </dependency>
 
     <dependency>
@@ -478,7 +469,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.2</version>
+            <version>3.5.1</version>
             <configuration>
               <source>1.8</source>
               <target>1.8</target>
@@ -641,7 +632,6 @@
             </dependencies>
 
             <configuration>
-              <contextFile>${project.build.directory}/test-classes/ROOT.xml</contextFile>
               <path>/</path>
               <warSourceDirectory>${project.build.directory}/${project.build.finalName}</warSourceDirectory>
             </configuration>
@@ -658,9 +648,9 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
-				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery"/>
-				                <mkdir dir="${project.build.directory}/${project.build.finalName}/gallery/preview"/>
-                                <mkdir dir="${project.build.directory}/${project.build.finalName}/photos"/>
+				                <mkdir dir="${project.build.directory}/uploads/gallery"/>
+				                <mkdir dir="${project.build.directory}/uploads/gallery/preview"/>
+                                <mkdir dir="${project.build.directory}/uploads/photos"/>
                                 <copy file="${basedir}/src/main/webapp/img/good-penguin.png" todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
                             </tasks>
                         </configuration>
@@ -828,7 +818,6 @@
                             <stopPort>9999</stopPort>
 
                             <webAppConfig>
-                                <jettyEnvXml>${project.build.directory}/test-classes/jetty-env.xml</jettyEnvXml>
                                 <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
                             </webAppConfig>
 

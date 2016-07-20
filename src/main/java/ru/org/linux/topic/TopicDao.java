@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -93,11 +93,6 @@ public class TopicDao {
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
         "WHERE topics.id=?";
-  /**
-   * Удаление топика
-   */
-  private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
-  private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
   private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
 
@@ -195,8 +190,8 @@ public class TopicDao {
       userDao.changeScore(message.getUid(), -deleteInfo.getBonus());
     }
 
-    jdbcTemplate.update(updateUndeleteMessage, message.getId());
-    jdbcTemplate.update(updateUneleteInfo, message.getId());
+    jdbcTemplate.update("UPDATE topics SET deleted='f' WHERE id=?", message.getId());
+    jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", message.getId());
   }
 
   private int allocateMsgid() {

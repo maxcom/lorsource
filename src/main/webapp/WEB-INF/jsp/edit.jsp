@@ -80,7 +80,11 @@
   </c:if>
 
   <c:if test="${topicMenu.topicEditable}">
-  <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br>
+
+  <div class="control-group">
+    <label for="title">Заглавие</label>
+    <form:input path="title" required="required" style="width: 40em"/>
+  </div>
 
   <c:if test="${group.pollPostAllowed and template.moderatorSession}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
@@ -97,18 +101,33 @@
       <br>
   </c:if>
 
-  <form:textarea path="msg" style="width: 40em" rows="20"/>
-  <br><br>
+  <div class="control-group">
+    <label for="form_msg">Сообщение</label>
+    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+    <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>
+  </div>
+
     <c:if test="${preparedMessage.group.linksAllowed}">
-      <label>Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/></label>
-      <label>Ссылка:<br> <form:input path="url" type="url" style="width: 40em"/></label>
+      <div class="control-group">
+        <label for="linktext">Текст ссылки</label>
+        <form:input path="linktext" style="width: 40em"/>
+      </div>
+
+      <div class="control-group">
+        <label for="url">Ссылка (не забудьте <b>http://</b>)</label>
+        <form:input placeholder="http://" path="url" type="url" style="width: 40em"/>
+      </div>
     </c:if>
   </c:if>
 
   <c:if test="${topicMenu.tagsEditable}">
-    <label>Метки (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>):<br>
-      <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
-    </label>
+    <div class="control-group">
+      <label for="tags">
+        Метки (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
+      </label>
+      <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+    </div>
+
   </c:if>
 
   <c:if test="${group.premoderated and template.moderatorSession}">

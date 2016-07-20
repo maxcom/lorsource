@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -137,7 +137,7 @@
     <c:if test="${topic.deleted}">
       <c:choose>
         <c:when test="${template.moderatorSession}">
-          <a href="/undelete.jsp?msgid=${topic.msgid}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
+          <a href="/undelete?msgid=${topic.msgid}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
         </c:when>
         <c:otherwise>
           <img src="/img/del.png" alt="[X]" width="15" height="15">

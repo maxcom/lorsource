@@ -7,14 +7,14 @@ mvn -P production clean package
 echo Copying files...
 
 sudo systemctl stop tomcat.service
-sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
+sudo rm -f /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 mvn -P production liquibase:update
-sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/*.jar
-sudo rm -rf /var/lib/tomcat6/webapps/ROOT/WEB-INF/classes
-sudo rm -rf /var/lib/tomcat6/webapps/ROOT/WEB-INF/jsp
+sudo rm -f /var/lib/tomcat/webapps/ROOT/WEB-INF/lib/*.jar
+sudo rm -rf /var/lib/tomcat/webapps/ROOT/WEB-INF/classes
+sudo rm -rf /var/lib/tomcat/webapps/ROOT/WEB-INF/jsp
 sudo rm -rf /var/cache/tomcat/work/Catalina/localhost/_/
-sudo cp -R --preserve=timestamp target/lor-1.0-SNAPSHOT/* /var/lib/tomcat6/webapps/ROOT
-sudo touch /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
+sudo cp -R --preserve=timestamp target/lor-1.0-SNAPSHOT/* /var/lib/tomcat/webapps/ROOT
+sudo touch /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 
 sudo systemctl start tomcat.service
 

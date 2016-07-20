@@ -23,23 +23,24 @@
     <a href="/help/rules.md">Правила форума</a><br>
 
   Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2016<br>
-  Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
-  ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
+  Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/" target="_blank">ITTelo</a>&raquo;
   </p>
 
 <script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-2184304-1");
-pageTracker._setCustomVar(1, "Authorized", "${template.sessionAuthorized}");
-pageTracker._setCustomVar(2, "Style", "${template.style}");
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2184304-1']);
+  _gaq.push(['_setCustomVar', 1, 'Authorized', '${template.sessionAuthorized}']);
+  _gaq.push(['_setCustomVar', 2, 'Style', '${template.style}']);
+  _gaq.push(['_setSiteSpeedSampleRate', 10]);
+  _gaq.push(['_gat._forceSSL']);
+  _gaq.push(['_trackPageview']);
 
-pageTracker._setSiteSpeedSampleRate(10);
-pageTracker._trackPageview();
-} catch(err) {}</script>
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
 
 </div>
 </body>

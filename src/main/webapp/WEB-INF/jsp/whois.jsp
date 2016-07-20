@@ -173,6 +173,10 @@
         </spring:url>
         <a class="tag" href="${tagLink}">${tagName}</a><c:if test="${not status.last}">, </c:if>
     </c:forEach>
+
+    <c:if test="${currentUser}">
+        &emsp;<a href="<c:url value="/user-filter"/>">изменить</a>
+    </c:if>
     <br>
 </c:if>
 <c:if test="${moderatorOrCurrentUser && fn:length(ignoreTags)>0}">
