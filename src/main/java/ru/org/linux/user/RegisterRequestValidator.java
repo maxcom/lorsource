@@ -79,6 +79,7 @@ public class RegisterRequestValidator implements Validator {
 	  "a.asu.mx",
 	  "10mail.org",
 	  "zasod.com",
+	  "msgos.com",
           "trbvn.com"
   );
 
