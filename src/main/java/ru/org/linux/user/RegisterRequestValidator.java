@@ -71,6 +71,15 @@ public class RegisterRequestValidator implements Validator {
           "coldemail.info",
           "mailtemp.info",
           "one-time.email",
+	  "divismail.ru",
+	  "wimsg.com",
+	  "mvrht.com",
+	  "vmani.com",
+	  "abyssmail.com",
+	  "a.asu.mx",
+	  "10mail.org",
+	  "zasod.com",
+	  "msgos.com",
           "trbvn.com"
   );
 
