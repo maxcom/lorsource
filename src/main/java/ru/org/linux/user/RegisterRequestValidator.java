@@ -55,7 +55,7 @@ public class RegisterRequestValidator implements Validator {
           "guerrillamailblock.com",
           "guerrillamail.org",
           "guerrillamail.net",
-          "guerrillamail.de".
+          "guerrillamail.de",
           "guerrillamail.biz",
           "rtrtr.com",
           "mailmetrash.com",
