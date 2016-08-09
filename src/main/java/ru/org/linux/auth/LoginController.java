@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,6 +37,7 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -81,6 +83,22 @@ public class LoginController {
     } catch (Exception e) {
       return new ModelAndView(new RedirectView("/login.jsp?error=true"));
     }
+  }
+
+  @RequestMapping(value = "/logout", method = RequestMethod.POST)
+  public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth != null) {
+      new SecurityContextLogoutHandler().logout(request, response, auth);
+    }
+
+    Cookie cookie = new Cookie("remember_me", null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
+
+    return new ModelAndView(new RedirectView("/login.jsp"));
   }
 
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)

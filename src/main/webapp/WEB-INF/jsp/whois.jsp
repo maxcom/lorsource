@@ -48,6 +48,7 @@
   <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
   <form action="logout" method="POST" style="display: inline-block">
+    <lor:csrf/>
     <button type="submit" class="btn btn-danger">Выйти</button>
   </form>
 </c:if>

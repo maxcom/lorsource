@@ -40,11 +40,10 @@ http://www.springframework.org/schema/security/spring-security-3.2.xsd">
     <http pattern="*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
 
-    <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager" create-session="stateless" entry-point-ref="authenticationEntryPoint">
+    <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager"
+          create-session="stateless" entry-point-ref="authenticationEntryPoint">
         <intercept-url pattern="/**" access="permitAll"/>
         <remember-me key="${Secret}" services-ref="rememberMeServices"/>
-        <logout logout-url="/logout" logout-success-url="/"
-                delete-cookies="password,profile,JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"/>
         <anonymous username="anonymous" granted-authority="ROLE_SYSTEM_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
     </http>
