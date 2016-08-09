@@ -101,6 +101,15 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/login.jsp"));
   }
 
+  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+  public ModelAndView logoutLink() {
+    if (AuthUtil.isSessionAuthorized()) {
+      return new ModelAndView(new RedirectView("/people/"+AuthUtil.getNick()+"/profile"));
+    } else {
+      return new ModelAndView(new RedirectView("/login.jsp"));
+    }
+  }
+
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
   public HttpEntity<LoginStatus> loginAjax(
       @RequestParam("nick") final String username,
