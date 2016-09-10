@@ -16,6 +16,7 @@
   ~    limitations under the License.
   --%>
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<meta name="viewport" content="initial-scale=1.0">
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="head">
