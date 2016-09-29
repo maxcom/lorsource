@@ -14,10 +14,11 @@
  */
 package ru.org.linux.util;
 
-import org.apache.commons.httpclient.HttpURL;
+/*import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.URIException;*/
+import java.net.URI;
 import ru.org.linux.group.Group;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
@@ -265,6 +266,7 @@ public class LorURL extends URI {
   }
 
   /**
+  
    * Создает url для редиректа на текущее сообщение\комментарий
    * @param messageDao доступ к базе сообщений
    * @param secure https ли текуший клиент
@@ -291,7 +293,7 @@ public class LorURL extends URI {
       if(_comment_id != -1) {
         query = "cid=" + _comment_id;
       }
-      URI jumpUri = new URI(scheme, null , host, port, path, query);
+      URI jumpUri = new URI(scheme, null, host, port, path, query);
       return jumpUri.getEscapedURI();
     }
     return "";
