@@ -19,8 +19,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
-  <c:url value="/polls/" var="main_url"/>
-  <h2><a href="${main_url}">Опрос</a></h2>
+  <h2>Опрос</h2>
 
   <div class="boxlet_content">
     <p>
