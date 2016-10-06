@@ -155,6 +155,7 @@
 <li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a></li>
 <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a></li>
 <li><a href="http://lorwiki.ru/">Продолжение развития LOR Wiki, бывшей части проекта</a></li>
+<li><a href="http://lor.click/">Статистика LOR</a></li>
 </ul>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
