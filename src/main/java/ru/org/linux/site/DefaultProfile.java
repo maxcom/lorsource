@@ -78,7 +78,7 @@ public final class DefaultProfile {
 
     builder.put(NEWFIRST_PROPERTY, Boolean.FALSE);
     builder.put(HOVER_PROPERTY, Boolean.TRUE);
- 	builder.put(STYLE_PROPERTY, "tango");
+    builder.put(STYLE_PROPERTY, "tango");
     builder.put(FORMAT_MODE_PROPERTY, "quot");
     builder.put(TOPICS_PROPERTY, 30);
     builder.put(MESSAGES_PROPERTY, 50);
@@ -92,7 +92,7 @@ public final class DefaultProfile {
 
     builder.put("DebugMode", Boolean.FALSE);
 
-	// main page settings
+    // main page settings
     ImmutableList<String> boxes = ImmutableList.of(
       "poll", "top10", "gallery", "tagcloud", "archive"
     );
