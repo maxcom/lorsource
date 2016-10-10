@@ -99,7 +99,7 @@ public class UrlWithParamTag extends Tag {
     if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().isEmpty())){
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
-                .append(escapedUrl)
+                .append(StringUtil.escapeHtml(escapedUrl))
                 .append("\">")
                 .append(escapedUrl)
                 .append("</a>");
@@ -113,7 +113,7 @@ public class UrlWithParamTag extends Tag {
     } else {
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
-                .append(escapedUrl)
+                .append(StringUtil.escapeHtml(escapedUrl))
                 .append("\">")
                 .append(node.renderChildrenXHtml())
                 .append("</a>");
