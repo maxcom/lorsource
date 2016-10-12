@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
   ~ Copyright 1998-2016 Linux.org.ru
@@ -94,7 +95,6 @@ ${section.name}
 <c:forEach items="${items}" var="item">
   <c:url value="${item.link}" var="item_url"/>
   <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
-  <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="MM.yyyy"/>
-    (${item.count})</a> <br/>
+  <a href="${fn:escapeXml(item_url)}"> ${l:getMonthName(item.month)}    ${item.year} года    (${item.count})</a> <br/>
 </c:forEach>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
