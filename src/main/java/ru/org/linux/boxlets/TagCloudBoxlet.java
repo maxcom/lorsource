@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,19 +13,29 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.boxlets;
+package ru.org.linux.boxlets;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.tag.TagCloudDao;
+import ru.org.linux.tag.TagCloudDao.TagDTO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
-public class IbmBoxlet extends AbstractBoxlet {
+public class TagCloudBoxlet extends AbstractBoxlet {
+  private static final int TAGS_IN_CLOUD = 75;
+  @Autowired
+  private TagCloudDao tagDao;
+
   @Override
-  @RequestMapping("/ibm.boxlet")
-  protected ModelAndView getData(HttpServletRequest request) {
-    return new ModelAndView("boxlets/ibm", null);
+  @RequestMapping("/tagcloud.boxlet")
+  protected ModelAndView getData(HttpServletRequest request) throws Exception {
+
+    List<TagDTO> list = tagDao.getTags(TAGS_IN_CLOUD);
+    return new ModelAndView("boxlets/tagcloud", "tags", list);
   }
 }
