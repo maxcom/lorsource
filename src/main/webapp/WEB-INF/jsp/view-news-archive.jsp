@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -94,7 +94,7 @@ ${section.name}
 <c:forEach items="${items}" var="item">
   <c:url value="${item.link}" var="item_url"/>
   <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
-  <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
+  <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="MM.yyyy"/>
     (${item.count})</a> <br/>
 </c:forEach>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
