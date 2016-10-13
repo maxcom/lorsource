@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -75,11 +75,11 @@ public class UrlTag extends Tag {
     if (node.lengthChildren() == 0) {
       return "";
     }
-    // Внцтри [url] только текст
+    // Внутри [url] только текст
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
     String url;
     if (node.isParameter()) {
-      // сюда никогда не должна попасть обрабатывается специально в Parser
+      // сюда никогда не должна попасть, обрабатывается специально в Parser
       url = node.getParameter().trim();
     } else {
       url = txtNode.getText().trim();
@@ -93,7 +93,7 @@ public class UrlTag extends Tag {
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
 
-   if(formatter != null) {
+   if (formatter != null) {
       StringBuilder out = new StringBuilder();
 
       try {

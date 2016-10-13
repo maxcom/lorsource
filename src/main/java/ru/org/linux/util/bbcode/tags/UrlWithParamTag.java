@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -72,14 +72,14 @@ public class UrlWithParamTag extends Tag {
     String url = "";
     if (node.isParameter()) {
       url = node.getParameter().trim();
-      if(url.startsWith("\"")) {
+      if (url.startsWith("\"")) {
         url = url.substring(1);
-        if(url.endsWith("\"")) {
+        if (url.endsWith("\"")) {
           url = url.substring(0, url.length()-1);
         }
-      } else if(url.startsWith("'")) {
+      } else if (url.startsWith("'")) {
         url = url.substring(1);
-        if(url.endsWith("\'")) {
+        if (url.endsWith("\'")) {
           url = url.substring(0, url.length()-1);
         }
       }
