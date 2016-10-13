@@ -95,6 +95,6 @@ ${section.name}
 <c:forEach items="${items}" var="item">
   <c:url value="${item.link}" var="item_url"/>
   <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
-  <a href="${fn:escapeXml(item_url)}"> ${l:getMonthName(item.month)}    ${item.year} года    (${item.count})</a> <br/>
+  <a href="${fn:escapeXml(item_url)}">${l:getMonthName(item.month)}&nbsp;${item.year} года  (${item.count})</a> <br/>
 </c:forEach>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
