@@ -118,20 +118,20 @@ public class QuoteTag extends Tag {
     ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
 
     if (!node.getParameter().isEmpty()) {
-      if(rss) {
+      if (rss) {
         ret.append(citeHeaderRSS);
       } else {
         ret.append(citeHeader);
       }
       ret.append("<p><cite>");
-      if(formatter != null) {
+      if (formatter != null) {
         ret.append(formatter.simpleFormat(node.getParameter().replaceAll("\"", "")));
       } else {
         ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       }
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
-      if(rss) {
+      if (rss) {
         ret.append(citeFooterRSS);
       } else {
         ret.append(citeFooter);
@@ -140,13 +140,13 @@ public class QuoteTag extends Tag {
       if(emtyQuote) {
         ret.append(node.renderChildrenXHtml());
       } else {
-        if(rss) {
+        if (rss) {
           ret.append(citeHeaderRSS);
         } else {
           ret.append(citeHeader);
         }
         ret.append(node.renderChildrenXHtml());
-        if(rss) {
+        if (rss) {
           ret.append(citeFooterRSS);
         } else {
           ret.append(citeFooter);

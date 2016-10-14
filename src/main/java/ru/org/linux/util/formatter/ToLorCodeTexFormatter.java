@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -60,22 +60,22 @@ public class ToLorCodeTexFormatter {
       Matcher m = QUOTE_PATTERN.matcher(line);
       if (!isCode && m.find()) {
         int nestingLevel = m.group(1).length();
-        if(globalNestingLevel == 0) {
+        if (globalNestingLevel == 0) {
           buf.append(Strings.repeat("[quote]", nestingLevel));
           globalNestingLevel = nestingLevel;
-        } else if(nestingLevel < globalNestingLevel) {
+        } else if (nestingLevel < globalNestingLevel) {
           buf.append(Strings.repeat("[/quote]", globalNestingLevel - nestingLevel));
           globalNestingLevel = nestingLevel;
-        } else if(nestingLevel > globalNestingLevel) {
+        } else if (nestingLevel > globalNestingLevel) {
           buf.append(Strings.repeat("[quote]", nestingLevel - globalNestingLevel));
           globalNestingLevel = nestingLevel;
         }
         buf.append(escapeCode(line.substring(nestingLevel)));
-        if(currentLine < lines.length) {
+        if (currentLine < lines.length) {
           buf.append("[br]");
         }
       } else {
-        if(globalNestingLevel > 0) {
+        if (globalNestingLevel > 0) {
           buf.append(Strings.repeat("[/quote]", globalNestingLevel));
           globalNestingLevel = 0;
         }
@@ -97,7 +97,7 @@ public class ToLorCodeTexFormatter {
 
         buf.append(line);
 
-        if(currentLine < lines.length) {
+        if (currentLine < lines.length) {
           if (isCode) {
             buf.append('\n');
           } else {
@@ -107,7 +107,7 @@ public class ToLorCodeTexFormatter {
       }
     }
 
-    if(globalNestingLevel > 0) {
+    if (globalNestingLevel > 0) {
       buf.append(Strings.repeat("[/quote]", globalNestingLevel));
     }
 
