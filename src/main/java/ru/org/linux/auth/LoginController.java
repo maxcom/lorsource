@@ -33,9 +33,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.util.SiteConfig;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

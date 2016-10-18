@@ -33,8 +33,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth._
 import ru.org.linux.email.EmailService
 import ru.org.linux.site.Template
-import ru.org.linux.spring.SiteConfig
-import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
+import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, SiteConfig, StringUtil}
 
 import scala.collection.JavaConverters._
 

@@ -19,7 +19,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.SiteConfig
 
 class HstsInterceptor @Autowired() (config:SiteConfig) extends HandlerInterceptorAdapter {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {

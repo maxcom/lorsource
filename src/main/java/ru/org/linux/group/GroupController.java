@@ -30,7 +30,6 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.ArchiveDao;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
@@ -38,6 +37,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ServletParameterBadValueException;
+import ru.org.linux.util.SiteConfig;
 import ru.org.linux.util.image.ImageInfo;
 
 import javax.annotation.Nullable;

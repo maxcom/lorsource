@@ -29,8 +29,8 @@ import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.exception.ExceptionMailingActor
-import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
+import ru.org.linux.util.SiteConfig
 
 import scala.collection.JavaConversions._
 

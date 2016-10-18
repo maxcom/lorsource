@@ -21,8 +21,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.SiteConfig;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
