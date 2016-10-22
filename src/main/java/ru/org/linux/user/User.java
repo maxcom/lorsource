@@ -49,7 +49,7 @@ public class User implements Serializable {
   private final String style;
 
   private final boolean activated;
-  public static final int CORRECTOR_SCORE = 100;
+  public static final int CORRECTOR_SCORE = 200;
 
   public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 
