@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -219,11 +219,11 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             <c:if test="${user.blocked}">
-                <button type='submit' name='action' value="unblock">unblock</button>
+                <button type='submit' name='action' value="unblock">разблокировать</button>
             </c:if>
             <c:if test="${not user.blocked}">
                 <label>Причина: <input type="text" name="reason" size="40" required></label>
-                <button type='submit' name='action' value="block">block</button><br>
+                <button type='submit' name='action' value="block">заблокировать</button><br>
 
                 [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
             </c:if>
