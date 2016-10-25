@@ -70,16 +70,12 @@ public class AddCommentController {
   }
 
   /**
-   * Показ формы добавления комментария.
-   *
-   * @param add      WEB-форма, содержащая данные
-   * @param request  данные запроса от web-клиента
-   * @return объект web-модели
-   * @throws Exception
+   * Показ формы добавления ответа на комментарий.
    */
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid CommentRequest add,
+    Errors errors,
     HttpServletRequest request
   ) throws Exception {
     if (add.getTopic() == null) {
@@ -94,6 +90,8 @@ public class AddCommentController {
       add.setMode(tmpl.getFormatMode());
     }
 
+    topicPermissionService.checkCommentsAllowed(add.getTopic(), tmpl.getCurrentUser(), errors);
+
     commentService.prepareReplyto(add, params, request);
 
     int postscore = topicPermissionService.getPostscore(add.getTopic());
@@ -104,12 +102,7 @@ public class AddCommentController {
   }
 
   /**
-   * Показ топика с формой добавления комментария.
-   *
-   * @param add      WEB-форма, содержащая данные
-   * @param request  данные запроса от web-клиента
-   * @return объект web-модели
-   * @throws Exception
+   * Показ топика с формой добавления комментария верхнего уровня.
    */
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(

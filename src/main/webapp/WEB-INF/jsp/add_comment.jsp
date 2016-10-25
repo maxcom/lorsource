@@ -22,7 +22,7 @@
 <%--@elvariable id="comment" type="ru.org.linux.comment.PreparedComment"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Добавить сообщение</title>
+<title>Добавить комментарий</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class=nav>
