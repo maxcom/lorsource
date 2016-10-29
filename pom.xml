@@ -71,14 +71,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>3.8.5</version>
+      <version>3.8.5.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>3.8.5</version>
+      <version>3.8.5.1</version>
       <scope>test</scope>
     </dependency>
 
