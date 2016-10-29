@@ -21,8 +21,8 @@
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4.1209</jdbc.postgresql.version>
     <es.version>2.3.4</es.version>
-    <scala.version>2.11.8</scala.version>
-    <scala.suffix>2.11</scala.suffix>
+    <scala.version>2.12.0</scala.version>
+    <scala.suffix>2.12</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
     <slf4j.version>1.7.21</slf4j.version>
     <jquery.validation.version>1.14.0</jquery.validation.version>
