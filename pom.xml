@@ -17,10 +17,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.3.3.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.3.4.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
-    <jdbc.postgresql.version>9.4.1209</jdbc.postgresql.version>
-    <es.version>2.3.4</es.version>
+    <jdbc.postgresql.version>9.4.1212</jdbc.postgresql.version>
+    <es.version>2.4.1</es.version>
     <scala.version>2.11.8</scala.version>
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
@@ -28,7 +28,7 @@
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.12.v20160915</jetty.version>
-    <akka.version>2.4.11</akka.version>
+    <akka.version>2.4.12</akka.version>
   </properties>
 
   <dependencies>
@@ -47,7 +47,7 @@
     <dependency>
     	<groupId>com.sksamuel.elastic4s</groupId>
     	<artifactId>elastic4s-core_${scala.suffix}</artifactId>
-    	<version>2.3.1</version>
+    	<version>2.4.0</version>
     </dependency>
 
     <dependency>
@@ -301,13 +301,13 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.6.2</version>
+        <version>2.8.4</version>
       </dependency>
 
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>2.6.2</version>
+        <version>2.8.4</version>
       </dependency>
 
     <dependency>
