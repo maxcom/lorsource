@@ -234,8 +234,8 @@
       var ads = [
         {
           type: 'img',
-          src: '/adv/miran.png',
-          href: 'https://miran.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated'
+          src: '/adv/miran.gif',
+          href: 'https://miran.ru/promo/podarok_pri_arende_servera/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_gifts'
         }
       ];
 
