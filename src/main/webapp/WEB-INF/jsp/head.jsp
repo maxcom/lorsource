@@ -25,18 +25,10 @@
 <head>
 <c:if test="${template.style=='tango'}">
   <c:if test="${not pageContext.request.secure}">
-    <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
   </c:if>
   <c:if test="${pageContext.request.secure}">
-    <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-</c:if>
-<c:if test="${template.style!='tango'}">
-  <c:if test="${not pageContext.request.secure}">
-    <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-  <c:if test="${pageContext.request.secure}">
-    <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
   </c:if>
 </c:if>
 
