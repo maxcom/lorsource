@@ -270,9 +270,9 @@ public class AddTopicController {
 
     Screenshot scrn = null;
 
-    if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
+    if (section!=null && groupPermissionService.isImagePostingAllowed(section, user)) {
       if (groupPermissionService.isTopicPostingAllowed(group, user)) {
-        scrn = processUpload(tmpl.getCurrentUser(), session, image, errors);
+        scrn = processUpload(user, session, image, errors);
       }
 
       if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
@@ -304,7 +304,7 @@ public class AddTopicController {
 
       List<String> tagNames = TagName.parseAndSanitizeTags(form.getTags());
 
-      if (!groupPermissionService.canCreateTag(section, tmpl.getCurrentUser())) {
+      if (!groupPermissionService.canCreateTag(section, user)) {
         List<String> newTags = tagService.getNewTags(tagNames);
 
         if (!newTags.isEmpty()) {
