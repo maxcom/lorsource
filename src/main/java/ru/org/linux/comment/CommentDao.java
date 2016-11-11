@@ -192,7 +192,7 @@ public class CommentDao {
               pst.setString(3, comment.getTitle());
               pst.setInt(5, comment.getTopicId());
               pst.setString(6, comment.getPostIP());
-              pst.setString(7, userAgent);
+              pst.setString(7, userAgent.substring(0, Math.min(511, userAgent.length())));
 
               if (comment.getReplyTo() != 0) {
                 pst.setInt(4, comment.getReplyTo());
