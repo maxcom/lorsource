@@ -292,4 +292,22 @@ public class SimpleParserTest {
     assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/code]]</code></pre></div>",
         lorCodeService.parseComment("[code][[/code]][/code]", true, false));
   }
+
+  @Test
+  public void inlineSpecialCase() {
+    assertEquals("<p><span class=\"code\"><code>#</span></code></p>",
+        lorCodeService.parseComment("[inline]#[/inline]", true, false));
+    assertEquals("<p><span class=\"code\"><code>#[inline]</span></code></p>",
+        lorCodeService.parseComment("[inline]#[[inline]][/inline]", true, false));
+    assertEquals("<p><span class=\"code\"><code>#[/inline]</span></code></p>",
+        lorCodeService.parseComment("[inline]#[[/inline]][/inline]", true, false));
+    assertEquals("<p><span class=\"code\"><code>#[/inlIne]</span></code></p>",
+        lorCodeService.parseComment("[inline]#[[/inlIne]][/inline]", true, false));
+    assertEquals("<p><span class=\"code\"><code>#[/inlIne]</span></code></p>",
+        lorCodeService.parseComment("[inline]#[[/inlIne]][/inline]", true, false));
+    assertEquals("<p><span class=\"code\"><code>#[/inlIne]</span></code><span class=\"code\"><code>#[inLIne]</span></code></p>",
+        lorCodeService.parseComment("[inline]#[[/inlIne]][/inline][inLine]#[[inLIne]][/inlinE]", true, false));
+
+  }
+
 }
