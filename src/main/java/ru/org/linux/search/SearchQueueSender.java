@@ -50,31 +50,23 @@ public class SearchQueueSender {
   public void updateMessage(final int msgid, final boolean withComments) {
     logger.info("Scheduling reindex #"+msgid+" withComments="+withComments);
 
-    jmsTemplate.send(queue, session -> {
-      return session.createObjectMessage(new UpdateMessage(msgid, withComments));
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateMessage(msgid, withComments)));
   }
 
   public void updateMonth(final int year, final int month) {
     logger.info("Scheduling reindex by date "+year+ '/' +month);
 
-    jmsTemplate.send(queue, session -> {
-      return session.createObjectMessage(new UpdateMonth(year, month));
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateMonth(year, month)));
   }
 
   public void updateComment(final int msgid) {
     Preconditions.checkArgument(msgid!=0, "msgid==0!?");
 
-    jmsTemplate.send(queue, session -> {
-      return session.createObjectMessage(new UpdateComments(Collections.singletonList(msgid)));
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(Collections.singletonList(msgid))));
   }
 
   public void updateComment(final List<Integer> msgids) {
-    jmsTemplate.send(queue, session -> {
-      return session.createObjectMessage(new UpdateComments(msgids));
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(msgids)));
   }
 
   public static class UpdateMessage implements Serializable {

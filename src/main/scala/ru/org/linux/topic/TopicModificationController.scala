@@ -37,6 +37,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.group.GroupDao
+import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.user.{UserDao, UserErrorException}
@@ -46,7 +47,7 @@ import scala.collection.JavaConverters._
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
                                   sectionService: SectionService, groupDao: GroupDao,
-                                  userDao: UserDao) extends StrictLogging {
+                                  userDao: UserDao, searchQueueSender: SearchQueueSender) extends StrictLogging {
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
@@ -139,6 +140,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser)
     }
 
+    searchQueueSender.updateMessage(msg.getId, true)
+
     new RedirectView(TopicLinkBuilder.baseLink(msg).forceLastmod.build)
   }
 
@@ -206,9 +209,12 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     }
 
     val message = messageDao.getById(msgid)
+
     checkUncommitable(message)
 
     messageDao.uncommit(message)
+
+    searchQueueSender.updateMessage(message.getId, true)
 
     logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick)
 
