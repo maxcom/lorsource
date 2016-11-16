@@ -35,7 +35,7 @@ import ru.org.linux.util.bbcode.LorCodeService
 @ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
 class TopicDaoIntegrationTest {
   @Autowired
-  var topicDao : TopicDao = _
+  var topicDao: TopicDao = _
 
   @Test
   def testLoadTopic():Unit = {

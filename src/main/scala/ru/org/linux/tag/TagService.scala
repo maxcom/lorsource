@@ -21,7 +21,6 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient}
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 import ru.org.linux.section.Section
@@ -33,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Service
-class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
+class TagService(tagDao:TagDao, elastic:ElasticClient) {
   import ru.org.linux.tag.TagService._
 
   /**
@@ -102,7 +101,7 @@ class TagService @Autowired () (tagDao:TagDao, elastic:ElasticClient) {
         bucket <- r.aggregations.get[Terms]("active").getBuckets.asScala
       } yield {
         tagRef(bucket.getKeyAsString)
-      }).toSeq.sorted
+      }).sorted
     }
   }
 

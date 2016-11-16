@@ -17,15 +17,11 @@ package ru.org.linux.search
 
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import org.elasticsearch.node.NodeBuilder
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
 import ru.org.linux.spring.SiteConfig
 
 @Configuration
-class ElasticsearchConfiguration {
-  @Autowired
-  var config:SiteConfig = _
-
+class ElasticsearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
   def elasticsearch: ElasticClient = {
     config.getElasticsearch match {

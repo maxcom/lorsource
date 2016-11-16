@@ -14,13 +14,12 @@
  */
 package ru.org.linux.section
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import scala.collection.JavaConversions._
 
 @Service
-class SectionService @Autowired () (sectionDao: SectionDao) {
+class SectionService(sectionDao: SectionDao) {
   val sections: Seq[Section] = sectionDao.getAllSections.toVector
   val nameToSection = sections map { section => section.getUrlName -> section } toMap
   val idToSection = sections map { section => section.getId -> section } toMap

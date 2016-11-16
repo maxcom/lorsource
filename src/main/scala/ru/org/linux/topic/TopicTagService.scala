@@ -17,7 +17,6 @@ package ru.org.linux.topic
 
 import com.google.common.collect.{ImmutableList, ImmutableListMultimap}
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -28,11 +27,8 @@ import ru.org.linux.topic.TopicTagService._
 import scala.collection.JavaConversions._
 
 @Service
-class TopicTagService @Autowired() (
-                                     val transactionManager:PlatformTransactionManager,
-                                     tagService:TagModificationService,
-                                     topicTagDao:TopicTagDao
-  ) extends StrictLogging with TransactionManagement {
+class TopicTagService(val transactionManager: PlatformTransactionManager, tagService: TagModificationService,
+                      topicTagDao: TopicTagDao) extends StrictLogging with TransactionManagement {
 
   tagService.getActionHandlers.add(new ITagActionHandler() {
     override def replaceTag(oldTagId: Int, newTagId: Int, newTagName: String):Unit = {
@@ -141,7 +137,7 @@ class TopicTagService @Autowired() (
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getTagsForTitle(msgId:Int):ImmutableList[String] = {
+  def getTagsForTitle(msgId:Int): ImmutableList[String] = {
     val tags = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
     ImmutableList.copyOf(tags.toIterable)
   }

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest
 import akka.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.exception.ExceptionMailingActor
@@ -35,7 +35,7 @@ import ru.org.linux.user.User
 import scala.collection.JavaConversions._
 
 @Service
-class EmailService @Autowired () (siteConfig:SiteConfig,
+class EmailService(siteConfig:SiteConfig,
                                   @Qualifier("exceptionMailingActor") exceptionMailingActor:ActorRef
                                    ) extends StrictLogging {
   def sendEmail(nick: String, email: String, isNew: Boolean):Unit = {

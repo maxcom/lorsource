@@ -18,7 +18,6 @@ package ru.org.linux.user
 import java.util
 import javax.servlet.ServletRequest
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
@@ -32,7 +31,7 @@ import scala.collection.JavaConverters._
 
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
-class EditProfileController @Autowired() (
+class EditProfileController(
   userDao:UserDao,
   profileDao:ProfileDao
 ) {

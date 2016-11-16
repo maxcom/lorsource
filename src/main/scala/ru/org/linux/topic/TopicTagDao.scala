@@ -19,7 +19,6 @@ import java.sql.ResultSet
 import javax.sql.DataSource
 
 import com.google.common.collect.ImmutableMap
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -30,7 +29,7 @@ import ru.org.linux.tag.TagInfo
 import scala.collection.JavaConverters._
 
 @Repository
-class TopicTagDao @Autowired() (ds:DataSource) {
+class TopicTagDao(ds:DataSource) {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 

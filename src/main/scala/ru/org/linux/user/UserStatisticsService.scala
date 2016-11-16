@@ -25,7 +25,6 @@ import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 import ru.org.linux.section.{Section, SectionService}
@@ -39,13 +38,13 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 @Service
-class UserStatisticsService @Autowired() (
+class UserStatisticsService(
   userDao: UserDao,
   ignoreListDao: IgnoreListDao,
   sectionService: SectionService,
   elastic: ElasticClient
 ) extends StrictLogging {
-  def getStats(user:User) : UserStats = {
+  def getStats(user:User): UserStats = {
     val commentCountFuture = countComments(user)
     val topicsFuture = topicStats(user)
 
@@ -71,7 +70,7 @@ class UserStatisticsService @Autowired() (
       e => PreparedUsersSectionStatEntry(sectionService.getSectionByName(e._1), e._2)
     ).sortBy(_.section.getId)
 
-    new UserStats(
+    UserStats(
       ignoreCount,
       commentCount.getOrElse(0L),
       commentCount.isEmpty || topicStat.isEmpty,
@@ -129,7 +128,7 @@ class UserStatisticsService @Autowired() (
 
         val sections = sectionsResult.getBuckets.map { bucket =>
           (bucket.getKeyAsString, bucket.getDocCount)
-        }.toSeq
+        }
 
         TopicStats(firstTopic, lastTopic, sections)
       }

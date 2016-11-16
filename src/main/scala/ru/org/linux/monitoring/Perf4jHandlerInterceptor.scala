@@ -22,7 +22,7 @@ import akka.actor.ActorRef
 import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
-import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
@@ -65,7 +65,8 @@ object Perf4jHandlerInterceptor {
   }
 }
 
-class Perf4jHandlerInterceptor @Autowired() (@Qualifier("loggingActor") loggingActor:ActorRef) extends HandlerInterceptorAdapter with StrictLogging {
+class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor:ActorRef)
+  extends HandlerInterceptorAdapter with StrictLogging {
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef): Boolean = {
     if (handler.isInstanceOf[ResourceHttpRequestHandler] || handler.isInstanceOf[DefaultServletHttpRequestHandler]) {

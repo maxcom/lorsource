@@ -23,7 +23,6 @@ import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
@@ -48,7 +47,7 @@ case class SearchItem (
 )
 
 @Service
-class SearchResultsService @Autowired() (
+class SearchResultsService(
   userService:UserService, sectionService:SectionService, groupDao:GroupDao
 ) extends StrictLogging {
   import ru.org.linux.search.SearchResultsService._

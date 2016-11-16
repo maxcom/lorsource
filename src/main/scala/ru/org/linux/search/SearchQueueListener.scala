@@ -16,14 +16,13 @@
 package ru.org.linux.search
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Deadline
 
 @Component
-class SearchQueueListener @Autowired() (
+class SearchQueueListener(
   indexService: ElasticsearchIndexService
 ) extends StrictLogging {
   private var mappingsSet = false
@@ -38,14 +37,14 @@ class SearchQueueListener @Autowired() (
     indexService.reindexMessage(msgUpdate.getMsgid, msgUpdate.isWithComments)
   }
 
-  def handleMessage(msgUpdate: SearchQueueSender.UpdateComments):Unit = {
+  def handleMessage(msgUpdate: SearchQueueSender.UpdateComments): Unit = {
     if (!mappingsSet) {
       createIndex()
     }
 
     logger.info(s"Indexing comments ${msgUpdate.getMsgids}")
 
-    indexService.reindexComments(msgUpdate.getMsgids.asScala.map(x ⇒ x.toInt).toSeq)
+    indexService.reindexComments(msgUpdate.getMsgids.asScala.map(x ⇒ x.toInt))
   }
 
   def handleMessage(msgUpdate: SearchQueueSender.UpdateMonth):Unit = {

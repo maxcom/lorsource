@@ -19,7 +19,6 @@ import javax.servlet.ServletRequest
 
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
@@ -32,7 +31,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 @Controller
-class HelpController @Autowired() (renderService: MarkdownRenderService) extends StrictLogging {
+class HelpController(renderService: MarkdownRenderService) extends StrictLogging {
   import HelpController._
 
   @RequestMapping(Array("/help/{page}"))

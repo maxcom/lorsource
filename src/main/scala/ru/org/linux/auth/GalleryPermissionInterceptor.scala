@@ -18,7 +18,6 @@ package ru.org.linux.auth
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
@@ -28,7 +27,7 @@ import ru.org.linux.user.User
 
 import scala.collection.JavaConverters._
 
-class GalleryPermissionInterceptor @Autowired() (imageDao:ImageDao, topicDao:TopicDao, groupDao:GroupDao,
+class GalleryPermissionInterceptor (imageDao:ImageDao, topicDao:TopicDao, groupDao:GroupDao,
                                                  topicPermissionService:TopicPermissionService)
   extends HandlerInterceptorAdapter with StrictLogging {
 

@@ -17,7 +17,6 @@ package ru.org.linux.group
 import javax.annotation.Nullable
 
 import org.joda.time.{DateTime, Duration}
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
@@ -32,7 +31,7 @@ object GroupPermissionService {
 }
 
 @Service
-class GroupPermissionService @Autowired() (sectionService: SectionService) {
+class GroupPermissionService(sectionService: SectionService) {
   import GroupPermissionService._
   /**
     * Проверка может ли пользователь удалить топик

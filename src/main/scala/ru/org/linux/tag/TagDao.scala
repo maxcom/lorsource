@@ -19,7 +19,6 @@ import java.sql.ResultSet
 import javax.sql.DataSource
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
@@ -29,7 +28,7 @@ import ru.org.linux.tag.TagDao._
 import scala.collection.JavaConversions._
 
 @Repository
-class TagDao @Autowired() (ds:DataSource) extends StrictLogging {
+class TagDao(ds:DataSource) extends StrictLogging {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val simpleJdbcInsert =
     new SimpleJdbcInsert(ds).withTableName("tags_values").usingColumns("value").usingGeneratedKeyColumns("id")

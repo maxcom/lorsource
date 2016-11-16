@@ -17,11 +17,10 @@ package ru.org.linux.topic
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
-import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.servlet.view.RedirectView
+import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
@@ -56,7 +55,8 @@ object TagTopicListController {
   }
 }
 
-@Controller class TagTopicListController @Autowired() (
+@Controller
+class TagTopicListController (
   userTagService: UserTagService,
   sectionService: SectionService,
   tagService: TagService,

@@ -15,7 +15,6 @@
 
 package ru.org.linux.user
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.SectionService
@@ -26,7 +25,7 @@ import ru.org.linux.util.bbcode.LorCodeService
 import scala.collection.JavaConverters._
 
 @Service
-class UserEventPrepareService @Autowired() (
+class UserEventPrepareService(
   msgbaseDao:MsgbaseDao,
   lorCodeService: LorCodeService,
   userService:UserService,

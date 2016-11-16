@@ -21,7 +21,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
 import org.joda.time.DateTime
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentList, CommentService}
 import ru.org.linux.group.GroupDao
@@ -44,7 +43,7 @@ object ElasticsearchIndexService {
 }
 
 @Service
-class ElasticsearchIndexService @Autowired()
+class ElasticsearchIndexService
 (
   sectionService: SectionService,
   groupDao: GroupDao,

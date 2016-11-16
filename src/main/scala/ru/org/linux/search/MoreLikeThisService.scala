@@ -27,7 +27,6 @@ import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.lucene.analysis.util.CharArraySet
 import org.elasticsearch.ElasticsearchException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageIndexTypes, MessageType}
@@ -45,7 +44,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, TimeoutException}
 
 @Service
-class MoreLikeThisService @Autowired() (
+class MoreLikeThisService(
   elastic:ElasticClient,
   sectionService:SectionService,
   scheduler:Scheduler

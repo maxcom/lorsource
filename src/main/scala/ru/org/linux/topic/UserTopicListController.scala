@@ -18,7 +18,6 @@ package ru.org.linux.topic
 import java.util.List
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
@@ -31,7 +30,7 @@ import ru.org.linux.user._
 
 @Controller
 @RequestMapping(Array("/people/{nick}"))
-class UserTopicListController @Autowired()
+class UserTopicListController
 (
   topicListService: TopicListService,
   userDao: UserDao,

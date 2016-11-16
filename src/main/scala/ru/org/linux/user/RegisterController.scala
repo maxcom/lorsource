@@ -19,7 +19,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.validation.Valid
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -39,7 +39,7 @@ import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUt
 import scala.collection.JavaConverters._
 
 @Controller
-class RegisterController @Autowired() (captcha: CaptchaService, ipBlockDao: IPBlockDao,
+class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
                                        rememberMeServices: RememberMeServices,
                                        @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                                        userDetailsService: UserDetailsServiceImpl,

@@ -18,7 +18,6 @@ package ru.org.linux.topic
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
@@ -32,7 +31,7 @@ import ru.org.linux.user.{UserDao, UserErrorException}
 import scala.collection.JavaConverters._
 
 @Controller
-class DeleteTopicController @Autowired()(searchQueueSender: SearchQueueSender, sectionService: SectionService,
+class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService: SectionService,
                                          messageDao: TopicDao, topicService: TopicService,
                                          prepareService: TopicPrepareService,
                                          permissionService: GroupPermissionService,

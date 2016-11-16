@@ -21,7 +21,6 @@ import javax.annotation.Nullable
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
@@ -44,7 +43,7 @@ object UserService {
 }
 
 @Service
-class UserService @Autowired() (siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
+class UserService(siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
       new CacheLoader[String, Integer] {

@@ -17,18 +17,14 @@ package ru.org.linux
 import java.io.File
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.{EnableWebMvc, ResourceHandlerRegistry, WebMvcConfigurerAdapter}
 import ru.org.linux.spring.SiteConfig
 
 @Configuration
 @EnableWebMvc
-class UploadPathConfiguration extends WebMvcConfigurerAdapter with StrictLogging {
+class UploadPathConfiguration(siteConfig: SiteConfig) extends WebMvcConfigurerAdapter with StrictLogging {
   private val CachePeriod = 31556926
-
-  @Autowired
-  private var siteConfig: SiteConfig = null
 
   override def addResourceHandlers(registry: ResourceHandlerRegistry): Unit = {
     val base = new File(siteConfig.getUploadPath).toURI.toString

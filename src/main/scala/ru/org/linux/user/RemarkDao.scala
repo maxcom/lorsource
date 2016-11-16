@@ -18,7 +18,6 @@ package ru.org.linux.user
 import java.sql.ResultSet
 import javax.sql.DataSource
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
@@ -28,7 +27,7 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 @Repository
-class RemarkDao @Autowired() (ds:DataSource) {
+class RemarkDao(ds:DataSource) {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val namedTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.javaTemplate)
 

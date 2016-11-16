@@ -20,7 +20,6 @@ import java.nio.file.Files
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -36,9 +35,9 @@ import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 @Service
-class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHistoryService,
-                                 topicDao: TopicDao, userDao: UserDao, siteConfig: SiteConfig,
-                                 val transactionManager:PlatformTransactionManager)
+class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
+                   topicDao: TopicDao, userDao: UserDao, siteConfig: SiteConfig,
+                   val transactionManager:PlatformTransactionManager)
   extends StrictLogging with TransactionManagement {
 
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
@@ -68,7 +67,7 @@ class ImageService @Autowired() (imageDao: ImageDao, editHistoryService: EditHis
   }
 
   def prepareGalleryItem(item: GalleryItem):PreparedGalleryItem = {
-    new PreparedGalleryItem(item, userDao.getUserCached(item.getUserid))
+    PreparedGalleryItem(item, userDao.getUserCached(item.getUserid))
   }
 
   def prepareImage(image: Image, secure: Boolean): Option[PreparedImage] = {

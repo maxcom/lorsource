@@ -20,7 +20,6 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
@@ -82,13 +81,9 @@ object TopicListController {
 }
 
 @Controller
-class TopicListController @Autowired()
-(sectionService: SectionService,
- topicListService: TopicListService,
- prepareService: TopicPrepareService,
- tagService: TagService,
- groupDao: GroupDao,
- actorSystem: ActorSystem) extends StrictLogging {
+class TopicListController(sectionService: SectionService, topicListService: TopicListService,
+                          prepareService: TopicPrepareService, tagService: TagService,
+                          groupDao: GroupDao, actorSystem: ActorSystem) extends StrictLogging {
 
   private implicit val akka = actorSystem
 

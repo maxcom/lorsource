@@ -17,11 +17,10 @@ package ru.org.linux.auth
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import ru.org.linux.spring.SiteConfig
 
-class HstsInterceptor @Autowired() (config:SiteConfig) extends HandlerInterceptorAdapter {
+class HstsInterceptor(config:SiteConfig) extends HandlerInterceptorAdapter {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {
     if (request.isSecure && config.enableHsts()) {
       response.addHeader("Strict-Transport-Security", "max-age=7776000")

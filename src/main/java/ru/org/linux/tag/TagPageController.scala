@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.text.WordUtils
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
 import org.springframework.web.context.request.async.DeferredResult
@@ -48,8 +47,7 @@ object TagPageController {
 
 @Controller
 @RequestMapping(value = Array("/tag/{tag}"), params = Array("!section"))
-class TagPageController @Autowired()
-(tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
+class TagPageController(tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
  sectionService: SectionService, groupDao: GroupDao, userTagService: UserTagService, imageService: ImageService,
  actorSystem: ActorSystem) extends StrictLogging {
 

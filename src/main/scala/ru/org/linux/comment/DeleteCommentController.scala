@@ -16,7 +16,6 @@ package ru.org.linux.comment
 
 import javax.servlet.http.HttpServletRequest
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
@@ -30,9 +29,9 @@ import ru.org.linux.user.UserErrorException
 import scala.collection.JavaConverters._
 
 @Controller
-class DeleteCommentController @Autowired() (searchQueueSender: SearchQueueSender, commentService: CommentService,
-                                            messageDao: TopicDao, prepareService: CommentPrepareService,
-                                            permissionService: TopicPermissionService) {
+class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentService,
+                              messageDao: TopicDao, prepareService: CommentPrepareService,
+                              permissionService: TopicPermissionService) {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
     val tmpl = Template.getTemplate(request)
