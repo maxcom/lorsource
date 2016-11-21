@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Service
-class TagService(tagDao:TagDao, elastic:ElasticClient) {
+class TagService(tagDao: TagDao, elastic: ElasticClient) {
   import ru.org.linux.tag.TagService._
 
   /**
@@ -42,7 +42,17 @@ class TagService(tagDao:TagDao, elastic:ElasticClient) {
    * @return идентификационный номер
    */
   @throws(classOf[TagNotFoundException])
-  def getTagId(tag: String) = tagDao.getTagId(tag).getOrElse(throw new TagNotFoundException)
+  def getTagId(tag: String): Int = tagDao.getTagId(tag).getOrElse(throw new TagNotFoundException)
+
+  def getTagIdOpt(tag: String): Option[Int] = tagDao.getTagId(tag)
+
+  /**
+    * Получение идентификационного номера тега по названию, либо создание нового тега.
+    *
+    * @param tagName название тега
+    * @return идентификационный номер тега
+    */
+  def getOrCreateTag(tagName: String): Int = tagDao.getTagId(tagName).getOrElse(tagDao.createTag(tagName))
 
   @throws(classOf[TagNotFoundException])
   def getTagInfo(tag: String, skipZero: Boolean): TagInfo = {

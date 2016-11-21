@@ -17,51 +17,27 @@ package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.ObjectError;
-import ru.org.linux.tag.*;
+import ru.org.linux.tag.TagName;
+import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 import scala.collection.JavaConverters;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class UserTagService {
-  private static final Logger logger = LoggerFactory.getLogger(UserTagService.class);
-
-  private final ITagActionHandler actionHandler = new ITagActionHandler() {
-    @Override
-    public void replaceTag(int oldTagId, int newTagId, String newTagName) {
-      userTagDao.replaceTag(oldTagId, newTagId);
-    }
-
-    @Override
-    public void deleteTag(int tagId, String tagName) {
-      userTagDao.deleteTags(tagId);
-      logger.debug("Удалено использование тега '" + tagName + "' у всех пользователей");
-    }
-  };
-
   @Autowired
   private UserTagDao userTagDao;
 
   @Autowired
-  private TagModificationService tagModificationService;
-
-  @Autowired
   private TagService tagService;
-
-  @PostConstruct
-  private void addToReplaceHandlerList() {
-    tagModificationService.getActionHandlers().add(actionHandler);
-  }
 
   /**
    * Добавление тега к пользователю.

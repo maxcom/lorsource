@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 public class TagController {
@@ -166,9 +167,21 @@ public class TagController {
       throw new AccessViolationException(REJECT_REASON);
     }
 
-    tagModificationService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName(), errors);
+    if (tagService.getTagIdOpt(tagRequestChange.getOldTagName()).isEmpty()) {
+      errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!");
+    }
+
+    if (!TagName.isGoodTag(tagRequestChange.getTagName())) {
+      errors.rejectValue("tagName", "", "Некорректный тег: '" + tagRequestChange.getTagName() + "'");
+    } else {
+      if (tagService.getTagIdOpt(tagRequestChange.getTagName()).isDefined()) {
+        errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
+      }
+    }
 
     if (!errors.hasErrors()) {
+      tagModificationService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName());
+
       logger.info(
               "Тег '{}' изменен пользователем {}",
               tagRequestChange.getOldTagName(),
@@ -231,20 +244,32 @@ public class TagController {
       throw new AccessViolationException(REJECT_REASON);
     }
 
-    tagModificationService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
-
-    if (!errors.hasErrors()) {
-      logger.info(
-              "Тег '{}' удален пользователем {}",
-              tagRequestDelete.getOldTagName(),
-              template.getNick()
-      );
-      return redirectToListPage(firstLetter);
+    if (tagService.getTagIdOpt(tagRequestDelete.getOldTagName()).isEmpty()) {
+      errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!");
     }
 
-    ModelAndView modelAndView = new ModelAndView("tags-delete");
-    modelAndView.addObject("firstLetter", firstLetter);
-    return modelAndView;
+    if (!Strings.isNullOrEmpty(tagRequestDelete.getTagName())) {
+      if (!TagName.isGoodTag(tagRequestDelete.getTagName())) {
+        errors.rejectValue("tagName", "", "Некорректный тег: '"+tagRequestDelete.getTagName()+"'");
+      }
+    }
+
+    if (Objects.equals(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName())) {
+      errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
+    }
+
+    if (!errors.hasErrors()) {
+      tagModificationService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName());
+
+      logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName(), template.getNick());
+
+      return redirectToListPage(firstLetter);
+    } else {
+      ModelAndView modelAndView = new ModelAndView("tags-delete");
+      modelAndView.addObject("firstLetter", firstLetter);
+
+      return modelAndView;
+    }
   }
 
   /**

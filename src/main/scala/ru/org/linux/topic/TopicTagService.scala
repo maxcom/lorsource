@@ -28,23 +28,8 @@ import scala.collection.JavaConverters._
 import scala.collection.Map
 
 @Service
-class TopicTagService(val transactionManager: PlatformTransactionManager, tagService: TagModificationService,
+class TopicTagService(val transactionManager: PlatformTransactionManager, tagService: TagService,
                       topicTagDao: TopicTagDao) extends StrictLogging with TransactionManagement {
-
-  tagService.getActionHandlers.add(new ITagActionHandler() {
-    override def replaceTag(oldTagId: Int, newTagId: Int, newTagName: String): Unit = {
-      val tagCount = topicTagDao.getCountReplacedTags(oldTagId, newTagId)
-      topicTagDao.replaceTag(oldTagId, newTagId)
-      topicTagDao.increaseCounterById(newTagId, tagCount)
-
-      logger.debug(s"Счётчик использование тега '$newTagName' увеличен на $tagCount")
-    }
-
-    override def deleteTag(tagId: Int, tagName: String): Unit = {
-      topicTagDao.deleteTag(tagId)
-      logger.debug("Удалено использование тега '{}' в топиках", tagName)
-    }
-  })
 
   def reCalculateAllCounters(): Unit = topicTagDao.reCalculateAllCounters()
 
