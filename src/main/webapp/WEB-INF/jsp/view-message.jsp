@@ -239,7 +239,7 @@
         },
         {
           type: 'img',
-          src: 'src/main/webapp/adv/miran-bf.png',
+          src: '/adv/miran-bf.png',
           href: 'https://miran.ru/promo/bf/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_bf'
         }
 
