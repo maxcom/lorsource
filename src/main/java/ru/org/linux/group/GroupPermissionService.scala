@@ -206,6 +206,8 @@ class GroupPermissionService(sectionService: SectionService) {
     } else if (by.getId == author.getId && !message.isCommited) {
       if (message.isSticky) {
         true
+      } else if (message.isDraft) {
+        true
       } else if (section.isPremoderated) {
         true
       } else if (author.getScore >= EditSelfAlwaysScore) {
