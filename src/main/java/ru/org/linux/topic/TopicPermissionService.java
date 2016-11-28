@@ -287,7 +287,7 @@ public class TopicPermissionService {
    * @param haveAnswers есть у комменатрия ответы
    * @return результат
    */
-  public void checkCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
+  private void checkCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
                                       boolean haveAnswers, @Nonnull Topic topic, Errors errors) {
     if (comment.isDeleted() || topic.isDeleted()) {
       errors.reject(null, "Тема или комментарий удалены");

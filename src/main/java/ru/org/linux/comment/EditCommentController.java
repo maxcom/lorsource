@@ -33,6 +33,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 import ru.org.linux.util.ServletParameterException;
@@ -80,18 +81,15 @@ public class EditCommentController {
 
   /**
    * Показ формы изменения комментария.
-   *
-   *
-   * @param commentRequest  WEB-форма, содержащая данные
-   * @return объект web-модели
-   * @throws ServletParameterException
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.GET)
   public ModelAndView editCommentShowHandler(
           @ModelAttribute("edit") @Valid CommentRequest commentRequest,
           HttpServletRequest request
-  ) throws ServletParameterException {
-    if (commentRequest.getTopic() == null) {
+  ) throws Exception {
+    Topic topic = commentRequest.getTopic();
+
+    if (topic == null) {
       throw new ServletParameterException("тема на задана");
     }
 
@@ -101,19 +99,27 @@ public class EditCommentController {
       throw new ServletParameterException("Комментарий на задан");
     }
 
-    MessageText messageText = msgbaseDao.getMessageText(original.getId());
-    commentRequest.setMsg(messageText.getText());
-    commentRequest.setTitle(original.getTitle());
-
-    Map<String, Object> formParams = new HashMap<>();
-
     Comment comment = commentRequest.getOriginal();
 
-    formParams.put("comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
+    Template tmpl = Template.getTemplate(request);
 
-    topicPermissionService.getEditDeadline(comment).ifPresent(value -> formParams.put("deadline", value.toDate()));
+    if (topicPermissionService.isCommentEditableNow(comment,
+            tmpl.getCurrentUser(), commentService.isHaveAnswers(comment), topic)) {
+      MessageText messageText = msgbaseDao.getMessageText(original.getId());
+      commentRequest.setMsg(messageText.getText());
+      commentRequest.setTitle(original.getTitle());
 
-    return new ModelAndView("edit_comment", formParams);
+      Map<String, Object> formParams = new HashMap<>();
+
+      formParams.put("comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
+
+      topicPermissionService.getEditDeadline(comment).ifPresent(value -> formParams.put("deadline", value.toDate()));
+
+      return new ModelAndView("edit_comment", formParams);
+    } else {
+      return new ModelAndView(
+              new RedirectView(topic.getLink()+"?cid="+original.getId()));
+    }
   }
 
   /**
@@ -165,9 +171,7 @@ public class EditCommentController {
       modelAndView.addObject("ipBlockInfo", ipBlockInfo);
       Optional<DateTime> deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal());
 
-      if (deadline.isPresent()) {
-        modelAndView.addObject("deadline", deadline.get().toDate());
-      }
+      deadline.ifPresent(dateTime -> modelAndView.addObject("deadline", dateTime.toDate()));
 
       return modelAndView;
     }
