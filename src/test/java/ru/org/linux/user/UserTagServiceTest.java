@@ -103,7 +103,7 @@ public class UserTagServiceTest {
     ImmutableList<String> etalon = etalonBuild.build();
     when(userTagDao.getTags(1, true)).thenReturn(etalon);
 
-    ImmutableList<String> actual = userTagService.favoritesGet(user);
+    List<String> actual = userTagService.favoritesGet(user);
     Assert.assertEquals(etalon.size(), actual.size());
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }
@@ -115,7 +115,7 @@ public class UserTagServiceTest {
     ImmutableList<String> etalon = etalonBuild.build();
     when(userTagDao.getTags(1, false)).thenReturn(etalon);
 
-    ImmutableList<String> actual = userTagService.ignoresGet(user);
+    List<String> actual = userTagService.ignoresGet(user);
     Assert.assertEquals(etalon.size(), actual.size());
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }
