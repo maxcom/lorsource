@@ -80,15 +80,20 @@ public class TopicIntegrationTestConfiguration {
 
   @Bean
   public MoreLikeThisService moreLikeThisService() {
-    return Mockito.mock(MoreLikeThisService.class);
+    return mock(MoreLikeThisService.class);
   }
 
   @Bean
   public ElasticClient elasticsearch() {
-    Client mockClient = Mockito.mock(Client.class);
+    Client mockClient = mock(Client.class);
 
     Mockito.when(mockClient.prepareSearch(Matchers.anyString())).thenThrow(new ElasticsearchException("no ES here"));
 
     return ElasticClient.fromClient(mockClient);
+  }
+
+  @Bean
+  public SearchQueueSender searchQueueSender() {
+    return mock(SearchQueueSender.class);
   }
 }

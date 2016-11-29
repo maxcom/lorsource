@@ -15,7 +15,6 @@
 
 package ru.org.linux.tag;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -111,12 +110,7 @@ public class TagController {
   ) {
     Collection<String> tags = tagService.suggestTagsByPrefix(term, 10);
 
-    return ImmutableList.copyOf(Iterables.filter(tags, new Predicate<String>() {
-      @Override
-      public boolean apply(String input) {
-        return TagName.isGoodTag(input);
-      }
-    }));
+    return ImmutableList.copyOf(Iterables.filter(tags, TagName::isGoodTag));
   }
 
   /**
@@ -259,7 +253,11 @@ public class TagController {
     }
 
     if (!errors.hasErrors()) {
-      tagModificationService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName());
+      if (Strings.isNullOrEmpty(tagRequestDelete.getTagName())) {
+        tagModificationService.delete(tagRequestDelete.getOldTagName());
+      } else {
+        tagModificationService.merge(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName());
+      }
 
       logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName(), template.getNick());
 

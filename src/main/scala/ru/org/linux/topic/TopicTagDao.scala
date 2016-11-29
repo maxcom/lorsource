@@ -58,7 +58,7 @@ class TopicTagDao(ds:DataSource) {
   }
 
   /**
-   * Получить список тегов топика .
+   * Получить список тегов топика.
    *
    * @param msgid идентификационный номер топика
    * @return список тегов топика
@@ -105,7 +105,7 @@ class TopicTagDao(ds:DataSource) {
    *
    * @param tagId идентификационный номер тега
    */
-  def deleteTag(tagId:Int):Unit = {
+  def deleteTag(tagId:Int): Unit = {
     jdbcTemplate.update("DELETE FROM tags WHERE tagid=?", tagId)
   }
 
@@ -116,7 +116,7 @@ class TopicTagDao(ds:DataSource) {
     jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)")
   }
 
-  def getTags(topics:Seq[Int]):Seq[(Int, TagInfo)] = {
+  def getTags(topics: Seq[Int]): Seq[(Int, TagInfo)] = {
     if (topics.isEmpty) {
       Vector.empty
     } else {
@@ -144,5 +144,9 @@ class TopicTagDao(ds:DataSource) {
    */
   def increaseCounterById(tagId: Int, tagCount: Int):Unit = {
     jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId)
+  }
+
+  def processTopicsByTag(tagId: Int, f: (Int ⇒ Unit)): Unit = {
+    jdbcTemplate.queryAndProcess("SELECT msgid FROM tags WHERE tags.tagid=?", tagId) { rs ⇒ f(rs.getInt(1)) }
   }
 }

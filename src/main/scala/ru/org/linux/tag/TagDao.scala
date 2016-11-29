@@ -53,7 +53,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
    * @param tagId   идентификационный номер существующего тега
    * @param tagName новое название тега
    */
-  def changeTag(tagId: Int, tagName: String):Unit = {
+  def changeTag(tagId: Int, tagName: String): Unit = {
     jdbcTemplate.update("UPDATE tags_values set value=? WHERE id=?", tagName, tagId)
   }
 
@@ -127,7 +127,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
         tag
       ).map(_.toInt)
     } catch {
-      case ex: EmptyResultDataAccessException => None
+      case _: EmptyResultDataAccessException => None
     }
   }
 

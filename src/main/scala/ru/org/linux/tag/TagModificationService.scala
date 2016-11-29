@@ -14,18 +14,20 @@
  */
 package ru.org.linux.tag
 
-import com.google.common.base.Strings
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.TopicTagDao
 import ru.org.linux.user.UserTagDao
 
+import scala.collection.mutable
+
 @Service
 class TagModificationService(val transactionManager: PlatformTransactionManager, tagDao: TagDao,
-                             tagService: TagService, userTagDao: UserTagDao,
-                             topicTagDao: TopicTagDao) extends StrictLogging with TransactionManagement {
+                             tagService: TagService, userTagDao: UserTagDao, topicTagDao: TopicTagDao,
+                             searchQueueSender: SearchQueueSender) extends StrictLogging with TransactionManagement {
   /**
     * Изменить название существующего тега.
     *
@@ -36,39 +38,66 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
     val oldTagId = tagService.getTagId(oldTagName)
 
     tagDao.changeTag(oldTagId, tagName)
+
+    topicTagDao.processTopicsByTag(oldTagId, searchQueueSender.updateMessageOnly)
   }
 
   /**
-    * Удалить тег по названию. Заменить все использования удаляемого тега
-    * новым тегом (если имя нового тега не null).
+    * Удалить тег по названию.
     *
     * @param tagName    название тега
-    * @param newTagName новое название тега
     */
-  def delete(tagName: String, newTagName: String): Unit = {
-    transactional() { _ =>
+  def delete(tagName: String): Unit = {
+    val toUpdate = transactional() { _ =>
       val oldTagId = tagService.getTagId(tagName)
 
-      if (!Strings.isNullOrEmpty(newTagName)) {
-        assume(newTagName != tagName, "Заменяемый тег не должен быть равен удаляемому")
-
-        val newTagId = tagService.getOrCreateTag(newTagName)
-
-        val tagCount = topicTagDao.getCountReplacedTags(oldTagId, newTagId)
-        topicTagDao.replaceTag(oldTagId, newTagId)
-        topicTagDao.increaseCounterById(newTagId, tagCount)
-
-        logger.debug(s"Счётчик использование тега '$newTagName' увеличен на $tagCount")
-
-        userTagDao.replaceTag(oldTagId, newTagId)
-
-        logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName)
-      }
+      val toUpdate = mutable.Buffer[Int]()
+      topicTagDao.processTopicsByTag(oldTagId, toUpdate += _)
 
       userTagDao.deleteTags(oldTagId)
       topicTagDao.deleteTag(oldTagId)
 
       tagDao.deleteTag(oldTagId)
+
+      toUpdate
     }
+
+    toUpdate foreach searchQueueSender.updateMessageOnly
+  }
+
+  /**
+    * Удалить тег по названию. Заменить все использования удаляемого тега
+    * новым тегом.
+    *
+    * @param tagName    название тега
+    * @param newTagName новое название тега
+    */
+  def merge(tagName: String, newTagName: String): Unit = {
+    val newTagId = transactional() { _ =>
+      val oldTagId = tagService.getTagId(tagName)
+
+      assume(newTagName != tagName, "Заменяемый тег не должен быть равен удаляемому")
+
+      val newTagId = tagService.getOrCreateTag(newTagName)
+
+      val tagCount = topicTagDao.getCountReplacedTags(oldTagId, newTagId)
+      topicTagDao.replaceTag(oldTagId, newTagId)
+      topicTagDao.increaseCounterById(newTagId, tagCount)
+
+      logger.debug(s"Счётчик использование тега '$newTagName' увеличен на $tagCount")
+
+      userTagDao.replaceTag(oldTagId, newTagId)
+
+      logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName)
+
+      userTagDao.deleteTags(oldTagId)
+      topicTagDao.deleteTag(oldTagId)
+
+      tagDao.deleteTag(oldTagId)
+
+      newTagId
+    }
+
+    topicTagDao.processTopicsByTag(newTagId, searchQueueSender.updateMessageOnly)
   }
 }
