@@ -15,7 +15,7 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.RichSearchHit
+import com.sksamuel.elastic4s.searches.RichSearchHit
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.search.aggregations.Aggregations
 import org.elasticsearch.search.aggregations.bucket.filter.Filter
@@ -55,11 +55,11 @@ class SearchResultsService(
   def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs map prepare).asJavaCollection
 
   def prepare(doc:RichSearchHit):SearchItem = {
-    val author = userService.getUserCached(doc.field("author").value[String])
+    val author = userService.getUserCached(doc.field("author").java.value[String])
 
-    val postdate = isoDateTime.parseDateTime(doc.field("postdate").value[String])
+    val postdate = isoDateTime.parseDateTime(doc.field("postdate").java.value[String])
 
-    val comment = doc.field("is_comment").value[Boolean]
+    val comment = doc.field("is_comment").java.value[Boolean]
 
     val tags = if (comment) {
       Seq()
@@ -86,16 +86,16 @@ class SearchResultsService(
 
   private def getTitle(doc: RichSearchHit):String = {
     val itemTitle = doc.highlightFields.get("title").map(_.fragments()(0).string)
-      .orElse(doc.fields.get("title") map { v ⇒ StringUtil.escapeHtml(v.value[String]) } )
+      .orElse(doc.fields.get("title") map { v ⇒ StringUtil.escapeHtml(v.java.value[String]) } )
 
     itemTitle.filter(!_.trim.isEmpty).orElse(
       doc.highlightFields.get("topic_title").map(_.fragments()(0).string))
-        .getOrElse(StringUtil.escapeHtml(doc.fields("topic_title").value[String]))
+        .getOrElse(StringUtil.escapeHtml(doc.fields("topic_title").java.value[String]))
   }
 
   private def getMessage(doc: RichSearchHit): String = {
     doc.highlightFields.get("message").map(_.fragments()(0).string) getOrElse {
-      StringUtil.escapeHtml(doc.fields("message").value[String].take(SearchViewer.MessageFragment))
+      StringUtil.escapeHtml(doc.fields("message").java.value[String].take(SearchViewer.MessageFragment))
     }
   }
 
@@ -103,8 +103,8 @@ class SearchResultsService(
     val section = SearchResultsService.section(doc)
     val msgid = doc.id
 
-    val comment = doc.field("is_comment").value[Boolean]
-    val topic = doc.field("topic_id").value[Int]
+    val comment = doc.field("is_comment").java.value[Boolean]
+    val topic = doc.field("topic_id").java.value[Int]
     val group = SearchResultsService.group(doc)
 
     if (comment) {
@@ -176,9 +176,9 @@ class SearchResultsService(
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
-  def postdate(doc:RichSearchHit) = isoDateTime.parseDateTime(doc.field("postdate").value[String])
-  def section(doc:RichSearchHit) = doc.field("section").value[String]
-  def group(doc:RichSearchHit) = doc.field("group").value[String]
+  def postdate(doc:RichSearchHit) = isoDateTime.parseDateTime(doc.field("postdate").java.value[String])
+  def section(doc:RichSearchHit) = doc.field("section").java.value[String]
+  def group(doc:RichSearchHit) = doc.field("group").java.value[String]
 }
 
 case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)

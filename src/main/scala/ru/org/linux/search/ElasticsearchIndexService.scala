@@ -16,7 +16,9 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s._
+import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
+import com.sksamuel.elastic4s.indexes.IndexDefinition
+import com.sksamuel.elastic4s.{ElasticClient, IndexAndTypes, IndexesAndTypes}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
@@ -59,7 +61,7 @@ class ElasticsearchIndexService
 
   private def isTopicSearchable(msg: Topic) = !msg.isDeleted && !msg.isDraft
 
-  private def reindexComments(topic: Topic, comments: CommentList):Seq[BulkCompatibleDefinition] = {
+  private def reindexComments(topic: Topic, comments: CommentList): Seq[BulkCompatibleDefinition] = {
     for (comment <- comments.getList.asScala) yield {
       if (comment.isDeleted) {
         delete id comment.getId.toString from MessageIndexType

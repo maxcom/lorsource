@@ -16,8 +16,8 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.HighlightEncoder.Html
-import com.sksamuel.elastic4s.{ElasticClient, QueryDefinition, RichSearchResponse}
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.searches.{QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
@@ -35,7 +35,7 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
           should(
             commonQuery("title") query queryText lowFreqMinimumShouldMatch 2,
             commonQuery("message") query queryText lowFreqMinimumShouldMatch 2)
-        ) should matchPhraseQuery("message", queryText).setLenient(true)
+        ) should matchPhraseQuery("message", queryText)
       }
     }
   }
@@ -91,14 +91,14 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
         ) query esQuery sort (
           field sort query.getSort.getColumn order query.getSort.order
         ) aggs(
-          agg filter "sections" filter matchAllQuery aggs (
+          agg filter "sections" query matchAllQuery aggs (
             agg terms "sections" field "section" size 0 aggs (
               agg terms "groups" field "group" size 0
             )
           ),
           agg sigTerms "tags" field "tag" minDocCount 30
         ) highlighting(
-          options encoder Html preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
+          options encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight field "title" numberOfFragments 0,
           highlight field "topicTitle" numberOfFragments 0,
           highlight field "message" numberOfFragments 1 fragmentSize MessageFragment

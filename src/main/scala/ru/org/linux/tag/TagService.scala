@@ -18,7 +18,8 @@ package ru.org.linux.tag
 import java.util
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient}
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.springframework.stereotype.Service
@@ -88,7 +89,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       }
     } map { r ⇒
       (for {
-        bucket <- r.aggregations.get[SignificantTerms]("related").asScala
+        bucket <- r.aggregations.getAs[SignificantTerms]("related").asScala
       } yield {
         tagRef(bucket.getKeyAsString)
       }).toSeq.sorted
@@ -108,7 +109,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       }
     } map { r ⇒
       (for {
-        bucket <- r.aggregations.get[Terms]("active").getBuckets.asScala
+        bucket <- r.aggregations.getAs[Terms]("active").getBuckets.asScala
       } yield {
         tagRef(bucket.getKeyAsString)
       }).sorted

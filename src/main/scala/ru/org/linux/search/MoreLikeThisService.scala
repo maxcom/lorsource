@@ -20,12 +20,14 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
+import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, Item, RichSearchHit, TermsQueryDefinition}
+import com.sksamuel.elastic4s.searches.RichSearchHit
+import com.sksamuel.elastic4s.searches.queries.MoreLikeThisItem
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-import org.apache.lucene.analysis.util.CharArraySet
 import org.elasticsearch.ElasticsearchException
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
@@ -136,7 +138,7 @@ class MoreLikeThisService(
 
     val postdate = SearchResultsService.postdate(hit)
 
-    val title = hit.field("title").value[String]
+    val title = hit.field("title").java.value[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
@@ -148,13 +150,13 @@ class MoreLikeThisService(
 
   private def titleQuery(topic:Topic) =
     moreLikeThisQuery("title") like
-      topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords(StopWords: _*) maxDocFreq 5000
+      topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords StopWords maxDocFreq 5000
 
   private def textQuery(id:Int) =
-    moreLikeThisQuery("message") minTermFreq 1 stopWords
-      (StopWords: _*) minWordLength 3 maxDocFreq 100000 like Item(MessageIndex, MessageType, id.toString)
+    moreLikeThisQuery("message") like MoreLikeThisItem(MessageIndex, MessageType, id.toString) minTermFreq 1 stopWords
+      StopWords minWordLength 3 maxDocFreq 100000
 
-  private def tagsQuery(tags:Seq[String]) = TermsQueryDefinition("tag", tags)
+  private def tagsQuery(tags: Seq[String]) = termsQuery("tag", tags)
 }
 
 object MoreLikeThisService {

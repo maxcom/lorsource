@@ -19,7 +19,9 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient, RichSearchResponse}
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.searches.RichSearchResponse
+import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
@@ -82,7 +84,7 @@ class UserStatisticsService(
     )
   }
 
-  private def timeoutHandler(response:RichSearchResponse):Future[RichSearchResponse] = {
+  private def timeoutHandler(response: RichSearchResponse): Future[RichSearchResponse] = {
     if (response.isTimedOut) {
       Future failed new RuntimeException("ES Request timed out")
     } else {
@@ -92,7 +94,7 @@ class UserStatisticsService(
 
   private def statSearch = search in MessageIndexTypes size 0 timeout ElasticTimeout
 
-  private def countComments(user:User):Future[Long] = {
+  private def countComments(user: User): Future[Long] = {
     try {
       elastic execute {
         val root = new BoolQueryDefinition() filter (
@@ -106,7 +108,7 @@ class UserStatisticsService(
     }
   }
 
-  private def topicStats(user:User):Future[TopicStats] = {
+  private def topicStats(user: User): Future[TopicStats] = {
     try {
       elastic execute {
         val root = new BoolQueryDefinition filter (
@@ -117,8 +119,8 @@ class UserStatisticsService(
           agg stats "topic_stats" field "postdate",
           agg terms "sections" field "section")
       } flatMap timeoutHandler map { response ⇒
-        val topicStatsResult = response.aggregations.get[Stats]("topic_stats")
-        val sectionsResult = response.aggregations.get[Terms]("sections")
+        val topicStatsResult = response.aggregations.getAs[Stats]("topic_stats")
+        val sectionsResult = response.aggregations.getAs[Terms]("sections")
 
         val (firstTopic, lastTopic) = if (topicStatsResult.getCount > 0) {
           (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
