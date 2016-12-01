@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.util;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -162,6 +162,19 @@ public class SiteConfig {
    */
   public Integer getCommentScoreValueForEditing() {
     String property = properties.getProperty("comment.scoreValueForEditing");
+    if (property == null) {
+      return null;
+    }
+    return Integer.valueOf(property);
+  }
+
+  /**
+   * какое количество тегов отображать в boxlet'е "облако тегов"
+   *
+   * @return количество тегов для отображения 
+   */
+  public Integer getTagCloudCount() {
+    String property = properties.getProperty("tag.cloudCount");
     if (property == null) {
       return null;
     }

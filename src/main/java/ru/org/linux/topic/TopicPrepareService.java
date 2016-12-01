@@ -32,12 +32,12 @@ import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
+import ru.org.linux.util.SiteConfig;
 import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 

@@ -25,11 +25,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import ru.org.linux.edithistory.{EditHistoryDto, EditHistoryObjectTypeEnum, EditHistoryService}
-import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserDao}
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
-import ru.org.linux.util.{BadImageException, LorURL}
+import ru.org.linux.util.{BadImageException, LorURL, SiteConfig}
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal

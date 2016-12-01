@@ -22,6 +22,7 @@ Secret=secret
 recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM
 recaptcha.public=6LclXgcAAAAAAIRhcA0V1DNiTT_AGUg_baM3-vc8
 EnableHsts=false
+
 # admin.emailAddress=bugz@linux.org.ru
 admin.emailAddress=specify_your_real_email_if_you_want_receive_messages
 
@@ -41,6 +42,9 @@ comment.isEditingAllowedIfAnswersExists=false
 # то редактировать могут все. Если установлено огромное
 # число, то комментарии будут фактически отключены
 comment.scoreValueForEditing=45
+
+# Число тегов в облаке
+tag.cloudCount=72
 
 # "embedded" или host:port
 Elasticsearch=embedded

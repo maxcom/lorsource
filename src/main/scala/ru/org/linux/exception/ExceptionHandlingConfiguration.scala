@@ -17,7 +17,7 @@ package ru.org.linux.exception
 
 import akka.actor.ActorSystem
 import org.springframework.context.annotation.{Bean, Configuration}
-import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.SiteConfig
 
 @Configuration
 class ExceptionHandlingConfiguration {

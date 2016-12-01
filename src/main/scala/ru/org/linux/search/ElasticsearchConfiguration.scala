@@ -18,7 +18,7 @@ package ru.org.linux.search
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import org.elasticsearch.node.NodeBuilder
 import org.springframework.context.annotation.{Bean, Configuration}
-import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.SiteConfig
 
 @Configuration
 class ElasticsearchConfiguration(config: SiteConfig) {

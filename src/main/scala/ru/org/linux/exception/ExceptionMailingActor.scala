@@ -22,7 +22,7 @@ import javax.mail.{Message, Transport}
 import akka.actor.{Actor, ActorLogging, Props}
 import ru.org.linux.email.EmailService
 import ru.org.linux.exception.ExceptionMailingActor._
-import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.SiteConfig
 
 import scala.concurrent.duration._
 import scala.language.existentials

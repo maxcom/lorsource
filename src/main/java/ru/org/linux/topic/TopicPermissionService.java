@@ -30,8 +30,8 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
+import ru.org.linux.util.SiteConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

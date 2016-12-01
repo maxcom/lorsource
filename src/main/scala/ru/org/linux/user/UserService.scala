@@ -22,9 +22,8 @@ import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Service
-import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
-import ru.org.linux.util.{BadImageException, StringUtil}
+import ru.org.linux.util.{BadImageException, StringUtil, SiteConfig}
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}

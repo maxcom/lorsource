@@ -31,8 +31,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.SiteConfig;
 import ru.org.linux.util.image.ImageParam;
 
 import javax.servlet.http.HttpServletResponse;

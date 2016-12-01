@@ -21,21 +21,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.tag.TagCloudDao;
 import ru.org.linux.tag.TagCloudDao.TagDTO;
+import ru.org.linux.util.SiteConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
 public class TagCloudBoxlet extends AbstractBoxlet {
-  private static final int TAGS_IN_CLOUD = 75;
   @Autowired
   private TagCloudDao tagDao;
 
+  @Autowired
+  private SiteConfig siteConfig;
+  
   @Override
   @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-
-    List<TagDTO> list = tagDao.getTags(TAGS_IN_CLOUD);
+    Integer count = siteConfig.getTagCloudCount();
+    List<TagDTO> list = tagDao.getTags(count);
     return new ModelAndView("boxlets/tagcloud", "tags", list);
   }
 }
+

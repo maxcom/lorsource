@@ -33,11 +33,11 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.SiteConfig;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nullable;

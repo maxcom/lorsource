@@ -18,7 +18,7 @@ package ru.org.linux.auth
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.SiteConfig
 
 class HstsInterceptor(config:SiteConfig) extends HandlerInterceptorAdapter {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {

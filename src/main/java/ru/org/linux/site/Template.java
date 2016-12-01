@@ -18,9 +18,9 @@ package ru.org.linux.site;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
+import ru.org.linux.util.SiteConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
