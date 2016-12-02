@@ -15,8 +15,7 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
+import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,12 +38,12 @@ public class SiteConfig {
   private URI secureURI;
 
   /**
-   * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
+   * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так, то контейнер не запустится :-)
    */
   @PostConstruct
   public void init() {
     try {
-      mainURI = new URI(properties.getProperty("MainUrl"), true, "UTF-8");
+      mainURI = new URI(properties.getProperty("MainUrl"));
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
@@ -62,7 +61,7 @@ public class SiteConfig {
     }
 
     try {
-      secureURI = new URI(properties.getProperty("SecureUrl", mainURI.toString().replaceFirst("http", "https")), true, "UTF-8");
+      secureURI = new URI(properties.getProperty("SecureUrl", mainURI.toString().replaceFirst("http", "https")));
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
