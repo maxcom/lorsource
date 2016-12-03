@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <RollingFile name="A1"
+                 fileName="${sys:catalina.base}/logs/lor-new.log"
+                 filePattern="${sys:catalina.base}/logs/lor-new.log.%i.gz"
+                 ignoreExceptions="false">
+      <PatternLayout>
+        <Pattern>%d{ISO8601} %-4r [%t] %-5p %c %x - %m%n</Pattern>
+      </PatternLayout>
+      <SizeBasedTriggeringPolicy size="100 MB"/>
+      <DefaultRolloverStrategy max="5"/>
+    </RollingFile>
+
+    <RollingFile name="A2"
+                 fileName="${sys:catalina.base}/logs/lor-debug-new.log"
+                 filePattern="${sys:catalina.base}/logs/lor-debug-new.log.%i.gz"
+                 ignoreExceptions="false">
+      <PatternLayout>
+        <Pattern>%d{ISO8601} %-4r [%t] %-5p %c %x - %m%n</Pattern>
+      </PatternLayout>
+      <SizeBasedTriggeringPolicy size="100 MB"/>
+      <DefaultRolloverStrategy max="5"/>
+    </RollingFile>
+
+  </Appenders>
+
+  <Loggers>
+    <Logger name="org.apache.commons" level="info"/>
+    <Logger name="org.springframework" level="info"/>
+    <Logger name="httpclient.wire" level="info"/>
+    <Logger name="org.elasticsearch" level="info"/>
+    <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
+
+    <Root level="debug">
+      <AppenderRef ref="A1" level="INFO"/>
+      <AppenderRef ref="A2"/>
+    </Root>
+  </Loggers>
+</Configuration>

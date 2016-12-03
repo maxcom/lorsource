@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+          <param name="ConversionPattern" value="%d{ISO8601} %-4r [%t] %-5p %c %x - %m%n"/>
+        </layout>
+      </appender>
+  </Appenders>
+
+  <Loggers>
+    <Logger name="org.apache.commons" level="info"/>
+    <Logger name="org.springframework" level="info"/>
+    <Logger name="httpclient.wire" level="info"/>
+    <Logger name="org.elasticsearch" level="info"/>
+    <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
+
+    <Root level="debug">
+      <AppenderRef ref="CONSOLE"/>
+    </Root>
+  </Loggers>
+</Configuration>
