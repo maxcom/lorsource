@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import com.sksamuel.elastic4s.ElasticClient;
-import com.sksamuel.elastic4s.RichSearchResponse;
+import com.sksamuel.elastic4s.searches.RichSearchResponse;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +122,7 @@ public class SearchController {
       Collection<SearchItem> res = resultsService.prepareAll(Arrays.asList(response.hits()));
 
       if (response.aggregations() != null) {
-        Filter countFacet = response.aggregations().get("sections");
+        Filter countFacet = response.aggregations().getAs("sections");
         Terms sectionsFacet = countFacet.getAggregations().get("sections");
 
         if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
@@ -147,7 +147,7 @@ public class SearchController {
           params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }
 
-        params.put("tags", resultsService.foundTags(response.aggregations()));
+        params.put("tags", resultsService.foundTags(response.aggregations().aggregations()));
       }
 
       long time = System.currentTimeMillis() - current;

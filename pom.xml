@@ -21,7 +21,7 @@
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4.1212</jdbc.postgresql.version>
     <elasticsearch.version>5.0.2</elasticsearch.version>
-    <elastic4s.version>5.0.3</elastic4s.version>
+    <elastic4s.version>5.0.4</elastic4s.version>
     <scala.version>2.11.8</scala.version>
     <scala.suffix>2.11</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
@@ -43,6 +43,12 @@
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-slf4j_${scala.suffix}</artifactId>
       <version>${akka.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.13</version>
     </dependency>
 
     <dependency>
@@ -422,7 +428,9 @@
                 <arg>-deprecation</arg>
                 <arg>-feature</arg>
                 <arg>-unchecked</arg>
+<!--
                 <arg>-Xfatal-warnings</arg>
+-->
                 <arg>-Xlint</arg>
                 <arg>-language:postfixOps</arg>
                 <arg>-Yno-adapted-args</arg>

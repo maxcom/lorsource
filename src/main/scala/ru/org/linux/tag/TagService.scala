@@ -22,6 +22,7 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
+import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 import ru.org.linux.section.Section
@@ -73,27 +74,25 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     }
   }
 
-  def getNewTags(tags:util.List[String]):util.List[String] =
+  def getNewTags(tags:util.List[String]): util.List[String] =
     tags.asScala.filterNot(tag ⇒ tagDao.getTagId(tag, skipZero = true).isDefined).asJava
 
-  def getRelatedTags(tag: String): Future[Seq[TagRef]] = {
-    Future.successful(elastic) flatMap {
-      val sigterms = agg sigTerms "related" field "tag" backgroundFilter termQuery("is_comment", "false")
+  def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic) flatMap {
+    val sigterms = agg sigTerms "related" field "tag" backgroundFilter termQuery("is_comment", "false")
 
-      sigterms.builder.exclude(Array(tag))
+    sigterms.builder.includeExclude(new IncludeExclude(null, Array(tag)))
 
-      _ execute {
-        search in MessageIndexTypes size 0 query
-          new BoolQueryDefinition()
-            .filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
-      }
-    } map { r ⇒
-      (for {
-        bucket <- r.aggregations.getAs[SignificantTerms]("related").asScala
-      } yield {
-        tagRef(bucket.getKeyAsString)
-      }).toSeq.sorted
+    _ execute {
+      search in MessageIndexTypes size 0 query
+        new BoolQueryDefinition()
+          .filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
     }
+  } map { r ⇒
+    (for {
+      bucket <- r.aggregations.getAs[SignificantTerms]("related").asScala
+    } yield {
+      tagRef(bucket.getKeyAsString)
+    }).toSeq.sorted
   }
 
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {

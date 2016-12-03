@@ -17,6 +17,7 @@ package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.searches.queries.funcscorer.FilterFunctionDefinition
 import com.sksamuel.elastic4s.searches.{QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
@@ -41,9 +42,10 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
   }
 
   private def boost(query: QueryDefinition) = {
-    functionScoreQuery(query) scorers(
-        weightScore(TopicBoost) filter termQuery("is_comment", "false"),
-        weightScore(RecentBoost) filter rangeQuery("postdate").gte("now/d-3y"))
+    functionScoreQuery(query) scoreFuncs(
+      FilterFunctionDefinition(weightScore(TopicBoost), Some(termQuery("is_comment", "false"))),
+      FilterFunctionDefinition(weightScore(RecentBoost), Some(rangeQuery("postdate").gte("now/d-3y")))
+    )
   }
 
   private def wrapQuery(q:QueryDefinition, filters:Seq[QueryDefinition]) = {
