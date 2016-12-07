@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
   <Appenders>
-    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-        <layout class="org.apache.log4j.PatternLayout">
-          <param name="ConversionPattern" value="%d{ISO8601} %-4r [%t] %-5p %c %x - %m%n"/>
-        </layout>
-      </appender>
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
+    </Console>
   </Appenders>
 
   <Loggers>
@@ -14,6 +12,7 @@
     <Logger name="httpclient.wire" level="info"/>
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
+    <Logger name="org.apache.activemq" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="CONSOLE"/>

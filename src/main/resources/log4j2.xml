@@ -6,7 +6,7 @@
                  filePattern="${sys:catalina.base}/logs/lor-new.log.%i.gz"
                  ignoreExceptions="false">
       <PatternLayout>
-        <Pattern>%d{ISO8601} %-4r [%t] %-5p %c %x - %m%n</Pattern>
+        <Pattern>%d %-4r [%t] %-5p %c %x - %m%n</Pattern>
       </PatternLayout>
       <SizeBasedTriggeringPolicy size="100 MB"/>
       <DefaultRolloverStrategy max="5"/>
@@ -17,7 +17,7 @@
                  filePattern="${sys:catalina.base}/logs/lor-debug-new.log.%i.gz"
                  ignoreExceptions="false">
       <PatternLayout>
-        <Pattern>%d{ISO8601} %-4r [%t] %-5p %c %x - %m%n</Pattern>
+        <Pattern>%d %-4r [%t] %-5p %c %x - %m%n</Pattern>
       </PatternLayout>
       <SizeBasedTriggeringPolicy size="100 MB"/>
       <DefaultRolloverStrategy max="5"/>
@@ -31,6 +31,7 @@
     <Logger name="httpclient.wire" level="info"/>
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
+    <Logger name="org.apache.activemq" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="A1" level="INFO"/>
