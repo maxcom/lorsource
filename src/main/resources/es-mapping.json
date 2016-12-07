@@ -18,10 +18,7 @@
                 },
                 "postdate": {
                     "type": "date",
-                    "format": "dateTime",
-                    "fielddata": {
-                      "format": "doc_values"
-                    }
+                    "format": "dateTime"
                 },
                 "author": {
                     "type": "string",
@@ -29,10 +26,7 @@
                 },
                 "tag": {
                     "type": "string",
-                    "index": "not_analyzed",
-                    "fielddata": {
-                      "format": "doc_values"
-                    }
+                    "index": "not_analyzed"
                 },
                 "topic_author": {
                     "type": "string",
@@ -61,7 +55,6 @@
         }
     },
     "settings": {
-        "index.cache.query.enable": true,
         "analysis": {
             "analyzer": {
                 "text_analyzer": {

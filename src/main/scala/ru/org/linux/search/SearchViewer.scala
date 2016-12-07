@@ -15,8 +15,8 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.searches.queries.funcscorer.FilterFunctionDefinition
 import com.sksamuel.elastic4s.searches.{QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
@@ -94,8 +94,8 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
           field sort query.getSort.getColumn order query.getSort.order
         ) aggs(
           agg filter "sections" query matchAllQuery aggs (
-            agg terms "sections" field "section" size 0 aggs (
-              agg terms "groups" field "group" size 0
+            agg terms "sections" field "section" size 50 aggs (
+              agg terms "groups" field "group" size 50
             )
           ),
           agg sigTerms "tags" field "tag" minDocCount 30
