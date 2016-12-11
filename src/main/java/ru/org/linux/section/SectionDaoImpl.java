@@ -17,16 +17,12 @@ package ru.org.linux.section;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Repository
 public class SectionDaoImpl implements SectionDao {
   private JdbcTemplate jdbcTemplate;
 
@@ -37,16 +33,8 @@ public class SectionDaoImpl implements SectionDao {
 
   @Override
   public List<Section> getAllSections() {
-    final List<Section> sectionList = new ArrayList<>();
-    jdbcTemplate.query("SELECT id, name, imagepost, imageallowed, vote, moderate, scroll_mode, restrict_topics FROM sections ORDER BY id",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          Section section = new Section(rs);
-          sectionList.add(section);
-        }
-      });
-    return sectionList;
+    return jdbcTemplate.query("SELECT id, name, imagepost, imageallowed, vote, moderate, scroll_mode, restrict_topics FROM sections ORDER BY id",
+            (rs, rowNum) -> new Section(rs));
   }
 
   @Override

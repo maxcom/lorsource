@@ -441,7 +441,6 @@
             <arg>-language:postfixOps</arg>
             <arg>-Yno-adapted-args</arg>
             <arg>-Xfuture</arg>
-            <arg>-Ywarn-unused-import</arg>
             <arg>-target:jvm-1.8</arg>
           </args>
           <recompileMode>incremental</recompileMode>
@@ -726,6 +725,7 @@
               <excludes>
                 <!-- Exclude integration tests within (unit) test phase. -->
                 <exclude>**/*IntegrationTest.java</exclude>
+                <exclude>**/*IntegrationSpec.java</exclude>
                 <exclude>**/*WebTest.java</exclude>
               </excludes>
               <parallel>classes</parallel>
@@ -745,6 +745,7 @@
               <includes>
                 <!-- Include integration tests within integration-test phase. -->
                 <include>**/*IntegrationTest.java</include>
+                <include>**/*IntegrationSpec.java</include>
                 <include>**/*WebTest.java</include>
               </includes>
             </configuration>
