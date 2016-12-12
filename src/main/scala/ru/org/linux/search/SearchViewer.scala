@@ -24,7 +24,7 @@ import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
+class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
   import ru.org.linux.search.SearchViewer._
 
   private def processQueryString(queryText: String) = {

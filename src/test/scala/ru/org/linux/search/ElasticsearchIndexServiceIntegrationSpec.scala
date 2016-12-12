@@ -1,9 +1,23 @@
+/*
+ * Copyright 1998-2016 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package ru.org.linux.search
 
 import java.nio.file.Files
 
 import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.ElasticDsl.index
+import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.embedded.LocalNode
 import net.tanesha.recaptcha.ReCaptcha
 import org.mockito.Mockito
@@ -14,7 +28,6 @@ import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
-import com.sksamuel.elastic4s.ElasticDsl._
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
 class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
