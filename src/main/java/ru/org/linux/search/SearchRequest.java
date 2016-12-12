@@ -16,7 +16,6 @@
 package ru.org.linux.search;
 
 import ru.org.linux.search.SearchEnums.SearchInterval;
-import ru.org.linux.search.SearchEnums.SearchOrder;
 import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.user.User;
 
@@ -31,7 +30,7 @@ public class SearchRequest {
   private boolean usertopic = false;
   private User user=null;
   private String section = null;
-  private SearchOrder sort = SearchOrder.RELEVANCE;
+  private SearchOrder sort = SearchOrder.Relevance$.MODULE$;
   private String group;
   private SearchInterval interval = SearchInterval.ALL;
   private SearchRange range = SearchRange.ALL;
@@ -137,7 +136,7 @@ public class SearchRequest {
       params.put("usertopic", "true");
     }
 
-    if (sort!= SearchOrder.RELEVANCE) {
+    if (sort!= SearchOrder.Relevance$.MODULE$) {
       params.put("sort", sort.toString());
     }
 

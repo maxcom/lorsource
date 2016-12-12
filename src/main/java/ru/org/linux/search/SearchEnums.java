@@ -15,8 +15,6 @@
 
 package ru.org.linux.search;
 
-import org.elasticsearch.search.sort.SortOrder;
-
 public class SearchEnums {
   public enum SearchRange {
     ALL(null, "темы и комментарии"),
@@ -69,30 +67,6 @@ public class SearchEnums {
 
     public String getColumn() {
       return "postdate";
-    }
-  }
-
-  public enum SearchOrder {
-    RELEVANCE("по релевантности", "_score", SortOrder.DESC),
-    DATE("по дате: от новых к старым", "postdate", SortOrder.DESC),
-    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate", SortOrder.ASC);
-
-    private final String name;
-    private final String param;
-    public final SortOrder order;
-
-    SearchOrder(String name, String param, SortOrder order) {
-      this.name = name;
-      this.param = param;
-      this.order = order;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public String getColumn() {
-      return param;
     }
   }
 }

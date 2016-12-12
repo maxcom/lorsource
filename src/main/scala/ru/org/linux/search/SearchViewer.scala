@@ -90,9 +90,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     val future = elastic execute {
       search in MessageIndexTypes fields (
           Fields: _*
-        ) query esQuery sort (
-          field sort query.getSort.getColumn order query.getSort.order
-        ) aggs(
+        ) query esQuery sortBy query.getSort.order aggs(
           agg filter "sections" query matchAllQuery aggs (
             agg terms "sections" field "section" size 50 aggs (
               agg terms "groups" field "group" size 50

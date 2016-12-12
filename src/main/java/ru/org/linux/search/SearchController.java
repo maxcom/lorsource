@@ -17,6 +17,7 @@ package ru.org.linux.search;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import com.sksamuel.elastic4s.ElasticClient;
@@ -35,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchEnums.SearchInterval;
-import ru.org.linux.search.SearchEnums.SearchOrder;
 import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -70,11 +70,11 @@ public class SearchController {
   private SearchResultsService resultsService;
 
   @ModelAttribute("sorts")
-  public static Map<SearchOrder, String> getSorts() {
-    Builder<SearchOrder, String> builder = ImmutableSortedMap.naturalOrder();
+  public static Map<String, String> getSorts() {
+    Builder<String, String> builder = ImmutableMap.builder(); // preserves order!
 
-    for (SearchOrder value : SearchOrder.values()) {
-      builder.put(value, value.getName());
+    for (SearchOrder value : SearchOrder$.MODULE$.jvalues()) {
+      builder.put(value.id(), value.name());
     }
 
     return builder.build();
@@ -205,13 +205,13 @@ public class SearchController {
       public void setAsText(String s) throws IllegalArgumentException {
         switch (s) {
           case "1":  // for old links
-            setValue(SearchOrder.RELEVANCE);
+            setValue(SearchOrder.Relevance$.MODULE$);
             break;
           case "2":
-            setValue(SearchOrder.DATE);
+            setValue(SearchOrder.Date$.MODULE$);
             break;
           default:
-            setValue(SearchOrder.valueOf(s));
+            setValue(SearchOrder$.MODULE$.valueOf(s));
             break;
         }
       }

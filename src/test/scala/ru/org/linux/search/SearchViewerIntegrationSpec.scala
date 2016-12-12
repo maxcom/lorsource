@@ -15,14 +15,12 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticClient
-import org.junit.Ignore
 import org.specs2.mutable.SpecificationWithJUnit
 import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
-@Ignore
 class SearchViewerIntegrationSpec  extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
