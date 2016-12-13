@@ -84,11 +84,11 @@
       <li>CentOS 7.x</li>
       <li>СУБД PostgreSQL 9.4</li>
       <li>OpenJDK 1.8.0</li>
-      <li>Scala 2.11</li>
+      <li>Scala 2.12</li>
       <li>Apache Tomcat 7</li>
       <li>ActiveMQ 5.11</li>
       <li>Spring 4.3</li>
-      <li>Поиск: Elasticsearch 2.3</li>
+      <li>Поиск: Elasticsearch 5.x</li>
       <li>Nginx 1.8</li>
     </ul>
 
