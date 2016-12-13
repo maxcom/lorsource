@@ -22,9 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 
+import scala.concurrent.duration._
+
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
 @DirtiesContext
-class SearchViewerIntegrationSpec  extends SpecificationWithJUnit {
+class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
@@ -33,17 +35,28 @@ class SearchViewerIntegrationSpec  extends SpecificationWithJUnit {
   @Autowired
   var elastic: ElasticClient = _
 
+  @Autowired
+  var service: SearchResultsService = _
+
   trait IndexFixture extends Scope with After {
+    implicit val Timeout: Duration = 30.seconds
+
     indexService.createIndexIfNeeded()
+    indexService.reindexMessage(1920001, withComments = false)
+    elastic execute {
+      refreshIndex("*")
+    } await
 
     override def after = elastic execute { deleteIndex("*") } await
   }
 
-  "SearchViewer" should {
-    "make valid default search" in new IndexFixture {
+  "SearchResultsService" should {
+    "prepare some results" in new IndexFixture {
       val response = new SearchViewer(new SearchRequest(), elastic).performSearch
 
-      response.totalHits must be equalTo 0
+      val prepared = response.hits.map(service.prepare)
+
+      prepared must not be empty
     }
   }
 }

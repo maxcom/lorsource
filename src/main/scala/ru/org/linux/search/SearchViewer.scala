@@ -78,19 +78,17 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
 
     val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section ⇒
-      termQuery("section", this.query.getSection)
+      termQuery("section", section)
     }
 
     val groupFilter = Option(query.getGroup) filter (_.nonEmpty) map { group ⇒
-      termQuery("group", this.query.getGroup)
+      termQuery("group", group)
     }
 
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search in MessageIndexTypes fields (
-          Fields: _*
-        ) query esQuery sortBy query.getSort.order aggs(
+      search in MessageIndexTypes fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
           agg filter "sections" query matchAllQuery aggs (
             agg terms "sections" field "section" size 50 aggs (
               agg terms "groups" field "group" size 50
