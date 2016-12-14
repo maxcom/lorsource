@@ -18,7 +18,7 @@ package ru.org.linux.search
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
 import com.sksamuel.elastic4s.indexes.IndexDefinition
-import com.sksamuel.elastic4s.{ElasticClient, IndexAndTypes, IndexesAndTypes}
+import com.sksamuel.elastic4s.{ElasticClient, IndexAndType, IndexAndTypes, IndexesAndTypes}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
@@ -38,7 +38,7 @@ object ElasticsearchIndexService {
   val MessageIndex = "messages"
   val MessageType = "message"
 
-  val MessageIndexType = IndexAndTypes(MessageIndex, MessageType)
+  val MessageIndexType = IndexAndType(MessageIndex, MessageType)
   val MessageIndexTypes = IndexesAndTypes(MessageIndexType)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
@@ -64,7 +64,7 @@ class ElasticsearchIndexService
   private def reindexComments(topic: Topic, comments: CommentList): Seq[BulkCompatibleDefinition] = {
     for (comment <- comments.getList.asScala) yield {
       if (comment.isDeleted) {
-        delete id comment.getId.toString from MessageIndexType
+        delete(comment.getId.toString) from MessageIndexType
       } else {
         val message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
         indexOfComment(topic, comment, message)
@@ -84,13 +84,13 @@ class ElasticsearchIndexService
 
       executeBulk(bulk(topicIndex +: commentsIndex))
     } else {
-      val topicDelete = delete id topic.getId.toString from MessageIndexType
+      val topicDelete = delete(topic.getId.toString) from MessageIndexType
 
       val commentsDelete = if (withComments) {
         val comments = commentService.getCommentList(topic, true).getList.asScala
 
         comments.map {
-          comment ⇒ delete id comment.getId.toString from MessageIndexType
+          comment ⇒ delete(comment.getId.toString) from MessageIndexType
         }
       } else Seq.empty
 
@@ -116,7 +116,7 @@ class ElasticsearchIndexService
       val topic = topicDao.getById(comment.getTopicId)
 
       if (!isTopicSearchable(topic) || comment.isDeleted) {
-        delete id comment.getId.toString from MessageIndexType
+        delete(comment.getId.toString) from MessageIndexType
       } else {
         val message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
         indexOfComment(topic, comment, message)
@@ -127,11 +127,11 @@ class ElasticsearchIndexService
   }
 
   def createIndexIfNeeded():Unit = {
-    val indexExists = elastic execute {
-      index exists MessageIndex
+    val indexExistsResult = elastic execute {
+      indexExists(MessageIndex)
     } await
 
-    if (!indexExists.isExists) {
+    if (!indexExistsResult.isExists) {
       val mappingSource = IOUtils.toString(getClass.getClassLoader.getResource("es-mapping.json"))
 
       elastic.java
@@ -172,7 +172,7 @@ class ElasticsearchIndexService
         .filterNot(_.startsWith("Re:"))
         .map(StringEscapeUtils.unescapeHtml4)
 
-    index into MessageIndexType id comment.getId.toString fields (
+    indexInto(MessageIndexType) id comment.getId.toString fields (
       Map("section" -> section.getUrlName,
         "topic_author" -> topicAuthor.getNick,
         "topic_id" -> topic.getId,
@@ -198,7 +198,7 @@ class ElasticsearchIndexService
     val group = groupDao.getGroup(topic.getGroupId)
     val author = userDao.getUserCached(topic.getUid)
 
-    index into MessageIndexType id topic.getId.toString fields(
+    indexInto(MessageIndexType) id topic.getId.toString fields(
       "section" -> section.getUrlName,
       "topic_author" -> author.getNick,
       "topic_id" -> topic.getId,

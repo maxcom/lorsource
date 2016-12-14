@@ -32,7 +32,6 @@ import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 case class SearchItem (
@@ -52,7 +51,7 @@ class SearchResultsService(
 ) extends StrictLogging {
   import ru.org.linux.search.SearchResultsService._
 
-  def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs map prepare).asJavaCollection
+  def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs.asScala map prepare).asJavaCollection
 
   def prepare(doc: RichSearchHit):SearchItem = {
     val author = userService.getUserCached(doc.sourceAsMap("author").asInstanceOf[String])
@@ -64,8 +63,8 @@ class SearchResultsService(
     val tags = if (comment) {
       Seq()
     } else {
-      if (doc.sourceAsMap.containsKey("tag")) {
-        doc.sourceAsMap("tag").asInstanceOf[java.util.List[String]].map(
+      if (doc.sourceAsMap.contains("tag")) {
+        doc.sourceAsMap("tag").asInstanceOf[java.util.List[String]].asScala.map(
           tag => TagService.tagRef(tag.toString))
       } else {
         Seq()
@@ -80,7 +79,7 @@ class SearchResultsService(
       score = doc.score,
       comment = comment,
       message = getMessage(doc),
-      tags = tags
+      tags = tags.asJava
     )
   }
 
@@ -124,7 +123,7 @@ class SearchResultsService(
 
     val agg = sectionFacet.getAggregations.get[Terms]("sections")
 
-    val items = for (entry <- agg.getBuckets.toSeq) yield {
+    val items = for (entry <- agg.getBuckets.asScala) yield {
       mkItem(entry.getKeyAsString, entry.getDocCount)
     }
 
@@ -132,7 +131,7 @@ class SearchResultsService(
 
     val all = FacetItem("", s"все (${sectionFacet.getDocCount})")
 
-    all +: (missing ++ items)
+    (all +: (missing ++ items)).asJava
   }
 
   def buildGroupFacet(maybeSection: Option[Terms.Bucket], selected:Option[(String, String)]): java.util.List[FacetItem] = {
@@ -146,7 +145,7 @@ class SearchResultsService(
       selectedSection <- maybeSection.toSeq
       groups = selectedSection.getAggregations.get[Terms]("groups")
       section = sectionService.getSectionByName(selectedSection.getKeyAsString)
-      entry <- groups.getBuckets.toSeq
+      entry <- groups.getBuckets.asScala
     } yield {
       mkItem(section, entry.getKeyAsString, entry.getDocCount)
     }
@@ -160,7 +159,7 @@ class SearchResultsService(
     if (items.size > 1 || selected.isDefined) {
       val all = FacetItem("", s"все (${maybeSection.map(_.getDocCount).getOrElse(0)})")
 
-      all +: items
+      (all +: items).asJava
     } else {
       null
     }
@@ -169,7 +168,7 @@ class SearchResultsService(
   def foundTags(agg: Aggregations): java.util.List[TagRef] = {
     val tags = agg.get[SignificantTerms]("tags")
 
-    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKeyAsString)).toSeq
+    tags.getBuckets.asScala.map(bucket => TagService.tagRef(bucket.getKeyAsString)).asJava
   }
 }
 

@@ -38,7 +38,6 @@ import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -77,16 +76,16 @@ class MoreLikeThisService(
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
         try {
-          val searchResult = elastic execute makeQuery(topic, tags)
+          val searchResult = elastic execute makeQuery(topic, tags.asScala)
 
           val result: Future[Result] = searchResult.map(result => if (result.hits.nonEmpty) {
             val half = result.hits.length / 2 + result.hits.length % 2
 
             result.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
-          } else Seq())
+          } else Seq().asJava)
 
-          result.onSuccess {
-            case v => cache.put(topic.getId, v)
+          result.foreach {
+            v ⇒ cache.put(topic.getId, v)
           }
 
           result
@@ -106,7 +105,7 @@ class MoreLikeThisService(
 
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
-    search in MessageIndexTypes query {
+    search(MessageIndexTypes) query {
       bool { should(queries:_*) filter rootFilters minimumShouldMatch 1 not idsQuery(topic.getId.toString) }
     } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
@@ -118,13 +117,13 @@ class MoreLikeThisService(
       } catch {
         case _: CircuitBreakerOpenException ⇒
           logger.debug(s"Similar topics circuit breaker is open")
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
         case ex: ElasticsearchException ⇒
           logger.warn("Unable to find similar topics", ex)
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
         case ex: TimeoutException ⇒
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
       }
     }
   }

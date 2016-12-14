@@ -23,7 +23,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 @Repository
@@ -52,20 +51,20 @@ class RemarkDao(ds:DataSource) {
     }.headOption
   }
 
-  def getRemarks(user: User, refs:java.lang.Iterable[User]):java.util.Map[Integer, Remark] = {
-    val r:Map[Integer, Remark] = if (refs.isEmpty) {
+  def getRemarks(user: User, refs:java.lang.Iterable[User]): java.util.Map[Integer, Remark] = {
+    val r: Map[Integer, Remark] = if (refs.asScala.isEmpty) {
       Map.empty
     } else {
       namedTemplate.query(
         "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
-        Map("list" -> refs.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId),
+        Map("list" -> refs.asScala.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId).asJava,
         new RowMapper[(Integer, Remark)]() {
           override def mapRow(rs: ResultSet, rowNum: Int) = {
             val remark = new Remark(rs)
             Integer.valueOf(remark.getRefUserId) -> remark
           }
         }
-      ).toMap
+      ).asScala.toMap
     }
 
     r.asJava
@@ -111,6 +110,8 @@ class RemarkDao(ds:DataSource) {
       "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?"
     }
 
-    jdbcTemplate.queryAndMap(qs, user.getId, limit, offset) { (rs, _) ⇒ new Remark(rs) }
+    jdbcTemplate.queryAndMap(qs, user.getId, limit, offset) { (rs, _) ⇒
+      new Remark(rs)
+    }.asJava
   }
 }

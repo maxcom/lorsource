@@ -16,7 +16,7 @@
 package ru.org.linux.tag
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class TagRef(@BeanProperty name:String, @BeanProperty url:Option[String]) extends Ordered[TagRef] {
   def compare(that: TagRef): Int = name.compareTo(that.name)
@@ -25,5 +25,5 @@ case class TagRef(@BeanProperty name:String, @BeanProperty url:Option[String]) e
 object TagRef {
   def names(list: Seq[TagRef]):String = list.map(_.name).mkString(",")
 
-  def names(list:java.util.List[TagRef]):String = names(list.toSeq)
+  def names(list: java.util.List[TagRef]):String = names(list.asScala)
 }
