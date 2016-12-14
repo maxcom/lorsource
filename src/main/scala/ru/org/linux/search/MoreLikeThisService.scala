@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{DocumentRef, ElasticClient}
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.searches.RichSearchHit
 import com.sksamuel.elastic4s.searches.queries.MoreLikeThisItem
@@ -106,7 +106,7 @@ class MoreLikeThisService(
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
     search(MessageIndexTypes) query {
-      bool { should(queries:_*) filter rootFilters minimumShouldMatch 1 not idsQuery(topic.getId.toString) }
+      boolQuery.should(queries:_*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
     } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 
@@ -147,13 +147,23 @@ class MoreLikeThisService(
     )
   }
 
-  private def titleQuery(topic:Topic) =
-    moreLikeThisQuery("title") like
-      topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords StopWords maxDocFreq 5000
+  private def titleQuery(topic:Topic) = {
+    moreLikeThisQuery("title")
+      .likeTexts(topic.getTitleUnescaped)
+      .minTermFreq(1)
+      .minDocFreq(2)
+      .stopWords(StopWords)
+      .maxDocFreq(5000)
+  }
 
-  private def textQuery(id:Int) =
-    moreLikeThisQuery("message") like MoreLikeThisItem(MessageIndex, MessageType, id.toString) minTermFreq 1 stopWords
-      StopWords minWordLength 3 maxDocFreq 100000
+  private def textQuery(id: Int) = {
+    moreLikeThisQuery("message")
+      .likeDocs(Seq(DocumentRef(MessageIndex, MessageType, id.toString)))
+      .minTermFreq(1)
+      .stopWords(StopWords)
+      .minWordLength(3)
+      .maxDocFreq(100000)
+  }
 
   private def tagsQuery(tags: Seq[String]) = termsQuery("tag", tags)
 }

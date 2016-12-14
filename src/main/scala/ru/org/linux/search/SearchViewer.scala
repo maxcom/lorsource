@@ -31,13 +31,12 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     if (queryText.isEmpty) {
       matchAllQuery
     } else {
-      bool {
+      boolQuery.
         must(
           should(
             commonQuery("title") query queryText lowFreqMinimumShouldMatch 2,
             commonQuery("message") query queryText lowFreqMinimumShouldMatch 2)
-        ) should matchPhraseQuery("message", queryText)
-      }
+        ).should(matchPhraseQuery("message", queryText))
     }
   }
 
@@ -96,10 +95,10 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
           ),
           sigTermsAggregation("tags") field "tag" minDocCount 30
         ) highlighting(
-          options encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
-          highlight field "title" numberOfFragments 0,
-          highlight field "topicTitle" numberOfFragments 0,
-          highlight field "message" numberOfFragments 1 fragmentSize MessageFragment
+          highlightOptions() encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
+          highlight("title") numberOfFragments 0,
+          highlight("topicTitle") numberOfFragments 0,
+          highlight("message") numberOfFragments 1 fragmentSize MessageFragment
         ) size SearchRows from this.query.getOffset postFilter andFilters(postFilters) timeout SearchTimeout
     }
 
