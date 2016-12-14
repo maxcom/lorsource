@@ -16,7 +16,7 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticDsl.{termsAggregation, _}
 import com.sksamuel.elastic4s.searches.queries.funcscorer.FilterFunctionDefinition
 import com.sksamuel.elastic4s.searches.{QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
@@ -48,9 +48,9 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     )
   }
 
-  private def wrapQuery(q:QueryDefinition, filters:Seq[QueryDefinition]) = {
+  private def wrapQuery(q: QueryDefinition, filters: Seq[QueryDefinition]) = {
     if (filters.nonEmpty) {
-      bool { must(q) filter filters }
+      boolQuery.must(q).filter(filters)
     } else {
       q
     }
@@ -88,13 +88,13 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search in MessageIndexTypes fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
-          agg filter "sections" query matchAllQuery aggs (
-            agg terms "sections" field "section" size 50 aggs (
-              agg terms "groups" field "group" size 50
+      search(MessageIndexTypes) fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
+        filterAggregation("sections") query matchAllQuery subAggregations (
+            termsAggregation("sections") field "section" size 50 subAggregations (
+              termsAggregation("groups") field "group" size 50
             )
           ),
-          agg sigTerms "tags" field "tag" minDocCount 30
+          sigTermsAggregation("tags") field "tag" minDocCount 30
         ) highlighting(
           options encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight field "title" numberOfFragments 0,

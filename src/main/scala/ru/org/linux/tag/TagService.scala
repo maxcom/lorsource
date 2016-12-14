@@ -66,7 +66,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   def countTagTopics(tag: String): Future[Long] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search in MessageIndexTypes size 0 query
+        search(MessageIndexTypes) size 0 query
           new BoolQueryDefinition().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
       }
     } map {
@@ -74,16 +74,16 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     }
   }
 
-  def getNewTags(tags:util.List[String]): util.List[String] =
+  def getNewTags(tags: util.List[String]): util.List[String] =
     tags.asScala.filterNot(tag ⇒ tagDao.getTagId(tag, skipZero = true).isDefined).asJava
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic) flatMap {
-    val sigterms = agg sigTerms "related" field "tag" backgroundFilter termQuery("is_comment", "false")
+    val sigterms = sigTermsAggregation("related") field "tag" backgroundFilter termQuery("is_comment", "false")
 
     sigterms.builder.includeExclude(new IncludeExclude(null, Array(tag)))
 
     _ execute {
-      search in MessageIndexTypes size 0 query
+      search(MessageIndexTypes) size 0 query
         new BoolQueryDefinition()
           .filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
     }
@@ -98,13 +98,13 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search in MessageIndexTypes size 0 query
+        search(MessageIndexTypes) size 0 query
           new BoolQueryDefinition()
             .filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
               rangeQuery("postdate").gte("now/d-1y")
-            ) aggs (agg terms "active" field "tag" minDocCount 10)
+            ) aggs (termsAggregation("active") field "tag" minDocCount 10)
       }
     } map { r ⇒
       (for {

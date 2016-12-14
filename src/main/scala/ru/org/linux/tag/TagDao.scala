@@ -25,7 +25,7 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.tag.TagDao._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @Repository
 class TagDao(ds:DataSource) extends StrictLogging {
@@ -42,7 +42,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
   def createTag(tagName: String): Int = {
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
 
-    val id = simpleJdbcInsert.executeAndReturnKey(Map("value" -> tagName)).intValue
+    val id = simpleJdbcInsert.executeAndReturnKey(Map("value" -> tagName).asJava).intValue
     logger.debug(s"Создан тег: '$tagName' id=$id")
     id
   }
