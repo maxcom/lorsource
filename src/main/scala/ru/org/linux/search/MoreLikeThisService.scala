@@ -71,7 +71,7 @@ class MoreLikeThisService(
   breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
   breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
 
-  def searchSimilar(topic:Topic, tags:java.util.List[TagRef]):Future[Result] = {
+  def searchSimilar(topic: Topic, tags: java.util.List[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.getId))
 
     cachedValue.map(Future.successful).getOrElse {
@@ -108,7 +108,7 @@ class MoreLikeThisService(
 
     search in MessageIndexTypes query {
       bool { should(queries:_*) filter rootFilters minimumShouldMatch 1 not idsQuery(topic.getId.toString) }
-    } fields("title", "postdate", "section", "group")
+    } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
@@ -116,7 +116,7 @@ class MoreLikeThisService(
       try {
         Await.result(featureResult, deadline.timeLeft)
       } catch {
-        case ex: CircuitBreakerOpenException ⇒
+        case _: CircuitBreakerOpenException ⇒
           logger.debug(s"Similar topics circuit breaker is open")
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
         case ex: ElasticsearchException ⇒
@@ -138,7 +138,7 @@ class MoreLikeThisService(
 
     val postdate = SearchResultsService.postdate(hit)
 
-    val title = hit.field("title").java.value[String]
+    val title = hit.sourceAsMap("title").asInstanceOf[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
