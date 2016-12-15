@@ -20,8 +20,8 @@
     <dependency.spring.version>4.3.4.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4.1212</jdbc.postgresql.version>
-    <elasticsearch.version>5.0.2</elasticsearch.version>
-    <elastic4s.version>5.0.4</elastic4s.version>
+    <elasticsearch.version>5.1.1</elasticsearch.version>
+    <elastic4s.version>5.1.4</elastic4s.version>
     <scala.version>2.12.1</scala.version>
     <scala.suffix>2.12</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
