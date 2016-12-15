@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d %-4r [%t] %-5p %c %x - %m%n"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <Logger name="org.apache.commons" level="info"/>
+    <Logger name="org.springframework" level="info"/>
+    <Logger name="httpclient.wire" level="info"/>
+    <Logger name="org.elasticsearch" level="info"/>
+    <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
+    <Logger name="org.apache.activemq" level="info"/>
+
+    <Root level="debug">
+      <AppenderRef ref="CONSOLE"/>
+    </Root>
+  </Loggers>
+</Configuration>

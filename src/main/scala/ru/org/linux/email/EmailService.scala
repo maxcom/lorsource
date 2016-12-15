@@ -32,7 +32,7 @@ import ru.org.linux.exception.ExceptionMailingActor
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @Service
 class EmailService(siteConfig:SiteConfig,
@@ -146,7 +146,7 @@ class EmailService(siteConfig:SiteConfig,
 
     text.append("Headers: ")
 
-    for (name <- request.getHeaderNames if !name.equalsIgnoreCase(HttpHeaders.COOKIE)) {
+    for (name <- request.getHeaderNames.asScala if !name.equalsIgnoreCase(HttpHeaders.COOKIE)) {
       text.append(s"\n         $name: ${request.getHeader(name)}")
     }
 

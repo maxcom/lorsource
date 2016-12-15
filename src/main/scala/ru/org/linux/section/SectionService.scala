@@ -16,11 +16,11 @@ package ru.org.linux.section
 
 import org.springframework.stereotype.Service
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 @Service
 class SectionService(sectionDao: SectionDao) {
-  val sections: Seq[Section] = sectionDao.getAllSections.toVector
+  val sections: Seq[Section] = sectionDao.getAllSections.asScala.toVector
   val nameToSection = sections map { section => section.getUrlName -> section } toMap
   val idToSection = sections map { section => section.getId -> section } toMap
 
@@ -49,7 +49,7 @@ class SectionService(sectionDao: SectionDao) {
    *
    * @return список секций
    */
-  def getSectionList: java.util.List[Section] = sections
+  def getSectionList: java.util.List[Section] = sections.asJava
 
   /**
    * Получить расширенную информацию о секции по идентификатору секции.

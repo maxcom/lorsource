@@ -20,12 +20,14 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
+import com.sksamuel.elastic4s.{DocumentRef, ElasticClient}
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, Item, RichSearchHit, TermsQueryDefinition}
+import com.sksamuel.elastic4s.searches.RichSearchHit
+import com.sksamuel.elastic4s.searches.queries.MoreLikeThisItem
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-import org.apache.lucene.analysis.util.CharArraySet
 import org.elasticsearch.ElasticsearchException
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
@@ -36,7 +38,6 @@ import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -69,22 +70,22 @@ class MoreLikeThisService(
   breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
   breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
 
-  def searchSimilar(topic:Topic, tags:java.util.List[TagRef]):Future[Result] = {
+  def searchSimilar(topic: Topic, tags: java.util.List[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.getId))
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
         try {
-          val searchResult = elastic execute makeQuery(topic, tags)
+          val searchResult = elastic execute makeQuery(topic, tags.asScala)
 
           val result: Future[Result] = searchResult.map(result => if (result.hits.nonEmpty) {
             val half = result.hits.length / 2 + result.hits.length % 2
 
             result.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
-          } else Seq())
+          } else Seq().asJava)
 
-          result.onSuccess {
-            case v => cache.put(topic.getId, v)
+          result.foreach {
+            v ⇒ cache.put(topic.getId, v)
           }
 
           result
@@ -104,9 +105,9 @@ class MoreLikeThisService(
 
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
-    search in MessageIndexTypes query {
-      bool { should(queries:_*) filter rootFilters minimumShouldMatch 1 not idsQuery(topic.getId.toString) }
-    } fields("title", "postdate", "section", "group")
+    search(MessageIndexTypes) query {
+      boolQuery.should(queries:_*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
+    } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
@@ -114,15 +115,15 @@ class MoreLikeThisService(
       try {
         Await.result(featureResult, deadline.timeLeft)
       } catch {
-        case ex: CircuitBreakerOpenException ⇒
+        case _: CircuitBreakerOpenException ⇒
           logger.debug(s"Similar topics circuit breaker is open")
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
         case ex: ElasticsearchException ⇒
           logger.warn("Unable to find similar topics", ex)
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
         case ex: TimeoutException ⇒
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq())
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
       }
     }
   }
@@ -136,7 +137,7 @@ class MoreLikeThisService(
 
     val postdate = SearchResultsService.postdate(hit)
 
-    val title = hit.field("title").value[String]
+    val title = hit.sourceAsMap("title").asInstanceOf[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
@@ -146,15 +147,25 @@ class MoreLikeThisService(
     )
   }
 
-  private def titleQuery(topic:Topic) =
-    moreLikeThisQuery("title") like
-      topic.getTitleUnescaped minTermFreq 1 minDocFreq 2 stopWords(StopWords: _*) maxDocFreq 5000
+  private def titleQuery(topic:Topic) = {
+    moreLikeThisQuery("title")
+      .likeTexts(topic.getTitleUnescaped)
+      .minTermFreq(1)
+      .minDocFreq(2)
+      .stopWords(StopWords)
+      .maxDocFreq(5000)
+  }
 
-  private def textQuery(id:Int) =
-    moreLikeThisQuery("message") minTermFreq 1 stopWords
-      (StopWords: _*) minWordLength 3 maxDocFreq 100000 like Item(MessageIndex, MessageType, id.toString)
+  private def textQuery(id: Int) = {
+    moreLikeThisQuery("message")
+      .likeDocs(Seq(DocumentRef(MessageIndex, MessageType, id.toString)))
+      .minTermFreq(1)
+      .stopWords(StopWords)
+      .minWordLength(3)
+      .maxDocFreq(100000)
+  }
 
-  private def tagsQuery(tags:Seq[String]) = TermsQueryDefinition("tag", tags)
+  private def tagsQuery(tags: Seq[String]) = termsQuery("tag", tags)
 }
 
 object MoreLikeThisService {

@@ -15,40 +15,41 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.HighlightEncoder.Html
-import com.sksamuel.elastic4s.{ElasticClient, QueryDefinition, RichSearchResponse}
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl.{termsAggregation, _}
+import com.sksamuel.elastic4s.searches.queries.funcscorer.FilterFunctionDefinition
+import com.sksamuel.elastic4s.searches.{QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
+class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
   import ru.org.linux.search.SearchViewer._
 
   private def processQueryString(queryText: String) = {
     if (queryText.isEmpty) {
       matchAllQuery
     } else {
-      bool {
+      boolQuery.
         must(
           should(
             commonQuery("title") query queryText lowFreqMinimumShouldMatch 2,
             commonQuery("message") query queryText lowFreqMinimumShouldMatch 2)
-        ) should matchPhraseQuery("message", queryText).setLenient(true)
-      }
+        ).should(matchPhraseQuery("message", queryText))
     }
   }
 
   private def boost(query: QueryDefinition) = {
-    functionScoreQuery(query) scorers(
-        weightScore(TopicBoost) filter termQuery("is_comment", "false"),
-        weightScore(RecentBoost) filter rangeQuery("postdate").gte("now/d-3y"))
+    functionScoreQuery(query) scoreFuncs(
+      FilterFunctionDefinition(weightScore(TopicBoost), Some(termQuery("is_comment", "false"))),
+      FilterFunctionDefinition(weightScore(RecentBoost), Some(rangeQuery("postdate").gte("now/d-3y")))
+    )
   }
 
-  private def wrapQuery(q:QueryDefinition, filters:Seq[QueryDefinition]) = {
+  private def wrapQuery(q: QueryDefinition, filters: Seq[QueryDefinition]) = {
     if (filters.nonEmpty) {
-      bool { must(q) filter filters }
+      boolQuery.must(q).filter(filters)
     } else {
       q
     }
@@ -76,32 +77,28 @@ class SearchViewer(query:SearchRequest, elastic: ElasticClient) {
     val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
 
     val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section ⇒
-      termQuery("section", this.query.getSection)
+      termQuery("section", section)
     }
 
     val groupFilter = Option(query.getGroup) filter (_.nonEmpty) map { group ⇒
-      termQuery("group", this.query.getGroup)
+      termQuery("group", group)
     }
 
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search in MessageIndexTypes fields (
-          Fields: _*
-        ) query esQuery sort (
-          field sort query.getSort.getColumn order query.getSort.order
-        ) aggs(
-          agg filter "sections" filter matchAllQuery aggs (
-            agg terms "sections" field "section" size 0 aggs (
-              agg terms "groups" field "group" size 0
+      search(MessageIndexTypes) fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
+        filterAggregation("sections") query matchAllQuery subAggregations (
+            termsAggregation("sections") field "section" size 50 subAggregations (
+              termsAggregation("groups") field "group" size 50
             )
           ),
-          agg sigTerms "tags" field "tag" minDocCount 30
+          sigTermsAggregation("tags") field "tag" minDocCount 30
         ) highlighting(
-          options encoder Html preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
-          highlight field "title" numberOfFragments 0,
-          highlight field "topicTitle" numberOfFragments 0,
-          highlight field "message" numberOfFragments 1 fragmentSize MessageFragment
+          highlightOptions() encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
+          highlight("title") numberOfFragments 0,
+          highlight("topicTitle") numberOfFragments 0,
+          highlight("message") numberOfFragments 1 fragmentSize MessageFragment
         ) size SearchRows from this.query.getOffset postFilter andFilters(postFilters) timeout SearchTimeout
     }
 

@@ -26,7 +26,6 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 @Controller
@@ -48,7 +47,7 @@ class EditProfileController(
 
     val params = new util.HashMap[String, AnyRef]
 
-    val nonDeprecatedThemes = Theme.THEMES.toVector.filterNot(_.isDeprecated).map(_.getId)
+    val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
 
     if (DefaultProfile.getTheme(tmpl.getCurrentUser.getStyle).isDeprecated) {
       params.put("stylesList", (nonDeprecatedThemes :+ tmpl.getCurrentUser.getStyle).asJava)

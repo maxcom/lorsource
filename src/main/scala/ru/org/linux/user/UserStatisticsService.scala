@@ -19,7 +19,9 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{BoolQueryDefinition, ElasticClient, RichSearchResponse}
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.searches.RichSearchResponse
+import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
@@ -31,7 +33,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService._
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -78,11 +80,11 @@ class UserStatisticsService(
       lastComment,
       topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
       topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
-      topicsBySection
+      topicsBySection.asJava
     )
   }
 
-  private def timeoutHandler(response:RichSearchResponse):Future[RichSearchResponse] = {
+  private def timeoutHandler(response: RichSearchResponse): Future[RichSearchResponse] = {
     if (response.isTimedOut) {
       Future failed new RuntimeException("ES Request timed out")
     } else {
@@ -90,9 +92,9 @@ class UserStatisticsService(
     }
   }
 
-  private def statSearch = search in MessageIndexTypes size 0 timeout ElasticTimeout
+  private def statSearch = search(MessageIndexTypes) size 0 timeout ElasticTimeout
 
-  private def countComments(user:User):Future[Long] = {
+  private def countComments(user: User): Future[Long] = {
     try {
       elastic execute {
         val root = new BoolQueryDefinition() filter (
@@ -106,7 +108,7 @@ class UserStatisticsService(
     }
   }
 
-  private def topicStats(user:User):Future[TopicStats] = {
+  private def topicStats(user: User): Future[TopicStats] = {
     try {
       elastic execute {
         val root = new BoolQueryDefinition filter (
@@ -114,11 +116,11 @@ class UserStatisticsService(
           termQuery("is_comment", false))
 
         statSearch query root aggs(
-          agg stats "topic_stats" field "postdate",
-          agg terms "sections" field "section")
+          statsAggregation("topic_stats") field "postdate",
+          termsAggregation("sections") field "section")
       } flatMap timeoutHandler map { response ⇒
-        val topicStatsResult = response.aggregations.get[Stats]("topic_stats")
-        val sectionsResult = response.aggregations.get[Terms]("sections")
+        val topicStatsResult = response.aggregations.getAs[Stats]("topic_stats")
+        val sectionsResult = response.aggregations.getAs[Terms]("sections")
 
         val (firstTopic, lastTopic) = if (topicStatsResult.getCount > 0) {
           (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
@@ -126,7 +128,7 @@ class UserStatisticsService(
           (None, None)
         }
 
-        val sections = sectionsResult.getBuckets.map { bucket =>
+        val sections = sectionsResult.getBuckets.asScala.map { bucket =>
           (bucket.getKeyAsString, bucket.getDocCount)
         }
 

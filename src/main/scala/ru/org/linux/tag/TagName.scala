@@ -18,7 +18,7 @@ package ru.org.linux.tag
 import org.springframework.validation.Errors
 import ru.org.linux.user.UserErrorException
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object TagName {
   val MaxTagsPerTopic = 5
@@ -27,19 +27,19 @@ object TagName {
 
   private val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
 
-  def isGoodTag(tag:String):Boolean = {
+  def isGoodTag(tag: String): Boolean = {
     tagRE.matcher(tag).matches() && tag.length() >= MinTagLength && tag.length() <= MaxTagLength
   }
 
   @throws[UserErrorException]
-  def checkTag(tag:String):Unit = {
+  def checkTag(tag:String): Unit = {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!isGoodTag(tag)) {
       throw new UserErrorException(s"Некорректный тег: '$tag'")
     }
   }
 
-  def parseTags(tags: String) = {
+  def parseTags(tags: String): Set[String] = {
     if (tags == null) {
       Set.empty[String]
     } else {
@@ -61,7 +61,7 @@ object TagName {
    * @param errors класс для ошибок валидации (параметр 'tags')
    * @return список тегов
    */
-  def parseAndValidateTags(tags:String, errors:Errors, maxTags:Int):Seq[String] = {
+  def parseAndValidateTags(tags: String, errors:Errors, maxTags: Int): Seq[String] = {
     val (goodTags, badTags) = parseTags(tags).partition(isGoodTag)
 
     for (tag <- badTags) {
@@ -86,6 +86,6 @@ object TagName {
    * @param tags список тегов через запятую
    * @return список тегов
    */
-  def parseAndSanitizeTags(tags:String):java.util.List[String] =
-    parseTags(tags).filter(isGoodTag).toVector
+  def parseAndSanitizeTags(tags:String): java.util.List[String] =
+    parseTags(tags).filter(isGoodTag).toVector.asJava
 }

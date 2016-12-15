@@ -18,9 +18,10 @@ package ru.org.linux.monitoring
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import akka.pattern.PipeToSupport
+import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.mappings.FieldType.{DateType, LongType, StringType}
-import com.sksamuel.elastic4s.{BulkResult, ElasticClient}
+import com.sksamuel.elastic4s.bulk.RichBulkResponse
+import com.sksamuel.elastic4s.mappings.FieldType.{DateType, KeywordType, LongType}
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -63,7 +64,7 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
       elastic execute {
         bulk {
           queue map { m ⇒
-            index into indexOf(m.start) -> PerfType fields (
+            indexInto(indexOf(m.start), PerfType) fields (
               "controller" -> m.name,
               "startdate"  -> m.start,
               "elapsed"    -> m.controllerTime,
@@ -81,7 +82,7 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
   private val waiting:Receive = {
     case m:Metric ⇒
       enqueue(m)
-    case r:BulkResult ⇒
+    case r:RichBulkResponse ⇒
       if (r.hasFailures) {
         log.warning(s"Failed to write perf metrics: ${r.failureMessage}")
       }
@@ -105,9 +106,9 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
     log.info("Create performance index template")
 
     elastic.execute {
-      create template s"$IndexPrefix-template" pattern PerfPattern mappings (
+      createTemplate(s"$IndexPrefix-template") pattern PerfPattern mappings (
         mapping(PerfType) fields(
-          field("controller", StringType) index NotAnalyzed,
+          field("controller", KeywordType),
           field("startdate", DateType) format "dateTime",
           field("elapsed", LongType),
           field("view", LongType)
@@ -115,7 +116,6 @@ class PerformanceLoggingActor(elastic:ElasticClient) extends Actor with ActorLog
         )
     }
   }
-
 }
 
 object PerformanceLoggingActor {

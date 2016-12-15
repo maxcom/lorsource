@@ -15,7 +15,7 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.RichSearchHit
+import com.sksamuel.elastic4s.searches.RichSearchHit
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.search.aggregations.Aggregations
 import org.elasticsearch.search.aggregations.bucket.filter.Filter
@@ -32,7 +32,6 @@ import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 case class SearchItem (
@@ -48,24 +47,24 @@ case class SearchItem (
 
 @Service
 class SearchResultsService(
-  userService:UserService, sectionService:SectionService, groupDao:GroupDao
+  userService: UserService, sectionService: SectionService, groupDao: GroupDao
 ) extends StrictLogging {
   import ru.org.linux.search.SearchResultsService._
 
-  def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs map prepare).asJavaCollection
+  def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs.asScala map prepare).asJavaCollection
 
-  def prepare(doc:RichSearchHit):SearchItem = {
-    val author = userService.getUserCached(doc.field("author").value[String])
+  def prepare(doc: RichSearchHit):SearchItem = {
+    val author = userService.getUserCached(doc.sourceAsMap("author").asInstanceOf[String])
 
-    val postdate = isoDateTime.parseDateTime(doc.field("postdate").value[String])
+    val postdate = isoDateTime.parseDateTime(doc.sourceAsMap("postdate").asInstanceOf[String])
 
-    val comment = doc.field("is_comment").value[Boolean]
+    val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
 
     val tags = if (comment) {
       Seq()
     } else {
-      if (doc.fields.containsKey("tag")) {
-        doc.field("tag").values.map(
+      if (doc.sourceAsMap.contains("tag")) {
+        doc.sourceAsMap("tag").asInstanceOf[java.util.List[String]].asScala.map(
           tag => TagService.tagRef(tag.toString))
       } else {
         Seq()
@@ -80,22 +79,22 @@ class SearchResultsService(
       score = doc.score,
       comment = comment,
       message = getMessage(doc),
-      tags = tags
+      tags = tags.asJava
     )
   }
 
   private def getTitle(doc: RichSearchHit):String = {
     val itemTitle = doc.highlightFields.get("title").map(_.fragments()(0).string)
-      .orElse(doc.fields.get("title") map { v ⇒ StringUtil.escapeHtml(v.value[String]) } )
+      .orElse(doc.sourceAsMap.get("title") map { v ⇒ StringUtil.escapeHtml(v.asInstanceOf[String]) } )
 
     itemTitle.filter(!_.trim.isEmpty).orElse(
       doc.highlightFields.get("topic_title").map(_.fragments()(0).string))
-        .getOrElse(StringUtil.escapeHtml(doc.fields("topic_title").value[String]))
+        .getOrElse(StringUtil.escapeHtml(doc.sourceAsMap("topic_title").asInstanceOf[String]))
   }
 
   private def getMessage(doc: RichSearchHit): String = {
     doc.highlightFields.get("message").map(_.fragments()(0).string) getOrElse {
-      StringUtil.escapeHtml(doc.fields("message").value[String].take(SearchViewer.MessageFragment))
+      StringUtil.escapeHtml(doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment))
     }
   }
 
@@ -103,8 +102,8 @@ class SearchResultsService(
     val section = SearchResultsService.section(doc)
     val msgid = doc.id
 
-    val comment = doc.field("is_comment").value[Boolean]
-    val topic = doc.field("topic_id").value[Int]
+    val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
+    val topic = doc.sourceAsMap("topic_id").asInstanceOf[Int]
     val group = SearchResultsService.group(doc)
 
     if (comment) {
@@ -124,7 +123,7 @@ class SearchResultsService(
 
     val agg = sectionFacet.getAggregations.get[Terms]("sections")
 
-    val items = for (entry <- agg.getBuckets.toSeq) yield {
+    val items = for (entry <- agg.getBuckets.asScala) yield {
       mkItem(entry.getKeyAsString, entry.getDocCount)
     }
 
@@ -132,7 +131,7 @@ class SearchResultsService(
 
     val all = FacetItem("", s"все (${sectionFacet.getDocCount})")
 
-    all +: (missing ++ items)
+    (all +: (missing ++ items)).asJava
   }
 
   def buildGroupFacet(maybeSection: Option[Terms.Bucket], selected:Option[(String, String)]): java.util.List[FacetItem] = {
@@ -146,7 +145,7 @@ class SearchResultsService(
       selectedSection <- maybeSection.toSeq
       groups = selectedSection.getAggregations.get[Terms]("groups")
       section = sectionService.getSectionByName(selectedSection.getKeyAsString)
-      entry <- groups.getBuckets.toSeq
+      entry <- groups.getBuckets.asScala
     } yield {
       mkItem(section, entry.getKeyAsString, entry.getDocCount)
     }
@@ -160,25 +159,25 @@ class SearchResultsService(
     if (items.size > 1 || selected.isDefined) {
       val all = FacetItem("", s"все (${maybeSection.map(_.getDocCount).getOrElse(0)})")
 
-      all +: items
+      (all +: items).asJava
     } else {
       null
     }
   }
 
-  def foundTags(agg:Aggregations):java.util.List[TagRef] = {
+  def foundTags(agg: Aggregations): java.util.List[TagRef] = {
     val tags = agg.get[SignificantTerms]("tags")
 
-    tags.getBuckets.map(bucket => TagService.tagRef(bucket.getKeyAsString)).toSeq
+    tags.getBuckets.asScala.map(bucket => TagService.tagRef(bucket.getKeyAsString)).asJava
   }
 }
 
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
-  def postdate(doc:RichSearchHit) = isoDateTime.parseDateTime(doc.field("postdate").value[String])
-  def section(doc:RichSearchHit) = doc.field("section").value[String]
-  def group(doc:RichSearchHit) = doc.field("group").value[String]
+  def postdate(doc: RichSearchHit) = isoDateTime.parseDateTime(doc.sourceAsMap("postdate").asInstanceOf[String])
+  def section(doc: RichSearchHit) = doc.sourceAsMap("section").asInstanceOf[String]
+  def group(doc: RichSearchHit) = doc.sourceAsMap("group").asInstanceOf[String]
 }
 
 case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)
