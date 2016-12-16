@@ -89,7 +89,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
       getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY d)
+      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY)
 
     val model = Map(
       "tag" -> tag,
