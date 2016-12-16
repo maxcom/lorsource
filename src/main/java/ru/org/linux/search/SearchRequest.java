@@ -137,7 +137,7 @@ public class SearchRequest {
     }
 
     if (sort!= SearchOrder.Relevance$.MODULE$) {
-      params.put("sort", sort.toString());
+      params.put("sort", sort.id());
     }
 
     if (section!=null && !section.isEmpty()) {
