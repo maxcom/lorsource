@@ -629,7 +629,7 @@ a img { border: none; }
   margin-top: 1em;
 }
 
-#tag-page-forum, #tag-page-news {
+#tag-page-forum, #tag-page-news, #tag-page-polls {
   @include clearfix();
   @include container();
 
