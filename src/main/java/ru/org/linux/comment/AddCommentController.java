@@ -15,8 +15,10 @@
 
 package ru.org.linux.comment;
 
+import akka.actor.ActorRef;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -28,6 +30,7 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
+import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.PreparedTopic;
@@ -63,6 +66,10 @@ public class AddCommentController {
 
   @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Qualifier("realtimeHub")
+  private ActorRef realtimeHub;
 
   @ModelAttribute("ipBlockInfo")
   private IPBlockInfo loadIPBlock(HttpServletRequest request) {
@@ -181,6 +188,8 @@ public class AddCommentController {
 
     searchQueueSender.updateComment(msgid);
 
+    realtimeHub.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
+
     return new ModelAndView(new RedirectView(add.getTopic().getLink()+"?cid="+msgid));
   }
 
@@ -237,6 +246,8 @@ public class AddCommentController {
       );
 
       searchQueueSender.updateComment(msgid);
+
+      realtimeHub.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
 
       return ImmutableMap.of("url", add.getTopic().getLink() + "?cid=" + msgid);
     }

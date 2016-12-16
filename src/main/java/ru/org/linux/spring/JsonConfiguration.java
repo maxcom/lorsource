@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @Configuration
@@ -29,5 +30,10 @@ public class JsonConfiguration {
     converter.getObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
     return converter;
+  }
+
+  @Bean(name="stringMessageConverter")
+  public StringHttpMessageConverter stringMessageConverter() {
+      return new StringHttpMessageConverter();
   }
 }
