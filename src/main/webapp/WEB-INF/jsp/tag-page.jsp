@@ -135,6 +135,44 @@
 </section>
 </c:if>
 
+<c:if test="${not empty polls}">
+  <section>
+    <h2>Опросы</h2>
+
+    <div class="container" id="tag-page-polls">
+      <c:forEach var="map" items="${polls}">
+        <section>
+          <c:forEach var="entry" items="${map}">
+            <h3>${entry._1()}</h3>
+            <ul>
+              <c:forEach var="msg" items="${entry._2()}">
+                <li>
+                  <c:if test="${msg.group.defined}">
+                    <span class="group-label">${msg.group.get()}</span>
+                  </c:if>
+                  <a href="${msg.url}">${msg.title}</a>
+                  <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
+                </li>
+              </c:forEach>
+            </ul>
+          </c:forEach>
+        </section>
+      </c:forEach>
+    </div>
+
+    <div class="tag-page-buttons">
+      <div>
+        <c:if test="${not empty pollsAdd}">
+          <a href="${pollsAdd}" class="btn btn-primary">Добавить</a>
+        </c:if>
+        <c:if test="${not empty pollsMore}">
+          <a href="${pollsMore}" class="btn btn-default">Все темы</a>
+        </c:if>
+      </div>
+    </div>
+  </section>
+</c:if>
+
 <c:if test="${not empty gallery}">
 <section class="infoblock">
   <h2>Галерея</h2>
@@ -196,11 +234,11 @@
 
     <div class="tag-page-buttons">
       <div>
-        <c:if test="${not empty addForum}">
-          <a href="${addForum}" class="btn btn-primary">Добавить</a>
+        <c:if test="${not empty forumAdd}">
+          <a href="${forumAdd}" class="btn btn-primary">Добавить</a>
         </c:if>
-        <c:if test="${not empty moreForum}">
-          <a href="${moreForum}" class="btn btn-default">Все темы</a>
+        <c:if test="${not empty forumMore}">
+          <a href="${forumMore}" class="btn btn-default">Все темы</a>
         </c:if>
       </div>
     </div>

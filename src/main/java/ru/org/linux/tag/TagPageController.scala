@@ -28,6 +28,7 @@ import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
+import ru.org.linux.topic.TopicListDao.CommitMode
 import ru.org.linux.topic._
 import ru.org.linux.user.UserTagService
 import ru.org.linux.util.RichFuture._
@@ -86,7 +87,9 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val tagInfo = tagService.getTagInfo(tag, skipZero = true)
 
-    val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++ getForumSection(tag, tagInfo.id)
+    val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
+      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY) ++
+      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY d)
 
     val model = Map(
       "tag" -> tag,
@@ -164,12 +167,12 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ add ++ more
   }
 
-  private def getForumSection(@Nonnull tag: String, tagId: Int) = {
-    val forumSection = sectionService.getSection(Section.SECTION_FORUM)
+  private def getForumSection(@Nonnull tag: String, tagId: Int, section: Int, mode: CommitMode) = {
+    val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
     topicListDto.setSection(forumSection.getId)
-    topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY)
+    topicListDto.setCommitMode(mode)
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
@@ -177,14 +180,14 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val topicByDate = TopicListTools.datePartition(forumTopics.asScala)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
-      Some("moreForum" -> TagTopicListController.tagListUrl(tag, forumSection))
+      Some(forumSection.getUrlName+"More" -> TagTopicListController.tagListUrl(tag, forumSection))
     } else {
       None
     }
 
     Map(
-      "addForum" -> AddTopicController.getAddUrl(forumSection, tag),
-      "forum" -> TopicListTools.split(
+      forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
+      forumSection.getUrlName -> TopicListTools.split(
         topicByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.getGroupId).getTitle)))
     ) ++ more
   }
