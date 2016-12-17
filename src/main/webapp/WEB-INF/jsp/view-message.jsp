@@ -74,6 +74,14 @@
   <c:if test="${not message.expired and template.sessionAuthorized}">
     $script('/js/addComments.js');
   </c:if>
+
+  <c:if test="${not message.expired and template.moderatorSession and not pages.hasNext}">
+    if(typeof(EventSource) !== "undefined") {
+      $script('/js/realtime.js', "realtime");
+      $script.ready('realtime', function() { startRealtime("${message.link}") } );
+    }
+  </c:if>
+
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
@@ -263,9 +271,12 @@
     </c:if>
 </c:if>
     <c:forEach var="comment" items="${commentsPrepared}">
-      <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
+      <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}"
+                 showMenu="true" comment="${comment}"/>
     </c:forEach>
 </div>
+
+<div id="realtime" style="display: none"></div>
 
 <c:if test="${not messageMenu.commentsAllowed}">
   <div class="infoblock">

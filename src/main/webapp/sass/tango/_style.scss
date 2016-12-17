@@ -279,6 +279,18 @@ input[type="checkbox"] {
   background-color: $article_background;
 }
 
+#realtime {
+  text-align: center;
+  padding: .5em 1em;
+  vertical-align: middle;
+
+  background-color: $button_primary_background;
+  color: $button_primary_text;
+  &:visited {
+    color: $button_primary_text;
+  }
+}
+
 blockquote {
   border-left-color: $table_border_color;
 }

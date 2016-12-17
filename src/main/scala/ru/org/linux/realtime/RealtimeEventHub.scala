@@ -18,6 +18,7 @@ import java.io.IOException
 
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated}
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.http.MediaType
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import ru.org.linux.realtime.RealtimeEventHub.{GetEmmiterForTopic, NewComment, Tick}
 
@@ -27,6 +28,7 @@ import scala.concurrent.duration._
 /*
   TODO: load messages from last id
   TODO: support for ignore list
+  TODO: support for old cached pages
  */
 
 class RealtimeEventHub extends Actor with ActorLogging {
@@ -89,7 +91,7 @@ class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
 
     case NewComment(_, cid) ⇒
       try {
-        emitter.send(SseEmitter.event().name("comment").id(cid.toString))
+        emitter.send(SseEmitter.event().name("comment").id(cid.toString).data(cid.toString, MediaType.TEXT_PLAIN))
       } catch handleExceptions
 
     case Tick ⇒
