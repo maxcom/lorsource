@@ -36,6 +36,8 @@ class RealtimeEventHub extends Actor with ActorLogging {
   private val data = new mutable.HashMap[Int, mutable.Set[ActorRef]] with mutable.MultiMap[Int, ActorRef]
   private var maxDataSize: Int = 0
 
+  implicit val ec = context.dispatcher
+
   context.system.scheduler.schedule(5.minutes, 5.minutes, self, Tick)
 
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
