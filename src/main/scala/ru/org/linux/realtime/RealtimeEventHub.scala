@@ -103,6 +103,8 @@ class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
     case NewComment(_, cid) ⇒
       try {
         emitter.send(SseEmitter.event().name("comment").id(cid.toString).data(cid.toString, MediaType.TEXT_PLAIN))
+
+        emitter.complete() // qrator est merde
       } catch handleExceptions
 
     case Tick ⇒
