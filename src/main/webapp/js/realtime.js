@@ -13,10 +13,16 @@
  *    limitations under the License.
  */
 
-function startRealtime(link) {
+function startRealtime(link, cid) {
     $script.ready('jquery', function () {
         $(document).ready(function () {
-            var evtSource = new EventSource(link+"/realtime");
+            var evtSource;
+
+            if (cid==0) {
+                evtSource = new EventSource(link+"/realtime");
+            } else {
+                evtSource = new EventSource(link+"/realtime?cid="+cid);
+            }
 
             evtSource.addEventListener("comment", function (event) {
                 $("#realtime")

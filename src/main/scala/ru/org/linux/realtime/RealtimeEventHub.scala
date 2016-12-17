@@ -27,9 +27,7 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 
 /*
-  TODO: load messages from last id
   TODO: support for ignore list
-  TODO: support for old cached pages
  */
 
 class RealtimeEventHub extends Actor with ActorLogging {
@@ -43,7 +41,7 @@ class RealtimeEventHub extends Actor with ActorLogging {
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
   override def receive: Receive = {
-    case msg@GetEmmiterForTopic(msgid) ⇒
+    case msg@GetEmmiterForTopic(msgid, _) ⇒
       val actor = context.actorOf(TopicEmitterActor.props(msgid))
 
       context.watch(actor)
@@ -80,7 +78,7 @@ class RealtimeEventHub extends Actor with ActorLogging {
 }
 
 object RealtimeEventHub {
-  case class GetEmmiterForTopic(msgid: Int)
+  case class GetEmmiterForTopic(msgid: Int, missedComments: Vector[Int])
   case class NewComment(msgid: Int, cid: Int)
   case object Tick
 
@@ -111,12 +109,20 @@ class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
   })
 
   override def receive: Receive = {
-    case GetEmmiterForTopic(_) ⇒
+    case GetEmmiterForTopic(_, missed) ⇒
       context.sender() ! emitter
+
+      try {
+        missed foreach notifyComment
+
+        if (missed.nonEmpty) {
+          emitter.complete() // qrator est merde
+        }
+      } catch handleExceptions
 
     case NewComment(_, cid) ⇒
       try {
-        emitter.send(SseEmitter.event().name("comment").id(cid.toString).data(cid.toString, MediaType.TEXT_PLAIN))
+        notifyComment(cid)
 
         emitter.complete() // qrator est merde
       } catch handleExceptions
@@ -125,6 +131,16 @@ class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
       try {
         emitter.send(SseEmitter.event().comment("keepalive"))
       } catch handleExceptions
+  }
+
+  private def notifyComment(cid: Int) = {
+    val event = SseEmitter
+      .event()
+      .name("comment")
+      .id(cid.toString)
+      .data(cid.toString, MediaType.TEXT_PLAIN)
+
+    emitter.send(event)
   }
 
   private def handleExceptions: PartialFunction[Throwable, Unit] = {
