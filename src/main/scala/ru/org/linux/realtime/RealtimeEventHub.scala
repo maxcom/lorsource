@@ -102,7 +102,10 @@ class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
 
   private def handleExceptions: PartialFunction[Throwable, Unit] = {
     case ex: IOException ⇒
-      log.debug(s"Terminated by IO Exception ${ex.toString}")
+      log.debug(s"Terminated by IOException ${ex.toString}")
+      context.stop(self)
+    case ex: IllegalStateException ⇒
+      log.debug(s"Terminated by ISE ${ex.toString}")
       context.stop(self)
   }
 
