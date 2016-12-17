@@ -75,7 +75,7 @@
     $script('/js/addComments.js');
   </c:if>
 
-  <c:if test="${not message.expired and template.sessionAuthorized and template.currentUser.score>=500 and not pages.hasNext}">
+  <c:if test="${not message.expired and template.sessionAuthorized and template.currentUser.score>=400 and not pages.hasNext}">
     if(typeof(EventSource) !== "undefined") {
       $script('/js/realtime.js', "realtime");
       $script.ready('realtime', function() { startRealtime("${message.link}", ${lastCommentId}) } );
