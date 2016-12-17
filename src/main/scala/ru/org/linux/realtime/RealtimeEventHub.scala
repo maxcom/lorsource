@@ -19,6 +19,7 @@ import java.io.IOException
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated}
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.http.MediaType
+import org.springframework.http.server.ServerHttpResponse
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import ru.org.linux.realtime.RealtimeEventHub.{GetEmmiterForTopic, NewComment, Tick}
 
@@ -73,10 +74,20 @@ object RealtimeEventHub {
 }
 
 class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
-  private val emitter = new SseEmitter(30.minutes.toMillis)
+  private val emitter = new SseEmitter(30.minutes.toMillis) {
+    override def extendResponse(outputMessage: ServerHttpResponse) = {
+      super.extendResponse(outputMessage)
+
+      val headers = outputMessage.getHeaders
+
+      headers.add("Connection", "close")
+      headers.add("X-Accel-Buffering", "no")
+    }
+  }
+
   implicit val ec = context.dispatcher
 
-  val schedule = context.system.scheduler.schedule(10.seconds, 1.minute, self, Tick)
+  val schedule = context.system.scheduler.schedule(5.seconds, 15.seconds, self, Tick)
 
   context.setReceiveTimeout(30.minutes)
 
