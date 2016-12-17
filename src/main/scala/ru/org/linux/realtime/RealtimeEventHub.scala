@@ -34,6 +34,9 @@ import scala.concurrent.duration._
 
 class RealtimeEventHub extends Actor with ActorLogging {
   private val data = new mutable.HashMap[Int, mutable.Set[ActorRef]] with mutable.MultiMap[Int, ActorRef]
+  private var maxDataSize: Int = 0
+
+  context.system.scheduler.schedule(5.minutes, 5.minutes, self, Tick)
 
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
@@ -44,6 +47,12 @@ class RealtimeEventHub extends Actor with ActorLogging {
       context.watch(actor)
 
       data.addBinding(msgid, actor)
+
+      val dataSize = context.children.size
+
+      if (dataSize > maxDataSize) {
+        maxDataSize = dataSize
+      }
 
       actor.forward(msg)
     case Terminated(actorRef) ⇒
@@ -62,6 +71,9 @@ class RealtimeEventHub extends Actor with ActorLogging {
       data.getOrElse(msgid, Set.empty).foreach {
         _ ! msg
       }
+    case Tick ⇒
+      log.info(s"Realtime hub: maximum number connections was $maxDataSize")
+      maxDataSize = 0
   }
 }
 
