@@ -15,23 +15,25 @@
 
 function startRealtime(link, cid) {
     $script.ready('jquery', function () {
-        $(document).ready(function () {
-            var evtSource;
+        $(function () {
+            setTimeout(function () {
+              var evtSource;
 
-            if (cid==0) {
+              if (cid==0) {
                 evtSource = new EventSource(link+"/realtime");
-            } else {
+              } else {
                 evtSource = new EventSource(link+"/realtime?cid="+cid);
-            }
+              }
 
-            evtSource.addEventListener("comment", function (event) {
+              evtSource.addEventListener("comment", function (event) {
                 $("#realtime")
-                        .text("Был добавлен новый комментарий. ")
-                        .append($("<a>").attr("href", link+"?cid="+event.data).text("Обновить."))
-                        .show();
+                    .text("Был добавлен новый комментарий. ")
+                    .append($("<a>").attr("href", link+"?cid="+event.data).text("Обновить."))
+                    .show();
 
                 evtSource.close();
-            });
+              });
+            }, 3000);
         });
     });
 }
