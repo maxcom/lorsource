@@ -109,6 +109,7 @@
         <property name="messageConverters">
             <list>
                 <ref bean="jacksonMessageConverter"/>
+                <ref bean="stringMessageConverter"/>
             </list>
         </property>
     </bean>

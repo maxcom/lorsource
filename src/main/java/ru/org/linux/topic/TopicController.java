@@ -355,6 +355,12 @@ public class TopicController {
 
     params.put("commentsPrepared", commentsPrepared);
 
+    if (comments.getList().isEmpty()) {
+      params.put("lastCommentId", 0);
+    } else {
+      params.put("lastCommentId", comments.getList().get(comments.getList().size()-1).getId());
+    }
+
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
