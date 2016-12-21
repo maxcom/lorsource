@@ -71,6 +71,10 @@ public class AddCommentController {
   @Qualifier("realtimeHub")
   private ActorRef realtimeHub;
 
+  @Autowired
+  @Qualifier("realtimeHubWS")
+  private ActorRef realtimeHubWS;
+
   @ModelAttribute("ipBlockInfo")
   private IPBlockInfo loadIPBlock(HttpServletRequest request) {
     return ipBlockDao.getBlockInfo(request.getRemoteAddr());
@@ -189,6 +193,7 @@ public class AddCommentController {
     searchQueueSender.updateComment(msgid);
 
     realtimeHub.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
+    realtimeHubWS.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
 
     return new ModelAndView(new RedirectView(add.getTopic().getLink()+"?cid="+msgid));
   }
@@ -248,6 +253,7 @@ public class AddCommentController {
       searchQueueSender.updateComment(msgid);
 
       realtimeHub.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
+      realtimeHubWS.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
 
       return ImmutableMap.of("url", add.getTopic().getLink() + "?cid=" + msgid);
     }

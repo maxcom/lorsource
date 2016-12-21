@@ -37,3 +37,48 @@ function startRealtime(link, cid) {
         });
     });
 }
+
+function startRealtimeWS(topic, link, cid) {
+  $script.ready('jquery', function () {
+    $(function () {
+      var supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
+
+      if (supportsWebSockets) {
+        var canceled = false;
+        var ws;
+
+        if (location.protocol === 'https:') {
+          ws = new WebSocket("wss://" + location.host + "/ws");
+        } else {
+          ws = new WebSocket("ws://" + location.host + "/ws");
+        }
+
+        ws.onmessage = function (event) {
+          $("#realtime")
+              .text("Был добавлен новый комментарий. ")
+              .append($("<a>").attr("href", link + "?cid=" + event.data).text("Обновить."))
+              .show();
+
+          canceled = true;
+          ws.close()
+        };
+
+        ws.onopen = function() {
+          if (cid==0) {
+            ws.send(topic)
+          } else {
+            ws.send(topic + ' ' + cid)
+          }
+        };
+
+        ws.onclose = function(){
+          if (!canceled) {
+            setTimeout(function () {
+              startRealtimeWS(topic, link, cid)
+            }, 5000);
+          }
+        };
+      }
+    });
+  })
+}

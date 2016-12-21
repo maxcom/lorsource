@@ -76,10 +76,16 @@
   </c:if>
 
   <c:if test="${not message.expired and template.sessionAuthorized and not pages.hasNext}">
-    if(typeof(EventSource) !== "undefined") {
+    <c:if test="${template.moderatorSession}">
       $script('/js/realtime.js', "realtime");
-      $script.ready('realtime', function() { startRealtime("${message.link}", ${lastCommentId}) } );
-    }
+      $script.ready('realtime', function() { startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}) } );
+    </c:if>
+    <c:if test="${not template.moderatorSession}">
+      if(typeof(EventSource) !== "undefined") {
+        $script('/js/realtime.js', "realtime");
+        $script.ready('realtime', function() { startRealtime("${message.link}", ${lastCommentId}) } );
+      }
+    </c:if>
   </c:if>
 
 </script>

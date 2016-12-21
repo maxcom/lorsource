@@ -28,7 +28,7 @@
     <slf4j.version>1.7.21</slf4j.version>
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
-    <jetty.version>9.4.0.v20161208</jetty.version>
+    <jetty.version>9.3.14.v20161028</jetty.version>
     <akka.version>2.4.16</akka.version>
     <log4j.version>2.6.2</log4j.version>
   </properties>
@@ -168,6 +168,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
+      <version>${dependency.spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-websocket</artifactId>
       <version>${dependency.spring.version}</version>
     </dependency>
     <dependency>
@@ -378,6 +383,7 @@
       <version>1.14</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>jersey-multipart</artifactId>
@@ -822,6 +828,13 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-maven-plugin</artifactId>
             <version>${jetty.version}</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-server</artifactId>
+                <version>${jetty.version}</version>
+              </dependency>
+            </dependencies>
             <configuration>
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
@@ -940,16 +953,8 @@
   </profiles>
   <repositories>
     <repository>
-      <id>java.net</id>
-      <name>java.net Maven Repository</name>
-      <url>http://download.java.net/maven/2/</url>
+      <id>sonatype-releases</id>
+      <url>https://oss.sonatype.org/content/repositories/releases/</url>
     </repository>
-
-    <repository>
-      <id>scalaz-bintray</id>
-      <name>scalaz-bintray</name>
-      <url>http://dl.bintray.com/scalaz/releases</url>
-    </repository>
-
   </repositories>
 </project>

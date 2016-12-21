@@ -97,11 +97,9 @@ class TopicEmitterActor(msgid: Int) extends Actor with ActorLogging {
     }
   }
 
-  implicit val ec = context.dispatcher
+  private implicit val ec = context.dispatcher
 
-  val schedule = context.system.scheduler.schedule(5.seconds, 15.seconds, self, Tick)
-
-  context.setReceiveTimeout(30.minutes)
+  private val schedule = context.system.scheduler.schedule(5.seconds, 15.seconds, self, Tick)
 
   emitter.onCompletion(() ⇒ {
     log.debug(s"Emitter done, sending poison pill to $self")
