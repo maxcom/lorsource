@@ -26,6 +26,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.exception.ExceptionResolver;
+import ru.org.linux.realtime.RealtimeWebsocketHandler;
 import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
@@ -53,7 +54,8 @@ import static org.mockito.Mockito.mock;
                                 TopicListService.class,
                                 MoreLikeThisService.class,
                                 EmailService.class,
-                                ExceptionResolver.class
+                                ExceptionResolver.class,
+                                RealtimeWebsocketHandler.class
                         }
                 )
         }
