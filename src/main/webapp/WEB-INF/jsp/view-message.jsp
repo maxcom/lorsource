@@ -78,7 +78,7 @@
   <c:if test="${not message.expired and template.sessionAuthorized and not pages.hasNext}">
     <c:if test="${template.moderatorSession}">
       $script('/js/realtime.js', "realtime");
-      $script.ready('realtime', function() { startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}, ${template.WSUrl}) } );
+      $script.ready('realtime', function() { startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}, "${template.WSUrl}"); } );
     </c:if>
     <c:if test="${not template.moderatorSession}">
       if(typeof(EventSource) !== "undefined") {
