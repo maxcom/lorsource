@@ -174,19 +174,15 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 
       val topic = topicDao.getById(topicId)
 
-      maybeComment foreach { last ⇒
-        val missed = if (last!=0) {
-          val comments = commentService.getCommentList(topic, false)
+      val last = maybeComment.getOrElse(0)
 
-          comments.getList.asScala.map(_.getId).dropWhile(_<=last).toVector
-        } else {
-          Vector.empty
-        }
+      val comments = commentService.getCommentList(topic, false)
 
-        missed.foreach { cid ⇒
-          logger.debug(s"Sending missed comment $cid")
-          session.sendMessage(new TextMessage(cid.toString))
-        }
+      val missed = comments.getList.asScala.map(_.getId).dropWhile(_ <= last).toVector
+
+      missed.foreach { cid ⇒
+        logger.debug(s"Sending missed comment $cid")
+        session.sendMessage(new TextMessage(cid.toString))
       }
 
       val result = hub ? Subscribe(session, topic.getId)
