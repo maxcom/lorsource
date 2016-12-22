@@ -15,6 +15,7 @@
 
 MainUrl=http://127.0.0.1:8080/
 SecureUrl=http://127.0.0.1:8080/
+WSUrl=ws://127.0.0.1:8080/
 activemq.path=target/tmp/activemq
 HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
 upload.path=target/uploads/

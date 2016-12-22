@@ -31,6 +31,7 @@ import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, We
 import ru.org.linux.comment.CommentService
 import ru.org.linux.realtime.RealtimeEventHub.{NewComment, Tick}
 import ru.org.linux.realtime.RealtimeEventHubWS.{SessionTerminated, Subscribe}
+import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 
 import scala.collection.mutable
@@ -213,8 +214,8 @@ class RealtimeConfigurationBeans(actorSystem: ActorSystem) {
 
 @Configuration
 @EnableWebSocket
-class RealtimeConfigurationWS(handler: RealtimeWebsocketHandler) extends WebSocketConfigurer {
+class RealtimeConfigurationWS(handler: RealtimeWebsocketHandler, config: SiteConfig) extends WebSocketConfigurer {
   override def registerWebSocketHandlers(registry: WebSocketHandlerRegistry): Unit = {
-    registry.addHandler(handler, "/ws")
+    registry.addHandler(handler, "/ws").setAllowedOrigins(config.getMainUrl, config.getSecureUrl)
   }
 }

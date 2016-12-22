@@ -80,6 +80,10 @@ public class SiteConfig {
     return secureURI.toString();
   }
 
+  public String getWSUrl() {
+    return properties.getProperty("WSUrl");
+  }
+
   public URI getMainURI() {
     return mainURI;
   }

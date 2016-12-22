@@ -38,20 +38,14 @@ function startRealtime(link, cid) {
     });
 }
 
-function startRealtimeWS(topic, link, cid) {
+function startRealtimeWS(topic, link, cid, wsUrl) {
   $script.ready('jquery', function () {
     $(function () {
       var supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
 
       if (supportsWebSockets) {
         var canceled = false;
-        var ws;
-
-        if (location.protocol === 'https:') {
-          ws = new WebSocket("wss://" + location.host + "/ws");
-        } else {
-          ws = new WebSocket("ws://" + location.host + "/ws");
-        }
+        var ws = new WebSocket(wsUrl + "/ws");
 
         ws.onmessage = function (event) {
           $("#realtime")
