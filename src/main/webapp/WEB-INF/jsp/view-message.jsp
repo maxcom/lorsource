@@ -76,11 +76,11 @@
   </c:if>
 
   <c:if test="${not message.expired and template.sessionAuthorized and not pages.hasNext}">
-    <c:if test="${template.moderatorSession}">
+    <c:if test="${template.currentUser.score >= 200}">
       $script('/js/realtime.js', "realtime");
       $script.ready('realtime', function() { startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}, "${template.WSUrl}"); } );
     </c:if>
-    <c:if test="${not template.moderatorSession}">
+    <c:if test="${template.currentUser.score < 200}">
       if(typeof(EventSource) !== "undefined") {
         $script('/js/realtime.js', "realtime");
         $script.ready('realtime', function() { startRealtime("${message.link}", ${lastCommentId}) } );
