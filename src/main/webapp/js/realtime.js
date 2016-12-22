@@ -45,7 +45,7 @@ function startRealtimeWS(topic, link, cid, wsUrl) {
 
       if (supportsWebSockets) {
         var canceled = false;
-        var ws = new WebSocket(wsUrl + "/ws");
+        var ws = new WebSocket(wsUrl + "ws");
 
         ws.onmessage = function (event) {
           $("#realtime")

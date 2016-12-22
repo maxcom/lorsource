@@ -73,6 +73,8 @@ public final class Template {
     return siteConfig.getMainUrlWithoutSlash();
   }
 
+  public String getWSUrl() { return siteConfig.getWSUrl(); }
+
   public String getSecureMainUrl() {
     return siteConfig.getSecureUrl();
   }
