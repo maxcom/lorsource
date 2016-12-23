@@ -48,13 +48,18 @@ function startRealtimeWS(topic, link, cid, wsUrl) {
         var ws = new WebSocket(wsUrl + "ws");
 
         ws.onmessage = function (event) {
-          $("#realtime")
-              .text("Был добавлен новый комментарий. ")
-              .append($("<a>").attr("href", link + "?cid=" + event.data).text("Обновить."))
-              .show();
+          if (!$('#commentForm').find(".spinner").length) {
+            $("#realtime")
+                .text("Был добавлен новый комментарий. ")
+                .append($("<a>").attr("href", link + "?cid=" + event.data).text("Обновить."))
+                .show();
 
-          canceled = true;
-          ws.close()
+            canceled = true;
+            ws.close()
+          } else {
+            // retry in 5 seconds
+            ws.close()
+          }
         };
 
         ws.onopen = function() {
