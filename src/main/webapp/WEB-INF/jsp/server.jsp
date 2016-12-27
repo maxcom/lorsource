@@ -82,7 +82,7 @@
   </p>
     <ul>
       <li>CentOS 7.x</li>
-      <li>СУБД PostgreSQL 9.4</li>
+      <li>СУБД PostgreSQL 9.5</li>
       <li>OpenJDK 1.8.0</li>
       <li>Scala 2.12</li>
       <li>Apache Tomcat 7</li>
