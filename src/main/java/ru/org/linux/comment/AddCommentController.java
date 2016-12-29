@@ -68,10 +68,6 @@ public class AddCommentController {
   private SearchQueueSender searchQueueSender;
 
   @Autowired
-  @Qualifier("realtimeHub")
-  private ActorRef realtimeHub;
-
-  @Autowired
   @Qualifier("realtimeHubWS")
   private ActorRef realtimeHubWS;
 
@@ -146,7 +142,6 @@ public class AddCommentController {
    * @param errors   обработчик ошибок ввода для формы
    * @param request  данные запроса от web-клиента
    * @return объект web-модели
-   * @throws Exception
    */
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   @CSRFNoAuto
@@ -192,7 +187,6 @@ public class AddCommentController {
 
     searchQueueSender.updateComment(msgid);
 
-    realtimeHub.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
     realtimeHubWS.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
 
     return new ModelAndView(new RedirectView(add.getTopic().getLink()+"?cid="+msgid));
@@ -205,7 +199,6 @@ public class AddCommentController {
    * @param errors   обработчик ошибок ввода для формы
    * @param request  данные запроса от web-клиента
    * @return объект web-модели
-   * @throws Exception
    */
   @RequestMapping(value = "/add_comment_ajax", produces = "application/json; charset=UTF-8", method = RequestMethod.POST)
   @ResponseBody
@@ -252,7 +245,6 @@ public class AddCommentController {
 
       searchQueueSender.updateComment(msgid);
 
-      realtimeHub.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
       realtimeHubWS.tell(new RealtimeEventHub.NewComment(comment.getTopicId(), msgid), ActorRef.noSender());
 
       return ImmutableMap.of("url", add.getTopic().getLink() + "?cid=" + msgid);
