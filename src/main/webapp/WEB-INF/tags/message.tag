@@ -14,7 +14,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -195,11 +195,6 @@
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
           <div class="social-buttons">
-            <a target="_blank" style="text-decoration: none"
-               href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+ ' '+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-              <img src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
-            </a>
-
             <a target="_blank" style="text-decoration: none"
                href="https://twitter.com/intent/tweet?text=<%= URLEncoder.encode(message.getTitle()) %>&amp;url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>&amp;hashtags=<%= URLEncoder.encode("лор") %>">
               <img src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
