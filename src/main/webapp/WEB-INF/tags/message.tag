@@ -220,7 +220,7 @@
         </c:if>
         <c:if test="${messageMenu.resolvable}">
             <c:if test="${message.resolved}">
-                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешенную</a></li>
+                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешённую</a></li>
             </c:if>
             <c:if test="${not message.resolved}">
                 <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a></li>
