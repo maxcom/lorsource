@@ -298,9 +298,9 @@ $script.ready('plugins', function() {
       }
     };
 
-    $('#regform').ajaxForm(options);
+    if (location.protocol === 'https:') {
+      $('#regform').ajaxForm(options);
 
-    if (location.protocol === 'https:' || jQuery.support.cors) {
       $('#loginbutton').bind('click', function(e) {
         $("#regmenu").fadeOut("fast", function() {
           $("#regform").fadeIn("fast", function() {
