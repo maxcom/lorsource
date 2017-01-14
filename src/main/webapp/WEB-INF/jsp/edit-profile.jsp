@@ -41,7 +41,7 @@ $script.ready('plugins', function() {
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>
-<tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
+<tr><td>Показывать социальные кнопки (Google plus, Twitter)</td>
 <td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
 <c:if test="${template.prof.showNewFirst}">
   <tr><td>Новые комментарии в начале</td>
