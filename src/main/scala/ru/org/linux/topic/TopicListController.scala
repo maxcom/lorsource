@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,7 +39,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 
 object TopicListController {
-  def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer):Unit = {
+  def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer): Unit = {
     if (month == null) {
       response.setDateHeader("Expires", System.currentTimeMillis + 60 * 1000)
       response.setDateHeader("Last-Modified", System.currentTimeMillis)
@@ -162,15 +162,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   }
 
   @RequestMapping(Array("/forum/lenta"))
-  def forum(request: HttpServletRequest, topicListForm: TopicListRequest, response: HttpServletResponse): ModelAndView = {
-    val section = sectionService.getSection(Section.SECTION_FORUM)
-
-    val modelAndView: ModelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, None)
-    modelAndView.addObject("ptitle", TopicListController.calculatePTitle(section, topicListForm))
-    modelAndView.addObject("url", section.getNewsViewerLink)
-    modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
-
-    modelAndView
+  def forum(request: HttpServletRequest, topicListForm: TopicListRequest,
+            response: HttpServletResponse): DeferredResult[ModelAndView] = {
+    topics(request, "forum", topicListForm, response)
   }
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:gallery)}/{group:[^.]+}"))
