@@ -104,11 +104,11 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
               rangeQuery("postdate").gte("now/d-1y")
-            ) aggs (termsAggregation("active") field "tag" minDocCount 10)
+            ) aggs (sigTermsAggregation("active") field "tag" minDocCount 10)
       }
     } map { r ⇒
       (for {
-        bucket <- r.aggregations.getAs[Terms]("active").getBuckets.asScala
+        bucket <- r.aggregations.getAs[SignificantTerms]("active").getBuckets.asScala
       } yield {
         tagRef(bucket.getKeyAsString)
       }).sorted
