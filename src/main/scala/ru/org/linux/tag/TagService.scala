@@ -101,9 +101,10 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
         search(MessageIndexTypes) size 0 query
           new BoolQueryDefinition()
             .filter(
+              termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
               rangeQuery("postdate").gte("now/d-1y")
-            ) aggs (sigTermsAggregation("active") field "tag" minDocCount 10)
+            ) aggs (sigTermsAggregation("active") field "tag" backgroundFilter termQuery("is_comment", "false"))
       }
     } map { r ⇒
       (for {
