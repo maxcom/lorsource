@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -82,7 +82,7 @@ $script.ready('plugins', function() {
 
   <tr><td colspan=2><hr></td></tr>
   <tr>
-    <td valign=top>Фильтр трекера по-умолчанию</td>
+    <td valign=top>Фильтр трекера по умолчанию</td>
     <td>
       <c:set value="${template.prof.trackerMode.value}" var="trackerMode"/>
 
@@ -138,5 +138,4 @@ $script.ready('plugins', function() {
 
 <p><b>Внимание!</b> Настройки на некоторых уже посещенных страницах могут
 не отображаться. Очистите кеш или используйте кнопку <i>Reload</i> вашего браузера.
-
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
