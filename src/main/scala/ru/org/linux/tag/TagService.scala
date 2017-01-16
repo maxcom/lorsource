@@ -99,12 +99,13 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     Future.successful(elastic) flatMap {
       _ execute {
         search(MessageIndexTypes) size 0 query
-          new BoolQueryDefinition()
-            .filter(
+          boolQuery().filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
               rangeQuery("postdate").gte("now/d-1y")
-            ) aggs (sigTermsAggregation("active") field "tag" backgroundFilter termQuery("is_comment", "false"))
+          ) aggs {
+            sigTermsAggregation("active") field "tag" minDocCount 10 backgroundFilter termQuery("is_comment", "false")
+          }
       }
     } map { r ⇒
       (for {
