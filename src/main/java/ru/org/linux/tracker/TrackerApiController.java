@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
@@ -38,6 +39,9 @@ import java.util.stream.Collectors;
 public class TrackerApiController {
   @Autowired
   private TrackerDao trackerDao;
+
+  @Autowired
+  private SectionService sectionService;
 
   @RequestMapping(value = "/api/tracker", produces = "application/json; charset=UTF-8", method = RequestMethod.GET)
   @ResponseBody
@@ -66,7 +70,8 @@ public class TrackerApiController {
 
     List<ImmutableMap> trackerProperties = trackerItems.stream().map(trackerItem -> ImmutableMap.builder()
             .put("id", trackerItem.getCid())
-            .put("url", trackerItem.getUrl())
+            .put("section", sectionService.getSection(trackerItem.getSection()).getName())
+            .put("url", trackerItem.getGroupUrl() + trackerItem.getMsgid())
             .put("title", trackerItem.getTitle())
             .put("groupTitle", trackerItem.getGroupTitle())
             .put("postDate", trackerItem.getPostdate())
