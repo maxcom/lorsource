@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2016 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -42,9 +42,9 @@
   -->
 </script>
 
-<title>${section.name} - ${group.title}
+<title>${section.name} — ${group.title}
   <c:if test="${year != null}">
-    - Архив ${year}, ${l:getMonthName(month)}
+    — Архив ${year}, ${l:getMonthName(month)}
   </c:if>
 </title>
     <link rel="alternate" href="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" type="application/rss+xml">
@@ -54,7 +54,7 @@
     <div id="navPath">
       ${section.name} «${group.title}»
       <c:if test="${year != null}">
-        - Архив ${year}, ${l:getMonthName(month)}
+        — Архив ${year}, ${l:getMonthName(month)}
       </c:if>
     </div>
 
@@ -270,9 +270,8 @@
 <p>
   <i class="icon-rss"></i>
   <a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">
-    RSS подписка на новые темы
+    RSS-подписка на новые темы
   </a>
 </p>
-
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
