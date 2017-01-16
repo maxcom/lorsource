@@ -75,7 +75,7 @@
     $script('/js/addComments.js');
   </c:if>
 
-  <c:if test="${not message.expired and template.sessionAuthorized and not pages.hasNext}">
+  <c:if test="${not message.expired and not pages.hasNext}">
     $script('/js/realtime.js', "realtime");
     $script.ready('realtime', function() {
         startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}, "${template.WSUrl}");
