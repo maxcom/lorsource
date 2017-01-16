@@ -31,7 +31,6 @@
 <%
   Template tmpl = Template.getTemplate(request);
 %>
-  <!-- ${message.id}  -->
 <article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <c:if test="${message.deleted}">
@@ -56,7 +55,7 @@
     <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"></c:if>
 
     <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
-      <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
+      <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> —
       <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
       <c:if test="${preparedMessage.section.premoderated and not message.commited}">
         <span>(не подтверждено)</span>
