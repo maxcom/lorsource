@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -65,7 +66,7 @@ import static ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC;
 
 @Controller
 public class TopicController {
-  public static final int RSS_DEFAULT = 20;
+  private static final int RSS_DEFAULT = 20;
   private static final FiniteDuration MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS);
 
   @Autowired
@@ -120,12 +121,13 @@ public class TopicController {
     HttpServletResponse response,
     @RequestParam(value = "filter", required = false) String filter,
     @RequestParam(value = "cid" , required = false) Integer cid,
+    @RequestParam(value = "skipdeleted" , required = false, defaultValue = "false") boolean skipDeleted,
     @PathVariable("section") String sectionName,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
-      return jumpMessage(request, msgid, cid);
+      return jumpMessage(request, msgid, cid, skipDeleted);
     }
 
     Section section = sectionService.getSectionByName(sectionName);
@@ -341,7 +343,7 @@ public class TopicController {
     boolean reverse = tmpl.getProf().isShowNewFirst();
 
     List<Comment> commentsFiltred = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), hideSet);
-    List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.<Integer>of());
+    List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.of());
 
     params.put("unfilteredCount", commentsFull.size());
 
@@ -423,9 +425,9 @@ public class TopicController {
 
     CommentFilter cv = new CommentFilter(comments);
 
-    List<Comment> commentsFiltred = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
+    List<Comment> commentsFiltered = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.of());
 
-    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltred, request.isSecure());
+    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered, request.isSecure());
 
     params.put("commentsPrepared", commentsPrepared);
     LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
@@ -534,12 +536,24 @@ public class TopicController {
   private ModelAndView jumpMessage(
           HttpServletRequest request,
           int msgid,
-          int cid) throws Exception {
+          int cid, boolean skipDeleted) throws Exception {
     Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
 
     CommentList comments = commentService.getCommentList(topic, false);
     CommentNode node = comments.getNode(cid);
+
+    if (node == null && skipDeleted) {
+      ImmutableList<Comment> list = comments.getList();
+
+      if (list.isEmpty()) {
+        return new ModelAndView(new RedirectView(topic.getLink()));
+      }
+
+      Comment c = list.stream().filter(v -> v.getId() > cid).findFirst().orElse(list.get(list.size()-1));
+
+      node = comments.getNode(c.getId());
+    }
 
     boolean deleted = false;
 
@@ -559,7 +573,7 @@ public class TopicController {
             TopicLinkBuilder
                     .pageLink(topic, pagenum)
                     .lastmod(tmpl.getProf().getMessages())
-                    .comment(cid);
+                    .comment(node.getComment().getId());
 
     if (deleted) {
       redirectUrl = redirectUrl.showDeleted();
@@ -590,7 +604,7 @@ public class TopicController {
           @RequestParam(required = false) Integer cid
   ) throws Exception {
     if (cid!=null) {
-      return jumpMessage(request, msgid, cid);
+      return jumpMessage(request, msgid, cid, false);
     }
 
     Topic topic = messageDao.getById(msgid);
