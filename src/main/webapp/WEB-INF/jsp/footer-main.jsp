@@ -19,7 +19,7 @@
 </div>
 <div id="ft">
   <p id="ft-info">
-    <a href="/about">О Сервере</a> -
+    <a href="/about">О Сервере</a> 
     <a href="/help/rules.md">Правила форума</a><br>
 
   Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2017<br>
