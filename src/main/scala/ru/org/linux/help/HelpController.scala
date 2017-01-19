@@ -42,7 +42,7 @@ class HelpController(renderService: MarkdownRenderService) extends StrictLogging
       throw new HelpPageNotFoundException()
     })
 
-    val source = IOUtils.toString(request.getServletContext.getResource(s"/help/$page"))
+    val source = IOUtils.toString(request.getServletContext.getResource(s"/help/$page"), null)
 
     renderService.render(source, RenderTimeout.fromNow).map { result ⇒
       new ModelAndView("help", Map(
