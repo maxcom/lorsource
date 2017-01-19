@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2016 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -95,14 +95,20 @@
   }
 %>
     <c:forEach var="msg" items="${news}">
-      <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
+      <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
+                   multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]
   [<a href="view-all.jsp?section=1">неподтвержденные новости</a>]
-  [<a href="section-rss.jsp?section=1">RSS</a>]
 </div>
+  <p>
+    <i class="icon-rss"></i>
+    <a href="section-rss.jsp?section=1">
+      RSS-подписка на новости
+    </a>
+  </p>
 </div>
 <aside id=boxlets>
 
