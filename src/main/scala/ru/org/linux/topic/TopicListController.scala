@@ -24,7 +24,6 @@ import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
-import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
@@ -36,9 +35,9 @@ import ru.org.linux.util.RichFuture._
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
-import scala.compat.java8.FutureConverters._
 
 object TopicListController {
   def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer): Unit = {
