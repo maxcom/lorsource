@@ -123,7 +123,7 @@ class ElasticsearchIndexService
       }
     }
 
-    executeBulk(bulk(requests))F
+    executeBulk(bulk(requests))
   }
 
   def createIndexIfNeeded():Unit = {
