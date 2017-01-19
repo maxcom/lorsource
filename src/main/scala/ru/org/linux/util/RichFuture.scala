@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,20 +24,8 @@ import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success}
 
 object RichFuture {
-  implicit class RichFuture[T](val future:Future[T]) extends AnyVal {
-    def toDeferredResult(implicit executor : ExecutionContext):DeferredResult[T] = {
-      val result = new DeferredResult[T]()
-
-      future.onComplete {
-        case Success(r) => result.setResult(r)
-        case Failure(t) =>
-          result.setErrorResult(t)
-      }
-
-      result
-    }
-
-    def withTimeout(duration: FiniteDuration)(implicit system: ActorSystem, executor : ExecutionContext): Future[T] = {
+  implicit class RichFuture[T](val future: Future[T]) extends AnyVal {
+    def withTimeout(duration: FiniteDuration)(implicit system: ActorSystem, executor: ExecutionContext): Future[T] = {
       if (future.isCompleted) {
         future
       } else {

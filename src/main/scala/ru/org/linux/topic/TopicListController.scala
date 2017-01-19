@@ -15,6 +15,7 @@
 package ru.org.linux.topic
 
 import java.net.URLEncoder
+import java.util.concurrent.CompletionStage
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import akka.actor.ActorSystem
@@ -37,6 +38,7 @@ import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterM
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
+import scala.compat.java8.FutureConverters._
 
 object TopicListController {
   def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer): Unit = {
@@ -124,7 +126,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:gallery)}/"))
   def topics(request: HttpServletRequest, @PathVariable("section") sectionName: String,
-             topicListForm: TopicListRequest, response: HttpServletResponse): DeferredResult[ModelAndView] = {
+             topicListForm: TopicListRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val section = sectionService.getSectionByName(sectionName)
@@ -158,12 +160,12 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       }
 
       modelAndView
-    } toDeferredResult
+    } toJava
   }
 
   @RequestMapping(Array("/forum/lenta"))
   def forum(request: HttpServletRequest, topicListForm: TopicListRequest,
-            response: HttpServletResponse): DeferredResult[ModelAndView] = {
+            response: HttpServletResponse): CompletionStage[ModelAndView] = {
     topics(request, "forum", topicListForm, response)
   }
 

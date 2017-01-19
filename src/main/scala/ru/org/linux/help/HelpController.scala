@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.help
 
+import java.util.concurrent.CompletionStage
 import javax.servlet.ServletRequest
 
 import com.typesafe.scalalogging.StrictLogging
@@ -24,9 +25,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.markdown.MarkdownRenderService
-import ru.org.linux.util.RichFuture._
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
@@ -35,7 +36,7 @@ class HelpController(renderService: MarkdownRenderService) extends StrictLogging
   import HelpController._
 
   @RequestMapping(Array("/help/{page}"))
-  def helpPage(request:ServletRequest, @PathVariable page:String) = {
+  def helpPage(request: ServletRequest, @PathVariable page: String): CompletionStage[ModelAndView] = {
     val title = HelpPages.getOrElse(page, {
       logger.info(s"Help page not found $page")
       throw new HelpPageNotFoundException()
@@ -48,7 +49,7 @@ class HelpController(renderService: MarkdownRenderService) extends StrictLogging
         "title" -> title,
         "helpText" -> result
       ).asJava)
-    }.toDeferredResult
+    }.toJava
   }
 
   @ExceptionHandler(Array(classOf[HelpPageNotFoundException]))
