@@ -132,7 +132,7 @@ class ElasticsearchIndexService
     } await
 
     if (!indexExistsResult.isExists) {
-      val mappingSource = IOUtils.toString(getClass.getClassLoader.getResource("es-mapping.json"),null)
+      val mappingSource = IOUtils.toString(getClass.getClassLoader.getResource("es-mapping.json"), "UTF-8")
 
       elastic.java
         .admin()
