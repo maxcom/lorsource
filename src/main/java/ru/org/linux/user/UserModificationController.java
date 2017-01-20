@@ -236,7 +236,7 @@ public class UserModificationController {
   ) throws Exception {
     User moderator = getModerator(request);
 
-    if (user.isModerator()) {
+    if (user.isModerator() || user.isAnonymous()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
     }
 
@@ -249,6 +249,7 @@ public class UserModificationController {
     mv.getModel().put("message", "Пароль сброшен");
     return mv;
   }
+  
   /**
    * Контроллер отчистки дополнительной информации в профиле
    * @param request http запрос
