@@ -82,7 +82,7 @@ public class LoginController {
         return new ModelAndView(new RedirectView("/"));
       }
     } catch (LockedException | BadCredentialsException | UsernameNotFoundException e) {
-      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
       return new ModelAndView(new RedirectView("/login.jsp?error=true"));
     }
   }
@@ -133,15 +133,15 @@ public class LoginController {
 
       return new LoginStatus(auth.isAuthenticated(), auth.getName());
     } catch (LockedException e) {
-      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
 
       return new LoginStatus(false, "User locked");
     } catch (UsernameNotFoundException e) {
-      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
 
       return new LoginStatus(false, "Bad credentials");
     } catch (BadCredentialsException e) {
-      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
 
       return new LoginStatus(false, e.getMessage());
     }
