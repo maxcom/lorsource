@@ -222,6 +222,10 @@ blockquote {
   white-space: nowrap;
 }
 
+#comments .userpic {
+  margin-top: .75em;
+}
+
 @media screen and (max-width:360px) {
 	#head-main {
 		margin-left: 0;
@@ -245,3 +249,5 @@ blockquote {
 		margin-left: 0;
 	}
 }
+
+@import "../responsive";
