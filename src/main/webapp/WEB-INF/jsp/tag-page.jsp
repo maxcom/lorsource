@@ -4,7 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -181,7 +181,6 @@
     <c:forEach var="item" items="${gallery}">
       <article>
         <c:url var="url" value="${item.item.link}"/>
-        <h3><a href="${url}"><l:title>${item.item.title}</l:title></a></h3>
         <a href="${url}">
           <img
                   src="${item.item.image.medium}"
@@ -189,6 +188,7 @@
                   sizes="(min-width: 40em) 32vw, 100vw"
                   alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a><br>
+        <a href="${url}"><l:title>${item.item.title}</l:title></a><br>
         ${item.user.nick}, <lor:dateinterval date="${item.item.commitDate}"/>
       </article>
     </c:forEach>

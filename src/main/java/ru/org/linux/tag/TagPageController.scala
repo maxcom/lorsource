@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 package ru.org.linux.tag
 
+import java.util.concurrent.CompletionStage
 import javax.annotation.Nonnull
 import javax.servlet.http.HttpServletRequest
 
@@ -22,7 +23,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.text.WordUtils
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
-import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
@@ -34,6 +34,7 @@ import ru.org.linux.user.UserTagService
 import ru.org.linux.util.RichFuture._
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -55,7 +56,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private implicit val akka = actorSystem
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(request: HttpServletRequest, @PathVariable tag: String): DeferredResult[ModelAndView] = {
+  def tagPage(request: HttpServletRequest, @PathVariable tag: String): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val tmpl = Template.getTemplate(request)
@@ -121,7 +122,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       related <- safeRelatedF
     } yield {
       new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
-    }) toDeferredResult
+    }) toJava
   }
 
   private def getNewsSection(request: HttpServletRequest, tag: String) = {

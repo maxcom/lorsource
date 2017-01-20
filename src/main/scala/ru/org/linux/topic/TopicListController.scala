@@ -15,6 +15,7 @@
 package ru.org.linux.topic
 
 import java.net.URLEncoder
+import java.util.concurrent.CompletionStage
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import akka.actor.ActorSystem
@@ -23,7 +24,6 @@ import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
-import org.springframework.web.context.request.async.DeferredResult
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
@@ -35,6 +35,7 @@ import ru.org.linux.util.RichFuture._
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 
@@ -124,7 +125,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:gallery)}/"))
   def topics(request: HttpServletRequest, @PathVariable("section") sectionName: String,
-             topicListForm: TopicListRequest, response: HttpServletResponse): DeferredResult[ModelAndView] = {
+             topicListForm: TopicListRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val section = sectionService.getSectionByName(sectionName)
@@ -158,12 +159,12 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       }
 
       modelAndView
-    } toDeferredResult
+    } toJava
   }
 
   @RequestMapping(Array("/forum/lenta"))
   def forum(request: HttpServletRequest, topicListForm: TopicListRequest,
-            response: HttpServletResponse): DeferredResult[ModelAndView] = {
+            response: HttpServletResponse): CompletionStage[ModelAndView] = {
     topics(request, "forum", topicListForm, response)
   }
 
