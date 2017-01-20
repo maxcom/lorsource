@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -120,7 +120,7 @@ public class UserDao {
   }
 
   private User getUserInternal(int id) throws UserNotFoundException {
-    List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> { return new User(rs); }, id);
+    List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> new User(rs), id);
 
     if (list.isEmpty()) {
       throw new UserNotFoundException(id);
@@ -149,9 +149,7 @@ public class UserDao {
    * @return информация
    */
   public UserInfo getUserInfoClass(User user) {
-    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> {
-      return new UserInfo(resultSet);
-    }, user.getId());
+    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> new UserInfo(resultSet), user.getId());
   }
 
   /**
@@ -183,9 +181,7 @@ public class UserDao {
   }
 
   public Tuple2<Timestamp, Timestamp> getFirstAndLastCommentDate(User user) {
-    return jdbcTemplate.queryForObject(queryCommentDates, (resultSet, i) -> {
-      return new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-    }, user.getId());
+    return jdbcTemplate.queryForObject(queryCommentDates, (resultSet, i) -> new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last")), user.getId());
   }
 
   /**

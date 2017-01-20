@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.group;
 
-import com.google.common.base.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GroupDao {
@@ -55,9 +55,7 @@ public class GroupDao {
     try {
       return jdbcTemplate.queryForObject(
         "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
-              (resultSet, i) -> {
-                return Group.buildGroup(resultSet);
-              },
+              (resultSet, i) -> Group.buildGroup(resultSet),
         id
       );
     } catch (EmptyResultDataAccessException ex) {
@@ -74,9 +72,7 @@ public class GroupDao {
   public List<Group> getGroups(Section section) {
     return jdbcTemplate.query(
       "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments, stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
-            (rs, rowNum) -> {
-              return Group.buildGroup(rs);
-            },
+            (rs, rowNum) -> Group.buildGroup(rs),
       section.getId()
     );
   }
@@ -132,7 +128,7 @@ public class GroupDao {
       return Optional.of(getGroup(id));
     } catch (EmptyResultDataAccessException ex) {
       logger.debug("Group '{}' not found in section {}", name, section.getUrlName());
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 

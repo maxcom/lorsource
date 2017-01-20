@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.search;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -51,6 +50,7 @@ import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class SearchController {

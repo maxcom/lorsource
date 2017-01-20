@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,11 +20,9 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,9 +44,6 @@ import ru.org.linux.user.UserDao;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
@@ -139,12 +134,7 @@ public class TopicDao {
   public Topic getById(int id) throws MessageNotFoundException {
     Topic message;
     try {
-      message = jdbcTemplate.queryForObject(queryMessage, new RowMapper<Topic>() {
-        @Override
-        public Topic mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Topic(resultSet);
-        }
-      }, id);
+      message = jdbcTemplate.queryForObject(queryMessage, (resultSet, i) -> new Topic(resultSet), id);
     } catch (EmptyResultDataAccessException exception) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new MessageNotFoundException(id);
@@ -173,9 +163,7 @@ public class TopicDao {
     Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
     calendar.add(Calendar.MONTH, 1);
     Timestamp ts_end = new Timestamp(calendar.getTimeInMillis());
-    return jdbcTemplate.query(queryTopicsIdByTime, (resultSet, i) -> {
-      return resultSet.getInt("id");
-    }, ts_start, ts_end);
+    return jdbcTemplate.query(queryTopicsIdByTime, (resultSet, i) -> resultSet.getInt("id"), ts_start, ts_end);
   }
 
   public boolean delete(int msgid) {
@@ -220,22 +208,19 @@ public class TopicDao {
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
             "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
-            new PreparedStatementCallback<String>() {
-              @Override
-              public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-                pst.setInt(1, group.getId());
-                pst.setInt(2, user.getId());
-                pst.setString(3, msg.getTitle());
-                pst.setString(4, finalUrl);
-                pst.setInt(5, msgid);
-                pst.setString(6, finalLinktext);
-                pst.setString(7, userAgent);
-                pst.setString(8, msg.getPostIP());
-                pst.setBoolean(9, msg.isDraft());
-                pst.executeUpdate();
+            (PreparedStatementCallback<String>) pst -> {
+              pst.setInt(1, group.getId());
+              pst.setInt(2, user.getId());
+              pst.setString(3, msg.getTitle());
+              pst.setString(4, finalUrl);
+              pst.setInt(5, msgid);
+              pst.setString(6, finalLinktext);
+              pst.setString(7, userAgent);
+              pst.setString(8, msg.getPostIP());
+              pst.setBoolean(9, msg.isDraft());
+              pst.executeUpdate();
 
-                return null;
-              }
+              return null;
             }
     );
 

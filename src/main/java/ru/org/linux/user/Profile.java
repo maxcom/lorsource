@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -77,7 +77,7 @@ public class Profile {
   }
 
   public Map<String, String> getSettings() {
-    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, String>());
+    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>());
 
     p.setString(STYLE_PROPERTY, style);
     p.setString(FORMAT_MODE_PROPERTY, formatMode);
@@ -243,6 +243,6 @@ public class Profile {
   }
 
   public static Profile createDefault() {
-    return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, String>()), null);
+    return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
   }
 }
