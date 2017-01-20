@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 package ru.org.linux.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
+  private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
   @Autowired
   private UserDao userDao;
 
@@ -47,7 +51,7 @@ public class LoginController {
   private UserDetailsServiceImpl userDetailsService;
 
   @Autowired
-  RememberMeServices rememberMeServices;
+  private RememberMeServices rememberMeServices;
 
   @Autowired
   @Qualifier("authenticationManager")
@@ -59,6 +63,7 @@ public class LoginController {
       @RequestParam("passwd") final String password,
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+
     try {
       UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
       token.setDetails(details);
@@ -74,7 +79,8 @@ public class LoginController {
 
         return new ModelAndView(new RedirectView("/"));
       }
-    } catch (Exception e) {
+    } catch (LockedException | BadCredentialsException | UsernameNotFoundException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
       return new ModelAndView(new RedirectView("/login.jsp?error=true"));
     }
   }
@@ -125,10 +131,16 @@ public class LoginController {
 
       return new LoginStatus(auth.isAuthenticated(), auth.getName());
     } catch (LockedException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+
       return new LoginStatus(false, "User locked");
     } catch (UsernameNotFoundException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+
       return new LoginStatus(false, "Bad credentials");
     } catch (BadCredentialsException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.getMessage());
+
       return new LoginStatus(false, e.getMessage());
     }
   }
@@ -154,14 +166,5 @@ public class LoginController {
   @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
     return new ModelAndView("login-form");
-  }
-
-  /**
-   * Обрабатываем исключительную ситуацию для забаненого пользователя
-   */
-  @ExceptionHandler(UserBanedException.class)
-  @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ModelAndView handleUserBanedException(UserBanedException ex) {
-    return new ModelAndView("errors/user-banned", "exception", ex);
   }
 }
