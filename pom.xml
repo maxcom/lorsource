@@ -925,14 +925,6 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>net.alchim31.maven</groupId>
-            <artifactId>scala-maven-plugin</artifactId>
-            <configuration>
-              <recompileMode>all</recompileMode>
-            </configuration>
-          </plugin>
-
-          <plugin>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-jspc-maven-plugin</artifactId>
             <version>${jetty.version}</version>
