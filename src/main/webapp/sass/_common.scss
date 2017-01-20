@@ -598,6 +598,8 @@ a img { border: none; }
   @include clearfix();
   @include container();
 
+  margin-bottom: 1em;
+
   @include respond-to(tablet-and-desktops) {
     @include generate_grid_positions('article', 4);
 
