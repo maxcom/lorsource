@@ -140,7 +140,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>21.0</version>
+      <version>20.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -924,14 +924,6 @@
       </activation>
       <build>
         <plugins>
-          <plugin>
-            <groupId>net.alchim31.maven</groupId>
-            <artifactId>scala-maven-plugin</artifactId>
-            <configuration>
-              <recompileMode>all</recompileMode>
-            </configuration>
-          </plugin>
-
           <plugin>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-jspc-maven-plugin</artifactId>

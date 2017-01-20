@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,10 @@
 
 package ru.org.linux.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -28,10 +29,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.user.UserBanedException;
+import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.UserDao;
 
 import javax.servlet.http.Cookie;
@@ -40,6 +44,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
+  private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
   @Autowired
   private UserDao userDao;
 
@@ -47,7 +53,7 @@ public class LoginController {
   private UserDetailsServiceImpl userDetailsService;
 
   @Autowired
-  RememberMeServices rememberMeServices;
+  private RememberMeServices rememberMeServices;
 
   @Autowired
   @Qualifier("authenticationManager")
@@ -59,6 +65,7 @@ public class LoginController {
       @RequestParam("passwd") final String password,
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+
     try {
       UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
       token.setDetails(details);
@@ -74,7 +81,8 @@ public class LoginController {
 
         return new ModelAndView(new RedirectView("/"));
       }
-    } catch (Exception e) {
+    } catch (LockedException | BadCredentialsException | UsernameNotFoundException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
       return new ModelAndView(new RedirectView("/login.jsp?error=true"));
     }
   }
@@ -125,14 +133,21 @@ public class LoginController {
 
       return new LoginStatus(auth.isAuthenticated(), auth.getName());
     } catch (LockedException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
+
       return new LoginStatus(false, "User locked");
     } catch (UsernameNotFoundException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
+
       return new LoginStatus(false, "Bad credentials");
     } catch (BadCredentialsException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
+
       return new LoginStatus(false, e.getMessage());
     }
   }
 
+  @PublicApi
   public class LoginStatus {
     private final boolean success;
     private final String username;
@@ -154,14 +169,5 @@ public class LoginController {
   @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
     return new ModelAndView("login-form");
-  }
-
-  /**
-   * Обрабатываем исключительную ситуацию для забаненого пользователя
-   */
-  @ExceptionHandler(UserBanedException.class)
-  @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ModelAndView handleUserBanedException(UserBanedException ex) {
-    return new ModelAndView("errors/user-banned", "exception", ex);
   }
 }
