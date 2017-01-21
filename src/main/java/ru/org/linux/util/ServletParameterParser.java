@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2065 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,9 +23,6 @@ import java.util.regex.Pattern;
 
 public class ServletParameterParser {
   private static final Pattern ipRE = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
-
-  private ServletParameterParser() {
-  }
 
   public static String getIP(ServletRequest rq, String name) throws ServletParameterException, ServletRequestBindingException {
     String ip = ServletRequestUtils.getRequiredStringParameter(rq, name);
