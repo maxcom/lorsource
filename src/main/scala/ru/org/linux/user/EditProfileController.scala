@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-201 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,8 +23,9 @@ import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, Re
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
+import ru.org.linux.site.{BadInputException, DefaultProfile, Template}
 import ru.org.linux.tracker.TrackerFilterEnum
+import ru.org.linux.util.Theme
 
 import scala.collection.JavaConverters._
 
@@ -69,6 +70,7 @@ class EditProfileController(
     @PathVariable nick: String
   ): ModelAndView = {
     val tmpl: Template = Template.getTemplate(request)
+    
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }
@@ -84,6 +86,7 @@ class EditProfileController(
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы")
     }
+    
     tmpl.getProf.setTopics(topics)
     tmpl.getProf.setMessages(messages)
     tmpl.getProf.setShowNewFirst("on" == request.getParameter("newfirst"))
