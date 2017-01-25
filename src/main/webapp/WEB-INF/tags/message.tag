@@ -198,11 +198,6 @@
                href="https://twitter.com/intent/tweet?text=<%= URLEncoder.encode(message.getTitle()) %>&amp;url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>&amp;hashtags=<%= URLEncoder.encode("лор") %>">
               <img src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
             </a>
-
-            <a target="_blank" style="text-decoration: none"
-               href="https://plus.google.com/share?url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-              <img src="/img/google-plus-icon.png" width=16 height=16 alt="Share on Google Plus" title="Share on Google Plus">
-            </a>
           </div>
           </c:if>
           <ul id="topicMenu">
