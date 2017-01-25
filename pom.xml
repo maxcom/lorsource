@@ -17,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.3.5.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.3.6.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4.1212</jdbc.postgresql.version>
     <elasticsearch.version>5.1.2</elasticsearch.version>
