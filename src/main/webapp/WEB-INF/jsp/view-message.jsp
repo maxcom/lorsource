@@ -45,7 +45,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </c:if>
 <c:if test="${not preparedMessage.section.imagepost}">
-  <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.png">
+  <meta property="og:image" content="${template.secureMainUrlNoSlash}/img/good-penguin.png">
   <meta name="twitter:card" content="summary">
 </c:if>
 <meta name="twitter:site" content="@wwwlinuxorgru">
@@ -53,7 +53,7 @@
   <meta property="og:description" content="${ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
+<meta property="og:url" content="${template.secureMainUrlNoSlash}${message.link}">
 
 <link rel="canonical" href="${template.secureMainUrlNoSlash}${message.getLinkPage(page)}">
 
