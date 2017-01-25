@@ -79,6 +79,10 @@ public final class Template {
     return siteConfig.getSecureUrl();
   }
 
+  public String getSecureMainUrlNoSlash() {
+    return siteConfig.getSecureUrl().replaceFirst("/$", "");
+  }
+
   public SiteConfig getConfig() {
     return siteConfig;
   }

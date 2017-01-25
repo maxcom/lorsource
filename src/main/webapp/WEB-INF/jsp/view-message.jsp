@@ -55,7 +55,7 @@
 
 <meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
 
-<link rel="canonical" href="${template.mainUrlNoSlash}${message.getLinkPage(page)}">
+<link rel="canonical" href="${template.secureMainUrlNoSlash}${message.getLinkPage(page)}">
 
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
