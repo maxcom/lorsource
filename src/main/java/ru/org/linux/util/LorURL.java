@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,11 +29,10 @@ import java.util.regex.Pattern;
 
 import static ru.org.linux.util.StringUtil.isUnsignedPositiveNumber;
 
-public class LorURL extends URI {
-  
+public class LorURL {
   private static final Pattern requestMessagePattern = Pattern.compile("^/[\\w-]+/[\\w-]+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
-  private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
+  private static final Pattern requestCommentPatternNew = Pattern.compile("cid=(\\d+)");
   private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");
   private static final Pattern requestOldJumpQueryPattern = Pattern.compile("^msgid=(\\d+)&amp;cid=(\\d+)");
   
@@ -42,64 +41,65 @@ public class LorURL extends URI {
   private int _topic_id = -1;
   private int _comment_id = -1;
 
-  public LorURL(URI mainURI, String url) throws URIException {
-    protocolCharset = "UTF-8";
-    char[] _https_scheme = "https".toCharArray();
-    char[] _http_scheme = "http".toCharArray();
-    int _main_port = -1;
-    char[] _main_host = null;
-    try {
-      parseUriReference(url, true);
-      if(_host == null) {
-        throw new URIException("no host");
-      }
+  private final URI parsed;
 
-      _main_host = mainURI.getRawHost();
-      _main_port = mainURI.getPort();
+  private static class Impl extends URI {
+    Impl(String url) throws URIException {
+      protocolCharset = "UTF-8";
 
-      _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
-          && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
+      try {
+        parseUriReference(url, true);
 
-      /**
-       * Пытаемся вычислить, что fragment таки не encode
-       */
-      if(_fragment != null) {
-        String fragmentStr = new String(_fragment);
-        String asciiFragment = fragmentStr.replaceAll("[^\\p{ASCII}]", "");
-        if(fragmentStr.length() != asciiFragment.length()) {
-          throw new URIException("error fragment?");
+        /*
+         * Пытаемся вычислить, что fragment таки не encode
+         */
+        if (_fragment != null) {
+          String fragmentStr = new String(_fragment);
+          String asciiFragment = fragmentStr.replaceAll("[^\\p{ASCII}]", "");
+
+          if (fragmentStr.length() != asciiFragment.length()) {
+            throw new URIException("error fragment?");
+          }
         }
+
+        getQuery(); // check if we can decode it
+      } catch (URIException ex) {
+        parseUriReference(url, false);
       }
 
-      findURLIds();
-    } catch (URIException ex) {
-      parseUriReference(url, false);
-      if(_host == null) {
+      if (_host == null) {
         throw new URIException("no host");
       }
-
-      _main_host = mainURI.getRawHost();
-      _main_port = mainURI.getPort();
-
-      _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
-          && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
-
-      findURLIds();
     }
   }
+
+  public LorURL(URI mainURI, String url) throws URIException {
+    parsed = new Impl(url);
+
+    char[] _main_host = mainURI.getRawHost();
+    int _main_port = mainURI.getPort();
+
+    char[] _https_scheme = "https".toCharArray();
+    char[] _http_scheme = "http".toCharArray();
+
+    _true_lor_url = Arrays.equals(_main_host, parsed.getRawHost()) && _main_port == parsed.getPort()
+        && (Arrays.equals(_http_scheme, parsed.getRawScheme()) || Arrays.equals(_https_scheme, parsed.getRawScheme()));
+
+    findURLIds();
+  }
   
-  protected void findURLIds() throws URIException {
+  private void findURLIds() throws URIException {
     if(_true_lor_url) {
       // find message id in lor url
-      String path = getPath();
-      String query = getQuery();
-      String fragment = getFragment();
+      String path = parsed.getPath();
+      String query = parsed.getQuery();
+      String fragment = parsed.getFragment();
       
-      if(path != null && query != null) {
+      if (path != null && query != null) {
         Matcher oldJumpPathMatcher = requestOldJumpPathPattern.matcher(path);
         Matcher oldJumpQueryMatcher = requestOldJumpQueryPattern.matcher(query);
-        if(oldJumpPathMatcher.find() && oldJumpQueryMatcher.find()) {
-          if(isUnsignedPositiveNumber(oldJumpQueryMatcher.group(1)) && 
+        if (oldJumpPathMatcher.find() && oldJumpQueryMatcher.find()) {
+          if (isUnsignedPositiveNumber(oldJumpQueryMatcher.group(1)) &&
               isUnsignedPositiveNumber(oldJumpQueryMatcher.group(2))) {
             _topic_id = Integer.parseInt(oldJumpQueryMatcher.group(1));
             _comment_id = Integer.parseInt(oldJumpQueryMatcher.group(2)); 
@@ -136,7 +136,7 @@ public class LorURL extends URI {
       }
 
       if (query != null && _topic_id != -1) {
-        Matcher commentMatcher = requestConmmentPatternNew.matcher(query);
+        Matcher commentMatcher = requestCommentPatternNew.matcher(query);
         if (commentMatcher.find()) {
           if(isUnsignedPositiveNumber(commentMatcher.group(1))) {
             _comment_id = Integer.parseInt(commentMatcher.group(1));
@@ -152,7 +152,7 @@ public class LorURL extends URI {
    */
   @Override
   public String toString() {
-    return getEscapedURIReference();
+    return parsed.getEscapedURIReference();
   }
 
   /**
@@ -210,21 +210,21 @@ public class LorURL extends URI {
   }
 
   public String formatUrlBody(int maxLength) throws URIException {
-    String all = getURIReference();
+    String all = parsed.getURIReference();
     // Костыль для однобайтовых неудачников
-    if(isContainReplacementCharset(all)) {
-      all = getEscapedURIReference();
+    if (isContainReplacementCharset(all)) {
+      all = parsed.getEscapedURIReference();
     }
-    String scheme = getScheme();
+    String scheme = parsed.getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
     int trueMaxLength = maxLength - 3; // '...'
     if(_true_lor_url) {
       if(uriWithoutScheme.length() < maxLength + 1) {
         return uriWithoutScheme;
       } else {
-        String hostPort = getHost();
-        if(getPort() != -1) {
-          hostPort += ":" + getPort();
+        String hostPort = parsed.getHost();
+        if(parsed.getPort() != -1) {
+          hostPort += ":" + parsed.getPort();
         }
         if(hostPort.length() > maxLength) {
           return hostPort+"/...";
@@ -252,11 +252,11 @@ public class LorURL extends URI {
     if(!_true_lor_url) {
       return toString();
     }
-    String host = getHost();
-    int port = getPort();
-    String path = getPath();
-    String query = getQuery();
-    String fragment = getFragment();
+    String host = parsed.getHost();
+    int port = parsed.getPort();
+    String path = parsed.getPath();
+    String query = parsed.getQuery();
+    String fragment = parsed.getFragment();
     if(!secure) {
       return (new HttpURL(null, host, port, path, query, fragment)).getEscapedURIReference();
     } else {
@@ -284,8 +284,8 @@ public class LorURL extends URI {
       } else {
         scheme = "http";
       }
-      String host = getHost();
-      int port = getPort();
+      String host = parsed.getHost();
+      int port = parsed.getPort();
       String path = group.getUrl() + _topic_id;
       String query = "";
       if(_comment_id != -1) {
@@ -294,7 +294,7 @@ public class LorURL extends URI {
       URI jumpUri = new URI(scheme, null , host, port, path, query);
       return jumpUri.getEscapedURI();
     }
+    
     return "";
   }
-
 }
