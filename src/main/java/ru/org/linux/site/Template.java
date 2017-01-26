@@ -64,15 +64,7 @@ public final class Template {
   public Profile getProf() {
     return userProfile;
   }
-
-  public String getMainUrl() {
-    return siteConfig.getMainUrl();
-  }
-
-  public String getMainUrlNoSlash() {
-    return siteConfig.getMainUrlWithoutSlash();
-  }
-
+  
   public String getWSUrl() { return siteConfig.getWSUrl(); }
 
   public String getSecureMainUrl() {
