@@ -23,7 +23,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
 <channel>
-<link>${template.secureMainUrlNoSlash}${message.link}</link>
+<link>${template.mainUrlNoSlash}${message.link}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${l:escapeHtml(message.title)}</title>
   <lor:message-rss preparedMessage="${preparedMessage}"/>
@@ -38,8 +38,8 @@
         </c:if>
       </title>
       <author>${comment.author.nick}</author>
-      <link>${template.secureMainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
-      <guid>${template.secureMainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
+      <link>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
+      <guid>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
       <description ><![CDATA[${comment.processedMessage}]]>
       </description>

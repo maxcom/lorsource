@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,7 +20,13 @@
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 <meta name="referrer" content="always">
 
-<base href="${fn:escapeXml(template.secureMainUrl)}">
+<c:if test="${pageContext.request.secure}">
+  <base href="${fn:escapeXml(template.secureMainUrl)}">
+</c:if>
+
+<c:if test="${not pageContext.request.secure}">
+  <base href="${fn:escapeXml(template.mainUrl)}">
+</c:if>
 
 <c:if test="${template != null}">
   <jsp:include page="${template.theme.head}"/>
