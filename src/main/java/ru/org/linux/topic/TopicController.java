@@ -48,7 +48,6 @@ import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
-import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 import scala.concurrent.Future;
@@ -430,8 +429,7 @@ public class TopicController {
     List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered, request.isSecure());
 
     params.put("commentsPrepared", commentsPrepared);
-    LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
-    params.put("mainURL", lorURL.fixScheme(request.isSecure()));
+    params.put("mainURL", siteConfig.getSecureUrl());
 
     return new ModelAndView("view-message-rss", params);
   }
