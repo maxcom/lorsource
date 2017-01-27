@@ -269,7 +269,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val fromDate = DateTime.now.minusMonths(3)
     val messages = topicListService.getRssTopicsFeed(section, group.orNull, fromDate.toDate, notalks, tech)
 
-    modelAndView.addObject("messages", prepareService.prepareMessages(messages, request.isSecure))
+    modelAndView.addObject("messages", prepareService.prepareMessages(messages))
 
     modelAndView
   }
@@ -286,7 +286,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView
   }
 
-  private def checkRequestConditions(section: Section, group: Option[Group], topicListForm: TopicListRequest):Unit = {
+  private def checkRequestConditions(section: Section, group: Option[Group], topicListForm: TopicListRequest): Unit = {
     if (topicListForm.getMonth != null && topicListForm.getYear == null) {
       throw new ServletParameterMissingException("year")
     }

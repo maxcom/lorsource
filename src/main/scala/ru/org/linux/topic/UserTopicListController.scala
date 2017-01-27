@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import java.util.List
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.springframework.http.HttpStatus
@@ -179,10 +178,10 @@ class UserTopicListController
     request: HttpServletRequest,
     modelAndView: ModelAndView,
     rss: Boolean,
-    messages: List[Topic]
-  ):Unit = {
+    messages: java.util.List[Topic]
+  ): Unit = {
     if (rss) {
-      modelAndView.addObject("messages", prepareService.prepareMessages(messages, request.isSecure))
+      modelAndView.addObject("messages", prepareService.prepareMessages(messages))
       modelAndView.setViewName("section-rss")
     } else {
       val tmpl = Template.getTemplate(request)

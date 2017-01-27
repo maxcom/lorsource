@@ -326,7 +326,7 @@ public class TopicPrepareService {
    * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PreparedTopic> prepareMessages(List<Topic> messages, boolean secure) {
+  public List<PreparedTopic> prepareMessages(List<Topic> messages) {
     List<PreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
@@ -338,7 +338,7 @@ public class TopicPrepareService {
               tags.get(message.getId()),
               true,
               null,
-              secure,
+              true,
               null,
               textMap.get(message.getId()),
               null
