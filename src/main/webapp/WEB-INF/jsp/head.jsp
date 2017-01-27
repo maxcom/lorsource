@@ -23,14 +23,10 @@
 <!DOCTYPE html>
 <html lang=ru>
 <head>
-<c:if test="${template.style=='tango'}">
-  <c:if test="${not pageContext.request.secure}">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  <c:if test="${template.style=='tango'}">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet'
+        type='text/css'>
   </c:if>
-  <c:if test="${pageContext.request.secure}">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-</c:if>
 
 <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 
