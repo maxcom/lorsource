@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,11 +19,9 @@ import org.apache.commons.httpclient.URI;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserService;
-import ru.org.linux.util.LorURL;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -35,13 +33,7 @@ import static ru.org.linux.util.bbcode.Parser.DEFAULT_PARSER;
 @Service
 public class LorCodeService {
   private UserService userService;
-  private SiteConfig siteConfig;
   private ToHtmlFormatter toHtmlFormatter;
-
-  @Autowired
-  public void setSiteConfig(SiteConfig siteConfig) {
-    this.siteConfig = siteConfig;
-  }
 
   @Autowired
   public void setUserService(UserService userService) {
@@ -66,7 +58,7 @@ public class LorCodeService {
     return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
   }
 
-  String parseCommentRSS(String text, boolean secure) {
+  private String parseCommentRSS(String text, boolean secure) {
     return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
   }
 
@@ -171,13 +163,8 @@ public class LorCodeService {
     RootNode rootNode = DEFAULT_PARSER.createRootNode();
     if(minimizeCut) {
       try {
-        LorURL lorCutURL = new LorURL(siteConfig.getMainURI(), cutURL);
-        if(lorCutURL.isTrueLorUrl()) {
-          URI fixURI = new URI(lorCutURL.fixScheme(secure), true, "UTF-8");
-          rootNode.setMinimizedTopicCutOptions(fixURI);
-        } else {
-          rootNode.setMaximizedTopicCutOptions();
-        }
+        URI fixURI = new URI(cutURL, true, "UTF-8");
+        rootNode.setMinimizedTopicCutOptions(fixURI);
       } catch (Exception e) {
         rootNode.setMaximizedTopicCutOptions();
       }

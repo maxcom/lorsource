@@ -208,12 +208,12 @@ public class TopicPrepareService {
 
       if (text.isLorcode()) {
         if (minimizeCut) {
-          String url = siteConfig.getMainUrlWithoutSlash() + message.getLink();
+          String url = siteConfig.getSecureUrlWithoutSlash() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
                   text.getText(),
                   url,
                   secure,
-                  ! topicPermissionService.followInTopic(message, author)
+                  !topicPermissionService.followInTopic(message, author)
           );
         } else {
           processedMessage = lorCodeService.parseTopic(text.getText(), secure, !topicPermissionService.followInTopic(message, author));
