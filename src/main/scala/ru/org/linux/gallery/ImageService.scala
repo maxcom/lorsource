@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,8 +28,8 @@ import ru.org.linux.edithistory.{EditHistoryDto, EditHistoryObjectTypeEnum, Edit
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserDao}
+import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
-import ru.org.linux.util.{BadImageException, LorURL}
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -37,7 +37,7 @@ import scala.util.control.NonFatal
 @Service
 class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
                    topicDao: TopicDao, userDao: UserDao, siteConfig: SiteConfig,
-                   val transactionManager:PlatformTransactionManager)
+                   val transactionManager: PlatformTransactionManager)
   extends StrictLogging with TransactionManagement {
 
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
@@ -57,7 +57,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     }
   }
 
-  private def prepareException(image:Image):PartialFunction[Throwable, None.type] = {
+  private def prepareException(image: Image):PartialFunction[Throwable, None.type] = {
     case e: FileNotFoundException ⇒
       logger.error(s"Image not found! id=${image.getId}: ${e.getMessage}")
       None
@@ -70,7 +70,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     PreparedGalleryItem(item, userDao.getUserCached(item.getUserid))
   }
 
-  def prepareImage(image: Image, secure: Boolean): Option[PreparedImage] = {
+  def prepareImage(image: Image): Option[PreparedImage] = {
     Preconditions.checkNotNull(image)
 
     val htmlPath = siteConfig.getUploadPath
@@ -84,14 +84,14 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     try {
       val mediumImageInfo = new ImageInfo(htmlPath + mediumName)
       val fullInfo = new ImageInfo(htmlPath + image.getOriginal)
-      val medURI = new LorURL(siteConfig.getMainURI, siteConfig.getMainUrl + mediumName)
-      val fullURI = new LorURL(siteConfig.getMainURI, siteConfig.getMainUrl + image.getOriginal)
+      val medURI = siteConfig.getSecureUrl + mediumName
+      val fullURI = siteConfig.getSecureUrl + image.getOriginal
       val existsMedium2x = Files.exists(new File(htmlPath, image.getMedium2x).toPath)
 
       Some(new PreparedImage(
-        medURI.fixScheme(secure),
+        medURI,
         mediumImageInfo,
-        fullURI.fixScheme(secure),
+        fullURI,
         fullInfo,
         image,
         existsMedium2x))
