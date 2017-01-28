@@ -42,7 +42,7 @@ import scala.concurrent.duration._
 object TagPageController {
   val TotalNewsCount = 21
   val ForumTopicCount = 20
-  val GalleryCount = 3
+  val GalleryCount = 6
 
   val Timeout = 500 millis
 }

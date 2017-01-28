@@ -126,7 +126,7 @@
 
   <div class="tag-page-buttons">
     <div>
-        <a href="${addNews}" class="btn btn-primary">Добавить</a>
+        <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
         <c:if test="${not empty moreNews}">
           <a href="${moreNews}" class="btn btn-default">Все новости</a>
         </c:if>
@@ -163,7 +163,7 @@
     <div class="tag-page-buttons">
       <div>
         <c:if test="${not empty pollsAdd}">
-          <a href="${pollsAdd}" class="btn btn-primary">Добавить</a>
+          <a href="${pollsAdd}" class="btn btn-primary">Добавить опрос</a>
         </c:if>
         <c:if test="${not empty pollsMore}">
           <a href="${pollsMore}" class="btn btn-default">Все темы</a>
@@ -189,7 +189,8 @@
                   alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a><br>
         <a href="${url}"><l:title>${item.item.title}</l:title></a><br>
-        ${item.user.nick}, <lor:dateinterval date="${item.item.commitDate}"/>
+        ${item.user.nick}, <lor:dateinterval date="${item.item.commitDate}"/><br>
+        (<lor:comment-count count="${item.item.stat}"/>)
       </article>
     </c:forEach>
   </div>
@@ -197,7 +198,7 @@
   <div class="tag-page-buttons">
     <div>
       <c:if test="${not empty addGallery}">
-        <a href="${addGallery}" class="btn btn-primary">Добавить</a>
+        <a href="${addGallery}" class="btn btn-primary">Добавить изображение</a>
       </c:if>
       <c:if test="${not empty moreGallery}">
         <a href="${moreGallery}" class="btn btn-default">Все изображения</a>
@@ -235,7 +236,7 @@
     <div class="tag-page-buttons">
       <div>
         <c:if test="${not empty forumAdd}">
-          <a href="${forumAdd}" class="btn btn-primary">Добавить</a>
+          <a href="${forumAdd}" class="btn btn-primary">Добавить тему</a>
         </c:if>
         <c:if test="${not empty forumMore}">
           <a href="${forumMore}" class="btn btn-default">Все темы</a>
