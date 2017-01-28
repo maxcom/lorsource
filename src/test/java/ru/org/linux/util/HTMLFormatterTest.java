@@ -38,16 +38,16 @@ import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
-  private static final String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
+  private static final String RESULT1 = "Here is <a href=\"https://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT2 = "Here is http://linux.org.ru, have fun! :-)";
   private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
-  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/...</a>";
+  private static final String RESULT3 = "Long url: <a href=\"https://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/...</a>";
 
   private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
-  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/...</a>";
+  private static final String RESULT8 = "Long url: <a href=\"https://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/...</a>";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -109,6 +109,7 @@ public class HTMLFormatterTest {
   public void init() throws Exception {
 
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
+    URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao messageDao = mock(TopicDao.class);
     Topic message1 = mock(Topic.class);
@@ -158,6 +159,7 @@ public class HTMLFormatterTest {
     SiteConfig siteConfig = mock(SiteConfig.class);
 
     when(siteConfig.getMainURI()).thenReturn(mainURI);
+    when(siteConfig.getSecureURI()).thenReturn(secureURI);
 
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
@@ -586,7 +588,7 @@ public class HTMLFormatterTest {
   @Test
   public void encodeLorUrl() {
     assertEquals(
-            "<p><a href=\"http://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>",
+            "<p><a href=\"https://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>",
             lorCodeService.parseComment("www.linux.org.ru/forum/linux%3C%3E-org-ru/", false, false));
   }
 }

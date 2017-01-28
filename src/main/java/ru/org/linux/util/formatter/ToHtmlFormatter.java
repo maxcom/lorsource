@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -188,7 +188,7 @@ public class ToHtmlFormatter {
     if(url.isMessageUrl()) {
       processMessageUrl(secure, out, url, linktext);
     } else if(url.isTrueLorUrl()) {
-      processGenericLorUrl(secure, out, url, linktext);
+      processGenericLorUrl(out, url, linktext);
     } else {
       // ссылка не из lorsource
       String fixedUrlHref = url.toString();
@@ -211,13 +211,12 @@ public class ToHtmlFormatter {
   }
 
   private void processGenericLorUrl(
-          boolean secure,
           @Nonnull StringBuilder out,
           @Nonnull LorURL url,
           @Nullable String linktext
   ) throws URIException {
     // ссылка внутри lorsource исправляем scheme
-    String fixedUrlHref = url.fixScheme(secure);
+    String fixedUrlHref = url.canonize(siteConfig.getSecureURI());
     String fixedUrlBody = linktext!=null?simpleFormat(linktext):StringUtil.escapeHtml(url.formatUrlBody(maxLength));
     out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
   }

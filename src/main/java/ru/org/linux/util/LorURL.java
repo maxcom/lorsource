@@ -244,20 +244,22 @@ public class LorURL {
   /**
    * Исправляет scheme url http или https в зависимости от флага secure
    * предполагалось только для lor ссылок, но будет работать с любыми, только зачем?
-   * @param secure true если https
+   * @param canonical канонический URL сайта
    * @return исправленный url
    * @throws URIException неправильный url
    */
-  public String fixScheme(boolean secure) throws URIException {
+  public String canonize(URI canonical) throws URIException {
     if(!_true_lor_url) {
       return toString();
     }
-    String host = parsed.getHost();
-    int port = parsed.getPort();
+    
+    String host = canonical.getHost();
+    int port = canonical.getPort();
     String path = parsed.getPath();
     String query = parsed.getQuery();
     String fragment = parsed.getFragment();
-    if(!secure) {
+
+    if (canonical.getScheme().equals("http")) {
       return (new HttpURL(null, host, port, path, query, fragment)).getEscapedURIReference();
     } else {
       return (new HttpsURL(null, host, port, path, query, fragment)).getEscapedURIReference();
