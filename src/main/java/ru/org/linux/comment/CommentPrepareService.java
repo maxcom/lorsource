@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -83,7 +83,7 @@ public class CommentPrepareService {
           Template tmpl,
           Topic topic
   ) throws UserNotFoundException {
-    String processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
+    String processedMessage = prepareCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
     boolean deletable = false;
@@ -225,7 +225,7 @@ public class CommentPrepareService {
    */
   public PreparedComment prepareCommentForEdit(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = lorCodeService.parseComment(message, secure, false);
+    String processedMessage = lorCodeService.parseComment(message, false);
 
     ApiUserRef ref = userService.ref(author, null);
 
@@ -258,7 +258,7 @@ public class CommentPrepareService {
   }
 
   private Map<Integer, User> loadUsers(Iterable<Integer> userIds) {
-    ImmutableMap.Builder<Integer, User> builder = ImmutableMap.<Integer, User>builder();
+    ImmutableMap.Builder<Integer, User> builder = ImmutableMap.builder();
 
     for (User user : userService.getUsersCached(ImmutableSet.copyOf(userIds))) {
       builder.put(user.getId(), user);
@@ -315,12 +315,11 @@ public class CommentPrepareService {
    * Получить html представление текста комментария
    *
    * @param messageText текст комментария
-   * @param secure https соединение?
    * @return строку html комментария
    */
-  private String prepareCommentText(MessageText messageText, final boolean secure, boolean nofollow) {
+  private String prepareCommentText(MessageText messageText, boolean nofollow) {
     if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.getText(), secure, nofollow);
+      return lorCodeService.parseComment(messageText.getText(), nofollow);
     } else {
       return "<p>" + messageText.getText() + "</p>";
     }
@@ -334,6 +333,6 @@ public class CommentPrepareService {
    * @return строку html комментария
    */
   private String prepareCommentTextRSS(MessageText messageText, final boolean secure) {
-    return lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());
+    return lorCodeService.prepareTextRSS(messageText.getText(), messageText.isLorcode());
   }
 }

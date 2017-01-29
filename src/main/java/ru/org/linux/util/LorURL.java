@@ -269,25 +269,21 @@ public class LorURL {
   /**
    * Создает url для редиректа на текущее сообщение\комментарий
    * @param messageDao доступ к базе сообщений
-   * @param secure https ли текуший клиент
+   * @param canonical канонический URL сайта
    * @return url для редиректа или пустая строка
    * @throws MessageNotFoundException если нет сообещния
    * @throws URIException если url неправильный
    */
-  public String formatJump(TopicDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
+  public String formatJump(TopicDao messageDao, URI canonical) throws MessageNotFoundException, URIException {
     if(_topic_id != -1) {
       Topic message = messageDao.getById(_topic_id);
 
       Group group = messageDao.getGroup(message);
 
-      String scheme;
-      if(secure) {
-        scheme = "https";
-      } else {
-        scheme = "http";
-      }
-      String host = parsed.getHost();
-      int port = parsed.getPort();
+      String scheme = canonical.getScheme();
+
+      String host = canonical.getHost();
+      int port = canonical.getPort();
       String path = group.getUrl() + _topic_id;
       String query = "";
       if(_comment_id != -1) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -127,7 +127,7 @@ public class UserEventController {
 
     response.addHeader("Cache-Control", "no-cache");
     List<UserEvent> list = userEventService.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
-    List<PreparedUserEvent> prepared = prepareService.prepare(list, false, request.isSecure());
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, false);
 
     if (!list.isEmpty()) {
       params.put("enableReset", true);
@@ -208,7 +208,7 @@ public class UserEventController {
     }
 
     List<UserEvent> list = userEventService.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
-    List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested, request.isSecure());
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested);
 
     params.put("isMyNotifications", false);
     params.put("topicsList", prepared);

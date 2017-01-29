@@ -212,11 +212,10 @@ public class TopicPrepareService {
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
                   text.getText(),
                   url,
-                  secure,
                   !topicPermissionService.followInTopic(message, author)
           );
         } else {
-          processedMessage = lorCodeService.parseTopic(text.getText(), secure, !topicPermissionService.followInTopic(message, author));
+          processedMessage = lorCodeService.parseTopic(text.getText(), !topicPermissionService.followInTopic(message, author));
         }
       } else {
         processedMessage = "<p>" + text.getText();

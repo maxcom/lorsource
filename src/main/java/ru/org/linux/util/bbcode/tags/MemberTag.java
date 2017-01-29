@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -79,7 +79,6 @@ public class MemberTag extends Tag {
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
-    boolean secure = rootNode.isSecure();
     UserService userService = rootNode.getUserService();
     String result;
     try {
@@ -87,11 +86,11 @@ public class MemberTag extends Tag {
         User user = userService.getUserCached(memberName);
         if (!user.isBlocked()) {
           result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
-              toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
+              toHtmlFormatter.memberURL(user), Parser.escape(memberName));
           rootNode.addReplier(user);
         } else {
           result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
-              toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
+              toHtmlFormatter.memberURL(user), Parser.escape(memberName));
         }
       } else {
         result = Parser.escape(memberName);

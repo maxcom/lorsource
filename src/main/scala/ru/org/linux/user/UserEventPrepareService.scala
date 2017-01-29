@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,9 +37,8 @@ class UserEventPrepareService(
   /**
    * @param events      список событий
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
-   * @param secure      является ли текущие соединение https
    */
-  def prepare(events:java.util.List[UserEvent], readMessage:Boolean, secure:Boolean):java.util.List[PreparedUserEvent] = {
+  def prepare(events: java.util.List[UserEvent], readMessage: Boolean): java.util.List[PreparedUserEvent] = {
     val evts = events.asScala
 
     val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0).distinct
@@ -56,7 +55,7 @@ class UserEventPrepareService(
       val text = if (readMessage) {
         val messageText = msgbaseDao.getMessageText(msgid)
 
-        Some(lorCodeService.prepareTextRSS(messageText.getText, secure, messageText.isLorcode))
+        Some(lorCodeService.prepareTextRSS(messageText.getText, messageText.isLorcode))
       } else {
         None
       }

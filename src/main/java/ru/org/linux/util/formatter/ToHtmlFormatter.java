@@ -88,15 +88,14 @@ public class ToHtmlFormatter {
    * Форматирует текст
    *
    * @param text текст
-   * @param secure флаг https
    * @param nofollow
    * @return отфарматированный текст
    */
-  public String format(String text, boolean secure, boolean nofollow) {
-    return format(text, secure, nofollow, null);
+  public String format(String text, boolean nofollow) {
+    return format(text, nofollow, null);
   }
 
-  public String format(String text, boolean secure, boolean nofollow, RuTypoChanger changer) {
+  public String format(String text, boolean nofollow, RuTypoChanger changer) {
     String escapedText = StringUtil.escapeHtml(text);
 
     StringTokenizer st = new StringTokenizer(escapedText, " \n", true);
@@ -104,7 +103,7 @@ public class ToHtmlFormatter {
 
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
-      String formattedToken = formatURL(token, secure, nofollow, changer);
+      String formattedToken = formatURL(token, nofollow, changer);
       sb.append(formattedToken);
     }
 
@@ -121,22 +120,16 @@ public class ToHtmlFormatter {
   }
 
   private String formatWithMagic(String text, RuTypoChanger changer) {
-    String text2 = changer!=null ? changer.format(text) : text;
-    return text2;
+    return changer!=null ? changer.format(text) : text;
   }
 
-  public String memberURL(User user, boolean secure) throws URIException {
-    URI mainUri = siteConfig.getMainURI();
-    String scheme;
-    if(secure) {
-      scheme = "https";
-    } else {
-      scheme = "http";
-    }
-    return (new URI(scheme, null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
+  public String memberURL(User user) throws URIException {
+    URI mainUri = siteConfig.getSecureURI();
+
+    return (new URI(mainUri.getScheme(), null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
   }
 
-  private String formatURL(String line, boolean secure, boolean nofollow, RuTypoChanger changer) {
+  private String formatURL(String line, boolean nofollow, RuTypoChanger changer) {
     StringBuilder out = new StringBuilder();
     Matcher m = URL_PATTERN.matcher(line);
     int index = 0;
@@ -159,7 +152,7 @@ public class ToHtmlFormatter {
       }
 
       try {
-        processUrl(secure, nofollow, out, urlHref, null);
+        processUrl(nofollow, out, urlHref, null);
       } catch (URIException e) {
         // e.printStackTrace();
         // ссылка не ссылка
@@ -177,7 +170,6 @@ public class ToHtmlFormatter {
   }
 
   public void processUrl(
-          boolean secure,
           boolean nofollow,
           @Nonnull StringBuilder out,
           @Nonnull String urlHref,
@@ -186,7 +178,7 @@ public class ToHtmlFormatter {
     LorURL url = new LorURL(siteConfig.getMainURI(), urlHref);
 
     if(url.isMessageUrl()) {
-      processMessageUrl(secure, out, url, linktext);
+      processMessageUrl(out, url, linktext);
     } else if(url.isTrueLorUrl()) {
       processGenericLorUrl(out, url, linktext);
     } else {
@@ -224,13 +216,11 @@ public class ToHtmlFormatter {
   /**
    * Ссылка на топик или комментарий
    *
-   * @param secure признак того какой надо url: https или http
    * @param out сюда будет записана ссылка
    * @param url исходный url
    * @throws URIException если uri не корректный
    */
   private void processMessageUrl(
-          boolean secure,
           @Nonnull StringBuilder out,
           @Nonnull LorURL url,
           @Nullable String linkText
@@ -248,7 +238,7 @@ public class ToHtmlFormatter {
 
       String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
-      String newUrlHref = url.formatJump(messageDao, secure);
+      String newUrlHref = url.formatJump(messageDao, siteConfig.getSecureURI());
       String fixedUrlBody = url.formatUrlBody(maxLength);
 
       if (deleted) {

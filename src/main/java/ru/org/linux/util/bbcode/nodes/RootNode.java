@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -74,7 +74,6 @@ public class RootNode extends Node {
   private UserService userService;
   private ToHtmlFormatter toHtmlFormatter;
   private final Set<User> replier;
-  private boolean secure;
   private boolean rss;
   private boolean nofollow = false;
 
@@ -83,7 +82,6 @@ public class RootNode extends Node {
     cutCount = -1;
     cutType = CutType.INCOMMENT;
     replier = new HashSet<>();
-    secure = false;
   }
 
   public URI getCutURI() {
@@ -104,15 +102,6 @@ public class RootNode extends Node {
 
   public void setUserService(UserService userService) {
     this.userService = userService;
-  }
-
-
-  public boolean isSecure() {
-    return secure;
-  }
-
-  public void setSecure(boolean secure) {
-    this.secure = secure;
   }
 
   public boolean isRss() {
