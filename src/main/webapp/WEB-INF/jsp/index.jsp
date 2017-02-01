@@ -63,8 +63,8 @@
       var ads = [
         {
           type: 'img',
-          src: '/adv/selectel/728x90_vpc2.png',
-          href: 'https://selectel.ru/services/vpc/?utm_campaign=ru_ru_vpc&utm_medium=display&utm_source=linux.org.ru&utm_content=banner&utm_term=vpc_blue_scalability_stability'
+          src: '/adv/pgconf2017_728x90.png',
+          href: 'https://pgconf.ru/'
         }
       ];
 
