@@ -23,7 +23,7 @@
     http://tuckey.org/urlrewrite/
 
 -->
-<urlrewrite>
+<urlrewrite use-query-string="true">
   <rule>
     <from>^/index.jsp$</from>
     <to type="redirect">/</to>
