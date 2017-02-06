@@ -48,7 +48,7 @@ function startRealtimeWS(topic, link, cid, wsUrl) {
         ws.onclose = function(){
           if (!canceled) {
             setTimeout(function () {
-              startRealtimeWS(topic, link, cid)
+              startRealtimeWS(topic, link, cid, wsUrl)
             }, 5000);
           }
         };
