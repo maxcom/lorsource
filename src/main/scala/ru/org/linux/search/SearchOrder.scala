@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package ru.org.linux.search
 import java.util
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.searches.sort.SortDefinition
+import com.sksamuel.elastic4s.searches.sort.{ScoreSortDefinition, SortDefinition}
 import org.elasticsearch.search.sort.SortOrder
 
 import scala.collection.JavaConverters._
@@ -27,7 +27,7 @@ sealed trait SearchOrder {
   def name: String
   def id: String
 
-  def order: SortDefinition[_]
+  def order: SortDefinition
 }
 
 object SearchOrder {
@@ -35,7 +35,7 @@ object SearchOrder {
     override val name = "по релевантности"
     override val id = "RELEVANCE"
 
-    override def order = scoreSort()
+    override def order = ScoreSortDefinition(SortOrder.DESC)
   }
 
   case object Date extends SearchOrder {

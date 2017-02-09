@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,8 +16,8 @@ package ru.org.linux.search
 
 import java.nio.file.Files
 
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.TcpClient
 import com.sksamuel.elastic4s.embedded.LocalNode
 import net.tanesha.recaptcha.ReCaptcha
 import org.mockito.Mockito
@@ -37,7 +37,7 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   var indexService: ElasticsearchIndexService = _
 
   @Autowired
-  var elastic: ElasticClient = _
+  var elastic: TcpClient = _
 
   "ElasticsearchIndexService" should {
     "create index" in {
@@ -72,7 +72,7 @@ class SearchIntegrationTestConfiguration {
   def elasticNode: LocalNodeProvider = new LocalNodeProvider()
 
   @Bean
-  def elasticClient(node: LocalNodeProvider): ElasticClient = {
+  def elasticClient(node: LocalNodeProvider): TcpClient = {
     node.node.elastic4sclient(shutdownNodeOnClose = false)
   }
 

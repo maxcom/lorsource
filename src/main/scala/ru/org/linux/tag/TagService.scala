@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,10 +18,9 @@ package ru.org.linux.tag
 import java.util
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.TcpClient
 import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
-import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
@@ -34,7 +33,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Service
-class TagService(tagDao: TagDao, elastic: ElasticClient) {
+class TagService(tagDao: TagDao, elastic: TcpClient) {
   import ru.org.linux.tag.TagService._
 
   /**
@@ -67,7 +66,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     Future.successful(elastic) flatMap {
       _ execute {
         search(MessageIndexTypes) size 0 query
-          new BoolQueryDefinition().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
+          boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
       }
     } map {
       _.totalHits
@@ -84,8 +83,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
 
     _ execute {
       search(MessageIndexTypes) size 0 query
-        new BoolQueryDefinition()
-          .filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
+        boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
     }
   } map { r ⇒
     (for {

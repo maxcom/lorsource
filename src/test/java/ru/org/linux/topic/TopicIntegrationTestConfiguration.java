@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.topic;
 
-import com.sksamuel.elastic4s.ElasticClient;
-import com.sksamuel.elastic4s.ElasticClient$;
+import com.sksamuel.elastic4s.TcpClient;
+import com.sksamuel.elastic4s.TcpClient$;
 import net.tanesha.recaptcha.ReCaptcha;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
@@ -87,12 +87,12 @@ public class TopicIntegrationTestConfiguration {
   }
 
   @Bean
-  public ElasticClient elasticsearch() {
+  public TcpClient elasticsearch() {
     Client mockClient = mock(Client.class);
 
     Mockito.when(mockClient.prepareSearch(Matchers.anyString())).thenThrow(new ElasticsearchException("no ES here"));
 
-    return ElasticClient$.MODULE$.fromClient(mockClient);
+    return TcpClient$.MODULE$.fromClient(mockClient);
   }
 
   @Bean

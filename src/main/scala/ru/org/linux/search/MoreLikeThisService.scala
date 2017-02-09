@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,10 +20,9 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.{DocumentRef, ElasticClient}
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.searches.RichSearchHit
-import com.sksamuel.elastic4s.searches.queries.MoreLikeThisItem
+import com.sksamuel.elastic4s.{DocumentRef, TcpClient}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
@@ -46,9 +45,9 @@ import scala.concurrent.{Await, Future, TimeoutException}
 
 @Service
 class MoreLikeThisService(
-  elastic:ElasticClient,
-  sectionService:SectionService,
-  scheduler:Scheduler
+  elastic: TcpClient,
+  sectionService: SectionService,
+  scheduler: Scheduler
 ) extends StrictLogging {
   import ru.org.linux.search.MoreLikeThisService._
 

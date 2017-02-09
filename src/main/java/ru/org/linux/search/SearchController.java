@@ -19,7 +19,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import com.sksamuel.elastic4s.ElasticClient;
+import com.sksamuel.elastic4s.TcpClient;
 import com.sksamuel.elastic4s.searches.RichSearchResponse;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -64,7 +64,7 @@ public class SearchController {
   private GroupDao groupDao;
 
   @Autowired
-  private ElasticClient client;
+  private TcpClient client;
 
   @Autowired
   private SearchResultsService resultsService;

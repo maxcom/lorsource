@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import java.sql.Timestamp
 import java.util.Date
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.TcpClient
 import com.sksamuel.elastic4s.searches.RichSearchResponse
 import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import com.typesafe.scalalogging.StrictLogging
@@ -44,7 +44,7 @@ class UserStatisticsService(
   userDao: UserDao,
   ignoreListDao: IgnoreListDao,
   sectionService: SectionService,
-  elastic: ElasticClient
+  elastic: TcpClient
 ) extends StrictLogging {
   def getStats(user:User): UserStats = {
     val commentCountFuture = countComments(user)
@@ -97,7 +97,7 @@ class UserStatisticsService(
   private def countComments(user: User): Future[Long] = {
     try {
       elastic execute {
-        val root = new BoolQueryDefinition() filter (
+        val root = boolQuery() filter (
               termQuery("author", user.getNick),
               termQuery("is_comment", true))
 

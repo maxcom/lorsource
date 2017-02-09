@@ -18,7 +18,7 @@ package ru.org.linux.search
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
 import com.sksamuel.elastic4s.indexes.IndexDefinition
-import com.sksamuel.elastic4s.{ElasticClient, IndexAndType, IndexAndTypes, IndexesAndTypes}
+import com.sksamuel.elastic4s.{bulk ⇒ _, delete ⇒ _, _}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
@@ -55,7 +55,7 @@ class ElasticsearchIndexService
   msgbaseDao: MsgbaseDao,
   topicDao: TopicDao,
   commentService: CommentService,
-  elastic: ElasticClient
+  elastic: TcpClient
 ) extends StrictLogging {
   import ElasticsearchIndexService._
 

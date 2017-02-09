@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,16 +15,17 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.{termsAggregation, _}
+import com.sksamuel.elastic4s.TcpClient
+import com.sksamuel.elastic4s.searches.RichSearchResponse
+import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.queries.funcscorer.FilterFunctionDefinition
-import com.sksamuel.elastic4s.searches.{QueryDefinition, RichSearchResponse}
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
+class SearchViewer(query: SearchRequest, elastic: TcpClient) {
   import ru.org.linux.search.SearchViewer._
 
   private def processQueryString(queryText: String) = {
