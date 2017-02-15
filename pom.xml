@@ -20,7 +20,7 @@
     <dependency.spring.version>4.3.6.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
     <jdbc.postgresql.version>9.4.1212</jdbc.postgresql.version>
-    <elasticsearch.version>5.2.0</elasticsearch.version>
+    <elasticsearch.version>5.2.1</elasticsearch.version>
     <elastic4s.version>5.2.5</elastic4s.version>
     <scala.version>2.12.1</scala.version>
     <scala.suffix>2.12</scala.suffix>
@@ -29,7 +29,7 @@
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.14.v20161028</jetty.version>
-    <akka.version>2.4.16</akka.version>
+    <akka.version>2.4.17</akka.version>
     <log4j.version>2.6.2</log4j.version>
   </properties>
 
