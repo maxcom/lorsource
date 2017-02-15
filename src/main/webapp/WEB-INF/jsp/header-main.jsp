@@ -23,13 +23,7 @@
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 
-<c:if test="${pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.secureMainUrl)}">
-</c:if>
-
-<c:if test="${not pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.mainUrl)}">
-</c:if>
+<base href="${fn:escapeXml(template.secureMainUrl)}">
 
 <jsp:include page="${template.theme.headMain}"/>
 

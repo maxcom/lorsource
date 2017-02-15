@@ -65,10 +65,6 @@ public final class Template {
     return userProfile;
   }
 
-  public String getMainUrl() {
-    return siteConfig.getMainUrl();
-  }
-
   public String getWSUrl() { return siteConfig.getWSUrl(); }
 
   public String getSecureMainUrl() {
