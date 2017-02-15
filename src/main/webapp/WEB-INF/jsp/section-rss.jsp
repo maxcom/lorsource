@@ -33,8 +33,8 @@
   <c:forEach var="msg" items="${messages}">
     <item>
       <author>${msg.author.nick}</author>
-      <link>${template.mainUrlNoSlash}${msg.message.link}</link>
-      <guid>${template.mainUrlNoSlash}${msg.message.link}</guid>
+      <link>${template.secureMainUrlNoSlash}${msg.message.link}</link>
+      <guid>${template.secureMainUrlNoSlash}${msg.message.link}</guid>
       <title>${l:escapeXml(msg.message.title)}</title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
