@@ -106,7 +106,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems)
 
-  def imageForTopic(topic:Topic):Image = imageDao.imageForTopic(topic)
+  def imageForTopic(topic:Topic): Image = imageDao.imageForTopic(topic)
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])

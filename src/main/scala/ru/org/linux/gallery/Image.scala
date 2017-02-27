@@ -37,9 +37,9 @@ object Image {
         }
       case ImagesName() ⇒
         if (doubleSize) {
-          s"images/$id/${MediumWidth}px.jpg"
-        } else {
           s"images/$id/${Medium2xWidth}px.jpg"
+        } else {
+          s"images/$id/${MediumWidth}px.jpg"
         }
       case _ ⇒
         throw new IllegalArgumentException(s"Not gallery path: $name")
