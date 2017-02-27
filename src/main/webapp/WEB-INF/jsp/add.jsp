@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
+<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.UploadedImagePreview"  %>
 <%@ page import="ru.org.linux.tag.TagName" %>
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%--
@@ -86,10 +86,10 @@
   Технические требования к изображению:
   <ul>
     <li>Ширина x Высота:
-      от <%= Screenshot.MIN_SCREENSHOT_SIZE %>x<%= Screenshot.MIN_SCREENSHOT_SIZE %>
-      до <%= Screenshot.MAX_SCREENSHOT_SIZE %>x<%= Screenshot.MAX_SCREENSHOT_SIZE %> пикселей</li>
+      от <%= UploadedImagePreview.MIN_SCREENSHOT_SIZE %>x<%= UploadedImagePreview.MIN_SCREENSHOT_SIZE %>
+      до <%= UploadedImagePreview.MAX_SCREENSHOT_SIZE %>x<%= UploadedImagePreview.MAX_SCREENSHOT_SIZE %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= (Screenshot.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
+    <li>Размер не более <%= (UploadedImagePreview.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
     <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
   </ul>
 </p>

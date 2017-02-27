@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,20 +31,28 @@ class GalleryPermissionInterceptor (imageDao:ImageDao, topicDao:TopicDao, groupD
                                                  topicPermissionService:TopicPermissionService)
   extends HandlerInterceptorAdapter with StrictLogging {
 
+  private val ImagesPattern = "^/images/(\\d+)/".r
+
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)
 
     val continue = if (uri.startsWith("gallery/preview/")) {
       AuthUtil.isSessionAuthorized
-    } else if (uri.startsWith("gallery/")) {
+    } else if (uri.startsWith("images/")) {
       logger.debug(s"Checking ${request.getRequestURI}")
 
-      val topics = imageDao.imageByFile(uri).asScala.map { image ⇒ topicDao.getById(image.getTopicId) }
+      uri match {
+        case ImagesPattern(id) ⇒
+          val topics = Option(imageDao.getImage(id.toInt)).map { image ⇒ topicDao.getById(image.getTopicId) }
 
-      if (topics.nonEmpty) {
-        topics.exists(visible(AuthUtil.getCurrentUser))
-      } else {
-        true
+          if (topics.nonEmpty) {
+            topics.exists(visible(AuthUtil.getCurrentUser))
+          } else {
+            true
+          }
+        case other ⇒
+          logger.info(s"Strange URI in images: $other")
+          true
       }
     } else {
       true
@@ -67,10 +75,10 @@ class GalleryPermissionInterceptor (imageDao:ImageDao, topicDao:TopicDao, groupD
       )
       true
     } catch {
-      case ex:MessageNotFoundException ⇒
+      case ex: MessageNotFoundException ⇒
         logger.info(s"topic ${topic.getId} non-visible: ${ex.getMessage}")
         false
-      case ex:AccessViolationException ⇒
+      case ex: AccessViolationException ⇒
         logger.info(s"topic ${topic.getId} non-visible: ${ex.getMessage}")
         false
     }

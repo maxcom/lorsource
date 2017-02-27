@@ -41,7 +41,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
   extends StrictLogging with TransactionManagement {
 
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
-  private val galleryPath = new File(siteConfig.getUploadPath + "/gallery")
+  private val galleryPath = new File(siteConfig.getUploadPath + "/images")
 
   def deleteImage(editor: User, image: Image):Unit = {
     transactional() { _ ⇒
@@ -110,7 +110,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
-  def createScreenshot(user:User, file: File, errors: Errors): Screenshot = {
+  def createScreenshot(user:User, file: File, errors: Errors): UploadedImagePreview = {
     if (!file.isFile) {
       errors.reject(null, "Сбой загрузки изображения: не файл")
     }
@@ -119,17 +119,17 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
       errors.reject(null, "Сбой загрузки изображения: файл нельзя прочитать")
     }
 
-    if (file.length > Screenshot.MAX_SCREENSHOT_FILESIZE) {
+    if (file.length > UploadedImagePreview.MAX_SCREENSHOT_FILESIZE) {
       errors.reject(null, "Сбой загрузки изображения: слишком большой файл")
     }
 
     val imageParam = ImageUtil.imageCheck(file)
 
-    if (imageParam.getHeight < Screenshot.MIN_SCREENSHOT_SIZE || imageParam.getHeight > Screenshot.MAX_SCREENSHOT_SIZE) {
+    if (imageParam.getHeight < UploadedImagePreview.MIN_SCREENSHOT_SIZE || imageParam.getHeight > UploadedImagePreview.MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
     }
 
-    if (imageParam.getWidth < Screenshot.MIN_SCREENSHOT_SIZE || imageParam.getWidth > Screenshot.MAX_SCREENSHOT_SIZE) {
+    if (imageParam.getWidth < UploadedImagePreview.MIN_SCREENSHOT_SIZE || imageParam.getWidth > UploadedImagePreview.MAX_SCREENSHOT_SIZE) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
     }
 
@@ -146,7 +146,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
       try {
         val name = tempFile.getName
-        val scrn = new Screenshot(name, previewPath, imageParam.getExtension)
+        val scrn = new UploadedImagePreview(name, previewPath, imageParam.getExtension)
         scrn.doResize(file)
         scrn
       } finally {
@@ -157,9 +157,11 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     }
   }
 
-  def saveScreenshot(scrn:Screenshot, msgid:Int):Unit = {
-    val screenShot = scrn.moveTo(galleryPath, msgid.toString)
+  def saveScreenshot(scrn: UploadedImagePreview, msgid: Int): Unit = {
+    transactional() { _ ⇒
+      val id = imageDao.saveImage(msgid, scrn.getExtension)
 
-    imageDao.saveImage(msgid, "gallery/" + screenShot.getMainFile.getName, "gallery/" + screenShot.getIconFile.getName)
+      scrn.moveTo(galleryPath, id.toString)
+    }
   }
 }

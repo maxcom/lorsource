@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -34,6 +34,10 @@ class UploadPathConfiguration(siteConfig: SiteConfig) extends WebMvcConfigurerAd
     registry
       .addResourceHandler("/gallery/*.jpg", "/gallery/*.png", "/gallery/*.gif")
       .addResourceLocations(s"$base/gallery/").setCachePeriod(CachePeriod)
+
+    registry
+      .addResourceHandler("/images/*/*.jpg", "/images/*/*.png", "/images/*/*.gif")
+      .addResourceLocations(s"$base/images/").setCachePeriod(CachePeriod)
 
     registry
       .addResourceHandler("/gallery/preview/*.jpg", "/gallery/preview/*.png", "/gallery/preview/*.gif")

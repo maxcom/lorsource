@@ -661,6 +661,7 @@
               <tasks>
                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
                 <mkdir dir="${project.build.directory}/uploads/gallery"/>
+                <mkdir dir="${project.build.directory}/uploads/images"/>
                 <mkdir dir="${project.build.directory}/uploads/gallery/preview"/>
                 <mkdir dir="${project.build.directory}/uploads/photos"/>
                 <copy file="${basedir}/src/main/webapp/img/good-penguin.png"

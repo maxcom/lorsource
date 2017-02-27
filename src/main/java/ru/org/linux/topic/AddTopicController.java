@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,7 +39,7 @@ import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageService;
-import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -268,7 +268,7 @@ public class AddTopicController {
       }
     }
 
-    Screenshot scrn = null;
+    UploadedImagePreview scrn = null;
 
     if (section!=null && groupPermissionService.isImagePostingAllowed(section, user)) {
       if (groupPermissionService.isTopicPostingAllowed(group, user)) {
@@ -353,7 +353,7 @@ public class AddTopicController {
     }
   }
 
-  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, Screenshot scrn, Topic previewMsg) throws IOException, ScriptErrorException {
+  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, UploadedImagePreview scrn, Topic previewMsg) throws IOException, ScriptErrorException {
     session.removeAttribute("image");
 
     int msgid = topicService.addMessage(
@@ -458,7 +458,7 @@ public class AddTopicController {
    * @return <icon, image, previewImagePath> or null
    * @throws IOException
    */
-  private Screenshot processUpload(
+  private UploadedImagePreview processUpload(
           User currentUser,
           HttpSession session,
           File image,
@@ -468,7 +468,7 @@ public class AddTopicController {
       return null;
     }
 
-    Screenshot screenShot = null;
+    UploadedImagePreview screenShot = null;
 
     if (image != null) {
       try {
@@ -483,7 +483,7 @@ public class AddTopicController {
         errors.reject(null, "Некорректное изображение: " + e.getMessage());
       }
     } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      screenShot = (Screenshot) session.getAttribute("image");
+      screenShot = (UploadedImagePreview) session.getAttribute("image");
 
       if (!screenShot.getMainFile().exists()) {
         screenShot = null;

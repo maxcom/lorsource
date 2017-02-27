@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.gallery.ImageService;
-import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -93,7 +93,7 @@ public class TopicService {
           String message,
           Group group,
           User user,
-          Screenshot scrn,
+          UploadedImagePreview scrn,
           Topic previewMsg
   ) throws IOException, ScriptErrorException {
     final int msgid = topicDao.saveNewMessage(
@@ -120,11 +120,11 @@ public class TopicService {
 
     List<String> tags = TagName.parseAndSanitizeTags(form.getTags());
 
-    topicTagService.updateTags(msgid, ImmutableList.<String>of(), tags);
+    topicTagService.updateTags(msgid, ImmutableList.of(), tags);
 
     if (!previewMsg.isDraft()) {
       if (section.isPremoderated()) {
-        sendEvents(message, msgid, ImmutableList.<String>of(), user.getId());
+        sendEvents(message, msgid, ImmutableList.of(), user.getId());
       } else {
         sendEvents(message, msgid, tags, user.getId());
       }
@@ -270,7 +270,7 @@ public class TopicService {
       if (newTags!=null && sendTagEventsNeeded(section, oldMsg, commit)) {
         sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
       } else {
-        sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
+        sendEvents(newText, oldMsg.getId(), ImmutableList.of(), oldMsg.getUid());
       }
     }
 

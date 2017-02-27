@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class Screenshot {
+public class UploadedImagePreview {
   public static final int MAX_SCREENSHOT_FILESIZE = 3*1024*1024;
   public static final int MIN_SCREENSHOT_SIZE = 400;
   public static final int MAX_SCREENSHOT_SIZE = 5120;
@@ -34,11 +34,7 @@ public class Screenshot {
   private final File iconFile;
   private final String extension;
 
-  public static final int ICON_WIDTH = 200;
-  public static final int MEDIUM_WIDTH = 500;
-  public static final int MEDIUM_2X_WIDTH = MEDIUM_WIDTH * 2;
-
-  Screenshot(String name, File path, String extension) {
+  UploadedImagePreview(String name, File path, String extension) {
     mainFile = new File(path, name + '.' + extension);
     iconFile = new File(path, name + "-icon.jpg");
     mediumFile = new File(path, name + "-med.jpg");
@@ -47,15 +43,17 @@ public class Screenshot {
     this.extension = extension;
   }
 
-  public Screenshot moveTo(File dir, String name) throws IOException {
-    Screenshot dest = new Screenshot(name, dir, extension);
+  public void moveTo(File dir, String name) throws IOException {
+    File target = Files.createDirectory(new File(dir, name).toPath()).toFile();
 
-    Files.move(mainFile.toPath(), dest.mainFile.toPath());
-    Files.move(iconFile.toPath(), dest.iconFile.toPath());
-    Files.move(mediumFile.toPath(), dest.mediumFile.toPath());
-    Files.move(medium2xFile.toPath(), dest.medium2xFile.toPath());
+    Files.move(mainFile.toPath(), new File(target, "original."+extension).toPath());
+    Files.move(iconFile.toPath(), new File(target, Image.IconWidth()+"px."+extension).toPath());
+    Files.move(mediumFile.toPath(), new File(target, Image.MediumWidth()+"px."+extension).toPath());
+    Files.move(medium2xFile.toPath(), new File(target, Image.Medium2xWidth()+"px."+extension).toPath());
+  }
 
-    return dest;
+  public String getExtension() {
+    return extension;
   }
 
   void doResize(File uploadedFile) throws IOException, BadImageException {
@@ -64,9 +62,9 @@ public class Screenshot {
     boolean error = true;
 
     try {
-      ImageUtil.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
-      ImageUtil.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
-      ImageUtil.resizeImage(mainFile.getAbsolutePath(), medium2xFile.getAbsolutePath(), MEDIUM_2X_WIDTH);
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), Image.IconWidth());
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), Image.MediumWidth());
+      ImageUtil.resizeImage(mainFile.getAbsolutePath(), medium2xFile.getAbsolutePath(), Image.Medium2xWidth());
       error = false;
     } finally {
       if (error) {
