@@ -28,7 +28,7 @@
         <a href="${url}">
           <img    sizes="(min-width: 60em) 24vw, 100vw"
                   srcset="${item.item.image.srcset}"
-                  src="${item.item.image.icon}"
+                  src="${item.item.image.medium}"
                   alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a>
       </div>
