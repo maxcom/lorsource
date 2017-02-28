@@ -32,10 +32,6 @@ class UploadPathConfiguration(siteConfig: SiteConfig) extends WebMvcConfigurerAd
     logger.info(s"Base data path for uploads: $base")
 
     registry
-      .addResourceHandler("/gallery/*.jpg", "/gallery/*.png", "/gallery/*.gif")
-      .addResourceLocations(s"$base/gallery/").setCachePeriod(CachePeriod)
-
-    registry
       .addResourceHandler("/images/*/*.jpg", "/images/*/*.png", "/images/*/*.gif")
       .addResourceLocations(s"$base/images/").setCachePeriod(CachePeriod)
 
