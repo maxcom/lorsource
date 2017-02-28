@@ -86,15 +86,8 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
       val fullInfo = new ImageInfo(htmlPath + image.getOriginal)
       val medURI = siteConfig.getSecureUrl + mediumName
       val fullURI = siteConfig.getSecureUrl + image.getOriginal
-      val existsMedium2x = Files.exists(new File(htmlPath, image.getMedium2x).toPath)
 
-      Some(new PreparedImage(
-        medURI,
-        mediumImageInfo,
-        fullURI,
-        fullInfo,
-        image,
-        existsMedium2x))
+      Some(new PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image))
     } catch prepareException(image)
   }
 

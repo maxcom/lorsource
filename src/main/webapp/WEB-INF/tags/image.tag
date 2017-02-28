@@ -28,7 +28,7 @@
               class="medium-image"
               src="${preparedMessage.image.mediumName}"
               alt="<l:title>${preparedMessage.message.title}</l:title>"
-              ${preparedMessage.image.srcset()}
+              srcset="${preparedMessage.image.image.srcset}"
               ${preparedMessage.image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
 

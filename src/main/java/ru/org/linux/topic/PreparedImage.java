@@ -26,15 +26,13 @@ public class PreparedImage {
   private final ImageInfo fullInfo;
 
   private final Image image;
-  private final boolean medium2x;
 
-  public PreparedImage(String mediumName, ImageInfo mediumInfo, String fullName, ImageInfo fullInfo, Image image, boolean medium2x) {
+  public PreparedImage(String mediumName, ImageInfo mediumInfo, String fullName, ImageInfo fullInfo, Image image) {
     this.mediumName = mediumName;
     this.mediumInfo = mediumInfo;
     this.fullName = fullName;
     this.fullInfo = fullInfo;
     this.image = image;
-    this.medium2x = medium2x;
   }
 
   public String getMediumName() {
@@ -55,13 +53,5 @@ public class PreparedImage {
 
   public Image getImage() {
     return image;
-  }
-
-  public String srcset() {
-    if (medium2x) {
-      return "srcset=\""+image.getMedium2x()+" 2x\"";
-    } else {
-      return "";
-    }
   }
 }

@@ -48,13 +48,13 @@ object Image {
 }
 
 case class Image(
-  @BeanProperty id:Int,
-  @BeanProperty topicId:Int,
+  @BeanProperty id: Int,
+  @BeanProperty topicId: Int,
   @BeanProperty original: String,
   @BeanProperty icon: String
 ) {
   def getMedium: String = Image.mediumName(original, doubleSize = false, id)
-  def getMedium2x: String = Image.mediumName(original, doubleSize = true, id)
+  private def getMedium2x: String = Image.mediumName(original, doubleSize = true, id)
 
   def getSrcset: String =
     s"$getMedium2x ${Medium2xWidth}w, " +
