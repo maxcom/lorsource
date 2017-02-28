@@ -29,6 +29,7 @@
               src="${preparedMessage.image.mediumName}"
               alt="<l:title>${preparedMessage.message.title}</l:title>"
               srcset="${preparedMessage.image.image.srcset}"
+              sizes="500px"
               ${preparedMessage.image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
 
