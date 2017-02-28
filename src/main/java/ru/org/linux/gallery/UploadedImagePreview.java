@@ -47,9 +47,9 @@ public class UploadedImagePreview {
     File target = Files.createDirectory(new File(dir, name).toPath()).toFile();
 
     Files.move(mainFile.toPath(), new File(target, "original."+extension).toPath());
-    Files.move(iconFile.toPath(), new File(target, Image.IconWidth()+"px."+extension).toPath());
-    Files.move(mediumFile.toPath(), new File(target, Image.MediumWidth()+"px."+extension).toPath());
-    Files.move(medium2xFile.toPath(), new File(target, Image.Medium2xWidth()+"px."+extension).toPath());
+    Files.move(iconFile.toPath(), new File(target, Image.IconWidth()+"px.jpg").toPath());
+    Files.move(mediumFile.toPath(), new File(target, Image.MediumWidth()+"px.jpg").toPath());
+    Files.move(medium2xFile.toPath(), new File(target, Image.Medium2xWidth()+"px.jpg").toPath());
   }
 
   public String getExtension() {
