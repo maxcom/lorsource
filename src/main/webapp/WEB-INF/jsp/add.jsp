@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.UploadedImagePreview"  %>
 <%@ page import="ru.org.linux.tag.TagName" %>
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
+<%@ page import="ru.org.linux.gallery.Image" %>
 <%--
   ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,10 +87,10 @@
   Технические требования к изображению:
   <ul>
     <li>Ширина x Высота:
-      от <%= UploadedImagePreview.MIN_SCREENSHOT_SIZE %>x<%= UploadedImagePreview.MIN_SCREENSHOT_SIZE %>
-      до <%= UploadedImagePreview.MAX_SCREENSHOT_SIZE %>x<%= UploadedImagePreview.MAX_SCREENSHOT_SIZE %> пикселей</li>
+      от <%= Image.MinDimension() %>x<%= Image.MinDimension() %>
+      до <%= Image.MaxDimension() %>x<%= Image.MaxDimension() %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= (UploadedImagePreview.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
+    <li>Размер не более <%= (Image.MaxFileSize() / 1024) - 50 %> Kb</li>
     <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
   </ul>
 </p>

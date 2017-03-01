@@ -108,17 +108,17 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
       errors.reject(null, "Сбой загрузки изображения: файл нельзя прочитать")
     }
 
-    if (file.length > UploadedImagePreview.MAX_SCREENSHOT_FILESIZE) {
+    if (file.length > Image.MaxFileSize) {
       errors.reject(null, "Сбой загрузки изображения: слишком большой файл")
     }
 
     val imageParam = ImageUtil.imageCheck(file)
 
-    if (imageParam.getHeight < UploadedImagePreview.MIN_SCREENSHOT_SIZE || imageParam.getHeight > UploadedImagePreview.MAX_SCREENSHOT_SIZE) {
+    if (imageParam.getHeight < Image.MinDimension || imageParam.getHeight > Image.MaxDimension) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
     }
 
-    if (imageParam.getWidth < UploadedImagePreview.MIN_SCREENSHOT_SIZE || imageParam.getWidth > UploadedImagePreview.MAX_SCREENSHOT_SIZE) {
+    if (imageParam.getWidth < Image.MinDimension || imageParam.getWidth > Image.MaxDimension) {
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
     }
 

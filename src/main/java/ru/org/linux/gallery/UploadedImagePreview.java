@@ -24,13 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 public class UploadedImagePreview {
-  public static final int MAX_SCREENSHOT_FILESIZE = 3*1024*1024;
-  public static final int MIN_SCREENSHOT_SIZE = 400;
-  public static final int MAX_SCREENSHOT_SIZE = 5120;
-
   private final File mainFile;
   private final File mediumFile;
   private final File medium2xFile;
+  
   private final String extension;
 
   UploadedImagePreview(String name, File path, String extension) {
