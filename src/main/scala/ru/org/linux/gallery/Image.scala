@@ -14,7 +14,6 @@
  */
 package ru.org.linux.gallery
 
-import ru.org.linux.gallery.Image.{Medium2xWidth, MediumWidth}
 import ru.org.linux.user.User
 
 import scala.beans.BeanProperty
@@ -24,30 +23,33 @@ object Image {
   val MinDimension = 400
   val MaxDimension = 5120
 
-  val MediumWidth = 500
-  val Medium2xWidth = 1000
+  val Sizes = Seq(500, 1000) // default size first
 
   private val GalleryName = "(gallery/[^.]+)(?:\\.\\w+)".r
   private val ImagesName = "images/.*".r
 
-  private def mediumName(name: String, doubleSize: Boolean, id: Int): String = {
+  private def srcset(name: String, id: Int): String = {
     name match {
       case GalleryName(base) ⇒
-        if (doubleSize) {
-          s"$base-med-2x.jpg"
-        } else {
-          s"$base-med.jpg"
-        }
+        Sizes.map(size ⇒ s"$base-${size}px.jpg ${size}w").mkString(", ")
       case ImagesName() ⇒
-        if (doubleSize) {
-          s"images/$id/${Medium2xWidth}px.jpg"
-        } else {
-          s"images/$id/${MediumWidth}px.jpg"
-        }
+        Sizes.map(size ⇒ s"images/$id/${size}px.jpg ${size}w").mkString(", ")
       case _ ⇒
         throw new IllegalArgumentException(s"Not gallery path: $name")
     }
   }
+
+  private def main(name: String, id: Int): String = {
+    name match {
+      case GalleryName(base) ⇒
+        s"$base-${Sizes.head}px.jpg"
+      case ImagesName() ⇒
+        s"images/$id/${Sizes.head}px.jpg"
+      case _ ⇒
+        throw new IllegalArgumentException(s"Not gallery path: $name")
+    }
+  }
+
 }
 
 case class Image(
@@ -55,12 +57,8 @@ case class Image(
   @BeanProperty topicId: Int,
   @BeanProperty original: String
 ) {
-  def getMedium: String = Image.mediumName(original, doubleSize = false, id)
-  private def getMedium2x: String = Image.mediumName(original, doubleSize = true, id)
-
-  def getSrcset: String =
-    s"$getMedium2x ${Medium2xWidth}w, " +
-    s"$getMedium ${MediumWidth}w"
+  def getMedium: String = Image.main(original, id)
+  def getSrcset: String = Image.srcset(original, id)
 }
 
 case class PreparedGalleryItem(

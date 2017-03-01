@@ -99,7 +99,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
-  def createScreenshot(user:User, file: File, errors: Errors): UploadedImagePreview = {
+  def createScreenshot(user: User, file: File, errors: Errors): UploadedImagePreview = {
     if (!file.isFile) {
       errors.reject(null, "Сбой загрузки изображения: не файл")
     }
@@ -131,16 +131,11 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     }
 
     if (!errors.hasErrors) {
-      val tempFile = File.createTempFile(s"preview-${user.getId}-", "", previewPath)
-
-      try {
-        val name = tempFile.getName
-        val scrn = new UploadedImagePreview(name, previewPath, imageParam.getExtension)
-        scrn.doResize(file)
-        scrn
-      } finally {
-        Files.delete(tempFile.toPath)
-      }
+      UploadedImagePreview.create(
+        prefix = s"preview-${user.getId}-",
+        extension = imageParam.getExtension,
+        previewPath = previewPath,
+        uploadedData = file)
     } else {
       null
     }
@@ -148,7 +143,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   def saveScreenshot(scrn: UploadedImagePreview, msgid: Int): Unit = {
     transactional() { _ ⇒
-      val id = imageDao.saveImage(msgid, scrn.getExtension)
+      val id = imageDao.saveImage(msgid, scrn.extension)
 
       scrn.moveTo(galleryPath, id.toString)
     }

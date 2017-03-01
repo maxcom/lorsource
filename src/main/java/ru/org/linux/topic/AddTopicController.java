@@ -294,7 +294,7 @@ public class AddTopicController {
       Image imageObject = null;
 
       if (scrn!=null) {
-        imageObject = new Image(0, 0, "gallery/preview/" + scrn.getMainFile().getName());
+        imageObject = new Image(0, 0, "gallery/preview/" + scrn.mainFile().getName());
       }
 
       List<String> tagNames = TagName.parseAndSanitizeTags(form.getTags());
@@ -480,7 +480,7 @@ public class AddTopicController {
     } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
       screenShot = (UploadedImagePreview) session.getAttribute("image");
 
-      if (!screenShot.getMainFile().exists()) {
+      if (!screenShot.mainFile().exists()) {
         screenShot = null;
       }
     }
