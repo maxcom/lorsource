@@ -31,12 +31,10 @@ public class UploadedImagePreview {
   private final File mainFile;
   private final File mediumFile;
   private final File medium2xFile;
-  private final File iconFile;
   private final String extension;
 
   UploadedImagePreview(String name, File path, String extension) {
     mainFile = new File(path, name + '.' + extension);
-    iconFile = new File(path, name + "-icon.jpg");
     mediumFile = new File(path, name + "-med.jpg");
     medium2xFile = new File(path, name + "-med-2x.jpg");
 
@@ -47,7 +45,6 @@ public class UploadedImagePreview {
     File target = Files.createDirectory(new File(dir, name).toPath()).toFile();
 
     Files.move(mainFile.toPath(), new File(target, "original."+extension).toPath());
-    Files.move(iconFile.toPath(), new File(target, Image.IconWidth()+"px.jpg").toPath());
     Files.move(mediumFile.toPath(), new File(target, Image.MediumWidth()+"px.jpg").toPath());
     Files.move(medium2xFile.toPath(), new File(target, Image.Medium2xWidth()+"px.jpg").toPath());
   }
@@ -62,14 +59,12 @@ public class UploadedImagePreview {
     boolean error = true;
 
     try {
-      ImageUtil.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), Image.IconWidth());
       ImageUtil.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), Image.MediumWidth());
       ImageUtil.resizeImage(mainFile.getAbsolutePath(), medium2xFile.getAbsolutePath(), Image.Medium2xWidth());
       error = false;
     } finally {
       if (error) {
         Files.deleteIfExists(mainFile.toPath());
-        Files.deleteIfExists(iconFile.toPath());
         Files.deleteIfExists(mediumFile.toPath());
         Files.deleteIfExists(medium2xFile.toPath());
       }
@@ -78,9 +73,5 @@ public class UploadedImagePreview {
 
   public File getMainFile() {
     return mainFile;
-  }
-
-  public File getIconFile() {
-    return iconFile;
   }
 }

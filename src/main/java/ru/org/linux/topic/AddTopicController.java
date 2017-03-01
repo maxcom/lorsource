@@ -114,8 +114,8 @@ public class AddTopicController {
   @Autowired
   private TopicService topicService;
 
-  public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
-  public static final int MAX_MESSAGE_LENGTH = 32768;
+  private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
+  private static final int MAX_MESSAGE_LENGTH = 32768;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -294,12 +294,7 @@ public class AddTopicController {
       Image imageObject = null;
 
       if (scrn!=null) {
-        imageObject = new Image(
-                0,
-                0,
-                "gallery/preview/" + scrn.getMainFile().getName(),
-                "gallery/preview/" + scrn.getIconFile().getName()
-        );
+        imageObject = new Image(0, 0, "gallery/preview/" + scrn.getMainFile().getName());
       }
 
       List<String> tagNames = TagName.parseAndSanitizeTags(form.getTags());

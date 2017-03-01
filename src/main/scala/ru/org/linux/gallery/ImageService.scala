@@ -75,11 +75,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
     val htmlPath = siteConfig.getUploadPath
 
-    val mediumName = if (!new File(htmlPath, image.getMedium).exists) {
-      image.getIcon
-    } else {
-      image.getMedium
-    }
+    val mediumName = image.getMedium
 
     try {
       val mediumImageInfo = new ImageInfo(htmlPath + mediumName)
@@ -99,7 +95,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems)
 
-  def imageForTopic(topic:Topic): Image = imageDao.imageForTopic(topic)
+  def imageForTopic(topic: Topic): Image = imageDao.imageForTopic(topic)
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])

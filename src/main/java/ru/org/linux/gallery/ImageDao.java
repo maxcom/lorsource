@@ -123,9 +123,7 @@ public class ImageDao {
       return new Image(
               imageid,
               rs.getInt("topic"),
-              "images/"+imageid+"/original."+rs.getString("extension"),
-              "images/"+imageid+"/200px.jpg"
-      );
+              "images/"+imageid+"/original."+rs.getString("extension"));
     }
   }
 
@@ -153,8 +151,7 @@ public class ImageDao {
       Image image = new Image(
               imageid,
               rs.getInt("msgid"),
-              "images/"+imageid+"/original."+rs.getString("extension"),
-              "images/"+imageid+"/200px.jpg"
+              "images/"+imageid+"/original."+rs.getString("extension")
       );
 
       item.setImage(image);

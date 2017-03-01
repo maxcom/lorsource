@@ -14,13 +14,12 @@
  */
 package ru.org.linux.gallery
 
-import ru.org.linux.gallery.Image.{IconWidth, Medium2xWidth, MediumWidth}
+import ru.org.linux.gallery.Image.{Medium2xWidth, MediumWidth}
 import ru.org.linux.user.User
 
 import scala.beans.BeanProperty
 
 object Image {
-  val IconWidth = 200
   val MediumWidth = 500
   val Medium2xWidth = 1000
 
@@ -50,16 +49,14 @@ object Image {
 case class Image(
   @BeanProperty id: Int,
   @BeanProperty topicId: Int,
-  @BeanProperty original: String,
-  @BeanProperty icon: String
+  @BeanProperty original: String
 ) {
   def getMedium: String = Image.mediumName(original, doubleSize = false, id)
   private def getMedium2x: String = Image.mediumName(original, doubleSize = true, id)
 
   def getSrcset: String =
     s"$getMedium2x ${Medium2xWidth}w, " +
-    s"$getMedium ${MediumWidth}w, " +
-    s"$icon ${IconWidth}w"
+    s"$getMedium ${MediumWidth}w"
 }
 
 case class PreparedGalleryItem(
