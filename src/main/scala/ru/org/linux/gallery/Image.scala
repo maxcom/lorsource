@@ -20,7 +20,7 @@ import ru.org.linux.user.User
 import scala.beans.BeanProperty
 
 object Image {
-  val MaxFileSize = 3 * 1024 * 1024
+  val MaxFileSize = 5 * 1024 * 1024
   val MinDimension = 400
   val MaxDimension = 5120
 

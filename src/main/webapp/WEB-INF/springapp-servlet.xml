@@ -74,7 +74,7 @@
     </bean>
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <property name="maxUploadSize" value="3500000"/>
+        <property name="maxUploadSize" value="5300000"/>
     </bean>
 
     <bean id="absractRomeView" class="ru.org.linux.spring.AbstractRomeView" abstract="true">
