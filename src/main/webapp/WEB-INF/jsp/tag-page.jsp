@@ -88,6 +88,25 @@
     </c:if>
 </div>
 
+<c:if test="${showAdsense and counter>100}">
+  <div align="center" width="100%">
+    <style>
+      .lor-main-adaptive-tango { width: 320px; height: 100px; }
+      @media(min-width: 500px) { .lor-main-adaptive-tango { width: 468px; height: 60px; } }
+      @media(min-width: 768px) { .lor-main-adaptive-tango { width: 728px; height: 90px; } }
+    </style>
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- lor-main-adaptive-tango -->
+    <ins class="adsbygoogle lor-main-adaptive-tango"
+         style="display:inline-block"
+         data-ad-client="ca-pub-6069094673001350"
+         data-ad-slot="7413794834"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+</c:if>
+
 <section>
     <c:forEach var="msg" items="${fullNews}">
         <lor:news
