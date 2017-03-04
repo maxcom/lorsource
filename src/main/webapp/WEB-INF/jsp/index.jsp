@@ -23,6 +23,7 @@
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
 <%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 <%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
+<%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -98,6 +99,35 @@
       <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
                    multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
+
+<c:if test="${not empty briefNews}">
+<section>
+   <h2>Еще новости</h2>
+
+  <div class="container" id="main-page-news">
+    <c:forEach var="map" items="${briefNews}" varStatus="iter">
+      <section>
+        <c:forEach var="entry" items="${map}">
+          <h3>${entry._1()}</h3>
+          <ul>
+            <c:forEach var="msg" items="${entry._2()}">
+              <li>
+                <c:if test="${msg.group.defined}">
+                  <span class="group-label">${msg.group.get()}</span>
+                </c:if>
+                <a href="${msg.url}"><l:title>${msg.title}</l:title></a>
+                <c:if test="${msg.commentCount>0}">(<lorDir:comment-count count="${msg.commentCount}"/>)</c:if>
+              </li>
+            </c:forEach>
+          </ul>
+        </c:forEach>
+      </section>
+    </c:forEach>
+  </div>
+</section>
+</c:if>
+
+
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]

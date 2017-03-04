@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.section.Section
 import ru.org.linux.site.Template
-import ru.org.linux.topic.{Topic, TopicDao, TopicListService, TopicPrepareService}
+import ru.org.linux.topic._
 import ru.org.linux.user.MemoriesDao
 
 import scala.collection.JavaConverters._
@@ -33,8 +33,7 @@ class MainPageController(
   topicDao: TopicDao,
   memoriesDao: MemoriesDao
 ) {
-  private def filterMiniNews(messages: java.util.List[Topic]): java.util.List[Topic] =
-    messages.asScala.filterNot(_.isMinor).asJava
+  private def filterMiniNews(messages: Seq[Topic]): Seq[Topic] = messages.filterNot(_.isMinor)
 
   @RequestMapping(Array("/", "/index.jsp"))
   def mainPage(request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
@@ -43,7 +42,7 @@ class MainPageController(
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
     response.setDateHeader("Last-Modified", System.currentTimeMillis - 2 * 1000)
 
-    val messages = topicListService.getMainPageFeed(tmpl.getProf.isShowGalleryOnMain)
+    val (messages, titles) = topicListService.getMainPageFeed(tmpl.getProf.isShowGalleryOnMain, 30).asScala.splitAt(10)
 
     val mv = new ModelAndView("index")
 
@@ -51,12 +50,18 @@ class MainPageController(
 
     mv.getModel.put("news",
       prepareService.prepareMessagesForUser(
-        if (profile.isMiniNewsBoxletOnMainPage) filterMiniNews(messages) else messages,
+        if (profile.isMiniNewsBoxletOnMainPage) filterMiniNews(messages).asJava else messages.asJava,
         request.isSecure,
         tmpl.getCurrentUser,
         profile,
         false)
     )
+
+    val briefNewsByDate = TopicListTools.datePartition(titles)
+
+    mv.getModel.put(
+      "briefNews",
+      TopicListTools.split(briefNewsByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopicNoGroup(p._2))))
 
     if (tmpl.isSessionAuthorized) {
       mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(tmpl.getCurrentUser)))
