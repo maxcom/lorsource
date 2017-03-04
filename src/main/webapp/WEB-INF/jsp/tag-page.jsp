@@ -88,7 +88,7 @@
     </c:if>
 </div>
 
-<c:if test="${showAdsense and counter>100}">
+<c:if test="${showAdsense and counter>=5}">
   <div align="center" width="100%">
     <style>
       .lor-main-adaptive-tango { width: 320px; height: 100px; }
