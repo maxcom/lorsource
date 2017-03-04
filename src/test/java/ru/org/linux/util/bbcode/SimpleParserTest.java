@@ -38,7 +38,6 @@ public class SimpleParserTest {
     URI mainURI = new URI(mainUrl, true, "UTF-8");
     SiteConfig siteConfig = mock(SiteConfig.class);
     when(siteConfig.getMainURI()).thenReturn(mainURI);
-    when(siteConfig.getMainUrl()).thenReturn(mainUrl);
 
     ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);

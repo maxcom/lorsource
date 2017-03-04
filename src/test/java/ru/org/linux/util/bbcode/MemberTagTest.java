@@ -67,8 +67,6 @@ public class MemberTagTest {
     SiteConfig siteConfig = mock(SiteConfig.class);
     when(siteConfig.getMainURI()).thenReturn(mainURI);
     when(siteConfig.getSecureURI()).thenReturn(mainURI);
-    when(siteConfig.getMainUrl()).thenReturn(mainUrl);
-
 
     ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);

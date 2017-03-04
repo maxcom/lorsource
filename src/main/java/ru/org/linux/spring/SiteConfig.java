@@ -31,15 +31,18 @@ import java.util.Properties;
 public class SiteConfig {
   private static final String ERR_MSG = "Invalid MainUrl property: ";
 
-  @Qualifier("properties")
-  @Autowired
-  private Properties properties;
+  private final Properties properties;
 
   private URI mainURI;
   private URI secureURI;
 
+  @Autowired
+  public SiteConfig(@Qualifier("properties") Properties properties) {
+    this.properties = properties;
+  }
+
   /**
-   * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
+   * Предполагается, что на этапе запуска приложения, если с MainUrl что-то не так то контейнер не запустится :-)
    */
   @PostConstruct
   public void init() {
@@ -66,14 +69,6 @@ public class SiteConfig {
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
-  }
-
-  public String getMainUrl() {
-    return mainURI.toString();
-  }
-
-  public String getMainUrlWithoutSlash() {
-    return getMainUrl().replaceFirst("/$", "");
   }
 
   public String getSecureUrlWithoutSlash() {

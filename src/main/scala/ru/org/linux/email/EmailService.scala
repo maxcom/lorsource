@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -35,10 +35,9 @@ import ru.org.linux.user.User
 import scala.collection.JavaConverters._
 
 @Service
-class EmailService(siteConfig:SiteConfig,
-                                  @Qualifier("exceptionMailingActor") exceptionMailingActor:ActorRef
-                                   ) extends StrictLogging {
-  def sendEmail(nick: String, email: String, isNew: Boolean):Unit = {
+class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") exceptionMailingActor: ActorRef)
+  extends StrictLogging {
+  def sendEmail(nick: String, email: String, isNew: Boolean): Unit = {
     val regcode = User.getActivationCode(siteConfig.getSecret, nick, email)
 
     val text = new StringBuilder
@@ -132,7 +131,7 @@ class EmailService(siteConfig:SiteConfig,
     if (forwardUrl != null) {
       text.append(s"Forward URL: $forwardUrl\n")
     }
-    val mainUrl = siteConfig.getMainUrlWithoutSlash
+    val mainUrl = siteConfig.getSecureUrlWithoutSlash
     text.append(s"${request.getMethod}: $mainUrl${request.getServletPath}")
     if (request.getQueryString != null) {
       text.append(s"?${request.getQueryString}")
