@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -48,6 +48,9 @@ public class TagController {
   @Autowired
   private TagService tagService;
 
+  @Autowired
+  private TagCloudDao tagDao;
+
   /**
    * Обработчик по умолчанию. Показ тегов по самой первой букве.
    *
@@ -75,17 +78,18 @@ public class TagController {
     modelAndView.addObject("firstLetters", firstLetters);
 
     if (Strings.isNullOrEmpty(firstLetter)) {
-      firstLetter = firstLetters.iterator().next();
+      List<TagCloudDao.TagDTO> list = tagDao.getTags(100);
+      modelAndView.addObject("tagcloud", list);
+    } else {
+      modelAndView.addObject("currentLetter", firstLetter);
+
+      Map<TagRef, Integer> tags = tagService.getTagsByPrefix(firstLetter, 1);
+
+      if (tags.isEmpty()) {
+        throw new TagNotFoundException("Tag list is empty");
+      }
+      modelAndView.addObject("tags", tags);
     }
-
-    modelAndView.addObject("currentLetter", firstLetter);
-
-    Map<TagRef, Integer> tags = tagService.getTagsByPrefix(firstLetter, 1);
-
-    if (tags.isEmpty()) {
-      throw new TagNotFoundException("Tag list is empty");
-    }
-    modelAndView.addObject("tags", tags);
 
     return modelAndView;
   }

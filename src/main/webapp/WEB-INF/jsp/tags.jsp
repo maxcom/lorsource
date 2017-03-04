@@ -1,8 +1,10 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date"   %>
+<%@ page import="ru.org.linux.tag.TagCloudDao"   %>
+<%@ page import="ru.org.linux.topic.TagTopicListController" %>
+<%@ page import="java.util.Date" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -44,6 +46,7 @@ ${status.first ? '' : ', '}
 </c:forEach>
 </div>
 
+<c:if test="${not empty tags}">
 <ul>
 
   <c:forEach var="tag" items="${tags}">
@@ -78,7 +81,22 @@ ${status.first ? '' : ', '}
       </li>
     </c:if>
   </c:forEach>
-
 </ul>
+</c:if>
+
+<c:if test="${not empty tagcloud}">
+  <section align="center" style="width: 100%">
+    <div style="max-width: 50em; margin-left: auto; margin-right: auto">
+      <c:forEach var="tag" items="${tagcloud}">
+        <%
+          TagCloudDao.TagDTO tag = (TagCloudDao.TagDTO) pageContext.getAttribute("tag");
+        %>
+        <c:url value="<%= TagTopicListController.tagListUrl(tag.getValue()) %>" var="tag_url"/>
+        <a class="cloud${tag.weight}" href="${fn:escapeXml(tag_url)}">${tag.value}</a>
+      </c:forEach>
+    </div>
+  </section>
+</c:if>
+
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
