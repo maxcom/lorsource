@@ -40,12 +40,12 @@ class MainPageController(
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
     response.setDateHeader("Last-Modified", System.currentTimeMillis - 2 * 1000)
 
+    val profile = tmpl.getProf
+
     val (messages, titles) = topicListService.getMainPageFeed(
       tmpl.getProf.isShowGalleryOnMain, 30, profile.isMiniNewsBoxletOnMainPage).asScala.splitAt(10)
 
     val mv = new ModelAndView("index")
-
-    val profile = tmpl.getProf
 
     mv.getModel.put("news",
       prepareService.prepareMessagesForUser(
