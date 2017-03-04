@@ -178,6 +178,15 @@ public class TopicListDao {
       where.append(" AND not topics.groupid=8404 AND not topics.groupid=4068 AND groups.section=2");
     }
 
+    switch (request.getMiniNewsMode()) {
+      case MAJOR:
+        where.append(" AND NOT minor");
+        break;
+      case MINOR:
+        where.append(" AND minor");
+        break;
+    }
+
     if (request.getTag() != 0) {
       paramsBuilder.put("tagId", request.getTag());
       where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=:tagId)");

@@ -257,15 +257,17 @@ public class TopicListService {
     return topicListDao.getDeletedTopics(sectionId, skipEmptyReason);
   }
 
-  public List<Topic> getMainPageFeed(boolean showGalleryOnMain, int count) {
-    logger.debug("TopicListService.getMainPageFeed(); showGalleryOnMain=" + showGalleryOnMain);
-
+  public List<Topic> getMainPageFeed(boolean showGalleryOnMain, int count, boolean hideMinor) {
     TopicListDto topicListDto = new TopicListDto();
 
     topicListDto.setLimit(count);
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(DateTime.now().minusMonths(1).toDate());
+
+    if (hideMinor) {
+      topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR);
+    }
     
     topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
 

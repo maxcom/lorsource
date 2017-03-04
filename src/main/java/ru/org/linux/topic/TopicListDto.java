@@ -29,6 +29,12 @@ public class TopicListDto {
     FROM_DATE
   }
 
+  public enum MiniNewsMode {
+    ALL,
+    MAJOR,
+    MINOR
+  }
+
   private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
 
   private ImmutableSet<Integer> sections = ImmutableSet.of();
@@ -47,6 +53,8 @@ public class TopicListDto {
 
   private boolean showDraft = false;
   private boolean lastmodSort = false;
+
+  private MiniNewsMode miniNewsMode = MiniNewsMode.ALL;
 
   public ImmutableSet<Integer> getSections() {
     return sections;
@@ -176,6 +184,14 @@ public class TopicListDto {
     this.lastmodSort = lastmodSort;
   }
 
+  public MiniNewsMode getMiniNewsMode() {
+    return miniNewsMode;
+  }
+
+  public void setMiniNewsMode(MiniNewsMode miniNewsMode) {
+    this.miniNewsMode = miniNewsMode;
+  }
+
   public String toString() {
     return new StringBuilder()
       .append(TopicListDto.class.toString())
@@ -193,6 +209,7 @@ public class TopicListDto {
       .append("; toDate=").append((toDate != null) ? toDate.toString() : "")
       .append("; notalks=").append(notalks)
       .append("; tech=").append(tech)
+      .append("; mini=").append(miniNewsMode)
       .append(']')
       .toString();
   }

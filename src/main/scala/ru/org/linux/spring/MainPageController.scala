@@ -33,8 +33,6 @@ class MainPageController(
   topicDao: TopicDao,
   memoriesDao: MemoriesDao
 ) {
-  private def filterMiniNews(messages: Seq[Topic]): Seq[Topic] = messages.filterNot(_.isMinor)
-
   @RequestMapping(Array("/", "/index.jsp"))
   def mainPage(request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
     val tmpl = Template.getTemplate(request)
@@ -42,7 +40,8 @@ class MainPageController(
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
     response.setDateHeader("Last-Modified", System.currentTimeMillis - 2 * 1000)
 
-    val (messages, titles) = topicListService.getMainPageFeed(tmpl.getProf.isShowGalleryOnMain, 30).asScala.splitAt(10)
+    val (messages, titles) = topicListService.getMainPageFeed(
+      tmpl.getProf.isShowGalleryOnMain, 30, profile.isMiniNewsBoxletOnMainPage).asScala.splitAt(10)
 
     val mv = new ModelAndView("index")
 
@@ -50,7 +49,7 @@ class MainPageController(
 
     mv.getModel.put("news",
       prepareService.prepareMessagesForUser(
-        if (profile.isMiniNewsBoxletOnMainPage) filterMiniNews(messages).asJava else messages.asJava,
+        messages.asJava,
         request.isSecure,
         tmpl.getCurrentUser,
         profile,
