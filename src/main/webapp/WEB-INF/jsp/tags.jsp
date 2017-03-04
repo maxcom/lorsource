@@ -85,8 +85,8 @@ ${status.first ? '' : ', '}
 </c:if>
 
 <c:if test="${not empty tagcloud}">
-  <section align="center" style="width: 100%">
-    <div style="max-width: 50em; margin-left: auto; margin-right: auto">
+  <section align="center" style="width: 100%; margin-top: 1em">
+    <div style="max-width: 50rem; margin-left: auto; margin-right: auto; font-size: 150%">
       <c:forEach var="tag" items="${tagcloud}">
         <%
           TagCloudDao.TagDTO tag = (TagCloudDao.TagDTO) pageContext.getAttribute("tag");
