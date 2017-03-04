@@ -43,7 +43,7 @@ class MainPageController(
     val profile = tmpl.getProf
 
     val (messages, titles) = topicListService.getMainPageFeed(
-      tmpl.getProf.isShowGalleryOnMain, 30, profile.isMiniNewsBoxletOnMainPage).asScala.splitAt(10)
+      tmpl.getProf.isShowGalleryOnMain, 25, profile.isMiniNewsBoxletOnMainPage).asScala.splitAt(5)
 
     val mv = new ModelAndView("index")
 
