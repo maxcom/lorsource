@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -45,6 +45,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -177,13 +178,12 @@ public class AddCommentController {
     }
 
     int msgid = commentService.create(
-      user,
-      comment,
-      msg,
-      request.getRemoteAddr(),
-      request.getHeader("X-Forwarded-For"),
-      request.getHeader("user-agent")
-    );
+            user,
+            comment,
+            msg,
+            request.getRemoteAddr(),
+            request.getHeader("X-Forwarded-For"),
+            Optional.ofNullable(request.getHeader("user-agent")));
 
     searchQueueSender.updateComment(msgid);
 
@@ -240,8 +240,7 @@ public class AddCommentController {
               msg,
               request.getRemoteAddr(),
               request.getHeader("X-Forwarded-For"),
-              request.getHeader("user-agent")
-      );
+              Optional.ofNullable(request.getHeader("user-agent")));
 
       searchQueueSender.updateComment(msgid);
 

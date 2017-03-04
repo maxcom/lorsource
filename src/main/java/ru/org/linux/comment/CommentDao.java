@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,6 +31,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Операции над комментариями
@@ -181,8 +182,10 @@ public class CommentDao {
    * @return идентификационный номер нового комментария
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public int saveNewMessage(final Comment comment, final String userAgent) {
+  public int saveNewMessage(final Comment comment, final Optional<String> userAgent) {
     final int msgid = jdbcTemplate.queryForObject("select nextval('s_msgid') as msgid", Integer.class);
+
+    userAgent.map(ua -> ua.substring(0, Math.min(511, ua.length())));
 
     jdbcTemplate.execute(
       "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
@@ -192,7 +195,7 @@ public class CommentDao {
               pst.setString(3, comment.getTitle());
               pst.setInt(5, comment.getTopicId());
               pst.setString(6, comment.getPostIP());
-              pst.setString(7, userAgent.substring(0, Math.min(511, userAgent.length())));
+              pst.setString(7, userAgent.orElse(null));
 
               if (comment.getReplyTo() != 0) {
                 pst.setInt(4, comment.getReplyTo());

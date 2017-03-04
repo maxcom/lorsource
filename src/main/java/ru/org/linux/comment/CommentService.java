@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -56,7 +56,6 @@ import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -168,8 +167,6 @@ public class CommentService {
    * @param ipBlockInfo     информация о банах
    * @param request         данные запроса от web-клиента
    * @param errors          обработчик ошибок ввода для формы
-   * @throws UnknownHostException
-   * @throws TextParseException
    */
   public void checkPostData(
     CommentRequest commentRequest,
@@ -327,7 +324,6 @@ public class CommentService {
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
    * @param userAgent      заголовок User-Agent запроса
    * @return идентификационный номер нового комментария
-   * @throws MessageNotFoundException
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int create(
@@ -336,7 +332,7 @@ public class CommentService {
           String commentBody,
           String remoteAddress,
           String xForwardedFor,
-          String userAgent) throws MessageNotFoundException {
+          Optional<String> userAgent) throws MessageNotFoundException {
     Preconditions.checkArgument(comment.getUserid() == author.getId());
 
     int commentId = commentDao.saveNewMessage(comment, userAgent);
