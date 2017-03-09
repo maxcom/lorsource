@@ -226,7 +226,7 @@
          style="display:block"
          data-ad-client="ca-pub-6069094673001350"
          data-ad-slot="2435162839"
-         data-ad-format="auto"></ins>
+         data-ad-format="horizontal"></ins>
     <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
     </script>

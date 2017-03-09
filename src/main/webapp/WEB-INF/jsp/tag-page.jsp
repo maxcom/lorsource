@@ -100,7 +100,8 @@
     <ins class="adsbygoogle lor-main-adaptive-tango"
          style="display:inline-block"
          data-ad-client="ca-pub-6069094673001350"
-         data-ad-slot="7413794834"></ins>
+         data-ad-slot="7413794834"
+         data-ad-format="horizontal"></ins>
     <script>
       (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
