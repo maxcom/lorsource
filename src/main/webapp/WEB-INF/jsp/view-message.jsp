@@ -222,7 +222,7 @@
 
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <!-- lor-topic-adaptive-tango -->
-    <ins class="adsbygoogle"
+    <ins class="adsbygoogle lor-topic-adaptive-tango"
          style="display:block"
          data-ad-client="ca-pub-6069094673001350"
          data-ad-slot="2435162839"
