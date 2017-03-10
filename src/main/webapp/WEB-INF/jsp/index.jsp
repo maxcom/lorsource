@@ -127,12 +127,12 @@
 </section>
 </c:if>
 
+<nav>
+  <a href="add-section.jsp?section=1" class="btn btn-primary">Добавить новость</a>
+  <a href="/news/" class="btn btn-default">Все новости</a>
+  <a class="btn btn-default" href="/view-all.jsp?section=1">Неподтвержденные новости</a>
+</nav>
 
-<div class="nav">
-  [<a href="/news/?offset=20">← предыдущие</a>]
-  [<a href="add-section.jsp?section=1">добавить новость</a>]
-  [<a href="view-all.jsp?section=1">неподтвержденные новости</a>]
-</div>
   <p>
     <i class="icon-rss"></i>
     <a href="section-rss.jsp?section=1">
@@ -140,6 +140,7 @@
     </a>
   </p>
 </div>
+
 <aside id=boxlets>
 
   <c:if test="${template.sessionAuthorized}">
