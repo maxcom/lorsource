@@ -43,10 +43,8 @@ $script.ready('plugins', function() {
 <table>
 <tr><td>Показывать социальные кнопки (Twitter)</td>
 <td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
-<c:if test="${template.prof.showNewFirst}">
-  <tr><td>Новые комментарии в начале</td>
-  <td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
-</c:if>
+<tr><td>Новые комментарии в начале</td>
+<td><input type="checkbox" name="newfirst" <c:if test="${template.prof.showNewFirst}">checked</c:if> ></td></tr>
 <tr><td>Показывать фотографии</td>
 <td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="topics">Число тем форума на странице</label> </td>
