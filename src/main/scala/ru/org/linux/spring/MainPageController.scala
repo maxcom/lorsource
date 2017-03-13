@@ -42,8 +42,16 @@ class MainPageController(
 
     val profile = tmpl.getProf
 
-    val (messages, titles) = topicListService.getMainPageFeed(
-      tmpl.getProf.isShowGalleryOnMain, 25, profile.isMiniNewsBoxletOnMainPage).asScala.splitAt(5)
+    val allTopics = topicListService.getMainPageFeed(tmpl.getProf.isShowGalleryOnMain, 25,
+      profile.isMiniNewsBoxletOnMainPage).asScala
+
+    val (messages, titles) = allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) ⇒
+      if (big.count(!_.isMinor)<5) {
+        (big :+ topic, small)
+      } else {
+        (big, small :+ topic)
+      }
+    }
 
     val mv = new ModelAndView("index")
 
