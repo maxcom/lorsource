@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.site;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -39,20 +38,10 @@ public final class DefaultProfile {
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
-  private static final ImmutableMap<String, Theme> THEMES = Maps.uniqueIndex(Theme.THEMES, new Function<Theme, String>() {
-    @Override
-    public String apply(Theme input) {
-      return input.getId();
-    }
-  });
+  private static final ImmutableMap<String, Theme> THEMES = Maps.uniqueIndex(Theme.THEMES, Theme::getId);
 
-  private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
-  private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
-    @Override
-    public boolean apply(String s) {
-      return isBox(s);
-    }
-  };
+  private static final ImmutableList<String> AVATAR_TYPES =
+          ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
 
   public static final TrackerFilterEnum DEFAULT_TRACKER_MODE = TrackerFilterEnum.MAIN;
 
@@ -93,9 +82,7 @@ public final class DefaultProfile {
     builder.put("DebugMode", Boolean.FALSE);
 
     // main page settings
-    ImmutableList<String> boxes = ImmutableList.of(
-      "poll", "top10", "gallery", "tagcloud", "archive"
-    );
+    ImmutableList<String> boxes = ImmutableList.of("poll", "top10", "gallery", "tagcloud");
 
     builder.put(BOXES_MAIN2_PROPERTY, boxes);
 
@@ -103,7 +90,7 @@ public final class DefaultProfile {
   }
 
   public static Predicate<String> boxPredicate() {
-    return isBoxPredicate;
+    return DefaultProfile::isBox;
   }
 
   public static boolean isStyle(String style) {
