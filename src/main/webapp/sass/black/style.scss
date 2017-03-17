@@ -114,13 +114,18 @@ DIV.forum A { text-decoration: none }
 }
 
 TR.color2 { background: #000080; }
+
 .message-table {
   background: #808080;
   border-spacing: 1px;
-}
 
-.message-table tbody {
-  background: #000080;
+  tbody {
+    background: #000080;
+
+    tr:hover {
+      background: #000060;
+    }
+  }
 }
 
 .entry-body .nav A {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,8 +31,8 @@ import scala.collection.JavaConverters._
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
 class EditProfileController(
-  userDao:UserDao,
-  profileDao:ProfileDao
+  userDao: UserDao,
+  profileDao: ProfileDao
 ) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @PathVariable nick: String): ModelAndView = {
@@ -103,7 +103,6 @@ class EditProfileController(
 
     tmpl.getProf.setAvatarMode(avatar)
     tmpl.getProf.setShowAnonymous("on" == request.getParameter("showanonymous"))
-    tmpl.getProf.setUseHover("on" == request.getParameter("hover"))
     profileDao.writeProfile(tmpl.getCurrentUser, tmpl.getProf)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))

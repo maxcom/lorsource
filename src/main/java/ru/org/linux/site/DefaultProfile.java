@@ -66,7 +66,6 @@ public final class DefaultProfile {
     ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
     builder.put(NEWFIRST_PROPERTY, Boolean.FALSE);
-    builder.put(HOVER_PROPERTY, Boolean.TRUE);
     builder.put(STYLE_PROPERTY, "tango");
     builder.put(FORMAT_MODE_PROPERTY, "quot");
     builder.put(TOPICS_PROPERTY, 30);

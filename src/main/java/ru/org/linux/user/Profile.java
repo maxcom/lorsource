@@ -29,7 +29,6 @@ import java.util.Map;
 public class Profile {
   public static final String STYLE_PROPERTY = "style";
   public static final String FORMAT_MODE_PROPERTY = "format.mode";
-  public static final String HOVER_PROPERTY = "hover";
   public static final String MESSAGES_PROPERTY = "messages";
   public static final String NEWFIRST_PROPERTY = "newfirst";
   public static final String TOPICS_PROPERTY = "topics";
@@ -44,7 +43,6 @@ public class Profile {
 
   private String style;
   private String formatMode;
-  private boolean useHover;
   private int messages;
   private boolean showNewFirst;
   private int topics;
@@ -61,7 +59,6 @@ public class Profile {
   public Profile(ProfileHashtable p, List<String> boxes) {
     style = fixStyle(p.getString(STYLE_PROPERTY));
     formatMode = fixFormat(p.getString(FORMAT_MODE_PROPERTY));
-    useHover = p.getBoolean(HOVER_PROPERTY);
     messages = p.getInt(MESSAGES_PROPERTY);
     showNewFirst = p.getBoolean(NEWFIRST_PROPERTY);
     topics = p.getInt(TOPICS_PROPERTY);
@@ -81,7 +78,6 @@ public class Profile {
 
     p.setString(STYLE_PROPERTY, style);
     p.setString(FORMAT_MODE_PROPERTY, formatMode);
-    p.setBoolean(HOVER_PROPERTY, useHover);
     p.setInt(MESSAGES_PROPERTY, messages);
     p.setBoolean(NEWFIRST_PROPERTY, showNewFirst);
     p.setInt(TOPICS_PROPERTY, topics);
@@ -110,14 +106,6 @@ public class Profile {
 
   public void setFormatMode(String formatMode) {
     this.formatMode = fixFormat(formatMode);
-  }
-
-  public boolean isUseHover() {
-    return useHover;
-  }
-
-  public void setUseHover(boolean hover) {
-    useHover = hover;
   }
 
   public int getMessages() {

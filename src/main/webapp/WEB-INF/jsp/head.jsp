@@ -30,10 +30,6 @@
 
 <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 
-<c:if test="${template.style=='black' and template.prof.useHover}">
-  <link rel=STYLESHEET type="text/css" href="/black/hover.css">
-</c:if>
-
 <link rel="yandex-tableau-widget" href="/manifest.json" />
 <meta name="referrer" content="always">
 
