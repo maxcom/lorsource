@@ -77,13 +77,11 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
     tags.asScala.filterNot(tag ⇒ tagDao.getTagId(tag, skipZero = true).isDefined).asJava
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic) flatMap {
-    val sigterms = sigTermsAggregation("related") field "tag" backgroundFilter termQuery("is_comment", "false")
-
-    sigterms.builder.includeExclude(new IncludeExclude(null, Array(tag)))
-
     _ execute {
       search(MessageIndexTypes) size 0 query
-        boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs sigterms
+        boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
+        sigTermsAggregation("related") field "tag" backgroundFilter
+          termQuery("is_comment", "false") includeExclude(Seq.empty, Seq(tag)))
     }
   } map { r ⇒
     (for {

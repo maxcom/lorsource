@@ -16,12 +16,11 @@
 package ru.org.linux.monitoring
 
 import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.pattern.PipeToSupport
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.TcpClient
 import com.sksamuel.elastic4s.bulk.RichBulkResponse
-import com.sksamuel.elastic4s.mappings.FieldType.{DateType, KeywordType, LongType}
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -39,7 +38,7 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
 
   private val createSchedule = context.system.scheduler.schedule(10 seconds, 2 minutes, self, Initialize)
 
-  private val initializing:Receive = {
+  private val initializing: Receive = {
     case m:Metric ⇒
       enqueue(m)
 
@@ -55,10 +54,10 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
       log.error(ex, "Failed to put template")
   }
 
-  private def indexOf(date:DateTime) = IndexPrefix + "-" + indexDateFormat.print(date)
+  private def indexOf(date: DateTime) = IndexPrefix + "-" + indexDateFormat.print(date)
 
-  private val ready:Receive = {
-    case m:Metric ⇒
+  private val ready: Receive = {
+    case m: Metric ⇒
       enqueue(m)
 
       elastic execute {
@@ -79,10 +78,10 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
       context.become(waiting)
   }
 
-  private val waiting:Receive = {
-    case m:Metric ⇒
+  private val waiting: Receive = {
+    case m: Metric ⇒
       enqueue(m)
-    case r:RichBulkResponse ⇒
+    case r: RichBulkResponse ⇒
       if (r.hasFailures) {
         log.warning(s"Failed to write perf metrics: ${r.failureMessage}")
       }
@@ -93,7 +92,7 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
       context.become(ready)
   }
 
-  private def enqueue(m:Metric):Unit = {
+  private def enqueue(m: Metric): Unit = {
     queue = queue :+ m
 
     if (queue.size > MaxQueue) {
@@ -108,10 +107,10 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
     elastic.execute {
       createTemplate(s"$IndexPrefix-template") pattern PerfPattern mappings (
         mapping(PerfType) fields(
-          field("controller", KeywordType),
-          field("startdate", DateType) format "dateTime",
-          field("elapsed", LongType),
-          field("view", LongType)
+          keywordField("controller"),
+          dateField("startdate") format "dateTime",
+          longField("elapsed"),
+          longField("view")
           ) all false
         )
     }
@@ -130,12 +129,12 @@ object PerformanceLoggingActor {
   def props(elastic: TcpClient) = Props(classOf[PerformanceLoggingActor], elastic)
 }
 
-case class Metric(name:String, start:DateTime, controllerTime: Long, viewTime: Long)
+case class Metric(name: String, start: DateTime, controllerTime: Long, viewTime: Long)
 
 @Configuration
 class PerformanceLoggingConfiguration {
   @Bean(name=Array("loggingActor"))
-  def loggingActor(actorSystem: ActorSystem, elastic: TcpClient) = {
+  def loggingActor(actorSystem: ActorSystem, elastic: TcpClient): ActorRef = {
     actorSystem.actorOf(PerformanceLoggingActor.props(elastic), "PerformanceLogger")
   }
 }
