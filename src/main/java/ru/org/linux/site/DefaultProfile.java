@@ -33,7 +33,6 @@ public final class DefaultProfile {
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
       .put("gallery", "Галерея")
       .put("tagcloud", "Облако тэгов")
-      .put("archive", "Архив новостей")
       .put("lastMiniNews", "Последние мининовости (не будут отображаться в ленте новостей на главной странице)").build();
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,8 +23,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -37,20 +35,6 @@ public class ArchiveDao {
   }
 
   public List<ArchiveStats> getArchiveStats(Section section, Group group) {
-    return getArchiveInternal(section, group);
-  }
-
-  public List<ArchiveStats> getLatestArchiveStats(Section section, int limit) {
-    return jdbcTemplate.query(
-            "select year, month, c from monthly_stats where section=? and groupid is null" +
-                    " order by year desc, month desc limit ?",
-            mapper(section, null),
-            section.getId(),
-            limit
-    );
-  }
-
-  private List<ArchiveStats> getArchiveInternal(final Section section, final Group group) {
     RowMapper<ArchiveStats> mapper = mapper(section, group);
 
     if (group == null) {
@@ -71,12 +55,7 @@ public class ArchiveDao {
   }
 
   private RowMapper<ArchiveStats> mapper(final Section section, final Group group) {
-    return new RowMapper<ArchiveStats>() {
-        @Override
-        public ArchiveStats mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new ArchiveStats(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"));
-        }
-      };
+    return (rs, rowNum) -> new ArchiveStats(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"));
   }
 
   public int getArchiveCount(int groupid, int year, int month) {
