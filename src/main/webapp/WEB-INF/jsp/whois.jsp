@@ -115,7 +115,7 @@
     </c:if>
 
     <b>Статус:</b> ${user.status}
-    <c:if test="${user.moderator}"> (модератор)</c:if>
+    <c:if test="${user.moderator}"> 🤦</c:if>
     <c:if test="${user.administrator}"> (администратор)</c:if>
     <c:if test="${user.corrector}"> (корректор)</c:if>
     <c:if test="${user.blocked}"> (заблокирован)</c:if>

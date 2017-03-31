@@ -63,7 +63,13 @@ public class User implements Serializable {
     corrector = rs.getBoolean("corrector");
     activated = rs.getBoolean("activated");
     blocked = rs.getBoolean("blocked");
-    score = rs.getInt("score");
+
+    if (canmod) {
+      score = 50;
+    } else {
+      score = rs.getInt("score");
+    }
+
     maxScore = rs.getInt("max_score");
     fullName = rs.getString("name");
     String pwd = rs.getString("passwd");
