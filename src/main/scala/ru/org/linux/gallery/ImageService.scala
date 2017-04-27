@@ -16,7 +16,6 @@
 package ru.org.linux.gallery
 
 import java.io.{File, FileNotFoundException, IOException}
-import java.nio.file.Files
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging

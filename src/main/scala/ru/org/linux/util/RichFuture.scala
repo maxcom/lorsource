@@ -17,11 +17,9 @@ package ru.org.linux.util
 
 import akka.actor.ActorSystem
 import akka.pattern.after
-import org.springframework.web.context.request.async.DeferredResult
 
 import scala.concurrent._
 import scala.concurrent.duration.FiniteDuration
-import scala.util.{Failure, Success}
 
 object RichFuture {
   implicit class RichFuture[T](val future: Future[T]) extends AnyVal {

@@ -25,8 +25,6 @@ import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.User
 
-import scala.collection.JavaConverters._
-
 class GalleryPermissionInterceptor (imageDao:ImageDao, topicDao:TopicDao, groupDao:GroupDao,
                                                  topicPermissionService:TopicPermissionService)
   extends HandlerInterceptorAdapter with StrictLogging {

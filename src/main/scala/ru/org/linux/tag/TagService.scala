@@ -19,9 +19,7 @@ import java.util
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.TcpClient
-import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 import ru.org.linux.section.Section
