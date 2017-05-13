@@ -91,6 +91,7 @@ class MainPageController(
 
     mv.getModel.put("showAdsense", Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense))
 
-    mv
+    mv.getModel.put("currentYear", Int.box(Year.now().getValue))
+
   }
 }
