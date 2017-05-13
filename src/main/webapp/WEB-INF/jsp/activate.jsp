@@ -66,7 +66,7 @@
   </form>
 </c:if>
 
-<c:if test="${template.sessionAuthorized}">
+<c:else>
   <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
 
@@ -81,6 +81,6 @@
 
     <button type=submit>Активировать</button>
   </form>
-</c:if>
+</c:else>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
