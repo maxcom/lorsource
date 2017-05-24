@@ -19,8 +19,8 @@
 <footer id="ft">
 
 <p id="ft-info">
-  <a href="/about">О Сервере</a> -
-  <a href="/help/rules.md">Правила форума</a> -
+  <a href="/about">О сервере</a> 
+  <a href="/help/rules.md">Правила форума</a> 
   <a href="/help/lorcode.md">Правила разметки</a><br>
   <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
 </p>
