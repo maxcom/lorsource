@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import ru.org.linux.tracker.TrackerFilterEnum;
+import ru.org.linux.util.Theme;
 
 import javax.annotation.Nonnull;
 import java.util.List;

@@ -87,7 +87,6 @@ class UserEventPrepareService(
         tags = tags.getOrElse(event.getTopicId, Seq.empty).take(TopicTagService.MaxTagsInTitle)
       )
     }
-
     prepared.asJava
   }
 }

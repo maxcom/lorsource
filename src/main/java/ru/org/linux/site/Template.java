@@ -21,6 +21,7 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
+import ru.org.linux.util.Theme;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
