@@ -74,15 +74,11 @@
 --%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
-<div class="nav"   style="border-bottom: none">
-  <c:if test="${uncommited > 0}">
-    [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
-
+    <div class="nav"   style="border-bottom: none">
+    <c:if test="${uncommited > 0}">
+      <a href="view-all.jsp" class= "btn btn-default">Неподтвержденных: ${uncommited}</a> 
     <c:if test="${uncommitedNews > 0}">
-      в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}]
-    </c:if>
-    <c:if test="${uncommitedNews == 0}">
-      новостей нет]
+      <a href="view-all.jsp?section=1"class="btn btn-default">Неподтвержденных новостей: ${uncommitedNews}</a>
     </c:if>
   </c:if>
 </div>
