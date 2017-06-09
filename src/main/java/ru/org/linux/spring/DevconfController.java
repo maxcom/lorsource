@@ -51,7 +51,7 @@ public class DevconfController {
 
     User user = tmpl.getCurrentUser();
 
-    if (!"devconf2016".equals(msg)) {
+    if (!"devconf2017".equals(msg)) {
       throw new UserErrorException("Неправильный код, прочитайте текст новости");
     }
 
