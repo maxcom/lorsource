@@ -18,10 +18,11 @@ package ru.org.linux.search
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
 import com.sksamuel.elastic4s.indexes.IndexDefinition
-import com.sksamuel.elastic4s.{bulk ⇒ _, delete ⇒ _, _}
+import com.sksamuel.elastic4s.{bulk => _, delete => _, _}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
+import org.elasticsearch.common.xcontent.XContentType
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentList, CommentService}
@@ -138,7 +139,7 @@ class ElasticsearchIndexService
         .admin()
         .indices()
         .prepareCreate(MessageIndex)
-        .setSource(mappingSource)
+        .setSource(mappingSource, XContentType.JSON)
         .execute()
         .actionGet()
     }

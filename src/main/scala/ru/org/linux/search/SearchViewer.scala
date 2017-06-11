@@ -62,7 +62,7 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
     }
 
     val dateFilter = Option(query.getInterval.getRange) map { range ⇒
-      rangeQuery(query.getInterval.getColumn) from range
+      rangeQuery(query.getInterval.getColumn) gt range
     }
 
     val userFilter = Option(query.getUser) map { user ⇒
