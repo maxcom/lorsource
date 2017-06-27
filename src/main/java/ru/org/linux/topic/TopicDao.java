@@ -81,7 +81,7 @@ public class TopicDao {
         "postdate, topics.id as msgid, userid, topics.title, " +
         "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
         "urlname, section, topics.sticky, topics.postip, " +
-        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+        "COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
         "topics.resolved, minor, draft " +
         "FROM topics " +

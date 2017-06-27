@@ -52,7 +52,7 @@ public class TopicListDao {
       .append("postdate, topics.id as msgid, topics.userid, topics.title, ")
       .append("topics.groupid as guid, topics.url, topics.linktext, ua_id, ")
       .append("urlname, section, topics.sticky, topics.postip, ")
-      .append("postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
+      .append("COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
       .append("commitdate, topics.stat1, postscore, topics.moderate, notop, ")
       .append("topics.resolved, minor, draft ")
       .append("FROM topics ")
