@@ -243,7 +243,7 @@
         {
           type: 'img',
           src: '/adv/miran-e3.gif',
-          href: 'https://miran.ru/services/dedicated/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated'
+          href: 'https://miran.ru/services/dedicated/sale/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated'
         }
       ];
 
