@@ -122,19 +122,20 @@
   }
 
   out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
-  if (moderateMode) {
-    String host = URI.create(url).getHost();
 
-    if (host!=null) {
-      try {
+  if (moderateMode) {
+    try {
+      String host = URI.create(url).getHost();
+
+      if (host != null) {
         String shortHost = InternetDomainName.from(host).topPrivateDomain().toString();
 
         out.append(" (" + shortHost + ")");
-      } catch (IllegalArgumentException ex) {
-        out.append(" (" + ex.getMessage() + ")");
+      } else {
+        out.append(" (Invalid URL, no host part!)");
       }
-    } else {
-       out.append(" (Invalid URL, no host part!)");
+    } catch (IllegalArgumentException ex) {
+      out.append(" (" + ex.getMessage() + ")");
     }
   }
 %>
