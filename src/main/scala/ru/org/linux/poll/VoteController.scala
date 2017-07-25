@@ -42,7 +42,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     }
 
     val user = tmpl.getCurrentUser
-    val poll = pollDao.getMostRecentPoll
+    val poll = pollDao.getPoll(voteid)
 
     val msg = topicDao.getById(poll.getTopicId)
 
