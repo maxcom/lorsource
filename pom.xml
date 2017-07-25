@@ -9,17 +9,13 @@
   <name>Linux.org.ru</name>
   <version>1.0-SNAPSHOT</version>
 
-  <prerequisites>
-    <maven>3.0.4</maven>
-  </prerequisites>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.3.9.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.3.10.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.9.RELEASE</spring.security.version>
-    <jdbc.postgresql.version>42.1.1</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.1.3</jdbc.postgresql.version>
     <elasticsearch.version>5.4.3</elasticsearch.version>
     <elastic4s.version>5.4.5</elastic4s.version>
     <scala.version>2.12.2</scala.version>
