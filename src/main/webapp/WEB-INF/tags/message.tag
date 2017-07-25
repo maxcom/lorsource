@@ -123,7 +123,7 @@
           <c:otherwise>
             <lor:poll poll="${preparedMessage.poll}"/>
 
-            <c:if test="${preparedMessage.poll.poll.current}">
+            <c:if test="${not preparedMessage.message.expired}">
               <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
             </c:if>
           </c:otherwise>

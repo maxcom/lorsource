@@ -42,8 +42,8 @@ public class PollDaoIntegrationTest {
   @Test
   public void voteGetCurrentPollTest()
       throws Exception {
-    int currentPollId = pollDao.getCurrentPollId();
-    Poll poll = pollDao.getCurrentPoll();
+    int currentPollId = pollDao.getMostRecentPollId();
+    Poll poll = pollDao.getMostRecentPoll();
     assertEquals(currentPollId, poll.getId());
   }
 

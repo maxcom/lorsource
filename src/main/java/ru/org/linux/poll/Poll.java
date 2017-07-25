@@ -28,17 +28,15 @@ public class Poll implements Serializable {
   private final int id;
   private final int topic;
 
-  private final boolean current;
   private final ImmutableList<PollVariant> variants;
   private final boolean multiSelect;
 
   private static final long serialVersionUID = 6505234874388572682L;
 
-  public Poll(int id, int topic, boolean multiSelect, boolean current, List<PollVariant> variants) {
+  public Poll(int id, int topic, boolean multiSelect, List<PollVariant> variants) {
     this.id = id;
     this.topic = topic;
     this.multiSelect = multiSelect;
-    this.current = current;
     this.variants = ImmutableList.copyOf(variants);
   }
 
@@ -48,10 +46,6 @@ public class Poll implements Serializable {
 
   public int getTopicId() {
     return topic;
-  }
-
-  public boolean isCurrent() {
-    return current;
   }
 
   public boolean isMultiSelect() {
@@ -67,7 +61,6 @@ public class Poll implements Serializable {
             id,
             topic,
             multiSelect,
-            current,
             newVariants
     );
   }

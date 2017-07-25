@@ -42,12 +42,12 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     }
 
     val user = tmpl.getCurrentUser
-    val poll = pollDao.getCurrentPoll
+    val poll = pollDao.getMostRecentPoll
 
     val msg = topicDao.getById(poll.getTopicId)
 
-    if (voteid != poll.getId) {
-      throw new BadVoteException("голосовать можно только в текущий опрос")
+    if (msg.isExpired) {
+      throw new BadVoteException("Опрос завернен")
     }
 
     if (votes == null || votes.length == 0) {
@@ -80,8 +80,8 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     val msg = topicDao.getById(msgid)
     val poll = pollDao.getPollByTopicId(msgid)
 
-    if (!poll.isCurrent) {
-      throw new BadVoteException("голосовать можно только в текущий опрос")
+    if (msg.isExpired) {
+      throw new BadVoteException("Опрос завершен")
     }
 
     new ModelAndView("vote-vote", Map(

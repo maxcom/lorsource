@@ -386,7 +386,7 @@ public class AddTopicController {
       }
     }
 
-    return new Poll(0, 0, form.isMultiSelect(), false, variants);
+    return new Poll(0, 0, form.isMultiSelect(), variants);
   }
 
   @RequestMapping("/add-section.jsp")
@@ -488,7 +488,7 @@ public class AddTopicController {
     return screenShot;
   }
 
-  private File processUploadImage(HttpServletRequest request) throws IOException, ScriptErrorException {
+  private File processUploadImage(HttpServletRequest request) throws IOException {
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
       if (multipartFile != null && !multipartFile.isEmpty()) {

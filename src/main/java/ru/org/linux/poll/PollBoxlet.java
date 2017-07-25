@@ -43,7 +43,7 @@ public class PollBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    final Poll poll = pollDao.getCurrentPoll();
+    final Poll poll = pollDao.getMostRecentPoll();
 
     Topic msg = messageDao.getById(poll.getTopicId());
 

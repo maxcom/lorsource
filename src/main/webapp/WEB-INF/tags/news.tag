@@ -147,8 +147,8 @@
   if (votepoll) {
       %>
         <c:choose>
-            <c:when test="${not message.commited || preparedMessage.poll.poll.current}">
-                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${preparedMessage.poll.poll.current}"/>
+            <c:when test="${not message.commited || not preparedMessage.message.expired}">
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.message.expired}"/>
             </c:when>
             <c:otherwise>
                 <lor:poll poll="${preparedMessage.poll}"/>
