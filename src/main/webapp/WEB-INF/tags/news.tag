@@ -81,7 +81,7 @@
 </h2>
 <c:if test="${multiPortal}">
   <div class="group">
-    ${preparedMessage.section.title} - ${preparedMessage.group.title}
+    ${preparedMessage.section.title} — ${preparedMessage.group.title}
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">
       <span>(не подтверждено)</span>
     </c:if>
