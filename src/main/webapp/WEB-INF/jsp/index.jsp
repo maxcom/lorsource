@@ -57,9 +57,9 @@
 </c:if>
 
 --%>
-  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
+  <div style="text-align: center; margin-top: 0.5em; height: 91px" class="interpage-adv">
     <a href="http://linuxpiter.ru/" target="_blank" rel="nofollow">
-      <img src="/img/LinuxPiter_PiterPy.png" width="728" height="90">
+      <img src="/img/LinuxPiter_PiterPy.png" height="90">
     </a>
   </div>
 
