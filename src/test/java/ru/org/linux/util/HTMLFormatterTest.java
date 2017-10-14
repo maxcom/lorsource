@@ -81,6 +81,8 @@ public class HTMLFormatterTest {
   
   private static final String TEXT18 = "http://smartphonebenchmarks.com/index.php?filter_model[]=all&filter_cpu[]=Qualcomm+Snapdragon+MSM8255&filter_cpu[]=Texas+Instrument+OMAP+3610";
   private static final String RESULT18 = "<a href=\"http://smartphonebenchmarks.com/index.php?filter_model%5B%5D=all&amp;filter_cpu%5B%5D=Qualcomm+Snapdragon+MSM8255&amp;filter_cpu%5B%5D=Texas+Instrument+OMAP+3610\">http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]...</a>";
+  private static final String TEXT19 = "Test *.myftp.org test";
+  private static final String RESULT19 = "Test *.myftp.org test";
 
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
@@ -196,6 +198,7 @@ public class HTMLFormatterTest {
     assertEquals(RESULT17, toHtmlFormatter.format(TEXT17, false));
     assertEquals(RESULT17_2, toHtmlFormatter.format(TEXT17_2, false));
     assertEquals(RESULT18, toHtmlFormatter.format(TEXT18, false));
+    assertEquals(RESULT19, toHtmlFormatter.format(TEXT19, false));
     assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
