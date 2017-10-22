@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -304,13 +305,14 @@ public class CommentService {
     }
   }
 
-  public void prepareReplyto(
+  public ImmutableMap<String, Object> prepareReplyto(
     CommentRequest add,
-    Map<String, Object> formParams,
     HttpServletRequest request
   ) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      formParams.put("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
+      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
+    } else {
+      return ImmutableMap.of();
     }
   }
 

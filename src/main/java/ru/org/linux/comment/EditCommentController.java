@@ -144,7 +144,8 @@ public class EditCommentController {
     User user = commentService.getCommentUser(commentRequest, request, errors);
 
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors);
-    commentService.prepareReplyto(commentRequest, formParams, request);
+
+    formParams.putAll(commentService.prepareReplyto(commentRequest, request));
 
     String msg = commentService.getCommentBody(commentRequest, user, errors);
     Comment comment = commentService.getComment(commentRequest, user, request);
