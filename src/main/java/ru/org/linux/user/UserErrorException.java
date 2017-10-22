@@ -15,7 +15,7 @@
 
 package ru.org.linux.user;
 
-public class UserErrorException extends Exception
+public class UserErrorException extends RuntimeException
 {
 	public UserErrorException()
 	{

@@ -85,9 +85,7 @@ public class MemoriesController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    MemoriesListItem m = memoriesDao.getMemoriesListItem(id);
-
-    if (m != null) {
+    return memoriesDao.getMemoriesListItem(id).map (m -> {
       if (m.getUserid() != user.getId()) {
         throw new AccessViolationException("Нельзя удалить чужую запись");
       }
@@ -95,9 +93,8 @@ public class MemoriesController {
       memoriesDao.delete(id);
 
       MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(m.getTopic(), user);
+
       return m.isWatch()? memoriesInfo.watchCount(): memoriesInfo.favsCount();
-    } else {
-      return -1;
-    }
+    }).orElse(-1);
   }
 }

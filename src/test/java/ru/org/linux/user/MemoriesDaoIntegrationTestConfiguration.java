@@ -17,11 +17,13 @@ package ru.org.linux.user;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
+
 @Configuration
 public class MemoriesDaoIntegrationTestConfiguration {
   @Bean
-  public MemoriesDao memoriesDao() {
-    return new MemoriesDao();
+  public MemoriesDao memoriesDao(DataSource ds) {
+    return new MemoriesDao(ds);
   }
 
   @Bean
@@ -33,5 +35,4 @@ public class MemoriesDaoIntegrationTestConfiguration {
   public UserLogDao userLogDao() {
     return new UserLogDao();
   }
-
 }
