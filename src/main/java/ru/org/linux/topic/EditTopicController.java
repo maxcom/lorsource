@@ -17,7 +17,7 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -199,8 +199,6 @@ public class EditTopicController {
       params.put("editInfo", editInfoList.get(0));
 
       ImmutableSet<User> editors = editHistoryService.getEditorUsers(message, editInfoList);
-
-      editors.stream().collect(Collectors.toMap(User::getId, u -> 0));
 
       form.setEditorBonus(editors.stream().collect(Collectors.toMap(User::getId, u -> 0)));
       
