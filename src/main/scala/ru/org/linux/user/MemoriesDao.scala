@@ -70,14 +70,14 @@ class MemoriesDao(ds: DataSource) {
   def getTopicInfo(topic: Int, currentUser: User): MemoriesInfo = {
     val res: MemoriesInfo = jdbcTemplate.queryAndMap("SELECT watch, count(*) FROM memories WHERE topic=? GROUP BY watch", topic){ (rs, _) ⇒
       if (rs.getBoolean("watch")) {
-        MemoriesInfo(rs.getInt("count"), 0, 0, 0)
+        MemoriesInfo(watchCount = rs.getInt("count"), favsCount = 0, watchId = 0, favId = 0)
       } else {
-        MemoriesInfo(0, rs.getInt("count"), 0, 0)
+        MemoriesInfo(watchCount = 0, favsCount = rs.getInt("count"), watchId = 0, favId = 0)
       }
     }.fold(MemoriesInfo(0, 0, 0, 0)) { (acc, cur) ⇒
       MemoriesInfo(
         watchCount = acc.watchCount + cur.watchCount,
-        favsCount = acc.favsCount + acc.favsCount,
+        favsCount = acc.favsCount + cur.favsCount,
         watchId = 0,
         favId = 0)
     }
@@ -96,8 +96,9 @@ class MemoriesDao(ds: DataSource) {
       }
 
       MemoriesInfo(watchCount = res.watchCount, favsCount = res.favsCount, watchId = watchId, favId = favsId)
+    } else {
+      res
     }
-    else res
   }
 
   def getMemoriesListItem(id: Int): java.util.Optional[MemoriesListItem] = {
