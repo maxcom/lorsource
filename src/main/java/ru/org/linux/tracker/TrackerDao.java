@@ -96,6 +96,7 @@ public class TrackerDao {
           " AND t.stat1=0 AND g.id=t.groupid " +
      "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
 
+  private static final String queryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartTagIgnored = " AND t.id NOT IN (select tags.msgid from tags, user_tags "
     + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid " +
@@ -116,12 +117,15 @@ public class TrackerDao {
     parameter.addValue("offset", offset);
 
     String partIgnored;
+    String commentIgnored;
 
     if(currentUser != null) {
+      commentIgnored = queryPartCommentIgnored + queryPartTagIgnored;
       partIgnored = queryPartIgnored + queryPartTagIgnored;
       parameter.addValue("userid", currentUser.getId());
     } else {
       partIgnored = "";
+      commentIgnored = "";
     }
 
     String partFilter;
@@ -148,7 +152,7 @@ public class TrackerDao {
 
     String query;
 
-    query = String.format(queryTrackerMain, partUncommited, partIgnored, partFilter, partUncommited, partIgnored, partFilter);
+    query = String.format(queryTrackerMain, partUncommited, commentIgnored, partFilter, partUncommited, partIgnored, partFilter);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
