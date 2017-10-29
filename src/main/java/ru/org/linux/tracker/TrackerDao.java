@@ -70,6 +70,7 @@ public class TrackerDao {
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
         "AND t.lastmod > :interval " +
         "%s" + /* noUncommited */
+        "%s" + /* user!=null ? queryCommentIgnored*/
         "%s" + /* user!=null ? queryPartIgnored*/
         "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
      "UNION ALL " +
@@ -152,7 +153,7 @@ public class TrackerDao {
 
     String query;
 
-    query = String.format(queryTrackerMain, partUncommited, commentIgnored, partFilter, partUncommited, partIgnored, partFilter);
+    query = String.format(queryTrackerMain, partUncommited, commentIgnored, partIgnored, partFilter, partUncommited, partIgnored, partFilter);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
