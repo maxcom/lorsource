@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,8 +30,9 @@ import scala.collection.JavaConverters._
 
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentService,
-                              messageDao: TopicDao, prepareService: CommentPrepareService,
-                              permissionService: TopicPermissionService) {
+                              topicDao: TopicDao, prepareService: CommentPrepareService,
+                              permissionService: TopicPermissionService,
+                              commentDeleteService: CommentDeleteService) {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
     val tmpl = Template.getTemplate(request)
@@ -44,7 +45,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new UserErrorException("комментарий уже удален")
     }
 
-    val topic = messageDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.getTopicId)
     if (topic.isDeleted) {
       throw new AccessViolationException("тема удалена")
     }
@@ -62,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   }
 
   private def findNextComment(comment: Comment): Option[Comment] = {
-    val updatedTopic = messageDao.getById(comment.getTopicId)
+    val updatedTopic = topicDao.getById(comment.getTopicId)
     val commentList = commentService.getCommentList(updatedTopic, false)
 
     commentList.getList.asScala.find(_.getId >= comment.getId)
@@ -90,7 +91,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new UserErrorException("комментарий уже удален")
     }
 
-    val topic = messageDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.getTopicId)
     val haveAnswers = commentService.isHaveAnswers(comment)
     if (!permissionService.isCommentDeletableNow(comment, user, topic, haveAnswers)) {
       throw new UserErrorException("комментарий нельзя удалить")
@@ -103,9 +104,9 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
         0
       }
 
-      commentService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
+      commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
     } else {
-      if (commentService.deleteComment(msgid, reason, user)) {
+      if (commentDeleteService.deleteComment(msgid, reason, user)) {
         Seq(msgid)
       } else {
         Seq.empty

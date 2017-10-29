@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,6 @@ package ru.org.linux.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.comment.CommentService;
+import ru.org.linux.comment.CommentDeleteService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
@@ -45,29 +44,21 @@ import java.util.Random;
 public class UserModificationController {
   private static final Logger logger = LoggerFactory.getLogger(UserModificationController.class);
 
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private UserDao userDao;
-  @Autowired
-  private CommentService commentService;
 
   @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private CommentDeleteService commentService;
 
   /**
    * Возвращает объект User модератора, если текущая сессия не модераторская, тогда исключение
    * @param request текущий http запрос
    * @return текущий модератор
-   * @throws Exception если модератора нет
    */
-  private static User getModerator(HttpServletRequest request) throws Exception {
+  private static User getModerator(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
