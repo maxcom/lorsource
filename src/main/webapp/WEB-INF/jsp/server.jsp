@@ -69,34 +69,32 @@
 Конфигурация
 </p>
 <ul>
-  <li>Supermicro 6016T-UF</li>
-  <li>2 x Intel Xeon E5620 12M Cache, 2.40 GHz, 4 ядра</li>
-  <li>48 GB DDR3, ECC, REG</li>
-  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm)</li>
-  <li>2x 240Gb OCZ Trion 1000 (RAID1 with HDD, «write mostly»)</li>
+  <li>Supermicro 6016T-UF;</li>
+  <li>2 x Intel Xeon E5620 12M Cache, 2.40 GHz, 4 ядра;</li>
+  <li>48 GB DDR3, ECC, REG;</li>
+  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm);</li>
+  <li>2x 240Gb OCZ Trion 1000 (RAID1 with HDD, «write mostly»).</li>
 </ul>
 
 <h1>Софт</h1>
   <p>
-Мы работаем на
+Мы работаем на:
   </p>
     <ul>
-      <li>CentOS 7.x</li>
-      <li>СУБД PostgreSQL 9.5</li>
-      <li>OpenJDK 1.8.0</li>
-      <li>Scala 2.12</li>
-      <li>Apache Tomcat 7</li>
-      <li>ActiveMQ 5.11</li>
-      <li>Spring 4.3</li>
-      <li>Поиск: Elasticsearch 5.x</li>
-      <li>Nginx 1.10</li>
+      <li>CentOS 7.x;</li>
+      <li>СУБД PostgreSQL 9.5;</li>
+      <li>OpenJDK 1.8.0;</li>
+      <li>Scala 2.12;</li>
+      <li>Apache Tomcat 7;</li>
+      <li>ActiveMQ 5.11;</li>
+      <li>Spring 4.3;</li>
+      <li>поиск: Elasticsearch 5.x;</li>
+      <li>Nginx 1.10.</li>
     </ul>
 
 <h1>Исходные тексты</h1>
 
-  Исходные тексты доступны под лицензией Apache License 2.0:
-  <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
-
+  Исходные тексты  <a href="https://github.com/maxcom/lorsource">доступны</a> под лицензией Apache License 2.0.
   <h2>Entypo font</h2>
   На сайте используется иконочный шрифт Entypo, Copyright (C) 2012 by Daniel Bruce,
   <a href="http://www.entypo.com">http://www.entypo.com</a>. Шрифт с нужным нам набором символов
@@ -151,10 +149,10 @@
 
 <h1>Связанные проекты</h1>
 <ul>
-<li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты</li>
-<li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a></li>
-<li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a></li>
-<li><a href="http://lor.click/">Статистика LOR</a></li>
+<li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты.</li>
+<li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a>.</li>
+<li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a>.</li>
+<li><a href="http://lor.click/">Статистика LOR</a>. </li>
 </ul>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
