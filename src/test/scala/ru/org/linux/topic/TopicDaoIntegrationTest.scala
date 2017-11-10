@@ -28,7 +28,7 @@ import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest._
-import ru.org.linux.user.{UserDao, UserLogDao, UserService}
+import ru.org.linux.user.{UserDao, UserLogDao, UserService, IgnoreListDao}
 import ru.org.linux.util.bbcode.LorCodeService
 
 @RunWith (classOf[SpringJUnit4ClassRunner])
@@ -80,7 +80,11 @@ class TopicDaoIntegrationTestConfiguration {
   def userDao = new UserDao()
 
   @Bean
-  def userService(siteConfig:SiteConfig, userDao:UserDao) = new UserService(siteConfig, userDao)
+  def ignoreListDao = new IgnoreListDao()
+
+  @Bean
+  def userService(siteConfig:SiteConfig, userDao:UserDao,
+                  ignoreListDao:IgnoreListDao) = new UserService(siteConfig, userDao, ignoreListDao)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

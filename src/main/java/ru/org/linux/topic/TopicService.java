@@ -75,6 +75,9 @@ public class TopicService {
   private TopicTagService topicTagService;
 
   @Autowired
+  private UserService userService;
+
+  @Autowired
   private UserTagService userTagService;
 
   @Autowired
@@ -147,6 +150,9 @@ public class TopicService {
     Set<Integer> notifiedUsers = userEventService.getNotifiedUsers(msgid);
 
     Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+    userRefs = userRefs.stream()
+            .filter(p -> !userService.isIgnoring(p.getId(), author))
+            .collect(Collectors.toSet());
 
     // оповещение пользователей по тегам
     List<Integer> userIdListByTags = userTagService.getUserIdListByTags(author, tags);
