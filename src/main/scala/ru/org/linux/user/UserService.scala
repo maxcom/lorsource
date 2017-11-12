@@ -43,7 +43,7 @@ object UserService {
 }
 
 @Service
-class UserService(siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging {
+class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao) extends StrictLogging {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
       new CacheLoader[String, Integer] {
@@ -88,6 +88,11 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao) extends StrictLoggin
       new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous,
         User.getStars(user.getScore, user.getMaxScore, false), null, null)
     }
+  }
+
+  def isIgnoring(userId: Int, ignoredUserId: Int): Boolean = {
+    val ignoredUsers = ignoreListDao.get(getUserCached(userId))
+    ignoredUsers.contains(ignoredUserId)
   }
 
   private def gravatar(email: String, avatarStyle: String, size: Int): String = {

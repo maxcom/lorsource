@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -329,6 +330,9 @@ public class CommentService {
     /* кастование пользователей */
     if (permissionService.isUserCastAllowed(author)) {
       Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
+      userRefs = userRefs.stream()
+              .filter(p -> !userService.isIgnoring(p.getId(), author.getId()))
+              .collect(Collectors.toSet());
       userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
     }
 
