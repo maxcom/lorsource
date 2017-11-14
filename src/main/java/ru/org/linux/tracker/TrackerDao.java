@@ -68,7 +68,7 @@ public class TrackerDao {
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
-        "AND t.lastmod > :interval " +
+        "AND t.lastmod > :interval AND comments.postdate > :interval " +
         "%s" + /* noUncommited */
         "%s" + /* user!=null ? queryCommentIgnored*/
         "%s" + /* user!=null ? queryPartIgnored*/
@@ -94,12 +94,13 @@ public class TrackerDao {
           "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
-          " AND g.id=t.groupid) as tracker ORDER BY id, lastmod desc) fixed " +
+          " AND g.id=t.groupid) as tracker ORDER BY id, postdate desc) tracker " +
+              "WHERE true %s" + // queryPartTagIgnored
      "ORDER BY postdate DESC LIMIT :topics OFFSET :offset";
 
   private static final String queryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
-  private static final String queryPartTagIgnored = " AND t.id NOT IN (select tags.msgid from tags, user_tags "
+  private static final String queryPartTagIgnored = " AND tracker.id NOT IN (select tags.msgid from tags, user_tags "
     + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid " +
           "except select tags.msgid from tags, user_tags where " +
           "tags.tagid=user_tags.tag_id and user_tags.is_favorite = true and user_id=:userid) ";
@@ -119,14 +120,17 @@ public class TrackerDao {
 
     String partIgnored;
     String commentIgnored;
+    String tagIgnored;
 
-    if(currentUser != null) {
-      commentIgnored = queryPartCommentIgnored + queryPartTagIgnored;
-      partIgnored = queryPartIgnored + queryPartTagIgnored;
+    if (currentUser != null) {
+      commentIgnored = queryPartCommentIgnored;
+      partIgnored = queryPartIgnored;
+      tagIgnored = queryPartTagIgnored;
       parameter.addValue("userid", currentUser.getId());
     } else {
       partIgnored = "";
       commentIgnored = "";
+      tagIgnored = "";
     }
 
     String partFilter;
@@ -153,7 +157,8 @@ public class TrackerDao {
 
     String query;
 
-    query = String.format(queryTrackerMain, partUncommited, commentIgnored, partIgnored, partFilter, partUncommited, partIgnored, partFilter);
+    query = String.format(queryTrackerMain, partUncommited, commentIgnored, partIgnored, partFilter,
+            partUncommited, partIgnored, partFilter, tagIgnored);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
