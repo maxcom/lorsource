@@ -50,7 +50,7 @@ public class TrackerDao {
   private TopicTagService topicTagService;
 
   private static final String queryTrackerMain =
-      "SELECT " +
+      "SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT " +
         "t.userid as author, " +
         "t.id, lastmod, " +
         "t.stat1 AS stat1, " +
@@ -94,7 +94,7 @@ public class TrackerDao {
           "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
-          " AND t.stat1=0 AND g.id=t.groupid " +
+          " AND g.id=t.groupid) as tracker ORDER BY id, lastmod desc) fixed " +
      "ORDER BY postdate DESC LIMIT :topics OFFSET :offset";
 
   private static final String queryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
