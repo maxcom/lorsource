@@ -109,6 +109,8 @@ public class TrackerDao {
   private static final String queryPartTech = " AND not t.groupid in (8404, 4068, 19392, 19390, 9326, 19405) AND section=2 ";
   private static final String queryPartMain = " AND not t.groupid in (8404, 4068, 19392, 19390, 19405) ";
 
+  private static final String queryPartResolved = " AND t.resolved ";
+
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
   public List<TrackerItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Date startDate,
@@ -147,6 +149,10 @@ public class TrackerDao {
         break;
       case TECH:
         partFilter = queryPartTech;
+        break;
+      case RESOLVED:
+        partFilter = queryPartTech
+          + queryPartResolved;
         break;
       default:
         partFilter = "";
