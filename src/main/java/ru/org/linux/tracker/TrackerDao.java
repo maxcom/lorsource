@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -94,7 +94,7 @@ public class TrackerDao {
           "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
-          " AND g.id=t.groupid) as tracker ORDER BY id, lastmod desc) fixed " +
+          " AND g.id=t.groupid) as tracker ORDER BY id, lastmod desc) " +
      "ORDER BY postdate DESC LIMIT :topics OFFSET :offset";
 
   private static final String queryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
