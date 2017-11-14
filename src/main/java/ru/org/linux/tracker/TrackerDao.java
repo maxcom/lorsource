@@ -67,10 +67,11 @@ public class TrackerDao {
         "t.moderate " +
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
-        "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
+        "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
+              "%s" + /* user!=null ? queryCommentIgnored*/
+              "ORDER BY postdate DESC LIMIT 1) " +
         "AND t.lastmod > :interval AND comments.postdate > :interval " +
         "%s" + /* noUncommited */
-        "%s" + /* user!=null ? queryCommentIgnored*/
         "%s" + /* user!=null ? queryPartIgnored*/
         "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
      "UNION ALL " +
@@ -157,7 +158,7 @@ public class TrackerDao {
 
     String query;
 
-    query = String.format(queryTrackerMain, partUncommited, commentIgnored, partIgnored, partFilter,
+    query = String.format(queryTrackerMain, commentIgnored, partUncommited, partIgnored, partFilter,
             partUncommited, partIgnored, partFilter, tagIgnored);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
