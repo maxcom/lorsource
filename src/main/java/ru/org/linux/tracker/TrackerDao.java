@@ -95,7 +95,7 @@ public class TrackerDao {
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           " AND t.stat1=0 AND g.id=t.groupid " +
-     "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
+     "ORDER BY postdate DESC LIMIT :topics OFFSET :offset";
 
   private static final String queryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";

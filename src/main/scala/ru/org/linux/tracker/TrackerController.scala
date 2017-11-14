@@ -91,7 +91,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
 
     val trackerTopics = trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages).asScala
 
-    params.put("msgs", trackerTopics.sortBy(-_.getPostdate.getTime).asJava)
+    params.put("msgs", trackerTopics.asJava)
 
     if (tmpl.isModeratorSession) {
       params.put("newUsers", userService.getNewUsers)
