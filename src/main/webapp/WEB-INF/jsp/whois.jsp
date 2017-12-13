@@ -51,6 +51,11 @@
     <lor:csrf/>
     <button type="submit" class="btn btn-danger">Выйти</button>
   </form>
+
+  <form action="logout_all_sessions" method="POST" style="display: inline-block">
+    <lor:csrf/>
+    <button type="submit" class="btn btn-danger">Выйти со всех устройств</button>
+  </form>
 </c:if>
 
 <c:if test="${not currentUser}">

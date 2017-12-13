@@ -55,7 +55,7 @@ http://www.springframework.org/schema/security/spring-security-3.2.xsd">
     </authentication-manager>
 
     <beans:bean id="rememberMeServices"
-                class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+                class="ru.org.linux.auth.GenerationBasedTokenRememberMeServices">
         <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
         <beans:property name="key" value="${Secret}"/>
         <beans:property name="cookieName" value="remember_me"/>
