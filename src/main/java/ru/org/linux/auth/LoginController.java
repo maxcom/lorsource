@@ -26,7 +26,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +36,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.site.Template;
+import ru.org.linux.auth.GenerationBasedTokenRememberMeServices;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +54,7 @@ public class LoginController {
   private UserDetailsServiceImpl userDetailsService;
 
   @Autowired
-  private RememberMeServices rememberMeServices;
+  private GenerationBasedTokenRememberMeServices rememberMeServices;
 
   @Autowired
   @Qualifier("authenticationManager")
@@ -103,7 +104,13 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/login.jsp"));
   }
 
-  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+  @RequestMapping(value = "/logout_all_sessions", method = RequestMethod.POST)
+  public ModelAndView logoutAllDevices(HttpServletRequest request, HttpServletResponse response) {
+    userDao.unloginAllSessions(Template.getTemplate(request).getCurrentUser());
+    return logout(request, response);
+  }
+
+  @RequestMapping(value = {"/logout", "/logout_all_sessions"}, method = RequestMethod.GET)
   public ModelAndView logoutLink() {
     if (AuthUtil.isSessionAuthorized()) {
       return new ModelAndView(new RedirectView("/people/"+AuthUtil.getNick()+"/profile"));
