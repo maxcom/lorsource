@@ -72,6 +72,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.POST))
   def deleteComments(@RequestParam("msgid") msgid: Int, @RequestParam("reason") reason: String,
                      @RequestParam(value = "bonus", defaultValue = "0") bonus: Int,
+                     @RequestParam(value = "delete_replys", defaultValue = "false") deleteReplys: Boolean,
                      request: HttpServletRequest): ModelAndView = {
     if (bonus < 0 || bonus > 20) {
       throw new BadParameterException("неправильный размер штрафа")
@@ -104,9 +105,17 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
         0
       }
 
-      commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
+      if (deleteReplys) {
+        commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
+      } else {
+        if (commentDeleteService.deleteComment(msgid, reason, user, effectiveBonus, false)) {
+          Seq(msgid)
+        } else {
+          Seq.empty
+        }
+      }
     } else {
-      if (commentDeleteService.deleteComment(msgid, reason, user)) {
+      if (commentDeleteService.deleteComment(msgid, reason, user, 0, true)) {
         Seq(msgid)
       } else {
         Seq.empty
