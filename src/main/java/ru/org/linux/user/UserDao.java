@@ -514,4 +514,16 @@ public class UserDao {
       jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=? AND CURRENT_TIMESTAMP-lastlogin > '1 hour'::interval", user.getId());
     }
   }
+
+  /**
+   * Sign out from all sessions
+   * @param user logged user
+   */
+  public void unloginAllSessions(User user) {
+    jdbcTemplate.update("UPDATE users SET token_generation=token_generation+1 WHERE id=?", user.getId());
+  }
+
+  public int getTokenGeneration(String nick) {
+    return jdbcTemplate.queryForObject("SELECT token_generation FROM users WHERE nick=?", Integer.class, nick);
+  }
 }

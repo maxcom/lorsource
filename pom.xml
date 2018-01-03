@@ -13,7 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.3.12.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.3.13.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.10.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.1.4</jdbc.postgresql.version>
     <elasticsearch.version>5.5.3</elasticsearch.version>
@@ -131,7 +131,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.5</version>
+      <version>2.6</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
