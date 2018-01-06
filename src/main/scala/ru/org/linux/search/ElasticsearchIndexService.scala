@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,13 +16,13 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{IndexAndType, IndexesAndTypes, TcpClient}
+import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
 import com.sksamuel.elastic4s.indexes.IndexDefinition
-import com.sksamuel.elastic4s.{bulk => _, delete => _, _}
+import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
 import com.typesafe.scalalogging.StrictLogging
-import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringEscapeUtils
-import org.elasticsearch.common.xcontent.XContentType
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentList, CommentService}
@@ -43,6 +43,34 @@ object ElasticsearchIndexService {
   val MessageIndexTypes = IndexesAndTypes(MessageIndexType)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
+
+  val Mapping: MappingDefinition = mapping(MessageType).fields(
+    keywordField("group"),
+    keywordField("section"),
+    booleanField("is_comment"),
+    dateField("postdate"),
+    keywordField("author"),
+    keywordField("tag"),
+    keywordField("topic_author"),
+    longField("topic_id"),
+    textField("topic_title").index(false),
+    textField("title").analyzer("text_analyzer"),
+    textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets),
+    booleanField("topic_awaits_commit")
+  ).all(false)
+
+  val Analyzers = Seq(
+    CustomAnalyzerDefinition(
+      "text_analyzer",
+      tokenizer = StandardTokenizer,
+      filters = Seq(
+        LengthTokenFilter(name="m_long_word", max = 100),
+        LowercaseTokenFilter,
+        StandardTokenFilter,
+        MappingCharFilter("m_ee", "ё" -> "е", "Ё" -> "Е"),
+        SnowballTokenFilter("m_my_snow_ru", "Russian"),
+        SnowballTokenFilter("m_my_snow_en", "English")))
+  )
 }
 
 @Service
@@ -107,7 +135,7 @@ class ElasticsearchIndexService
     }
   }
 
-  def reindexComments(comments:Seq[Int]) = {
+  def reindexComments(comments:Seq[Int]): Unit = {
     if (comments.contains(0)) {
       logger.warn("Skipping MSGID=0!!!")
     }
@@ -127,25 +155,19 @@ class ElasticsearchIndexService
     executeBulk(bulk(requests))
   }
 
-  def createIndexIfNeeded():Unit = {
+  def createIndexIfNeeded(): Unit = {
     val indexExistsResult = elastic execute {
       indexExists(MessageIndex)
     } await
 
     if (!indexExistsResult.isExists) {
-      val mappingSource = IOUtils.toString(getClass.getClassLoader.getResource("es-mapping.json"), "UTF-8")
-
-      elastic.java
-        .admin()
-        .indices()
-        .prepareCreate(MessageIndex)
-        .setSource(mappingSource, XContentType.JSON)
-        .execute()
-        .actionGet()
+      elastic execute {
+        createIndex(MessageIndex).mappings(Mapping).analysis(Analyzers)
+      } await
     }
   }
 
-  private def executeBulk(bulkRequest: BulkDefinition):Unit = {
+  private def executeBulk(bulkRequest: BulkDefinition): Unit = {
     if (bulkRequest.requests.nonEmpty) {
       val bulkResponse = elastic.execute(bulkRequest).await
 
