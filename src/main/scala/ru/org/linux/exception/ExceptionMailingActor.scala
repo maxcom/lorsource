@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import java.util.Date
 import javax.mail.internet.{AddressException, InternetAddress}
 import javax.mail.{Message, Transport}
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, Props, Timers}
 import ru.org.linux.email.EmailService
 import ru.org.linux.exception.ExceptionMailingActor._
 import ru.org.linux.spring.SiteConfig
@@ -27,10 +27,8 @@ import ru.org.linux.spring.SiteConfig
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
-class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogging {
-  import context.dispatcher
-
-  context.system.scheduler.schedule(ResetAt, ResetAt, self, Reset)
+class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogging with Timers {
+  timers.startPeriodicTimer(Reset, Reset, ResetAt)
 
   private var count = 0
   private var currentTypes = Set.empty[String]
@@ -74,7 +72,7 @@ class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogg
 
       true
     } catch {
-      case e: AddressException =>
+      case _: AddressException =>
         log.warning(s"Неправильный e-mail адрес: $adminEmailAddress")
         false
       case NonFatal(e) =>
@@ -88,8 +86,8 @@ object ExceptionMailingActor {
   case class Report(ex: Class[_ <: Throwable], msg: String)
   case object Reset
 
-  val ResetAt = 5 minutes
+  val ResetAt: FiniteDuration = 5 minutes
   val MaxMessages = 5
 
-  def props(siteConfig: SiteConfig) = Props(classOf[ExceptionMailingActor], siteConfig)
+  def props(siteConfig: SiteConfig) = Props(new ExceptionMailingActor(siteConfig))
 }

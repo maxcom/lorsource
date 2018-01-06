@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package ru.org.linux.realtime
 import java.io.IOException
 
 import akka.NotUsed
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated, Timers}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
@@ -29,27 +29,24 @@ import org.springframework.web.socket.config.annotation.{EnableWebSocket, WebSoc
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
 import ru.org.linux.comment.CommentService
-import ru.org.linux.realtime.RealtimeEventHub.{NewComment, Tick}
-import ru.org.linux.realtime.RealtimeEventHub.{SessionTerminated, Subscribe}
+import ru.org.linux.realtime.RealtimeEventHub.{NewComment, SessionTerminated, Subscribe, Tick}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
+import scala.collection.mutable
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 // TODO ignore list support
 // TODO fix face conditions on simultaneous posting comment, subscription and missing processing
-class RealtimeEventHub extends Actor with ActorLogging {
+class RealtimeEventHub extends Actor with ActorLogging with Timers {
   private val data = new mutable.HashMap[Int, mutable.Set[ActorRef]] with mutable.MultiMap[Int, ActorRef]
   private val sessions = new mutable.HashMap[String, ActorRef]
   private var maxDataSize: Int = 0
 
-  private implicit val ec = context.dispatcher
-
-  context.system.scheduler.schedule(5.minutes, 5.minutes, self, Tick)
+  timers.startPeriodicTimer(Tick, Tick, 5.minutes)
 
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
@@ -111,14 +108,14 @@ object RealtimeEventHub {
   case class Subscribe(session: WebSocketSession, topic: Int)
   case class SessionTerminated(session: String)
 
-  def props = Props(classOf[RealtimeEventHub])
+  def props = Props(new RealtimeEventHub())
 }
 
 class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLogging {
-  private implicit val ec = context.dispatcher
+  private implicit val ec: ExecutionContext = context.dispatcher
   private val schedule = context.system.scheduler.schedule(5.seconds, 1.minute, self, Tick)
 
-  private def notifyComment(comment: Int) = {
+  private def notifyComment(comment: Int): Unit = {
     session.sendMessage(new TextMessage(comment.toString))
   }
 
@@ -149,7 +146,7 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
 }
 
 object RealtimeSessionActor {
-  def props(session: WebSocketSession) = Props(classOf[RealtimeSessionActor], session)
+  def props(session: WebSocketSession) = Props(new RealtimeSessionActor(session))
 }
 
 @Service
@@ -209,7 +206,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 @Configuration
 class RealtimeConfigurationBeans(actorSystem: ActorSystem) {
   @Bean(Array("realtimeHubWS"))
-  def hub = actorSystem.actorOf(RealtimeEventHub.props)
+  def hub: ActorRef = actorSystem.actorOf(RealtimeEventHub.props)
 }
 
 @Configuration
