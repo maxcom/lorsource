@@ -63,7 +63,7 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 )
 class SearchIntegrationTestConfiguration {
   class LocalNodeProvider {
-    val node = LocalNode("test-elastic", Files.createTempDirectory("test-elastic").toFile.getAbsolutePath)
+    val node = ElasticsearchConfiguration.createEmbedded("test-elastic", Files.createTempDirectory("test-elastic").toFile.getAbsolutePath)
 
     def close(): Unit = node.stop(true)
   }
@@ -73,7 +73,7 @@ class SearchIntegrationTestConfiguration {
 
   @Bean
   def elasticClient(node: LocalNodeProvider): TcpClient = {
-    node.node.elastic4sclient(shutdownNodeOnClose = false)
+    node.node.tcp(shutdownNodeOnClose = false)
   }
 
   @Bean

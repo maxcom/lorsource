@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import com.sksamuel.elastic4s.ElasticDsl.{termsAggregation, _}
 import com.sksamuel.elastic4s.TcpClient
 import com.sksamuel.elastic4s.searches.RichSearchResponse
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
-import com.sksamuel.elastic4s.searches.queries.funcscorer.FilterFunctionDefinition
+import com.sksamuel.elastic4s.searches.queries.funcscorer.WeightScoreDefinition
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
@@ -35,16 +35,16 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
       boolQuery.
         must(
           should(
-            commonQuery("title") query queryText lowFreqMinimumShouldMatch 2,
-            commonQuery("message") query queryText lowFreqMinimumShouldMatch 2)
+            commonTermsQuery("title") query queryText lowFreqMinimumShouldMatch 2,
+            commonTermsQuery("message") query queryText lowFreqMinimumShouldMatch 2)
         ).should(matchPhraseQuery("message", queryText))
     }
   }
 
   private def boost(query: QueryDefinition) = {
-    functionScoreQuery(query) scoreFuncs(
-      FilterFunctionDefinition(weightScore(TopicBoost), Some(termQuery("is_comment", "false"))),
-      FilterFunctionDefinition(weightScore(RecentBoost), Some(rangeQuery("postdate").gte("now/d-3y")))
+    functionScoreQuery(query) functions(
+      WeightScoreDefinition(TopicBoost).filter(termQuery("is_comment", "false")),
+      WeightScoreDefinition(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
     )
   }
 
@@ -88,7 +88,7 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search(MessageIndexTypes) fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
+      search(ElasticsearchIndexService.MessageIndex) fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
         filterAggregation("sections") query matchAllQuery subAggregations (
             termsAggregation("sections") field "section" size 50 subAggregations (
               termsAggregation("groups") field "group" size 50
@@ -120,8 +120,8 @@ object SearchViewer {
   val MessageFragment = 500
   val TopicBoost = 3
   val RecentBoost = 2
-  val SearchTimeout = 1.minute
-  val SearchHardTimeout = SearchTimeout + 10.seconds
+  val SearchTimeout: FiniteDuration = 1.minute
+  val SearchHardTimeout: FiniteDuration = SearchTimeout + 10.seconds
 
   private val Fields = Seq("title", "topic_title", "author", "postdate", "topic_id",
     "section", "message", "group", "is_comment", "tag")

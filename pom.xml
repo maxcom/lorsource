@@ -16,8 +16,7 @@
     <dependency.spring.version>4.3.13.RELEASE</dependency.spring.version>
     <spring.security.version>3.2.10.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.1.4</jdbc.postgresql.version>
-    <elasticsearch.version>5.5.3</elasticsearch.version>
-    <elastic4s.version>5.5.5</elastic4s.version>
+    <elastic4s.version>6.1.2</elastic4s.version>
     <scala.version>2.12.4</scala.version>
     <scala.suffix>2.12</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
@@ -58,6 +57,13 @@
       <groupId>com.sksamuel.elastic4s</groupId>
       <artifactId>elastic4s-embedded_${scala.suffix}</artifactId>
       <version>${elastic4s.version}</version>
+    </dependency>
+
+    <!-- https://discuss.elastic.co/t/unknown-filter-type-stemmer/109567/6 -->
+    <dependency>
+      <groupId>org.codelibs.elasticsearch.module</groupId>
+      <artifactId>analysis-common</artifactId>
+      <version>6.1.1</version>
     </dependency>
 
     <dependency>
@@ -254,16 +260,6 @@
       <version>0.0.7</version>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>transport</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -326,13 +322,13 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.8.9</version>
+      <version>2.9.3</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.8.9</version>
+      <version>2.9.3</version>
     </dependency>
 
     <dependency>
@@ -441,7 +437,9 @@
             <arg>-deprecation</arg>
             <arg>-feature</arg>
             <arg>-unchecked</arg>
+<!--
             <arg>-Xfatal-warnings</arg>
+-->
             <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
             <arg>-Yno-adapted-args</arg>

@@ -64,7 +64,7 @@ object ElasticsearchIndexService {
       "text_analyzer",
       tokenizer = StandardTokenizer,
       filters = Seq(
-        LengthTokenFilter(name="m_long_word", max = 100),
+        LengthTokenFilter("m_long_word").max(100),
         LowercaseTokenFilter,
         StandardTokenFilter,
         MappingCharFilter("m_ee", "ё" -> "е", "Ё" -> "Е"),
