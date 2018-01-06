@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package ru.org.linux.edithistory;
 
 import java.sql.Timestamp;
 
-public class EditHistoryDto {
+public class EditHistoryRecord {
   private int id;
   private int msgid;
   private int editor;

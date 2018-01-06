@@ -29,7 +29,7 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
@@ -194,7 +194,7 @@ public class EditTopicController {
 
     params.put("topicMenu", topicMenu);
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
@@ -298,13 +298,13 @@ public class EditTopicController {
 
     boolean publish = request.getParameter("publish") != null;
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
 
     if (!editInfoList.isEmpty()) {
-      EditHistoryDto editHistoryDto = editInfoList.get(0);
-      params.put("editInfo", editHistoryDto);
+      EditHistoryRecord editHistoryRecord = editInfoList.get(0);
+      params.put("editInfo", editHistoryRecord);
 
-      if (lastEdit == null || editHistoryDto.getEditdate().getTime()!=lastEdit) {
+      if (lastEdit == null || editHistoryRecord.getEditdate().getTime()!=lastEdit) {
         errors.reject(null, "Сообщение было отредактировано независимо");
       }
     }

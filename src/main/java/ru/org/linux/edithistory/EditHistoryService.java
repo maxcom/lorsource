@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,6 @@
 
 package ru.org.linux.edithistory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +35,7 @@ import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EditHistoryService {
@@ -65,7 +64,7 @@ public class EditHistoryService {
     Topic message,
     boolean secure
   ) throws UserNotFoundException {
-    List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
     String currentMessage = msgbaseDao.getMessageText(message.getId()).getText();
@@ -76,7 +75,7 @@ public class EditHistoryService {
     boolean currentMinor = message.isMinor();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
-      EditHistoryDto dto = editInfoDTOs.get(i);
+      EditHistoryRecord dto = editInfoDTOs.get(i);
 
       editHistories.add(
         new PreparedEditHistory(
@@ -148,14 +147,14 @@ public class EditHistoryService {
     Comment comment,
     boolean secure
   ) throws UserNotFoundException {
-    List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
+    List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
     String currentMessage = msgbaseDao.getMessageText(comment.getId()).getText();
     String currentTitle = comment.getTitle();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
-      EditHistoryDto dto = editInfoDTOs.get(i);
+      EditHistoryRecord dto = editInfoDTOs.get(i);
 
       editHistories.add(
         new PreparedEditHistory(
@@ -205,7 +204,7 @@ public class EditHistoryService {
     return editHistories;
   }
 
-  public List<EditHistoryDto> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+  public List<EditHistoryRecord> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     return editHistoryDao.getEditInfo(id, objectTypeEnum);
   }
 
@@ -218,31 +217,21 @@ public class EditHistoryService {
     return editHistoryDao.getEditInfo(id, objectTypeEnum).size();
   }
 
-  public void insert(EditHistoryDto editHistoryDto) {
-    editHistoryDao.insert(editHistoryDto);
+  public void insert(EditHistoryRecord editHistoryRecord) {
+    editHistoryDao.insert(editHistoryRecord);
   }
 
-  public ImmutableSet<User> getEditorUsers(final Topic message, List<EditHistoryDto> editInfoList) {
+  public ImmutableSet<User> getEditorUsers(final Topic message, List<EditHistoryRecord> editInfoList) {
     ImmutableSet<Integer> editors = getEditors(message, editInfoList);
 
     return ImmutableSet.copyOf(userService.getUsersCached(editors));
   }
 
-  public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
+  public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryRecord> editInfoList) {
     return ImmutableSet.copyOf(
             Iterables.transform(
-                    Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
-                      @Override
-                      public boolean apply(EditHistoryDto input) {
-                        return input.getEditor() != message.getUid();
-                      }
-                    }),
-                    new Function<EditHistoryDto, Integer>() {
-                      @Override
-                      public Integer apply(EditHistoryDto input) {
-                        return input.getEditor();
-                      }
-                    })
+                    editInfoList.stream().filter(input -> input.getEditor() != message.getUid()).collect(Collectors.toList()),
+                    EditHistoryRecord::getEditor)
     );
   }
 

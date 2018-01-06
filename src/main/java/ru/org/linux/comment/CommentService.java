@@ -33,7 +33,7 @@ import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFProtectionService;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.site.MessageNotFoundException;
@@ -444,24 +444,24 @@ public class CommentService {
    * @param messageText         новое содержимое комментария
    */
   private void addEditHistoryItem(User editor, Comment original, String originalMessageText, Comment comment, String messageText) {
-    EditHistoryDto editHistoryDto = new EditHistoryDto();
-    editHistoryDto.setMsgid(original.getId());
-    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
-    editHistoryDto.setEditor(editor.getId());
+    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
+    editHistoryRecord.setMsgid(original.getId());
+    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
+    editHistoryRecord.setEditor(editor.getId());
 
     boolean modified = false;
     if (!original.getTitle().equals(comment.getTitle())) {
-      editHistoryDto.setOldtitle(original.getTitle());
+      editHistoryRecord.setOldtitle(original.getTitle());
       modified = true;
     }
 
     if (!originalMessageText.equals(messageText)) {
-      editHistoryDto.setOldmessage(originalMessageText);
+      editHistoryRecord.setOldmessage(originalMessageText);
       modified = true;
     }
 
     if (modified) {
-      editHistoryService.insert(editHistoryDto);
+      editHistoryService.insert(editHistoryRecord);
     }
 
   }

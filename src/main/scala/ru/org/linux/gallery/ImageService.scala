@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
-import ru.org.linux.edithistory.{EditHistoryDto, EditHistoryObjectTypeEnum, EditHistoryService}
+import ru.org.linux.edithistory.{EditHistoryRecord, EditHistoryObjectTypeEnum, EditHistoryService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserDao}
@@ -44,7 +44,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   def deleteImage(editor: User, image: Image):Unit = {
     transactional() { _ ⇒
-      val info = new EditHistoryDto
+      val info = new EditHistoryRecord
       info.setEditor(editor.getId)
       info.setMsgid(image.getTopicId)
       info.setOldimage(image.getId)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.group.Group;
@@ -231,18 +231,18 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
-    EditHistoryDto editHistoryDto = new EditHistoryDto();
+    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
 
-    editHistoryDto.setMsgid(msg.getId());
-    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
-    editHistoryDto.setEditor(editor.getId());
+    editHistoryRecord.setMsgid(msg.getId());
+    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
+    editHistoryRecord.setEditor(editor.getId());
 
     boolean modified = false;
 
     String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
 
     if (!oldText.equals(newText)) {
-      editHistoryDto.setOldmessage(oldText);
+      editHistoryRecord.setOldmessage(oldText);
       modified = true;
 
       msgbaseDao.updateMessage(msg.getId(), newText);
@@ -250,7 +250,7 @@ public class TopicDao {
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {
       modified = true;
-      editHistoryDto.setOldtitle(oldMsg.getTitle());
+      editHistoryRecord.setOldtitle(oldMsg.getTitle());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET title=:title WHERE id=:id",
@@ -260,7 +260,7 @@ public class TopicDao {
 
     if (!equalStrings(oldMsg.getLinktext(), msg.getLinktext())) {
       modified = true;
-      editHistoryDto.setOldlinktext(oldMsg.getLinktext());
+      editHistoryRecord.setOldlinktext(oldMsg.getLinktext());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET linktext=:linktext WHERE id=:id",
@@ -270,7 +270,7 @@ public class TopicDao {
 
     if (!equalStrings(oldMsg.getUrl(), msg.getUrl())) {
       modified = true;
-      editHistoryDto.setOldurl(oldMsg.getUrl());
+      editHistoryRecord.setOldurl(oldMsg.getUrl());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET url=:url WHERE id=:id",
@@ -284,7 +284,7 @@ public class TopicDao {
       boolean modifiedTags = topicTagService.updateTags(msg.getId(), oldTags, newTags);
 
       if (modifiedTags) {
-        editHistoryDto.setOldtags(TagService.tagsToString(oldTags));
+        editHistoryRecord.setOldtags(TagService.tagsToString(oldTags));
         modified = true;
       }
     }
@@ -293,13 +293,13 @@ public class TopicDao {
       namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
 
-      editHistoryDto.setOldminor(oldMsg.isMinor());
+      editHistoryRecord.setOldminor(oldMsg.isMinor());
 
       modified = true;
     }
 
     if (modified) {
-      editHistoryService.insert(editHistoryDto);
+      editHistoryService.insert(editHistoryRecord);
       updateLastmod(msg.getId(), false);
     }
 
