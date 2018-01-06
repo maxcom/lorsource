@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -88,7 +88,7 @@
       <li>Apache Tomcat 7;</li>
       <li>ActiveMQ 5.11;</li>
       <li>Spring 4.3;</li>
-      <li>поиск: Elasticsearch 5.x;</li>
+      <li>поиск: Elasticsearch 6.x;</li>
       <li>Nginx 1.10.</li>
     </ul>
 
