@@ -106,7 +106,10 @@ public class LoginController {
 
   @RequestMapping(value = "/logout_all_sessions", method = RequestMethod.POST)
   public ModelAndView logoutAllDevices(HttpServletRequest request, HttpServletResponse response) {
-    userDao.unloginAllSessions(Template.getTemplate(request).getCurrentUser());
+    if (AuthUtil.isSessionAuthorized()) {
+      userDao.unloginAllSessions(Template.getTemplate(request).getCurrentUser());
+    }
+    
     return logout(request, response);
   }
 
