@@ -99,7 +99,7 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
           highlightOptions() encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight("title") numberOfFragments 0,
           highlight("topicTitle") numberOfFragments 0,
-          highlight("message") numberOfFragments 1 fragmentSize MessageFragment
+          highlight("message") numberOfFragments 1 fragmentSize MessageFragment highlighterType "fvh"
         ) size SearchRows from this.query.getOffset postFilter andFilters(postFilters) timeout SearchTimeout
     }
 
