@@ -20,7 +20,6 @@ import com.sksamuel.elastic4s.TcpClient
 import com.sksamuel.elastic4s.searches.RichSearchResponse
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.queries.funcscorer.WeightScoreDefinition
-import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
