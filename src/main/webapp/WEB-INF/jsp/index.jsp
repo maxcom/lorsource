@@ -64,9 +64,9 @@
       var ads = [
         {
           type: 'img',
-          src: '/adv/rukovoditel-razrabotki.jpg',
+          src: '/adv/devops.jpg',
           width: 730,
-          href: 'https://otus.ru/lessons/rukovoditel-razrabotki/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=devhead&utm_content=banner&utm_term=banner'
+          href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=devops&utm_content=banner&utm_term=banner'
         }
       ];
 
