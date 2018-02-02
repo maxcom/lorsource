@@ -67,7 +67,19 @@
           src: '/adv/devops.jpg',
           width: 730,
           href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=devops&utm_content=banner&utm_term=banner'
-        }
+        },
+          {
+              type: 'img',
+              src: '/adv/js.jpg',
+              width: 730,
+              href: 'https://otus.ru/lessons/JavaScript/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=js&utm_content=banner&utm_term=banner'
+          },
+          {
+              type: 'img',
+              src: '/adv/android.jpg',
+              width: 730,
+              href: 'https://otus.ru/lessons/Android/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=android&utm_content=banner&utm_term=banner'
+          }
       ];
 
       init_interpage_adv(ads);
