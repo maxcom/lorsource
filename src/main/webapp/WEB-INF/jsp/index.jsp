@@ -79,6 +79,30 @@
               src: '/adv/android.jpg',
               width: 730,
               href: 'https://otus.ru/lessons/Android/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=android&utm_content=banner&utm_term=banner'
+          },
+          {
+              type: 'img',
+              src: '/adv/cpp.jpg',
+              width: 730,
+              href: 'https://otus.ru/lessons/razrabotchik-c++/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=cplus&utm_content=banner&utm_term=banner'
+          },
+          {
+              type: 'img',
+              src: '/adv/autotest.jpg',
+              width: 730,
+              href: 'https://otus.ru/lessons/test/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=qa&utm_content=banner&utm_term=banner'
+          },
+          {
+              type: 'img',
+              src: '/adv/uxui.jpg',
+              width: 730,
+              href: 'https://otus.ru/lessons/uxui/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=uxui&utm_content=banner&utm_term=banner'
+          },
+          {
+              type: 'img',
+              src: '/adv/python.jpg',
+              width: 730,
+              href: 'https://otus.ru/lessons/razrabotchik-python/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=python&utm_content=banner&utm_term=banner'
           }
       ];
 
