@@ -41,7 +41,7 @@
 <h1>Хостинг</h1>
 <p>
   Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
-  ООО &laquo;<a href="http://www.selectel.ru" target="_blank">Селектел</a>&raquo;.
+  &laquo;<a href="https://www.selectel.ru" target="_blank">Selectel</a>&raquo;.
 </p>
 <p>
   Защиту сайта от DDoS-атак осуществляет <a href="http://qrator.net/">QRATOR</a>.
