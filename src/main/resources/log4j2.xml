@@ -32,6 +32,7 @@
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
     <Logger name="org.apache.activemq" level="info"/>
+    <Logger name="play" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="A1" level="INFO"/>

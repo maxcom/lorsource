@@ -24,8 +24,9 @@
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.14.v20161028</jetty.version>
-    <akka.version>2.5.8</akka.version>
+    <akka.version>2.5.11</akka.version>
     <log4j.version>2.8.2</log4j.version>
+    <play-ws.version>1.1.6</play-ws.version>
   </properties>
 
   <dependencies>
@@ -255,11 +256,6 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>net.tanesha.recaptcha4j</groupId>
-      <artifactId>recaptcha4j</artifactId>
-      <version>0.0.7</version>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
@@ -372,6 +368,18 @@
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>3.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.typesafe.play</groupId>
+      <artifactId>play-ahc-ws-standalone_${scala.suffix}</artifactId>
+      <version>${play-ws.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.typesafe.play</groupId>
+      <artifactId>play-ws-standalone-json_${scala.suffix}</artifactId>
+      <version>${play-ws.version}</version>
     </dependency>
 
     <dependency>

@@ -85,13 +85,6 @@
     <constructor-arg ref="datasource"/>
   </bean>
 
-  <bean id="reCaptcha" class="net.tanesha.recaptcha.ReCaptchaImpl">
-    <property name="privateKey" value="${recaptcha.private}"/>
-    <property name="publicKey" value="${recaptcha.public}"/>
-    <property name="recaptchaServer" value="https://www.google.com/recaptcha/api"/>
-    <property name="includeNoscript" value="true"/>
-  </bean>
-
   <!-- enabling jmx causes tomcat stop lock -->
   <amq:broker useJmx="false" persistent="true" dataDirectory="${activemq.path}">
     <amq:transportConnectors>

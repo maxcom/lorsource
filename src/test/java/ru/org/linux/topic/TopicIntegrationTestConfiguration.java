@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,13 +17,13 @@ package ru.org.linux.topic;
 
 import com.sksamuel.elastic4s.TcpClient;
 import com.sksamuel.elastic4s.TcpClient$;
-import net.tanesha.recaptcha.ReCaptcha;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
+import play.api.libs.ws.StandaloneWSClient;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.exception.ExceptionResolver;
 import ru.org.linux.realtime.RealtimeWebsocketHandler;
@@ -68,11 +68,6 @@ public class TopicIntegrationTestConfiguration {
   }
 
   @Bean
-  public ReCaptcha reCaptcha() {
-    return mock(ReCaptcha.class);
-  }
-
-  @Bean
   public Properties properties() throws IOException {
     Properties properties = new Properties();
 
@@ -98,5 +93,10 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public SearchQueueSender searchQueueSender() {
     return mock(SearchQueueSender.class);
+  }
+
+  @Bean
+  public StandaloneWSClient httpClient() {
+    return mock(StandaloneWSClient.class);
   }
 }

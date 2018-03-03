@@ -20,8 +20,10 @@ activemq.path=target/tmp/activemq
 HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
 upload.path=target/uploads/
 Secret=secret
-recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM
-recaptcha.public=6LclXgcAAAAAAIRhcA0V1DNiTT_AGUg_baM3-vc8
+# development keys - for use on localhost only
+recaptcha.private=6LcdM0oUAAAAANYhnHF3jmD1r1TvkiyPaWHjC83x
+recaptcha.public=6LcdM0oUAAAAAD2T-0ZW2HPkqZ5nFi1Y52U7BOMI
+
 EnableHsts=false
 # admin.emailAddress=bugz@linux.org.ru
 admin.emailAddress=specify_your_real_email_if_you_want_receive_messages

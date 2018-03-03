@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,14 +18,13 @@ import java.nio.file.Files
 
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.TcpClient
-import com.sksamuel.elastic4s.embedded.LocalNode
-import net.tanesha.recaptcha.ReCaptcha
 import org.mockito.Mockito
 import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation._
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
+import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 
@@ -77,8 +76,8 @@ class SearchIntegrationTestConfiguration {
   }
 
   @Bean
-  def reCaptcha: ReCaptcha = Mockito.mock(classOf[ReCaptcha])
+  def floodProtector: FloodProtector = Mockito.mock(classOf[FloodProtector])
 
   @Bean
-  def floodProtector: FloodProtector = Mockito.mock(classOf[FloodProtector])
+  def httpClient: StandaloneWSClient = Mockito.mock(classOf[StandaloneWSClient])
 }
