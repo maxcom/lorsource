@@ -36,6 +36,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
   <style>
@@ -54,8 +55,8 @@
   </script>
 </div>
 </c:if>
+--%>
 
-<%--
   <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
   </div>
   <script type="text/javascript">
@@ -63,52 +64,15 @@
       var ads = [
         {
           type: 'img',
-          src: '/adv/devops.jpg',
+          src: '/adv/otus-linuxadmin.jpg',
           width: 730,
-          href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=devops&utm_content=banner&utm_term=banner'
-        },
-          {
-              type: 'img',
-              src: '/adv/js.jpg',
-              width: 730,
-              href: 'https://otus.ru/lessons/JavaScript/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=js&utm_content=banner&utm_term=banner'
-          },
-          {
-              type: 'img',
-              src: '/adv/android.jpg',
-              width: 730,
-              href: 'https://otus.ru/lessons/Android/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=android&utm_content=banner&utm_term=banner'
-          },
-          {
-              type: 'img',
-              src: '/adv/cpp.jpg',
-              width: 730,
-              href: 'https://otus.ru/lessons/razrabotchik-c++/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=cplus&utm_content=banner&utm_term=banner'
-          },
-          {
-              type: 'img',
-              src: '/adv/autotest.jpg',
-              width: 730,
-              href: 'https://otus.ru/lessons/test/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=qa&utm_content=banner&utm_term=banner'
-          },
-          {
-              type: 'img',
-              src: '/adv/uxui.jpg',
-              width: 730,
-              href: 'https://otus.ru/lessons/uxui/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=uxui&utm_content=banner&utm_term=banner'
-          },
-          {
-              type: 'img',
-              src: '/adv/python.jpg',
-              width: 730,
-              href: 'https://otus.ru/lessons/razrabotchik-python/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=python&utm_content=banner&utm_term=banner'
-          }
+          href: 'https://otus.ru/lessons/linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
+        }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
