@@ -65,6 +65,6 @@ public class ScoreUpdater {
 
   @Scheduled(cron="0 1 2 * * *")
   public void deleteInactivated() {
-    jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 week'::interval");
+    jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval");
   }
 }
