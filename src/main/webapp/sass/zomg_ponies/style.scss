@@ -279,9 +279,11 @@ div.msg-top-header{
   margin-bottom: 0.5em;
 
   a {
-    color: $signature_user_color;
+    color: $text_color;
+    text-decoration: none;
+    cursor: text;
     &:visited {
-      color: $signature_user_color;
+      color: $text_color;
     }
   }
 }

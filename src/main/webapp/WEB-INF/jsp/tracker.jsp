@@ -134,7 +134,7 @@
     <c:if test="${user.blocked}">
       <s>
     </c:if>
-    <a href="/people/${user.nick}/profile">${user.nick}</a>
+    <a href="/people/${user.nick}/profile">anonymous</a>
     <c:if test="${user.blocked}">
       </s>
     </c:if>

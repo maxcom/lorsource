@@ -255,4 +255,9 @@ blockquote {
 	}
 }
 
+#bd .sign a {
+	text-decoration: none;
+	cursor: text;
+}
+
 @import "../responsive";

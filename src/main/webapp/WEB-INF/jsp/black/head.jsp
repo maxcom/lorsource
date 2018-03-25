@@ -25,7 +25,7 @@
         <td align="right">
           <c:if test="${template.sessionAuthorized}">
             <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-            добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+            добро пожаловать, <a style="text-decoration: none" href="${userUrl}">anonymous</a>
           </c:if>
 
           <c:if test="${not template.sessionAuthorized}">

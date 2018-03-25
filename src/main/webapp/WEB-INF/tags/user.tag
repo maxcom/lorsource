@@ -23,10 +23,10 @@
 --%><c:if test="${user.blocked}"><s></c:if><%--
 --%><c:choose><%--
 --%><c:when test="${link!=null and link and not user.anonymous}"><%--
---%><a <%= Strings.isNullOrEmpty(rel)?"":"rel=\""+rel+ '"' %> <%= Strings.isNullOrEmpty(itemprop)?"":"itemprop=\""+itemprop+ '"' %> href="/people/${user.nick}/profile">${user.nick}</a><%--
+--%><a <%= Strings.isNullOrEmpty(rel)?"":"rel=\""+rel+ '"' %> <%= Strings.isNullOrEmpty(itemprop)?"":"itemprop=\""+itemprop+ '"' %> href="/people/${user.nick}/profile">anonymous</a><%--
 --%></c:when><%--
 --%><c:otherwise><%--
---%>${user.nick}<%--
+--%>anonymous<%--
 --%></c:otherwise><%--
 --%></c:choose><%--
 --%><c:if test="${user.blocked}"><%--

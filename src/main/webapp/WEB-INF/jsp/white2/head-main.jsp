@@ -30,7 +30,7 @@
             <c:if test="${template.sessionAuthorized}">
               добро пожаловать,&nbsp;
               <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-              <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+              <a style="text-decoration: none" href="${userUrl}">anonymous</a>
             </c:if>
 
             <c:if test="${not template.sessionAuthorized}">
