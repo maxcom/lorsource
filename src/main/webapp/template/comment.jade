@@ -37,7 +37,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                         | !{comment.reply.title}
                     else
                         | комментарий
-                |  от #{comment.reply.author}#{' '}
+                |  от anonymous#{' '}
                 mixin time(comment.reply.postdate, false)
 
         div.msg-container

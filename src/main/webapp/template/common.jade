@@ -8,15 +8,15 @@ mixin user(user, link, rel, itemprop)
         s
             if link
                 a(href='/people/#{user.nick}/profile',rel=rel,itemprop=itemprop)
-                    | #{user.nick}
+                    | anonymous
             else
-                | #{user.nick}
+                | anonymous
     else
         if link && !user.anonymous
             a(href='/people/#{user.nick}/profile',rel=rel,itemprop=itemprop)
-                | #{user.nick}
+                | anonymous
         else
-            | #{user.nick}
+            | anonymous
 
 //- подпись к посту
     user - класс ApiUserRef
@@ -34,7 +34,7 @@ mixin sign(user, shortMode, author, postdate, timeprop)
 
     if !shortMode
         span.stars
-            !{user.stars}
+            #{' '}
     if !shortMode && user.score!=null
         |  (Score: #{user.score} MaxScore: #{user.maxScore})
 

@@ -125,9 +125,11 @@ p {
   margin-bottom: 0.5em;
 
   a {
-    color: $signature_user_color;
+    color: $text_color;
+    text-decoration: none;
+    cursor: text;
     &:visited {
-      color: $signature_user_color;
+      color: $text_color;
     }
   }
 }
@@ -252,7 +254,7 @@ div.msg_body {
   margin-top: 0.5em;
 
   a {
-    color: $hd_user_color !important;
+    color: $text_color !important;
   }
 }
 

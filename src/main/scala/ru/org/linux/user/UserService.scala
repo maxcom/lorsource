@@ -96,11 +96,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   private def gravatar(email: String, avatarStyle: String, size: Int): String = {
-    val nonExist: String = if ("empty" == avatarStyle) {
-      "blank"
-    } else {
-      avatarStyle
-    }
+    val nonExist: String = "blank"
 
     val emailHash = StringUtil.md5hash(email.toLowerCase)
 
@@ -114,9 +110,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       avatarStyle
     }
 
-    val userpic = if (user.isAnonymous && misteryMan) {
+    val userpic = if (misteryMan) {
       Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
-    } else if (user.getPhoto != null && !user.getPhoto.isEmpty) {
+    } else if (user.getPhoto != null && !user.getPhoto.isEmpty && false) {
       Try {
         val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto)
         new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
