@@ -93,7 +93,11 @@ public class CommentPrepareService {
       if (comment.getReplyTo() != 0) {
         CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
-        if (replyNode!=null) {
+        boolean replyDeleted = replyNode == null;
+        if (replyDeleted) {
+          // ответ на удаленный комментарий
+          replyInfo = new ReplyInfo(comment.getReplyTo(), replyDeleted);
+        } else {
           Comment reply = replyNode.getComment();
 
           boolean samePage = false;
@@ -110,7 +114,8 @@ public class CommentPrepareService {
                   replyAuthor,
                   Strings.emptyToNull(reply.getTitle().trim()),
                   reply.getPostdate(),
-                  samePage
+                  samePage,
+                  replyDeleted
           );
         }
       }

@@ -30,19 +30,33 @@ public class ReplyInfo {
   private final String title;
   private final Date postdate;
   private final boolean samePage;
+  private final boolean deleted;
+
+  public ReplyInfo(int id, boolean deleted) {
+    this.id = id;
+    this.deleted = deleted;
+    // Для удаленных сообщений не имеет значения,
+    // так как эта информация не должна отображаться.
+    this.author = null;
+    this.title = null;
+    this.postdate = new Date(0);
+    this.samePage = false;
+  }
 
   public ReplyInfo(
           int id,
           @Nonnull String author,
           @Nullable String title,
           @Nonnull Date postdate,
-          boolean samePage
+          boolean samePage,
+          boolean deleted
   ) {
     this.id = id;
     this.author = author;
     this.title = title;
     this.postdate = postdate;
     this.samePage = samePage;
+    this.deleted = deleted;
   }
 
   public int getId() {
@@ -63,5 +77,9 @@ public class ReplyInfo {
 
   public boolean isSamePage() {
     return samePage;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
   }
 }
