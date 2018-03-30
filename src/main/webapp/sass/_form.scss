@@ -22,6 +22,10 @@ input[type="search"] {
     -webkit-appearance: textfield;
 }
 
+input[type="checkbox"] {
+    width: auto !important;
+}
+
 .input-lg {
   padding: 6px 3px;
   vertical-align: middle;

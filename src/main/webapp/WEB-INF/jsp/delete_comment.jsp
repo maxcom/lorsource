@@ -91,6 +91,15 @@
   </div>
   </c:if>
 
+  <c:if test="${template.moderatorSession}">
+  <div class="control-group">
+    <label class="control-label">Удалять ответы</label>
+    <div class="controls">
+      <input type="checkbox" name="delete_replys" checked>
+    </div>
+  </div>
+  </c:if>
+
  <input type=hidden name=msgid value="${msgid}">
   <div class="control-group">
     <div class="controls">

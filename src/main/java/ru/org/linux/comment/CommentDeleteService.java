@@ -58,17 +58,24 @@ public class CommentDeleteService {
    * @param msgid      id удаляемого сообщения
    * @param reason     причина удаления
    * @param user       модератор который удаляет
+   * @param scoreBonus сколько шкворца снять
+   * @param checkForReply производить ли проверку на ответы
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean deleteComment(int msgid, String reason, User user) throws ScriptErrorException {
-    if (commentDao.getReplaysCount(msgid) != 0) {
+  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus,
+                               boolean checkForReply) throws ScriptErrorException {
+    if (checkForReply && commentDao.getReplaysCount(msgid) != 0) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
 
     boolean deleted = doDeleteComment(msgid, reason, user);
 
     if (deleted) {
+      if (scoreBonus != 0) {
+        Comment comment = commentDao.getById(msgid);
+        userDao.changeScore(comment.getUserid(), -scoreBonus);
+      }
       commentDao.updateStatsAfterDelete(msgid, 1);
       userEventService.processCommentsDeleted(ImmutableList.of(msgid));
     }
