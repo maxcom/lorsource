@@ -512,7 +512,7 @@
       <plugin>
         <groupId>nl.geodienstencentrum.maven</groupId>
         <artifactId>sass-maven-plugin</artifactId>
-        <version>2.0</version>
+        <version>3.5.2</version>
         <executions>
           <execution>
             <goals>
@@ -593,8 +593,8 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
               </includes>
             </aggregation>
@@ -619,8 +619,8 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
               </includes>
             </aggregation>
             <aggregation>
