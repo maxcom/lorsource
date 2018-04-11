@@ -70,9 +70,9 @@
         },
         {
           type: 'img',
-          src: '/adv/otus-linuxadmin2.jpg',
+          src: '/adv/otus-linuxadmin3.jpg',
           width: 730,
-          href: 'https://otus.ru/events/linuxopen/75/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
+          href: 'https://otus.ru/events/linuxopen2/80/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
         }
       ];
 
