@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -40,7 +40,7 @@
           <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
         </div>
 
-        <form method=POST action="${template.secureMainUrl}/ajax_login_process" style="display: none" id="regform">
+        <form method=POST action="${template.secureMainUrlNoSlash}/ajax_login_process" style="display: none" id="regform">
           <lor:csrf/>
           <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
           <label>Пароль: <input type=password name=passwd size=15></label>
