@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,18 +15,22 @@
 
 package ru.org.linux.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import ru.org.linux.user.UserDao;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import ru.org.linux.user.UserDao;
-
 public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMeServices {
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
+
+  public GenerationBasedTokenRememberMeServices(String key, UserDetailsService userDetailsService, UserDao userDao) {
+    super(key, userDetailsService);
+
+    this.userDao = userDao;
+  }
 
   @Override
   protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {

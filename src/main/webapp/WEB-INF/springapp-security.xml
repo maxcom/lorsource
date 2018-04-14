@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/security
-http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+http://www.springframework.org/schema/security/spring-security-4.2.xsd">
 
     <http pattern="/css/**" security="none"/>
     <http pattern="/img/**" security="none"/>
@@ -46,6 +46,7 @@ http://www.springframework.org/schema/security/spring-security-3.2.xsd">
         <remember-me key="${Secret}" services-ref="rememberMeServices"/>
         <anonymous username="anonymous" granted-authority="ROLE_SYSTEM_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
+        <csrf disabled="true"/>
     </http>
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
@@ -56,8 +57,8 @@ http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
     <beans:bean id="rememberMeServices"
                 class="ru.org.linux.auth.GenerationBasedTokenRememberMeServices">
-        <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
-        <beans:property name="key" value="${Secret}"/>
+        <beans:constructor-arg name="key" value="${Secret}"/>
+        <beans:constructor-arg name="userDetailsService" ref="userDetailsServiceImpl"/>
         <beans:property name="cookieName" value="remember_me"/>
         <!-- 365 days -->
         <beans:property name="tokenValiditySeconds" value="31536000"/>
