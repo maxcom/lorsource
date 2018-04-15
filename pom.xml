@@ -17,14 +17,14 @@
     <spring.security.version>4.2.5.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.2</jdbc.postgresql.version>
     <elastic4s.version>6.1.4</elastic4s.version>
-    <scala.version>2.12.5</scala.version>
+    <scala.version>2.12.4</scala.version>
     <scala.suffix>2.12</scala.suffix>
     <activemq.version>5.11.1</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.14.0</jquery.validation.version>
     <jquery.form.version>3.51</jquery.form.version>
     <jetty.version>9.3.14.v20161028</jetty.version>
-    <akka.version>2.5.11</akka.version>
+    <akka.version>2.5.12</akka.version>
     <log4j.version>2.8.2</log4j.version>
     <play-ws.version>1.1.6</play-ws.version>
   </properties>
@@ -221,7 +221,12 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <version>1.0.0.GA</version>
+      <version>1.1.0.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <version>1.3.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.taglibs</groupId>
@@ -478,7 +483,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>2.6</version>
+        <version>3.1.0</version>
         <configuration>
           <warSourceExcludes>**/*.css,**/*.js</warSourceExcludes>
         </configuration>

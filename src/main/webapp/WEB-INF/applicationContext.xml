@@ -23,7 +23,7 @@
        xmlns:cache="http://www.springframework.org/schema/cache"
        xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="
-            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
             http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
             http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
@@ -108,7 +108,7 @@
           id="jmsConnectionFactory"
           class="org.springframework.jms.connection.SingleConnectionFactory">
     <property name="targetConnectionFactory">
-      <ref local="jmsFactory"/>
+      <ref bean="jmsFactory"/>
     </property>
   </bean>
 
