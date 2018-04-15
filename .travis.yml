@@ -2,7 +2,8 @@ sudo: false
 language: java
 script: mvn -T 2C verify
 jdk:
-  - oraclejdk8
+  - openjdk8
+  - openjdk10
 before_script:
   - createuser -U postgres -d -S -R maxcom
   - createuser -U postgres -D -S -R linuxweb
