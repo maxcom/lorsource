@@ -17,6 +17,7 @@ package ru.org.linux.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
@@ -99,7 +100,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     ExceptionType exceptionType = ExceptionType.OTHER;
     if (exception instanceof UserErrorException) {
       exceptionType = ExceptionType.IGNORED;
-    } else if (exception instanceof ScriptErrorException) {
+    } else if (exception instanceof ScriptErrorException || exception instanceof RequestRejectedException) {
       logger.debug("errors/common.jsp", exception);
       exceptionType = ExceptionType.SCRIPT_ERROR;
     } else {
