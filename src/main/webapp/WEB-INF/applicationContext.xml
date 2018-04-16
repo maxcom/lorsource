@@ -104,6 +104,7 @@
         <value>ru.org.linux.search</value>
         <value>java.util</value>
         <value>java.lang</value>
+        <value>scala.collection</value>
       </list>
     </property>
   </amq:connectionFactory>
