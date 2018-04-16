@@ -99,6 +99,13 @@
 
   <amq:connectionFactory id="jmsFactory" brokerURL="vm://localhost?create=false">
     <property name="redeliveryPolicy" ref="redeliveryPolicy"/>
+    <property name="trustedPackages">
+      <list>
+        <value>ru.org.linux.search</value>
+        <value>java.util</value>
+        <value>java.lang</value>
+      </list>
+    </property>
   </amq:connectionFactory>
 
   <amq:queue id="searchQueue" physicalName="lor.searchQueue"/>
