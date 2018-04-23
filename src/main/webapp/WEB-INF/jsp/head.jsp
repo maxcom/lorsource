@@ -23,11 +23,6 @@
 <!DOCTYPE html>
 <html lang=ru>
 <head>
-  <c:if test="${template.style=='tango'}">
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet'
-        type='text/css'>
-  </c:if>
-
 <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 
 <link rel="yandex-tableau-widget" href="/manifest.json" />
