@@ -17,7 +17,7 @@
     <spring.security.version>4.2.5.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.2</jdbc.postgresql.version>
     <elastic4s.version>6.1.4</elastic4s.version>
-    <scala.version>2.12.4</scala.version>
+    <scala.version>2.12.6</scala.version>
     <scala.suffix>2.12</scala.suffix>
     <activemq.version>5.15.3</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
