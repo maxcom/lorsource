@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,11 +25,11 @@ import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.User
 
-class GalleryPermissionInterceptor (imageDao:ImageDao, topicDao:TopicDao, groupDao:GroupDao,
-                                                 topicPermissionService:TopicPermissionService)
+class GalleryPermissionInterceptor (imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
+                                                 topicPermissionService: TopicPermissionService)
   extends HandlerInterceptorAdapter with StrictLogging {
 
-  private val ImagesPattern = "^/images/(\\d+)/".r
+  private val ImagesPattern = "^images/(\\d+)/.*".r
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)

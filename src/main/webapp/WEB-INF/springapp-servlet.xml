@@ -103,7 +103,6 @@
         <bean class="ru.org.linux.csrf.CSRFHandlerInterceptor"/>
         <bean class="ru.org.linux.auth.HstsInterceptor"/>
         <bean class="ru.org.linux.auth.LastLoginInterceptor"/>
-        <bean class="ru.org.linux.auth.GalleryPermissionInterceptor"/>
     </mvc:interceptors>
 
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
