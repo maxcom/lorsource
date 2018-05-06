@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,12 +23,13 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
+import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest._
-import ru.org.linux.user.{UserDao, UserLogDao, UserService, IgnoreListDao}
+import ru.org.linux.user.{IgnoreListDao, UserDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
 
 @RunWith (classOf[SpringJUnit4ClassRunner])
@@ -38,7 +39,7 @@ class TopicDaoIntegrationTest {
   var topicDao: TopicDao = _
 
   @Test
-  def testLoadTopic():Unit = {
+  def testLoadTopic(): Unit = {
     val topic = topicDao.getById(TestTopic)
 
     Assert.assertNotNull(topic)
@@ -78,6 +79,12 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def userDao = new UserDao()
+
+  @Bean
+  def imageDao = new ImageDao()
+
+  @Bean
+  def imageService = Mockito.mock(classOf[ImageService])
 
   @Bean
   def ignoreListDao = new IgnoreListDao()
