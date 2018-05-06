@@ -30,12 +30,16 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
@@ -44,6 +48,8 @@ import ru.org.linux.user.UserDao;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
@@ -73,6 +79,12 @@ public class TopicDao {
 
   @Autowired
   private EditHistoryService editHistoryService; // TODO move to TopicService
+
+  @Autowired
+  private ImageDao imageDao; // TODO move to TopicService
+
+  @Autowired
+  private SiteConfig siteConfig;
 
   /**
    * Запрос получения полной информации о топике
@@ -230,7 +242,8 @@ public class TopicDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
+  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText,
+                               UploadedImagePreview imagePreview) throws IOException {
     EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
 
     editHistoryRecord.setMsgid(msg.getId());
@@ -294,6 +307,28 @@ public class TopicDao {
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
 
       editHistoryRecord.setOldminor(oldMsg.isMinor());
+
+      modified = true;
+    }
+
+    if (imagePreview!=null) {
+      Image oldImage = imageDao.imageForTopic(msg);
+
+      if (oldImage!=null) {
+        imageDao.deleteImage(oldImage);
+      }
+
+      int id = imageDao.saveImage(msg.getId(), imagePreview.extension());
+
+      File galleryPath = new File(siteConfig.getUploadPath() + "/images");
+
+      imagePreview.moveTo(galleryPath, Integer.toString(id));
+
+      if (oldImage!=null) {
+        editHistoryRecord.setOldimage(oldImage.getId());
+      } else {
+        editHistoryRecord.setOldimage(0);
+      }
 
       modified = true;
     }

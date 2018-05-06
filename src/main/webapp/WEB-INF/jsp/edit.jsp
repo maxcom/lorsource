@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -70,7 +70,8 @@
 </div>
 </c:if>
 
-<form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm">
+<form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm"
+           enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}">
   <lor:csrf/>
   <form:errors cssClass="error" path="*" element="div"/>
 
@@ -86,7 +87,20 @@
     <form:input path="title" required="required" style="width: 40em"/>
   </div>
 
-  <c:if test="${group.pollPostAllowed and template.moderatorSession}">
+  <c:if test="${imagepost}">
+    <div class="control-group">
+      <c:if test="${preparedMessage.image!=null}">
+        <label for="image">Заменить изображение:</label>
+      </c:if>
+      <c:if test="${preparedMessage.image==null}">
+        <label for="image">Добавить изображение:</label>
+      </c:if>
+      <input id="image" type="file" name="image">
+    </div>
+  </c:if>
+
+
+    <c:if test="${group.pollPostAllowed and template.moderatorSession}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
                 <form:input path="poll[${v.key}]" size="40"/></label><br>

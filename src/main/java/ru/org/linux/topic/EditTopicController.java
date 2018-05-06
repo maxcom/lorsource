@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,6 +32,9 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageService;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -55,6 +58,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +102,9 @@ public class EditTopicController {
 
   @Autowired
   private CaptchaService captcha;
+
+  @Autowired
+  private ImageService imageService;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -231,6 +238,8 @@ public class EditTopicController {
       form.setMultiselect(poll.isMultiSelect());
     }
 
+    params.put("imagepost", permissionService.isImagePostingAllowed(preparedTopic.getSection(), currentUser));
+
     return new ModelAndView("edit", params);
   }
 
@@ -354,6 +363,20 @@ public class EditTopicController {
       }
     }
 
+    UploadedImagePreview imagePreview = null;
+
+    if (permissionService.isImagePostingAllowed(preparedTopic.getSection(), user)) {
+      if (permissionService.isTopicPostingAllowed(group, user)) {
+        File image = imageService.processUploadImage(request);
+
+        imagePreview = imageService.processUpload(user, request.getSession(), image, errors);
+
+        if (imagePreview!=null) {
+          modified = true;
+        }
+      }
+    }
+
     if (!editable && modified) {
       throw new AccessViolationException("нельзя править это сообщение, только теги");
     }
@@ -397,7 +420,12 @@ public class EditTopicController {
     if (form.getEditorBonus() != null) {
       ImmutableSet<Integer> editors = editHistoryService.getEditors(message, editInfoList);
 
-      form.getEditorBonus().keySet().stream().filter(userid -> !editors.contains(userid)).forEach(userid -> errors.reject("editorBonus", "некорректный корректор?!"));
+      form
+              .getEditorBonus()
+              .keySet()
+              .stream()
+              .filter(userid -> !editors.contains(userid))
+              .forEach(userid -> errors.reject("editorBonus", "некорректный корректор?!"));
     }
 
     if (!preview && !errors.hasErrors() && ipBlockInfo.isCaptchaRequired()) {
@@ -416,7 +444,8 @@ public class EditTopicController {
               form.getBonus(),
               newPoll!=null?newPoll.getVariants():null,
               form.isMultiselect(),
-              form.getEditorBonus()
+              form.getEditorBonus(),
+              imagePreview
       );
 
       if (changed || commit || publish) {
@@ -439,6 +468,12 @@ public class EditTopicController {
 
     params.put("newMsg", newMsg);
 
+    Image imageObject = null;
+
+    if (imagePreview!=null) {
+      imageObject = new Image(0, 0, "gallery/preview/" + imagePreview.mainFile().getName());
+    }
+
     params.put(
             "newPreparedMessage",
             prepareService.prepareTopicPreview(
@@ -447,7 +482,7 @@ public class EditTopicController {
                     newPoll,
                     request.isSecure(),
                     newText,
-                    null
+                    imageObject
             )
     );
 

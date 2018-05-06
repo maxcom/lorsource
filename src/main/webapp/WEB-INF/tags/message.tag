@@ -14,7 +14,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -109,7 +109,7 @@
 
   <div class="msg_body">
   <c:if test="${preparedMessage.image != null}">
-    <lor:image enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
+    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
   </c:if>
 
     <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
@@ -139,7 +139,7 @@
       </c:if>
 
         <c:if test="${preparedMessage.image != null}">
-          <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+          <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
         </c:if>
     </div>
 <footer>

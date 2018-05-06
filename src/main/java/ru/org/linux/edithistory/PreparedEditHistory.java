@@ -16,6 +16,7 @@
 package ru.org.linux.edithistory;
 
 import ru.org.linux.tag.TagRef;
+import ru.org.linux.topic.PreparedImage;
 import ru.org.linux.user.User;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -27,6 +28,7 @@ import java.util.List;
 public class PreparedEditHistory {
   private final boolean original;
   private final User editor;
+  private final PreparedImage image;
   private final String message;
   private final boolean current;
   private final String title;
@@ -35,24 +37,27 @@ public class PreparedEditHistory {
   private final String linktext;
   private final Boolean minor;
   private final Date editdate;
+  private final boolean imageDeleted;
 
   public PreparedEditHistory(
-    LorCodeService lorCodeService,
-    boolean secure,
-    @Nonnull User editor,
-    Date editdate,
-    String message,
-    String title,
-    String url,
-    String linktext,
-    List<TagRef> tags,
-    boolean current,
-    boolean original,
-    @Nullable Boolean minor
-  ) {
+          LorCodeService lorCodeService,
+          @Nonnull User editor,
+          Date editdate,
+          String message,
+          String title,
+          String url,
+          String linktext,
+          List<TagRef> tags,
+          boolean current,
+          boolean original,
+          @Nullable Boolean minor,
+          PreparedImage image,
+          Boolean imageDeleted) {
     this.original = original;
 
     this.editor = editor;
+    this.image = image;
+    this.imageDeleted = imageDeleted;
 
     if (message!=null) {
       this.message = lorCodeService.parseComment(message, false);
@@ -108,5 +113,13 @@ public class PreparedEditHistory {
 
   public Boolean getMinor() {
     return minor;
+  }
+
+  public PreparedImage getImage() {
+    return image;
+  }
+
+  public boolean isImageDeleted() {
+    return imageDeleted;
   }
 }

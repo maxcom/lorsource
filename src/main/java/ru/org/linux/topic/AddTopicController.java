@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,17 +17,11 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -56,7 +50,6 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.UserService;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
@@ -74,8 +67,6 @@ import java.util.Map;
 
 @Controller
 public class AddTopicController {
-  private static final Logger logger = LoggerFactory.getLogger(AddTopicController.class);
-
   private SearchQueueSender searchQueueSender;
 
   @Autowired
@@ -153,8 +144,7 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Map<String, Object> params = new HashMap<>();
-    params.putAll(prepareModel(form, tmpl.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, tmpl.getCurrentUser()));
 
     Group group = form.getGroup();
 
@@ -232,8 +222,6 @@ public class AddTopicController {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
-    File image = processUploadImage(request);
-
     Group group = form.getGroup();
 
     Map<String, Object> params = new HashMap<>();
@@ -268,14 +256,16 @@ public class AddTopicController {
       }
     }
 
-    UploadedImagePreview scrn = null;
+    UploadedImagePreview imagePreview = null;
 
     if (section!=null && groupPermissionService.isImagePostingAllowed(section, user)) {
       if (groupPermissionService.isTopicPostingAllowed(group, user)) {
-        scrn = processUpload(user, session, image, errors);
+        File image = imageService.processUploadImage(request);
+
+        imagePreview = imageService.processUpload(user, session, image, errors);
       }
 
-      if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
+      if (section.isImagepost() && imagePreview == null && !errors.hasErrors()) {
         errors.reject(null, "Изображение отсутствует");
       }
     }
@@ -293,8 +283,8 @@ public class AddTopicController {
 
       Image imageObject = null;
 
-      if (scrn!=null) {
-        imageObject = new Image(0, 0, "gallery/preview/" + scrn.mainFile().getName());
+      if (imagePreview!=null) {
+        imageObject = new Image(0, 0, "gallery/preview/" + imagePreview.mainFile().getName());
       }
 
       List<String> tagNames = TagName.parseAndSanitizeTags(form.getTags());
@@ -342,13 +332,13 @@ public class AddTopicController {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
-      return createNewTopic(request, form, session, group, params, section, user, message, scrn, previewMsg);
+      return createNewTopic(request, form, session, group, params, section, user, message, imagePreview, previewMsg);
     } else {
       return new ModelAndView("add", params);
     }
   }
 
-  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, UploadedImagePreview scrn, Topic previewMsg) throws IOException, ScriptErrorException {
+  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
     session.removeAttribute("image");
 
     int msgid = topicService.addMessage(
@@ -445,61 +435,6 @@ public class AddTopicController {
   @ModelAttribute("modes")
   public Map<String, String> getModes() {
     return ImmutableMap.of("lorcode", "LORCODE", "ntobr", "User line break");
-  }
-
-  /**
-   *
-   *
-   * @return <icon, image, previewImagePath> or null
-   * @throws IOException
-   */
-  private UploadedImagePreview processUpload(
-          User currentUser,
-          HttpSession session,
-          File image,
-          Errors errors
-  ) throws IOException {
-    if (session==null) {
-      return null;
-    }
-
-    UploadedImagePreview screenShot = null;
-
-    if (image != null) {
-      try {
-        screenShot = imageService.createScreenshot(currentUser, image, errors);
-
-        if (screenShot != null) {
-          logger.info("SCREEN: " + image.getAbsolutePath() + "\nINFO: SCREEN: " + image);
-
-          session.setAttribute("image", screenShot);
-        }
-      } catch (BadImageException e) {
-        errors.reject(null, "Некорректное изображение: " + e.getMessage());
-      }
-    } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      screenShot = (UploadedImagePreview) session.getAttribute("image");
-
-      if (!screenShot.mainFile().exists()) {
-        screenShot = null;
-      }
-    }
-
-    return screenShot;
-  }
-
-  private File processUploadImage(HttpServletRequest request) throws IOException {
-    if (request instanceof MultipartHttpServletRequest) {
-      MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
-      if (multipartFile != null && !multipartFile.isEmpty()) {
-        File uploadedFile = File.createTempFile("lor-image-", "");
-        logger.debug("Transfering upload to: " + uploadedFile);
-        multipartFile.transferTo(uploadedFile);
-        return uploadedFile;
-      }
-    }
-
-    return null;
   }
 
   public static String getAddUrl(Section section, String tag) {

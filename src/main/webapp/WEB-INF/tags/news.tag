@@ -18,7 +18,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -96,12 +96,10 @@
     try {
       ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "tango" + image);
       out.append("<img src=\"/").append("tango").append(image).append("\" ").append(info.getCode()).append(" alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (IOException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (BadImageException e) {
+    } catch (IOException | BadImageException e) {
       out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
     }
-%>
+  %>
     </a>
 </div>
 </c:if>
@@ -109,7 +107,7 @@
 <div class="entry-body">
 <div class=msg>
   <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedMessage="${preparedMessage}" showImage="true"/>
+    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
@@ -141,7 +139,7 @@
 %>
 </c:if>
 <c:if test="${preparedMessage.image != null}">
-  <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
 <%
   if (votepoll) {

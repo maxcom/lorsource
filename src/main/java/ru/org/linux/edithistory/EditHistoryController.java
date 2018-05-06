@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -65,7 +65,7 @@ public class EditHistoryController {
 
     topicPermissionService.checkView(group, message, tmpl.getCurrentUser(), false);
 
-    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message, request.isSecure());
+    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message);
 
     ModelAndView modelAndView = new ModelAndView("history");
 
@@ -89,7 +89,7 @@ public class EditHistoryController {
     Topic message = messageDao.getById(msgid);
     Comment comment =  commentService.getById(commentId);
 
-    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(comment, request.isSecure());
+    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(comment);
 
     ModelAndView modelAndView = new ModelAndView("history");
 

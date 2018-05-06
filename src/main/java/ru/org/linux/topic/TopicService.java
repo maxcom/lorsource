@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,6 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.user.*;
@@ -58,9 +57,6 @@ public class TopicService {
 
   @Autowired
   private SectionService sectionService;
-
-  @Autowired
-  private SiteConfig siteConfig;
 
   @Autowired
   private ImageService imageService;
@@ -96,9 +92,9 @@ public class TopicService {
           String message,
           Group group,
           User user,
-          UploadedImagePreview scrn,
+          UploadedImagePreview imagePreview,
           Topic previewMsg
-  ) throws IOException, ScriptErrorException {
+  ) throws ScriptErrorException {
     final int msgid = topicDao.saveNewMessage(
             previewMsg,
             user,
@@ -109,12 +105,12 @@ public class TopicService {
 
     Section section = sectionService.getSection(group.getSectionId());
 
-    if (section.isImagepost() && scrn == null) {
+    if (section.isImagepost() && imagePreview == null) {
       throw new ScriptErrorException("scrn==null!?");
     }
 
-    if (scrn!=null) {
-      imageService.saveScreenshot(scrn, msgid);
+    if (imagePreview!=null) {
+      imageService.saveScreenshot(imagePreview, msgid);
     }
 
     if (section.isPollPostAllowed()) {
@@ -266,9 +262,10 @@ public class TopicService {
           int bonus,
           List<PollVariant> pollVariants,
           boolean multiselect,
-          Map<Integer, Integer> editorBonus
-  )  {
-    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText);
+          Map<Integer, Integer> editorBonus,
+          UploadedImagePreview imagePreview
+  ) throws IOException {
+    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText, imagePreview);
 
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());

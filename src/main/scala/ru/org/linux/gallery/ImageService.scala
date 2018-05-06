@@ -19,11 +19,13 @@ import java.io.{File, FileNotFoundException, IOException}
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
+import javax.servlet.http.{HttpServletRequest, HttpSession}
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
-import ru.org.linux.edithistory.{EditHistoryRecord, EditHistoryObjectTypeEnum, EditHistoryService}
+import org.springframework.web.multipart.{MultipartHttpServletRequest, MultipartRequest}
+import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserDao}
@@ -86,6 +88,9 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     } catch prepareException(image)
   }
 
+  // java api
+  def prepareImageOrNull(image: Image): PreparedImage = prepareImage(image).orNull
+
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
     items.asScala.map(prepareGalleryItem).asJava
 
@@ -98,7 +103,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
-  def createScreenshot(user: User, file: File, errors: Errors): UploadedImagePreview = {
+  def createImagePreview(user: User, file: File, errors: Errors): UploadedImagePreview = {
     if (!file.isFile) {
       errors.reject(null, "Сбой загрузки изображения: не файл")
     }
@@ -140,11 +145,56 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
     }
   }
 
-  def saveScreenshot(scrn: UploadedImagePreview, msgid: Int): Unit = {
-    transactional() { _ ⇒
-      val id = imageDao.saveImage(msgid, scrn.extension)
+  def processUploadImage(request: HttpServletRequest): File = {
+    if (request.isInstanceOf[MultipartHttpServletRequest]) {
+      val multipartFile = request.asInstanceOf[MultipartRequest].getFile("image")
+      if (multipartFile != null && !multipartFile.isEmpty) {
+        val uploadedFile = File.createTempFile("lor-image-", "")
+        logger.debug("Transfering upload to: " + uploadedFile)
+        multipartFile.transferTo(uploadedFile)
 
-      scrn.moveTo(galleryPath, id.toString)
+        uploadedFile
+      } else {
+        null
+      }
+    } else {
+      null
+    }
+  }
+
+  def processUpload(currentUser: User, session: HttpSession, image: File, errors: Errors): UploadedImagePreview = {
+    if (session == null) return null
+    if (image != null) {
+      try {
+        val screenShot = createImagePreview(currentUser, image, errors)
+        if (screenShot != null) {
+          logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
+          session.setAttribute("image", screenShot)
+        }
+        screenShot
+      } catch {
+        case e: BadImageException ⇒
+          errors.reject(null, "Некорректное изображение: " + e.getMessage)
+          null
+      }
+    } else if (session.getAttribute("image") != null && !("" == session.getAttribute("image"))) {
+      val screenShot = session.getAttribute("image").asInstanceOf[UploadedImagePreview]
+      if (!screenShot.mainFile.exists) {
+        null
+      } else {
+        screenShot
+      }
+    } else {
+      null
+    }
+  }
+
+
+  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = {
+    transactional() { _ ⇒
+      val id = imageDao.saveImage(msgid, imagePreview.extension)
+
+      imagePreview.moveTo(galleryPath, id.toString)
     }
   }
 }

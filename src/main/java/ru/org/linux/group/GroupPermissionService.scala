@@ -76,7 +76,7 @@ class GroupPermissionService(sectionService: SectionService) {
   def isImagePostingAllowed(section: Section, @Nullable currentUser: User): Boolean = {
     if (section.isImagepost) {
       true
-    } else if (currentUser != null && currentUser.isAdministrator) {
+    } else if (currentUser != null && (currentUser.isModerator || currentUser.isCorrector)) {
       section.isImageAllowed
     } else {
       false

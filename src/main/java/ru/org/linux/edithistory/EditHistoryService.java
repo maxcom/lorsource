@@ -20,10 +20,14 @@ import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.tag.TagService;
+import ru.org.linux.topic.PreparedImage;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
@@ -57,12 +61,17 @@ public class EditHistoryService {
   @Autowired
   private EditHistoryDao editHistoryDao;
 
+  @Autowired
+  private ImageDao imageDao;
+
+  @Autowired
+  private ImageService imageService;
+
   /**
    * Получить историю изменений топика
    */
   public List<PreparedEditHistory> prepareEditInfo(
-    Topic message,
-    boolean secure
+    Topic message
   ) throws UserNotFoundException {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
@@ -73,6 +82,8 @@ public class EditHistoryService {
     String currentLinktext = message.getLinktext();
     List<TagRef> currentTags = topicTagService.getTagRefs(message);
     boolean currentMinor = message.isMinor();
+    Image maybeImage = imageDao.imageForTopic(message);
+    PreparedImage currentImage = maybeImage !=null ? imageService.prepareImageOrNull(maybeImage) : null;
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
       EditHistoryRecord dto = editInfoDTOs.get(i);
@@ -80,7 +91,6 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
           lorCodeService,
-          secure,
           userDao.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
@@ -90,9 +100,19 @@ public class EditHistoryService {
           dto.getOldtags() != null ? currentTags : null,
           i == 0,
           false,
-          dto.getOldminor() != null ? currentMinor : null
+          dto.getOldminor() != null ? currentMinor : null,
+          dto.getOldimage() != null && currentImage !=null ? currentImage : null,
+          currentImage == null && dto.getOldimage()!=null
         )
       );
+
+      if (dto.getOldimage() != null) {
+        if (dto.getOldimage() == 0) {
+          currentImage = null;
+        } else {
+          currentImage = imageService.prepareImageOrNull(imageDao.getImage(dto.getOldimage()));
+        }
+      }
 
       if (dto.getOldmessage() != null) {
         currentMessage = dto.getOldmessage();
@@ -117,6 +137,7 @@ public class EditHistoryService {
       if (dto.getOldminor() != null) {
         currentMinor = dto.getOldminor();
       }
+
     }
 
     if (!editInfoDTOs.isEmpty()) {
@@ -126,7 +147,6 @@ public class EditHistoryService {
 
       editHistories.add(new PreparedEditHistory(
               lorCodeService,
-              secure,
               userDao.getUserCached(message.getUid()),
               message.getPostdate(),
               currentMessage,
@@ -136,17 +156,15 @@ public class EditHistoryService {
               currentTags,
               false,
               true,
-              null
-      ));
+              null,
+              currentImage,
+              false));
     }
 
     return editHistories;
   }
 
-  public List<PreparedEditHistory> prepareEditInfo(
-    Comment comment,
-    boolean secure
-  ) throws UserNotFoundException {
+  public List<PreparedEditHistory> prepareEditInfo(Comment comment) throws UserNotFoundException {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
@@ -159,7 +177,6 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
           lorCodeService,
-          secure,
           userDao.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
@@ -169,8 +186,8 @@ public class EditHistoryService {
           null,
           i == 0,
           false,
-          null
-        )
+          null,
+                null, false)
       );
 
       if (dto.getOldmessage() != null) {
@@ -186,7 +203,6 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
           lorCodeService,
-          secure,
           userDao.getUserCached(comment.getUserid()),
           comment.getPostdate(),
           currentMessage,
@@ -196,8 +212,8 @@ public class EditHistoryService {
           null,
           false,
           true,
-          null
-        )
+          null,
+                null, false)
       );
     }
 
