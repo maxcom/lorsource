@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -26,7 +26,7 @@
 <link>${template.secureMainUrlNoSlash}${message.link}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${l:escapeHtml(message.title)}</title>
-  <lor:message-rss preparedMessage="${preparedMessage}"/>
+  <lor:message-rss preparedTopic="${preparedMessage}"/>
   <c:forEach items="${commentsPrepared}" var="comment">
     <item>
       <title>
