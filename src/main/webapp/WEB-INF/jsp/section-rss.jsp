@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -42,7 +42,7 @@
       <c:if test="${msg.message.commitDate==null}">
         <pubDate><lor:rfc822date date="${msg.message.postdate}"/></pubDate>
       </c:if>
-      <lor:message-rss preparedMessage="${msg}"/>
+      <lor:message-rss preparedTopic="${msg}"/>
     </item>
   </c:forEach>
 </channel>
