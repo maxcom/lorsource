@@ -44,7 +44,7 @@
   </figure>
 </c:if>
 
-<c:if test="${showInfo!=null and showInfo}">
+<c:if test="${showInfo!=null and showInfo and preparedMessage!=null and preparedMessage.section.imagepost}">
   <c:if test="${image != null}">
     <p>
       &gt;&gt;&gt; <a href="${image.fullName}">Просмотр</a>
