@@ -79,18 +79,20 @@
 <h2>
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 </h2>
+
+  <c:if test="${multiPortal}">
+    <div class="group">
+        ${preparedMessage.section.title} — ${preparedMessage.group.title}
+      <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+        <span>(не подтверждено)</span>
+      </c:if>
+    </div>
+  </c:if>
+  
   <c:if test="${preparedMessage.image != null}">
     <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
 
-<c:if test="${multiPortal}">
-  <div class="group">
-    ${preparedMessage.section.title} — ${preparedMessage.group.title}
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-      <span>(не подтверждено)</span>
-    </c:if>
-  </div>
-</c:if>
 <c:set var="group" value="${preparedMessage.group}"/>
 
 <c:if test="${group.image != null}">
