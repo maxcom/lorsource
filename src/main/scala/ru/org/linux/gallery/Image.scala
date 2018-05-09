@@ -23,7 +23,7 @@ object Image {
   val MinDimension = 400
   val MaxDimension = 5120
 
-  val Sizes: Seq[Int] = Seq(500, 1000) // default size first
+  val Sizes: Seq[Int] = Seq(500, 1000, 1500) // default size first
   val MaxScaledSize: Int = Sizes.max
 
   private val GalleryName = "(gallery/[^.]+)(?:\\.\\w+)".r
