@@ -1,3 +1,4 @@
+<%@ tag import="ru.org.linux.gallery.Image" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ tag pageEncoding="UTF-8"%>
@@ -23,7 +24,7 @@
 <%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:if test="${showImage!=null and showImage and image!=null}">
-  <div class="medium-image-container">
+  <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px">
   <figure class="medium-image"
     style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; margin: 0"
   <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
