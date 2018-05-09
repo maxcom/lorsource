@@ -701,6 +701,16 @@ pre code .container:before, pre code .container:after {
   -webkit-animation: spinner 2s infinite linear;
 }
 
+img.medium-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+figure.medium-image {
+  width: 100%;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";

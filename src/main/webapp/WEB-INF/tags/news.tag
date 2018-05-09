@@ -79,6 +79,10 @@
 <h2>
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 </h2>
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
+  </c:if>
+
 <c:if test="${multiPortal}">
   <div class="group">
     ${preparedMessage.section.title} — ${preparedMessage.group.title}
@@ -108,10 +112,6 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
-  </c:if>
-  
   ${preparedMessage.processedMessage}
 <c:if test="${message.url!=null}">
 <%

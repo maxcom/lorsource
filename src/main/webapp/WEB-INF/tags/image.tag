@@ -23,7 +23,10 @@
 <%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:if test="${showImage!=null and showImage and image!=null}">
-  <figure class="medium-image" <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
+  <div class="medium-image-container">
+  <figure class="medium-image"
+    style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; margin: 0"
+  <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <a href="${image.fullName}" itemprop="contentURL">
       <img
               itemprop="thumbnail"
@@ -31,7 +34,7 @@
               src="${image.mediumName}"
               alt="<l:title>${title}</l:title>"
               srcset="${image.image.srcset}"
-              sizes="500px"
+              sizes="500px" style="position: absolute"
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
 
@@ -42,6 +45,7 @@
       </c:if>
     </a>
   </figure>
+  </div>
 </c:if>
 
 <c:if test="${showInfo!=null and showInfo and preparedMessage!=null and preparedMessage.section.imagepost}">

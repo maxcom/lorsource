@@ -25,11 +25,6 @@
         height: auto;
     }
 
-    figure.medium-image {
-        float: none;
-        margin-left: inherit;
-    }
-
     .hideon-tablet {
         display: none;
     }
@@ -122,11 +117,6 @@
 
     img.photo {
         max-width: 100% !important;
-        height: auto;
-    }
-
-    img.medium-image {
-        max-width: 100%;
         height: auto;
     }
 

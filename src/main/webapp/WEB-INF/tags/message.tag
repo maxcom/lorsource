@@ -98,19 +98,20 @@
 
   <div class="msg-container">
 
+  <div class="msg_body">
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
+               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
+  </c:if>
+
     <c:if test="${memoriesInfo!=null}">
       <div class="fav-buttons">
         <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span
-              id="favs_count">${memoriesInfo.favsCount()}</span><br>
+          id="favs_count">${memoriesInfo.favsCount()}</span><br>
         <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span
-              id="memories_count">${memoriesInfo.watchCount()}</span>
+          id="memories_count">${memoriesInfo.watchCount()}</span>
       </div>
     </c:if>
-
-  <div class="msg_body">
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true" preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
-  </c:if>
 
     <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
       ${preparedMessage.processedMessage}
