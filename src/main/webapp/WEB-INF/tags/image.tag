@@ -38,14 +38,13 @@
               sizes="500px" style="position: absolute"
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
-
-      <c:if test="${enableEdit && not preparedMessage.section.imagepost}">
-        <div>
-          <a href="/delete_image?id=${image.image.id}">удалить изображение</a>
-        </div>
-      </c:if>
     </a>
   </figure>
+    <c:if test="${enableEdit && not preparedMessage.section.imagepost}">
+      <div>
+        <a href="/delete_image?id=${image.image.id}">удалить изображение</a>
+      </div>
+    </c:if>
   </div>
 </c:if>
 
