@@ -711,6 +711,10 @@ figure.medium-image {
   width: 100%;
 }
 
+.medium-image-container {
+  margin: 1em auto;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
