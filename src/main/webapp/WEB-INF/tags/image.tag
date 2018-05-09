@@ -34,7 +34,7 @@
               class="medium-image"
               src="${image.mediumName}"
               alt="<l:title>${title}</l:title>"
-              srcset="${image.image.srcset}"
+              srcset="${image.srcset}"
               sizes="500px" style="position: absolute"
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">

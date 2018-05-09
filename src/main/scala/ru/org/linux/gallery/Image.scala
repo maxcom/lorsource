@@ -29,12 +29,12 @@ object Image {
   private val GalleryName = "(gallery/[^.]+)(?:\\.\\w+)".r
   private val ImagesName = "images/.*".r
 
-  private def srcset(name: String, id: Int): String = {
+  private def srcset(name: String, id: Int, maxWidth: Int = Int.MaxValue): String = {
     name match {
       case GalleryName(base) ⇒
-        Sizes.map(size ⇒ s"$base-${size}px.jpg ${size}w").mkString(", ")
+        Sizes.filter(_ < maxWidth).map(size ⇒ s"$base-${size}px.jpg ${size}w").mkString(", ")
       case ImagesName() ⇒
-        Sizes.map(size ⇒ s"images/$id/${size}px.jpg ${size}w").mkString(", ")
+        Sizes.filter(_ < maxWidth).map(size ⇒ s"images/$id/${size}px.jpg ${size}w").mkString(", ")
       case _ ⇒
         throw new IllegalArgumentException(s"Not gallery path: $name")
     }
@@ -60,6 +60,7 @@ case class Image(
 ) {
   def getMedium: String = Image.main(original, id)
   def getSrcset: String = Image.srcset(original, id)
+  def getSrcsetUpTo(width: Int): String = Image.srcset(original, id, width)
 }
 
 case class PreparedGalleryItem(
