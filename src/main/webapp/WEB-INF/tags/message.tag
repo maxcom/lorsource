@@ -7,6 +7,7 @@
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="memoriesInfo" required="false" type="ru.org.linux.user.MemoriesInfo" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="showImageDelete" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="briefEditInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -101,7 +102,7 @@
   <div class="msg_body">
   <c:if test="${preparedMessage.image != null}">
     <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable}"/>
+               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
   </c:if>
 
     <c:if test="${memoriesInfo!=null}">

@@ -58,10 +58,12 @@
   <h1>Редактирование</h1>
 </c:if>
 
+<c:if test="${newPreparedMessage==null}">
 <h2>Текущая версия сообщения</h2>
 <div class=messages>
-  <lor:message messageMenu="${topicMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
+  <lor:message messageMenu="${topicMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" showImageDelete="true"/>
 </div>
+</c:if>
 
 <c:if test="${newPreparedMessage!=null}">
   <h2>Ваше сообщение</h2>
