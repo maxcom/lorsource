@@ -74,8 +74,8 @@
 
 * Bash, Shell
 * C
-* C++ ('c++', 'cpp', 'cxx', 'cc')
 * C# ('c#', 'cs')
+* C++ ('c++', 'cpp', 'cxx', 'cc')
 * Clojure
 * CMake
 * CoffeeScript

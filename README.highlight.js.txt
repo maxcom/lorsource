@@ -5,34 +5,34 @@
 Собрано с поддержкой следующих языков:
 
 * Bash
-* C#  
+* C#
 * C++
-* CSS  
-* Diff  
-* Fortran
-* HTML, XML  
-* Ini  
-* Java  
-* Javascript  
-* PHP  
-* Perl
-* Python  
-* Ruby  
-* SQL
-* CMake
-* Erlang
-* Lisp
-* Objective C
-* Scala
-* Lua
-* Smalltalk
-* Vala
-* Delphi
-* Go
-* TeX
-* Haskell
-* CoffeeScript
 * Clojure
+* CMake
+* CoffeeScript
+* CSS
 * D
-* Rust
+* Delphi
+* Diff
+* Erlang
 * F#
+* Fortran
+* Go
+* Haskell
+* HTML, XML
+* Ini
+* Java
+* Javascript
+* Lisp
+* Lua
+* Objective C
+* Perl
+* PHP
+* Python
+* Ruby
+* Rust
+* Scala
+* Smalltalk
+* SQL
+* TeX
+* Vala
