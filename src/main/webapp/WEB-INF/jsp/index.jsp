@@ -37,6 +37,7 @@
 <div id="news">
 
 <c:if test="${showAdsense}">
+<%--
 <div align="center" width="100%">
   <style>
   .lor-main-adaptive-tango { width: 320px; height: 100px; }
@@ -53,6 +54,32 @@
   (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
 </div>
+--%>
+
+  <div align="center" style="max-width: 100%">
+  <script defer src="https://aliexpress-internet.ru/js/lb6ht9io.js"></script>
+  <div id="banner34er45tg56block"></div>
+  </div>
+<%--
+
+  <div id="ali-div" align="center">
+  <div id="banner34er45tg56block"></div>
+  </div>
+
+  <script>
+              var script = document.createElement('script');
+              script.type = 'text/javascript';
+
+              if (window.matchMedia("(min-width: 768px").matches) {
+                  script.src = 'https://aliexpress-internet.ru/js/lb6ht9io.js';
+              } else {
+                  script.src = "https://aliexpress-internet.ru/js/ls6ht9io.js";
+              }
+
+              document.getElementById("ali-div").appendChild(script);
+  </script>
+
+--%>
 </c:if>
 
 <%--
