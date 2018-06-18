@@ -71,6 +71,7 @@ public class CodeTag extends Tag {
                   .put("c++", "language-cpp")
                   .put("c", "language-cpp")
                   .put("diff", "language-diff")
+                  .put("fortran", "language-fortran")
                   .put("patch", "language-diff")
                   .put("java", "language-java")
                   .put("js", "language-javascript")

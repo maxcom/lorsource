@@ -8,7 +8,7 @@ if [ -z "$highlight_js_path" ] ; then
 fi
 
 python3 "$highlight_js_path/tools/build.py" \
-    bash cs cpp css diff xml ini java javascript php perl python ruby sql cmake \
+    bash cs cpp css diff fortran xml ini java javascript php perl python ruby sql cmake \
     erlang lisp objectivec scala lua smalltalk vala delphi go tex haskell \
     coffeescript clojure d rust fsharp \
   && cp "$highlight_js_path/build/highlight.pack.js" \

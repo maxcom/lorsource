@@ -84,6 +84,7 @@
 * Diff ('patch', 'diff')
 * Erlang
 * F# ('f#', 'fs')
+* Fortran
 * Go
 * Haskell
 * HTML, XML

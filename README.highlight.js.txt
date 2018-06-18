@@ -9,6 +9,7 @@
 * C++
 * CSS  
 * Diff  
+* Fortran
 * HTML, XML  
 * Ini  
 * Java  
