@@ -31,6 +31,7 @@
 <meta name="Keywords" content="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
 <meta name="Description" content="Все о Linux на русском языке">
 <link rel="alternate" title="L.O.R RSS" href="section-rss.jsp?section=1" type="application/rss+xml">
+<meta http-equiv="Content-Security-Policy" content="frame-src 'none'">
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 
 <div id="mainpage">
