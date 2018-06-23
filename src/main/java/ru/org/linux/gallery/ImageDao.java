@@ -60,7 +60,7 @@ public class ImageDao {
     String sql = "SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate " +
             "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate " +
             "FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate AND section="+Section.SECTION_GALLERY+ " " +
-            "AND NOT topics.deleted AND commitdate IS NOT NULL ORDER BY commitdate DESC LIMIT ?) " +
+            "AND NOT topics.deleted AND NOT images.deleted AND commitdate IS NOT NULL ORDER BY commitdate DESC LIMIT ?) " +
             "as t JOIN images ON t.msgid = images.topic";
 
     return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), countItems);
