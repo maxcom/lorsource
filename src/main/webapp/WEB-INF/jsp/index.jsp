@@ -53,7 +53,7 @@
   (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
 </div>
-
+</c:if>
 <%--
   <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
   </div>
