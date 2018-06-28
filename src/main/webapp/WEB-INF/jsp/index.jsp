@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -27,7 +27,7 @@
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>LINUX.ORG.RU - Русская информация об ОС Linux</title>
+<title>LINUX.ORG.RU — Русская информация об ОС Linux</title>
 <meta name="Keywords" content="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
 <meta name="Description" content="Все о Linux на русском языке">
 <link rel="alternate" title="L.O.R RSS" href="section-rss.jsp?section=1" type="application/rss+xml">
@@ -83,7 +83,6 @@
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
     [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
-
     <c:if test="${uncommitedNews > 0}">
       в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}]
     </c:if>
