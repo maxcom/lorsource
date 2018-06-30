@@ -108,11 +108,11 @@ function init_interpage_adv(ads) {
 
             var img = $('<img>');
 
-            if (window.matchMedia("(min-width: 768px").matches) {
+            if (window.matchMedia("(min-width: 768px)").matches) {
                 img.attr('width', 728);
                 img.attr('height', 90);
                 img.attr('src', ad.img728);
-            } else if (window.matchMedia("(min-width: 500px").matches) {
+            } else if (window.matchMedia("(min-width: 500px)").matches) {
                 img.attr('width', 468);
                 img.attr('height', 60);
                 img.attr('src', ad.img468);
