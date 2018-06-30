@@ -68,7 +68,7 @@ function init_interpage_adv(ads) {
     $(function() {
         var ad = ads[Math.floor(Math.random() * ads.length)];
 
-        if (ad.type=='flash') {
+        if (ad.type==='flash') {
             $script('/js/jquery.swfobject.1-1-1.min.js', function() {
                 $('#interpage-adv').flash({
                     "swf": ad.src,
@@ -78,7 +78,7 @@ function init_interpage_adv(ads) {
             });
         }
 
-        if (ad.type=='img') {
+        if (ad.type==='img') {
             var anchor = $('<a>');
             anchor.attr('href', ad.href);
             anchor.attr('target', '_blank');
@@ -95,6 +95,31 @@ function init_interpage_adv(ads) {
                 img.attr('height', ad.height);
             } else {
                 img.attr('height', 90);
+            }
+
+            anchor.append(img);
+            $('#interpage-adv').append(anchor);
+        }
+
+        if (ad.type==='rimg') {
+            var anchor = $('<a>');
+            anchor.attr('href', ad.href);
+            anchor.attr('target', '_blank');
+
+            var img = $('<img>');
+
+            if (window.matchMedia("(min-width: 768px").matches) {
+                img.attr('width', 728);
+                img.attr('height', 90);
+                img.attr('src', ad.img728);
+            } else if (window.matchMedia("(min-width: 500px").matches) {
+                img.attr('width', 468);
+                img.attr('height', 60);
+                img.attr('src', ad.img468);
+            } else {
+                img.attr('width', 320);
+                img.attr('height', 100);
+                img.attr('src', ad.img320);
             }
 
             anchor.append(img);

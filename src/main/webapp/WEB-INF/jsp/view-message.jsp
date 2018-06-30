@@ -212,6 +212,7 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%" style="margin-bottom: 1em">
     <style>
@@ -232,25 +233,33 @@
     </script>
   </div>
 </c:if>
-<%--
+--%>
 
-  <div style="text-align: center; margin-top: 0.5em; margin-bottom: 1em; height: 91px" id="interpage-adv">
+  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage-adv">
   </div>
   <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'img',
-          src: '/adv/miran-e3.gif',
-          href: 'https://miran.ru/services/dedicated/sale/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated'
-        }
-      ];
+      $script.ready('lorjs', function () {
+          var ads = [
+              {
+                  type: 'rimg',
+                  img728: '/linuxpiter/728x90 Linux.jpg',
+                  img468: '/linuxpiter/468x60 Linux.jpg',
+                  img320: '/linuxpiter/320x100 Linux.jpg',
+                  href: 'https://linuxpiter.com/'
+              },
+              {
+                  type: 'rimg',
+                  img728: '/linuxpiter/728x90 PiterPy.jpg',
+                  img468: '/linuxpiter/468x60 PiterPy.jpg',
+                  img320: '/linuxpiter/320x100 PiterPy.jpg',
+                  href: 'https://piterpy.com/'
+              }
+          ];
 
-      init_interpage_adv(ads);
-    });
+          init_interpage_adv(ads);
+      });
   </script>
 
---%>
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
   <div class=nav>
     сообщения отсортированы в порядке убывания даты их написания
