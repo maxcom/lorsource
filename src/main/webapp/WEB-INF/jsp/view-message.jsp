@@ -235,7 +235,7 @@
 </c:if>
 --%>
 
-  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage-adv">
+  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpageadv">
   </div>
   <script type="text/javascript">
       $script.ready('lorjs', function () {
