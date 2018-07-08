@@ -150,7 +150,6 @@
 <h1>Связанные проекты</h1>
 <ul>
 <li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты.</li>
-<li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a>.</li>
 <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a>.</li>
 <li><a href="http://lor.click/">Статистика LOR</a>. </li>
 </ul>
