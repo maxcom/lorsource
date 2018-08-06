@@ -70,7 +70,7 @@ function init_interpage_adv(ads) {
 
         if (ad.type==='flash') {
             $script('/js/jquery.swfobject.1-1-1.min.js', function() {
-                $('#interpageadv').flash({
+                $('#interpage').flash({
                     "swf": ad.src,
                     "width": 728,
                     "height": 90
@@ -98,7 +98,7 @@ function init_interpage_adv(ads) {
             }
 
             anchor.append(img);
-            $('#interpageadv').append(anchor);
+            $('#interpage').append(anchor);
         }
 
         if (ad.type==='rimg') {
@@ -123,7 +123,7 @@ function init_interpage_adv(ads) {
             }
 
             anchor.append(img);
-            $('#interpageadv').append(anchor);
+            $('#interpage').append(anchor);
         }
     });
 }
