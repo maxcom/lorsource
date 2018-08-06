@@ -66,14 +66,14 @@
           img728: '/linuxpiter/728x90 Linux.jpg',
           img468: '/linuxpiter/468x60 Linux.jpg',
           img320: '/linuxpiter/320x100 Linux.jpg',
-          href: 'https://linuxpiter.com/'
+          href: 'https://linuxpiter.com/speakers'
         },
         {
           type: 'rimg',
           img728: '/linuxpiter/728x90 PiterPy.jpg',
           img468: '/linuxpiter/468x60 PiterPy.jpg',
           img320: '/linuxpiter/320x100 PiterPy.jpg',
-          href: 'https://piterpy.com/'
+          href: 'https://piterpy.com/speakers'
         }
       ];
 
