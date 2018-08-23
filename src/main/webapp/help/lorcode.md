@@ -74,8 +74,8 @@
 
 * Bash, Shell
 * C
-* C++ ('c++', 'cpp', 'cxx', 'cc')
 * C# ('c#', 'cs')
+* C++ ('c++', 'cpp', 'cxx', 'cc')
 * Clojure
 * CMake
 * CoffeeScript
@@ -84,6 +84,7 @@
 * Diff ('patch', 'diff')
 * Erlang
 * F# ('f#', 'fs')
+* Fortran
 * Go
 * Haskell
 * HTML, XML
