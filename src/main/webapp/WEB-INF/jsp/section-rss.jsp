@@ -21,7 +21,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
   <channel>
-    <link>http://www.linux.org.ru/</link>
+    <link>https://www.linux.org.ru/</link>
     <language>ru</language>
     <title>Linux.org.ru: <c:out escapeXml="true" value="${ptitle}"/></title>
 
