@@ -49,6 +49,10 @@ html {
   }
 }
 
+body * {
+    max-height: 9999999em; /* disable font boosting in mobile browsers */
+}
+
 body {
    max-width: 89em;
    margin: auto;
