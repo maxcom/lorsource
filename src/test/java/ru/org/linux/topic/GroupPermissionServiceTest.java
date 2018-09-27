@@ -31,8 +31,8 @@ import static org.mockito.Mockito.*;
 
 public class GroupPermissionServiceTest {
   /**
-   * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
-   * и прошло меньше часа с момента почтинга
+   * Проверка, что пользователь МОЖЕТ удалить топик, автором которого он является,
+   * и прошло меньше часа с момента постинга
    * @throws Exception
    */
   @Test
@@ -72,8 +72,8 @@ public class GroupPermissionServiceTest {
     assertTrue(permissionService.isDeletable(message, user));
   }
   /**
-   * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
-   * и прошло больше часа с момента почтинга
+   * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он является,
+   * и прошло больше часа с момента постинга
    * @throws Exception
    */
   @Test
@@ -113,7 +113,7 @@ public class GroupPermissionServiceTest {
   }
 
   /**
-   * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
+   * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он не является,
    * и прошло больше часа с момента постинга
    * @throws Exception
    */
@@ -154,7 +154,7 @@ public class GroupPermissionServiceTest {
   }
 
   /**
-   * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
+   * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он не является,
    * и прошло больше часа с момента постинга
    * @throws Exception
    */
@@ -290,7 +290,7 @@ public class GroupPermissionServiceTest {
 
     GroupPermissionService permissionService = new GroupPermissionService(sectionService);
 
-    // проверка что данные в mock resultSet верные
+    // проверка, что данные в mock resultSet верные
     assertTrue(resultSetModerateNew.getBoolean("moderate"));
     assertTrue(resultSetModerateOld.getBoolean("moderate"));
     assertFalse(resultSetNotModerateNew.getBoolean("moderate"));
@@ -307,7 +307,7 @@ public class GroupPermissionServiceTest {
     Topic messageModerateNew = new Topic(resultSetModerateNew);
     Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
 
-    // проверка что данные в mock message верные
+    // проверка, что данные в mock message верные
     assertTrue(messageModerateNew.isCommited());
     assertTrue(messageModerateOld.isCommited());
     assertFalse(messageNotModerateNew.isCommited());
