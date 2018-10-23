@@ -19,7 +19,7 @@
     <elastic4s.version>6.1.4</elastic4s.version>
     <scala.version>2.12.7</scala.version>
     <scala.suffix>2.12</scala.suffix>
-    <activemq.version>5.15.3</activemq.version>
+    <activemq.version>5.15.6</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
     <jquery.form.version>4.2.1</jquery.form.version>
@@ -39,6 +39,12 @@
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-slf4j_${scala.suffix}</artifactId>
+      <version>${akka.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-stream_${scala.suffix}</artifactId>
       <version>${akka.version}</version>
     </dependency>
 
