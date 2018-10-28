@@ -146,7 +146,7 @@
 
   </c:if>
 
-  <c:if test="${group.premoderated and template.moderatorSession}">
+  <c:if test="${group.premoderated and template.moderatorSession and !group.pollPostAllowed}">
     <label>Мини-новость: <form:checkbox path="minor"/></label>
   </c:if>
 
