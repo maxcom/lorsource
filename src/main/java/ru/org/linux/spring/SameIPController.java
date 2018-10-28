@@ -151,7 +151,7 @@ public class SameIPController {
                     "AND groups.id=topics.groupid " +
                     "AND comments.topic=topics.id " +
                     "AND comments.postip=?::inet " +
-                    "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
+                    "AND comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
                     "ORDER BY postdate DESC",
             new RowMapper<TopicItem>() {
               @Override

@@ -193,7 +193,7 @@ function checkCustomBan(idx) {
 </table>
 </div>
 
-<h2>Комментарии за 24 часа</h2>
+<h2>Комментарии за 3 дня</h2>
 
 <div class=forum>
 <table width="100%" class="message-table">
