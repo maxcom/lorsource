@@ -32,8 +32,8 @@ public class DeregisterRequestValidator implements Validator {
       errors.reject("acceptBlock", null, "Вы не согласились с блокировкой аккаунта");
     }
 
-    if (!form.getAcceptAnonymous()) {
-      errors.reject("acceptAnonymous", null, "Вы не согласились с передачей всех сообщений анонимусу");
+    if (!form.getAcceptMoveToDeleted()) {
+      errors.reject("acceptMoveToDeleted", null, "Вы не согласились с передачей всех сообщений специальному пользователю");
     }
 
     if (!form.getAcceptOneway()) {

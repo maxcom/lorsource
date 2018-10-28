@@ -23,7 +23,7 @@
 <jsp:include page="header.jsp"/>
 <H1>Удаление пользователя</H1>
 <p>
-Аккаунт становится недоступен для входа, все сообщения переходят к анонимусу.
+Аккаунт становится недоступен для входа, все сообщения переходят к специальному пользователю.
 </p>
 
 <form:form modelAttribute="form" method="POST" action="deregister.jsp" id="registerForm">
@@ -44,8 +44,8 @@
     <label>Заблокировать мой аккаунт
       <form:checkbox path="acceptBlock" value="true" required="required" cssErrorClass="error"/>
     </label>
-    <label>Передать все сообщения анонимусу
-      <form:checkbox path="acceptAnonymous" value="true" required="required" cssErrorClass="error"/>
+    <label>Передать все сообщения специальному пользователю
+      <form:checkbox path="acceptMoveToDeleted" value="true" required="required" cssErrorClass="error"/>
     </label>
     <label>Согласен с невозможностью восстановления
       <form:checkbox path="acceptOneway" value="true" required="required" cssErrorClass="error"/>

@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,16 +25,30 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.validation.Errors;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.comment.CommentDao;
+import ru.org.linux.search.ElasticsearchIndexService;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 public class DeregisterController {
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
+  private CommentDao commentDao;
+
+  @Autowired
+  private ElasticsearchIndexService indexService;
 
   @RequestMapping(value = "/deregister.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView show(
@@ -76,11 +91,18 @@ public class DeregisterController {
       return new ModelAndView("deregister");
     }
 
-    // TODO Move messages to anonymous
+    // Move messages
+    List<Integer> movedMessages = commentDao.getAllByUser(user);
+    userDao.moveMessages(user.getId(), userDao.findUserId("Deleted"));
+    indexService.reindexComments(movedMessages);
 
-    // TODO Remove user info
+    // Remove user info
+    userDao.resetUserpic(user, user);
+    userDao.updateUser(user, "", "", null, "", null, "");
 
-    // TODO Block account
+    // Block account
+    User anonymous = userDao.getUser(userDao.findUserId("anonymous"));
+    userDao.block(user, anonymous, "удаление аккаунта");
 
     return new ModelAndView(
       "action-done",

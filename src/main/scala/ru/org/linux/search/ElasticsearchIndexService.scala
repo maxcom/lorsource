@@ -155,6 +155,10 @@ class ElasticsearchIndexService
     executeBulk(bulk(requests))
   }
 
+  def reindexComments(comments: java.util.List[java.lang.Integer]): Unit = {
+    reindexComments(comments.asScala.map(x ⇒ x.toInt));
+  }
+
   def createIndexIfNeeded(): Unit = {
     val indexExistsResult = elastic execute {
       indexExists(MessageIndex)

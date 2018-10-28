@@ -18,7 +18,7 @@ package ru.org.linux.user;
 public class DeregisterRequest {
   private String password;
   private boolean acceptBlock;
-  private boolean acceptAnonymous;
+  private boolean acceptMoveToDeleted;
   private boolean acceptOneway;
 
   public String getPassword() {
@@ -29,8 +29,8 @@ public class DeregisterRequest {
     return acceptBlock;
   }
 
-  public boolean getAcceptAnonymous() {
-    return acceptAnonymous;
+  public boolean getAcceptMoveToDeleted() {
+    return acceptMoveToDeleted;
   }
 
   public boolean getAcceptOneway() {
@@ -45,8 +45,8 @@ public class DeregisterRequest {
     this.acceptBlock = acceptBlock;
   }
 
-  public void setAcceptAnonymous(boolean acceptAnonymous) {
-    this.acceptAnonymous = acceptAnonymous;
+  public void setAcceptMoveToDeleted(boolean acceptMoveToDeleted) {
+    this.acceptMoveToDeleted = acceptMoveToDeleted;
   }
 
   public void setAcceptOneway(boolean acceptOneway) {
