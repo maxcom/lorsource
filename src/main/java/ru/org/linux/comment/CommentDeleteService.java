@@ -69,7 +69,7 @@ public class CommentDeleteService {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
 
-    boolean deleted = doDeleteComment(msgid, reason, user);
+    boolean deleted = doDeleteComment(msgid, reason, user, -scoreBonus);
 
     if (deleted) {
       if (scoreBonus != 0) {
@@ -89,16 +89,21 @@ public class CommentDeleteService {
    * @param msgid      идентификационнай номер комментария
    * @param reason     причина удаления
    * @param user       пользователь, удаляющий комментарий
+   * @param scoreBonus количество снятого скора
    * @return true если комментарий был удалён, иначе false
    */
-  private boolean doDeleteComment(int msgid, String reason, User user) {
+  private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
     boolean deleted = commentDao.deleteComment(msgid, reason, user);
 
     if (deleted) {
-      deleteInfoDao.insert(msgid, user, reason, 0);
+      deleteInfoDao.insert(msgid, user, reason, scoreBonus);
     }
 
     return deleted;
+  }
+
+  private boolean doDeleteComment(int msgid, String reason, User user) {
+    return doDeleteComment(msgid, reason, user, 0);
   }
 
   /**
