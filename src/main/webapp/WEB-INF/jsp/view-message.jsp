@@ -212,13 +212,12 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
-<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%" style="margin-bottom: 1em">
     <style>
     .lor-topic-adaptive-tango { width: 320px; height: 100px; }
     @media(min-width: 500px) { .lor-topic-adaptive-tango { width: 468px; height: 60px; } }
-    @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 728px; height: 90px; } }
+    @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 100%; height: 90px; } }
     </style>
 
     <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -233,8 +232,8 @@
     </script>
   </div>
 </c:if>
---%>
 
+<%--
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -259,6 +258,7 @@
           init_interpage_adv(ads);
       });
   </script>
+--%>
 
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
   <div class=nav>

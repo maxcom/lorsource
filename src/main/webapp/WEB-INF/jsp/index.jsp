@@ -36,7 +36,6 @@
 <div id="mainpage">
 <div id="news">
 
-<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
   <style>
@@ -55,7 +54,7 @@
   </script>
 </div>
 </c:if>
---%>
+<%--
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -80,6 +79,7 @@
       init_interpage_adv(ads);
     });
   </script>
+--%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
