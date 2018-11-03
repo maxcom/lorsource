@@ -175,14 +175,15 @@
 </div>
 </c:if>
 
+
 <div class="control-group">
   <label for="tags">
     <c:if test="${not section.premoderated}">
-      Метки (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>; в заголовке будет показано не более <%= TopicTagService.MaxTagsInTitle() %>)
+      <a href="/tags" target="_blank">Метки</a> (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>; в заголовке будет показано не более <%= TopicTagService.MaxTagsInTitle() %>)
     </c:if>
 
     <c:if test="${section.premoderated}">
-      Метки (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
+      <a href="/tags" target="_blank">Метки</a> (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
     </c:if>
   </label>
   <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
