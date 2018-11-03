@@ -1,30 +1,45 @@
+/*
+ * Copyright 1998-2016 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.tag
 
 import org.springframework.validation.Errors
-import scala.collection.JavaConversions._
-import java.util.regex.Pattern
 import ru.org.linux.user.UserErrorException
 
+import scala.collection.JavaConverters._
+
 object TagName {
-  val MAX_TAGS_PER_TOPIC = 5
-  val MIN_TAG_LENGTH = 2
-  val MAX_TAG_LENGTH = 25
+  val MaxTagsPerTopic = 5
+  val MinTagLength = 1
+  val MaxTagLength = 32
 
-  private[this] val tagRE = Pattern.compile("([\\p{L}\\d-][\\p{L}\\d \\+-.]*[\\p{L}\\d\\+-])", Pattern.CASE_INSENSITIVE)
+  private val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
 
-  def isGoodTag(tag:String):Boolean = {
-    tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH
+  def isGoodTag(tag: String): Boolean = {
+    tagRE.matcher(tag).matches() && tag.length() >= MinTagLength && tag.length() <= MaxTagLength
   }
 
   @throws[UserErrorException]
-  def checkTag(tag:String):Unit = {
+  def checkTag(tag:String): Unit = {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!isGoodTag(tag)) {
-      throw new UserErrorException("Некорректный тег: '" + tag + '\'')
+      throw new UserErrorException(s"Некорректный тег: '$tag'")
     }
   }
 
-  def parseTags(tags: String) = {
+  def parseTags(tags: String): Set[String] = {
     if (tags == null) {
       Set.empty[String]
     } else {
@@ -46,20 +61,20 @@ object TagName {
    * @param errors класс для ошибок валидации (параметр 'tags')
    * @return список тегов
    */
-  def parseAndValidateTags(tags:String, errors:Errors):Seq[String] = {
+  def parseAndValidateTags(tags: String, errors:Errors, maxTags: Int): Seq[String] = {
     val (goodTags, badTags) = parseTags(tags).partition(isGoodTag)
 
     for (tag <- badTags) {
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (tag.length() > MAX_TAG_LENGTH) {
-        errors.rejectValue("tags", null, "Слишком длинный тег: '" + tag + "\' (максимум " + MAX_TAG_LENGTH + " символов)")
+      if (tag.length() > MaxTagLength) {
+        errors.rejectValue("tags", null, "Слишком длинный тег: '" + tag + "\' (максимум " + MaxTagLength + " символов)")
       } else if (!isGoodTag(tag)) {
         errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'')
       }
     }
 
-    if (goodTags.size > MAX_TAGS_PER_TOPIC) {
-      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + MAX_TAGS_PER_TOPIC + ')')
+    if (goodTags.size > maxTags) {
+      errors.rejectValue("tags", null, "Слишком много тегов (максимум " + maxTags + ')')
     }
 
     goodTags.toVector
@@ -71,6 +86,6 @@ object TagName {
    * @param tags список тегов через запятую
    * @return список тегов
    */
-  def parseAndSanitizeTags(tags:String):java.util.List[String] =
-    parseTags(tags).filter(isGoodTag).toVector
+  def parseAndSanitizeTags(tags:String): java.util.List[String] =
+    parseTags(tags).filter(isGoodTag).toVector.asJava
 }

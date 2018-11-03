@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,45 +26,45 @@ import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserEventController {
   @Autowired
   private ReplyFeedView feedView;
+
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
+
   @Autowired
   private UserEventService userEventService;
 
-  public static class Action {
-    private String filter;
+  @Autowired
+  private UserEventPrepareService prepareService;
 
-    public Action() {
-      filter = "all";
-    }
+  @Autowired
+  private UserEventApiController apiController;
 
-    public void setFilter(String filter) {
-      this.filter = filter;
-    }
-
-    public String getFilter() {
-      return filter;
-    }
-  }
-
-  private static final Set<String> filterValues;
-
-  static {
-    filterValues = new HashSet<>();
-    for (UserEventFilterEnum eventFilter : UserEventFilterEnum.values()) {
-      filterValues.add(eventFilter.getValue());
-    }
-  }
-
-  @ModelAttribute("filter")
+  @ModelAttribute("filterValues")
   public static List<UserEventFilterEnum> getFilter() {
     return Arrays.asList(UserEventFilterEnum.values());
+  }
+
+  @RequestMapping(value="/notifications", method = RequestMethod.POST)
+  public RedirectView resetNotifications(
+    HttpServletRequest request,
+    @RequestParam int topId
+  ) throws Exception {
+    apiController.resetNotifications(request, topId);
+
+    RedirectView view = new RedirectView("/notifications");
+
+    view.setExposeModelAttributes(false);
+
+    return view;
   }
 
   /**
@@ -73,39 +73,30 @@ public class UserEventController {
    * @param request    запрос
    * @param response   ответ
    * @param offset     смещение
-   * @param forceReset принудительная отсчистка уведомлений
    * @return вьюшку
-   * @throws Exception возможны исключительные ситуации :-(
    */
-  @RequestMapping("/notifications")
+  @RequestMapping(value="/notifications", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNotifications(
     HttpServletRequest request,
     HttpServletResponse response,
-    @ModelAttribute("notifications") Action action,
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
+    @RequestParam(value = "filter", defaultValue="all") String filter,
+    @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("not authorized");
     }
 
-    String filterAction = action.getFilter();
-    UserEventFilterEnum eventFilter;
-    if (filterValues.contains(filterAction)) {
-      eventFilter = UserEventFilterEnum.valueOf(filterAction.toUpperCase());
-    } else {
-      eventFilter = UserEventFilterEnum.ALL;
-    }
+    Map<String, Object> params = new HashMap<>();
+    UserEventFilterEnum eventFilter = UserEventFilterEnum.fromNameOrDefault(filter);
+    params.put("filter", eventFilter.getName());
 
     User currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
 
-    Map<String, Object> params = new HashMap<>();
     params.put("nick", nick);
-    params.put("forceReset", forceReset);
     if (eventFilter != UserEventFilterEnum.ALL) {
-      params.put("addition_query", "&filter=" + eventFilter.getValue());
+      params.put("addition_query", "&filter=" + eventFilter.getName());
     } else {
       params.put("addition_query", "");
     }
@@ -136,12 +127,11 @@ public class UserEventController {
 
     response.addHeader("Cache-Control", "no-cache");
     List<UserEvent> list = userEventService.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
-    List<PreparedUserEvent> prepared = userEventService.prepare(list, false, request.isSecure());
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, false);
 
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-      userEventService.resetUnreadReplies(currentUser);
-    } else {
+    if (!list.isEmpty()) {
       params.put("enableReset", true);
+      params.put("topId", list.get(0).getId());
     }
 
     params.put("topicsList", prepared);
@@ -155,8 +145,7 @@ public class UserEventController {
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "nick", required = false) String nick,
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @ModelAttribute("notifications") Action action
+    @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     boolean feedRequested = request.getParameterMap().containsKey("output");
@@ -205,7 +194,7 @@ public class UserEventController {
     int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     boolean showPrivate = tmpl.isModeratorSession();
 
@@ -219,7 +208,7 @@ public class UserEventController {
     }
 
     List<UserEvent> list = userEventService.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
-    List<PreparedUserEvent> prepared = userEventService.prepare(list, feedRequested, request.isSecure());
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested);
 
     params.put("isMyNotifications", false);
     params.put("topicsList", prepared);

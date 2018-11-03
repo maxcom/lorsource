@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -14,18 +14,18 @@
   --%><?xml version="1.0" encoding="utf-8"?>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.util.Date"   buffer="200kb"%>
+<%@ page import="java.util.Date"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
   <channel>
-    <link>http://www.linux.org.ru/</link>
+    <link>https://www.linux.org.ru/</link>
     <language>ru</language>
-    <title>Linux.org.ru: ${ptitle}</title>
+    <title>Linux.org.ru: <c:out escapeXml="true" value="${ptitle}"/></title>
 
-    <description>Linux.org.ru: ${ptitle}</description>
+    <description>Linux.org.ru: <c:out escapeXml="true" value="${ptitle}"/></description>
 
     <pubDate>
       <lor:rfc822date date="<%= new Date() %>"/>
@@ -33,8 +33,8 @@
   <c:forEach var="msg" items="${messages}">
     <item>
       <author>${msg.author.nick}</author>
-      <link>${template.mainUrlNoSlash}${msg.message.link}</link>
-      <guid>${template.mainUrlNoSlash}${msg.message.link}</guid>
+      <link>${template.secureMainUrlNoSlash}${msg.message.link}</link>
+      <guid>${template.secureMainUrlNoSlash}${msg.message.link}</guid>
       <title>${l:escapeXml(msg.message.title)}</title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
@@ -42,7 +42,7 @@
       <c:if test="${msg.message.commitDate==null}">
         <pubDate><lor:rfc822date date="${msg.message.postdate}"/></pubDate>
       </c:if>
-      <lor:message-rss preparedMessage="${msg}"/>
+      <lor:message-rss preparedTopic="${msg}"/>
     </item>
   </c:forEach>
 </channel>

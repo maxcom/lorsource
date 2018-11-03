@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -42,33 +42,23 @@
   -->
 </script>
 
-<title>${section.name} - ${group.title}
+<title>${section.name} — ${group.title}
   <c:if test="${year != null}">
-    - Архив ${year}, ${l:getMonthName(month)}
+    — Архив ${year}, ${l:getMonthName(month)}
   </c:if>
 </title>
-    <LINK REL="alternate" HREF="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
+    <link rel="alternate" href="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" type="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form>
   <div class=nav>
     <div id="navPath">
-      <a href="${group.sectionLink}">${section.name}</a> - ${group.title}
+      ${section.name} «${group.title}»
       <c:if test="${year != null}">
-        - Архив ${year}, ${l:getMonthName(month)}
+        — Архив ${year}, ${l:getMonthName(month)}
       </c:if>
     </div>
 
     <div class="nav-buttons">
-      <ul>
-      <li><a href="${group.url}archive/">Архив</a></li>
-      <c:if test="${year==null}">
-        <c:if test="${template.moderatorSession}">
-          <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
-        </c:if>
-        <c:if test="${addable}">
-          <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
-        </c:if>
-  </ul>
       <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
           <c:if test="${item.id == group.id}">
@@ -89,11 +79,27 @@
           </c:if>
         </c:forEach>
       </select>
-      </c:if>
      </div>
  </div>
 
 </form>
+
+<nav>
+  <c:if test="${year!=null}">
+    <a class="btn btn-default" href="${group.url}">Новые темы</a>
+    <a href="${group.url}archive/" class="btn btn-selected">Архив</a>
+  </c:if>
+  <c:if test="${year==null}">
+    <a class="btn btn-selected" href="${group.url}">Новые темы</a>
+    <a href="${group.url}archive/" class="btn btn-default">Архив</a>
+    <c:if test="${template.moderatorSession}">
+      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править группу</a>
+    </c:if>
+    <c:if test="${addable}">
+      <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
+    </c:if>
+  </c:if>
+</nav>
 
 <c:if test="${!empty groupImagePath}">
     <div align=center>
@@ -107,17 +113,7 @@
 <table class="message-table">
 <thead>
 <tr>
-  <th>Тема<br>
-    <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
-      фильтр:
-      <c:if test="${lastmod}">
-        <input type="hidden" name="lastmod" value="true">
-      </c:if>
-        <select name="showignored" onchange="submit();">
-          <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
-          <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
-          </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
-    </form>
+  <th>Тема
   </th>
   <th>Последнее сообщение<br>
     <c:if test="${year==null}">
@@ -129,7 +125,7 @@
     </c:if>
     </c:if>
   </th>
-  <th>Число ответов<br>всего/день/час</th>
+  <th><i class="icon-reply"></i></th>
 </tr>
 </thead>
 <tbody>
@@ -141,7 +137,7 @@
     <c:if test="${topic.deleted}">
       <c:choose>
         <c:when test="${template.moderatorSession}">
-          <a href="/undelete.jsp?msgid=${topic.msgid}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
+          <a href="/undelete?msgid=${topic.msgid}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
         </c:when>
         <c:otherwise>
           <img src="/img/del.png" alt="[X]" width="15" height="15">
@@ -149,7 +145,7 @@
       </c:choose>
     </c:if>
     <c:if test="${topic.sticky and not topic.deleted}">
-      <img src="/img/paper_clip.gif" width="15" height="15" alt="Прикреплено" title="Прикреплено">
+      <i class="icon-pin icon-pin-color" title="Прикрепленная тема"></i>
     </c:if>
     <c:if test="${topic.resolved}">
       <img src="/img/solved.png" width="15" height="15" alt="Решено" title="Решено"/>
@@ -185,13 +181,31 @@
   </td>
 
   <td class=numbers>
-      <c:if test="${topic.stat1==0}">-</c:if><c:if test="${topic.stat1>0}"><b>${topic.stat1}</b></c:if>/<c:if test="${topic.stat3==0}">-</c:if><c:if test="${topic.stat3>0}"><b>${topic.stat3}</b></c:if>/<c:if test="${topic.stat4==0}">-</c:if><c:if test="${topic.stat4>0}"><b>${topic.stat4}</b></c:if> 
-  </td> </tr>
+      <c:if test="${topic.stat1==0}">-</c:if><c:if test="${topic.stat1>0}">${topic.stat1}</c:if>
+  </td>
+</tr>
 </c:forEach>
 </tbody>
-<c:if test="${not showDeleted}">
 <tfoot>
-<tr><td colspan=3><p>
+  <tr>
+    <td colspan="3">
+      <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
+        фильтр:
+        <c:if test="${lastmod}">
+          <input type="hidden" name="lastmod" value="true">
+        </c:if>
+          <select name="showignored" onchange="submit();">
+            <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
+            <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
+            </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
+      </form>
+    </td>
+  </tr>
+</tfoot>
+</table>
+
+<c:if test="${not showDeleted}">
+<div class="container" style="margin-bottom: 1em">
 <div style="float: left">
 <c:if test="${prevPage>=0}">
   <spring:url value="${url}" var="prevUrl">
@@ -228,10 +242,11 @@
     <a href="${group.url}archive/">архив</a>
   </c:if>
 </div>
-</tfoot>
-</c:if>
-</table>
 </div>
+</c:if>
+
+</div>
+
 <c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
   <hr>
   <form action="${url}" method=POST>
@@ -255,9 +270,8 @@
 <p>
   <i class="icon-rss"></i>
   <a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">
-    RSS подписка на новые темы
+    RSS-подписка на новые темы
   </a>
 </p>
-
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package ru.org.linux.comment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.ApiUserRef;
@@ -89,7 +89,7 @@ public class PreparedComment {
     String encodedTitle = Strings.emptyToNull(comment.getTitle().trim());
 
     if (encodedTitle!=null) {
-      title = StringEscapeUtils.unescapeHtml(encodedTitle);
+      title = StringEscapeUtils.unescapeHtml4(encodedTitle);
     } else {
       title = null;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.util.formatter;
 
+import com.google.common.base.Strings;
 import org.springframework.stereotype.Service;
-import ru.org.linux.util.StringUtil;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,56 +27,56 @@ import java.util.regex.Pattern;
  */
 @Service
 public class ToLorCodeTexFormatter {
-  public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
-  private static final Pattern CODE_PATTERN = Pattern.compile("(?:[^\\[]|^)\\[code(:?=[\\w\\s]+)?\\]");
-  private static final Pattern CODE_END_PATTERN = Pattern.compile("\\[/code\\]");
+  private static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
+  private static final Pattern CODE_PATTERN = Pattern.compile("(?:[^\\[]|^)\\[code(:?=[\\w\\s]+)?]");
+  private static final Pattern CODE_END_PATTERN = Pattern.compile("\\[/code]");
+  private static final Pattern NL_REGEXP = Pattern.compile("\r?\n");
 
-  /**
-   * Форматирует текст
-   * @param text текст
-   * @return отфарматированный текст
-   */
-  public String format(String text) {
+  public static String quote(String text, String newLine) {
     StringBuilder buf = new StringBuilder();
-    String[] lines = text.split("(\\r?\\n)");
+    String[] lines = NL_REGEXP.split(text);
     int globalNestingLevel = 0;
     int currentLine = 0;
 
     boolean isCode = false;
 
-    for(String line : lines) {
+    for (String line : lines) {
       currentLine += 1;
 
-      if(line.isEmpty()) {
+      if (line.isEmpty()) {
         if(globalNestingLevel > 0) {
-          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+          buf.append(Strings.repeat("[/quote]", globalNestingLevel));
           globalNestingLevel = 0;
         } else {
-          buf.append('\n');
+          if (isCode) {
+            buf.append('\n');
+          } else {
+            buf.append(newLine);
+          }
         }
         continue;
       }
 
       Matcher m = QUOTE_PATTERN.matcher(line);
-      if(!isCode && m.find()) {
+      if (!isCode && m.find()) {
         int nestingLevel = m.group(1).length();
-        if(globalNestingLevel == 0) {
-          buf.append(StringUtil.repeat("[quote]", nestingLevel));
+        if (globalNestingLevel == 0) {
+          buf.append(Strings.repeat("[quote]", nestingLevel));
           globalNestingLevel = nestingLevel;
-        } else if(nestingLevel < globalNestingLevel) {
-          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel - nestingLevel));
+        } else if (nestingLevel < globalNestingLevel) {
+          buf.append(Strings.repeat("[/quote]", globalNestingLevel - nestingLevel));
           globalNestingLevel = nestingLevel;
-        } else if(nestingLevel > globalNestingLevel) {
-          buf.append(StringUtil.repeat("[quote]", nestingLevel - globalNestingLevel));
+        } else if (nestingLevel > globalNestingLevel) {
+          buf.append(Strings.repeat("[quote]", nestingLevel - globalNestingLevel));
           globalNestingLevel = nestingLevel;
         }
         buf.append(escapeCode(line.substring(nestingLevel)));
-        if(currentLine < lines.length) {
+        if (currentLine < lines.length) {
           buf.append("[br]");
         }
       } else {
-        if(globalNestingLevel > 0) {
-          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+        if (globalNestingLevel > 0) {
+          buf.append(Strings.repeat("[/quote]", globalNestingLevel));
           globalNestingLevel = 0;
         }
 
@@ -96,20 +96,36 @@ public class ToLorCodeTexFormatter {
         }
 
         buf.append(line);
-        if(currentLine < lines.length) {
-          buf.append('\n');
+
+        if (currentLine < lines.length) {
+          if (isCode) {
+            buf.append('\n');
+          } else {
+            buf.append(newLine);
+          }
         }
       }
     }
 
-    if(globalNestingLevel > 0) {
-      buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+    if (globalNestingLevel > 0) {
+      buf.append(Strings.repeat("[/quote]", globalNestingLevel));
     }
 
     return buf.toString();
   }
 
+  /**
+   * Форматирует текст
+   * @param text текст
+   * @return отформатированный текст
+   */
+  public String format(String text) {
+    return quote(text, "\n");
+  }
+
+  private static final Pattern CODE_ESCAPE_REGEXP = Pattern.compile("([^\\[]|^)\\[(/?code(:?=[\\w\\s]+)?)]");
+
   public static String escapeCode(String text) {
-    return text.replaceAll("([^\\[]|^)\\[(/?code(:?=[\\w\\s]+)?)\\]", "$1[[$2]]");
+    return CODE_ESCAPE_REGEXP.matcher(text).replaceAll("$1[[$2]]");
   }
 }

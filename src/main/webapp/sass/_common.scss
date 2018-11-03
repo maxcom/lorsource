@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 @import "fontello";
 @import "fontello-codes";
+@import "droidsansmono";
+@import "opensans";
 
 @import "grid";
 
@@ -62,8 +64,15 @@ pre {
     font-size: 1rem;
 }
 
-p {
-    margin-top: 5px;
+#bd {
+  margin-bottom: 2em;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+#bd nav {
+  margin-bottom: 1em;
+  line-height: 3;
 }
 
 button,
@@ -244,11 +253,14 @@ div[itemprop="articleBody"] {
 .cloud9 { font-size: 1.4em; }
 .cloud10 { font-size: 1.5em; }
 
-div.quote {
-  border: 1px dotted;
-  margin: 0.5em 0.5em 0.5em 5px;
+blockquote {
+  border-top-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 0;
+  border-left: 5px solid;
+  margin: 0;
   font-style: italic;
-  padding: 5px;
+  padding: 0 0.5em 0;
 
   h3 {
     margin-top: 0;
@@ -276,17 +288,12 @@ code {
   margin-bottom: 1em;
 }
 
-.error {
-    border: 1px dotted;
-    margin: 1em;
-    padding: 1em;
-}
-
 .message-table {
   width: 100%;
+  margin-bottom: 1em;
 
   td {
-    padding: 4px 5px 4px 5px;
+    padding: 0.3em;
   }
 
   td.dateinterval {
@@ -298,7 +305,7 @@ code {
   }
 
   th {
-    padding: 4px 4px 5px;
+    padding: 0.3em;
     vertical-align: top;
     text-align: left;
   }
@@ -311,30 +318,16 @@ code {
 }
 
 input.error {
-    margin: inherit;
-    padding: inherit;
     border: 1px solid #f00;
-    font-weight: inherit;
+    padding-left: inherit;
 }
 
 textarea.error {
-    margin: inherit;
-    padding: inherit;
     border: 1px solid #f00;
-    font-weight: inherit;
+    padding-left: inherit;
 }
 
-label.error {
-    margin: inherit;
-    margin-left: 1em;
-    padding: inherit;
-    border: inherit;
-    vertical-align: top;
-    color: #f00;
-    display: inline-block;
-}
-
-#registerForm input, #activateForm input {
+#activateForm input {
     margin-top: 5px;
     margin-bottom: 5px;
 }
@@ -444,7 +437,7 @@ h1 {
 
   h2 {
     font-weight: bold;
-    margin: 0;
+    margin-top: 0;
   }
 }
 
@@ -509,10 +502,6 @@ table.poll td {
     margin: 0;
 }
 
-.none {
-    display: none;
-}
-
 table.poll-result img {
     visibility: hidden;
     margin: 0;
@@ -528,7 +517,7 @@ table.poll-result img {
 }
 
 #warning-body { margin: 5em auto; width:50%; }
-#warning-text { padding: 80px 0; text-align: right;}  /* 35px отступ у картинки good-penguin.jpg */
+#warning-text { padding: 80px 0; text-align: right;}  /* 35px отступ у картинки good-penguin.png */
 #warning-text p { margin: 0.1em !important; }
 #warning-logo { float: right;}
 #warning-footer { clear: both; }
@@ -574,8 +563,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 #bd li {
-    padding-top: 0.125em;
-    padding-bottom: 0.125em;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
 }
 
 .fav-buttons {
@@ -610,6 +599,10 @@ a img { border: none; }
   @include clearfix();
   @include container();
 
+  article {
+    margin-bottom: 1em;
+  }
+
   @include respond-to(tablet-and-desktops) {
     @include generate_grid_positions('article', 4);
 
@@ -619,8 +612,9 @@ a img { border: none; }
   }
 
   article img {
-    max-width: 100%;
+    width: 100%;
     height: auto;
+    max-width: 1000px;
   }
 
   article h3 {
@@ -640,7 +634,7 @@ a img { border: none; }
   margin-top: 1em;
 }
 
-#tag-page-forum, #tag-page-news {
+#tag-page-forum, #tag-page-news, #tag-page-polls, #main-page-news {
   @include clearfix();
   @include container();
 
@@ -671,17 +665,10 @@ a img { border: none; }
   text-decoration: none;
   line-height: 1.4;
   margin-top: 0;
-  margin-bottom: 0.5em;
 }
 
 #bd .btn-small {
   padding: 2px 6px;
-}
-
-#bd .input-lg {
-  padding: 6px 3px;
-  margin-bottom: .5em;
-  vertical-align: middle;
 }
 
 // highlight.js fixes
@@ -689,6 +676,45 @@ pre code .container:before, pre code .container:after {
   display: inherit;
 }
 
+.page-number {
+  padding: 5px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  min-width: 1.5em;
+}
+
+@keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+.spinner {
+  animation: spinner 2s infinite linear;
+  -webkit-animation: spinner 2s infinite linear;
+}
+
+img.medium-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+figure.medium-image {
+  width: 100%;
+}
+
+.medium-image-container {
+  margin: 1em auto;
+}
+
 @import "form";
 @import "mainpage";
-@import "topic_page"
+@import "topic_page";

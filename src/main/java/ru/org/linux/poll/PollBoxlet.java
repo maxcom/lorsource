@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.spring.boxlets.AbstractBoxlet;
+import ru.org.linux.boxlets.AbstractBoxlet;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
@@ -43,7 +43,7 @@ public class PollBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    final Poll poll = pollDao.getCurrentPoll();
+    final Poll poll = pollDao.getMostRecentPoll();
 
     Topic msg = messageDao.getById(poll.getTopicId());
 

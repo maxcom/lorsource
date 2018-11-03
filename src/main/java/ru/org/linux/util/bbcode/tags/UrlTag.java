@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
@@ -63,17 +64,9 @@ import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 12:20 PM
- */
 public class UrlTag extends Tag {
-  public UrlTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public UrlTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("url", allowedChildren, "p", parserParameters);
   }
 
   @Override
@@ -82,17 +75,17 @@ public class UrlTag extends Tag {
     if (node.lengthChildren() == 0) {
       return "";
     }
-    // Внцтри [url] только текст
+    // Внутри [url] только текст
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
     String url;
     if (node.isParameter()) {
-      // сюда никогда не должна попасть обрабатывается специально в Parser
+      // сюда никогда не должна попасть, обрабатывается специально в Parser
       url = node.getParameter().trim();
     } else {
       url = txtNode.getText().trim();
     }
     String linkText = txtNode.getText().trim();
-    if (linkText == null || linkText.isEmpty()) {
+    if (linkText.isEmpty()) {
       linkText = url;
     }
     String escapedUrl = URLUtil.fixURL(url);
@@ -100,12 +93,11 @@ public class UrlTag extends Tag {
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
 
-   if(formatter != null) {
+   if (formatter != null) {
       StringBuilder out = new StringBuilder();
 
       try {
         formatter.processUrl(
-                rootNode.isSecure(),
                 rootNode.isNofollow(),
                 out,
                 escapedUrl,

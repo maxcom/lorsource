@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -174,6 +174,14 @@ public class UserTagDao {
   public int countFavs(int tagId) {
     return jdbcTemplate.queryForObject(
             "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND is_favorite",
+            ImmutableMap.of("tagId", tagId),
+            Integer.class
+    );
+  }
+
+   public int countIgnore(int tagId) {
+    return jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND NOT is_favorite",
             ImmutableMap.of("tagId", tagId),
             Integer.class
     );

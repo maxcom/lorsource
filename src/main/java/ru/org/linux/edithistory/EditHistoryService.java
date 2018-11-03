@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,26 +15,31 @@
 
 package ru.org.linux.edithistory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.tag.TagService;
+import ru.org.linux.topic.PreparedImage;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EditHistoryService {
@@ -45,6 +50,9 @@ public class EditHistoryService {
   private UserDao userDao;
 
   @Autowired
+  private UserService userService;
+
+  @Autowired
   private LorCodeService lorCodeService;
   
   @Autowired
@@ -53,14 +61,19 @@ public class EditHistoryService {
   @Autowired
   private EditHistoryDao editHistoryDao;
 
+  @Autowired
+  private ImageDao imageDao;
+
+  @Autowired
+  private ImageService imageService;
+
   /**
    * Получить историю изменений топика
    */
   public List<PreparedEditHistory> prepareEditInfo(
-    Topic message,
-    boolean secure
+    Topic message
   ) throws UserNotFoundException {
-    List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
     String currentMessage = msgbaseDao.getMessageText(message.getId()).getText();
@@ -69,14 +82,15 @@ public class EditHistoryService {
     String currentLinktext = message.getLinktext();
     List<TagRef> currentTags = topicTagService.getTagRefs(message);
     boolean currentMinor = message.isMinor();
+    Image maybeImage = imageDao.imageForTopic(message);
+    PreparedImage currentImage = maybeImage !=null ? imageService.prepareImageOrNull(maybeImage) : null;
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
-      EditHistoryDto dto = editInfoDTOs.get(i);
+      EditHistoryRecord dto = editInfoDTOs.get(i);
 
       editHistories.add(
         new PreparedEditHistory(
           lorCodeService,
-          secure,
           userDao.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
@@ -86,9 +100,19 @@ public class EditHistoryService {
           dto.getOldtags() != null ? currentTags : null,
           i == 0,
           false,
-          dto.getOldminor() != null ? currentMinor : null
+          dto.getOldminor() != null ? currentMinor : null,
+          dto.getOldimage() != null && currentImage !=null ? currentImage : null,
+          currentImage == null && dto.getOldimage()!=null
         )
       );
+
+      if (dto.getOldimage() != null) {
+        if (dto.getOldimage() == 0) {
+          currentImage = null;
+        } else {
+          currentImage = imageService.prepareImageOrNull(imageDao.getImage(dto.getOldimage()));
+        }
+      }
 
       if (dto.getOldmessage() != null) {
         currentMessage = dto.getOldmessage();
@@ -113,6 +137,7 @@ public class EditHistoryService {
       if (dto.getOldminor() != null) {
         currentMinor = dto.getOldminor();
       }
+
     }
 
     if (!editInfoDTOs.isEmpty()) {
@@ -122,7 +147,6 @@ public class EditHistoryService {
 
       editHistories.add(new PreparedEditHistory(
               lorCodeService,
-              secure,
               userDao.getUserCached(message.getUid()),
               message.getPostdate(),
               currentMessage,
@@ -132,30 +156,27 @@ public class EditHistoryService {
               currentTags,
               false,
               true,
-              null
-      ));
+              null,
+              currentImage,
+              false));
     }
 
     return editHistories;
   }
 
-  public List<PreparedEditHistory> prepareEditInfo(
-    Comment comment,
-    boolean secure
-  ) throws UserNotFoundException {
-    List<EditHistoryDto> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
+  public List<PreparedEditHistory> prepareEditInfo(Comment comment) throws UserNotFoundException {
+    List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
     String currentMessage = msgbaseDao.getMessageText(comment.getId()).getText();
     String currentTitle = comment.getTitle();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
-      EditHistoryDto dto = editInfoDTOs.get(i);
+      EditHistoryRecord dto = editInfoDTOs.get(i);
 
       editHistories.add(
         new PreparedEditHistory(
           lorCodeService,
-          secure,
           userDao.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
@@ -165,8 +186,8 @@ public class EditHistoryService {
           null,
           i == 0,
           false,
-          null
-        )
+          null,
+                null, false)
       );
 
       if (dto.getOldmessage() != null) {
@@ -182,7 +203,6 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
           lorCodeService,
-          secure,
           userDao.getUserCached(comment.getUserid()),
           comment.getPostdate(),
           currentMessage,
@@ -192,37 +212,52 @@ public class EditHistoryService {
           null,
           false,
           true,
-          null
-        )
+          null,
+                null, false)
       );
     }
 
     return editHistories;
   }
 
-  public List<EditHistoryDto> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+  public List<EditHistoryRecord> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     return editHistoryDao.getEditInfo(id, objectTypeEnum);
   }
 
-  public void insert(EditHistoryDto editHistoryDto) {
-    editHistoryDao.insert(editHistoryDto);
+  public List<BriefEditInfo> getBriefEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    return editHistoryDao.getBriefEditInfo(id, objectTypeEnum);
   }
 
-  public ImmutableSet<User> getEditors(final Topic message, List<EditHistoryDto> editInfoList) {
+  public int editCount(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    // TODO replace with count() SQL query
+    return editHistoryDao.getEditInfo(id, objectTypeEnum).size();
+  }
+
+  public void insert(EditHistoryRecord editHistoryRecord) {
+    editHistoryDao.insert(editHistoryRecord);
+  }
+
+  public ImmutableSet<User> getEditorUsers(final Topic message, List<EditHistoryRecord> editInfoList) {
+    ImmutableSet<Integer> editors = getEditors(message, editInfoList);
+
+    return ImmutableSet.copyOf(userService.getUsersCached(editors));
+  }
+
+  public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryRecord> editInfoList) {
     return ImmutableSet.copyOf(
             Iterables.transform(
-                    Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
-                      @Override
-                      public boolean apply(EditHistoryDto input) {
-                        return input.getEditor() != message.getUid();
-                      }
-                    }),
-                    new Function<EditHistoryDto, User>() {
-                      @Override
-                      public User apply(EditHistoryDto input) {
-                        return userDao.getUserCached(input.getEditor());
-                      }
-                    })
+                    editInfoList.stream().filter(input -> input.getEditor() != message.getUid()).collect(Collectors.toList()),
+                    EditHistoryRecord::getEditor)
     );
+  }
+
+  public Option<EditInfoSummary> editInfoSummary(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
+    List<BriefEditInfo> history = editHistoryDao.getBriefEditInfo(id, objectTypeEnum);
+
+    if (history.isEmpty()) {
+      return Option.empty();
+    } else {
+      return Option.apply(EditInfoSummary.apply(history.size(), history.get(0)));
+    }
   }
 }

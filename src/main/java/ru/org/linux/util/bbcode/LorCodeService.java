@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,40 +13,31 @@
  *    limitations under the License.
  */
 
-
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.httpclient.URI;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.util.LorURL;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
+import static ru.org.linux.util.bbcode.Parser.DEFAULT_PARSER;
+
 @Service
 public class LorCodeService {
-  private static final Parser defaultParser = new Parser(new DefaultParserParameters());
-
-  private UserDao userDao;
-  private SiteConfig siteConfig;
+  private UserService userService;
   private ToHtmlFormatter toHtmlFormatter;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setSiteConfig(SiteConfig siteConfig) {
-    this.siteConfig = siteConfig;
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
   @Autowired
@@ -59,16 +50,15 @@ public class LorCodeService {
    * тэги [cut] не отображаются никак
    *
    * @param text LORCODE
-   * @param secure является ли текущее соединение secure
    * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseComment(String text, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, false, nofollow), text).renderXHtml();
+  public String parseComment(String text, boolean nofollow) {
+    return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(false, nofollow), text).renderXHtml();
   }
 
-  public String parseCommentRSS(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure, true, false), text).renderXHtml();
+  private String parseCommentRSS(String text) {
+    return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(true, false), text).renderXHtml();
   }
 
   /**
@@ -78,7 +68,7 @@ public class LorCodeService {
    * @return извлеченный текст
    */
   public String extractPlainTextFromLorcode(String text) {
-    return defaultParser.parseRoot(prepareCommentRootNode(false, true, false), text).renderOg();
+    return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(true, false), text).renderOg();
   }
 
   /**
@@ -129,7 +119,7 @@ public class LorCodeService {
    * @return множество пользователей
    */
   public Set<User> getReplierFromMessage(String text) {
-    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false, false), text);
+    RootNode rootNode = DEFAULT_PARSER.parseRoot(prepareCommentRootNode(false, false), text);
     rootNode.renderXHtml();
     return rootNode.getReplier();
   }
@@ -137,30 +127,27 @@ public class LorCodeService {
    * Преобразует LORCODE в HTML для топиков со свернутым содержимым тэга cut
    * @param text LORCODE
    * @param cutURL абсолютный URL до топика
-   * @param secure является ли текущее соединение secure
    * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseTopicWithMinimizedCut(String text, String cutURL, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure, nofollow), text).renderXHtml();
+  public String parseTopicWithMinimizedCut(String text, String cutURL, boolean nofollow) {
+    return DEFAULT_PARSER.parseRoot(prepareTopicRootNode(true, cutURL, nofollow), text).renderXHtml();
   }
   /**
    * Преобразует LORCODE в HTML для топиков со развернутым содержимым тэга cut
    * содержимое тэга cut оборачивается в div с якорем
    * @param text LORCODE
-   * @param secure является ли текущее соединение secure
    * @param nofollow add rel=nofollow to links
    * @return HTML
    */
-  public String parseTopic(String text, boolean secure, boolean nofollow) {
-    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure, nofollow), text).renderXHtml();
+  public String parseTopic(String text, boolean nofollow) {
+    return DEFAULT_PARSER.parseRoot(prepareTopicRootNode(false, null, nofollow), text).renderXHtml();
   }
 
-  private RootNode prepareCommentRootNode(boolean secure, boolean rss, boolean nofollow) {
-    RootNode rootNode = defaultParser.getRootNode();
+  private RootNode prepareCommentRootNode(boolean rss, boolean nofollow) {
+    RootNode rootNode = DEFAULT_PARSER.createRootNode();
     rootNode.setCommentCutOptions();
-    rootNode.setUserDao(userDao);
-    rootNode.setSecure(secure);
+    rootNode.setUserService(userService);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setRss(rss);
     rootNode.setNofollow(nofollow);
@@ -168,34 +155,28 @@ public class LorCodeService {
     return rootNode;
   }
 
-  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure, boolean nofollow) {
-    RootNode rootNode = defaultParser.getRootNode();
+  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean nofollow) {
+    RootNode rootNode = DEFAULT_PARSER.createRootNode();
     if(minimizeCut) {
       try {
-        LorURL lorCutURL = new LorURL(siteConfig.getMainURI(), cutURL);
-        if(lorCutURL.isTrueLorUrl()) {
-          URI fixURI = new URI(lorCutURL.fixScheme(secure), true, "UTF-8");
-          rootNode.setMinimizedTopicCutOptions(fixURI);
-        } else {
-          rootNode.setMaximizedTopicCutOptions();
-        }
+        URI fixURI = new URI(cutURL, true, "UTF-8");
+        rootNode.setMinimizedTopicCutOptions(fixURI);
       } catch (Exception e) {
         rootNode.setMaximizedTopicCutOptions();
       }
     } else {
       rootNode.setMaximizedTopicCutOptions();
     }
-    rootNode.setUserDao(userDao);
-    rootNode.setSecure(secure);
+    rootNode.setUserService(userService);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
     rootNode.setNofollow(nofollow);
 
     return rootNode;
   }
   
-  public String prepareTextRSS(String text, boolean secure, boolean lorcode) {
+  public String prepareTextRSS(String text, boolean lorcode) {
     if (lorcode) {
-      return parseCommentRSS(text, secure);
+      return parseCommentRSS(text);
     } else {
       return "<p>" + text + "</p>";
     }

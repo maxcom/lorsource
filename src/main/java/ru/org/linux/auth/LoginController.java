@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,10 @@
 
 package ru.org.linux.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -27,21 +26,26 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.user.UserBanedException;
+import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.site.Template;
+import ru.org.linux.auth.GenerationBasedTokenRememberMeServices;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class LoginController {
-  public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
+  private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
   @Autowired
   private UserDao userDao;
@@ -50,14 +54,11 @@ public class LoginController {
   private UserDetailsServiceImpl userDetailsService;
 
   @Autowired
-  RememberMeServices rememberMeServices;
+  private GenerationBasedTokenRememberMeServices rememberMeServices;
 
   @Autowired
   @Qualifier("authenticationManager")
   private AuthenticationManager authenticationManager;
-
-  @Autowired
-  private SiteConfig siteConfig;
 
   @RequestMapping(value = "/login_process", method = RequestMethod.POST)
   public ModelAndView loginProcess(
@@ -65,25 +66,65 @@ public class LoginController {
       @RequestParam("passwd") final String password,
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+
     try {
       UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
       token.setDetails(details);
       Authentication auth = authenticationManager.authenticate(token);
       UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
+
       if(!userDetails.getUser().isActivated()) {
-        throw new AccessViolationException("User not activated");
+        return new ModelAndView(new RedirectView("/login.jsp?error=not_activated"));
+      } else {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        rememberMeServices.loginSuccess(request, response, auth);
+        AuthUtil.updateLastLogin(auth, userDao);
+
+        return new ModelAndView(new RedirectView("/"));
       }
-      SecurityContextHolder.getContext().setAuthentication(auth);
-      rememberMeServices.loginSuccess(request, response, auth);
-      AuthUtil.updateLastLogin(auth, userDao);
-    } catch (Exception e) {
+    } catch (LockedException | BadCredentialsException | UsernameNotFoundException e) {
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
       return new ModelAndView(new RedirectView("/login.jsp?error=true"));
     }
-    return new ModelAndView(new RedirectView("/"));
+  }
+
+  @RequestMapping(value = "/logout", method = RequestMethod.POST)
+  public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth != null) {
+      new SecurityContextLogoutHandler().logout(request, response, auth);
+    }
+
+    Cookie cookie = new Cookie("remember_me", null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
+
+    return new ModelAndView(new RedirectView("/login.jsp"));
+  }
+
+  @RequestMapping(value = "/logout_all_sessions", method = RequestMethod.POST)
+  public ModelAndView logoutAllDevices(HttpServletRequest request, HttpServletResponse response) {
+    if (AuthUtil.isSessionAuthorized()) {
+      userDao.unloginAllSessions(Template.getTemplate(request).getCurrentUser());
+    }
+    
+    return logout(request, response);
+  }
+
+  @RequestMapping(value = {"/logout", "/logout_all_sessions"}, method = RequestMethod.GET)
+  public ModelAndView logoutLink() {
+    if (AuthUtil.isSessionAuthorized()) {
+      return new ModelAndView(new RedirectView("/people/"+AuthUtil.getNick()+"/profile"));
+    } else {
+      return new ModelAndView(new RedirectView("/login.jsp"));
+    }
   }
 
   @RequestMapping(value = "/ajax_login_process", method = RequestMethod.POST)
-  public HttpEntity<LoginStatus> loginAjax(
+  @ResponseBody
+  public LoginStatus loginAjax(
       @RequestParam("nick") final String username,
       @RequestParam("passwd") final String password,
       HttpServletRequest request, HttpServletResponse response) {
@@ -94,30 +135,29 @@ public class LoginController {
       Authentication auth = authenticationManager.authenticate(token);
       UserDetailsImpl userDetails = (UserDetailsImpl)auth.getDetails();
       if(!userDetails.getUser().isActivated()) {
-        return entity(new LoginStatus(false, "User not activated"));
+        return new LoginStatus(false, "User not activated");
       }
       SecurityContextHolder.getContext().setAuthentication(auth);
       rememberMeServices.loginSuccess(request, response, auth);
       AuthUtil.updateLastLogin(auth, userDao);
 
-      return entity(new LoginStatus(auth.isAuthenticated(), auth.getName()));
+      return new LoginStatus(auth.isAuthenticated(), auth.getName());
     } catch (LockedException e) {
-      return entity(new LoginStatus(false, "User locked"));
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
+
+      return new LoginStatus(false, "User locked");
     } catch (UsernameNotFoundException e) {
-      return entity(new LoginStatus(false, "Bad credentials"));
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
+
+      return new LoginStatus(false, "Bad credentials");
     } catch (BadCredentialsException e) {
-      return entity(new LoginStatus(false, e.getMessage()));
+      logger.warn("Login of " + username + " failed; remote IP: "+request.getRemoteAddr()+"; " + e.toString());
+
+      return new LoginStatus(false, e.getMessage());
     }
   }
 
-  private HttpEntity<LoginStatus> entity(LoginStatus status) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Access-Control-Allow-Origin", siteConfig.getMainUrlWithoutSlash());
-    headers.add("Access-Control-Allow-Credentials", "true");
-
-    return new HttpEntity<>(status, headers);
-  }
-
+  @PublicApi
   public class LoginStatus {
     private final boolean success;
     private final String username;
@@ -139,14 +179,5 @@ public class LoginController {
   @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
     return new ModelAndView("login-form");
-  }
-
-  /**
-   * Обрабатываем исключительную ситуацию для забаненого пользователя
-   */
-  @ExceptionHandler(UserBanedException.class)
-  @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ModelAndView handleUserBanedException(UserBanedException ex) {
-    return new ModelAndView("errors/user-banned", "exception", ex);
   }
 }

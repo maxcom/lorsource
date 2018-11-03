@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
-import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.util.ProfileHashtable;
 
 import javax.annotation.Nonnull;
@@ -29,7 +29,6 @@ import java.util.Map;
 public class Profile {
   public static final String STYLE_PROPERTY = "style";
   public static final String FORMAT_MODE_PROPERTY = "format.mode";
-  public static final String HOVER_PROPERTY = "hover";
   public static final String MESSAGES_PROPERTY = "messages";
   public static final String NEWFIRST_PROPERTY = "newfirst";
   public static final String TOPICS_PROPERTY = "topics";
@@ -40,10 +39,10 @@ public class Profile {
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
+  public static final String TRACKER_MODE = "trackerMode";
 
   private String style;
   private String formatMode;
-  private boolean useHover;
   private int messages;
   private boolean showNewFirst;
   private int topics;
@@ -53,13 +52,13 @@ public class Profile {
   private String avatarMode;
   private boolean showAnonymous;
   private boolean showSocial;
+  private TrackerFilterEnum trackerMode;
 
   private List<String> boxes;
 
   public Profile(ProfileHashtable p, List<String> boxes) {
     style = fixStyle(p.getString(STYLE_PROPERTY));
     formatMode = fixFormat(p.getString(FORMAT_MODE_PROPERTY));
-    useHover = p.getBoolean(HOVER_PROPERTY);
     messages = p.getInt(MESSAGES_PROPERTY);
     showNewFirst = p.getBoolean(NEWFIRST_PROPERTY);
     topics = p.getInt(TOPICS_PROPERTY);
@@ -69,16 +68,16 @@ public class Profile {
     avatarMode = p.getString(AVATAR_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
+    trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE)).or(DefaultProfile.DEFAULT_TRACKER_MODE);
 
     this.boxes = boxes;
   }
 
   public Map<String, String> getSettings() {
-    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<String, String>());
+    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>());
 
     p.setString(STYLE_PROPERTY, style);
     p.setString(FORMAT_MODE_PROPERTY, formatMode);
-    p.setBoolean(HOVER_PROPERTY, useHover);
     p.setInt(MESSAGES_PROPERTY, messages);
     p.setBoolean(NEWFIRST_PROPERTY, showNewFirst);
     p.setInt(TOPICS_PROPERTY, topics);
@@ -88,6 +87,7 @@ public class Profile {
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
+    p.setString(TRACKER_MODE, trackerMode.getValue());
 
     return p.getSettings();
   }
@@ -106,14 +106,6 @@ public class Profile {
 
   public void setFormatMode(String formatMode) {
     this.formatMode = fixFormat(formatMode);
-  }
-
-  public boolean isUseHover() {
-    return useHover;
-  }
-
-  public void setUseHover(boolean hover) {
-    useHover = hover;
   }
 
   public int getMessages() {
@@ -188,7 +180,7 @@ public class Profile {
     if (!"quot".equals(mode) &&
         !"ntobr".equals(mode) &&
         !"lorcode".equals(mode)) {
-      return (String) AuthUtil.getDefaults().get("format.mode");
+      return (String) DefaultProfile.getDefaultProfile().get("format.mode");
     }
 
     return mode;
@@ -196,10 +188,18 @@ public class Profile {
 
   private static String fixStyle(String style) {
     if (!DefaultProfile.isStyle(style)) {
-      return (String) AuthUtil.getDefaults().get(STYLE_PROPERTY);
+      return (String) DefaultProfile.getDefaultProfile().get(STYLE_PROPERTY);
     }
 
     return style;
+  }
+
+  public TrackerFilterEnum getTrackerMode() {
+    return trackerMode;
+  }
+
+  public void setTrackerMode(TrackerFilterEnum trackerMode) {
+    this.trackerMode = trackerMode;
   }
 
   @Nonnull
@@ -231,6 +231,6 @@ public class Profile {
   }
 
   public static Profile createDefault() {
-    return new Profile(new ProfileHashtable(AuthUtil.getDefaults(), new HashMap<String, String>()), null);
+    return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
   }
 }

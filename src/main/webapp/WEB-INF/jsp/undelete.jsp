@@ -1,7 +1,7 @@
 <%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -29,10 +29,10 @@
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
 
-<form method=POST action="undelete.jsp">
+<form method=POST action="undelete">
   <lor:csrf/>
   <input type=hidden name=msgid value="${message.id}">
-  <input type=submit name=undel value="Восстановить">
+  <button type=submit name=undel class="btn btn-primary">Восстановить</button>
 </form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

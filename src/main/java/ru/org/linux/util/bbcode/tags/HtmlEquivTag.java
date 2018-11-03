@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,52 +53,27 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import com.google.common.collect.ImmutableMap;
-import ru.org.linux.util.bbcode.Parser;
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 10:40 AM
- */
 public class HtmlEquivTag extends Tag {
-  private String htmlEquiv;
-  private Map<String, String> attributes = ImmutableMap.of();
+  private final String htmlEquiv;
 
-  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+  public HtmlEquivTag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters, String htmlEquiv) {
     super(name, allowedChildren, implicitTag, parserParameters);
-  }
-
-  public void setHtmlEquiv(String htmlEquiv) {
     this.htmlEquiv = htmlEquiv;
   }
 
-  public void setAttributes(Map<String, String> attributes) {
-    this.attributes = attributes;
+  public HtmlEquivTag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters, String htmlEquiv, ImmutableSet<String> prohibitedElements) {
+    super(name, allowedChildren, implicitTag, parserParameters, prohibitedElements);
+    this.htmlEquiv = htmlEquiv;
   }
 
   @Override
   public String renderNodeXhtml(Node node) {
     StringBuilder opening = new StringBuilder(htmlEquiv);
     StringBuilder ret = new StringBuilder();
-
-    if (!attributes.isEmpty()) {
-      opening.append(' ');
-
-      for (Entry<String, String> entry : attributes.entrySet()) {
-        opening.append(entry.getKey());
-        opening.append('=');
-        opening.append(Parser.escape(entry.getValue()));
-        opening.append(' ');
-      }
-    }
 
     if (htmlEquiv.isEmpty()) {
       ret.append(node.renderChildrenXHtml());

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,10 +15,7 @@
 
 package ru.org.linux.user;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -27,15 +24,14 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -56,13 +52,13 @@ public class WhoisController {
   private UserTagService userTagService;
 
   @Autowired
-  private SectionService sectionService;
-
-  @Autowired
   private TopicPermissionService topicPermissionService;
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private UserStatisticsService userStatisticsService;
 
   @Autowired
   private UserLogDao userLogDao;
@@ -76,11 +72,14 @@ public class WhoisController {
   @Autowired
   private TopicDao topicDao;
 
+  @Autowired
+  private RemarkDao remarkDao;
+
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user));
@@ -92,7 +91,6 @@ public class WhoisController {
 
     mv.getModel().put("userpic", userService.getUserpic(
             user,
-            request.isSecure(),
             tmpl.getProf().getAvatarMode(),
             true
     ));
@@ -104,9 +102,8 @@ public class WhoisController {
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     if (!user.isAnonymous()) {
-      UserStatistics userStat = userService.getUserStatisticsClass(user, currentUser || tmpl.isModeratorSession());
+      UserStats userStat = userStatisticsService.getStats(user);
       mv.getModel().put("userStat", userStat);
-      mv.getModel().put("sectionStat", prepareSectionStats(userStat));
       mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
       mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(user));
 
@@ -123,11 +120,14 @@ public class WhoisController {
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
 
-      mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
+      Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
+      if (remark.isDefined()) {
+        mv.getModel().put("remark", remark.get());
+      }
     }
 
     if (tmpl.isSessionAuthorized() && currentUser) {
-      mv.getModel().put("hasRemarks", ( userDao.getRemarkCount(tmpl.getCurrentUser()) > 0 ) );
+      mv.getModel().put("hasRemarks", remarkDao.hasRemarks(tmpl.getCurrentUser()));
     }
 
     String userinfo = userDao.getUserInfo(user);
@@ -137,7 +137,6 @@ public class WhoisController {
               "userInfoText",
               lorCodeService.parseComment(
                       userinfo,
-                      request.isSecure(),
                       !topicPermissionService.followAuthorLinks(user)
               )
       );
@@ -156,26 +155,7 @@ public class WhoisController {
       }
     }
 
-    response.setDateHeader("Expires", System.currentTimeMillis()+120000);
-
     return mv;
-  }
-
-  private ImmutableList<PreparedUsersSectionStatEntry> prepareSectionStats(UserStatistics userStat) {
-    return ImmutableList.copyOf(
-            Iterables.transform(
-                    userStat.getTopicsBySection(),
-                    new Function<UsersSectionStatEntry, PreparedUsersSectionStatEntry>() {
-                      @Override
-                      public PreparedUsersSectionStatEntry apply(UsersSectionStatEntry input) {
-                        return new PreparedUsersSectionStatEntry(
-                                sectionService.getSection(input.getSection()),
-                                input.getCount()
-                        );
-                      }
-                    }
-            )
-    );
   }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
@@ -186,7 +166,7 @@ public class WhoisController {
       throw new AccessViolationException("not moderator");
     }
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     user.checkAnonymous();
     user.checkBlocked();
@@ -198,7 +178,7 @@ public class WhoisController {
     ModelAndView mv = new ModelAndView("wipe-user");
     mv.getModel().put("user", user);
 
-    mv.getModel().put("userStat", userService.getUserStatisticsClass(user, true));
+    mv.getModel().put("commentCount", userDao.getExactCommentCount(user));
 
     return mv;
   }

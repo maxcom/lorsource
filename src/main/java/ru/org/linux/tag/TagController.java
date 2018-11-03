@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.tag;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -35,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 public class TagController {
@@ -47,6 +47,9 @@ public class TagController {
 
   @Autowired
   private TagService tagService;
+
+  @Autowired
+  private TagCloudDao tagDao;
 
   /**
    * Обработчик по умолчанию. Показ тегов по самой первой букве.
@@ -75,17 +78,18 @@ public class TagController {
     modelAndView.addObject("firstLetters", firstLetters);
 
     if (Strings.isNullOrEmpty(firstLetter)) {
-      firstLetter = firstLetters.iterator().next();
+      List<TagCloudDao.TagDTO> list = tagDao.getTags(100);
+      modelAndView.addObject("tagcloud", list);
+    } else {
+      modelAndView.addObject("currentLetter", firstLetter);
+
+      Map<TagRef, Integer> tags = tagService.getTagsByPrefix(firstLetter, 1);
+
+      if (tags.isEmpty()) {
+        throw new TagNotFoundException("Tag list is empty");
+      }
+      modelAndView.addObject("tags", tags);
     }
-
-    modelAndView.addObject("currentLetter", firstLetter);
-
-    Map<String, Integer> tags = tagService.getTagsByPrefix(firstLetter, 1);
-
-    if (tags.isEmpty()) {
-      throw new TagNotFoundException("Tag list is empty");
-    }
-    modelAndView.addObject("tags", tags);
 
     return modelAndView;
   }
@@ -110,12 +114,7 @@ public class TagController {
   ) {
     Collection<String> tags = tagService.suggestTagsByPrefix(term, 10);
 
-    return ImmutableList.copyOf(Iterables.filter(tags, new Predicate<String>() {
-      @Override
-      public boolean apply(String input) {
-        return TagName.isGoodTag(input);
-      }
-    }));
+    return ImmutableList.copyOf(Iterables.filter(tags, TagName::isGoodTag));
   }
 
   /**
@@ -166,9 +165,21 @@ public class TagController {
       throw new AccessViolationException(REJECT_REASON);
     }
 
-    tagModificationService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName(), errors);
+    if (tagService.getTagIdOpt(tagRequestChange.getOldTagName()).isEmpty()) {
+      errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!");
+    }
+
+    if (!TagName.isGoodTag(tagRequestChange.getTagName())) {
+      errors.rejectValue("tagName", "", "Некорректный тег: '" + tagRequestChange.getTagName() + "'");
+    } else {
+      if (tagService.getTagIdOpt(tagRequestChange.getTagName()).isDefined()) {
+        errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
+      }
+    }
 
     if (!errors.hasErrors()) {
+      tagModificationService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName());
+
       logger.info(
               "Тег '{}' изменен пользователем {}",
               tagRequestChange.getOldTagName(),
@@ -231,20 +242,36 @@ public class TagController {
       throw new AccessViolationException(REJECT_REASON);
     }
 
-    tagModificationService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
-
-    if (!errors.hasErrors()) {
-      logger.info(
-              "Тег '{}' удален пользователем {}",
-              tagRequestDelete.getOldTagName(),
-              template.getNick()
-      );
-      return redirectToListPage(firstLetter);
+    if (tagService.getTagIdOpt(tagRequestDelete.getOldTagName()).isEmpty()) {
+      errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!");
     }
 
-    ModelAndView modelAndView = new ModelAndView("tags-delete");
-    modelAndView.addObject("firstLetter", firstLetter);
-    return modelAndView;
+    if (!Strings.isNullOrEmpty(tagRequestDelete.getTagName())) {
+      if (!TagName.isGoodTag(tagRequestDelete.getTagName())) {
+        errors.rejectValue("tagName", "", "Некорректный тег: '"+tagRequestDelete.getTagName()+"'");
+      }
+    }
+
+    if (Objects.equals(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName())) {
+      errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
+    }
+
+    if (!errors.hasErrors()) {
+      if (Strings.isNullOrEmpty(tagRequestDelete.getTagName())) {
+        tagModificationService.delete(tagRequestDelete.getOldTagName());
+      } else {
+        tagModificationService.merge(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName());
+      }
+
+      logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName(), template.getNick());
+
+      return redirectToListPage(firstLetter);
+    } else {
+      ModelAndView modelAndView = new ModelAndView("tags-delete");
+      modelAndView.addObject("firstLetter", firstLetter);
+
+      return modelAndView;
+    }
   }
 
   /**

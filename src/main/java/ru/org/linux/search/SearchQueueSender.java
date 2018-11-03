@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,13 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Component;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.Queue;
-import javax.jms.Session;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -54,43 +50,23 @@ public class SearchQueueSender {
   public void updateMessage(final int msgid, final boolean withComments) {
     logger.info("Scheduling reindex #"+msgid+" withComments="+withComments);
 
-    jmsTemplate.send(queue, new MessageCreator() {
-      @Override
-      public Message createMessage(Session session) throws JMSException {
-        return session.createObjectMessage(new UpdateMessage(msgid, withComments));
-      }
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateMessage(msgid, withComments)));
   }
 
   public void updateMonth(final int year, final int month) {
     logger.info("Scheduling reindex by date "+year+ '/' +month);
 
-    jmsTemplate.send(queue, new MessageCreator() {
-      @Override
-      public Message createMessage(Session session) throws JMSException {
-        return session.createObjectMessage(new UpdateMonth(year, month));
-      }
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateMonth(year, month)));
   }
 
   public void updateComment(final int msgid) {
     Preconditions.checkArgument(msgid!=0, "msgid==0!?");
 
-    jmsTemplate.send(queue, new MessageCreator() {
-      @Override
-      public Message createMessage(Session session) throws JMSException {
-        return session.createObjectMessage(new UpdateComments(Collections.singletonList(msgid)));
-      }
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(Collections.singletonList(msgid))));
   }
 
   public void updateComment(final List<Integer> msgids) {
-    jmsTemplate.send(queue, new MessageCreator() {
-      @Override
-      public Message createMessage(Session session) throws JMSException {
-        return session.createObjectMessage(new UpdateComments(msgids));
-      }
-    });
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(msgids)));
   }
 
   public static class UpdateMessage implements Serializable {

@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -27,7 +27,9 @@
 <title>Фильтрация сообщений</title>
 
 <script type="text/javascript">
-  $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  $script.ready("jquery", function() {
+    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  });
   $script.ready("jqueryui", function() {
     $script("/js/tagsAutocomplete.js");
   });
@@ -40,7 +42,7 @@
 <c:if test="${empty newFavoriteTagName and empty newIgnoreTagName}">
 
 <fieldset>
-<legend>Список игнорирования пользователей</legend>
+<legend>Список игнорируемых пользователей</legend>
 <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
   <lor:csrf/>
 
@@ -101,19 +103,18 @@
   </ul>
 </c:if>
 </fieldset>
-
 </c:if>
 
-<br />
+<br>
 
 <c:if test="${empty newFavoriteTagName}">
-
 <fieldset>
-<legend>Список игнорирования тегов</legend>
+<legend>Список игнорируемых тегов</legend>
 <c:choose>
 <c:when test="${isModerator}">
 Модераторам нельзя игнорировать теги
 </c:when>
+
 <c:otherwise>
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
   <lor:csrf/>

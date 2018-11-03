@@ -1,19 +1,34 @@
+/*
+ * Copyright 1998-2016 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.tag
 
-import org.springframework.stereotype.Repository
-import org.springframework.beans.factory.annotation.Autowired
-import javax.sql.DataSource
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.collection.JavaConversions._
 import java.sql.ResultSet
+import javax.sql.DataSource
 
-import TagDao._
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.scala.jdbc.core.JdbcTemplate
+import org.springframework.stereotype.Repository
+import ru.org.linux.tag.TagDao._
+
+import scala.collection.JavaConverters._
 
 @Repository
-class TagDao @Autowired() (ds:DataSource) extends Logging {
+class TagDao(ds:DataSource) extends StrictLogging {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val simpleJdbcInsert =
     new SimpleJdbcInsert(ds).withTableName("tags_values").usingColumns("value").usingGeneratedKeyColumns("id")
@@ -27,7 +42,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
   def createTag(tagName: String): Int = {
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
 
-    val id = simpleJdbcInsert.executeAndReturnKey(Map("value" -> tagName)).intValue
+    val id = simpleJdbcInsert.executeAndReturnKey(Map("value" -> tagName).asJava).intValue
     logger.debug(s"Создан тег: '$tagName' id=$id")
     id
   }
@@ -38,7 +53,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    * @param tagId   идентификационный номер существующего тега
    * @param tagName новое название тега
    */
-  def changeTag(tagId: Int, tagName: String):Unit = {
+  def changeTag(tagId: Int, tagName: String): Unit = {
     jdbcTemplate.update("UPDATE tags_values set value=? WHERE id=?", tagName, tagId)
   }
 
@@ -49,15 +64,6 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    */
   def deleteTag(tagId: Int):Unit = {
     jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId)
-  }
-
-  def getTopTags: Seq[String] = {
-    val topTags = jdbcTemplate.queryForSeq[String](
-      "SELECT value FROM tags_values WHERE counter>1 " +
-        "ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT
-    )
-
-    topTags.sorted
   }
 
   /**
@@ -82,7 +88,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
    * @param prefix       префикс имени тега
    * @return список тегов
    */
-  private[tag] def getTagsByPrefix(prefix: String, minCount: Int): java.util.List[TagInfo] = {
+  private[tag] def getTagsByPrefix(prefix: String, minCount: Int): Seq[TagInfo] = {
     jdbcTemplate.queryAndMap(
       "select counter, value, id from tags_values " +
         "where value like ? and counter >= ?  " +
@@ -121,7 +127,7 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
         tag
       ).map(_.toInt)
     } catch {
-      case ex: EmptyResultDataAccessException => None
+      case _: EmptyResultDataAccessException => None
     }
   }
 
@@ -132,19 +138,9 @@ class TagDao @Autowired() (ds:DataSource) extends Logging {
       "SELECT counter, value, id  FROM tags_values WHERE id=?", tagId
     )(tagInfoMapper).get
   }
-
-  def relatedTags(tagid: Int): java.util.List[String] = {
-    jdbcTemplate.queryForSeq[String](
-      "select value from " +
-        "(select st.tagid, count(*) as cnt from tags as mt join tags as st on mt.msgid=st.msgid " +
-        "where mt.tagid=? and mt.tagid<>st.tagid group by st.tagid having count(*)>2) as q " +
-        "join tags_values on q.tagid=tags_values.id where counter>5 order by cnt::real/counter desc limit 10", tagid)
-  }
 }
 
 object TagDao {
-  private final val TOP_TAGS_COUNT: Int = 50
-
   private def escapeLikeWildcards(str: String): String = {
     str.replaceAll("[_%]", "\\\\$0")
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,17 +28,15 @@ public class Poll implements Serializable {
   private final int id;
   private final int topic;
 
-  private final boolean current;
   private final ImmutableList<PollVariant> variants;
   private final boolean multiSelect;
 
   private static final long serialVersionUID = 6505234874388572682L;
 
-  public Poll(int id, int topic, boolean multiSelect, boolean current, List<PollVariant> variants) {
+  public Poll(int id, int topic, boolean multiSelect, List<PollVariant> variants) {
     this.id = id;
     this.topic = topic;
     this.multiSelect = multiSelect;
-    this.current = current;
     this.variants = ImmutableList.copyOf(variants);
   }
 
@@ -48,10 +46,6 @@ public class Poll implements Serializable {
 
   public int getTopicId() {
     return topic;
-  }
-
-  public boolean isCurrent() {
-    return current;
   }
 
   public boolean isMultiSelect() {
@@ -67,7 +61,6 @@ public class Poll implements Serializable {
             id,
             topic,
             multiSelect,
-            current,
             newVariants
     );
   }

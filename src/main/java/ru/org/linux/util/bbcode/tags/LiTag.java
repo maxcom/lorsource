@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,31 +53,17 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/1/11
- * Time: 2:55 PM
- */
 public class LiTag extends HtmlEquivTag {
-  public LiTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
-    setHtmlEquiv("li");
+  public LiTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("*", allowedChildren, "list", parserParameters, "li");
   }
 
   @Override
   public String renderNodeBBCode(Node node) {
-    StringBuilder ret = new StringBuilder();
-    return ret
-            .append('[')
-            .append(name)
-            .append(']')
-            .append(node.renderChildrenBBCode())
-            .toString();
+    return "[" + name + ']' + node.renderChildrenBBCode();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,9 +16,13 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.MapBindingResult;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
@@ -31,6 +35,7 @@ import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 @Service
 public class TopicPermissionService {
@@ -40,7 +45,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   public static final int LINK_FOLLOW_MIN_SCORE = 100;
   public static final int VIEW_DELETED_SCORE = 100;
-  public static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
+  public static final Duration DELETE_PERIOD = Duration.standardHours(3);
 
   @Autowired
   private CommentService commentService;
@@ -56,17 +61,13 @@ public class TopicPermissionService {
       case POSTSCORE_UNRESTRICTED:
         return "";
       case 50:
-        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей.";
+        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей (со score < 50)";
       case 100:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
       case 200:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(200, 200);
       case 300:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(300, 300);
       case 400:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(400, 400);
       case 500:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(500, 500);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore, true);
       case POSTSCORE_MOD_AUTHOR:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
       case POSTSCORE_MODERATORS_ONLY:
@@ -236,23 +237,34 @@ public class TopicPermissionService {
    *
    * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
-  public boolean isCommentsEditingAllowed(
+  public void checkCommentsEditingAllowed(
           @Nonnull Comment comment,
           @Nonnull Topic topic,
-          @Nullable User currentUser
+          @Nullable User currentUser,
+          Errors errors
   ) {
     Preconditions.checkNotNull(comment);
     Preconditions.checkNotNull(topic);
 
-    final boolean haveAnswers = commentService.isHaveAnswers(comment);
-    return isCommentEditableNow(
+    boolean haveAnswers = commentService.isHaveAnswers(comment);
+    checkCommentEditableNow(
         comment,
         currentUser,
         haveAnswers,
-        topic
+        topic,
+        errors
     );
   }
 
+  public Optional<DateTime> getEditDeadline(Comment comment) {
+    if (siteConfig.getCommentExpireMinutesForEdit() != 0) {
+      DateTime editDeadline = new DateTime(comment.getPostdate()).plusMinutes(siteConfig.getCommentExpireMinutesForEdit());
+
+      return Optional.of(editDeadline);
+    } else {
+      return Optional.empty();
+    }
+  }
   /**
    * Проверяем можно ли редактировать комментарий на текущий момент
    *
@@ -261,42 +273,55 @@ public class TopicPermissionService {
    */
   public boolean isCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
                                       boolean haveAnswers, @Nonnull Topic topic) {
+    Errors errors = new MapBindingResult(ImmutableMap.of(), "obj");
+
+    checkCommentsAllowed(topic, currentUser, errors);
+    checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors);
+
+    return !errors.hasErrors();
+  }
+
+  /**
+   * Проверяем можно ли редактировать комментарий на текущий момент
+   *
+   * @param haveAnswers есть у комменатрия ответы
+   * @return результат
+   */
+  private void checkCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
+                                      boolean haveAnswers, @Nonnull Topic topic, Errors errors) {
     if (comment.isDeleted() || topic.isDeleted()) {
-      return false;
+      errors.reject(null, "Тема или комментарий удалены");
     }
 
     if (currentUser==null || currentUser.isAnonymous()) {
-      return false;
+      errors.reject(null, "Анонимный пользователь");
     }
 
-    boolean moderatorMode = currentUser.isModerator();
-    boolean authored = currentUser.getId() == comment.getUserid();
+    boolean authored = currentUser!=null && (currentUser.getId() == comment.getUserid());
 
     /* Проверка на то, что пользователь модератор */
-    boolean editable = moderatorMode && siteConfig.isModeratorAllowedToEditComments();
+    boolean editable = currentUser!=null && (currentUser.isModerator() && siteConfig.isModeratorAllowedToEditComments());
 
-    if (!editable && authored) {
+    if (editable || authored) {
       /* проверка на то, что время редактирования не вышло */
-      boolean isbyMinutesEnable;
-      if (siteConfig.getCommentExpireMinutesForEdit() != 0) {
-        long nowTimestamp = System.currentTimeMillis();
-        long deltaTimestamp = siteConfig.getCommentExpireMinutesForEdit() * 60 * 1000;
+      Optional<DateTime> maybeDeadline = getEditDeadline(comment);
 
-        isbyMinutesEnable = comment.getPostdate().getTime() + deltaTimestamp > nowTimestamp;
-      } else {
-        isbyMinutesEnable = true;
+      if (maybeDeadline.isPresent() && maybeDeadline.get().isBeforeNow()) {
+        errors.reject(null, "Истек срок редактирования");
       }
 
       /* Проверка на то, что у комментария нет ответов */
-      boolean isbyAnswersEnable = siteConfig.isCommentEditingAllowedIfAnswersExists() || !haveAnswers;
+      if (!siteConfig.isCommentEditingAllowedIfAnswersExists() && haveAnswers) {
+        errors.reject(null, "Редактирование комментариев с ответами запрещено");
+      }
 
       /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
-      boolean isByScoreEnable = currentUser.getScore() >= siteConfig.getCommentScoreValueForEditing();
-
-      editable = isbyMinutesEnable && isbyAnswersEnable && isByScoreEnable;
+      if (currentUser.getScore() < siteConfig.getCommentScoreValueForEditing()) {
+        errors.reject(null, "У вас недостаточно прав для редактирования этого комментария");
+      }
+    } else {
+      errors.reject(null, "У вас недостаточно прав для редактирования этого комментария");
     }
-
-    return editable;
   }
 
   /**
@@ -322,13 +347,13 @@ public class TopicPermissionService {
     boolean moderatorMode = currentUser.isModerator();
     boolean authored = currentUser.getId() == comment.getUserid();
 
-    long nowTimestamp = System.currentTimeMillis();
+    DateTime deleteDeadline = new DateTime(comment.getPostdate()).plus(DELETE_PERIOD);
 
     return moderatorMode ||
         (!topic.isExpired() &&
          authored &&
          !haveAnswers &&
-          nowTimestamp - comment.getPostdate().getTime() < DELETE_PERIOD);
+          deleteDeadline.isAfterNow());
   }
 
   /**

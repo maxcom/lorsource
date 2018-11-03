@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,21 +15,16 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.base.Strings;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.io.SyndFeedOutput;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
-/**
- * User: rsvato
- * Date: Jun 1, 2009
- * Time: 3:20:02 PM
- */
 public abstract class AbstractRomeView extends AbstractView {
   private Map<String,String> contentTypes;
   private Map<String,String> feedTypes;
@@ -68,7 +63,7 @@ public abstract class AbstractRomeView extends AbstractView {
     SyndFeed feed = new SyndFeedImpl();
     feed.setEncoding("utf-8");
     String feedType = (String) model.get("feed-type");
-    if (StringUtils.isEmpty(feedType)){
+    if (Strings.isNullOrEmpty(feedType)){
       feedType = "rss";
     }
     feed.setFeedType(feedTypes.get(feedType));

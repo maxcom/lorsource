@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,7 @@
     http://tuckey.org/urlrewrite/
 
 -->
-<urlrewrite>
+<urlrewrite use-query-string="true">
   <rule>
     <from>^/index.jsp$</from>
     <to type="redirect">/</to>
@@ -64,6 +64,12 @@
     <from>^/rss.xml$</from>
     <to type="redirect">/section-rss.jsp</to>
   </rule>
+
+  <rule>
+    <from>^/rules.jsp$</from>
+    <to type="redirect">/help/rules.md</to>
+  </rule>
+
   <rule>
     <from>^/profile/([^/]+)/(.*)$</from>
     <to type="redirect">/$2</to>
@@ -85,7 +91,14 @@
     <condition name="host" operator="notequal">^127.0.0.1</condition>  
     <condition name="host" operator="notequal">^$</condition>
     <from>^/(.*)</from>
-    <to type="redirect" last="true">%{scheme}://www.linux.org.ru/$1</to>
+    <to type="redirect" last="true">https://www.linux.org.ru/$1</to>
+  </rule>
+
+  <rule>
+    <condition name="host" operator="equal">^www\.linux\.org\.ru</condition>
+    <condition operator="equal" type="scheme">^http$</condition>
+    <from>^/(.*)</from>
+    <to type="redirect" last="true">https://www.linux.org.ru/$1</to>
   </rule>
 
   <rule>
@@ -94,7 +107,7 @@
   </rule>
 
   <rule>
-    <from>\.(css|js)$</from>
+    <from>\.(css|js|woff|svg|ttf)$</from>
     <condition type="path-translated" operator="notequal">.*jquery.*</condition>
     <set type="response-header" name="Cache-Control">max-age=3600</set>
   </rule>

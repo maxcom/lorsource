@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/security
-http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+http://www.springframework.org/schema/security/spring-security-4.2.xsd">
 
     <http pattern="/css/**" security="none"/>
     <http pattern="/img/**" security="none"/>
@@ -32,6 +32,7 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http pattern="/tango/**" security="none"/>
     <http pattern="/waltz/**" security="none"/>
     <http pattern="/white/**" security="none"/>
+    <http pattern="/zomg_ponies/**" security="none"/>
     <http pattern="/white2/**" security="none"/>
     <http pattern="/black/**" security="none"/>
     <http pattern="/adv/**" security="none"/>
@@ -39,14 +40,13 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     <http pattern="*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
 
-    <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager" create-session="stateless" entry-point-ref="authenticationEntryPoint">
+    <http use-expressions="true" auto-config="false" authentication-manager-ref="authenticationManager"
+          create-session="stateless" entry-point-ref="authenticationEntryPoint">
         <intercept-url pattern="/**" access="permitAll"/>
         <remember-me key="${Secret}" services-ref="rememberMeServices"/>
-        <!-- TODO: LoginController.ACEGI_COOKIE_NAME -->
-        <logout logout-url="/logout" logout-success-url="/"
-                delete-cookies="password,profile,JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"/>
         <anonymous username="anonymous" granted-authority="ROLE_SYSTEM_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
+        <csrf disabled="true"/>
     </http>
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
@@ -56,14 +56,13 @@ http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     </authentication-manager>
 
     <beans:bean id="rememberMeServices"
-                class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
-        <beans:property name="userDetailsService" ref="userDetailsServiceImpl"/>
-        <beans:property name="key" value="${Secret}"/>
+                class="ru.org.linux.auth.GenerationBasedTokenRememberMeServices">
+        <beans:constructor-arg name="key" value="${Secret}"/>
+        <beans:constructor-arg name="userDetailsService" ref="userDetailsServiceImpl"/>
         <beans:property name="cookieName" value="remember_me"/>
         <!-- 365 days -->
         <beans:property name="tokenValiditySeconds" value="31536000"/>
         <beans:property name="alwaysRemember" value="true" />
-        <beans:property name="useSecureCookie" value="false"/>
     </beans:bean>
 
     <beans:bean id="securityFilter" class="ru.org.linux.auth.SecurityFilter"/>

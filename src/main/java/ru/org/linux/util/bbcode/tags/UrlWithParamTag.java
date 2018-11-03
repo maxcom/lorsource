@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
@@ -60,17 +61,9 @@ import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/26/11
- * Time: 12:09 PM
- */
 public class UrlWithParamTag extends Tag {
-  public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public UrlWithParamTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("url2", allowedChildren, "p", parserParameters);
   }
 
   @Override
@@ -79,14 +72,14 @@ public class UrlWithParamTag extends Tag {
     String url = "";
     if (node.isParameter()) {
       url = node.getParameter().trim();
-      if(url.startsWith("\"")) {
+      if (url.startsWith("\"")) {
         url = url.substring(1);
-        if(url.endsWith("\"")) {
+        if (url.endsWith("\"")) {
           url = url.substring(0, url.length()-1);
         }
-      } else if(url.startsWith("'")) {
+      } else if (url.startsWith("'")) {
         url = url.substring(1);
-        if(url.endsWith("\'")) {
+        if (url.endsWith("\'")) {
           url = url.substring(0, url.length()-1);
         }
       }
@@ -106,7 +99,7 @@ public class UrlWithParamTag extends Tag {
     if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().isEmpty())){
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
-                .append(escapedUrl)
+                .append(StringUtil.escapeHtml(escapedUrl))
                 .append("\">")
                 .append(escapedUrl)
                 .append("</a>");
@@ -120,7 +113,7 @@ public class UrlWithParamTag extends Tag {
     } else {
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
-                .append(escapedUrl)
+                .append(StringUtil.escapeHtml(escapedUrl))
                 .append("\">")
                 .append(node.renderChildrenXHtml())
                 .append("</a>");

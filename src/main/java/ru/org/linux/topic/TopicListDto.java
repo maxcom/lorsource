@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,13 +19,20 @@ import com.google.common.collect.ImmutableSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class TopicListDto {
   public enum DateLimitType {
     NONE,
     BETWEEN,
-    MONTH_AGO
+    FROM_DATE
+  }
+
+  public enum MiniNewsMode {
+    ALL,
+    MAJOR,
+    MINOR
   }
 
   private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
@@ -46,6 +53,8 @@ public class TopicListDto {
 
   private boolean showDraft = false;
   private boolean lastmodSort = false;
+
+  private MiniNewsMode miniNewsMode = MiniNewsMode.ALL;
 
   public ImmutableSet<Integer> getSections() {
     return sections;
@@ -175,6 +184,14 @@ public class TopicListDto {
     this.lastmodSort = lastmodSort;
   }
 
+  public MiniNewsMode getMiniNewsMode() {
+    return miniNewsMode;
+  }
+
+  public void setMiniNewsMode(MiniNewsMode miniNewsMode) {
+    this.miniNewsMode = miniNewsMode;
+  }
+
   public String toString() {
     return new StringBuilder()
       .append(TopicListDto.class.toString())
@@ -192,6 +209,7 @@ public class TopicListDto {
       .append("; toDate=").append((toDate != null) ? toDate.toString() : "")
       .append("; notalks=").append(notalks)
       .append("; tech=").append(tech)
+      .append("; mini=").append(miniNewsMode)
       .append(']')
       .toString();
   }
@@ -199,20 +217,18 @@ public class TopicListDto {
   public static class DeletedTopic {
     private final String nick;
     private final int id;
-    private final int groupId;
-    private final String ptitle;
-    private final String gtitle;
     private final String title;
     private final String reason;
+    private final Timestamp postdate;
+    private final Timestamp delDate;
 
     public DeletedTopic(ResultSet rs) throws SQLException {
       nick = rs.getString("nick");
       id = rs.getInt("msgid");
-      groupId = rs.getInt("guid");
-      ptitle = rs.getString("ptitle");
-      gtitle = rs.getString("gtitle");
       title = rs.getString("subj");
       reason = rs.getString("reason");
+      postdate = rs.getTimestamp("postdate");
+      delDate = rs.getTimestamp("delDate");
     }
 
     public String getNick() {
@@ -223,24 +239,20 @@ public class TopicListDto {
       return id;
     }
 
-    public int getGroupId() {
-      return groupId;
-    }
-
-    public String getPtitle() {
-      return ptitle;
-    }
-
-    public String getGtitle() {
-      return gtitle;
-    }
-
     public String getTitle() {
       return title;
     }
 
     public String getReason() {
       return reason;
+    }
+
+    public Timestamp getPostdate() {
+      return postdate;
+    }
+
+    public Timestamp getDelDate() {
+      return delDate;
     }
   }
 }

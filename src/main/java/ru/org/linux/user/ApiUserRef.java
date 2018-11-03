@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,17 +18,22 @@ package ru.org.linux.user;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 import ru.org.linux.site.PublicApi;
 
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @PublicApi
 public class ApiUserRef {
   private final String nick;
+
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private final boolean blocked;
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private final boolean anonymous;
-  private final ImmutableList<Boolean> stars;
+
+  private final String stars;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final Integer score;
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private final Integer maxScore;
 
   /*
@@ -38,7 +43,7 @@ public class ApiUserRef {
     nick = null;
     blocked = false;
     anonymous = false;
-    stars = ImmutableList.of();
+    stars = "";
     score = null;
     maxScore = null;
   }
@@ -48,7 +53,7 @@ public class ApiUserRef {
           @JsonProperty("nick") String nick,
           @JsonProperty("blocked") boolean blocked,
           @JsonProperty("anonymous") boolean anonymous,
-          @JsonProperty("stars") ImmutableList<Boolean> stars,
+          @JsonProperty("stars") String stars,
           Integer score, Integer maxScore) {
     this.nick = nick;
     this.blocked = blocked;
@@ -70,7 +75,7 @@ public class ApiUserRef {
     return anonymous;
   }
 
-  public ImmutableList<Boolean> getStars() {
+  public String getStars() {
     return stars;
   }
 

@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -30,7 +30,7 @@
 <form method=POST id="remarkForm" action="/people/${nick}/remark">
 <lor:csrf/>
 
-<textarea autofocus id="text" name="text" cols="60" rows="4"><c:out value="${remark.text}" escapeXml="true"/></textarea>
+<textarea autofocus id="text" name="text" cols="60" rows="4" maxlength="255"><c:out value="${remark.text}" escapeXml="true"/></textarea>
 <br>
 <input type=submit value="Установить">
 </form>

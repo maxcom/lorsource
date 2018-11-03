@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,6 +28,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.awt.image.BufferedImage;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -111,11 +113,19 @@ public class ImageUtil {
     return false;
   }
 
+  private static BufferedImage removeTransparency(BufferedImage image) {
+    BufferedImage outImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+    Graphics2D g = outImage.createGraphics();
+    g.drawImage(image, 0, 0, outImage.getWidth(), outImage.getHeight(), Color.WHITE, null);
+    return outImage;
+  }
+
   public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
     try {
       BufferedImage source = ImageIO.read(new File(filename));
-      BufferedImage destination = Scalr.resize(source, size);
-      ImageIO.write(destination, "JPEG", new File(iconname));
+      BufferedImage destination = Scalr.resize(source, Scalr.Mode.FIT_TO_WIDTH, size);
+      // openjdk cannot write JPEG file if image have transparency
+      ImageIO.write(removeTransparency(destination), "JPEG", new File(iconname));
     } catch (IIOException ex) {
       throw new BadImageException("Can't resize image", ex);
     }

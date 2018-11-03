@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,17 +19,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import scala.Option;
 import scala.collection.Seq;
 
-import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TagIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = TagIntegrationTestConfiguration.class)
+})
 @Transactional
 public class TagDaoIntegrationTest {
   @Autowired
@@ -55,7 +58,7 @@ public class TagDaoIntegrationTest {
     tagDao.createTag("zest");
     tagDao.createTag("zesd");
 
-    List<TagInfo> tags = tagDao.getTagsByPrefix("zest", 0);
+    scala.collection.Seq<TagInfo> tags = tagDao.getTagsByPrefix("zest", 0);
 
     assertEquals(1, tags.size());
   }
@@ -75,11 +78,11 @@ public class TagDaoIntegrationTest {
     int zest = tagDao.createTag("zest");
     int zesd = tagDao.createTag("zesd");
 
-    List<TagInfo> tags = tagDao.getTagsByPrefix("ze", 0);
+    scala.collection.Seq<TagInfo> tags = tagDao.getTagsByPrefix("ze", 0);
 
     assertEquals(2, tags.size());
-    assertEquals(zesd, tags.get(0).id());
-    assertEquals(zest, tags.get(1).id());
+    assertEquals(zesd, tags.apply(0).id());
+    assertEquals(zest, tags.apply(1).id());
   }
 
   @Test
@@ -88,12 +91,5 @@ public class TagDaoIntegrationTest {
 
     assertEquals(0, tagDao.getTagsByPrefix("zest_", 0).size());
     assertEquals(0, tagDao.getTagsByPrefix("zest%", 0).size());
-  }
-
-  @Test
-  public void testRelatedTags() {
-    List<String> tags = tagDao.relatedTags(30);
-
-    assertNotNull(tags);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,6 @@ package ru.org.linux.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.comment.CommentService;
+import ru.org.linux.comment.CommentDeleteService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
@@ -45,29 +44,21 @@ import java.util.Random;
 public class UserModificationController {
   private static final Logger logger = LoggerFactory.getLogger(UserModificationController.class);
 
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private UserDao userDao;
-  @Autowired
-  private CommentService commentService;
 
   @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private CommentDeleteService commentService;
 
   /**
    * Возвращает объект User модератора, если текущая сессия не модераторская, тогда исключение
    * @param request текущий http запрос
    * @return текущий модератор
-   * @throws Exception если модератора нет
    */
-  private static User getModerator(HttpServletRequest request) throws Exception {
+  private static User getModerator(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
@@ -101,6 +92,29 @@ public class UserModificationController {
 
     userDao.block(user, moderator, reason);
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
+    return redirectToProfile(user);
+  }
+
+  /**
+   * Выставляем score=50 для пользователей у которых score меньше
+   *
+   * @param request http запрос
+   * @param user кому ставим score
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователь блокирован
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=score50")
+  public ModelAndView score50(
+          HttpServletRequest request,
+          @RequestParam("id") User user
+  ) throws Exception {
+    User moderator = getModerator(request);
+    if (user.isBlocked() || user.isAnonymous()) {
+      throw new AccessViolationException("Нельзя выставить score=50 пользователю " + user.getNick());
+    }
+
+    userDao.score50(user, moderator);
+
     return redirectToProfile(user);
   }
 
@@ -152,17 +166,26 @@ public class UserModificationController {
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
+
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь уже блокирован");
+    }
+
     Map<String, Object> params = new HashMap<>();
     params.put("message", "Удалено");
     DeleteCommentResult deleteCommentResult = commentService.deleteAllCommentsAndBlock(user, moderator, reason);
 
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-    params.put("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
+    params.put("bigMessage",
+            "Удалено комментариев: "+deleteCommentResult.getDeletedCommentIds().size()+"<br>"+
+            "Удалено тем: "+deleteCommentResult.getDeletedTopicIds().size()
+    );
 
-    for(int topicId : deleteCommentResult.getDeletedTopicIds()) {
+    for (int topicId : deleteCommentResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
     }
+
     searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds());
 
     return new ModelAndView("action-done", params);
@@ -184,7 +207,7 @@ public class UserModificationController {
     if (user.getScore()<User.CORRECTOR_SCORE) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
     }
-    userDao.toggleCorrector(user);
+    userDao.toggleCorrector(user, moderator);
     logger.info("Toggle corrector " + user.getNick() + " by " + moderator.getNick());
 
     return redirectToProfile(user);
@@ -204,7 +227,7 @@ public class UserModificationController {
   ) throws Exception {
     User moderator = getModerator(request);
 
-    if (user.isModerator()) {
+    if (user.isModerator() || user.isAnonymous()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
     }
 
@@ -217,6 +240,7 @@ public class UserModificationController {
     mv.getModel().put("message", "Пароль сброшен");
     return mv;
   }
+  
   /**
    * Контроллер отчистки дополнительной информации в профиле
    * @param request http запрос
@@ -257,7 +281,7 @@ public class UserModificationController {
       throw new AccessViolationException("Not permitted");
     }
 
-    if (user.getPhoto() != null && userDao.resetUserpic(user, currentUser)) {
+    if (userDao.resetUserpic(user, currentUser)) {
       logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
     } else {
       logger.debug("SKIP Clearing " + user.getNick() + " userpic by " + currentUser.getNick());

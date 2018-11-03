@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.test.WebHelper;
 
@@ -35,10 +36,11 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
+})
 public class AddPhotoWebTest {
   private WebResource resource;
 
@@ -46,7 +48,7 @@ public class AddPhotoWebTest {
   private UserDao userDao;
 
   private void rescueJB() throws Exception {
-    final User user = userDao.getUser("JB");
+    final User user = userDao.getUser(userDao.findUserId("JB"));
     userDao.unblock(user, user);
   }
 
@@ -82,12 +84,11 @@ public class AddPhotoWebTest {
    */
   public void testInvalidImage() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/ROOT.xml", auth);
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/database.xml", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Invalid image", doc.select(".error").text()); // сообщение об ошипке
-
-  }
+ }
 
   @Test
   /**
@@ -119,7 +120,7 @@ public class AddPhotoWebTest {
    */
   public void testInvalid4Image() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/cd.gif", auth);
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/images/animated.gif", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке

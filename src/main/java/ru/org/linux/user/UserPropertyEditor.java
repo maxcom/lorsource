@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,10 +18,10 @@ package ru.org.linux.user;
 import java.beans.PropertyEditorSupport;
 
 public class UserPropertyEditor extends PropertyEditorSupport {
-  private final UserDao userDao;
+  private final UserService userService;
 
-  public UserPropertyEditor(UserDao userDao) {
-    this.userDao = userDao;
+  public UserPropertyEditor(UserService userService) {
+    this.userService = userService;
   }
 
   @Override
@@ -32,7 +32,7 @@ public class UserPropertyEditor extends PropertyEditorSupport {
     }
 
     try {
-      setValue(userDao.getUser(s));
+      setValue(userService.getUser(s));
     } catch (UserNotFoundException e) {
       throw new IllegalArgumentException(e);
     }

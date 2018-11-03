@@ -3,7 +3,7 @@
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,18 +20,19 @@
 
   <h2><a href="/gallery/">Галерея</a></h2>
 
-  <div class="boxlet_content">
+  <div class="boxlet_content boxlet-gallery">
     <c:forEach var="item" items="${items}">
       <div style="margin-bottom: 1em">
       <div align="center">
         <c:url var="url" value="${item.item.link}"/>
         <a href="${url}">
-          <img src="${item.item.image.icon}" alt="Скриншот: <l:title>${item.item.title}</l:title>" ${item.iconInfo.code}>
+          <img    sizes="(min-width: 60em) 24vw, 100vw"
+                  srcset="${item.item.image.srcset}"
+                  src="${item.item.image.medium}"
+                  alt="Скриншот: <l:title>${item.item.title}</l:title>">
         </a>
       </div>
-      <i>
-        ${item.fullInfo.width}x${item.fullInfo.height}
-      </i> <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
+      <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
       </div>
     </c:forEach>
     <a href="/gallery/">другие скриншоты...</a>

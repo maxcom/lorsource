@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,11 +19,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.facet.terms.TermsFacet;
+import com.sksamuel.elastic4s.TcpClient;
+import com.sksamuel.elastic4s.searches.RichSearchResponse;
+import org.elasticsearch.search.aggregations.bucket.filter.Filter;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,20 +34,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.search.SearchViewer.SearchInterval;
-import ru.org.linux.search.SearchViewer.SearchOrder;
-import ru.org.linux.search.SearchViewer.SearchRange;
+import ru.org.linux.search.SearchEnums.SearchInterval;
+import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import scala.None$;
+import scala.Option;
+import scala.Tuple2;
 
 import java.beans.PropertyEditorSupport;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class SearchController {
@@ -56,23 +58,23 @@ public class SearchController {
   private SectionService sectionService;
 
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private GroupDao groupDao;
 
   @Autowired
-  private Client client;
+  private TcpClient client;
 
   @Autowired
   private SearchResultsService resultsService;
 
   @ModelAttribute("sorts")
-  public static Map<SearchOrder, String> getSorts() {
-    Builder<SearchOrder, String> builder = ImmutableSortedMap.naturalOrder();
+  public static Map<String, String> getSorts() {
+    Builder<String, String> builder = ImmutableMap.builder(); // preserves order!
 
-    for (SearchOrder value : SearchOrder.values()) {
-      builder.put(value, value.getName());
+    for (SearchOrder value : SearchOrder$.MODULE$.jvalues()) {
+      builder.put(value.id(), value.name());
     }
 
     return builder.build();
@@ -108,76 +110,58 @@ public class SearchController {
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
-    boolean initial = query.isInitial();
+    if (!query.isInitial() && !bindingResult.hasErrors()) {
+      sanitizeQuery(query);
 
-    if (!initial && !bindingResult.hasErrors()) {
-      if (!query.getQ().equals(query.getOldQ())) {
-        query.setSection(null);
-        query.setGroup(null);
-      }
+      SearchViewer sv = new SearchViewer(query, client);
 
-      query.setOldQ(query.getQ());
-
-      if (query.getQ().trim().isEmpty()) {
-        return "redirect:/search.jsp";
-      }
-
-      SearchViewer sv = new SearchViewer(query);
-
-      if (Strings.isNullOrEmpty(query.getSection())) {
-        query.setGroup(null);
-      }
-
-      if (query.getGroup() != null) {
-        Section section = sectionService.getSectionByName(query.getSection());
-
-        Group group = groupDao.getGroupOrNull(section, query.getGroup());
-
-        if (group==null) {
-          query.setGroup(null);
-        }
-      }
-
-      SearchResponse response = sv.performSearch(client);
+      RichSearchResponse response = sv.performSearch();
 
       long current = System.currentTimeMillis();
 
-      SearchHits hits = response.getHits();
+      Collection<SearchItem> res = resultsService.prepareAll(Arrays.asList(response.hits()));
 
-      Collection<SearchItem> res = new ArrayList<>(hits.hits().length);
+      if (response.aggregations() != null) {
+        Filter countFacet = response.aggregations().getAs("sections");
+        Terms sectionsFacet = countFacet.getAggregations().get("sections");
 
-      for (SearchHit doc : hits) {
-        res.add(resultsService.prepare(doc));
-      }
+        if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
+          params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection()))));
 
-      if (response.getFacets() != null) {
-        TermsFacet sectionFacet = (TermsFacet) response.getFacets().facetsAsMap().get("sections");
+          if (!Strings.isNullOrEmpty(query.getSection())) {
+            Option<Terms.Bucket> selectedSection = Option.apply(sectionsFacet.getBucketByKey(query.getSection()));
 
-        if (sectionFacet != null && sectionFacet.getEntries().size() > 1) {
-          params.put("sectionFacet", buildSectionFacet(sectionFacet));
-        } else if (sectionFacet!=null && sectionFacet.getEntries().size() == 1) {
-          query.setSection(sectionFacet.getEntries().get(0).getTerm().toString());
+            if (!Strings.isNullOrEmpty(query.getGroup())) {
+              params.put("groupFacet", resultsService.buildGroupFacet(
+                      selectedSection, Option.apply(Tuple2.apply(query.getSection(), query.getGroup()))
+              ));
+            } else {
+              params.put("groupFacet", resultsService.buildGroupFacet(selectedSection, None$.empty()));
+            }
+
+          }
+        } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBuckets().size()==1) {
+          Terms.Bucket onlySection = sectionsFacet.getBuckets().iterator().next();
+          query.setSection(onlySection.getKeyAsString());
+
+          params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }
 
-        TermsFacet groupFacet = (TermsFacet) response.getFacets().facetsAsMap().get("groups");
-
-        if (groupFacet != null && groupFacet.getEntries().size() > 1) {
-          params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
-        }
+        params.put("tags", resultsService.foundTags(response.aggregations().aggregations()));
       }
 
       long time = System.currentTimeMillis() - current;
 
       params.put("result", res);
-      params.put("searchTime", response.getTookInMillis());
-      params.put("numFound", response.getHits().getTotalHits());
+      params.put("searchTime", response.tookInMillis());
+      params.put("numFound", response.totalHits());
 
-      if (response.getHits().getTotalHits() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
-        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SEARCH_ROWS));
+      if (response.totalHits() > query.getOffset() + SearchViewer.SearchRows()) {
+        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SearchRows()));
       }
 
-      if (query.getOffset() - SearchViewer.SEARCH_ROWS >= 0) {
-        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset() - SearchViewer.SEARCH_ROWS));
+      if (query.getOffset() - SearchViewer.SearchRows() >= 0) {
+        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset() - SearchViewer.SearchRows()));
       }
 
       params.put("time", time);
@@ -186,55 +170,31 @@ public class SearchController {
     return "search";
   }
 
+  private void sanitizeQuery(SearchRequest query) {
+    if (!Strings.isNullOrEmpty(query.getSection())) {
+      Option<Section> section = sectionService.fuzzyNameToSection().get(query.getSection());
 
-  private Map<String, String> buildSectionFacet(TermsFacet sectionFacet) {
-    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
+      if (section.isDefined()) {
+        query.setSection(section.get().getUrlName());
 
-    for (TermsFacet.Entry entry : sectionFacet) {
-      if("wiki".equals(entry.getTerm())) {
-        builder.put(entry.getTerm().string(), entry.getTerm() + " (" + entry.getCount() + ')');
+        if (!Strings.isNullOrEmpty(query.getGroup())) {
+          Optional<Group> group = groupDao.getGroupOpt(section.get(), query.getGroup(), true);
+
+          if (!group.isPresent()) {
+            query.setGroup("");
+          } else {
+            query.setGroup(group.get().getUrlName());
+          }
+        } else {
+          query.setGroup("");
+        }
       } else {
-        String urlName = entry.getTerm().string();
-        String name = sectionService.getSectionByName(urlName).getName().toLowerCase();
-        builder.put(entry.getTerm().string(), name + " (" + entry.getCount() + ')');
+        query.setSection("");
+        query.setGroup("");
       }
-    }
-
-    builder.put("", "все (" + Long.toString(sectionFacet.getTotalCount()) + ')');
-
-    return builder.build();
-  }
-
-  private Map<String, String> buildGroupFacet(String sectionName, TermsFacet groupFacet) {
-    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
-    if (sectionName == null || sectionName.isEmpty() || "wiki".equals(sectionName)) {
-      return null;
-    }
-
-    Section section = sectionService.getSectionByName(sectionName);
-
-    for (TermsFacet.Entry entry : groupFacet) {
-      if("0".equals(entry.getTerm().toString())) {
-        continue;
-      }
-
-      String groupUrlName = entry.getTerm().toString();
-
-      Group group = groupDao.getGroup(section, groupUrlName);
-
-      String name = group.getTitle().toLowerCase();
-
-      builder.put(groupUrlName, name + " (" + entry.getCount() + ')');
-    }
-
-    builder.put("", "все (" + Long.toString(groupFacet.getTotalCount()) + ')');
-
-    ImmutableMap<String, String> r = builder.build();
-
-    if (r.size() <= 2) {
-      return null;
     } else {
-      return r;
+      query.setGroup("");
+      query.setSection("");
     }
   }
 
@@ -243,12 +203,16 @@ public class SearchController {
     binder.registerCustomEditor(SearchOrder.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
-        if ("1".equals(s)) { // for old links
-          setValue(SearchOrder.RELEVANCE);
-        } else if ("2".equals(s)) {
-          setValue(SearchOrder.DATE);
-        } else {
-          setValue(SearchOrder.valueOf(s));
+        switch (s) {
+          case "1":  // for old links
+            setValue(SearchOrder.Relevance$.MODULE$);
+            break;
+          case "2":
+            setValue(SearchOrder.Date$.MODULE$);
+            break;
+          default:
+            setValue(SearchOrder$.MODULE$.valueOf(s));
+            break;
         }
       }
     });
@@ -267,7 +231,7 @@ public class SearchController {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userService));
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }

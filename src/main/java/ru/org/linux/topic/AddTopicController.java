@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,17 +17,11 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,7 +32,8 @@ import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Image;
-import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.gallery.ImageService;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -49,16 +44,15 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
-import ru.org.linux.util.BadImageException;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
+import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -73,8 +67,6 @@ import java.util.Map;
 
 @Controller
 public class AddTopicController {
-  private static final Logger logger = LoggerFactory.getLogger(AddTopicController.class);
-
   private SearchQueueSender searchQueueSender;
 
   @Autowired
@@ -89,27 +81,32 @@ public class AddTopicController {
   @Autowired
   private TagService tagService;
 
-  private UserDao userDao;
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private TopicPrepareService prepareService;
 
+  @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
+
+  @Autowired
+  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
   private GroupPermissionService groupPermissionService;
 
   @Autowired
-  private SiteConfig siteConfig;
+  private AddTopicRequestValidator addTopicRequestValidator;
 
   @Autowired
-  private AddTopicRequestValidator addTopicRequestValidator;
+  private ImageService imageService;
 
   @Autowired
   private TopicService topicService;
 
-  public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
-  public static final int MAX_MESSAGE_LENGTH = 32768;
+  private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
+  private static final int MAX_MESSAGE_LENGTH = 32768;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -131,16 +128,6 @@ public class AddTopicController {
     this.groupDao = groupDao;
   }
 
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
-    this.toLorCodeFormatter = toLorCodeFormatter;
-  }
-
   @ModelAttribute("ipBlockInfo")
   private IPBlockInfo loadIPBlock(HttpServletRequest request) {
     return ipBlockDao.getBlockInfo(request.getRemoteAddr());
@@ -157,8 +144,7 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Map<String, Object> params = new HashMap<>();
-    params.putAll(prepareModel(form, tmpl.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, tmpl.getCurrentUser()));
 
     Group group = form.getGroup();
 
@@ -179,9 +165,9 @@ public class AddTopicController {
     }
 
     if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg, false);
+      return toLorCodeFormatter.format(msg);
     } else {
-      return msg;
+      return toLorCodeTexFormatter.format(msg);
     }
   }
 
@@ -206,8 +192,6 @@ public class AddTopicController {
       params.put("imagepost", groupPermissionService.isImagePostingAllowed(section, currentUser));
     }
 
-    params.put("topTags", tagService.getTopTags());
-
     return params.build();
   }
 
@@ -218,7 +202,7 @@ public class AddTopicController {
       if (form.getNick() != null) {
         user = form.getNick();
       } else {
-        user = userDao.getAnonymous();
+        user = userService.getAnonymous();
       }
     } else {
       user = tmpl.getCurrentUser();
@@ -237,8 +221,6 @@ public class AddTopicController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
-
-    String image = processUploadImage(request);
 
     Group group = form.getGroup();
 
@@ -274,12 +256,16 @@ public class AddTopicController {
       }
     }
 
-    Screenshot scrn = null;
+    UploadedImagePreview imagePreview = null;
 
-    if (section!=null && groupPermissionService.isImagePostingAllowed(section, tmpl.getCurrentUser())) {
-      scrn = processUpload(session, image, errors);
+    if (section!=null && groupPermissionService.isImagePostingAllowed(section, user)) {
+      if (groupPermissionService.isTopicPostingAllowed(group, user)) {
+        File image = imageService.processUploadImage(request);
 
-      if (section.isImagepost() && scrn == null && !errors.hasErrors()) {
+        imagePreview = imageService.processUpload(user, session, image, errors);
+      }
+
+      if (section.isImagepost() && imagePreview == null && !errors.hasErrors()) {
         errors.reject(null, "Изображение отсутствует");
       }
     }
@@ -297,18 +283,13 @@ public class AddTopicController {
 
       Image imageObject = null;
 
-      if (scrn!=null) {
-        imageObject = new Image(
-                0,
-                0,
-                "gallery/preview/" + scrn.getMainFile().getName(),
-                "gallery/preview/" + scrn.getIconFile().getName()
-        );
+      if (imagePreview!=null) {
+        imageObject = new Image(0, 0, "gallery/preview/" + imagePreview.mainFile().getName());
       }
 
       List<String> tagNames = TagName.parseAndSanitizeTags(form.getTags());
 
-      if (!groupPermissionService.canCreateTag(section, tmpl.getCurrentUser())) {
+      if (!groupPermissionService.canCreateTag(section, user)) {
         List<String> newTags = tagService.getNewTags(tagNames);
 
         if (!newTags.isEmpty()) {
@@ -330,7 +311,6 @@ public class AddTopicController {
       TopicMenu topicMenu = prepareService.getTopicMenu(
               preparedTopic,
               tmpl.getCurrentUser(),
-              request.isSecure(),
               tmpl.getProf(),
               true
       );
@@ -352,13 +332,13 @@ public class AddTopicController {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
-      return createNewTopic(request, form, session, group, params, section, user, message, scrn, previewMsg);
+      return createNewTopic(request, form, session, group, params, section, user, message, imagePreview, previewMsg);
     } else {
       return new ModelAndView("add", params);
     }
   }
 
-  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, Screenshot scrn, Topic previewMsg) throws IOException, ScriptErrorException {
+  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
     session.removeAttribute("image");
 
     int msgid = topicService.addMessage(
@@ -396,7 +376,7 @@ public class AddTopicController {
       }
     }
 
-    return new Poll(0, 0, form.isMultiSelect(), false, variants);
+    return new Poll(0, 0, form.isMultiSelect(), variants);
   }
 
   @RequestMapping("/add-section.jsp")
@@ -442,7 +422,7 @@ public class AddTopicController {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userService));
   }
 
   @InitBinder("form")
@@ -455,75 +435,6 @@ public class AddTopicController {
   @ModelAttribute("modes")
   public Map<String, String> getModes() {
     return ImmutableMap.of("lorcode", "LORCODE", "ntobr", "User line break");
-  }
-
-  /**
-   *
-   *
-   * @return <icon, image, previewImagePath> or null
-   * @throws IOException
-   */
-  private Screenshot processUpload(
-          HttpSession session,
-          String image,
-          Errors errors
-  ) throws IOException {
-    if (session==null) {
-      return null;
-    }
-
-    Screenshot screenShot = null;
-
-    if (image != null && !image.isEmpty()) {
-      File uploadedFile = new File(image);
-
-      try {
-        screenShot = Screenshot.createScreenshot(
-                uploadedFile,
-                errors,
-                siteConfig.getHTMLPathPrefix() + "/gallery/preview"
-        );
-
-        if (screenShot != null) {
-          logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
-
-          session.setAttribute("image", screenShot);
-        }
-      } catch (BadImageException e) {
-        errors.reject(null, "Некорректное изображение: " + e.getMessage());
-      }
-    } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      screenShot = (Screenshot) session.getAttribute("image");
-
-      if (!screenShot.getMainFile().exists()) {
-        screenShot = null;
-      }
-    }
-
-    return screenShot;
-  }
-
-  private String processUploadImage(HttpServletRequest request) throws IOException, ScriptErrorException {
-    if (request instanceof MultipartHttpServletRequest) {
-      MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
-      if (multipartFile != null && !multipartFile.isEmpty()) {
-        File uploadedFile = File.createTempFile("preview", "", new File(siteConfig.getPathPrefix() + "/linux-storage/tmp/"));
-        String image = uploadedFile.getPath();
-        if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
-          try {
-            logger.debug("Transfering upload to: " + image);
-            multipartFile.transferTo(uploadedFile);
-            return image;
-          } catch (Exception e) {
-            throw new ScriptErrorException("Failed to write uploaded file", e);
-          }
-        } else {
-          logger.info("Bad target file name: " + image);
-        }
-      }
-    }
-
-    return null;
   }
 
   public static String getAddUrl(Section section, String tag) {

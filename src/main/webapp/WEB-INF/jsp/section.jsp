@@ -1,8 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -19,13 +18,9 @@
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<%
-  response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
-  response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
-%>
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
+<link rel="alternate" href="/section-rss.jsp?section=${section.id}" type="application/rss+xml">
 <meta name="format-detection" content="telephone=no">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
@@ -37,7 +32,7 @@
     <li>
       <a class="navLink" href="${group.url}">${group.title}</a>
 
-      (всего ${group.stat1}, сегодня ${group.stat3})
+      (сегодня ${group.stat3})
 
       <c:if test="${group.info != null}">
         — <em><c:out value="${group.info}" escapeXml="false"/></em>
@@ -52,7 +47,7 @@
   Все разделы форума также доступны в виде единой
   <a class="navLink" href="/forum/lenta/">ленты</a>.
 </p>
-<h1>RSS подписки</h1>
+<h2>RSS подписки</h2>
 
 <ul>
   <li><a href="section-rss.jsp?section=${section.id}">Полный RSS форума</a></li>

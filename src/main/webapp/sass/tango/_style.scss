@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -49,23 +49,20 @@ p {
 #hd {
   margin-bottom: 0.5em;
 
-  h1 {
-    color: $header_color;
-  }
-
   .menu a {
     color: $main_menu_color;
   }
 }
 
 #sitetitle {
+  font-weight: 600;
+  font-family: "Open Sans", sans-serif;
   padding-top: 0.5rem;
   font-size: 2em;
-  font-weight: bold;
   text-decoration: none;
   display: block;
   float: left;
-  color: $header_color;
+  color: $site_title_color;
   padding-left: 1.5rem;
   padding-right: 0.5em;
   margin-right: 0.5em;
@@ -83,12 +80,6 @@ p {
         margin-right: 0.5em;
         margin-top: 0.5em;
     }
-}
-
-#bd {
-    margin-bottom: 2em;
-    padding-left: 1.5rem;
-    padding-right: 1em;
 }
 
 #bd .news {
@@ -193,7 +184,7 @@ p {
       }
     }
 
-    thead {
+    thead, tfoot {
       background-color: $table_header_background;
       color: $table_header_color;
 
@@ -230,10 +221,6 @@ div.msg_body {
 
   .code .title {
     margin-left: inherit;
-  }
-
-  h1 a {
-    color: $text_color;
   }
 }
 
@@ -292,22 +279,25 @@ input[type="checkbox"] {
   background-color: $article_background;
 }
 
-div.quote {
-    margin: 0;
-    border: 0 solid #555753;
-    border-left-width: 5px;
-    padding: 0 0.5em 0;
+#realtime {
+  text-align: center;
+  padding: .5em 1em;
+  vertical-align: middle;
+
+  background-color: $button_primary_background;
+  color: $button_primary_text;
+  &:visited {
+    color: $button_primary_text;
+  }
+}
+
+blockquote {
+  border-left-color: $table_border_color;
 }
 
 .page-number {
-  padding: 5px;
-  text-decoration: none;
   border: solid 1px;
   border-radius: 5px;
-  display: inline-block;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  min-width: 1.1em;
   background-color: $article_background;
 }
 
@@ -325,10 +315,17 @@ div.quote {
   }
 }
 
-figure.medium-image {
-    float: right;
+@include respond-to(desktops) {
+  .medium-image-container {
+    width: 80%;
+  }
+
+  .news .medium-image-container {
     margin-left: 1em;
-    text-align: center;
+    width: 40%;
+    float: right;
+    text-align: left;
+  }
 }
 
 .photo {
@@ -358,16 +355,20 @@ a {
   }
 }
 
+#bd h1, #bd h2 {
+  color: $header_color;
+}
+
+#bd h1 a, #bd header h1 a, #bd h2 a {
+  color: $header_color;
+  &:visited {
+    color: $header_color;
+  }
+}
+
 #bd header {
   a:visited {
     color: $link_color;
-  }
-
-  h1 a {
-    color: $text_color;
-    &:visited {
-      color: $text_color;
-    }
   }
 }
 
@@ -437,11 +438,10 @@ fieldset legend {
 }
 
 #bd .btn {
-  border: 1px solid transparent;
   border-radius: .2em;
-
-  border-color: $button_border_color;
+  border: 1px solid $button_border_color;
   color: $button_text_color;
+  background-image: none; // https://bugzilla.mozilla.org/show_bug.cgi?id=763671
 
   &:visited {
     color: $button_text_color;
@@ -449,6 +449,10 @@ fieldset legend {
   &:hover {
     box-shadow: 0 0 1px 1px $link_color;
   }
+}
+
+#bd nav .btn {
+  border: 1px solid transparent;
 }
 
 #bd .btn-primary {
@@ -466,6 +470,17 @@ fieldset legend {
 #bd .btn-danger {
   background-color: $button_danger_background;
   color: $button_danger_text;
+  &:visited {
+    color: $button_danger_text;
+  }
+}
+
+#bd .btn-selected {
+  background-color: $button_selected_background;
+  color: $button_selected_text_color;
+  &:visited {
+    color: $button_selected_text_color;
+  }
 }
 
 .fav-buttons {
@@ -488,10 +503,35 @@ fieldset legend {
   background-color: $tagpage_group_label_background;
   color: $tagpage_group_label_color;
   white-space: nowrap;
+
+  a:visited & {
+    color: $text_color;
+  }
 }
 
 #bd .search-hl {
   color: $button_selected_text_color;
   background-color: $button_selected_background;
   font-style: normal;
+}
+
+.icon-tag-color {
+  color: $icon_tag_color;
+}
+
+.icon-reply-color {
+  color: $icon_reply_color;
+}
+
+.icon-pin-color {
+  color: $icon_pin_color;
+}
+
+.icon-user-color {
+  color: $icon_user_color;
+}
+
+#commentPreview {
+  border: 1px solid $preview_border_color;
+  padding: 0.3rem;
 }

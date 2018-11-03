@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,22 +24,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import ru.org.linux.user.ProfileDao;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- */
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
   private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private ProfileDao profileDao;
@@ -55,8 +53,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       }
     } else {
       try {
-        user = userDao.getUser(username);
-        userDao.updateLastlogin(user, false);
+        user = userService.getUser(username);
       } catch (UserNotFoundException e) {
         throw new UsernameNotFoundException(username);
       }

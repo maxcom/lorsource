@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -41,24 +41,29 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Поиск по сайту</h1>
-<form:form method="GET" commandName="query" ACTION="search.jsp">
+<form:form method="GET" commandName="query" action="search.jsp">
 
-<form:input class="input-lg" path="q" TYPE="search" SIZE="50" maxlength="250" autofocus="autofocus"/>
-  <button TYPE="submit" class="btn btn-primary">Поиск</button><BR>
+<div class="control-group">
+<form:input class="input-lg" path="q" type="search" size="50" maxlength="250" autofocus="autofocus"/>&nbsp;
+<button type="submit" class="btn btn-primary">Поиск</button><BR>
+</div>
 
-  <form:hidden path="oldQ"/>
-  
-  <p>
-  <form:select path="range" items="${ranges}"/>
+<div class="control-group">
+<form:select path="range" items="${ranges}"/>
+</div>
 
-  <label>За:
-    <form:select path="interval" items="${intervals}"/>
-  </label>
+<div class="control-group">
+<label>За:
+  <form:select path="interval" items="${intervals}"/>
+</label>
+</div>
 
-    <label>Пользователь: <form:input path="user" TYPE="text" SIZE="20"/></label>
-    <label>В темах пользователя <form:checkbox path="usertopic"/></label>
+<div class="control-group">
+  <label>Пользователь: <form:input path="user" type="text" size="20"/></label>
+  <label>В темах пользователя <form:checkbox path="usertopic"/></label>
+</div>
 
-  <form:errors element="div" cssClass="error" path="*"/>
+<form:errors element="div" cssClass="error" path="*"/>
 
 <c:if test="${not query.initial && numFound!=null}">
   <div class="infoblock">
@@ -72,14 +77,9 @@
 
     <c:choose>
       <c:when test="${sectionFacet !=null}">
-        <div>
+        <div style="display: inline-block">
           Раздел:
-          <c:forEach items="${sectionFacet}" var="facet">
-            <label style="display: inline-block">
-                <form:radiobutton path="section" onchange="submit()" value="${facet.key}"/>
-                ${facet.value}
-            </label>
-          </c:forEach>
+          <form:select path="section" items="${sectionFacet}" onchange="submit()" itemValue="key" itemLabel="label"/>
         </div>
       </c:when>
 
@@ -89,9 +89,9 @@
     </c:choose>
 
     <c:if test="${groupFacet!=null}">
-      <div>
+      <div style="display: inline-block">
         Группа:
-        <form:select path="group" items="${groupFacet}" onchange="submit()"/>
+        <form:select path="group" items="${groupFacet}" onchange="submit()" itemValue="key" itemLabel="label"/>
       </div>
     </c:if>
 
@@ -102,6 +102,12 @@
      </c:if>
     </div>
   </div>
+
+  <c:if test="${not empty tags}">
+    <div class="infoblock">
+      Найдены теги: <l:tags list="${tags}"/>
+    </div>
+  </c:if>
 
   <div class="messages">
   <div class="comment">

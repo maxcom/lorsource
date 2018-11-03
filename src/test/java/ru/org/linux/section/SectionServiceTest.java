@@ -15,20 +15,14 @@
 package ru.org.linux.section;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import ru.org.linux.section.stub.TestSectionDaoImpl;
 
 import java.util.List;
 
 import static org.junit.Assert.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("unit-tests-context.xml")
 public class SectionServiceTest {
-  @Autowired
-  private SectionService sectionService;
+  private SectionService sectionService = new SectionService(new TestSectionDaoImpl());
 
   @Test
   public void getSectionTest() {
@@ -45,18 +39,17 @@ public class SectionServiceTest {
     assertTrue(section.isPremoderated());
     assertFalse(section.isPollPostAllowed());
     assertFalse(section.isImagepost());
+  }
 
-    try {
-      section = sectionService.getSection(-1);
-      fail();
-    } catch (SectionNotFoundException ignored) {
-    }
+  @Test(expected = SectionNotFoundException.class)
+  public void testBadSection() {
+    sectionService.getSection(-1);
   }
 
   @Test
   public void getSectionListTest() {
     List<Section> sectionList = sectionService.getSectionList();
-    assertEquals(5, sectionList.size());
+    assertEquals(4, sectionList.size());
   }
 
   @Test
@@ -70,7 +63,6 @@ public class SectionServiceTest {
 
   @Test
   public void getScrollModeTest() {
-
     Section section = sectionService.getSection(1);
     assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
 
@@ -79,9 +71,6 @@ public class SectionServiceTest {
 
     section = sectionService.getSection(3);
     assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
-    section = sectionService.getSection(4);
-    assertEquals(SectionScrollModeEnum.NO_SCROLL, section.getScrollMode());
 
     section = sectionService.getSection(5);
     assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -38,16 +38,16 @@ import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
-  private static final String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
+  private static final String RESULT1 = "Here is <a href=\"https://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT2 = "Here is http://linux.org.ru, have fun! :-)";
   private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
-  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/...</a>";
+  private static final String RESULT3 = "Long url: <a href=\"https://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/...</a>";
 
   private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
-  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/...</a>";
+  private static final String RESULT8 = "Long url: <a href=\"https://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/...</a>";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -81,6 +81,8 @@ public class HTMLFormatterTest {
   
   private static final String TEXT18 = "http://smartphonebenchmarks.com/index.php?filter_model[]=all&filter_cpu[]=Qualcomm+Snapdragon+MSM8255&filter_cpu[]=Texas+Instrument+OMAP+3610";
   private static final String RESULT18 = "<a href=\"http://smartphonebenchmarks.com/index.php?filter_model%5B%5D=all&amp;filter_cpu%5B%5D=Qualcomm+Snapdragon+MSM8255&amp;filter_cpu%5B%5D=Texas+Instrument+OMAP+3610\">http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]...</a>";
+  private static final String TEXT19 = "Test *.myftp.org test";
+  private static final String RESULT19 = "Test *.myftp.org test";
 
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
@@ -109,6 +111,7 @@ public class HTMLFormatterTest {
   public void init() throws Exception {
 
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
+    URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao messageDao = mock(TopicDao.class);
     Topic message1 = mock(Topic.class);
@@ -158,6 +161,7 @@ public class HTMLFormatterTest {
     SiteConfig siteConfig = mock(SiteConfig.class);
 
     when(siteConfig.getMainURI()).thenReturn(mainURI);
+    when(siteConfig.getSecureURI()).thenReturn(secureURI);
 
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
@@ -174,66 +178,66 @@ public class HTMLFormatterTest {
     toLorCodeFormatter = new ToLorCodeFormatter();
 
     lorCodeService = new LorCodeService();
-    lorCodeService.setSiteConfig(siteConfig);
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
   }
 
   @Test
   public void testToHtmlFormatter() {
-    assertEquals(RESULT1, toHtmlFormatter.format(TEXT1, false, false));
-    assertEquals(RESULT2, toHtmlFormatter.format(TEXT2, false, false));
-    assertEquals(RESULT3, toHtmlFormatter20.format(TEXT3, false, false));
-    assertEquals(RESULT8, toHtmlFormatter20.format(TEXT8, false, false));
-    assertEquals(RESULT9, toHtmlFormatter.format(TEXT9, false, false));
-    assertEquals(RESULT10, toHtmlFormatter.format(TEXT10, false, false));
-    assertEquals(RESULT11, toHtmlFormatter.format(TEXT11, false, false));
-    assertEquals(RESULT12, toHtmlFormatter.format(TEXT12, false, false));
-    assertEquals(RESULT13, toHtmlFormatter.format(TEXT13, false, false));
-    assertEquals(RESULT14, toHtmlFormatter.format(TEXT14, false, false));
-    assertEquals(RESULT15, toHtmlFormatter.format(TEXT15, false, false));
-    assertEquals(RESULT16, toHtmlFormatter.format(TEXT16, false, false));
-    assertEquals(RESULT17, toHtmlFormatter.format(TEXT17, false, false));
-    assertEquals(RESULT17_2, toHtmlFormatter.format(TEXT17_2, false, false));
-    assertEquals(RESULT18, toHtmlFormatter.format(TEXT18, false, false));
-    assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(RFC1738, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(CYR_LINK, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(GOOGLE_CACHE, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(URL_WITH_AT, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(Latin1Supplement, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(greek, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(QP, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false, false).endsWith("</a>"));
-    assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false, false).endsWith("</a>"));
+    assertEquals(RESULT1, toHtmlFormatter.format(TEXT1, false));
+    assertEquals(RESULT2, toHtmlFormatter.format(TEXT2, false));
+    assertEquals(RESULT3, toHtmlFormatter20.format(TEXT3, false));
+    assertEquals(RESULT8, toHtmlFormatter20.format(TEXT8, false));
+    assertEquals(RESULT9, toHtmlFormatter.format(TEXT9, false));
+    assertEquals(RESULT10, toHtmlFormatter.format(TEXT10, false));
+    assertEquals(RESULT11, toHtmlFormatter.format(TEXT11, false));
+    assertEquals(RESULT12, toHtmlFormatter.format(TEXT12, false));
+    assertEquals(RESULT13, toHtmlFormatter.format(TEXT13, false));
+    assertEquals(RESULT14, toHtmlFormatter.format(TEXT14, false));
+    assertEquals(RESULT15, toHtmlFormatter.format(TEXT15, false));
+    assertEquals(RESULT16, toHtmlFormatter.format(TEXT16, false));
+    assertEquals(RESULT17, toHtmlFormatter.format(TEXT17, false));
+    assertEquals(RESULT17_2, toHtmlFormatter.format(TEXT17_2, false));
+    assertEquals(RESULT18, toHtmlFormatter.format(TEXT18, false));
+    assertEquals(RESULT19, toHtmlFormatter.format(TEXT19, false));
+    assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(CYR_LINK, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(GOOGLE_CACHE, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(URL_WITH_AT, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(Latin1Supplement, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(greek, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(QP, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false).endsWith("</a>"));
   }
 
   @Test
   public void testUrlParse() throws Exception {
-    assertEquals("<a href=\"http://el.wikipedia.org/wiki/%CE%AC%CE%BB%CE%BB%CE%B5%CF%82\">http://el.wikipedia.org/wiki/άλλες</a>", toHtmlFormatter.format(greek, false, false));
-    assertEquals("<a href=\"http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;%D0%9C%D0%B0%D0%BC%D0%B0_%D0%BC%D1%8B%D0%BB%D0%B0_%D1%80%D0%B0%D0%BC%D1%83&amp;$-_.+!*'(,)=$-_.+!*'(),#anchor\">http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;Мама...</a>", toHtmlFormatter.format(RFC1738, false, false));
-    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D0%BD%D1%8B%D0%B9_'%D0%BD%D0%B5%D0%B3%D1%80'(Fran%C3%87ais%C5%92uvre_%D7%90)?%D0%BD%D0%B5%D0%B3%D1%80=%D1%8D%D1%84%D0%B8%D0%BE%D0%BF&amp;%D1%8D%D1%84%D0%B8%D0%BE%D0%BF\">http://ru.wikipedia.org/wiki/Литературный_'негр'(FranÇaisŒuvre_א)?негр=эфиоп&amp;...</a>", toHtmlFormatter.format(CYR_LINK, false, false));
-    assertEquals("<a href=\"http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&amp;cd=1&amp;hl=en&amp;ct=clnk&amp;gl=us\">http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showt...</a>", toHtmlFormatter.format(GOOGLE_CACHE, false, false));
-    assertEquals("<a href=\"http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2\">http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2</a>", toHtmlFormatter.format(QP, false, false));
-    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0\">http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0</a>", toHtmlFormatter.format(QP2, false, false));
+    assertEquals("<a href=\"http://el.wikipedia.org/wiki/%CE%AC%CE%BB%CE%BB%CE%B5%CF%82\">http://el.wikipedia.org/wiki/άλλες</a>", toHtmlFormatter.format(greek, false));
+    assertEquals("<a href=\"http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;%D0%9C%D0%B0%D0%BC%D0%B0_%D0%BC%D1%8B%D0%BB%D0%B0_%D1%80%D0%B0%D0%BC%D1%83&amp;$-_.+!*'(,)=$-_.+!*'(),#anchor\">http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;Мама...</a>", toHtmlFormatter.format(RFC1738, false));
+    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D0%BD%D1%8B%D0%B9_'%D0%BD%D0%B5%D0%B3%D1%80'(Fran%C3%87ais%C5%92uvre_%D7%90)?%D0%BD%D0%B5%D0%B3%D1%80=%D1%8D%D1%84%D0%B8%D0%BE%D0%BF&amp;%D1%8D%D1%84%D0%B8%D0%BE%D0%BF\">http://ru.wikipedia.org/wiki/Литературный_'негр'(FranÇaisŒuvre_א)?негр=эфиоп&amp;...</a>", toHtmlFormatter.format(CYR_LINK, false));
+    assertEquals("<a href=\"http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&amp;cd=1&amp;hl=en&amp;ct=clnk&amp;gl=us\">http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showt...</a>", toHtmlFormatter.format(GOOGLE_CACHE, false));
+    assertEquals("<a href=\"http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2\">http://www.ozon.ru/?context=search&amp;text=%D8%E8%EB%E4%F2</a>", toHtmlFormatter.format(QP, false));
+    assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0\">http://ru.wikipedia.org/wiki/%C4%E5%ED%FC_%EF%EE%EB%EE%F2%E5%ED%F6%E0</a>", toHtmlFormatter.format(QP2, false));
   }
 
   @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
-        toHtmlFormatter.format(url1,false, false));
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
+        toHtmlFormatter.format(url1,false));
     String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
-        toHtmlFormatter.format(url3,false, false));
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
+        toHtmlFormatter.format(url3,false));
     String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comme...</a>",
-        toHtmlFormatter.format(url15, false, false));
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comme...</a>",
+        toHtmlFormatter.format(url15, false));
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
-        toHtmlFormatter.format(urlHistory, true, false));
+        toHtmlFormatter.format(urlHistory, true));
     assertEquals("<a href=\"https://www.linux.org.ru/forum/lor-source/6992532/comments\">www.linux.org.ru/forum/lor-source/6992532/comments</a>",
-        toHtmlFormatter.format("www.linux.org.ru/forum/lor-source/6992532/comments", true, false));
+        toHtmlFormatter.format("www.linux.org.ru/forum/lor-source/6992532/comments", true));
   }
 
 
@@ -241,7 +245,7 @@ public class HTMLFormatterTest {
   public void testCrash() {
     try {
       assertEquals("&quot;<a href=\"http://www.google.com/&quot;\">http://www.google.com/&quot;</a>",
-          toHtmlFormatter.format(GUARANTEED_CRASH, false, false));
+          toHtmlFormatter.format(GUARANTEED_CRASH, false));
     } catch (Exception e) {
       fail("It seems, it should not happen?");
     }
@@ -311,10 +315,10 @@ public class HTMLFormatterTest {
     for(int i = 0; i<text.length; i++){
       String entry = text[i];
       assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry));
-      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry), false, false));
+      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry), false));
 
-      assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
-      assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false, false));
+      assertEquals(bb[i], toLorCodeFormatter.format(entry));
+      assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry), false));
     }
   }
 
@@ -322,11 +326,11 @@ public class HTMLFormatterTest {
   public void inCodeEscape() {
     assertEquals(
         "<div class=\"code\"><pre class=\"no-highlight\"><code>&amp;#9618;</code></pre></div>",
-        lorCodeService.parseTopic("[code]&#9618;[/code]", false, false)
+        lorCodeService.parseTopic("[code]&#9618;[/code]", false)
     );
     assertEquals(
         "<p>&#9618;</p>",
-        lorCodeService.parseTopic("&#9618;", false, false)
+        lorCodeService.parseTopic("&#9618;", false)
     );
   }
 
@@ -336,93 +340,50 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a, true)
-    );
-    assertEquals(
-        "[list][br][*]one[br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a, false)
+        toLorCodeFormatter.format(a)
     );
     assertEquals(
         "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
         toLorCodeTexFormatter.format(a)
     );
 
-    // toLorCodeFormatter.format(a, true)
-    String b = toLorCodeFormatter.format(a, true);
+    // toLorCodeFormatter.format(a)
+    String b = toLorCodeFormatter.format(a);
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, true, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false, false)
+        lorCodeService.parseTopic(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true, false)
-    );
-
-    // toLorCodeFormatter.format(a, false)
-    b = toLorCodeFormatter.format(a, false);
-    assertEquals(
-        "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, true, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true, false)
+        lorCodeService.parseTopic(b, false)
     );
 
-    // toLorCodeTexFormatter.format(a, true)
+    // toLorCodeTexFormatter.format(a)
     b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, true, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false, false)
+        lorCodeService.parseTopic(b, false)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true, false)
+        lorCodeService.parseTopic(b, false)
     );
-
-    // toLorCodeTexFormatter.format(a, false)
-    b = toLorCodeTexFormatter.format(a);
-    assertEquals(
-        "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false, false)
-    );
-    assertEquals(
-        "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, true, false)
-    );
-    assertEquals(
-        "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false, false)
-    );
-    assertEquals(
-        "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true, false)
-    );
-
   }
 
   @Test
@@ -430,11 +391,7 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a, true)
-    );
-    assertEquals(
-        "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a, false)
+        toLorCodeFormatter.format(a)
     );
     assertEquals(
         "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
@@ -442,60 +399,41 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeFormatter.format(a, true)
-    String b = toLorCodeFormatter.format(a, true);
+    String b = toLorCodeFormatter.format(a);
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, true, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false, false)
+        lorCodeService.parseTopic(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true, false)
-    );
-
-    // toLorCodeFormatter.format(a, false)
-    b = toLorCodeFormatter.format(a, false);
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, true, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true, false)
+        lorCodeService.parseTopic(b, false)
     );
 
-    // toLorCodeTexFormatter.format(a, true)
+    // toLorCodeTexFormatter.format(a)
     b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, true, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false, false)
+        lorCodeService.parseTopic(b, false)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true, false)
+        lorCodeService.parseTopic(b, false)
     );
   }
 
@@ -504,72 +442,49 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a, true)
-    );
-    assertEquals(
-        "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a, false)
+        toLorCodeFormatter.format(a)
     );
     assertEquals(
         "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
         toLorCodeTexFormatter.format(a)
     );
 
-    // toLorCodeFormatter.format(a, true)
-    String b = toLorCodeFormatter.format(a, true);
+    // toLorCodeFormatter.format(a)
+    String b = toLorCodeFormatter.format(a);
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, true, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false, false)
+        lorCodeService.parseTopic(b, false)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true, false)
-    );
-
-    // toLorCodeFormatter.format(a, false)
-    b = toLorCodeFormatter.format(a, false);
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, true, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false, false)
-    );
-    assertEquals(
-        "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, true, false)
+        lorCodeService.parseTopic(b, false)
     );
 
-    // toLorCodeTexFormatter.format(a, true)
+    // toLorCodeTexFormatter.format(a)
     b = toLorCodeTexFormatter.format(a);
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, true, false)
+        lorCodeService.parseComment(b, false)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false, false)
+        lorCodeService.parseTopic(b, false)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, true, false)
+        lorCodeService.parseTopic(b, false)
     );
   }
 
@@ -591,7 +506,7 @@ public class HTMLFormatterTest {
                 "[/list]")
     );
     assertEquals(
-        "due one teo neo wuf?\nok",
+        "due ««one» teo «neo»» wuf?\nok",
         lorCodeService.extractPlainTextFromLorcode("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
     );
     assertEquals(
@@ -613,18 +528,18 @@ public class HTMLFormatterTest {
   public void testCropLinkBody() {
     assertEquals(
         "Ссылка: <a href=\"http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y\">http://www.opera.com/browser/download/?os=linux-x86-64&amp;ver=12.00&amp;local=y</a>",
-        toHtmlFormatter.format("Ссылка: http://www.opera.com/browser/download/?os=linux-x86-64&ver=12.00&local=y", true, false)
+        toHtmlFormatter.format("Ссылка: http://www.opera.com/browser/download/?os=linux-x86-64&ver=12.00&local=y", false)
     );
     assertEquals(
         "<a href=\"https://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true\">www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&amp;option=true</a>",
-        toHtmlFormatter.format("http://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&option=true", true, false));
+        toHtmlFormatter.format("http://www.linux.org.ru/test/tost/holokoust/12345678/?parameter=unknown&option=true", true));
   }
 
   @Test
   public void testMDash() {
     assertEquals(
         "<ul><li><a href=\"http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html\">PMake&nbsp;&mdash; A Tutorial</a></li></ul>",
-        lorCodeService.parseComment("[list][*][url=http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html]PMake -- A Tutorial[/url][/list]", true, false)
+        lorCodeService.parseComment("[list][*][url=http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html]PMake -- A Tutorial[/url][/list]", false)
     );
   }
 
@@ -632,7 +547,7 @@ public class HTMLFormatterTest {
   public void testInCodeQuotes() {
     assertEquals(
         "<p>Smth about &#171;quotes&#187;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
-        lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", true, false)
+        lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", false)
     );
   }
 
@@ -640,18 +555,18 @@ public class HTMLFormatterTest {
   public void testLocalBuffer() {
     assertEquals(
         "<p>This is simple &#171;local <u>buffer</u>&#187; test </p>",
-        lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", true, false)
+        lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", false)
     );
   }
 
   @Test
   public void testUrlQuotes() {
     assertEquals("<p><a href=\"https://www.linux.org.ru/search.jsp?q=&quot;100%25&quot;\">www.linux.org.ru/search.jsp?q=&quot;100%&quot;</a></p>",
-        lorCodeService.parseComment("www.linux.org.ru/search.jsp?q=\"100%\"", true, false));
+        lorCodeService.parseComment("www.linux.org.ru/search.jsp?q=\"100%\"", false));
     assertEquals("<p><a href=\"http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;\">http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;</a></p>",
-        lorCodeService.parseComment("http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;", true, false));
+        lorCodeService.parseComment("http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;", false));
     assertEquals("<p><a href=\"http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&amp;oldQ=&amp;range=ALL&amp;interval=ALL&amp;user=&amp;_usertopic=on&amp;csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D\">http://127.0.0.1:8080/search.jsp?q=&quot;тест-тост-холокост&quot;&amp;oldQ=&amp;range=A...</a></p>",
-        lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", true, false));
+        lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82-%D1%85%D0%BE%D0%BB%D0%BE%D0%BA%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", false));
   }
 
   @Test
@@ -667,10 +582,16 @@ public class HTMLFormatterTest {
   @Test
   public void testQuotes() {
     assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
-        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false));
     assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
-        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, false));
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false));
 
   }
 
+  @Test
+  public void encodeLorUrl() {
+    assertEquals(
+            "<p><a href=\"https://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>",
+            lorCodeService.parseComment("www.linux.org.ru/forum/linux%3C%3E-org-ru/", false));
+  }
 }

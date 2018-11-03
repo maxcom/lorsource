@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,24 +12,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-// addtag.js
-function initTopTagSelection() {
-  $(function() {
-    function addTag() {
-      var tags = $('#tags');
-      var curVal = tags.val();
-
-      if (curVal != "") {
-        curVal += ",";
-      }
-
-      tags.val(curVal + $(this).text());
-    }
-
-    $('a[data-toptag]').click(addTag);
-  });
-}
 
 function initNextPrevKeys() {
   $script.ready('plugins', function () {
@@ -86,9 +68,9 @@ function init_interpage_adv(ads) {
     $(function() {
         var ad = ads[Math.floor(Math.random() * ads.length)];
 
-        if (ad.type=='flash') {
+        if (ad.type==='flash') {
             $script('/js/jquery.swfobject.1-1-1.min.js', function() {
-                $('#interpage-adv').flash({
+                $('#interpage').flash({
                     "swf": ad.src,
                     "width": 728,
                     "height": 90
@@ -96,7 +78,7 @@ function init_interpage_adv(ads) {
             });
         }
 
-        if (ad.type=='img') {
+        if (ad.type==='img') {
             var anchor = $('<a>');
             anchor.attr('href', ad.href);
             anchor.attr('target', '_blank');
@@ -116,7 +98,32 @@ function init_interpage_adv(ads) {
             }
 
             anchor.append(img);
-            $('#interpage-adv').append(anchor);
+            $('#interpage').append(anchor);
+        }
+
+        if (ad.type==='rimg') {
+            var anchor = $('<a>');
+            anchor.attr('href', ad.href);
+            anchor.attr('target', '_blank');
+
+            var img = $('<img>');
+
+            if (window.matchMedia("(min-width: 768px)").matches) {
+                // img.attr('width', 728);
+                img.attr('height', 90);
+                img.attr('src', ad.img728);
+            } else if (window.matchMedia("(min-width: 500px)").matches) {
+                img.attr('width', 468);
+                img.attr('height', 60);
+                img.attr('src', ad.img468);
+            } else {
+                img.attr('width', 320);
+                img.attr('height', 100);
+                img.attr('src', ad.img320);
+            }
+
+            anchor.append(img);
+            $('#interpage').append(anchor);
         }
     });
 }
@@ -194,9 +201,16 @@ function tag_memories_form_setup(tag, csrf_token) {
         event.preventDefault();
         event.stopPropagation();
         $("#tagFavNoth").popover('show');
-      });
-      $("#tagFavNoth").popover({
+      }).popover({
         content: "Для добавления в избранное надо залогиниться!"
+      });
+
+      $("#tagIgnNoth").click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $("#tagIgnNoth").popover('show');
+      }).popover({
+        content: "Для добавления в список игнорирования надо залогиниться!"
       });
     });
   });
@@ -242,6 +256,49 @@ function tag_memories_form_setup(tag, csrf_token) {
 
     $("#tagFavAdd").bind("click", tag_filter);
   });
+
+  $(function() {
+    function tag_ignore(event) {
+      event.preventDefault();
+
+      var data = { tagName: tag};
+
+      var el = $('#tagIgnore');
+      var add = !el.hasClass("selected");
+
+      if (add) {
+        data['add'] = 'add';
+      } else {
+        data['del'] = 'del';
+      }
+
+      data['csrf'] = csrf_token;
+
+      $.ajax({
+        url: "/user-filter/ignore-tag",
+        type: "POST",
+        dataType: "json",
+        data: data
+      }).done(function (t) {
+            if (t.error) {
+              alert(t.error);
+            } else {
+              el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
+
+              $('#ignoreCount').text(t['count']);
+
+              if (add) {
+                el.addClass("selected");
+              } else {
+                el.removeClass("selected");
+              }
+            }
+          });
+    }
+
+    $("#tagIgnore").bind("click", tag_ignore);
+  });
+ 
 }
 
 $script.ready('plugins', function() {
@@ -266,9 +323,9 @@ $script.ready('plugins', function() {
       }
     };
 
-    $('#regform').ajaxForm(options);
+    if (location.protocol === 'https:') {
+      $('#regform').ajaxForm(options);
 
-    if (location.protocol === 'https:' || jQuery.support.cors) {
       $('#loginbutton').bind('click', function(e) {
         $("#regmenu").fadeOut("fast", function() {
           $("#regform").fadeIn("fast", function() {
@@ -287,25 +344,15 @@ $script.ready('plugins', function() {
     }
   }
 
-  function initCommentFormValidation() {
-    $("#commentForm").validate({
-      messages : {
-        msg :  "Введите сообщение",
-        title : "Введите заголовок"
-      }
-    });
-  }
-
   $(function() {
     initLoginForm();
-    initCommentFormValidation();
   });
 });
 
 $(document).ready(function() {
   function initCtrlEnter() {
     function ctrl_enter(e, form) {
-        if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey)) {
+        if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey||e.metaKey)) {
           window.onbeforeunload = null;
 
           $(form).submit();
@@ -359,9 +406,6 @@ $(document).ready(function() {
 
   initCtrlEnter();
   initUpdateEventsCount();
-
-  // remove hidden quote elements
-  $(".none").remove();
 
   initSamepageCommentNavigation();
   initScollupButton();

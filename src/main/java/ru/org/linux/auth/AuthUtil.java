@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,9 @@
 
 package ru.org.linux.auth;
 
-import com.google.common.collect.ImmutableMap;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -29,7 +27,7 @@ import javax.annotation.Nullable;
 
 public class AuthUtil {
   public static void updateLastLogin(Authentication authentication, UserDao userDao) {
-    if(authentication != null && (authentication.isAuthenticated())) {
+    if (authentication != null && (authentication.isAuthenticated())) {
       Object principal = authentication.getPrincipal();
       if (principal instanceof UserDetailsImpl) {
         UserDetailsImpl userDetails = (UserDetailsImpl) principal;
@@ -44,14 +42,6 @@ public class AuthUtil {
     return authentication != null && (authentication.isAuthenticated() && !hasAuthority("ROLE_SYSTEM_ANONYMOUS") && hasAuthority("ROLE_ANONYMOUS"));
   }
 
-  public static Authentication getAuthentication() {
-    if (isSessionAuthorized()) {
-      return SecurityContextHolder.getContext().getAuthentication();
-    } else {
-      return null;
-    }
-  }
-
   public static boolean isModeratorSession() {
     return isSessionAuthorized() && hasAuthority("ROLE_MODERATOR");
   }
@@ -62,7 +52,7 @@ public class AuthUtil {
 
   private static boolean hasAuthority(String authName) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if(authentication == null) {
+    if (authentication == null) {
       return false;
     }
 
@@ -103,22 +93,14 @@ public class AuthUtil {
   @Nonnull
   public static Profile getProfile() {
     if (!isSessionAuthorized()) {
-      return getDefaultProfile();
+      return Profile.createDefault();
     }
 
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principal instanceof UserDetailsImpl) {
       return ((UserDetailsImpl) principal).getProfile();
     } else {
-      return getDefaultProfile();
+      return Profile.createDefault();
     }
-  }
-
-  public static Profile getDefaultProfile() {
-    return Profile.createDefault();
-  }
-
-  public static ImmutableMap<String, Object> getDefaults() {
-    return DefaultProfile.getDefaultProfile();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
@@ -61,25 +62,25 @@ import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 12:34 PM
- */
 public class QuoteTag extends Tag {
+  public static final String citeHeader = "<blockquote>";
+  public static final String citeFooter = "</blockquote>";
 
-  public static final String citeHeader = "<div class=\"none\">&gt;&gt;-----Цитата----&gt;&gt;</div><div class=\"quote\">";
-  public static final String citeFooter = "</div><div class=\"none\">&lt;&lt;-----Цитата----&lt;&lt;</div>";
-
-  public static final String citeHeaderRSS = "<div style=\"border-width: 0 0 0 5px; border-style: solid; border-color: black; padding: 0 0 0 .5em; \">";
-  public static final String citeFooterRSS = "</div>";
+  private static final String citeHeaderRSS = "<blockquote style=\"border-width: 0 0 0 5px; border-style: solid; border-color: black; padding: 0 0 0 .5em; \">";
+  private static final String citeFooterRSS = "</blockquote>";
 
 
-  public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public QuoteTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("quote", allowedChildren, "div", parserParameters);
+  }
+
+  @Override
+  public String renderOg(Node node) {
+    if (node.lengthChildren() == 0) {
+      return "";
+    } else {
+      return "«" + node.renderChildrenOg() + "»";
+    }
   }
 
   @Override
@@ -117,20 +118,20 @@ public class QuoteTag extends Tag {
     ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
 
     if (!node.getParameter().isEmpty()) {
-      if(rss) {
+      if (rss) {
         ret.append(citeHeaderRSS);
       } else {
         ret.append(citeHeader);
       }
       ret.append("<p><cite>");
-      if(formatter != null) {
+      if (formatter != null) {
         ret.append(formatter.simpleFormat(node.getParameter().replaceAll("\"", "")));
       } else {
         ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       }
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
-      if(rss) {
+      if (rss) {
         ret.append(citeFooterRSS);
       } else {
         ret.append(citeFooter);
@@ -139,13 +140,13 @@ public class QuoteTag extends Tag {
       if(emtyQuote) {
         ret.append(node.renderChildrenXHtml());
       } else {
-        if(rss) {
+        if (rss) {
           ret.append(citeHeaderRSS);
         } else {
           ret.append(citeHeader);
         }
         ret.append(node.renderChildrenXHtml());
-        if(rss) {
+        if (rss) {
           ret.append(citeFooterRSS);
         } else {
           ret.append(citeFooter);

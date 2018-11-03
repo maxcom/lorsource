@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,21 +14,21 @@
  */
 package ru.org.linux.tracker;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+
 public enum TrackerFilterEnum {
-  ALL("all", "все сообщения", true),
-  NOTALKS("notalks", "без talks", false),
-  TECH("tech", "тех. разделы форума", false),
-  MINE("mine", "мои темы", false),
-  ZERO("zero", "без ответов", false);
+  ALL("all", "все"),
+  MAIN("main", "основные"),
+  NOTALKS("notalks", "без talks"),
+  TECH("tech", "тех. разделы форума");
 
   private final String value;
   private final String label;
-  private final boolean def;
 
-  TrackerFilterEnum(String value, String label, boolean def) {
+  TrackerFilterEnum(String value, String label) {
     this.value = value;
     this.label = label;
-    this.def = def;
   }
 
   public String getValue() {
@@ -39,7 +39,21 @@ public enum TrackerFilterEnum {
     return label;
   }
 
-  public boolean isDefaultValue() {
-    return def;
+  private static final ImmutableSet<String> valuesSet;
+
+  static {
+    ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    for (TrackerFilterEnum eventFilter : TrackerFilterEnum.values()) {
+      builder.add(eventFilter.getValue());
+    }
+    valuesSet = builder.build();
+  }
+
+  public static Optional<TrackerFilterEnum> getByValue(String filterAction) {
+    if (valuesSet.contains(filterAction)) {
+      return Optional.of(TrackerFilterEnum.valueOf(filterAction.toUpperCase()));
+    } else {
+      return Optional.absent();
+    }
   }
 }

@@ -1,18 +1,38 @@
+/*
+ * Copyright 1998-2016 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.search
 
-import ru.org.linux.user.{UserDao, User}
-import scala.beans.BeanProperty
-import org.springframework.stereotype.Service
-import org.elasticsearch.search.SearchHit
-import ru.org.linux.util.StringUtil
-import org.springframework.beans.factory.annotation.Autowired
-import org.joda.time.format.ISODateTimeFormat
-import ru.org.linux.util.URLUtil._
-import org.springframework.web.util.UriComponentsBuilder
-import com.typesafe.scalalogging.slf4j.Logging
-import ru.org.linux.tag.{TagService, TagRef}
-import scala.collection.JavaConversions._
+import com.sksamuel.elastic4s.searches.RichSearchHit
+import com.typesafe.scalalogging.StrictLogging
+import org.elasticsearch.search.aggregations.Aggregations
+import org.elasticsearch.search.aggregations.bucket.filter.Filter
+import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
+import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
+import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
+import ru.org.linux.group.GroupDao
+import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.tag.{TagRef, TagService}
+import ru.org.linux.user.{User, UserService}
+import ru.org.linux.util.StringUtil
+
+import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 case class SearchItem (
   @BeanProperty title:String,
@@ -26,24 +46,29 @@ case class SearchItem (
 )
 
 @Service
-class SearchResultsService @Autowired() (
-  userDao:UserDao
-) extends Logging {
-  import SearchResultsService._
+class SearchResultsService(
+  userService: UserService, sectionService: SectionService, groupDao: GroupDao
+) extends StrictLogging {
+  import ru.org.linux.search.SearchResultsService._
 
-  def prepare(doc:SearchHit):SearchItem = {
-    val author = userDao.getUser(doc.getFields.get("author").getValue[String])
+  def prepareAll(docs:java.lang.Iterable[RichSearchHit]) = (docs.asScala map prepare).asJavaCollection
 
-    val postdate = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
+  def prepare(doc: RichSearchHit):SearchItem = {
+    val author = userService.getUserCached(doc.sourceAsMap("author").asInstanceOf[String])
 
-    val comment = doc.getFields.get("is_comment").getValue[Boolean]
+    val postdate = isoDateTime.parseDateTime(doc.sourceAsMap("postdate").asInstanceOf[String])
+
+    val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
 
     val tags = if (comment) {
       Seq()
     } else {
-      doc.getFields.get("tag").getValue[java.util.List[String]].map(
-        tag => TagService.tagRef(tag)
-      )
+      if (doc.sourceAsMap.contains("tag")) {
+        doc.sourceAsMap("tag").asInstanceOf[java.util.List[String]].asScala.map(
+          tag => TagService.tagRef(tag.toString))
+      } else {
+        Seq()
+      }
     }
 
     SearchItem(
@@ -51,89 +76,110 @@ class SearchResultsService @Autowired() (
       postdate = postdate,
       user = author,
       url = getUrl(doc),
-      score = doc.getScore,
+      score = doc.score,
       comment = comment,
       message = getMessage(doc),
-      tags = tags
+      tags = tags.asJava
     )
   }
 
-  private def getTitle(doc: SearchHit):String = {
-    val itemTitle = if (doc.getHighlightFields.containsKey("title")) {
-      Some(doc.getHighlightFields.get("title").fragments()(0).string)
-    } else if (doc.getFields.containsKey("title")) {
-      Some(StringUtil.escapeHtml(doc.getFields.get("title").getValue[String]))
-    } else {
-      None
-    }
+  private def getTitle(doc: RichSearchHit):String = {
+    val itemTitle = doc.highlightFields.get("title").map(_.fragments()(0).string)
+      .orElse(doc.sourceAsMap.get("title") map { v ⇒ StringUtil.escapeHtml(v.asInstanceOf[String]) } )
 
-    val topicTitle = if (doc.getHighlightFields.containsKey("topic_title")) {
-      doc.getHighlightFields.get("topic_title").fragments()(0).string
-    } else {
-      StringUtil.escapeHtml(doc.getFields.get("topic_title").getValue[String])
-    }
-
-    itemTitle.filter(!_.trim.isEmpty).getOrElse(topicTitle)
+    itemTitle.filter(!_.trim.isEmpty).orElse(
+      doc.highlightFields.get("topic_title").map(_.fragments()(0).string))
+        .getOrElse(StringUtil.escapeHtml(doc.sourceAsMap("topic_title").asInstanceOf[String]))
   }
 
-  private def getMessage(doc: SearchHit): String = {
-    if (doc.getHighlightFields.containsKey("message")) {
-      doc.getHighlightFields.get("message").fragments()(0).string
-    } else {
-      val fullMessage = doc.getFields.get("message").getValue[String]
-      if (fullMessage.length > SearchViewer.MESSAGE_FRAGMENT) {
-        fullMessage.substring(0, SearchViewer.MESSAGE_FRAGMENT)
-      } else {
-        fullMessage
-      }
+  private def getMessage(doc: RichSearchHit): String = {
+    doc.highlightFields.get("message").map(_.fragments()(0).string) getOrElse {
+      StringUtil.escapeHtml(doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment))
     }
   }
 
-  private def getUrl(doc:SearchHit): String = {
+  private def getUrl(doc: RichSearchHit): String = {
     val section = SearchResultsService.section(doc)
-    val msgid = doc.getId
+    val msgid = doc.id
 
-    if ("wiki" == section) {
-      val virtualWiki = {
-        val msgIds = msgid.split("-")
-        if (msgIds.length != 2) {
-          throw new RuntimeException("Invalid wiki ID")
-        }
+    val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
+    val topic = doc.sourceAsMap("topic_id").asInstanceOf[Int]
+    val group = SearchResultsService.group(doc)
 
-        msgIds(0)
-      }
-
-      val title = doc.getFields.get("title").getValue[String]
-
-      try {
-        buildWikiURL(virtualWiki, title)
-      } catch {
-        case e: Exception =>
-          logger.warn(s"Fail build topic url for $title in $virtualWiki")
-          return "#"
-      }
+    if (comment) {
+      val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
+      builder.buildAndExpand(section, group, new Integer(topic), msgid).toUriString
     } else {
-      val comment = doc.getFields.get("is_comment").getValue[Boolean]
-      val topic = doc.getFields.get("topic_id").getValue[Int]
-      val group = SearchResultsService.group(doc)
-
-      if (comment) {
-        val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
-        builder.buildAndExpand(section, group, new Integer(topic), msgid).toUriString
-      } else {
-        val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-        builder.buildAndExpand(section, group, new Integer(topic)).toUriString
-      }
+      val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
+      builder.buildAndExpand(section, group, new Integer(topic)).toUriString
     }
+  }
+
+  def buildSectionFacet(sectionFacet: Filter, selected:Option[String]): java.util.List[FacetItem] = {
+    def mkItem(urlName:String, count:Long) = {
+      val name = sectionService.nameToSection.get(urlName).map(_.getName).getOrElse(urlName).toLowerCase
+      FacetItem(urlName, s"$name ($count)")
+    }
+
+    val agg = sectionFacet.getAggregations.get[Terms]("sections")
+
+    val items = for (entry <- agg.getBuckets.asScala) yield {
+      mkItem(entry.getKeyAsString, entry.getDocCount)
+    }
+
+    val missing = selected.filter(key ⇒ items.forall(_.key !=key)).map(mkItem(_, 0)).toSeq
+
+    val all = FacetItem("", s"все (${sectionFacet.getDocCount})")
+
+    (all +: (missing ++ items)).asJava
+  }
+
+  def buildGroupFacet(maybeSection: Option[Terms.Bucket], selected:Option[(String, String)]): java.util.List[FacetItem] = {
+    def mkItem(section:Section, groupUrlName:String, count:Long) = {
+      val group = groupDao.getGroup(section, groupUrlName)
+      val name = group.getTitle.toLowerCase
+      FacetItem(groupUrlName, s"$name ($count)")
+    }
+
+    val facetItems = for {
+      selectedSection <- maybeSection.toSeq
+      groups = selectedSection.getAggregations.get[Terms]("groups")
+      section = sectionService.getSectionByName(selectedSection.getKeyAsString)
+      entry <- groups.getBuckets.asScala
+    } yield {
+      mkItem(section, entry.getKeyAsString, entry.getDocCount)
+    }
+
+    val missing = selected.filter(key ⇒ facetItems.forall(_.key != key._2)).map(p ⇒
+      mkItem(sectionService.getSectionByName(p._1), p._2, 0)
+    ).toSeq
+
+    val items = facetItems ++ missing
+
+    if (items.size > 1 || selected.isDefined) {
+      val all = FacetItem("", s"все (${maybeSection.map(_.getDocCount).getOrElse(0)})")
+
+      (all +: items).asJava
+    } else {
+      null
+    }
+  }
+
+  def foundTags(agg: Aggregations): java.util.List[TagRef] = {
+    val tags = agg.get[SignificantTerms]("tags")
+
+    tags.getBuckets.asScala.map(bucket => TagService.tagRef(bucket.getKeyAsString)).asJava
   }
 }
 
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
-  def postdate(doc:SearchHit) = isoDateTime.parseDateTime(doc.getFields.get("postdate").getValue[String])
-  def section(doc:SearchHit) = doc.getFields.get("section").getValue[String]
-  def group(doc:SearchHit) = doc.getFields.get("group").getValue[String]
+  def postdate(doc: RichSearchHit) = isoDateTime.parseDateTime(doc.sourceAsMap("postdate").asInstanceOf[String])
+  def section(doc: RichSearchHit) = doc.sourceAsMap("section").asInstanceOf[String]
+  def group(doc: RichSearchHit) = doc.sourceAsMap("group").asInstanceOf[String]
 }
+
+case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)
 
 

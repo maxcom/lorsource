@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -38,6 +38,6 @@
 
 <p><a href="${url}">Перейти к сообщению</a>
 
-<p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее посредством кнопки Back</b>
+<p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего браузера на этой странице и не возвращайтесь на нее посредством кнопки Back.</b>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
 <%--@elvariable id="author" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="draft" type="java.lang.Boolean"--%>
+<%--@elvariable id="uncommited" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -36,7 +37,7 @@ function change(dest,source)
 </script>
 <h1>Удаление сообщения</h1>
 <c:if test="${not draft}">
-Вы можете удалить свое сообщение в течении часа с момента
+Вы можете удалить свое сообщение в течении 6 часов с момента
 его помещения.
 </c:if>
 <form method=POST action="delete.jsp" class="form-horizontal">
@@ -61,6 +62,7 @@ function change(dest,source)
           <option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
           <option value="4.6 Спам">4.6 Спам
           <option value="4.7 Флуд">4.7 Флуд
+          <option value="4.8 Дискуссия не на русском языке">4.8 Дискуссия не на русском языке
           <option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
           <option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
           <option value="5.3 Национальные/политические/религиозные споры">5.3 Национальные/политические/религиозные
@@ -75,7 +77,10 @@ function change(dest,source)
         </select><br>
       </c:if>
 
-      <input id="reason-input" type=text name=reason>
+      <input id="reason-input" type=text name=reason><br>
+      <c:if test="${uncommited and template.moderatorSession}">
+        Сообщения, удаленные с пустой причиной не буду показаны в списке удаленных внизу страницы неподтвержденных.
+      </c:if>
     </div>
   </div>
 
@@ -96,7 +101,7 @@ function change(dest,source)
 
   <div class="control-group">
     <div class="controls">
-      <button type=submit>Удалить</button>
+      <button type=submit class="btn btn-danger">Удалить</button>
     </div>
   </div>
 </form>

@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -16,10 +16,10 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
-<link rel="yandex-tableau-widget" href="/tango/manifest.json" />
-<meta name = "viewport" content = "initial-scale=1.0">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<meta name="viewport" content="initial-scale=1.0">
 </head>
+<% out.flush(); %>
 <body>
 <div id="hd">
   <a id="sitetitle" href="/">LINUX.ORG.RU</a>
@@ -37,9 +37,9 @@
           <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
         </div>
 
-        <form method=POST action="${template.secureMainUrl}/ajax_login_process" style="display: none" id="regform">
+        <form method=POST action="${template.secureMainUrlNoSlash}/ajax_login_process" style="display: none" id="regform">
           <lor:csrf/>
-          <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
+          <label>Имя: <input type=text name=nick size=15 placeholder="nick или email" autocapitalize="off"></label>
           <label>Пароль: <input type=password name=passwd size=15></label>
           <input type=submit value="Вход">
           <input id="hide_loginbutton" type="button" value="Отмена">
@@ -53,7 +53,6 @@
 
       <li><a href="/forum/">Форум</a></li>
       <li><a href="/tracker/">Трекер</a></li>
-      <li><a href="/wiki/">Wiki</a></li>
       <c:if test="${template.sessionAuthorized}">
         <li>
           <lor:events/>

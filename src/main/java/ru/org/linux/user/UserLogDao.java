@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -51,12 +51,14 @@ public class UserLogDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logResetUserpic(@Nonnull User user, @Nonnull User actionUser, int bonus) {
-    ImmutableMap<String, Object> options;
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
     if (bonus!=0) {
-      options = ImmutableMap.<String, Object>of(OPTION_BONUS, bonus, OPTION_OLD_USERPIC, user.getPhoto());
-    } else {
-      options = ImmutableMap.<String, Object>of(OPTION_OLD_USERPIC, user.getPhoto());
+      builder.put(OPTION_BONUS, bonus);
+    }
+
+    if (user.getPhoto()!=null) {
+      builder.put(OPTION_OLD_USERPIC, user.getPhoto());
     }
 
     jdbcTemplate.update(
@@ -64,7 +66,7 @@ public class UserLogDao {
             user.getId(),
             actionUser.getId(),
             UserLogAction.RESET_USERPIC.toString(),
-            options
+            builder.build()
     );
   }
 
@@ -99,6 +101,16 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logScore50(@Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '')",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.SCORE50.toString()
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logUnblockUser(@Nonnull User user, @Nonnull User moderator) {
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
@@ -111,15 +123,20 @@ public class UserLogDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logAcceptNewEmail(@Nonnull User user, @Nonnull String newEmail) {
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+
+    builder.put(OPTION_NEW_EMAIL, newEmail);
+
+    if (user.getEmail()!=null) {
+      builder.put(OPTION_OLD_EMAIL, user.getEmail());
+    }
+
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             user.getId(),
             user.getId(),
             UserLogAction.ACCEPT_NEW_EMAIL.toString(),
-            ImmutableMap.of(
-                    OPTION_OLD_EMAIL, user.getEmail(),
-                    OPTION_NEW_EMAIL, newEmail
-            )
+            builder.build()
     );
   }
 
@@ -196,4 +213,27 @@ public class UserLogDao {
             ImmutableMap.of(OPTION_IP, ip)
     );
   }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void setCorrector(@Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.SET_CORRECTOR.toString(),
+            ImmutableMap.of()
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void unsetCorrector(@Nonnull User user, @Nonnull User moderator) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.UNSET_CORRECTOR.toString(),
+            ImmutableMap.of()
+    );
+  }
+
 }

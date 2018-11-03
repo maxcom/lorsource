@@ -1,8 +1,8 @@
+<%@ tag import="org.joda.time.DateTime" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="java.util.Calendar" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,17 +17,10 @@
   --%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>"><%
   long diff = System.currentTimeMillis() - date.getTime();
-  Calendar c = Calendar.getInstance();
-  c.setTime(date);
+  DateTime c = new DateTime(date.getTime());
 
-  Calendar today = Calendar.getInstance();
-  today.set(Calendar.HOUR_OF_DAY, 0);
-  today.set(Calendar.MINUTE, 0);
-  today.set(Calendar.SECOND, 0);
-  today.set(Calendar.MILLISECOND, 0);
-
-  Calendar yesterday = (Calendar) today.clone();
-  yesterday.roll(Calendar.DAY_OF_MONTH, false);
+  DateTime today = DateTime.now().withTimeAtStartOfDay();
+  DateTime yesterday = DateTime.now().minusDays(1).withTimeAtStartOfDay();
 
   if (diff<2*1000*60) {
     out.print("минуту назад");
@@ -35,17 +28,17 @@
     long min = diff / (1000 * 60);
 
     if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +"&nbsp;минуты");
+      out.print(min +"&nbsp;минуты назад");
     } else if (min%10==1 && min>20 ) {
-        out.print(min +"&nbsp;минута");
+        out.print(min +"&nbsp;минута назад");
     } else {
-      out.print(min +"&nbsp;минут");
+      out.print(min +"&nbsp;минут назад");
     }
-  } else if (c.after(today)) {
-    out.print("сегодня " + DateFormats.time().print(date.getTime()));
-  } else if (c.after(yesterday)) {
-    out.print("вчера " + DateFormats.time().print(date.getTime()));
+  } else if (c.isAfter(today)) {
+    out.print("сегодня " + DateFormats.time().print(c));
+  } else if (c.isAfter(yesterday)) {
+    out.print("вчера " + DateFormats.time().print(c));
   } else {
-    out.print(DateFormats.getShort().print(date.getTime()));
+    out.print(DateFormats.getShort().print(c));
   }
 %></time>

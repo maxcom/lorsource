@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,8 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.ApiDeleteInfo;
@@ -35,6 +32,7 @@ import ru.org.linux.user.*;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,25 +60,30 @@ public class CommentPrepareService {
   @Autowired
   private UserAgentDao userAgentDao;
 
+  @Autowired
+  private RemarkDao remarkDao;
+
   private PreparedComment prepareComment(
           @Nonnull Comment comment,
           boolean secure
   ) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-    return prepareComment(messageText, comment, null, secure, null, null);
+    User author = userDao.getUserCached(comment.getUserid());
+
+    return prepareComment(messageText, author, null, comment, null, secure, null, null);
   }
 
   private PreparedComment prepareComment(
           MessageText messageText,
+          User author,
+          @Nullable String remark,
           @Nonnull Comment comment,
           CommentList comments,
           boolean secure,
           Template tmpl,
           Topic topic
   ) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
-
-    String processedMessage = prepareCommentText(messageText, secure, !topicPermissionService.followAuthorLinks(author));
+    String processedMessage = prepareCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
     boolean deletable = false;
@@ -90,7 +93,11 @@ public class CommentPrepareService {
       if (comment.getReplyTo() != 0) {
         CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
-        if (replyNode!=null) {
+        boolean replyDeleted = replyNode == null;
+        if (replyDeleted) {
+          // ответ на удаленный комментарий
+          replyInfo = new ReplyInfo(comment.getReplyTo(), replyDeleted);
+        } else {
           Comment reply = replyNode.getComment();
 
           boolean samePage = false;
@@ -107,7 +114,8 @@ public class CommentPrepareService {
                   replyAuthor,
                   Strings.emptyToNull(reply.getTitle().trim()),
                   reply.getPostdate(),
-                  samePage
+                  samePage,
+                  replyDeleted
           );
         }
       }
@@ -135,21 +143,11 @@ public class CommentPrepareService {
       }
     }
 
-    String remark = null;
-    if(tmpl != null && tmpl.isSessionAuthorized() ){
-      Remark remarkObject = userDao.getRemark(tmpl.getCurrentUser(), author);
-
-      if (remarkObject!=null) {
-        remark = remarkObject.getText();
-      }
-    }
-
     Userpic userpic = null;
 
     if (tmpl != null && tmpl.getProf().isShowPhotos()) {
       userpic = userService.getUserpic(
               author,
-              secure,
               tmpl.getProf().getAvatarMode(),
               false
       );
@@ -179,10 +177,13 @@ public class CommentPrepareService {
 
     if (comment.isDeleted()) {
       DeleteInfo info = deleteInfoDao.getDeleteInfo(comment.getId());
-      deleteInfo = new ApiDeleteInfo(
-              userDao.getUserCached(info.getUserid()).getNick(),
-              info.getReason()
-      );
+
+      if (info!=null) {
+        deleteInfo = new ApiDeleteInfo(
+                userDao.getUserCached(info.getUserid()).getNick(),
+                info.getReason()
+        );
+      }
     }
 
     return deleteInfo;
@@ -229,7 +230,7 @@ public class CommentPrepareService {
    */
   public PreparedComment prepareCommentForEdit(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = lorCodeService.parseComment(message, secure, false);
+    String processedMessage = lorCodeService.parseComment(message, false);
 
     ApiUserRef ref = userService.ref(author, null);
 
@@ -261,6 +262,16 @@ public class CommentPrepareService {
     return commentsPrepared;
   }
 
+  private Map<Integer, User> loadUsers(Iterable<Integer> userIds) {
+    ImmutableMap.Builder<Integer, User> builder = ImmutableMap.builder();
+
+    for (User user : userService.getUsersCached(ImmutableSet.copyOf(userIds))) {
+      builder.put(user.getId(), user);
+    }
+
+    return builder.build();
+  }
+
   public List<PreparedComment> prepareCommentList(
           @Nonnull CommentList comments,
           @Nonnull List<Comment> list,
@@ -272,23 +283,36 @@ public class CommentPrepareService {
       return ImmutableList.of();
     }
 
-    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(
-            Lists.newArrayList(
-                    Iterables.transform(list, new Function<Comment, Integer>() {
-                      @Override
-                      public Integer apply(Comment comment) {
-                        return comment.getId();
-                      }
-                    })
-            )
-    );
+    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(Lists.transform(list, Comment::getId));
+
+    Map<Integer, User> users = loadUsers(Iterables.transform(list, Comment::getUserid));
+    User currentUser = tmpl.getCurrentUser();
+
+    Map<Integer, Remark> remarks;
+
+    if (currentUser!=null) {
+      remarks = remarkDao.getRemarks(currentUser, users.values());
+    } else {
+      remarks = ImmutableMap.of();
+    }
 
     List<PreparedComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
       MessageText text = texts.get(comment.getId());
 
-      commentsPrepared.add(prepareComment(text, comment, comments, secure, tmpl, topic));
+      User author = users.get(comment.getUserid());
+
+      Remark remark = remarks.get(author.getId());
+
+      String remarkText = null;
+
+      if (remark!=null) {
+        remarkText = remark.getText();
+      }
+
+      commentsPrepared.add(prepareComment(text, author, remarkText, comment, comments, secure, tmpl, topic));
     }
+
     return commentsPrepared;
   }
 
@@ -296,12 +320,11 @@ public class CommentPrepareService {
    * Получить html представление текста комментария
    *
    * @param messageText текст комментария
-   * @param secure https соединение?
    * @return строку html комментария
    */
-  private String prepareCommentText(MessageText messageText, final boolean secure, boolean nofollow) {
+  private String prepareCommentText(MessageText messageText, boolean nofollow) {
     if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.getText(), secure, nofollow);
+      return lorCodeService.parseComment(messageText.getText(), nofollow);
     } else {
       return "<p>" + messageText.getText() + "</p>";
     }
@@ -315,6 +338,6 @@ public class CommentPrepareService {
    * @return строку html комментария
    */
   private String prepareCommentTextRSS(MessageText messageText, final boolean secure) {
-    return lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());
+    return lorCodeService.prepareTextRSS(messageText.getText(), messageText.isLorcode());
   }
 }

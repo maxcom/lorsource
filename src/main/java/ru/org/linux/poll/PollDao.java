@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -76,12 +75,8 @@ public class PollDao {
    * @return список вариантов голосования
    */
   private List<PollVariant> getVoteDTO(int pollId) {
-    return jdbcTemplate.query(queryPollVariantsOrderById, new RowMapper<PollVariant>() {
-      @Override
-      public PollVariant mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new PollVariant(rs.getInt("id"), rs.getString("label"));
-      }
-    }, pollId);
+    return jdbcTemplate.query(queryPollVariantsOrderById, (rs, rowNum) ->
+            new PollVariant(rs.getInt("id"), rs.getString("label")), pollId);
   }
 
   /**
@@ -126,10 +121,10 @@ public class PollDao {
   }
 
   /**
-   * Возвращает текщее авктивное голосование
+   * Получить самое новое голосование.
    * @return id текущего голосования
    */
-  public int getCurrentPollId() {
+  public int getMostRecentPollId() {
     try {
       return jdbcTemplate.queryForObject(queryCurrentPollId, Integer.class);
     } catch (EmptyResultDataAccessException exception) {
@@ -138,13 +133,13 @@ public class PollDao {
   }
 
   /**
-   * Получить текщее голосование.
+   * Получить самое новое голосование.
    *
    * @return текушие голование
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getCurrentPoll() throws PollNotFoundException{
-    return getPoll(getCurrentPollId());
+  public Poll getMostRecentPoll() throws PollNotFoundException{
+    return getPoll(getMostRecentPollId());
   }
 
   /**
@@ -155,8 +150,6 @@ public class PollDao {
    * @throws PollNotFoundException если голосование не существует
    */
   public Poll getPoll(final int pollId) throws PollNotFoundException {
-    int currentPollId = getCurrentPollId();
-
     SqlRowSet rs = jdbcTemplate.queryForRowSet(queryPool, pollId);
 
     if (!rs.next()) {
@@ -167,7 +160,6 @@ public class PollDao {
             pollId,
             rs.getInt("topic"),
             rs.getBoolean("multiselect"),
-            pollId == currentPollId,
             getVoteDTO(pollId)
     );
   }
@@ -221,18 +213,15 @@ public class PollDao {
         throw new RuntimeException("Oops!? order="+order);
     }
 
-    jdbcTemplate.query(query, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        int id = resultSet.getInt("id");
-        String label = resultSet.getString("label");
-        int votes = resultSet.getInt("votes");
-        boolean voted = false;
-        if(user != null && jdbcTemplate.queryForObject(queryPollUserVote, Integer.class, user.getId(), resultSet.getInt("id")) !=0) {
-          voted = true;
-        }
-        variants.add(new PollVariantResult(id, label, votes, voted));
+    jdbcTemplate.query(query, resultSet -> {
+      int id = resultSet.getInt("id");
+      String label = resultSet.getString("label");
+      int votes = resultSet.getInt("votes");
+      boolean voted = false;
+      if(user != null && jdbcTemplate.queryForObject(queryPollUserVote, Integer.class, user.getId(), resultSet.getInt("id")) !=0) {
+        voted = true;
       }
+      variants.add(new PollVariantResult(id, label, votes, voted));
     }, poll.getId());
 
     return ImmutableList.copyOf(variants);

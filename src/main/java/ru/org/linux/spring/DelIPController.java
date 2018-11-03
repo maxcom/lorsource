@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.comment.CommentService;
+import ru.org.linux.comment.CommentDeleteService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
@@ -42,7 +42,7 @@ public class DelIPController {
   private SearchQueueSender searchQueueSender;
 
   @Autowired
-  private CommentService commentService;
+  private CommentDeleteService commentDeleteService;
 
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
@@ -85,7 +85,7 @@ public class DelIPController {
 
     User moderator = tmpl.getCurrentUser();
 
-    DeleteCommentResult deleteResult = commentService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
+    DeleteCommentResult deleteResult = commentDeleteService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());

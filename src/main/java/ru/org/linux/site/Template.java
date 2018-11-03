@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ public final class Template {
   private final SiteConfig siteConfig;
 
   public Template(WebApplicationContext ctx) {
-    siteConfig = (SiteConfig)ctx.getBean("siteConfig");
+    siteConfig = ctx.getBean(SiteConfig.class);
     userProfile = AuthUtil.getProfile();
   }
 
@@ -43,17 +43,13 @@ public final class Template {
 
   @Deprecated
   public String getStyle() {
-    User user = getCurrentUser();
-    if(user == null) {
-      return DefaultProfile.getDefaultTheme().getId();
-    } else {
-      return user.getStyle();
-    }
+    return getTheme().getId();
   }
 
   public Theme getTheme() {
     User user = getCurrentUser();
-    if(user == null) {
+
+    if (user == null) {
       return DefaultProfile.getDefaultTheme();
     } else {
       return DefaultProfile.getTheme(user.getStyle());
@@ -69,16 +65,14 @@ public final class Template {
     return userProfile;
   }
 
-  public String getMainUrl() {
-    return siteConfig.getMainUrl();
-  }
-
-  public String getMainUrlNoSlash() {
-    return siteConfig.getMainUrlWithoutSlash();
-  }
+  public String getWSUrl() { return siteConfig.getWSUrl(); }
 
   public String getSecureMainUrl() {
     return siteConfig.getSecureUrl();
+  }
+
+  public String getSecureMainUrlNoSlash() {
+    return siteConfig.getSecureUrlWithoutSlash();
   }
 
   public SiteConfig getConfig() {

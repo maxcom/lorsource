@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,9 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,27 +28,21 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.xbill.DNS.TextParseException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFProtectionService;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
-import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
-import ru.org.linux.topic.TopicService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
@@ -57,10 +53,9 @@ import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -70,13 +65,13 @@ public class CommentService {
   private CommentDao commentDao;
 
   @Autowired
-  private TopicDao messageDao;
-
-  @Autowired
-  private TopicService topicService;
+  private TopicDao topicDao;
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
@@ -109,13 +104,12 @@ public class CommentService {
   private EditHistoryService editHistoryService;
 
   @Autowired
-  private TopicDao topicDao;
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
-
-  @Autowired
   private TopicPermissionService permissionService;
+
+  private final Cache<Integer, CommentList> cache =
+          CacheBuilder.newBuilder()
+          .maximumSize(10000)
+          .build();
 
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new CommentRequestValidator(lorCodeService));
@@ -127,7 +121,7 @@ public class CommentService {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
         try {
-          setValue(messageDao.getById(Integer.parseInt(text.split(",")[0])));
+          setValue(topicDao.getById(Integer.parseInt(text.split(",")[0])));
         } catch (MessageNotFoundException e) {
           throw new IllegalArgumentException(e);
         }
@@ -150,7 +144,7 @@ public class CommentService {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userService));
   }
 
   /**
@@ -161,8 +155,6 @@ public class CommentService {
    * @param ipBlockInfo     информация о банах
    * @param request         данные запроса от web-клиента
    * @param errors          обработчик ошибок ввода для формы
-   * @throws UnknownHostException
-   * @throws TextParseException
    */
   public void checkPostData(
     CommentRequest commentRequest,
@@ -170,9 +162,7 @@ public class CommentService {
     IPBlockInfo ipBlockInfo,
     HttpServletRequest request,
     Errors errors
-  ) throws
-    UnknownHostException,
-    TextParseException {
+  )  {
     if (commentRequest.getMsg() == null) {
       errors.rejectValue("msg", null, "комментарий не задан");
       commentRequest.setMsg("");
@@ -298,17 +288,18 @@ public class CommentService {
 
       return commentRequest.getNick();
     } else {
-      return userDao.getAnonymous();
+      return userService.getAnonymous();
     }
   }
 
-  public void prepareReplyto(
+  public ImmutableMap<String, Object> prepareReplyto(
     CommentRequest add,
-    Map<String, Object> formParams,
     HttpServletRequest request
   ) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      formParams.put("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
+      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
+    } else {
+      return ImmutableMap.of();
     }
   }
 
@@ -322,7 +313,6 @@ public class CommentService {
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
    * @param userAgent      заголовок User-Agent запроса
    * @return идентификационный номер нового комментария
-   * @throws MessageNotFoundException
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int create(
@@ -331,7 +321,7 @@ public class CommentService {
           String commentBody,
           String remoteAddress,
           String xForwardedFor,
-          String userAgent) throws MessageNotFoundException {
+          Optional<String> userAgent) throws MessageNotFoundException {
     Preconditions.checkArgument(comment.getUserid() == author.getId());
 
     int commentId = commentDao.saveNewMessage(comment, userAgent);
@@ -340,6 +330,9 @@ public class CommentService {
     /* кастование пользователей */
     if (permissionService.isUserCastAllowed(author)) {
       Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
+      userRefs = userRefs.stream()
+              .filter(p -> !userService.isIgnoring(p.getId(), author.getId()))
+              .collect(Collectors.toSet());
       userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
     }
 
@@ -451,24 +444,24 @@ public class CommentService {
    * @param messageText         новое содержимое комментария
    */
   private void addEditHistoryItem(User editor, Comment original, String originalMessageText, Comment comment, String messageText) {
-    EditHistoryDto editHistoryDto = new EditHistoryDto();
-    editHistoryDto.setMsgid(original.getId());
-    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
-    editHistoryDto.setEditor(editor.getId());
+    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
+    editHistoryRecord.setMsgid(original.getId());
+    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.COMMENT);
+    editHistoryRecord.setEditor(editor.getId());
 
     boolean modified = false;
     if (!original.getTitle().equals(comment.getTitle())) {
-      editHistoryDto.setOldtitle(original.getTitle());
+      editHistoryRecord.setOldtitle(original.getTitle());
       modified = true;
     }
 
     if (!originalMessageText.equals(messageText)) {
-      editHistoryDto.setOldmessage(originalMessageText);
+      editHistoryRecord.setOldmessage(originalMessageText);
       modified = true;
     }
 
     if (modified) {
-      editHistoryService.insert(editHistoryDto);
+      editHistoryService.insert(editHistoryRecord);
     }
 
   }
@@ -481,77 +474,14 @@ public class CommentService {
    * @param comment  изменённый комментарий
    */
   private void updateLatestEditorInfo(User editor, Comment original, Comment comment) {
-    List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
+    int editCount = editHistoryService.editCount(original.getId(), EditHistoryObjectTypeEnum.COMMENT);
 
     commentDao.updateLatestEditorInfo(
       original.getId(),
       editor.getId(),
       comment.getPostdate(),
-      editHistoryDtoList.size()
+      editCount
     );
-  }
-
-  /**
-   * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
-   *
-   * @param msgid      id удаляемого сообщения
-   * @param reason     причина удаления
-   * @param user       модератор который удаляет
-   * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean deleteComment(int msgid, String reason, User user) throws ScriptErrorException {
-    if (commentDao.getReplaysCount(msgid) != 0) {
-      throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
-    }
-
-    boolean deleted = doDeleteComment(msgid, reason, user);
-
-    if (deleted) {
-      commentDao.updateStatsAfterDelete(msgid, 1);
-      userEventService.processCommentsDeleted(ImmutableList.of(msgid));
-    }
-
-    return deleted;
-  }
-
-  /**
-   * Удалить комментарий.
-   *
-   * @param msgid      идентификационнай номер комментария
-   * @param reason     причина удаления
-   * @param user       пользователь, удаляющий комментарий
-   * @return true если комментарий был удалён, иначе false
-   */
-  private boolean doDeleteComment(int msgid, String reason, User user) {
-    boolean deleted = commentDao.deleteComment(msgid, reason, user);
-
-    if (deleted) {
-      deleteInfoDao.insert(msgid, user, reason, 0);
-    }
-
-    return deleted;
-  }
-
-  /**
-   * Удалить комментарий.
-   *
-   * @param comment    удаляемый комментарий
-   * @param reason     причина удаления
-   * @param user       пользователь, удаляющий комментарий
-   * @param scoreBonus сколько снять скора у автора комментария
-   * @return true если комментарий был удалён, иначе false
-   */
-  private boolean deleteComment(Comment comment, String reason, User user, int scoreBonus) {
-    Preconditions.checkArgument(scoreBonus<=0, "Score bonus on delete must be non-positive");
-
-    boolean del = commentDao.deleteComment(comment.getId(), reason, user);
-
-    if (del && scoreBonus!=0) {
-      userDao.changeScore(comment.getUserid(), scoreBonus);
-    }
-
-    return del;
   }
 
   /**
@@ -564,150 +494,17 @@ public class CommentService {
   @Nonnull
   public CommentList getCommentList(@Nonnull Topic topic, boolean showDeleted) {
     if (showDeleted) {
-      return new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      return new CommentList(commentDao.getCommentList(topic.getId(), true), topic.getLastModified().getTime());
     } else {
-      CacheProvider mcc = MemCachedSettings.getCache();
+      CommentList commentList = cache.getIfPresent(topic.getId());
 
-      String cacheId = "commentList?msgid=" + topic.getId();
-
-      CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
-
-      if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
-        commentList = new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
-        mcc.storeToCache(cacheId, commentList);
+      if (commentList == null || commentList.getLastmod() < topic.getLastModified().getTime()) {
+        commentList = new CommentList(commentDao.getCommentList(topic.getId(), false), topic.getLastModified().getTime());
+        cache.put(topic.getId(), commentList);
       }
 
       return commentList;
     }
-  }
-
-  /**
-   * Удаление ответов на комментарии.
-   *
-   * @param comment удаляемый комментарий
-   * @param user   пользователь, удаляющий комментарий
-   * @param scoreBonus  сколько снять скора у автора комментария
-   * @return список идентификационных номеров удалённых комментариев
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteWithReplys(Topic topic, Comment comment, String reason, User user, int scoreBonus) {
-    CommentList commentList = getCommentList(topic, false);
-
-    CommentNode node = commentList.getNode(comment.getId());
-
-    List<CommentAndDepth> replys = getAllReplys(node, 0);
-
-    List<Integer> deleted = deleteReplys(comment, reason, replys, user, -scoreBonus);
-
-    userEventService.processCommentsDeleted(deleted);
-
-    return deleted;
-  }
-
-  /**
-     * Удалить рекурсивно ответы на комментарий
-     *
-     * @param replys список ответов
-     * @param user  пользователь, удаляющий комментарий
-     * @param rootBonus сколько снять скора у автора корневого комментария
-     * @return список идентификационных номеров удалённых комментариев
-     */
-  private List<Integer> deleteReplys(Comment root, String rootReason, List<CommentAndDepth> replys, User user, int rootBonus) {
-    boolean score = rootBonus < -2;
-
-    List<Integer> deleted = new ArrayList<>(replys.size());
-    List<DeleteInfoDao.InsertDeleteInfo> deleteInfos = new ArrayList<>(replys.size());
-
-    for (CommentAndDepth cur : replys) {
-      Comment child = cur.getComment();
-
-      DeleteInfoDao.InsertDeleteInfo info = cur.deleteInfo(score, user);
-
-      boolean del = deleteComment(child, info.getReason(), user, info.getBonus());
-
-      if (del) {
-        deleteInfos.add(info);
-        deleted.add(child.getId());
-      }
-    }
-
-    boolean deletedMain = deleteComment(root, rootReason, user, rootBonus);
-
-    if (deletedMain) {
-      deleteInfos.add(new DeleteInfoDao.InsertDeleteInfo(root.getId(), rootReason, rootBonus, user.getId()));
-      deleted.add(root.getId());
-    }
-
-    deleteInfoDao.insert(deleteInfos);
-
-    if (!deleted.isEmpty()) {
-      commentDao.updateStatsAfterDelete(root.getId(), deleted.size());
-    }
-
-    return deleted;
-  }
-
-  /**
-   * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
-   *
-   * @param ip        ip для которых удаляем сообщения (не проверяется на корректность)
-   * @param timeDelta врменной промежуток удаления (не проверяется на корректность)
-   * @param moderator экзекутор-можератор
-   * @param reason    причина удаления, которая будет вписана для удаляемых топиков
-   * @return список id удаленных сообщений
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteCommentsByIPAddress(
-    String ip,
-    Timestamp timeDelta,
-    final User moderator,
-    final String reason)
-  {
-    List<Integer> deletedTopics = topicService.deleteByIPAddress(ip, timeDelta, moderator, reason);
-
-    Map<Integer, String> deleteInfo = new HashMap<>();
-
-    for (int msgid : deletedTopics) {
-      deleteInfo.put(msgid, "Топик " + msgid + " удален");
-    }
-
-    // Удаляем комментарии если на них нет ответа
-    List<Integer> commentIds = commentDao.getCommentsByIPAddressForUpdate(ip, timeDelta);
-
-    List<Integer> deletedCommentIds = new ArrayList<>();
-
-    for (int msgid : commentIds) {
-      if (commentDao.getReplaysCount(msgid) == 0) {
-        if (doDeleteComment(msgid, reason, moderator)) {
-          deletedCommentIds.add(msgid);
-          deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
-        } else {
-          deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
-        }
-      } else {
-        deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
-      }
-    }
-
-    for (int msgid : deletedCommentIds) {
-      commentDao.updateStatsAfterDelete(msgid, 1);
-    }
-
-    userEventService.processCommentsDeleted(deletedCommentIds);
-
-    return new DeleteCommentResult(deletedTopics, deletedCommentIds, deleteInfo);
-  }
-
-  /**
-   * Получить список комментариев пользователя.
-   *
-   * @param user    объект пользователя
-   * @param limit   сколько записей должно быть в ответе
-   * @param offset  начиная с какой позиции выдать ответ
-   * @return список комментариев пользователя
-   */
-  public List<CommentDao.CommentsListItem> getUserComments(User user, int limit, int offset) {
-    return commentDao.getUserComments(user.getId(), limit, offset);
   }
 
   /**
@@ -718,51 +515,6 @@ public class CommentService {
    */
   public List<CommentDao.DeletedListItem> getDeletedComments(User user) {
     return commentDao.getDeletedComments(user.getId());
-  }
-
-  /**
-   * Блокировка и массивное удаление всех топиков и комментариев пользователя со всеми ответами на комментарии
-   *
-   * @param user      пользователь для экзекуции
-   * @param moderator экзекутор-модератор
-   * @param reason    прична блокировки
-   * @return список удаленных комментариев
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
-    userDao.block(user, moderator, reason);
-
-    List<Integer> deletedTopicIds = topicService.deleteAllByUser(user, moderator);
-
-    List<Integer> deletedCommentIds = deleteAllCommentsByUser(user, moderator);
-
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
-  }
-
-  /**
-     * Массовое удаление комментариев пользователя со всеми ответами на комментарии.
-     *
-     * @param user      пользователь для экзекуции
-     * @param moderator экзекутор-модератор
-     * @return список удаленных комментариев
-     */
-  private List<Integer> deleteAllCommentsByUser(User user, final User moderator) {
-    final List<Integer> deletedCommentIds = new ArrayList<>();
-
-    // Удаляем все комментарии
-    List<Integer> commentIds = commentDao.getAllByUserForUpdate(user);
-
-    for (int msgid : commentIds) {
-      if (commentDao.getReplaysCount(msgid) == 0) {
-        doDeleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator);
-        commentDao.updateStatsAfterDelete(msgid, 1);
-        deletedCommentIds.add(msgid);
-      }
-    }
-
-    userEventService.processCommentsDeleted(deletedCommentIds);
-
-    return deletedCommentIds;
   }
 
   /**
@@ -799,7 +551,7 @@ public class CommentService {
    */
   private String processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg, true);
+      return toLorCodeFormatter.format(msg);
     } else {
       return toLorCodeTexFormatter.format(msg);
     }
@@ -830,61 +582,5 @@ public class CommentService {
     }
 
     return hideSet;
-  }
-
-  private static List<CommentAndDepth> getAllReplys(CommentNode node, int depth) {
-    List<CommentAndDepth> replys = new LinkedList<>();
-
-    for (CommentNode r : node.childs()) {
-      replys.addAll(getAllReplys(r, depth + 1));
-      replys.add(new CommentAndDepth(r.getComment(), depth));
-    }
-
-    return replys;
-  }
-
-  private static class CommentAndDepth {
-    private final Comment comment;
-    private final int depth;
-
-    private CommentAndDepth(Comment comment, int depth) {
-      this.comment = comment;
-      this.depth = depth;
-    }
-
-    public Comment getComment() {
-      return comment;
-    }
-
-    public int getDepth() {
-      return depth;
-    }
-
-    private DeleteInfoDao.InsertDeleteInfo deleteInfo(boolean score, User user) {
-      int bonus;
-      String reason;
-
-      if (score) {
-        switch (depth) {
-          case 0:
-            reason = "7.1 Ответ на некорректное сообщение (авто, уровень 0)";
-            bonus = -2;
-            break;
-          case 1:
-            reason = "7.1 Ответ на некорректное сообщение (авто, уровень 1)";
-            bonus = -1;
-            break;
-          default:
-            reason = "7.1 Ответ на некорректное сообщение (авто, уровень >1)";
-            bonus = 0;
-            break;
-        }
-      } else {
-        reason = "7.1 Ответ на некорректное сообщение (авто)";
-        bonus = 0;
-      }
-
-      return new DeleteInfoDao.InsertDeleteInfo(comment.getId(), reason, bonus, user.getId());
-    }
   }
 }

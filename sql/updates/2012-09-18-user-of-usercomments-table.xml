@@ -15,7 +15,7 @@
             <column name="ref_user_id" type="integer">
                 <constraints foreignKeyName="refuser_remarks_userid_fkey" references="users(id)" nullable="false"/>
             </column>
-            <column name="remark_text" type="character varying(255)">
+            <column name="remark_text" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>

@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -42,19 +42,25 @@
 
       <lor:user link="true" user="${editHistory.editor}"/>,
       <lor:dateinterval date="${editHistory.editDate}"/>
-
       <c:if test="${editHistory.current}">
         (текущая версия)
-      </c:if>
-
-      :
+      </c:if>:
     </p>
     <div class="msg">
+      <div class="msg-container">
       <div class="msg_header">
         <h2>${editHistory.title}</h2>
       </div>
       <div class="msg_body">
-        ${editHistory.message}
+        <c:if test="${editHistory.image != null}">
+          <lor:image title="uploaded image" image="${editHistory.image}" enableSchema="true" showImage="true" enableEdit="false"/>
+        </c:if>
+
+        <c:if test="${editHistory.imageDeleted}">
+          <p>Изображение удалено</p>
+        </c:if>
+
+      ${editHistory.message}
       </div>
       <div class="msg_footer">
         <c:if test="${(editHistory.linktext != null) || (editHistory.url != null)}">
@@ -66,6 +72,7 @@
         <c:if test="${editHistory.minor != null}">
             <em>Мини-новость: ${editHistory.minor}</em>
         </c:if>
+      </div>
       </div>
     </div>
 </c:forEach>

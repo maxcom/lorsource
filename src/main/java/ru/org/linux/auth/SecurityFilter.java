@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,7 +22,6 @@ import org.springframework.web.filter.GenericFilterBean;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.user.User;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.FilterChain;
@@ -31,13 +30,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
 
-/**
- */
 public class SecurityFilter extends GenericFilterBean implements InitializingBean {
+  private final Locale russian = new Locale("ru");
 
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
       throws IOException, ServletException {
@@ -47,8 +45,8 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     request.setAttribute("configuration", ctx.getBean(SiteConfig.class));
     request.setAttribute("template", new Template(ctx));
     request.setCharacterEncoding("utf-8"); // блядский tomcat
+    res.setLocale(russian);
     CSRFManipulation(request, (HttpServletResponse) res);
-    forWikiManipulation(request, (HttpServletResponse) res);
     chain.doFilter(req, res);
   }
 
@@ -61,13 +59,4 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     }
     response.addHeader("Cache-Control", "private");
   }
-
-  private void forWikiManipulation(HttpServletRequest request, HttpServletResponse response) {
-    HttpSession session = request.getSession();
-    User user = AuthUtil.getCurrentUser();
-    if(user!=null){
-      user.acegiSecurityHack(response, session);
-    }
-  }
-
 }

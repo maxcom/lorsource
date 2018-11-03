@@ -1,11 +1,10 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,6 +21,7 @@
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="messageMenu" type="ru.org.linux.topic.TopicMenu"--%>
+<%--@elvariable id="memoriesInfo" type="ru.org.linux.user.MemoriesInfo"--%>
 <%--@elvariable id="prevMessage" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="nextMessage" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -31,12 +31,13 @@
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="pages" type="ru.org.linux.paginator.PagesInfo"--%>
 <%--@elvariable id="unfilteredCount" type="java.lang.Integer"--%>
-<%--@elvariable id="moreLikeThis" type="java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>"--%>
+<%--@elvariable id="moreLikeThisGetter" type="java.util.concurrent.Callable<java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>>"--%>
 <%--@elvariable id="ogDescription" type="java.lang.String"--%>
+<%--@elvariable id="editInfo" type="ru.org.linux.topic.PreparedEditInfoSummary"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title><l:title>${message.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
+<title><l:title>${message.title}</l:title> — ${preparedMessage.group.title} — ${preparedMessage.section.title}</title>
 <meta property="og:title" content="<l:title>${message.title}</l:title>" >
 
 <c:if test="${preparedMessage.section.imagepost}">
@@ -44,7 +45,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </c:if>
 <c:if test="${not preparedMessage.section.imagepost}">
-  <meta property="og:image" content="${template.mainUrlNoSlash}/img/good-penguin.jpg">
+  <meta property="og:image" content="${template.secureMainUrlNoSlash}/img/good-penguin.png">
   <meta name="twitter:card" content="summary">
 </c:if>
 <meta name="twitter:site" content="@wwwlinuxorgru">
@@ -52,9 +53,9 @@
   <meta property="og:description" content="${ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${template.mainUrlNoSlash}${message.link}">
+<meta property="og:url" content="${template.secureMainUrlNoSlash}${message.link}">
 
-<link rel="canonical" href="${template.mainUrlNoSlash}${message.getLinkPage(page)}">
+<link rel="canonical" href="${template.secureMainUrlNoSlash}${message.getLinkPage(page)}">
 
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
@@ -65,7 +66,7 @@
 </c:if>
 
 <c:if test="${not message.expired}">
-  <LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
+  <link rel="alternate" title="Comments RSS" href="${message.link}?output=rss" type="application/rss+xml">
 </c:if>
 
 <script type="text/javascript">
@@ -73,6 +74,14 @@
   <c:if test="${not message.expired and template.sessionAuthorized}">
     $script('/js/addComments.js');
   </c:if>
+
+  <c:if test="${not message.expired and not pages.hasNext}">
+    $script('/js/realtime.js', "realtime");
+    $script.ready('realtime', function() {
+        startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}, "${template.WSUrl}");
+    });
+  </c:if>
+
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
@@ -192,9 +201,11 @@
 </c:set>
 
 <lor:message
+        memoriesInfo="${memoriesInfo}"
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
         message="${message}"
+        briefEditInfo="${editInfo}"
         showMenu="true" enableSchema="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
@@ -202,11 +213,52 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <div style="text-align: center; margin-top: 0.5em; height: 91px" id="interpage-adv">
-    <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
+  <div align="center" width="100%" style="margin-bottom: 1em">
+    <style>
+    .lor-topic-adaptive-tango { width: 320px; height: 100px; }
+    @media(min-width: 500px) { .lor-topic-adaptive-tango { width: 468px; height: 60px; } }
+    @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 100%; height: 90px; } }
+    </style>
+
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- lor-topic-adaptive-tango -->
+    <ins class="adsbygoogle lor-topic-adaptive-tango"
+         style="display:block"
+         data-ad-client="ca-pub-6069094673001350"
+         data-ad-slot="2435162839"
+         data-ad-format="horizontal"></ins>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
   </div>
-  <br>
 </c:if>
+
+<%--
+  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
+  </div>
+  <script type="text/javascript">
+      $script.ready('lorjs', function () {
+          var ads = [
+              {
+                  type: 'rimg',
+                  img728: '/linuxpiter/728x90 Linux.jpg',
+                  img468: '/linuxpiter/468x60 Linux.jpg',
+                  img320: '/linuxpiter/320x100 Linux.jpg',
+                  href: 'https://linuxpiter.com/speakers'
+              },
+              {
+                  type: 'rimg',
+                  img728: '/linuxpiter/728x90 PiterPy.jpg',
+                  img468: '/linuxpiter/468x60 PiterPy.jpg',
+                  img320: '/linuxpiter/320x100 PiterPy.jpg',
+                  href: 'https://piterpy.com/speakers'
+              }
+          ];
+
+          init_interpage_adv(ads);
+      });
+  </script>
+--%>
 
 <c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
   <div class=nav>
@@ -228,9 +280,12 @@
     </c:if>
 </c:if>
     <c:forEach var="comment" items="${commentsPrepared}">
-      <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true" comment="${comment}"/>
+      <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}"
+                 showMenu="true" comment="${comment}"/>
     </c:forEach>
 </div>
+
+<div id="realtime" style="display: none"></div>
 
 <c:if test="${not messageMenu.commentsAllowed}">
   <div class="infoblock">
@@ -274,6 +329,10 @@
     </form>
     <hr>
 </c:if>
+
+<% out.flush(); %>
+
+<c:set var="moreLikeThis" value="${moreLikeThisGetter.call()}"/>
 
 <c:if test="${not empty moreLikeThis}">
   <section id="related-topics">

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,21 +15,27 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Controller
-@RequestMapping("/notifications-count")
 public class UserEventApiController {
+  @Autowired
+  private UserEventService userEventService;
+
   @ResponseBody
-  @RequestMapping(method= RequestMethod.GET)
+  @RequestMapping(value = "/notifications-count", method= RequestMethod.GET)
   public int getEventsCount(HttpServletRequest request, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
@@ -39,5 +45,36 @@ public class UserEventApiController {
     response.setHeader("Cache-control", "no-cache");
 
     return tmpl.getCurrentUser().getUnreadEvents();
+  }
+
+  @RequestMapping(value="/notifications-reset", method = RequestMethod.POST)
+  @ResponseBody
+  public String resetNotifications(
+    HttpServletRequest request,
+    @RequestParam int topId
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("not authorized");
+    }
+
+    User currentUser = tmpl.getCurrentUser();
+
+    userEventService.resetUnreadReplies(currentUser, topId);
+
+    return "ok";
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "/yandex-tableau", method = RequestMethod.GET, produces={"application/json"})
+  public Map<String, Integer> getYandexWidget(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      return ImmutableMap.of();
+    } else {
+      response.setHeader("Cache-control", "no-cache");
+
+      return ImmutableMap.of("notifications", tmpl.getCurrentUser().getUnreadEvents());
+    }
   }
 }

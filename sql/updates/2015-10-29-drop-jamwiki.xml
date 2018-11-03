@@ -1,0 +1,49 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet id="2015102901" author="Maxim Valyanskiy">
+    <dropView viewName="jam_authorities"/>
+    <dropView viewName="jam_users"/>
+    <dropView viewName="jam_wiki_user"/>
+
+    <dropSequence sequenceName="jam_file_pk_seq"/>
+    <dropSequence sequenceName="jam_filev_pk_seq"/>
+    <dropSequence sequenceName="jam_gmemb_pk_seq"/>
+    <dropSequence sequenceName="jam_group_members_id_seq"/>
+    <dropSequence sequenceName="jam_group_pk_seq"/>
+    <dropSequence sequenceName="jam_topic_ver_pk_seq"/>
+    <dropSequence sequenceName="jam_topic_pk_seq"/>
+    <dropSequence sequenceName="jam_user_block_user_block_id_seq"/>
+    <dropSequence sequenceName="jam_vwiki_pk_seq"/>
+
+    <dropTable tableName="jam_category"/>
+    <dropTable tableName="jam_configuration"/>
+    <dropTable tableName="jam_file" cascadeConstraints="true"/>
+    <dropTable tableName="jam_file_version"/>
+    <dropTable tableName="jam_group" cascadeConstraints="true"/>
+    <dropTable tableName="jam_group_authorities"/>
+    <dropTable tableName="jam_group_members"/>
+    <dropTable tableName="jam_interwiki"/>
+    <dropTable tableName="jam_log"/>
+    <dropTable tableName="jam_namespace" cascadeConstraints="true"/>
+    <dropTable tableName="jam_namespace_translation"/>
+    <dropTable tableName="jam_topic_links"/>
+    <dropTable tableName="jam_topic_version" cascadeConstraints="true"/>
+    <dropTable tableName="jam_user_block"/>
+    <dropTable tableName="jam_virtual_wiki" cascadeConstraints="true"/>
+    <dropTable tableName="jam_watchlist"/>
+  </changeSet>
+
+  <changeSet id="2015102902" author="Maxim Valyanskiy">
+    <dropTable tableName="jam_topic" cascadeConstraints="true"/>
+    <dropTable tableName="jam_role"/>
+  </changeSet>
+
+  <changeSet id="2015102903" author="Maxim Valyanskiy">
+    <dropView viewName="wiki_recent_change"/>
+    <dropTable tableName="jam_recent_change"/>
+  </changeSet>
+</databaseChangeLog>

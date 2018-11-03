@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,11 +19,14 @@ public enum UserLogAction {
   RESET_USERPIC("reset_userpic", "Сброшена фотография"),
   SET_USERPIC("set_userpic", "Установлена фотография"),
   BLOCK_USER("block_user", "Заблокирован"),
+  SCORE50("score50", "Задан score=50"),
   UNBLOCK_USER("unblock_user", "Разблокирован"),
   ACCEPT_NEW_EMAIL("accept_new_email", "Установлен новый email"),
   RESET_INFO("reset_info", "Сброшен текст информации"),
   RESET_PASSWORD("reset_password", "Сброшен пароль"),
   SET_PASSWORD("set_password", "Установлен новый пароль"),
+  SET_CORRECTOR("set_corrector", "Добавлены права корректора"),
+  UNSET_CORRECTOR("unset_corrector", "Убраны права корректора"),
   REGISTER("register", "Зарегистрирован");
 
   private final String name;

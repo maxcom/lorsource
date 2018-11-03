@@ -1,8 +1,9 @@
 <%@ page import="org.apache.commons.io.IOUtils" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="java.io.InputStream" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -16,31 +17,16 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<c:if test="${empty template}">
+  <c:set var="template" value="<%= Template.getTemplate(request) %>"/>
+</c:if>
 <!DOCTYPE html>
 <html lang=ru>
 <head>
-<c:if test="${template.style=='tango'}">
-  <c:if test="${not pageContext.request.secure}">
-    <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-  <c:if test="${pageContext.request.secure}">
-    <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono|Open+Sans:600&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-</c:if>
-<c:if test="${template.style!='tango'}">
-  <c:if test="${not pageContext.request.secure}">
-    <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-  <c:if test="${pageContext.request.secure}">
-    <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-  </c:if>
-</c:if>
+<link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 
-<LINK REL="stylesheet" TYPE="text/css" HREF="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
-
-<c:if test="${template.style=='black' and template.prof.useHover}">
-  <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/hover.css">
-</c:if>
+<link rel="yandex-tableau-widget" href="/manifest.json" />
+<meta name="referrer" content="always">
 
 <script type="text/javascript">
   <c:set var="scriptminjs">
@@ -57,26 +43,17 @@
   <c:out value="${scriptminjs}" escapeXml="false"/>
 </script>
 
-  <!--[if lt IE 9]>
-<script src="/js/html5.js" type="text/javascript"></script>
+<!--[if lt IE 9]>
+  <script src="/webjars/html5shiv/3.7.2/html5shiv.min.js" type="text/javascript"></script>
 <![endif]-->
 
-<c:if test="${not pageContext.request.secure}">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" type="text/javascript"></script>
-</c:if>
-
-<c:if test="${pageContext.request.secure}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" type="text/javascript"></script>
-</c:if>
-
 <script type="text/javascript">
-  if (typeof jQuery == 'undefined') {
-      document.write(unescape("%3Cscript src='/js/jquery-1.10.1.min.js' type='text/javascript'%3E%3C/script%3E"));
-  }
-</script>
+  $script('/webjars/jquery/1.12.3/jquery.min.js', 'jquery');
 
-<script type="text/javascript">
-  $script('/js/plugins.js', 'plugins');
-  $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
-  $script('/js/highlight.pack.js', function() { hljs.initHighlightingOnLoad(); });
+  $script.ready('jquery', function() {
+    $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
+    $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+  });
+
+  $script('/js/highlight.pack.js', 'hljs', function() { hljs.initHighlightingOnLoad(); });
 </script>

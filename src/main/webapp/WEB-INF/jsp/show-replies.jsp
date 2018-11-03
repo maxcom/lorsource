@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,12 +23,20 @@
 <%--@elvariable id="hasMore" type="String"--%>
 <%--@elvariable id="unreadCount" type="Integer"--%>
 <%--@elvariable id="enableReset" type="Boolean"--%>
-<%--@elvariable id="forceReset" type="Boolean"--%>
+<%--@elvariable id="isMyNotifications" type="java.lang.Boolean"--%>
+<%--@elvariable id="topId" type="Integer"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <c:set var="title">
-  Уведомления пользователя ${nick}
+  <c:choose>
+    <c:when test="${isMyNotifications}">
+      Уведомления
+    </c:when>
+    <c:otherwise>
+      Уведомления пользователя ${nick}
+    </c:otherwise>
+  </c:choose>
 </c:set>
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
@@ -36,42 +44,34 @@
 <script type="text/javascript">
   $script.ready('plugins', function() {
     $(document).ready(function() {
-      $('#reset_form').ajaxSubmit(
-        function() {
-          $('#reset_form').hide();
-        }
-      );
+      $('#reset_form').ajaxSubmit({
+        success: function() { $('#reset_form').hide(); },
+        url: "/notifications-reset"
+      });
     });
   });
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<div class=nav>
-<tr>
-    <div id="navPath">
-    ${title}
-    </div>
-    <div class="nav-buttons">
-        <ul>
-        <c:forEach var="f" items="${filter}">
-        <c:url var="fUrl" value="/notifications">
-            <c:param name="filter">${f.value}</c:param>
-        </c:url>
-        <c:choose>
-            <c:when test="${f.value == notifications.filter}">
-                <li><a href="${fUrl}" class="current">${f.label}</a></li>
-            </c:when>
-            <c:otherwise>
-                <li><a href="${fUrl}">${f.label}</a></li>
-            </c:otherwise>
-        </c:choose>
-        </c:forEach>
 
-          <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
-        </ul>
-    </div>
-</div>
+<h1>${title}</h1>
 
-<c:if test="${unreadCount > 0 && !forceReset}">
+<nav>
+  <c:forEach var="f" items="${filterValues}">
+    <c:url var="fUrl" value="/notifications">
+      <c:param name="filter">${f.name}</c:param>
+    </c:url>
+    <c:choose>
+      <c:when test="${f.name == filter}">
+        <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
+      </c:when>
+      <c:otherwise>
+        <a href="${fUrl}" class="btn btn-default">${f.label}</a>
+      </c:otherwise>
+    </c:choose>
+  </c:forEach>
+</nav>
+
+<c:if test="${unreadCount > 0}">
   <div id="counter_block" class="infoblock">
     <c:choose>
       <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
@@ -91,47 +91,15 @@
     <c:if test="${enableReset}">
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
-        <input type="hidden" name="forceReset" value="true">
-        <input type="submit" value="Сбросить">
+        <input type="hidden" name="topId" value="${topId}"/>
+        <button type="submit">Сбросить</button>
       </form>
     </c:if>
   </div>
 </c:if>
 
-<div style="float: left">
-<c:if test="${not firstPage}">
-<c:choose>
-<c:when test="${not isMyNotifications}">
-  <a rel=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">← назад</a>
-</c:when>
-<c:otherwise>
-  <a rel=prev href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
-</c:otherwise>
-</c:choose>
-</c:if>
-</div>
-
-<div style="float: right">
-<c:if test="${hasMore}">
-<c:choose>
-<c:when test="${not isMyNotifications}">
-  <a rel=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед →</a>
-</c:when>
-<c:otherwise>
-  <a rel=next href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
-</c:otherwise>
-</c:choose>
-</c:if>
-</div>
-
-<p style="clear: both;"> </p>
-
 <div class=forum>
 <table width="100%" class="message-table">
-<thead>
-<tr><th></th><th>Заголовок</th><th>Комментарий</th></tr>
-<tbody>
-
 <c:forEach var="topic" items="${topicsList}">
 <tr>
   <td align="center">
@@ -140,74 +108,78 @@
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
       <c:when test="${topic.event.type == 'ANSWERS'}">
-        <img src="/img/mail_reply.png" title="Ответ" alt="[R]" width="16" height="16">
+        <i class="icon-reply icon-reply-color" title="Ответ"></i>
       </c:when>
       <c:when test="${topic.event.type == 'REFERENCE'}">
-        <img src="/img/tuxlor.png" title="Упоминание" alt="[U]" width="7" height="16">
+        <i class="icon-user icon-user-color"></i>
       </c:when>
       <c:when test="${topic.event.type == 'TAG'}">
-        <i class="icon-tag" title="Избранный тег"></i>
+        <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
     </c:choose>
   </td>
   <td>
-    <c:if test="${topic.event.type != 'DELETED'}">
-      <c:if test="${topic.event.cid>0}">
-        <a href="jump-message.jsp?msgid=${topic.event.msgid}&amp;cid=${topic.event.cid}"><l:title>${topic.event.subj}</l:title></a>
-      </c:if>
-      <c:if test="${topic.event.cid==0}">
-        <a href="jump-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
-      </c:if>
-      (<a class="secondary" href="${topic.group.url}">${topic.group.title}</a>)
-    </c:if>
+    <a href="${topic.link}">
+      <c:forEach var="tag" items="${topic.tags}">
+         <span class="tag">${tag}</span>
+      </c:forEach>
+      <l:title>${topic.event.subj}</l:title>
+    </a>
+      (${topic.section.name})
 
-    <c:if test="${topic.event.type == 'DELETED'}">
-      <a href="view-message.jsp?msgid=${topic.event.msgid}"><l:title>${topic.event.subj}</l:title></a>
-      (<a class="secondary" href="${topic.group.url}">${topic.group.title}</a>)
-      <br>
-      <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
-    </c:if>
+      <c:if test="${topic.event.type == 'DELETED'}">
+        <br>
+        <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
+      </c:if>
 
     <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
   <td>
-    <lor:dateinterval date="${topic.event.eventDate}"/>
-
-    <c:if test="${topic.event.cid != 0}">
-       (<lor:user user="${topic.commentAuthor}"/>)
-    </c:if>
+    <lor:dateinterval date="${topic.event.eventDate}"/><!--
+    --><c:if test="${topic.author != null}">,<br> <lor:user user="${topic.author}"/> </c:if>
   </td>
 </tr>
 </c:forEach>
 
-</tbody>
 </table>
 </div>
-<p></p>
-<div style="float: left">
-<c:if test="${not firstPage}">
-<c:choose>
-<c:when test="${not isMyNotifications}">
-  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">← назад</a>
-</c:when>
-<c:otherwise>
-  <a rel=prev rev=next href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
-</c:otherwise>
-</c:choose>
-</c:if>
+
+<div class="container" style="margin-bottom: 1em">
+  <div style="float: left">
+    <c:if test="${not firstPage}">
+      <c:choose>
+        <c:when test="${not isMyNotifications}">
+          <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">←
+            назад</a>
+        </c:when>
+        <c:otherwise>
+          <a rel=prev rev=next href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
+        </c:otherwise>
+      </c:choose>
+    </c:if>
+  </div>
+
+  <div style="float: right">
+    <c:if test="${hasMore}">
+      <c:choose>
+        <c:when test="${not isMyNotifications}">
+          <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед
+            →</a>
+        </c:when>
+        <c:otherwise>
+          <a rel=next rev=prev href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
+        </c:otherwise>
+      </c:choose>
+    </c:if>
+  </div>
 </div>
 
-<div style="float: right">
-<c:if test="${hasMore}">
-<c:choose>
-<c:when test="${not isMyNotifications}">
-  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед →</a>
-</c:when>
-<c:otherwise>
-  <a rel=next rev=prev href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
-</c:otherwise>
-</c:choose>
-</c:if>
-</div>
+<p>
+  <i class="icon-rss"></i>
+  <a href="show-replies.jsp?output=rss&amp;nick=${nick}">
+    RSS подписка на новые уведомления
+  </a>
+</p>
+
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

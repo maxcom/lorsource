@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,13 +15,9 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -33,9 +29,12 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageService;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -47,7 +46,6 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
@@ -60,18 +58,17 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class EditTopicController {
   @Autowired
   private SearchQueueSender searchQueueSender;
-
-  @Autowired
-  private FeedPinger feedPinger;
 
   @Autowired
   private TopicDao messageDao;
@@ -106,6 +103,9 @@ public class EditTopicController {
   @Autowired
   private CaptchaService captcha;
 
+  @Autowired
+  private ImageService imageService;
+
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
     HttpServletRequest request,
@@ -134,7 +134,6 @@ public class EditTopicController {
             preparedMessage,
             form,
             tmpl.getCurrentUser(),
-            request.isSecure(),
             tmpl.getProf()
     );
 
@@ -169,7 +168,6 @@ public class EditTopicController {
             preparedMessage,
             form,
             tmpl.getCurrentUser(),
-            request.isSecure(),
             tmpl.getProf()
     );
   }
@@ -178,7 +176,6 @@ public class EditTopicController {
     PreparedTopic preparedTopic,
     EditTopicRequest form,
     User currentUser,
-    boolean secure,
     Profile profile
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<>();
@@ -198,25 +195,19 @@ public class EditTopicController {
     TopicMenu topicMenu = prepareService.getTopicMenu(
             preparedTopic,
             currentUser,
-            secure,
             profile,
             true
     );
 
     params.put("topicMenu", topicMenu);
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
 
-      ImmutableSet<User> editors = editHistoryService.getEditors(message, editInfoList);
+      ImmutableSet<User> editors = editHistoryService.getEditorUsers(message, editInfoList);
 
-      ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
-      for (User editor : editors) {
-        editorBonus.put(editor.getId(), 1);
-      }
-
-      form.setEditorBonus(editorBonus.build());
+      form.setEditorBonus(editors.stream().collect(Collectors.toMap(User::getId, u -> 0)));
       
       params.put("editors", editors);
     }
@@ -228,7 +219,7 @@ public class EditTopicController {
       form.setUrl(message.getUrl());
     }
 
-    form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
+    form.setTitle(StringEscapeUtils.unescapeHtml4(message.getTitle()));
     form.setMsg(msgbaseDao.getMessageText(message.getId()).getText());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
@@ -246,6 +237,8 @@ public class EditTopicController {
 
       form.setMultiselect(poll.isMultiSelect());
     }
+
+    params.put("imagepost", permissionService.isImagePostingAllowed(preparedTopic.getSection(), currentUser));
 
     return new ModelAndView("edit", params);
   }
@@ -294,7 +287,6 @@ public class EditTopicController {
     params.put("topicMenu", prepareService.getTopicMenu(
             preparedTopic,
             tmpl.getCurrentUser(),
-            request.isSecure(),
             tmpl.getProf(),
             true
     ));
@@ -308,8 +300,6 @@ public class EditTopicController {
       }
     }
 
-    List<EditHistoryDto> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
-
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
       params.put("info", "Предпросмотр");
@@ -317,11 +307,13 @@ public class EditTopicController {
 
     boolean publish = request.getParameter("publish") != null;
 
-    if (!editInfoList.isEmpty()) {
-      EditHistoryDto editHistoryDto = editInfoList.get(0);
-      params.put("editInfo", editHistoryDto);
+    List<EditHistoryRecord> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
 
-      if (lastEdit == null || editHistoryDto.getEditdate().getTime()!=lastEdit) {
+    if (!editInfoList.isEmpty()) {
+      EditHistoryRecord editHistoryRecord = editInfoList.get(0);
+      params.put("editInfo", editHistoryRecord);
+
+      if (lastEdit == null || editHistoryRecord.getEditdate().getTime()!=lastEdit) {
         errors.reject(null, "Сообщение было отредактировано независимо");
       }
     }
@@ -371,6 +363,20 @@ public class EditTopicController {
       }
     }
 
+    UploadedImagePreview imagePreview = null;
+
+    if (permissionService.isImagePostingAllowed(preparedTopic.getSection(), user)) {
+      if (permissionService.isTopicPostingAllowed(group, user)) {
+        File image = imageService.processUploadImage(request);
+
+        imagePreview = imageService.processUpload(user, request.getSession(), image, errors);
+
+        if (imagePreview!=null) {
+          modified = true;
+        }
+      }
+    }
+
     if (!editable && modified) {
       throw new AccessViolationException("нельзя править это сообщение, только теги");
     }
@@ -412,25 +418,14 @@ public class EditTopicController {
     }
 
     if (form.getEditorBonus() != null) {
-      ImmutableSet<Integer> editors = ImmutableSet.copyOf(
-              Iterables.transform(
-                      Iterables.filter(editInfoList, new Predicate<EditHistoryDto>() {
-                        @Override
-                        public boolean apply(EditHistoryDto input) {
-                          return input.getEditor() != message.getUid();
-                        }
-                      }), new Function<EditHistoryDto, Integer>() {
-                @Override
-                public Integer apply(EditHistoryDto input) {
-                  return input.getEditor();
-                }
-              }));
+      ImmutableSet<Integer> editors = editHistoryService.getEditors(message, editInfoList);
 
-      for (int userid : form.getEditorBonus().keySet()) {
-        if (!editors.contains(userid)) {
-          errors.reject("editorBonus", "некорректный корректор?!");
-        }
-      }
+      form
+              .getEditorBonus()
+              .keySet()
+              .stream()
+              .filter(userid -> !editors.contains(userid))
+              .forEach(userid -> errors.reject("editorBonus", "некорректный корректор?!"));
     }
 
     if (!preview && !errors.hasErrors() && ipBlockInfo.isCaptchaRequired()) {
@@ -449,16 +444,13 @@ public class EditTopicController {
               form.getBonus(),
               newPoll!=null?newPoll.getVariants():null,
               form.isMultiselect(),
-              form.getEditorBonus()
+              form.getEditorBonus(),
+              imagePreview
       );
 
       if (changed || commit || publish) {
         if (!newMsg.isDraft()) {
-          searchQueueSender.updateMessageOnly(newMsg.getId());
-        }
-
-        if (commit) {
-          feedPinger.pingFeedburner();
+          searchQueueSender.updateMessage(newMsg.getId(), true);
         }
 
         if (!publish || !preparedTopic.getSection().isPremoderated()) {
@@ -476,15 +468,21 @@ public class EditTopicController {
 
     params.put("newMsg", newMsg);
 
+    Image imageObject = null;
+
+    if (imagePreview!=null) {
+      imageObject = new Image(0, 0, "gallery/preview/" + imagePreview.mainFile().getName());
+    }
+
     params.put(
             "newPreparedMessage",
             prepareService.prepareTopicPreview(
                     newMsg,
-                    TagService.namesToRefs(newTags),
+                    newTags!=null?TagService.namesToRefs(newTags):null,
                     newPoll,
                     request.isSecure(),
                     newText,
-                    null
+                    imageObject
             )
     );
 
@@ -519,5 +517,4 @@ public class EditTopicController {
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
-
 }

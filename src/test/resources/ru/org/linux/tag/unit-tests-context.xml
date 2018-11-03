@@ -24,6 +24,11 @@
     <constructor-arg value="ru.org.linux.tag.TagDao"/>
   </bean>
 
+  <bean id="elastic" name="mockElastic"
+        class="org.mockito.Mockito" factory-method="mock">
+    <constructor-arg value="com.sksamuel.elastic4s.ElasticClient"/>
+  </bean>
+
   <bean id="userTagDao" name="mockUserTagDao"
         class="org.mockito.Mockito" factory-method="mock">
     <constructor-arg value="ru.org.linux.user.UserTagDao"/>

@@ -1,0 +1,12 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet id="2014030601" author="Maxim Valyanskiy" runInTransaction="false">
+    <sql>
+      alter type user_log_action add value 'score50'
+    </sql>
+  </changeSet>
+</databaseChangeLog>

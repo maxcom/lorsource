@@ -1,5 +1,5 @@
 #
-# Copyright 1998-2012 Linux.org.ru
+# Copyright 1998-2016 Linux.org.ru
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
@@ -14,19 +14,19 @@
 #
 
 MainUrl=http://127.0.0.1:8080/
-SecureUrl=https://127.0.0.1:8443/
-PathPrefix=target/tmp/
+SecureUrl=http://127.0.0.1:8080/
+WSUrl=ws://127.0.0.1:8080/
+activemq.path=target/tmp/activemq
 HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
+upload.path=target/uploads/
 Secret=secret
-recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM
-recaptcha.public=6LclXgcAAAAAAIRhcA0V1DNiTT_AGUg_baM3-vc8
-solr.username=solr
-solr.password=tomcat
-solr.host=127.0.0.1
-solr.port=8080
-solr.url=http://127.0.0.1:8080/solr
+# development keys - for use on localhost only
+recaptcha.private=6LcdM0oUAAAAANYhnHF3jmD1r1TvkiyPaWHjC83x
+recaptcha.public=6LcdM0oUAAAAAD2T-0ZW2HPkqZ5nFi1Y52U7BOMI
+
+EnableHsts=false
 # admin.emailAddress=bugz@linux.org.ru
-admin.emailAddress=specify_your_real_email_if_you_want_reicive_messages
+admin.emailAddress=specify_your_real_email_if_you_want_receive_messages
 
 # разрешение модераторам на редактирование комментов пользователей
 comment.isModeratorAllowedToEdit=false
@@ -34,7 +34,7 @@ comment.isModeratorAllowedToEdit=false
 # время (в минутах), в течении которого с момента создания коммента его
 # можно редактировать (не распространяется на модераторов).
 # если не установлено или равно 0, то редактировать можно будет всегда.
-comment.expireMinutesForEdit=0
+comment.expireMinutesForEdit=30
 
 # разрешить редактировать комментарии, которые имеют ответы
 comment.isEditingAllowedIfAnswersExists=false
@@ -44,3 +44,11 @@ comment.isEditingAllowedIfAnswersExists=false
 # то редактировать могут все. Если установлено огромное
 # число, то комментарии будут фактически отключены
 comment.scoreValueForEditing=45
+
+# "embedded" или host:port
+Elasticsearch=embedded
+
+jdbc.url=jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified
+jdbc.user=linuxweb
+jdbc.password=linuxweb
+jdbc.poolSize=10

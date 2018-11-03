@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -56,20 +56,22 @@ package ru.org.linux.util.bbcode.nodes;
 import ru.org.linux.util.bbcode.ParserParameters;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Базовый класс для узлов дерева разбора LORCODE
  */
-public class Node {
-  Node parent = null;
+abstract public class Node {
+  protected final Node parent;
   private final List<Node> children;
-  String parameter;
+  protected String parameter;
   protected final ParserParameters parserParameters;
 
   public Node(ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
     children = new ArrayList<>();
+    parent = null;
   }
 
   public Node(Node parent, ParserParameters parserParameters) {
@@ -83,7 +85,6 @@ public class Node {
   }
 
   public boolean allows(String tagname) {
-    assert false;
     return false;
   }
 
@@ -96,7 +97,11 @@ public class Node {
   }
 
   public List<Node> getChildren() {
-    return children;
+    return Collections.unmodifiableList(children);
+  }
+
+  public void addChildren(Node node) {
+    children.add(node);
   }
 
   public boolean isParameter() {
@@ -111,13 +116,9 @@ public class Node {
     this.parameter = parameter;
   }
 
-  public String renderXHtml() {
-    throw new UnsupportedOperationException();
-  }
+  abstract public String renderXHtml();
 
-  public String renderBBCode() {
-    throw new UnsupportedOperationException();
-  }
+  abstract public String renderBBCode();
 
   public String renderChildrenXHtml() {
     StringBuilder stringBuilder = new StringBuilder();

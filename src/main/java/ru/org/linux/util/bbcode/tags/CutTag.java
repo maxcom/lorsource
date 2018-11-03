@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,6 +53,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.httpclient.URI;
 import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.Parser;
@@ -60,21 +61,12 @@ import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
-import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/5/11
- * Time: 11:55 AM
- */
 public class CutTag extends HtmlEquivTag {
 
-  public CutTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public CutTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("cut", allowedChildren, "div", parserParameters, "div");
   }
 
   @Override
@@ -91,14 +83,8 @@ public class CutTag extends HtmlEquivTag {
     RootNode rootNode = tagNode.getRootNode();
     if (rootNode.isComment()) { // коментарий, просто содержимое
       return node.renderChildrenXHtml();
-    } else if(rootNode.isTopicMaximized()) { // топик не свернутым cut, содежимое в div
-      StringBuilder ret = new StringBuilder();
-      ret.append("<div id=\"cut")
-              .append(Integer.toString(rootNode.getCutCount()))
-              .append("\">")
-              .append(node.renderChildrenXHtml())
-              .append("</div>");
-      return ret.toString();
+    } else if (rootNode.isTopicMaximized()) { // топик не свернутым cut, содежимое в div
+      return "<div id=\"cut" + Integer.toString(rootNode.getCutCount()) + "\">" + node.renderChildrenXHtml() + "</div>";
     } else if(rootNode.isTopicMinimized()) { // топик со свернутым cut, вместо содержимого ссылка
       URI uri = rootNode.getCutURI();
       try {

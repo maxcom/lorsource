@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,17 +15,15 @@
 
 package ru.org.linux.site;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import ru.org.linux.tracker.TrackerFilterEnum;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static ru.org.linux.user.Profile.*;
 
@@ -35,28 +33,18 @@ public final class DefaultProfile {
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
       .put("gallery", "Галерея")
       .put("tagcloud", "Облако тэгов")
-      .put("archive", "Архив новостей")
-      .put("ibm", "IBM developerWorks")
       .put("lastMiniNews", "Последние мининовости (не будут отображаться в ленте новостей на главной странице)").build();
 
   private static final ImmutableSet<String> BOX_SET = BOX_LEGEND.keySet();
 
-  private static final ImmutableMap<String, Theme> THEMES = Maps.uniqueIndex(Theme.THEMES, new Function<Theme, String>() {
-    @Override
-    public String apply(Theme input) {
-      return input.getId();
-    }
-  });
+  private static final ImmutableMap<String, Theme> THEMES = Maps.uniqueIndex(Theme.THEMES, Theme::getId);
 
-  private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
-  private static final Predicate<String> isBoxPredicate = new Predicate<String>() {
-    @Override
-    public boolean apply(String s) {
-      return isBox(s);
-    }
-  };
+  private static final ImmutableList<String> AVATAR_TYPES =
+          ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
 
-  private static final ImmutableMap<String, Object> defaultProfile = ImmutableMap.copyOf(createDefaultProfile());
+  public static final TrackerFilterEnum DEFAULT_TRACKER_MODE = TrackerFilterEnum.MAIN;
+
+  private static final ImmutableMap<String, Object> defaultProfile = createDefaultProfile();
 
   private DefaultProfile() {
   }
@@ -73,36 +61,34 @@ public final class DefaultProfile {
     return defaultProfile;
   }
 
-  private static Map<String, Object> createDefaultProfile() {
-    Map<String, Object> defaults = new HashMap<>();
+  private static ImmutableMap<String, Object> createDefaultProfile() {
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
-    defaults.put(NEWFIRST_PROPERTY, Boolean.FALSE);
-    defaults.put(HOVER_PROPERTY, Boolean.TRUE);
-    defaults.put(STYLE_PROPERTY, "tango");
-    defaults.put(FORMAT_MODE_PROPERTY, "quot");
-    defaults.put(TOPICS_PROPERTY, 30);
-    defaults.put(MESSAGES_PROPERTY, 50);
-    defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
-    defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
-    defaults.put(AVATAR_PROPERTY, "empty");
-    defaults.put(HIDE_ADSENSE_PROPERTY, true);
-    defaults.put(MAIN_GALLERY_PROPERTY, false);
-    defaults.put(SHOW_SOCIAL_PROPERTY, true);
+    builder.put(NEWFIRST_PROPERTY, Boolean.FALSE);
+    builder.put(STYLE_PROPERTY, "tango");
+    builder.put(FORMAT_MODE_PROPERTY, "quot");
+    builder.put(TOPICS_PROPERTY, 30);
+    builder.put(MESSAGES_PROPERTY, 50);
+    builder.put(PHOTOS_PROPERTY, Boolean.TRUE);
+    builder.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
+    builder.put(AVATAR_PROPERTY, "empty");
+    builder.put(HIDE_ADSENSE_PROPERTY, true);
+    builder.put(MAIN_GALLERY_PROPERTY, false);
+    builder.put(SHOW_SOCIAL_PROPERTY, true);
+    builder.put(TRACKER_MODE, DEFAULT_TRACKER_MODE.getValue());
 
-    defaults.put("DebugMode", Boolean.FALSE);
+    builder.put("DebugMode", Boolean.FALSE);
 
-// main page settings
-    ImmutableList<String> boxes = ImmutableList.of(
-      "poll", "top10", "gallery", "tagcloud", "archive", "ibm"
-    );
+    // main page settings
+    ImmutableList<String> boxes = ImmutableList.of("poll", "top10", "gallery", "tagcloud");
 
-    defaults.put(BOXES_MAIN2_PROPERTY, boxes);
+    builder.put(BOXES_MAIN2_PROPERTY, boxes);
 
-    return defaults;
+    return builder.build();
   }
 
   public static Predicate<String> boxPredicate() {
-    return isBoxPredicate;
+    return DefaultProfile::isBox;
   }
 
   public static boolean isStyle(String style) {

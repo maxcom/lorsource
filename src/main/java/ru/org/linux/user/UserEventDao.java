@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -31,8 +30,6 @@ import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,41 +40,37 @@ import java.util.Map;
 public class UserEventDao {
 
   private static final String QUERY_ALL_REPLIES_FOR_USER =
-    "SELECT event_date, " +
+    "SELECT user_events.id, event_date, " +
       " topics.title as subj, " +
-      " lastmod, topics.id as msgid, " +
+      " topics.id as msgid, " +
       " comments.id AS cid, " +
-      " comments.postdate AS cDate, " +
       " comments.userid AS cAuthor, " +
+      " topics.userid AS tAuthor, " +
       " unread, " +
       " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
-      " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
-      " INNER JOIN groups ON (groups.id = topics.groupid) " +
+      " FROM user_events INNER JOIN topics ON (topics.id = message_id) " +
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " %s " +
-      " AND (comments.id is null or NOT comments.topic_deleted)" +
-      " ORDER BY event_date DESC LIMIT ?" +
+      " ORDER BY id DESC LIMIT ?" +
       " OFFSET ?";
 
   private static final String QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE =
-    "SELECT event_date, " +
+    "SELECT user_events.id, event_date, " +
       " topics.title as subj, " +
-      " lastmod, topics.id as msgid, " +
+      " topics.id as msgid, " +
       " comments.id AS cid, " +
-      " comments.postdate AS cDate, " +
       " comments.userid AS cAuthor, " +
+      " topics.userid AS tAuthor, " +
       " unread, " +
       " groupid, comments.deleted," +
       " type, user_events.message as ev_msg" +
-      " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
-      " INNER JOIN groups ON (groups.id = topics.groupid) " +
+      " FROM user_events INNER JOIN topics ON (topics.id = message_id) " +
       " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
       " AND NOT private " +
-      " AND (comments.id is null or NOT comments.topic_deleted)" +
-      " ORDER BY event_date DESC LIMIT ?" +
+      " ORDER BY id DESC LIMIT ?" +
       " OFFSET ?";
 
   private SimpleJdbcInsert insert;
@@ -160,11 +153,12 @@ public class UserEventDao {
    * Сброс уведомлений.
    *
    * @param userId идентификационный номер пользователь которому сбрасываем
+   * @param topId сбрасываем уведомления с идентификатором не больше этого
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void resetUnreadReplies(int userId) {
-    jdbcTemplate.update("UPDATE users SET unread_events=0 where id=?", userId);
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread", userId);
+  public void resetUnreadReplies(int userId, int topId) {
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId);
+    recalcEventCount(ImmutableList.of(userId));
   }
 
   public void recalcEventCount(Collection<Integer> userids) {
@@ -179,7 +173,7 @@ public class UserEventDao {
   }
 
   /**
-   * Получение списка первых 10 идентификационных номеров пользователей,
+   * Получение списка первых 20 идентификационных номеров пользователей,
    * количество уведомлений которых превышает максимально допустимое значение.
    *
    * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
@@ -187,7 +181,7 @@ public class UserEventDao {
    */
   public List<Integer> getUserIdListByOldEvents(int maxEventsPerUser) {
     return jdbcTemplate.queryForList(
-      "select userid from user_events group by userid having count(user_events.id) > ? order by count(user_events.id) DESC limit 10",
+      "select userid from user_events group by userid having count(user_events.id) > ? order by count(user_events.id) DESC limit 20",
       Integer.class,
       maxEventsPerUser
     );
@@ -229,35 +223,25 @@ public class UserEventDao {
     } else {
       queryString = QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE;
     }
-    return jdbcTemplate.query(queryString, new RowMapper<UserEvent>() {
-      @Override
-      public UserEvent mapRow(ResultSet resultSet, int i) throws SQLException {
-        String subj = StringUtil.makeTitle(resultSet.getString("subj"));
-        Timestamp lastmod = resultSet.getTimestamp("lastmod");
-        if (lastmod == null) {
-          lastmod = new Timestamp(0);
-        }
-        Timestamp eventDate = resultSet.getTimestamp("event_date");
-        int cid = resultSet.getInt("cid");
-        int cAuthor;
-        Timestamp cDate;
-        if (!resultSet.wasNull()) {
-          cAuthor = resultSet.getInt("cAuthor");
-          cDate = resultSet.getTimestamp("cDate");
-        } else {
-          cDate = null;
-          cAuthor = 0;
-        }
-        int groupId = resultSet.getInt("groupid");
-        int msgid = resultSet.getInt("msgid");
-        UserEventFilterEnum type = UserEventFilterEnum.valueOfByType(resultSet.getString("type"));
-        String eventMessage = resultSet.getString("ev_msg");
-
-        boolean unread = resultSet.getBoolean("unread");
-
-        return new UserEvent(cid, cAuthor, cDate,
-                groupId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
+    return jdbcTemplate.query(queryString, (resultSet, i) -> {
+      String subj = StringUtil.makeTitle(resultSet.getString("subj"));
+      Timestamp eventDate = resultSet.getTimestamp("event_date");
+      int cid = resultSet.getInt("cid");
+      int cAuthor;
+      if (!resultSet.wasNull()) {
+        cAuthor = resultSet.getInt("cAuthor");
+      } else {
+        cAuthor = 0;
       }
+      int groupId = resultSet.getInt("groupid");
+      int msgid = resultSet.getInt("msgid");
+      UserEventFilterEnum type = UserEventFilterEnum.valueOfByType(resultSet.getString("type"));
+      String eventMessage = resultSet.getString("ev_msg");
+
+      boolean unread = resultSet.getBoolean("unread");
+
+      return new UserEvent(cid, cAuthor,
+              groupId, subj, msgid, type, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"));
     }, userId, topics, offset);
   }
 

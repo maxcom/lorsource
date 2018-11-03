@@ -1,3 +1,4 @@
+<%@ tag import="com.google.common.net.InternetDomainName" %>
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.topic.Topic" %>
@@ -5,6 +6,7 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.image.ImageInfo" %>
 <%@ tag import="java.io.IOException" %>
+<%@ tag import="java.net.URI" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
@@ -16,7 +18,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -40,7 +42,7 @@
 
 <c:set var="commentsLinks">
   <c:if test="${message.commentCount > 0}">
-  [<a href="${message.link}#comments"><lor:comment-count count="${message.commentCount}"/></a><%
+  <a href="${message.link}#comments"><lor:comment-count count="${message.commentCount}"/></a><%
       if (pages != 1) {
         int PG_COUNT=3;
 
@@ -62,7 +64,6 @@
 
         out.append(')');
       }
-      out.append(']');
   %>
   </c:if>
 </c:set>
@@ -70,7 +71,6 @@
 <c:if test="${not message.minor || minorAsMajor}">
 <article class=news id="topic-${message.id}">
 <%
-  String url = message.getUrl();
   boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
 
   String image = preparedMessage.getGroup().getImage();
@@ -79,14 +79,20 @@
 <h2>
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 </h2>
-<c:if test="${multiPortal}">
-  <div class="group">
-    ${preparedMessage.section.title} - ${preparedMessage.group.title}
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-      (не подтверждено)
-    </c:if>
-  </div>
-</c:if>
+
+  <c:if test="${multiPortal}">
+    <div class="group">
+        ${preparedMessage.section.title} — ${preparedMessage.group.title}
+      <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+        <span>(не подтверждено)</span>
+      </c:if>
+    </div>
+  </c:if>
+
+  <c:if test="${preparedMessage.image != null}">
+    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
+  </c:if>
+
 <c:set var="group" value="${preparedMessage.group}"/>
 
 <c:if test="${group.image != null}">
@@ -96,41 +102,55 @@
     try {
       ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "tango" + image);
       out.append("<img src=\"/").append("tango").append(image).append("\" ").append(info.getCode()).append(" alt=\"Группа ").append(group.getTitle()).append("\">");
-    } catch (IOException e) {
-      out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
       out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
+    } catch (IOException e) {
+      out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
     }
-%>
+  %>
     </a>
 </div>
 </c:if>
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image preparedMessage="${preparedMessage}" showImage="true"/>
-  </c:if>
-  
   ${preparedMessage.processedMessage}
+<c:if test="${message.url!=null}">
 <%
-  if (url != null) {
-    if (url.isEmpty()) {
-      url = message.getLink();
-    }
+  String url = message.getUrl();
 
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
+  if (url.isEmpty()) {
+    url = message.getLink();
+  }
+
+  out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
+
+  if (moderateMode) {
+    try {
+      String host = URI.create(url).getHost();
+
+      if (host != null) {
+        String shortHost = InternetDomainName.from(host).topPrivateDomain().toString();
+
+        out.append(" (" + shortHost + ")");
+      } else {
+        out.append(" (Invalid URL, no host part!)");
+      }
+    } catch (IllegalArgumentException ex) {
+      out.append(" (" + ex.getMessage() + ")");
+    }
   }
 %>
+</c:if>
 <c:if test="${preparedMessage.image != null}">
-  <lor:image preparedMessage="${preparedMessage}" showInfo="true"/>
+  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
 <%
   if (votepoll) {
       %>
         <c:choose>
-            <c:when test="${not message.commited || preparedMessage.poll.poll.current}">
-                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${preparedMessage.poll.poll.current}"/>
+            <c:when test="${not message.commited || not preparedMessage.message.expired}">
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.message.expired}"/>
             </c:when>
             <c:otherwise>
                 <lor:poll poll="${preparedMessage.poll}"/>
@@ -170,12 +190,11 @@
     <c:if test="${template.moderatorSession}">
       [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
     </c:if>
-
+  </c:if>
+  <c:if test="${moderateMode || message.draft}">
     <c:if test="${messageMenu.deletable}">
        [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
     </c:if>
-  </c:if>
-  <c:if test="${moderateMode || message.draft}">
     <c:if test="${messageMenu.editable}">
        [<a href="edit.jsp?msgid=${message.id}">Править</a>]
     </c:if>
@@ -193,10 +212,12 @@
 
 <c:if test="${multiPortal}">
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-      (не подтверждено)
+      <span> (не подтверждено)</span>
     </c:if>
 </c:if>
 
-  <c:out value="${commentsLinks}" escapeXml="false"/>
+  <c:if test="${message.commentCount>0}">
+    (<lor:comment-count count="${message.commentCount}"/>)
+  </c:if>
 </article>
 </c:if>

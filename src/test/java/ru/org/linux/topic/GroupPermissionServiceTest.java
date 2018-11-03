@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,18 +29,10 @@ import java.util.Date;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 8/30/11
- * Time: 4:27 PM
- */
 public class GroupPermissionServiceTest {
-  private final GroupPermissionService permissionService = new GroupPermissionService();
-
   /**
-   * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
-   * и прошло меньше часа с момента почтинга
+   * Проверка, что пользователь МОЖЕТ удалить топик, автором которого он является,
+   * и прошло меньше часа с момента постинга
    * @throws Exception
    */
   @Test
@@ -75,11 +67,13 @@ public class GroupPermissionServiceTest {
     assertEquals(user.getId(), resultSet.getInt("userid"));
     assertEquals(user.getId(), message.getUid());
 
+    GroupPermissionService permissionService = new GroupPermissionService(null);
+
     assertTrue(permissionService.isDeletable(message, user));
   }
   /**
-   * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
-   * и прошло больше часа с момента почтинга
+   * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он является,
+   * и прошло больше часа с момента постинга
    * @throws Exception
    */
   @Test
@@ -113,11 +107,13 @@ public class GroupPermissionServiceTest {
     assertEquals(user.getId(), resultSet.getInt("userid"));
     assertEquals(user.getId(), message.getUid());
 
+    GroupPermissionService permissionService = new GroupPermissionService(null);
+
     assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
-   * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
+   * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он не является,
    * и прошло больше часа с момента постинга
    * @throws Exception
    */
@@ -152,11 +148,13 @@ public class GroupPermissionServiceTest {
     assertFalse(user.getId() == resultSet.getInt("userid"));
     assertFalse(user.getId() == message.getUid());
 
+    GroupPermissionService permissionService = new GroupPermissionService(null);
+
     assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
-   * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
+   * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он не является,
    * и прошло больше часа с момента постинга
    * @throws Exception
    */
@@ -190,6 +188,8 @@ public class GroupPermissionServiceTest {
     assertFalse(user.isModerator());
     assertFalse(user.getId() == resultSet.getInt("userid"));
     assertFalse(user.getId() == message.getUid());
+
+    GroupPermissionService permissionService = new GroupPermissionService(null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
@@ -288,9 +288,9 @@ public class GroupPermissionServiceTest {
     when(sectionService.getSection(1)).thenReturn(sectionModerate);
     when(sectionService.getSection(2)).thenReturn(sectionNotModerate);
 
-    permissionService.setSectionService(sectionService);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService);
 
-    // проверка что данные в mock resultSet верные
+    // проверка, что данные в mock resultSet верные
     assertTrue(resultSetModerateNew.getBoolean("moderate"));
     assertTrue(resultSetModerateOld.getBoolean("moderate"));
     assertFalse(resultSetNotModerateNew.getBoolean("moderate"));
@@ -307,7 +307,7 @@ public class GroupPermissionServiceTest {
     Topic messageModerateNew = new Topic(resultSetModerateNew);
     Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
 
-    // проверка что данные в mock message верные
+    // проверка, что данные в mock message верные
     assertTrue(messageModerateNew.isCommited());
     assertTrue(messageModerateOld.isCommited());
     assertFalse(messageNotModerateNew.isCommited());

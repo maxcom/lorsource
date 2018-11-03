@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,12 +24,6 @@ public class TopicMenu {
   private final boolean tagsEditable;
   private final boolean resolvable;
 
-  private final int memoriesId;
-  private final int favsId;
-
-  private final int memoriesCount;
-  private final int favsCount;
-
   private final boolean commentsAllowed;
   private final boolean deletable;
 
@@ -40,20 +34,12 @@ public class TopicMenu {
           boolean topicEditable,
           boolean tagsEditable,
           boolean resolvable,
-          int memoriesId,
-          int favsId,
-          int memoriesCount,
-          int favsCount,
           boolean commentsAllowed,
           boolean deletable,
           @Nullable Userpic userpic) {
     this.topicEditable = topicEditable;
     this.tagsEditable = tagsEditable;
     this.resolvable = resolvable;
-    this.memoriesId = memoriesId;
-    this.favsId = favsId;
-    this.memoriesCount = memoriesCount;
-    this.favsCount = favsCount;
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
     this.userpic = userpic;
@@ -75,28 +61,12 @@ public class TopicMenu {
     return resolvable;
   }
 
-  public int getMemoriesId() {
-    return memoriesId;
-  }
-
   public boolean isCommentsAllowed() {
     return commentsAllowed;
   }
 
   public boolean isDeletable() {
     return deletable;
-  }
-
-  public int getFavsId() {
-    return favsId;
-  }
-
-  public int getMemoriesCount() {
-    return memoriesCount;
-  }
-
-  public int getFavsCount() {
-    return favsCount;
   }
 
   @Nullable

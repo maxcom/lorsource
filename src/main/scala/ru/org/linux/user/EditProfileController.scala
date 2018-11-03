@@ -1,22 +1,38 @@
+/*
+ * Copyright 1998-2017 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.user
 
-import org.springframework.web.bind.annotation.{RequestParam, PathVariable, RequestMethod, RequestMapping}
-import org.springframework.stereotype.Controller
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.site.{Theme, BadInputException, DefaultProfile, Template}
-import ru.org.linux.auth.AccessViolationException
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import javax.servlet.ServletRequest
 import java.util
+import javax.servlet.ServletRequest
+
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
+import ru.org.linux.tracker.TrackerFilterEnum
+
+import scala.collection.JavaConverters._
 
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
-class EditProfileController @Autowired() (
-  userDao:UserDao,
-  profileDao:ProfileDao
+class EditProfileController(
+  userDao: UserDao,
+  profileDao: ProfileDao
 ) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @PathVariable nick: String): ModelAndView = {
@@ -31,13 +47,15 @@ class EditProfileController @Autowired() (
 
     val params = new util.HashMap[String, AnyRef]
 
-    val nonDeprecatedThemes = Theme.THEMES.toVector.filterNot(_.isDeprecated).map(_.getId)
+    val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
 
     if (DefaultProfile.getTheme(tmpl.getCurrentUser.getStyle).isDeprecated) {
       params.put("stylesList", (nonDeprecatedThemes :+ tmpl.getCurrentUser.getStyle).asJava)
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
+
+    params.put("trackerModes", TrackerFilterEnum.values)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
@@ -76,6 +94,7 @@ class EditProfileController @Autowired() (
     tmpl.getProf.setStyle(request.getParameter("style"))
     userDao.setStyle(tmpl.getCurrentUser, request.getParameter("style"))
     tmpl.getProf.setShowSocial("on" == request.getParameter("showSocial"))
+    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).or(DefaultProfile.DEFAULT_TRACKER_MODE))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {
@@ -84,7 +103,6 @@ class EditProfileController @Autowired() (
 
     tmpl.getProf.setAvatarMode(avatar)
     tmpl.getProf.setShowAnonymous("on" == request.getParameter("showanonymous"))
-    tmpl.getProf.setUseHover("on" == request.getParameter("hover"))
     profileDao.writeProfile(tmpl.getCurrentUser, tmpl.getProf)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))

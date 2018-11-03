@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,21 +19,10 @@ package ru.org.linux.topic;
  * @author Viachaslau Zanko
  */
 public class TopicListRequest {
-  private Integer section;
-  private Integer group;
   private Integer offset;
   private String output;
   private Integer month;
   private Integer year;
-  private String filter;
-
-  public Integer getSection() {
-    return section;
-  }
-
-  public void setSection(Integer section) {
-    this.section = section;
-  }
 
   public Integer getOffset() {
     return offset;
@@ -65,13 +54,5 @@ public class TopicListRequest {
 
   public void setYear(Integer year) {
     this.year = year;
-  }
-
-  public String getFilter() {
-    return filter;
-  }
-
-  public void setFilter(String filter) {
-    this.filter = filter;
   }
 }

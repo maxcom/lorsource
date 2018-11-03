@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.validation.Errors;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
@@ -104,7 +103,7 @@ public class UserTagServiceTest {
     ImmutableList<String> etalon = etalonBuild.build();
     when(userTagDao.getTags(1, true)).thenReturn(etalon);
 
-    ImmutableList<String> actual = userTagService.favoritesGet(user);
+    List<String> actual = userTagService.favoritesGet(user);
     Assert.assertEquals(etalon.size(), actual.size());
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }
@@ -116,7 +115,7 @@ public class UserTagServiceTest {
     ImmutableList<String> etalon = etalonBuild.build();
     when(userTagDao.getTags(1, false)).thenReturn(etalon);
 
-    ImmutableList<String> actual = userTagService.ignoresGet(user);
+    List<String> actual = userTagService.ignoresGet(user);
     Assert.assertEquals(etalon.size(), actual.size());
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }
@@ -138,7 +137,6 @@ public class UserTagServiceTest {
   public void addMultiplyTagsTest() {
     UserTagService mockUserTagService = mock(UserTagService.class);
     when(mockUserTagService.addMultiplyTags(any(User.class), anyString(), anyBoolean())).thenCallRealMethod();
-    when(mockUserTagService.parseTags(anyString(), any(Errors.class))).thenCallRealMethod();
     try{
       doThrow(new TagNotFoundException()).when(mockUserTagService).favoriteAdd(eq(user), eq("uytutut"));
       doThrow(new DuplicateKeyException("duplicate")).when(mockUserTagService).favoriteAdd(eq(user), eq("tag3"));
@@ -156,7 +154,6 @@ public class UserTagServiceTest {
 
     reset(mockUserTagService);
     when(mockUserTagService.addMultiplyTags(any(User.class), anyString(), anyBoolean())).thenCallRealMethod();
-    when(mockUserTagService.parseTags(anyString(), any(Errors.class))).thenCallRealMethod();
     try{
       doThrow(new TagNotFoundException()).when(mockUserTagService).ignoreAdd(eq(user), eq("uytutut"));
       doThrow(new DuplicateKeyException("duplicate")).when(mockUserTagService).ignoreAdd(eq(user), eq("tag3"));

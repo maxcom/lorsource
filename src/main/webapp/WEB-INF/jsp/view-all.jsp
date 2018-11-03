@@ -1,10 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.section.Section,java.util.Date"   buffer="60kb"%>
+<%@ page import="ru.org.linux.section.Section"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -26,9 +26,6 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-    response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
-    response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
-
     Section section = (Section) request.getAttribute("section");
     int sectionid = 0;
     if (section!=null) {
@@ -39,38 +36,32 @@
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <c:url var="urlFilterHandler" value="view-all.jsp" />
-  <form action="${urlFilterHandler}">
+<h1>${title}</h1>
 
-  <div class=nav>
-    <div id="navPath">
-      ${title}
-    </div>
+<nav>
+  <c:if test="${section!=null}">
+    <a class="btn btn-default" href="view-all.jsp">Все</a>
+  </c:if>
 
-    <div class="nav-buttons">
-      <ul>
-      <c:if test="${not empty addlink}">
-          <li>
-              <a href="${addlink}">Добавить</a>
-          </li>
+  <c:if test="${section==null}">
+    <a class="btn btn-selected" href="view-all.jsp">Все</a>
+  </c:if>
+
+  <c:forEach items="${sections}" var="item">
+    <c:if test="${item.premoderated}">
+      <c:if test="${section!=null && item.id == section.id}">
+        <a href="view-all.jsp?section=${item.id}" class="btn btn-selected">${item.name}</a>
       </c:if>
-      </ul>
-      <select name="section" onChange="submit();" title="Быстрый переход">
-        <option value="0">Все</option>
-        <c:forEach items="${sections}" var="item">
-          <c:if test="${item.premoderated}">
-            <c:if test="${section!=null && item.id == section.id}">
-              <option value="${item.id}" selected>${item.name}</option>
-            </c:if>
-            <c:if test="${item.id != section.id}">
-              <option value="${item.id}">${item.name}</option>
-            </c:if>
-          </c:if>
-        </c:forEach>
-      </select>
-    </div>
-  </div>
-  </form>
+      <c:if test="${item.id != section.id}">
+        <a href="view-all.jsp?section=${item.id}" class="btn btn-default">${item.name}</a>
+      </c:if>
+    </c:if>
+  </c:forEach>
+
+  <c:if test="${not empty addlink}">
+    <a class="btn btn-primary" href="${addlink}">Добавить</a>
+  </c:if>
+</nav>
 
 <strong>Внимание!</strong> Cообщения отображаются точно так же, как
 они будут выглядеть на главной странице. Если ваше сообщение отображается не так, как вы хотели, или
@@ -90,16 +81,26 @@
 <div class=forum>
 <table class="message-table" width="100%">
 <thead>
-<tr><th class="hideon-tablet">Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
+<tr>
+  <th>Заголовок</th>
+  <th>Причина удаления</th>
+  <c:if test="${template.moderatorSession}">
+    <th>Дата</th>
+  </c:if>
+</tr>
 <tbody>
 
 <c:forEach items="${deletedTopics}" var="topic">
 
 <tr>
-  <td class="hideon-tablet"><a href="group.jsp?group=${topic.groupId}">${topic.gtitle}</a></td>
-  <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick}<span class="hideon-desktop"> в </span><%--
-                  --%><span class="hideon-desktop"><a href="group.jsp?group=${topic.groupId}">${topic.gtitle}</a></span>)</td>
+  <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
   <td>${topic.reason}</td>
+  <c:if test="${template.moderatorSession}">
+    <td>
+      написано <lor:dateinterval date="${topic.postdate}"/><br>
+      удалено <lor:dateinterval date="${topic.delDate}"/>
+    </td>
+  </c:if>
 </tr>
 </c:forEach>
 </table>

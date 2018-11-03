@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,10 +23,10 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
 <channel>
-<link>${template.mainUrlNoSlash}${message.link}</link>
+<link>${template.secureMainUrlNoSlash}${message.link}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${l:escapeHtml(message.title)}</title>
-  <lor:message-rss preparedMessage="${preparedMessage}"/>
+  <lor:message-rss preparedTopic="${preparedMessage}"/>
   <c:forEach items="${commentsPrepared}" var="comment">
     <item>
       <title>
@@ -38,8 +38,8 @@
         </c:if>
       </title>
       <author>${comment.author.nick}</author>
-      <link>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
-      <guid>${template.mainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
+      <link>${template.secureMainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
+      <guid>${template.secureMainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
       <description ><![CDATA[${comment.processedMessage}]]>
       </description>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,8 @@
 
 package ru.org.linux.user;
 
-
 import com.google.common.base.Strings;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,8 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.UserDetailsImpl;
 import ru.org.linux.auth.UserDetailsServiceImpl;
+import ru.org.linux.email.EmailService;
 import ru.org.linux.site.Template;
-import ru.org.linux.util.EmailService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
@@ -71,8 +70,10 @@ public class EditRegisterController {
   private UserDao userDao;
 
   @Autowired
-  private EmailService emailService;
+  private UserService userService;
 
+  @Autowired
+  private EmailService emailService;
 
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
@@ -97,7 +98,7 @@ public class EditRegisterController {
     form.setUrl(userInfo.getUrl());
     form.setTown(userInfo.getTown());
     form.setName(user.getName());
-    form.setInfo(StringEscapeUtils.unescapeHtml(userDao.getUserInfo(user)));
+    form.setInfo(StringEscapeUtils.unescapeHtml4(userDao.getUserInfo(user)));
 
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 
@@ -162,7 +163,7 @@ public class EditRegisterController {
 
     boolean emailChanged = false;
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUser(nick);
 
     if (Strings.isNullOrEmpty(form.getOldpass())) {
       errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль");
@@ -220,7 +221,8 @@ public class EditRegisterController {
     }
 
     if (emailChanged) {
-      String msg = "Обновление регистрации прошло успешно. Ожидайте письма с кодом активации смены email.";
+      String msg = "Обновление регистрации прошло успешно. " +
+              "Ожидайте письма на "+StringUtil.escapeHtml(newEmail)+" с кодом активации смены email.";
 
       return new ModelAndView("action-done", "message", msg);
     } else {

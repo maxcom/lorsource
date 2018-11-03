@@ -23,8 +23,11 @@ Disallow: /addphoto.jsp
 Disallow: /dw.jsp
 Disallow: /activate.jsp
 Disallow: /delete_image
+Disallow: /add-section.jsp
+Disallow: /api/
 
 Disallow: /wiki/en/Special:History
+Disallow: /wiki/en/Special:Setup
 Disallow: /wiki/en/Special:Diff
 Disallow: /wiki/en/Special:Logout
 Disallow: /wiki/en/Special:Print

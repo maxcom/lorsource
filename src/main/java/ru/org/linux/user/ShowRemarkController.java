@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -34,6 +34,9 @@ public class ShowRemarkController {
   private UserDao userDao;
 
   @Autowired
+  private RemarkDao remarkDao;
+
+  @Autowired
   private PreparedRemarkService prepareService;
   
   @RequestMapping("/people/{nick}/remarks")
@@ -47,7 +50,7 @@ public class ShowRemarkController {
       throw new AccessViolationException("Not authorized");
     }
 
-    int count = userDao.getRemarkCount(tmpl.getCurrentUser());
+    int count = remarkDao.remarkCount(tmpl.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("view-remarks");
 
@@ -67,7 +70,7 @@ public class ShowRemarkController {
       }
 
 
-      List<Remark> remarks = userDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
+      List<Remark> remarks = remarkDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
       List<PreparedRemark> preparedRemarks = prepareService.prepareRemarkList(remarks);
 
       mv.getModel().put("remarks", preparedRemarks);
@@ -80,5 +83,4 @@ public class ShowRemarkController {
 
     return mv;
   }
-  
 }

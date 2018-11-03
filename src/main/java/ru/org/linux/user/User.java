@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,20 +15,15 @@
 
 package ru.org.linux.user;
 
-import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.BadPasswordException;
-import ru.org.linux.auth.LoginController;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.util.StringUtil;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,9 +49,7 @@ public class User implements Serializable {
   private final String style;
 
   private final boolean activated;
-  public static final int CORRECTOR_SCORE = 100;
-  private static final int BLOCK_MAX_SCORE = 400;
-  private static final int BLOCK_SCORE = 200;
+  public static final int CORRECTOR_SCORE = 200;
 
   public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 
@@ -203,10 +196,6 @@ public class User implements Serializable {
     return anonymous;
   }
 
-  public String getMD5(String base) {
-    return StringUtil.md5hash(base + password);
-  }
-
   public String getActivationCode(String base) {
     return getActivationCode(base, nick, email);
   }
@@ -237,10 +226,10 @@ public class User implements Serializable {
 
   @Deprecated
   public String getStars() {
-    return getStars(score, maxScore);
+    return getStars(score, maxScore, true);
   }
 
-  public static int getGreenStars(int score) {
+  private static int getGreenStars(int score) {
     if (score < 0) {
       score = 0;
     }
@@ -251,7 +240,7 @@ public class User implements Serializable {
     return (int) Math.floor(score / 100.0);
   }
 
-  public static int getGreyStars(int score, int maxScore) {
+  private static int getGreyStars(int score, int maxScore) {
     if (maxScore < 0) {
       maxScore = 0;
     }
@@ -266,21 +255,15 @@ public class User implements Serializable {
     return (int) Math.floor(maxScore / 100.0) - stars;
   }
 
-  public int getGreenStars() {
-    return getGreenStars(score);
-  }
-
-  public int getGreyStars() {
-    return getGreyStars(score, maxScore);
-  }
-
-  public static String getStars(int score, int maxScore) {
+  public static String getStars(int score, int maxScore, boolean html) {
     StringBuilder out = new StringBuilder();
 
     int stars = getGreenStars(score);
     int greyStars = getGreyStars(score, maxScore);
 
-    out.append("<span class=\"stars\">");
+    if (html) {
+      out.append("<span class=\"stars\">");
+    }
 
     for (int i = 0; i < stars; i++) {
       out.append("★");
@@ -290,18 +273,30 @@ public class User implements Serializable {
       out.append("☆");
     }
 
-    out.append("</span>");
+    if (html) {
+      out.append("</span>");
+    }
 
     return out.toString();
   }
 
   public String getStatus() {
+    String text;
+
     if (score < ANONYMOUS_LEVEL_SCORE) {
-      return "анонимный";
+      text = "анонимный";
     } else if (score < 100 && maxScore < 100) {
-      return "новый пользователь";
+      text = "новый пользователь";
     } else {
-      return getStars(score, maxScore);
+      text = "";
+    }
+
+    if (maxScore>=100 && text.isEmpty()) {
+      return getStars(score, maxScore, true);
+    } else if (maxScore>=100 && !text.isEmpty()) {
+      return text + " " + getStars(score, maxScore, true);
+    } else {
+      return text;
     }
   }
 
@@ -311,8 +306,6 @@ public class User implements Serializable {
     }
 
     return !canmod;
-
-    // return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 
   public boolean isActivated() {
@@ -327,33 +320,6 @@ public class User implements Serializable {
     return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
   }
 
-  public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
-    String username = nick;
-    //String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-    String cookieName = LoginController.ACEGI_COOKIE_NAME; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-    long tokenValiditySeconds = 1209600; // 14 days
-    String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
-    long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
-
-    // construct token to put in cookie; format is:
-    // username + ":" + expiryTime + ":" + Md5Hex(username + ":" +
-    // expiryTime + ":" + password + ":" + key)
-
-    String signatureValue = StringUtil.md5hash(username + ':' + expiryTime + ':' + password + ':' + key);
-    String tokenValue = username + ':' + expiryTime + ':' + signatureValue;
-    String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
-
-    // Add remember me cookie
-    Cookie acegi = new Cookie(cookieName, tokenValueBase64);
-    acegi.setMaxAge(Long.valueOf(expiryTime).intValue());
-    acegi.setPath("/wiki");
-    acegi.setHttpOnly(true);
-    response.addCookie(acegi);
-
-    // Remove ACEGI_SECURITY_CONTEXT and session
-    session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
-  }
-
   public boolean isCorrector() {
     return corrector;
   }
@@ -362,26 +328,6 @@ public class User implements Serializable {
     if (nick==null || !StringUtil.checkLoginName(nick)) {
       throw new BadInputException("некорректное имя пользователя");
     }
-  }
-
-  public String getGravatar(String avatarStyle, int size, boolean secure) {
-    return getGravatar(email, avatarStyle, size, secure);
-  }
-
-  public static String getGravatar(String email, String avatarStyle, int size, boolean secure) {
-    String nonExist;
-
-    if ("empty".equals(avatarStyle)) {
-      nonExist = "blank";
-    } else {
-      nonExist = avatarStyle;
-    }
-
-    String grUrl = secure?"https://secure.gravatar.com/avatar/":"http://www.gravatar.com/avatar/";
-
-    return grUrl
-            + StringUtil.md5hash(email.toLowerCase())
-            + "?s="+size+"&r=g&d="+nonExist;
   }
 
   public String getEmail() {

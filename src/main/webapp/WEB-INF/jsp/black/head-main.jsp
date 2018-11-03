@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,7 +15,7 @@
   ~    limitations under the License.
   --%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body style="margin-top: 0">
 <a href="/">
@@ -35,28 +35,12 @@
   <td><lor:events/></td>
 </tr>
 <tr>
-  <td><a href="/wiki">Wiki</a></td>
+  <td></td>
   <td></td>
   <td><a href="search.jsp">Поиск</a></td>
 </tr>
 </table>
   <br>
-<%--
-  <div class="infoblock" style="margin:0; text-align: justify">
-    <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
-    <div style="margin-left: 135px">
-        SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
-        телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash;
-        объявляет о&nbsp;приеме на&nbsp;работу инженеров-программистов,
-        разработчиков в&nbsp;исследовательские центры компании в&nbsp;Южной Корее:
-        Cloud Computing, Cryptography&nbsp;/ Encryption, Security Software, Multimedia
-        (TV, BD, PVR, HTS), Linux Kernel, Android, C/C++ Programming, Widget,
-        DRM, Network Software, LTE eNB Software Design, Modem ASIC, FPGA, SoC.
-        Дополнительная информация:
-    <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
-    </div>
-  </div>
---%>
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">

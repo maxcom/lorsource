@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,7 +46,7 @@ public class ScoreUpdater {
             "(select distinct comments.userid from comments, topics " +
             "where comments.postdate>CURRENT_TIMESTAMP-'2 days'::interval " +
             "and topics.id=comments.topic and " +
-            "groupid!=8404 and groupid!=4068 and groupid!=19390 and " +
+            "groupid!=8404 and groupid!=4068 and groupid!=19390 and groupid!=19405 and " +
             "not comments.deleted and not topics.deleted)");
 
     updateMaxScore();
@@ -65,6 +65,6 @@ public class ScoreUpdater {
 
   @Scheduled(cron="0 1 2 * * *")
   public void deleteInactivated() {
-    jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 week'::interval");
+    jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval");
   }
 }

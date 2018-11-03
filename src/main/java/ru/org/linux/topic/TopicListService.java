@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 package ru.org.linux.topic;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,15 +63,13 @@ public class TopicListService {
     int count
   ) throws TagNotFoundException {
     logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getTopicsFeed()")
-        .append("; section=").append((section != null) ? section.toString() : "(null)")
-        .append("; group=").append((group != null) ? group.toString() : "(null)")
-        .append("; tag=").append(tag)
-        .append("; offset=").append(offset)
-        .append("; year=").append(year)
-        .append("; month=").append(month)
-        .toString()
+            "TopicListService.getTopicsFeed()" +
+                    "; section=" + ((section != null) ? section.toString() : "(null)") +
+                    "; group=" + ((group != null) ? group.toString() : "(null)") +
+                    "; tag=" + tag +
+                    "; offset=" + offset +
+                    "; year=" + year +
+                    "; month=" + month
     );
 
     TopicListDto topicListDto = new TopicListDto();
@@ -105,7 +104,7 @@ public class TopicListService {
       topicListDto.setLimit(count);
       topicListDto.setOffset(offset > 0 ? offset : null);
       if (tag == null && group == null && !section.isPremoderated()) {
-        topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+        topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH, -6);
@@ -138,13 +137,11 @@ public class TopicListService {
    */
   public List<Topic> getUserTopicsFeed(User user, Section section, Group group, Integer offset, boolean favorites, boolean watches) {
     logger.debug(
-        new StringBuilder()
-            .append("TopicListService.getTopicsFeed()")
-            .append("; user=").append((user != null) ? user.toString() : "(null)")
-            .append("; section=").append(section)
-            .append("; offset=").append(offset)
-            .append("; isFavorite=").append(String.valueOf(favorites))
-            .toString()
+            "TopicListService.getTopicsFeed()" +
+                    "; user=" + ((user != null) ? user.toString() : "(null)") +
+                    "; section=" + section +
+                    "; offset=" + offset +
+                    "; isFavorite=" + String.valueOf(favorites)
     );
 
     TopicListDto topicListDto = new TopicListDto();
@@ -199,19 +196,15 @@ public class TopicListService {
     Group group,
     Date fromDate,
     boolean noTalks,
-    boolean tech,
-    boolean feedBurner
+    boolean tech
   ) {
     logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getRssTopicsFeed()")
-        .append("; section=").append((section != null) ? section.toString() : "(null)")
-        .append("; group=").append((group != null) ? group.toString() : "(null)")
-        .append("; fromDate=").append(fromDate)
-        .append("; noTalks=").append(noTalks)
-        .append("; tech=").append(tech)
-        .append("; feedBurner=").append(feedBurner)
-        .toString()
+            "TopicListService.getRssTopicsFeed()" +
+                    "; section=" + ((section != null) ? section.toString() : "(null)") +
+                    "; group=" + ((group != null) ? group.toString() : "(null)") +
+                    "; fromDate=" + fromDate +
+                    "; noTalks=" + noTalks +
+                    "; tech=" + tech
     );
 
     TopicListDto topicListDto = new TopicListDto();
@@ -223,7 +216,7 @@ public class TopicListService {
       topicListDto.setGroup(group.getId());
     }
 
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(fromDate);
 
     topicListDto.setNotalks(noTalks);
@@ -235,26 +228,17 @@ public class TopicListService {
     } else {
       topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
     }
-    return (feedBurner)
-      ? topicListDao.getTopics(topicListDto)
-      : topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto);
   }
 
-  /**
-   * @param section
-   * @param fromDate
-   * @return
-   */
   public List<Topic> getAllTopicsFeed(
     Section section,
     Date fromDate
   ) {
     logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getAllTopicsFeed()")
-        .append("; section=").append((section != null) ? section.toString() : "(null)")
-        .append("; fromDate=").append(fromDate)
-        .toString()
+            "TopicListService.getAllTopicsFeed()" +
+                    "; section=" + ((section != null) ? section.toString() : "(null)") +
+                    "; fromDate=" + fromDate
     );
 
     TopicListDto topicListDto = new TopicListDto();
@@ -263,47 +247,31 @@ public class TopicListService {
       topicListDto.setSection(section.getId());
     }
 
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(fromDate);
 
     return topicListDao.getTopics(topicListDto);
   }
 
-  /**
-   * @param sectionId
-   * @return
-   */
-  public List<TopicListDto.DeletedTopic> getDeletedTopicsFeed(Integer sectionId) {
-    logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getDeletedTopicsFeed()")
-        .append("; sectionId=").append(sectionId)
-        .toString()
-    );
-
-    return topicListDao.getDeletedTopics(sectionId);
+  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
+    return topicListDao.getDeletedTopics(sectionId, skipEmptyReason);
   }
 
-  public List<Topic> getMainPageFeed(boolean isShowGalleryOnMain) {
-    logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getMainPageFeed()")
-        .append("; isShowGalleryOnMain=").append(isShowGalleryOnMain)
-        .toString()
-    );
-
+  public List<Topic> getMainPageFeed(boolean showGalleryOnMain, int count, boolean hideMinor) {
     TopicListDto topicListDto = new TopicListDto();
 
-    topicListDto.setLimit(20);
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setLimit(count);
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(new Date());
-    calendar.add(Calendar.MONTH, -1);
-    topicListDto.setFromDate(calendar.getTime());
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
+    topicListDto.setFromDate(DateTime.now().minusMonths(1).toDate());
+
+    if (hideMinor) {
+      topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR);
+    }
+    
     topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
 
-    if (isShowGalleryOnMain) {
+    if (showGalleryOnMain) {
       topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY);
     } else {
       topicListDto.setSection(Section.SECTION_NEWS);

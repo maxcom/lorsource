@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -219,26 +219,6 @@ public final class StringUtil {
     }
 
     return res.toString();
-  }
-
-  /**
-   * Повторить строку n раз
-   * @param s строка
-   * @param n сколько повторять строку
-   * @return повторенная n раз строка
-   */
-  public static String repeat(String s, int n) {
-    if(s == null) {
-      return null;
-    }
-    if(n <= 0) {
-      return s;
-    }
-    final StringBuilder sb = new StringBuilder(s.length()*n);
-    for(int i = 0; i < n; i++) {
-        sb.append(s);
-    }
-    return sb.toString();
   }
 
   public static boolean isUnsignedPositiveNumber(String s) {

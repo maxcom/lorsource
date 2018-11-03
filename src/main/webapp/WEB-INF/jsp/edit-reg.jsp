@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -18,7 +18,7 @@
   --%>
 <jsp:include page="head.jsp"/>
 
-<title>Регистрация пользователя</title>
+<title>Редактирование профиля</title>
 <script type="text/javascript">
 $script.ready("plugins", function() {
   $(function() {
@@ -35,25 +35,21 @@ $script.ready("plugins", function() {
 
 <jsp:include page="header.jsp"/>
 
-<div class=nav>
-    <div id="navPath">
-      Изменение регистрации
-    </div>
+<h1>Редактирование профиля</h1>
 
-    <div class="nav-buttons">
-      <ul>
-        <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
-        <li><a href="/people/${form.nick}/settings">Настройки профиля</a></li>
-      </ul>
-     </div>
-</div>
+<nav>
+  <a href="/people/${template.nick}/edit" class="btn btn-selected">Редактировать профиль</a>
+  <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  <a class="btn btn-default" href="/people/${form.nick}/settings">Настройки</a>
+</nav>
 
 <form:form modelAttribute="form" method="POST" action="/people/${form.nick}/edit" id="editRegForm">
+    <lor:csrf/>
     <form:errors element="label" cssClass="error"/>
     <dl>
         <dt><label for="name">Полное имя</label></dt>
         <dd>
-            <form:input path="name" size="40" cssErrorClass="error" />
+            <form:input path="name" size="40" cssErrorClass="error" maxlength="255"/>
             <form:errors path="name" element="label" cssClass="error" for="name"/>
             <span class="help-block">&nbsp;</span>
         </dd>
@@ -74,7 +70,7 @@ $script.ready("plugins", function() {
 
         <dt><label for="url">URL</label></dt>
         <dd>
-            <form:input path="url" size="60" cssErrorClass="error"/>
+            <form:input path="url" size="60" cssErrorClass="error" maxlength="255"/>
             <form:errors path="url" element="label" cssClass="error" for="url"/>
             <span class="help-block">не забудьте добавить <i>http://</i></span>
         </dd>
@@ -88,7 +84,7 @@ $script.ready("plugins", function() {
 
         <dt><label for="town">Город</label></dt>
         <dd>
-            <form:input path="town" size="60" cssErrorClass="error"/>
+            <form:input path="town" size="60" cssErrorClass="error" maxlength="100"/>
             <form:errors path="town" element="label" cssClass="error" for="town"/>
             <span class="help-block">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span>
         </dd>
@@ -97,7 +93,7 @@ $script.ready("plugins", function() {
         <dd>
             <form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/>
             <form:errors path="info" element="label" cssClass="error" for="info"/>
-            <span class="help-block"><a href="/wiki/en/Lorcode" target="_blank" title="справка откроется в новом окне">справка по разметке LORCODE</a></span>
+            <span class="help-block"><a href="/help/lorcode.md" target="_blank" title="справка откроется в новом окне">справка по разметке LORCODE</a></span>
         </dd>
 
         <dt><label for="oldpass">Пароль</label></dt>
@@ -107,6 +103,6 @@ $script.ready("plugins", function() {
             <span class="help-block">&nbsp;</span>
         </dd>
     </dl>
-    <input type="submit" value="Применить изменения">
+    <button type="submit" class="btn btn-primary">Применить изменения</button>
 </form:form>
 <jsp:include page="footer.jsp"/>

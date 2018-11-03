@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,6 +27,8 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.GroupDao;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ public class SectionController {
   private GroupDao groupDao;
 
   @RequestMapping("/view-section.jsp")
-  public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) {
+  public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid, HttpServletResponse response) {
     Section section = sectionService.getSection(sectionid);
 
     Map<String, Object> params = new HashMap<>();
@@ -47,12 +49,15 @@ public class SectionController {
 
     params.put("groups", groupDao.getGroups(section));
 
+    response.setDateHeader("Expires", new Date(System.currentTimeMillis() - 20 * 3600 * 1000).getTime());
+    response.setDateHeader("Last-Modified", new Date(System.currentTimeMillis() - 2 * 1000).getTime());
+
     return new ModelAndView("section", params);
   }
 
   @RequestMapping("/forum")
-  public ModelAndView forum() {
-    return handleRequestInternal(Section.SECTION_FORUM);
+  public ModelAndView forum(HttpServletResponse response) {
+    return handleRequestInternal(Section.SECTION_FORUM, response);
   }
 
   @RequestMapping(value="/view-section.jsp", params = {"section=2"})

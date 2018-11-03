@@ -1,15 +1,18 @@
+sudo: false
 language: java
-script: mvn -T 2C install
+script: mvn -T 2C verify
 jdk:
-  - oraclejdk7
-  - openjdk7
+  - oraclejdk8
+#  - openjdk10
 before_script:
   - createuser -U postgres -d -S -R maxcom
   - createuser -U postgres -D -S -R linuxweb
   - createuser -U postgres -D -S -R jamwiki
   - createdb -U maxcom lor
-  - psql -f sql/demo.db -U maxcom lor
+  - travis_wait psql -f sql/demo.db -U maxcom lor
   - psql -c 'create extension hstore;' -U postgres lor
+  - psql -c 'create extension fuzzystrmatch;' -U postgres lor
   - unset GEM_PATH
 before_install:
   - unset GEM_PATH
+install: mvn verify -DskipTests=true -Dmaven.javadoc.skip=true 

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,43 +15,46 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Удаление метки</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<script src="/js/jqueryui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
 <script type="text/javascript">
-  $(function() {
-      $( "#tagName" )
-        .bind( "keydown", function( event ) {
-          if ( event.keyCode === $.ui.keyCode.TAB &&
-              $( this ).data( "autocomplete" ).menu.active ) {
-            event.preventDefault();
-          }
-        })
-        .autocomplete({
-          source: function( request, response ) {
-            $.getJSON( "/tags", {
-              term: request.term
-            }, response );
-          },
-          search: function() {
-           // custom minLength
-            if ( this.value.length < 2 ) {
-              return false;
-            }
-          },
-          focus: function() {
-            // prevent value inserted on focus
-            return false;
-          },
-          select: function( event, ui ) {
-            this.value = ui.item.value;
-            return false;
-          }
-        });
-    });
+  $script.ready("jquery", function() {
+    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  });
+
+  $script.ready("jqueryui", function() {
+    $( "#tagName" )
+            .bind( "keydown", function( event ) {
+              if ( event.keyCode === $.ui.keyCode.TAB &&
+                      $( this ).data( "autocomplete" ).menu.active ) {
+                event.preventDefault();
+              }
+            })
+            .autocomplete({
+              source: function( request, response ) {
+                $.getJSON( "/tags", {
+                  term: request.term
+                }, response );
+              },
+              search: function() {
+                // custom minLength
+                if ( this.value.length < 2 ) {
+                  return false;
+                }
+              },
+              focus: function() {
+                // prevent value inserted on focus
+                return false;
+              },
+              select: function( event, ui ) {
+                this.value = ui.item.value;
+                return false;
+              }
+            });
+  });
  </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -62,6 +65,7 @@
   <c:param name="firstLetter" value="${firstLetter}"/>
 </c:url>
  <form:form modelAttribute="tagRequestDelete" method="POST" action="${delete_url}" enctype="multipart/form-data" >
+  <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
   <label for="tagName">Метка. которой нужно заменить удаляемую (пусто - удалить без замены):</label>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,36 +20,36 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.edithistory.EditHistoryDto;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
@@ -66,22 +66,25 @@ public class TopicDao {
   private GroupDao groupDao;
 
   @Autowired
-  private TagModificationService tagService;
-
-  @Autowired
-  private TopicTagService topicTagService;
+  private TopicTagService topicTagService; // TODO move to TopicService
 
   @Autowired
   private SectionService sectionService;
 
   @Autowired
-  private MsgbaseDao msgbaseDao;
+  private MsgbaseDao msgbaseDao; // TODO move to TopicService
 
   @Autowired
-  private DeleteInfoDao deleteInfoDao;
+  private DeleteInfoDao deleteInfoDao; // TODO move to TopicService
 
   @Autowired
-  private EditHistoryService editHistoryService;
+  private EditHistoryService editHistoryService; // TODO move to TopicService
+
+  @Autowired
+  private ImageDao imageDao; // TODO move to TopicService
+
+  @Autowired
+  private SiteConfig siteConfig;
 
   /**
    * Запрос получения полной информации о топике
@@ -90,22 +93,15 @@ public class TopicDao {
         "postdate, topics.id as msgid, userid, topics.title, " +
         "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
         "urlname, section, topics.sticky, topics.postip, " +
-        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+        "COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
         "topics.resolved, minor, draft " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
         "WHERE topics.id=?";
-  /**
-   * Удаление топика
-   */
-  private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
-  private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
   private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
-
-  private static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
 
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -124,7 +120,7 @@ public class TopicDao {
    * @return время
    */
   public Timestamp getTimeFirstTopic() {
-    return jdbcTemplate.queryForObject(queryTimeFirstTopic, Timestamp.class);
+    return jdbcTemplate.queryForObject("SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp", Timestamp.class);
   }
 
   /**
@@ -150,12 +146,7 @@ public class TopicDao {
   public Topic getById(int id) throws MessageNotFoundException {
     Topic message;
     try {
-      message = jdbcTemplate.queryForObject(queryMessage, new RowMapper<Topic>() {
-        @Override
-        public Topic mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Topic(resultSet);
-        }
-      }, id);
+      message = jdbcTemplate.queryForObject(queryMessage, (resultSet, i) -> new Topic(resultSet), id);
     } catch (EmptyResultDataAccessException exception) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw new MessageNotFoundException(id);
@@ -184,22 +175,7 @@ public class TopicDao {
     Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
     calendar.add(Calendar.MONTH, 1);
     Timestamp ts_end = new Timestamp(calendar.getTimeInMillis());
-    return jdbcTemplate.query(queryTopicsIdByTime, new RowMapper<Integer>() {
-      @Override
-      public Integer mapRow(ResultSet resultSet, int i) throws SQLException {
-        return resultSet.getInt("id");
-      }
-    }, ts_start, ts_end);
-  }
-
-  /**
-   * Получить тэги топика
-   *
-   * @param message топик
-   * @return список тэгов
-   */
-  public List<String> getTags(Topic message) {
-    return topicTagService.getTags(message.getId());
+    return jdbcTemplate.query(queryTopicsIdByTime, (resultSet, i) -> resultSet.getInt("id"), ts_start, ts_end);
   }
 
   public boolean delete(int msgid) {
@@ -214,8 +190,8 @@ public class TopicDao {
       userDao.changeScore(message.getUid(), -deleteInfo.getBonus());
     }
 
-    jdbcTemplate.update(updateUndeleteMessage, message.getId());
-    jdbcTemplate.update(updateUneleteInfo, message.getId());
+    jdbcTemplate.update("UPDATE topics SET deleted='f' WHERE id=?", message.getId());
+    jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", message.getId());
   }
 
   private int allocateMsgid() {
@@ -244,22 +220,19 @@ public class TopicDao {
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
             "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
-            new PreparedStatementCallback<String>() {
-              @Override
-              public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-                pst.setInt(1, group.getId());
-                pst.setInt(2, user.getId());
-                pst.setString(3, msg.getTitle());
-                pst.setString(4, finalUrl);
-                pst.setInt(5, msgid);
-                pst.setString(6, finalLinktext);
-                pst.setString(7, userAgent);
-                pst.setString(8, msg.getPostIP());
-                pst.setBoolean(9, msg.isDraft());
-                pst.executeUpdate();
+            (PreparedStatementCallback<String>) pst -> {
+              pst.setInt(1, group.getId());
+              pst.setInt(2, user.getId());
+              pst.setString(3, msg.getTitle());
+              pst.setString(4, finalUrl);
+              pst.setInt(5, msgid);
+              pst.setString(6, finalLinktext);
+              pst.setString(7, userAgent);
+              pst.setString(8, msg.getPostIP());
+              pst.setBoolean(9, msg.isDraft());
+              pst.executeUpdate();
 
-                return null;
-              }
+              return null;
             }
     );
 
@@ -269,19 +242,20 @@ public class TopicDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
-    EditHistoryDto editHistoryDto = new EditHistoryDto();
+  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText,
+                               UploadedImagePreview imagePreview) throws IOException {
+    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
 
-    editHistoryDto.setMsgid(msg.getId());
-    editHistoryDto.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
-    editHistoryDto.setEditor(editor.getId());
+    editHistoryRecord.setMsgid(msg.getId());
+    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
+    editHistoryRecord.setEditor(editor.getId());
 
     boolean modified = false;
 
     String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
 
     if (!oldText.equals(newText)) {
-      editHistoryDto.setOldmessage(oldText);
+      editHistoryRecord.setOldmessage(oldText);
       modified = true;
 
       msgbaseDao.updateMessage(msg.getId(), newText);
@@ -289,7 +263,7 @@ public class TopicDao {
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {
       modified = true;
-      editHistoryDto.setOldtitle(oldMsg.getTitle());
+      editHistoryRecord.setOldtitle(oldMsg.getTitle());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET title=:title WHERE id=:id",
@@ -299,7 +273,7 @@ public class TopicDao {
 
     if (!equalStrings(oldMsg.getLinktext(), msg.getLinktext())) {
       modified = true;
-      editHistoryDto.setOldlinktext(oldMsg.getLinktext());
+      editHistoryRecord.setOldlinktext(oldMsg.getLinktext());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET linktext=:linktext WHERE id=:id",
@@ -309,7 +283,7 @@ public class TopicDao {
 
     if (!equalStrings(oldMsg.getUrl(), msg.getUrl())) {
       modified = true;
-      editHistoryDto.setOldurl(oldMsg.getUrl());
+      editHistoryRecord.setOldurl(oldMsg.getUrl());
 
       namedJdbcTemplate.update(
         "UPDATE topics SET url=:url WHERE id=:id",
@@ -318,12 +292,12 @@ public class TopicDao {
     }
 
     if (newTags != null) {
-      List<String> oldTags = topicTagService.getTags(msg.getId());
+      List<String> oldTags = topicTagService.getTags(msg);
 
       boolean modifiedTags = topicTagService.updateTags(msg.getId(), oldTags, newTags);
 
       if (modifiedTags) {
-        editHistoryDto.setOldtags(TagService.tagsToString(oldTags));
+        editHistoryRecord.setOldtags(TagService.tagsToString(oldTags));
         modified = true;
       }
     }
@@ -332,13 +306,35 @@ public class TopicDao {
       namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
 
-      editHistoryDto.setOldminor(oldMsg.isMinor());
+      editHistoryRecord.setOldminor(oldMsg.isMinor());
+
+      modified = true;
+    }
+
+    if (imagePreview!=null) {
+      Image oldImage = imageDao.imageForTopic(msg);
+
+      if (oldImage!=null) {
+        imageDao.deleteImage(oldImage);
+      }
+
+      int id = imageDao.saveImage(msg.getId(), imagePreview.extension());
+
+      File galleryPath = new File(siteConfig.getUploadPath() + "/images");
+
+      imagePreview.moveTo(galleryPath, Integer.toString(id));
+
+      if (oldImage!=null) {
+        editHistoryRecord.setOldimage(oldImage.getId());
+      } else {
+        editHistoryRecord.setOldimage(0);
+      }
 
       modified = true;
     }
 
     if (modified) {
-      editHistoryService.insert(editHistoryDto);
+      editHistoryService.insert(editHistoryRecord);
       updateLastmod(msg.getId(), false);
     }
 
@@ -593,14 +589,14 @@ public class TopicDao {
 
   public int getUncommitedCount() {
     return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
             Integer.class
     );
   }
 
   public int getUncommitedCount(int section) {
     return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)",
+            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
             Integer.class,
             section
     );

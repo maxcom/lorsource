@@ -31,8 +31,6 @@ public class RuTypoChangerTest {
   private final String inputString;
   private final String expectedResult;
 
-  private static final RuTypoChanger typoChanger = new RuTypoChanger();
-
   public RuTypoChangerTest(String inputString, String expectedResult) {
     this.inputString = inputString;
     this.expectedResult = expectedResult;

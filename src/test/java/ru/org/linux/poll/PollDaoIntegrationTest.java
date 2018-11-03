@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = PollDaoIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = PollDaoIntegrationTestConfiguration.class)
+})
 public class PollDaoIntegrationTest {
   private static final Integer TEST_TOPIC_ID = 1937504;
 
@@ -38,8 +42,8 @@ public class PollDaoIntegrationTest {
   @Test
   public void voteGetCurrentPollTest()
       throws Exception {
-    int currentPollId = pollDao.getCurrentPollId();
-    Poll poll = pollDao.getCurrentPoll();
+    int currentPollId = pollDao.getMostRecentPollId();
+    Poll poll = pollDao.getMostRecentPoll();
     assertEquals(currentPollId, poll.getId());
   }
 

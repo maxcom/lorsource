@@ -1,8 +1,9 @@
-<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
+<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.UploadedImagePreview"  %>
 <%@ page import="ru.org.linux.tag.TagName" %>
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
+<%@ page import="ru.org.linux.gallery.Image" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -29,11 +30,10 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <title>Добавить сообщение</title>
 <script type="text/javascript">
-  $script.ready('lorjs', function() { initTopTagSelection(); });
-
   $script.ready("plugins", function() {
     $(function() {
       $("#messageForm").validate({
@@ -54,7 +54,10 @@
     });
   });
 
-  $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  $script.ready("jquery", function() {
+    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  });
+
   $script.ready("jqueryui", function() {
     $script("/js/tagsAutocomplete.js");
   });
@@ -70,7 +73,7 @@
   <lor:message messageMenu="${topicMenu}" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
-<h1>Добавить в раздел ${group.title}</h1>
+<h1>Добавить в раздел «${group.title}»</h1>
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
 <%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
@@ -84,41 +87,52 @@
   Технические требования к изображению:
   <ul>
     <li>Ширина x Высота:
-      от <%= Screenshot.MIN_SCREENSHOT_SIZE %>x<%= Screenshot.MIN_SCREENSHOT_SIZE %>
-      до <%= Screenshot.MAX_SCREENSHOT_SIZE %>x<%= Screenshot.MAX_SCREENSHOT_SIZE %> пикселей</li>
+      от <%= Image.MinDimension() %>x<%= Image.MinDimension() %>
+      до <%= Image.MaxDimension() %>x<%= Image.MaxDimension() %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= (Screenshot.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
+    <li>Размер не более <%= (Image.MaxFileSize() / 1024) - 50 %> Kb</li>
     <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
   </ul>
 </p>
 </c:if>
 
-
 <form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}" >
+  <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
 
   <form:hidden path="noinfo"/>
 
-  ${postscoreInfo}<br>
+  <p>
+    ${postscoreInfo}
+  </p>
 
   <c:if test="${not template.sessionAuthorized}">
-    <label>
-        Имя:<br> <input type=text required value="anonymous" name="nick" style="width: 40em">
-    </label>
-    <label>
-        Пароль:<br> <input type=password name=password style="width: 40em">
-    </label>
+    <div class="control-group">
+      <label for="nick">
+        Имя
+      </label>
+      <input id="nick" type=text required value="anonymous" name="nick" style="width: 40em">
+    </div>
+
+    <div class="control-group">
+      <label for="password">
+        Пароль
+      </label>
+      <input id="password" type=password name=password style="width: 40em">
+    </div>
   </c:if>
 
   <form:hidden path="group"/>
-  <p>
-
-  <label>Заглавие:<br>
-    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/><br>
-   </label>
+  <div class="control-group">
+    <label for="title">Заглавие</label>
+    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/>
+  </div>
 
   <c:if test="${imagepost}">
-    <label>Изображение: <input type="file" name="image"></label>
+    <div class="control-group">
+      <label for="image">Изображение:</label>
+      <input id="image" type="file" name="image">
+    </div>
   </c:if>
 
   <c:if test="${section.pollPostAllowed}">
@@ -140,43 +154,46 @@
 <form:select path="mode" items="${modes}"/></label><br>
 </c:if>
 
-<label for="form_msg">Сообщение:</label>
-<form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
-<font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+<div class="control-group">
+  <label for="form_msg">Сообщение</label>
+    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+    <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>
+</div>
 
 <c:if test="${group!=null and group.linksAllowed}">
-<label>
-Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
-</label>
-<label>
-Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
-</label>
+<div class="control-group">
+  <label for="linktext">
+    Текст ссылки
+  </label>
+  <form:input path="linktext" style="width: 40em"/>
+</div>
+
+<div class="control-group">
+  <label for="url">
+    Ссылка (не забудьте <b>http://</b>)</label>
+    <form:input placeholder="http://" path="url" type="url" style="width: 40em"/>
+</div>
 </c:if>
 
-<label>
-<c:if test="${not section.premoderated}">
-  Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE() %>):<br>
-</c:if>
 
-<c:if test="${section.premoderated}">
-  Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
-</c:if>
+<div class="control-group">
+  <label for="tags">
+    <c:if test="${not section.premoderated}">
+      <a href="/tags" target="_blank">Метки</a> (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>; в заголовке будет показано не более <%= TopicTagService.MaxTagsInTitle() %>)
+    </c:if>
 
-    <a href="/tags" target="_blank">Все теги</a><br>
-    
-    <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
-    </label>
-    Популярные теги:
-     <c:forEach items="${topTags}" var="topTag" varStatus = "status">
-${status.first ? '' : ', '}<a data-toptag>${topTag}</a>
-     </c:forEach>
-
+    <c:if test="${section.premoderated}">
+      <a href="/tags" target="_blank">Метки</a> (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
+    </c:if>
+  </label>
+  <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+</div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <div class="form-actions">
-  <button type=submit>Поместить</button>
-  <button type=submit name=preview>Предпросмотр</button>
+  <button type=submit class="btn-primary btn">Поместить</button>
+  <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
 <c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
-  <button type=submit name=draft>Сохранить в черновики</button>
+  <button type=submit name=draft class="btn btn-default">Сохранить в черновики</button>
 </c:if>
 
 </div>

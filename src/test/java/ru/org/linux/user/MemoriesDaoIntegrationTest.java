@@ -18,13 +18,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-/**
- */
-@ContextConfiguration(classes=MemoriesDaoIntegrationTestConfiguration.class)
+@ContextHierarchy({
+        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration(classes = MemoriesDaoIntegrationTestConfiguration.class)
+})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class MemoriesDaoIntegrationTest {
 
@@ -33,7 +36,6 @@ public class MemoriesDaoIntegrationTest {
 
   @Autowired
   private MemoriesDao memoriesDao;
-
 
   @Test
   public void test1() {

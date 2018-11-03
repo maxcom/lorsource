@@ -35,6 +35,9 @@
   </bean>
 
   <bean id="userTagService" class="ru.org.linux.user.UserTagService"/>
-  <bean id="tagModificationService" class="ru.org.linux.tag.TagModificationService"/>
+  <bean id="tagModificationService" name="mockTagModificationService"
+        class="org.mockito.Mockito" factory-method="mock">
+    <constructor-arg value="ru.org.linux.tag.TagModificationService"/>
+  </bean>
 
 </beans>

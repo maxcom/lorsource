@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,9 +23,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 
 import javax.sql.DataSource;
-import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -37,102 +34,65 @@ public class ArchiveDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public List<ArchiveDTO> getArchiveDTO(Section section, Group group) {
-    return getArchiveInternal(section, group, 0);
-  }
+  public List<ArchiveStats> getArchiveStats(Section section, Group group) {
+    RowMapper<ArchiveStats> mapper = mapper(section, group);
 
-  public List<ArchiveDTO> getArchiveDTO(Section section, int limit) {
-    return getArchiveInternal(section, null, limit);
-  }
-
-  private List<ArchiveDTO> getArchiveInternal(final Section section, final Group group, int limit) {
-    RowMapper<ArchiveDTO> mapper = new RowMapper<ArchiveDTO>() {
-      @Override
-      public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ArchiveDTO dto = new ArchiveDTO();
-        dto.setYear(rs.getInt("year"));
-        dto.setMonth(rs.getInt("month"));
-        dto.setCount(rs.getInt("c"));
-        dto.setSection(section);
-        dto.setGroup(group);
-        return dto;
-      }
-    };
-
-    if (limit > 0) {
+    if (group == null) {
       return jdbcTemplate.query(
               "select year, month, c from monthly_stats where section=? and groupid is null" +
-                      " order by year desc, month desc limit ?",
+                      " order by year, month",
               mapper,
-              section.getId(),
-              limit
+              section.getId()
       );
     } else {
-      if (group == null) {
-        return jdbcTemplate.query(
-                "select year, month, c from monthly_stats where section=? and groupid is null" +
-                        " order by year, month",
-                mapper,
-                section.getId()
-        );
-      } else {
-        return jdbcTemplate.query(
-                "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
-                mapper,
-                section.getId(),
-                group.getId()
-        );
-      }
+      return jdbcTemplate.query(
+              "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
+              mapper,
+              section.getId(),
+              group.getId()
+      );
     }
   }
 
-  public static class ArchiveDTO implements Serializable {
-    private int year;
-    private int month;
-    private int count;
-    private Section section;
-    private Group group;
+  private RowMapper<ArchiveStats> mapper(final Section section, final Group group) {
+    return (rs, rowNum) -> new ArchiveStats(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"));
+  }
 
-    private static final long serialVersionUID = 5862774559965251295L;
+  public int getArchiveCount(int groupid, int year, int month) {
+    List<Integer> res = jdbcTemplate.queryForList("SELECT c FROM monthly_stats WHERE groupid=? AND year=? AND month=?", Integer.class, groupid, year, month);
+
+    if (!res.isEmpty()) {
+      return res.get(0);
+    } else {
+      return 0;
+    }
+  }
+
+  public static class ArchiveStats {
+    private final int year;
+    private final int month;
+    private final int count;
+    private final Section section;
+    private final Group group;
+
+    public ArchiveStats(Section section, Group group, int year, int month, int count) {
+      this.year = year;
+      this.month = month;
+      this.count = count;
+      this.section = section;
+      this.group = group;
+    }
 
     public int getYear() {
       return year;
-    }
-
-    public void setYear(int year) {
-      this.year = year;
     }
 
     public int getMonth() {
       return month;
     }
 
-    public void setMonth(int month) {
-      this.month = month;
-    }
-
     public int getCount() {
       return count;
-    }
-
-    public void setCount(int count) {
-      this.count = count;
-    }
-
-    public Section getSection() {
-      return section;
-    }
-
-    public void setSection(Section section) {
-      this.section = section;
-    }
-
-    public Group getGroup() {
-      return group;
-    }
-
-    public void setGroup(Group group) {
-      this.group = group;
     }
 
     public String getLink() {

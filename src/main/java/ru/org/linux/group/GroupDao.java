@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,30 +15,26 @@
 
 package ru.org.linux.group;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GroupDao {
-  private final static Logger logger = LoggerFactory.getLogger(GroupDao.class);
+  private static final Logger logger = LoggerFactory.getLogger(GroupDao.class);
 
   private JdbcTemplate jdbcTemplate;
 
@@ -58,13 +54,8 @@ public class GroupDao {
   public Group getGroup(int id) throws GroupNotFoundException {
     try {
       return jdbcTemplate.queryForObject(
-        "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments,stat1,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
-        new RowMapper<Group>() {
-          @Override
-          public Group mapRow(ResultSet resultSet, int i) throws SQLException {
-            return Group.buildGroup(resultSet);
-          }
-        },
+        "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
+              (resultSet, i) -> Group.buildGroup(resultSet),
         id
       );
     } catch (EmptyResultDataAccessException ex) {
@@ -80,13 +71,8 @@ public class GroupDao {
    */
   public List<Group> getGroups(Section section) {
     return jdbcTemplate.query(
-      "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments, stat1,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
-      new RowMapper<Group>() {
-        @Override
-        public Group mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return Group.buildGroup(rs);
-        }
-      },
+      "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments, stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
+            (rs, rowNum) -> Group.buildGroup(rs),
       section.getId()
     );
   }
@@ -102,14 +88,14 @@ public class GroupDao {
    */
   @Nonnull
   public Group getGroup(Section section, String name) throws GroupNotFoundException {
-    Group group = getGroupOrNull(section, name);
+    Optional<Group> group = getGroupOpt(section, name, false);
 
-    if (group==null) {
+    if (!group.isPresent()) {
       logger.info("Group '{}' not found in section {}", name, section.getUrlName());
       throw new GroupNotFoundException("group not found");
+    } else {
+      return group.get();
     }
-
-    return group;
   }
 
   /**
@@ -119,20 +105,30 @@ public class GroupDao {
    * @param name    имя группы
    * @return объект группы
    */
-  @Nullable
-  public Group getGroupOrNull(Section section, String name) {
+  public Optional<Group> getGroupOpt(Section section, String name, Boolean allowNumber) {
     try {
-      int id = jdbcTemplate.queryForObject(
-              "SELECT id FROM groups WHERE section=? AND urlname=?",
-              Integer.class,
-              section.getId(),
-              name
-      );
+      int id;
 
-      return getGroup(id);
+      if (allowNumber && StringUtils.isNumeric(name)) {
+        id = jdbcTemplate.queryForObject(
+                "SELECT id FROM groups WHERE section=? AND id=?",
+                Integer.class,
+                section.getId(),
+                Integer.parseInt(name)
+        );
+      } else {
+        id = jdbcTemplate.queryForObject(
+                "SELECT id FROM groups WHERE section=? AND urlname=?",
+                Integer.class,
+                section.getId(),
+                name
+        );
+      }
+
+      return Optional.of(getGroup(id));
     } catch (EmptyResultDataAccessException ex) {
       logger.debug("Group '{}' not found in section {}", name, section.getUrlName());
-      return null;
+      return Optional.empty();
     }
   }
 
@@ -150,32 +146,29 @@ public class GroupDao {
   public void setParams(final Group group, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
     jdbcTemplate.execute(
       "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?",
-      new PreparedStatementCallback<String>() {
-        @Override
-        public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-          pst.setString(1, title);
+            (PreparedStatement pst) -> {
+              pst.setString(1, title);
 
-          if (!info.isEmpty()) {
-            pst.setString(2, info);
-          } else {
-            pst.setString(2, null);
-          }
+              if (!info.isEmpty()) {
+                pst.setString(2, info);
+              } else {
+                pst.setString(2, null);
+              }
 
-          if (!longInfo.isEmpty()) {
-            pst.setString(3, longInfo);
-          } else {
-            pst.setString(3, null);
-          }
+              if (!longInfo.isEmpty()) {
+                pst.setString(3, longInfo);
+              } else {
+                pst.setString(3, null);
+              }
 
-          pst.setBoolean(4, resolvable);
-          pst.setString(5, urlName);
-          pst.setInt(6, group.getId());
+              pst.setBoolean(4, resolvable);
+              pst.setString(5, urlName);
+              pst.setInt(6, group.getId());
 
-          pst.executeUpdate();
+              pst.executeUpdate();
 
-          return null;
-        }
-      }
+              return null;
+            }
     );
   }
 }

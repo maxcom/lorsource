@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -18,23 +18,12 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
+<meta name="referrer" content="always">
 
-<c:if test="${pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.secureMainUrl)}">
-</c:if>
-
-<c:if test="${not pageContext.request.secure}">
-  <base href="${fn:escapeXml(template.mainUrl)}">
-</c:if>
+<base href="${fn:escapeXml(template.secureMainUrl)}">
 
 <c:if test="${template != null}">
-<jsp:include page="${template.theme.head}"/>
+  <jsp:include page="${template.theme.head}"/>
 </c:if>
 
-<c:if test="${not pageContext.request.secure}">
-    <!-- Rating@Mail.ru counter -->
-    <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642"
-    height="1" width="1" alt="" style="position: absolute">
-    <!-- //Rating@Mail.ru counter -->
-</c:if>
 <div id="bd">

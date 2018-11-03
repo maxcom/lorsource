@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,17 +16,19 @@
 package ru.org.linux.edithistory;
 
 import ru.org.linux.tag.TagRef;
+import ru.org.linux.topic.PreparedImage;
 import ru.org.linux.user.User;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 public class PreparedEditHistory {
   private final boolean original;
   private final User editor;
+  private final PreparedImage image;
   private final String message;
   private final boolean current;
   private final String title;
@@ -34,28 +36,31 @@ public class PreparedEditHistory {
   private final String url;
   private final String linktext;
   private final Boolean minor;
-  private final Timestamp editdate;
+  private final Date editdate;
+  private final boolean imageDeleted;
 
   public PreparedEditHistory(
-    LorCodeService lorCodeService,
-    boolean secure,
-    @Nonnull User editor,
-    Timestamp editdate,
-    String message,
-    String title,
-    String url,
-    String linktext,
-    List<TagRef> tags,
-    boolean current,
-    boolean original,
-    @Nullable Boolean minor
-  ) {
+          LorCodeService lorCodeService,
+          @Nonnull User editor,
+          Date editdate,
+          String message,
+          String title,
+          String url,
+          String linktext,
+          List<TagRef> tags,
+          boolean current,
+          boolean original,
+          @Nullable Boolean minor,
+          PreparedImage image,
+          Boolean imageDeleted) {
     this.original = original;
 
     this.editor = editor;
+    this.image = image;
+    this.imageDeleted = imageDeleted;
 
     if (message!=null) {
-      this.message = lorCodeService.parseComment(message, secure, false);
+      this.message = lorCodeService.parseComment(message, false);
     } else {
       this.message = null;
     }
@@ -69,7 +74,7 @@ public class PreparedEditHistory {
     this.editdate = editdate;
   }
 
-  public Timestamp getEditDate() {
+  public Date getEditDate() {
     return editdate;
   }
 
@@ -108,5 +113,13 @@ public class PreparedEditHistory {
 
   public Boolean getMinor() {
     return minor;
+  }
+
+  public PreparedImage getImage() {
+    return image;
+  }
+
+  public boolean isImageDeleted() {
+    return imageDeleted;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,7 +24,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.topic.ArchiveDao.ArchiveDTO;
 
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class ArchiveController {
 
     mv.getModel().put("group", group);
 
-    List<ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
+    List<ArchiveDao.ArchiveStats> items = archiveDao.getArchiveStats(section, group);
 
     mv.getModel().put("items", items);
 

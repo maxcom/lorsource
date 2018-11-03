@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -60,7 +60,7 @@ public class DeleteImageController {
 
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView deleteForm(
-          @RequestParam(required = true) int id,
+          @RequestParam int id,
           HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -81,7 +81,7 @@ public class DeleteImageController {
 
   @RequestMapping(method = RequestMethod.POST)
   public RedirectView deleteImage(
-          @RequestParam(required = true) int id,
+          @RequestParam int id,
           HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);

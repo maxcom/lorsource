@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,11 +16,10 @@
 package ru.org.linux.user;
 
 import com.sun.syndication.feed.synd.*;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import ru.org.linux.spring.AbstractRomeView;
 import ru.org.linux.util.StringUtil;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,35 +36,38 @@ public class ReplyFeedView extends AbstractRomeView {
     feed.setUri("http://www.linux.org.ru");
     feed.setAuthor("");
     feed.setDescription(s);
-    Date lastModified = new Date();
+
+    Date lastModified;
     if (!list.isEmpty()) {
-      Timestamp timestamp = list.get(0).getEvent().getLastmod();
-      lastModified = new Date(timestamp.getTime());
+      lastModified = list.get(0).getEvent().getEventDate();
+    } else {
+      lastModified = new Date();
     }
     feed.setPublishedDate(lastModified);
+
     List<SyndEntry> entries = new ArrayList<>();
     feed.setEntries(entries);
     for (PreparedUserEvent preparedUserEvent : list) {
       UserEvent item = preparedUserEvent.getEvent();
       
       SyndEntry feedEntry = new SyndEntryImpl();
-      feedEntry.setPublishedDate(item.getCommentDate());
-      feedEntry.setTitle(StringEscapeUtils.unescapeHtml(item.getSubj()));
+      feedEntry.setPublishedDate(item.getEventDate());
+      feedEntry.setTitle(StringEscapeUtils.unescapeHtml4(item.getSubj()));
 
       String link;
 
       if (item.getCid()!=0) {
-        feedEntry.setAuthor(preparedUserEvent.getCommentAuthor().getNick());
+        feedEntry.setAuthor(preparedUserEvent.getAuthor().getNick());
 
         link = String.format(
           "http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
-          String.valueOf(item.getMsgid()),
+          String.valueOf(item.getTopicId()),
           String.valueOf(item.getCid())
         );
       } else {
         link = String.format(
           "http://www.linux.org.ru/view-message.jsp?msgid=%s",
-          String.valueOf(item.getMsgid())
+          String.valueOf(item.getTopicId())
         );
       }
 

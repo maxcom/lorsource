@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,8 @@
 
 package ru.org.linux.search;
 
-import ru.org.linux.search.SearchViewer.SearchInterval;
-import ru.org.linux.search.SearchViewer.SearchOrder;
-import ru.org.linux.search.SearchViewer.SearchRange;
+import ru.org.linux.search.SearchEnums.SearchInterval;
+import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.user.User;
 
 import java.io.UnsupportedEncodingException;
@@ -28,11 +27,10 @@ import java.util.Map.Entry;
 
 public class SearchRequest {
   private String q = "";
-  private String oldQ = "";
   private boolean usertopic = false;
   private User user=null;
   private String section = null;
-  private SearchOrder sort = SearchOrder.RELEVANCE;
+  private SearchOrder sort = SearchOrder.Relevance$.MODULE$;
   private String group;
   private SearchInterval interval = SearchInterval.ALL;
   private SearchRange range = SearchRange.ALL;
@@ -47,7 +45,7 @@ public class SearchRequest {
   }
 
   public boolean isInitial() {
-    return q.isEmpty();
+    return q.isEmpty() && user==null;
   }
 
   public boolean isUsertopic() {
@@ -80,14 +78,6 @@ public class SearchRequest {
 
   public void setSort(SearchOrder sort) {
     this.sort = sort;
-  }
-
-  public String getOldQ() {
-    return oldQ;
-  }
-
-  public void setOldQ(String oldQ) {
-    this.oldQ = oldQ;
   }
 
   public String getGroup() {
@@ -146,8 +136,8 @@ public class SearchRequest {
       params.put("usertopic", "true");
     }
 
-    if (sort!= SearchOrder.RELEVANCE) {
-      params.put("sort", sort.toString());
+    if (sort!= SearchOrder.Relevance$.MODULE$) {
+      params.put("sort", sort.id());
     }
 
     if (section!=null && !section.isEmpty()) {

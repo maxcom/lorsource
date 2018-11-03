@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -55,7 +55,7 @@ package ru.org.linux.util.bbcode.nodes;
 
 import org.apache.commons.httpclient.URI;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.ParserParameters.CutType;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -71,10 +71,9 @@ public class RootNode extends Node {
   //
   private CutType cutType;
   private URI cutURI;
-  private UserDao userDao;
+  private UserService userService;
   private ToHtmlFormatter toHtmlFormatter;
   private final Set<User> replier;
-  private boolean secure;
   private boolean rss;
   private boolean nofollow = false;
 
@@ -83,15 +82,10 @@ public class RootNode extends Node {
     cutCount = -1;
     cutType = CutType.INCOMMENT;
     replier = new HashSet<>();
-    secure = false;
   }
 
   public URI getCutURI() {
     return cutURI;
-  }
-
-  public void setCutURI(URI cutURI) {
-    this.cutURI = cutURI;
   }
 
   public ToHtmlFormatter getToHtmlFormatter() {
@@ -102,21 +96,12 @@ public class RootNode extends Node {
     this.toHtmlFormatter = toHtmlFormatter;
   }
 
-  public UserDao getUserDao() {
-    return userDao;
+  public UserService getUserService() {
+    return userService;
   }
 
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-
-  public boolean isSecure() {
-    return secure;
-  }
-
-  public void setSecure(boolean secure) {
-    this.secure = secure;
+  public void setUserService(UserService userService) {
+    this.userService = userService;
   }
 
   public boolean isRss() {

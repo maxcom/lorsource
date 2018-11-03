@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,20 +25,19 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
+import scala.Option;
 
 import javax.servlet.ServletRequest;
 
 @Controller
 @RequestMapping("/people/{nick}/remark")
 public class EditRemarkController {
-  private UserDao userDao;
+  @Autowired
+  private UserService userService;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private RemarkDao remarkDao;
 
-  
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -49,10 +48,13 @@ public class EditRemarkController {
 
     ModelAndView mv = new ModelAndView("edit-remark");
 
-    User user = userDao.getUser(nick);
+    User user = userService.getUserCached(nick);
     if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
-      mv.getModel().put("remark", userDao.getRemark(tmpl.getCurrentUser() , user) );
-    }else{
+      Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
+      if (remark.isDefined()) {
+        mv.getModel().put("remark", remark.get());
+      }
+    } else {
       throw new AccessViolationException("Not Authorized");
     }
     return mv;
@@ -73,13 +75,9 @@ public class EditRemarkController {
       text=text.substring(0,255);
     }
     User user = tmpl.getCurrentUser();
-    User refUser = userDao.getUser(nick);
-    Remark rm = userDao.getRemark(user,refUser);
-    if(rm!=null){
-        userDao.updateRemark(rm.getId(),text);
-    } else {
-      userDao.setRemark(user,refUser,text);
-    }
+    User refUser = userService.getUserCached(nick);
+    remarkDao.setOrUpdateRemark(user, refUser, text);
+
     return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
   }
 }

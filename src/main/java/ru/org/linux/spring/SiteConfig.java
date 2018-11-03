@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.MemCachedSettings;
 
 import javax.annotation.PostConstruct;
 import java.util.Properties;
@@ -31,17 +30,19 @@ import java.util.Properties;
 @Service
 public class SiteConfig {
   private static final String ERR_MSG = "Invalid MainUrl property: ";
-  public static final String PROPERTY_MAIN_URL = "MainUrl";
 
-  @Qualifier("properties")
-  @Autowired
-  private Properties properties;
+  private final Properties properties;
 
   private URI mainURI;
   private URI secureURI;
 
+  @Autowired
+  public SiteConfig(@Qualifier("properties") Properties properties) {
+    this.properties = properties;
+  }
+
   /**
-   * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
+   * Предполагается, что на этапе запуска приложения, если с MainUrl что-то не так то контейнер не запустится :-)
    */
   @PostConstruct
   public void init() {
@@ -68,32 +69,46 @@ public class SiteConfig {
     } catch (Exception e) {
       throw new RuntimeException(ERR_MSG +e.getMessage());
     }
-
-    MemCachedSettings.setMainUrl(getMainUrl());
   }
 
-  public String getMainUrl() {
-    return mainURI.toString();
-  }
-
-  public String getMainUrlWithoutSlash() {
-    return getMainUrl().replaceFirst("/$", "");
+  public String getSecureUrlWithoutSlash() {
+    return getSecureUrl().replaceFirst("/$", "");
   }
 
   public String getSecureUrl() {
     return secureURI.toString();
   }
 
+  public URI getSecureURI() {
+    return secureURI;
+  }
+
+  public String getWSUrl() {
+    return properties.getProperty("WSUrl");
+  }
+
   public URI getMainURI() {
     return mainURI;
   }
 
-  public String getPathPrefix() {
-    return properties.getProperty("PathPrefix");
+  public String getElasticsearch() {
+    return properties.getProperty("Elasticsearch");
   }
 
   public String getHTMLPathPrefix() {
     return properties.getProperty("HTMLPathPrefix");
+  }
+
+  public String getUploadPath() {
+    return properties.getProperty("upload.path");
+  }
+
+  public String getCaptchaPublicKey() {
+    return properties.getProperty("recaptcha.public");
+  }
+
+  public String getCaptchaPrivateKey() {
+    return properties.getProperty("recaptcha.private");
   }
 
   public String getSecret() {
@@ -110,6 +125,19 @@ public class SiteConfig {
    */
   public Boolean isModeratorAllowedToEditComments() {
     String property = properties.getProperty("comment.isModeratorAllowedToEdit");
+    if (property == null) {
+      return false;
+    }
+    return Boolean.valueOf(property);
+  }
+
+  /**
+   * Добавление заголовков Strict-Transport-Security.
+   *
+   * @return true если разрешено, иначе false
+   */
+  public Boolean enableHsts() {
+    String property = properties.getProperty("EnableHsts");
     if (property == null) {
       return false;
     }

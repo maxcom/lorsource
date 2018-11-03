@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.edithistory.EditHistoryDto;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
@@ -40,10 +39,6 @@ public final class PreparedTopic {
   private final Group group;
   private final Section section;
 
-  private final EditHistoryDto lastHistoryDto;
-  private final User lastEditor;
-  private final int editCount;
-
   private final PreparedImage image;
   
   private final String postscoreInfo;
@@ -61,9 +56,6 @@ public final class PreparedTopic {
           List<TagRef> tags,
           Group group,
           Section section,
-          EditHistoryDto lastHistoryDto,
-          User lastEditor,
-          int editorCount,
           boolean lorcode,
           PreparedImage image,
           String postscoreInfo,
@@ -84,9 +76,6 @@ public final class PreparedTopic {
     }
     this.group = group;
     this.section = section;
-    this.lastHistoryDto = lastHistoryDto;
-    this.lastEditor = lastEditor;
-    editCount = editorCount;
     this.image = image;
     this.remark = remark;
   }
@@ -117,18 +106,6 @@ public final class PreparedTopic {
 
   public User getCommiter() {
     return commiter;
-  }
-
-  public EditHistoryDto getLastHistoryDto() {
-    return lastHistoryDto;
-  }
-
-  public User getLastEditor() {
-    return lastEditor;
-  }
-
-  public int getEditCount() {
-    return editCount;
   }
 
   public int getId() {

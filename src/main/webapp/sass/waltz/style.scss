@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -93,12 +93,6 @@ p {
         margin-right: 0.5em;
         margin-top: 0.5em;
     }
-}
-
-#bd {
-	margin-bottom: 2em;
-    padding-left: 1em;
-    padding-right: 1em;
 }
 
 #bd .news {
@@ -317,22 +311,13 @@ input[type="checkbox"] {
   background-color: $article_background;
 }
 
-div.quote {
-    margin: 0;
-    border: 0 solid #555753;
-    border-left-width: 5px;
-    padding: 0 0.5em 0;
+blockquote {
+    border-left-color: #555753;
 }
 
 .page-number {
-  padding: 5px;
-  text-decoration: none;
   border: solid 1px;
   border-radius: 5px;
-  display: inline-block;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  min-width: 1.1em;
   background-color: $article_background;
 }
 
@@ -351,12 +336,6 @@ div.quote {
   td.dateinterval {
     text-align: left;
   }
-}
-
-figure.medium-image {
-    float: right;
-    margin-left: 1em;
-    text-align: center;
 }
 
 html, body {

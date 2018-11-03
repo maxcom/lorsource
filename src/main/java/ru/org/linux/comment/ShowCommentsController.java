@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,79 +18,51 @@ package ru.org.linux.comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.util.ServletParameterException;
+import ru.org.linux.user.UserService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 @Controller
 public class ShowCommentsController {
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private CommentService commentService;
 
   @RequestMapping("/show-comments.jsp")
-  public ModelAndView showComments(
-    @RequestParam String nick,
-    @RequestParam(defaultValue="0") int offset,
-    HttpServletRequest request,
-    HttpServletResponse response
+  public RedirectView showComments(
+          @RequestParam String nick
+  ) throws Exception {
+    User user = userService.getUserCached(nick);
+
+    return new RedirectView("search.jsp?range=COMMENTS&user="+user.getNick()+"&sort=DATE");
+  }
+
+  @RequestMapping(value="/people/{nick}/deleted-comments")
+  public ModelAndView showCommentsOld(
+    @PathVariable String nick,
+    HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
-
-    ModelAndView mv = new ModelAndView("show-comments");
-
-    int topics = 50;
-    mv.getModel().put("topics", topics);
-
-    if (offset<0) {
-      throw new ServletParameterException("offset<0!?");
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not moderator");
     }
 
-    if (offset>1000) {
-      throw new ServletParameterException("Доступно не более 1000 комментариев");
-    }
+    ModelAndView mv = new ModelAndView("deleted-comments");
 
-    mv.getModel().put("offset", offset);
-
-    boolean firstPage = offset==0;
-
-    if (firstPage) {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
-    } else {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 60 * 1000L);
-    }
-
-    mv.getModel().put("firstPage", firstPage);
-
-    User user = userDao.getUser(nick);
+    User user = userService.getUserCached(nick);
 
     mv.getModel().put("user", user);
 
-    if (user.isAnonymous()) {
-      throw new UserErrorException("Функция только для зарегистрированных пользователей");
-    }
-
-    List<CommentDao.CommentsListItem> out = commentService.getUserComments(user, topics, offset);
-
-    mv.getModel().put("list", out);
-
-    if (tmpl.isModeratorSession()) {
-      mv.getModel().put("deletedList", commentService.getDeletedComments(user));
-    }
+    mv.getModel().put("deletedList", commentService.getDeletedComments(user));
 
     return mv;
   }

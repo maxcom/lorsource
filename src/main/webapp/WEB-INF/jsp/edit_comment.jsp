@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,36 +17,25 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="comment" type="ru.org.linux.comment.PreparedComment"--%>
+<%--@elvariable id="deadline" type="java.util.Date"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Изменить комментарий</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class=nav>
-<div id="navPath">
-Изменить комментарий
-</div>
-  <div class="nav-buttons">
-    <ul>
-        <c:url var="topic_url" value="/view-message.jsp">
-          <c:param name="msgid" value="${edit.topic.id}"/>
-        </c:url>
-        <li><a href="${topic_url}">Читать комментарии</a></li>
-    </ul>
-  </div>
-</div>
-
-<font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
-  <a href="rules.jsp">правилами</a> сайта.</font>
+<h1>Изменить комментарий</h1>
 
 <p>
-
-<c:if test="${comment!=null}">
-  <p><b>Ваше сообщение</b></p>
-  <div class=messages>
-    <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${edit.topic}" enableSchema="false"/>
-  </div>
+<a href="${edit.topic.link}?cid=${edit.original.id}">Комментарий</a> написан <lor:date date="${comment.postdate}"/>.
+<c:if test="${deadline!=null}">
+  Редактирование возможно до <lor:date date="${deadline}"/>.
 </c:if>
+</p>
+
+<div class=messages>
+  <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${edit.topic}" enableSchema="false"/>
+</div>
 
 <form:form modelAttribute="edit">
     <form:errors path="*" cssClass="error" element="div" />

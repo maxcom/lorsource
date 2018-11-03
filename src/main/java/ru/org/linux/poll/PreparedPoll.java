@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.poll;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.util.StringUtil;
 
@@ -73,7 +74,7 @@ public class PreparedPoll {
           percentage,
           variantWidth,
           variantPercent,
-          StringUtil.repeat("*", variantWidth)
+              Strings.repeat("*", variantWidth)
           ));
     }
     variants = variantsBuilder.build();

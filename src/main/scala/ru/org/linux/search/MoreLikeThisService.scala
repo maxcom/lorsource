@@ -1,35 +1,55 @@
+/*
+ * Copyright 1998-2017 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.search
 
-import org.springframework.stereotype.Service
-import org.springframework.beans.factory.annotation.Autowired
-import org.elasticsearch.client.Client
-import ru.org.linux.topic.Topic
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import org.elasticsearch.index.query.QueryBuilders._
-import com.typesafe.scalalogging.slf4j.Logging
-import org.elasticsearch.index.query.FilterBuilders._
-import ru.org.linux.tag.TagRef
-import scala.beans.BeanProperty
-import ru.org.linux.util.StringUtil
-import org.springframework.web.util.UriComponentsBuilder
-import org.elasticsearch.search.SearchHit
-import org.elasticsearch.action.ActionListener
-import org.elasticsearch.action.search.{SearchRequestBuilder, SearchResponse}
-import org.elasticsearch.ElasticSearchException
-import scala.concurrent.{TimeoutException, Await, Future, Promise}
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import ru.org.linux.section.SectionService
-import com.google.common.cache.CacheBuilder
 import java.util.concurrent.TimeUnit
 
+import akka.actor.Scheduler
+import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
+import com.google.common.cache.CacheBuilder
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.searches.RichSearchHit
+import com.sksamuel.elastic4s.{DocumentRef, TcpClient}
+import com.typesafe.scalalogging.StrictLogging
+import org.apache.lucene.analysis.CharArraySet
+import org.apache.lucene.analysis.ru.RussianAnalyzer
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
+import org.elasticsearch.ElasticsearchException
+import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
+import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageIndexTypes, MessageType}
+import ru.org.linux.section.SectionService
+import ru.org.linux.tag.TagRef
+import ru.org.linux.topic.Topic
+import ru.org.linux.util.StringUtil
+
+import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future, TimeoutException}
+
 @Service
-class MoreLikeThisService @Autowired() (
-  client:Client,
-  sectionService:SectionService
-) extends Logging {
-  import MoreLikeThisService._
+class MoreLikeThisService(
+  elastic: TcpClient,
+  sectionService: SectionService,
+  scheduler: Scheduler
+) extends StrictLogging {
+  import ru.org.linux.search.MoreLikeThisService._
 
   type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
@@ -39,84 +59,84 @@ class MoreLikeThisService @Autowired() (
     .expireAfterWrite(1, TimeUnit.HOURS)
     .build[Integer, Result]()
 
-  def search(topic:Topic, tags:java.util.List[TagRef], plainText:String):Future[Result] = {
-    val cachedValue = cache.getIfPresent(topic.getId)
-    if (cachedValue != null) {
-      Future.successful(cachedValue)
-    } else {
-      val promise = Promise[SearchResponse]()
+  private val breaker = new CircuitBreaker(
+    scheduler = scheduler,
+    maxFailures = 5,
+    callTimeout = 2.seconds,
+    resetTimeout = 1.minute
+  )
 
-      try {
-        val query = makeQuery(topic, plainText, tags)
+  breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
+  breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
 
-        query.execute().addListener(new ActionListener[SearchResponse]() {
-          override def onFailure(e: Throwable): Unit = promise.failure(e)
-          override def onResponse(response: SearchResponse): Unit = promise.success(response)
-        })
+  def searchSimilar(topic: Topic, tags: java.util.List[TagRef]): Future[Result] = {
+    val cachedValue = Option(cache.getIfPresent(topic.getId))
 
-        val result:Future[Result] = promise.future.map(result => if (result.getHits.nonEmpty) {
-          val half = result.getHits.size / 2 + result.getHits.size % 2
+    cachedValue.map(Future.successful).getOrElse {
+      breaker.withCircuitBreaker {
+        try {
+          val searchResult = elastic execute makeQuery(topic, tags.asScala)
 
-          result.getHits.map(processHit).grouped(half).map(_.toSeq.asJava).toSeq.asJava
-        } else Seq())
+          val result: Future[Result] = searchResult.map(result => if (result.hits.nonEmpty) {
+            val half = result.hits.length / 2 + result.hits.length % 2
 
-        result.onSuccess {
-          case v => cache.put(topic.getId, v)
+            result.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
+          } else Seq().asJava)
+
+          result.foreach {
+            v ⇒ cache.put(topic.getId, v)
+          }
+
+          result
+        } catch {
+          case ex: ElasticsearchException => Future.failed(ex)
         }
-
-        result
-      } catch {
-        case ex: ElasticSearchException => Future.failed(ex)
       }
     }
   }
 
-  def makeQuery(topic: Topic, plainText: String, tags: java.util.List[TagRef]):SearchRequestBuilder = {
-    val mltQuery = boolQuery()
+  private def makeQuery(topic: Topic, tags: Seq[TagRef]) = {
+    val tagsQ = if (tags.nonEmpty) {
+      Seq(tagsQuery(tags.map(_.name)))
+    } else Seq.empty
 
-    mltQuery.should(titleQuery(topic))
-    mltQuery.should(textQuery(plainText))
+    val queries = Seq(titleQuery(topic), textQuery(topic.getId)) ++ tagsQ
 
-    if (!tags.isEmpty) {
-      mltQuery.should(tagsQuery(tags.map(_.name).toSeq))
-    }
+    val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
-    val rootFilter = boolFilter()
-    rootFilter.must(termFilter("is_comment", "false"))
-    rootFilter.mustNot(idsFilter(SearchQueueListener.MESSAGES_TYPE).addIds(topic.getId.toString))
-
-    val rootQuery = filteredQuery(mltQuery, rootFilter)
-
-    client
-      .prepareSearch(SearchQueueListener.MESSAGES_INDEX)
-      .setTypes(SearchQueueListener.MESSAGES_TYPE)
-      .setQuery(rootQuery)
-      .addFields("title", "postdate", "section", "group")
+    search(MessageIndexTypes) query {
+      boolQuery.should(queries:_*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
+    } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 
-  def resultsOrNothing(featureResult:Future[Result]):Result = {
-    try {
-      Await.result(featureResult, Timeout)
-    } catch {
-      case ex:ElasticSearchException =>
-        logger.warn("Unable to find similar topics", ex)
-        Seq()
-      case ex:TimeoutException =>
-        logger.warn("Similar topics lookup timed out", ex)
-        Seq()
+  def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
+    Option(cache.getIfPresent(topic.getId)).getOrElse {
+      try {
+        Await.result(featureResult, deadline.timeLeft)
+      } catch {
+        case _: CircuitBreakerOpenException ⇒
+          logger.debug(s"Similar topics circuit breaker is open")
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+        case ex: ElasticsearchException ⇒
+          logger.warn("Unable to find similar topics", ex)
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+        case ex: TimeoutException ⇒
+          logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+      }
     }
   }
 
-  def processHit(hit: SearchHit): MoreLikeThisTopic = {
+  private def processHit(hit: RichSearchHit): MoreLikeThisTopic = {
     val section = SearchResultsService.section(hit)
     val group = SearchResultsService.group(hit)
 
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-    val link = builder.buildAndExpand(section, group, new Integer(hit.getId)).toUriString
+    val link = builder.buildAndExpand(section, group, new Integer(hit.id)).toUriString
 
     val postdate = SearchResultsService.postdate(hit)
 
-    val title = hit.getFields.get("title").getValue[String]
+    val title = hit.sourceAsMap("title").asInstanceOf[String]
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
@@ -126,31 +146,45 @@ class MoreLikeThisService @Autowired() (
     )
   }
 
-  private def titleQuery(topic:Topic) = moreLikeThisFieldQuery("title")
-    .likeText(topic.getTitleUnescaped)
-    .minTermFreq(0)
-    .minDocFreq(0)
-    .maxDocFreq(20000)
-
-  private def textQuery(plainText:String) = moreLikeThisFieldQuery("message")
-    .likeText(plainText)
-    .maxDocFreq(50000)
-    .minTermFreq(1)
-
-  private def tagsQuery(tags:Seq[String]) = {
-    val root = boolQuery()
-
-    tags foreach { tag =>
-      root.should(termQuery("tag", tag))
-    }
-
-    root
+  private def titleQuery(topic:Topic) = {
+    moreLikeThisQuery("title")
+      .likeTexts(topic.getTitleUnescaped)
+      .minTermFreq(1)
+      .minDocFreq(2)
+      .stopWords(StopWords)
+      .maxDocFreq(5000)
   }
+
+  private def textQuery(id: Int) = {
+    moreLikeThisQuery("message")
+      .likeDocs(Seq(DocumentRef(MessageIndex, MessageType, id.toString)))
+      .minTermFreq(1)
+      .stopWords(StopWords)
+      .minWordLength(3)
+      .maxDocFreq(100000)
+  }
+
+  private def tagsQuery(tags: Seq[String]) = termsQuery("tag", tags)
 }
 
 object MoreLikeThisService {
-  val Timeout = 500.milliseconds
-  val CacheSize = 2000
+  val CacheSize = 10000
+
+  val StopWords = {
+    val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr ⇒ new String(arr.asInstanceOf[Array[Char]]))
+    val analyzedStream = new RussianAnalyzer(CharArraySet.EMPTY_SET).tokenStream(null, stop.mkString(" "))
+
+    analyzedStream.reset()
+
+    val b = new ArrayBuffer[String](initialSize = stop.size)
+
+    while (analyzedStream.incrementToken()) {
+      b += analyzedStream.getAttribute(classOf[CharTermAttribute]).toString
+    }
+
+    b.toVector
+  }
+
 }
 
 case class MoreLikeThisTopic(

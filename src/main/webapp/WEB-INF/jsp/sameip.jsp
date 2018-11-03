@@ -3,7 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,35 +22,33 @@
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
-<%--@elvariable id="tor" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Поиск писем с IP-адреса</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<%
-  String ip = (String) request.getAttribute("ip");
-%>
 <div class=nav>
     <div id="navPath">
-      <strong>Интерфейс модератора - Сообщения с ${ip}</strong>
+      Поиск писем с IP-адреса
     </div>
 
     <div class="nav-buttons">
-      [<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=${ip}">NSLOOKUP</a>]
       [WHOIS
       <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
-      <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a> /
       <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
       ]
+      [<a href='http://bgp.he.net/ip/${ip}'>BGP</a>]
     </div>
 </div>
 
-<strong>Текущий статус: </strong>
+<form action="sameip.jsp">
+  <div class="control-group">
+    Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}">&nbsp;
+    <button type="submit" class="btn btn-default">Изменить</button><BR>
+  </div>
+</form>
 
-<c:if test="${tor}">
-  адрес заблокирован: tor.ahbl.org; база:
-</c:if>
+<strong>Текущий статус: </strong>
 
 <c:if test="${blockInfo == null}">
   адрес не заблокирован
@@ -87,7 +85,7 @@
 <legend>забанить/разбанить IP</legend>
 <form method="post" action="banip.jsp">
 <lor:csrf/>
-<input type="hidden" name="ip" value="<%= ip %>">
+<input type="hidden" name="ip" value="${ip}">
  по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 <select name="time" onchange="checkCustomBan(this.selectedIndex);">
@@ -119,9 +117,8 @@
 <label><input id="captchaRequired" type="checkbox" name="captcha_required" value="true" ${checked2} ${disabled}>требовать ввод каптчи</label><br/>
 
 <p>
-<input type="submit" name="ban" value="ban ip">
+<button type="submit" name="ban" class="btn btn-default">ban ip</button>
 <script type="text/javascript">
-<!--
 function allowPostingOnChange(object) {
 
   var captchaRequired = $('#captchaRequired');
@@ -143,7 +140,6 @@ function checkCustomBan(idx) {
     custom_ban_div.style.display='block';
   }
 }
-// -->
 </script>
 </form>
 </fieldset>
@@ -152,7 +148,7 @@ function checkCustomBan(idx) {
 <legend>Удалить темы и сообщения с IP</legend>
 <form method="post" action="delip.jsp">
 <lor:csrf/>
-<input type="hidden" name="ip" value="<%= ip %>">
+<input type="hidden" name="ip" value="${ip}">
 по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
@@ -161,7 +157,7 @@ function checkCustomBan(idx) {
 <option value="3day">3 дня</option>
 </select>
 <p>
-<input type="submit" name="del" value="del from ip">
+<button type="submit" name="del" class="btn btn-danger">del from ip</button>
 </form>
 </fieldset>
 
@@ -197,7 +193,7 @@ function checkCustomBan(idx) {
 </table>
 </div>
 
-<h2>Комментарии за 24 часа</h2>
+<h2>Комментарии за 3 дня</h2>
 
 <div class=forum>
 <table width="100%" class="message-table">
@@ -241,10 +237,10 @@ function checkCustomBan(idx) {
   </td>
   <td>
     <c:if test="${item.sameUa}">
-      <b>${item.userAgent}</b>
+      <b><c:out escapeXml="true" value="${item.userAgent}"/></b>
     </c:if>
     <c:if test="${not item.sameUa}">
-      ${item.userAgent}
+      <c:out escapeXml="true" value="${item.userAgent}"/>
     </c:if>
   </td>
 </tr>

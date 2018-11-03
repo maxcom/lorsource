@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -19,7 +19,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Настройки профиля</title>
+<title>Настройки</title>
 <script type="text/javascript">
 $script.ready('plugins', function() {
   $(function() {
@@ -30,11 +30,18 @@ $script.ready('plugins', function() {
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Параметры профиля</h1>
+<h1>Настройки</h1>
+
+<nav>
+  <a href="/people/${template.nick}/edit" class="btn btn-default">Редактировать профиль</a>
+  <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  <a href="/people/${template.nick}/settings" class="btn btn-selected">Настройки</a>
+</nav>
+
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>
-<tr><td>Показывать социальные кнопки (Google plus, Twitter, Juick)</td>
+<tr><td>Показывать социальные кнопки (Twitter)</td>
 <td><input type="checkbox" name="showSocial" <c:if test="${template.prof.showSocial}">checked</c:if> ></td></tr>
 <c:if test="${template.prof.showNewFirst}">
   <tr><td>Новые комментарии в начале</td>
@@ -48,12 +55,8 @@ $script.ready('plugins', function() {
 <td><input type=number min=10 max=500 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
-<c:if test="${template.prof.useHover}">
-<tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>
-<td><input type="checkbox" name="hover" <c:if test="${template.prof.useHover}">checked</c:if> ></td></tr>
-</c:if>
-<tr><td>Показывать меньше рекламы</td>
-<td><input type="checkbox" name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
+<tr><td>Показывать меньше рекламы (доступна пользователям начиная с одной зеленой звезды)</td>
+<td><input type="checkbox" <c:if test="${template.currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
 <td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
   <tr><td colspan=2><hr></td></tr>
@@ -72,6 +75,24 @@ $script.ready('plugins', function() {
     </c:forEach>
   </td>
 </tr>
+
+  <tr><td colspan=2><hr></td></tr>
+  <tr>
+    <td valign=top>Фильтр трекера по умолчанию</td>
+    <td>
+      <c:set value="${template.prof.trackerMode.value}" var="trackerMode"/>
+
+      <c:forEach var="s" items="${trackerModes}">
+        <c:if test="${s.value == trackerMode}">
+          <label><input type=radio name=trackerMode value="${s.value}" checked>${s.label}</label>
+        </c:if>
+        <c:if test="${s.value != trackerMode}">
+          <label><input type=radio name=trackerMode value="${s.value}">${s.label}</label>
+        </c:if>
+      </c:forEach>
+    </td>
+  </tr>
+
   <tr><td colspan="2"><hr></td></tr>
   <tr>
     <td valign="top">При отсутствии аватара показывать</td>
@@ -113,5 +134,4 @@ $script.ready('plugins', function() {
 
 <p><b>Внимание!</b> Настройки на некоторых уже посещенных страницах могут
 не отображаться. Очистите кеш или используйте кнопку <i>Reload</i> вашего браузера.
-
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

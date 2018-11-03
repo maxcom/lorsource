@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,16 +19,14 @@ import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.site.DeleteInfoStat;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -38,9 +36,14 @@ import java.util.List;
 @Repository
 public class DeleteInfoDao {
   private JdbcTemplate jdbcTemplate;
-  private static final String QUERY_DELETE_INFO = "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=?";
-  private static final String QUERY_DELETE_INFO_FOR_UPDATE = "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=? FOR UPDATE";
-  private static final String INSERT_DELETE_INFO = "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)";
+  private static final String QUERY_DELETE_INFO =
+          "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=?";
+
+  private static final String QUERY_DELETE_INFO_FOR_UPDATE =
+          "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=? FOR UPDATE";
+
+  private static final String INSERT_DELETE_INFO =
+          "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -52,6 +55,7 @@ public class DeleteInfoDao {
    * @param id id проверяемого сообщения
    * @return информация о удаленном сообщении
    */
+  @Nullable
   public DeleteInfo getDeleteInfo(int id) {
     return getDeleteInfo(id, false);
   }
@@ -65,22 +69,19 @@ public class DeleteInfoDao {
   public DeleteInfo getDeleteInfo(int id, boolean forUpdate) {
     List<DeleteInfo> list = jdbcTemplate.query(
             forUpdate?QUERY_DELETE_INFO_FOR_UPDATE:QUERY_DELETE_INFO,
-            new RowMapper<DeleteInfo>() {
-      @Override
-      public DeleteInfo mapRow(ResultSet resultSet, int i) throws SQLException {
-        Integer bonus = resultSet.getInt("bonus");
-        if (resultSet.wasNull()) {
-          bonus = null;
-        }
+            (resultSet, i) -> {
+              Integer bonus = resultSet.getInt("bonus");
+              if (resultSet.wasNull()) {
+                bonus = null;
+              }
 
-        return new DeleteInfo(
-                resultSet.getInt("userid"),
-                resultSet.getString("reason"),
-                resultSet.getTimestamp("deldate"),
-                bonus
-        );
-      }
-    }, id);
+              return new DeleteInfo(
+                      resultSet.getInt("userid"),
+                      resultSet.getString("reason"),
+                      resultSet.getTimestamp("deldate"),
+                      bonus
+              );
+            }, id);
 
     if (list.isEmpty()) {
       return null;
@@ -93,18 +94,6 @@ public class DeleteInfoDao {
     Preconditions.checkArgument(scoreBonus <= 0, "Score bonus on delete must be non-positive");
 
     jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
-  }
-
-  public List<DeleteInfoStat> getRecentStats() {
-    return jdbcTemplate.query(
-            "select * from( select reason, count(*), sum(bonus) from del_info where deldate>CURRENT_TIMESTAMP-'1 day'::interval and bonus is not null group by reason) as s where sum!=0 order by reason",
-            new RowMapper<DeleteInfoStat>() {
-              @Override
-              public DeleteInfoStat mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new DeleteInfoStat(rs.getString("reason"), rs.getInt("count"), rs.getInt("sum"));
-              }
-            }
-    );
   }
 
   public void insert(final List<InsertDeleteInfo> deleteInfos) {

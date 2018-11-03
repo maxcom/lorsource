@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.spring.boxlets.AbstractBoxlet;
+import ru.org.linux.boxlets.AbstractBoxlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -27,15 +27,16 @@ import java.util.List;
 @Controller
 public class GalleryBoxlet extends AbstractBoxlet {
   private static final int COUNT_ITEMS = 3;
+
   @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @Override
   @RequestMapping("/gallery.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    List<PreparedGalleryItem> list = imageDao.prepare(imageDao.getGalleryItems(COUNT_ITEMS));
+    List<PreparedGalleryItem> list = imageService.prepareGalleryItem(imageService.getGalleryItems(COUNT_ITEMS));
     mav.addObject("items", list);
     return mav;
   }

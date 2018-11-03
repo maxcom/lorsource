@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.user;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +41,7 @@ import java.util.Set;
 @Controller
 public class UserFilterController {
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   @Autowired
   private IgnoreListDao ignoreListDao;
@@ -49,11 +49,14 @@ public class UserFilterController {
   @Autowired
   private UserTagService userTagService;
 
+  @Autowired
+  private RemarkDao remarkDao;
+
   @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(
     HttpServletRequest request,
     @RequestParam(value = "newFavoriteTagName", required = false) String newFavoriteTagName,
-    @RequestParam(value = "newIgnoredTagName", required = false) String newIgnoredTagName
+    @RequestParam(value = "newIgnoreTagName", required = false) String newIgnoreTagName
   ) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
@@ -68,7 +71,7 @@ public class UserFilterController {
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
 
-    Map<Integer, Remark> ignoreRemarks = getIgnoreRemarks(user, ignoreMap.values());
+    Map<Integer, Remark> ignoreRemarks = remarkDao.getRemarks(user, ignoreMap.values());
     modelAndView.addObject("ignoreRemarks", ignoreRemarks);
 
     modelAndView.addObject("ignoreList", ignoreMap);
@@ -83,32 +86,18 @@ public class UserFilterController {
       modelAndView.addObject("newFavoriteTagName", newFavoriteTagName);
     }
 
-    if (newIgnoredTagName != null && TagName.isGoodTag(newIgnoredTagName)) {
-      modelAndView.addObject("newIgnoredTagName", newIgnoredTagName);
+    if (newIgnoreTagName != null && TagName.isGoodTag(newIgnoreTagName)) {
+      modelAndView.addObject("newIgnoreTagName", newIgnoreTagName);
     }
 
     return modelAndView;
-  }
-
-  private Map<Integer, Remark> getIgnoreRemarks(User currentUser, Iterable<User> users) {
-    ImmutableMap.Builder<Integer, Remark> builder = ImmutableMap.builder();
-
-    for (User user : users) {
-      Remark remark = userDao.getRemark(currentUser, user);
-
-      if (remark!=null) {
-        builder.put(user.getId(), remark);
-      }
-    }
-
-    return builder.build();
   }
 
   private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) {
     Map<Integer, User> ignoreMap = new HashMap<>(ignoreList.size());
 
     for (int id : ignoreList) {
-      ignoreMap.put(id, userDao.getUserCached(id));
+      ignoreMap.put(id, userService.getUserCached(id));
     }
 
     return ignoreMap;
@@ -128,7 +117,13 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User addUser = userDao.getUser(nick);
+    User addUser;
+
+    try {
+      addUser = userService.getUserCached(nick);
+    } catch (UserNotFoundException ex) {
+      throw new BadInputException("указанный пользователь не существует");
+    }
 
     // Add nick to ignore list
     if (nick.equals(user.getNick())) {
@@ -158,7 +153,7 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User delUser = userDao.getUserCached(id);
+    User delUser = userService.getUserCached(id);
 
     ignoreListDao.remove(user, delUser);
 
@@ -335,7 +330,7 @@ public class UserFilterController {
   @ResponseBody
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   public
-  Map<String, String> ignoreTagAddJSON(
+  Map<String, Object> ignoreTagAddJSON(
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
@@ -353,10 +348,17 @@ public class UserFilterController {
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
     if (!errorMessage.isEmpty()) {
-      return ImmutableMap.of("error", StringUtils.join(errorMessage,"; "));
+      return ImmutableMap.of("error", Joiner.on("; ").join(errorMessage));
     }
+    
+    try {
+      int tagId = userTagService.ignoreAdd(user, tagName);
 
-    return ImmutableMap.of();
+      return ImmutableMap.<String, Object>of("count", userTagService.countIgnore(tagId));
+    } catch (TagNotFoundException e) {
+      return ImmutableMap.<String, Object>of("error", e.getMessage());
+    }
+    
   }
 
   /**
@@ -403,7 +405,7 @@ public class UserFilterController {
   @ResponseBody
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
-  Map<String, String> ignoreTagDelJSON(
+  Map<String, Object> ignoreTagDelJSON(
     ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
@@ -420,8 +422,8 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    userTagService.ignoreDel(user, tagName);
+    int tagId = userTagService.ignoreDel(user, tagName);
 
-    return ImmutableMap.of();
+    return ImmutableMap.<String, Object>of("count", userTagService.countIgnore(tagId));
   }
 }

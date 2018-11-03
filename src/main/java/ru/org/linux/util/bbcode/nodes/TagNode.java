@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -72,14 +72,10 @@ public class TagNode extends Node {
 
   @Override
   public boolean prohibited(String tagName) {
-    if (bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)) {
+    if (bbtag.getProhibitedElements().contains(tagName)) {
       return true;
     } else {
-      if (parent == null) {
-        return false;
-      } else {
-        return parent.prohibited(tagName);
-      }
+      return parent != null && parent.prohibited(tagName);
     }
   }
 
@@ -112,6 +108,6 @@ public class TagNode extends Node {
 
   @Override
   public String renderOg() {
-    return renderChildrenOg();
+    return bbtag.renderOg(this);
   }
 }

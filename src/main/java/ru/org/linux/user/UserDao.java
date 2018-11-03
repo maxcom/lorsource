@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,6 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.slf4j.Logger;
@@ -27,22 +25,19 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
+import scala.Tuple2;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -67,26 +62,17 @@ public class UserDao {
                                                 "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
                                               "ORDER BY regdate";
 
-  private static final String queryUserInfoClass = "SELECT url, town, lastlogin, regdate FROM users WHERE id=?";
   private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
-  private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
-  private static final String queryTopicsBySectionStat =
-            "SELECT groups.section, count(*) as c " +
-                    "FROM topics, groups " +
-                    "WHERE topics.userid=? " +
-                    "AND groups.id=topics.groupid " +
-                    "AND not deleted " +
-                    "GROUP BY groups.section ORDER BY groups.section";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public User getUser(String nick) throws UserNotFoundException {
+  public int findUserId(String nick) throws UserNotFoundException {
     if (nick == null) {
       throw new NullPointerException();
     }
@@ -110,7 +96,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    return getUser(list.get(0));
+    return list.get(0);
   }
 
   @Cacheable("Users")
@@ -134,15 +120,7 @@ public class UserDao {
   }
 
   private User getUserInternal(int id) throws UserNotFoundException {
-    List<User> list = jdbcTemplate.query(
-            queryUserById, new RowMapper<User>() {
-      @Override
-      public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new User(rs);
-      }
-    },
-            id
-    );
+    List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> new User(rs), id);
 
     if (list.isEmpty()) {
       throw new UserNotFoundException(id);
@@ -171,12 +149,7 @@ public class UserDao {
    * @return информация
    */
   public UserInfo getUserInfoClass(User user) {
-    return jdbcTemplate.queryForObject(queryUserInfoClass, new RowMapper<UserInfo>() {
-      @Override
-      public UserInfo mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new UserInfo(resultSet);
-      }
-    }, user.getId());
+    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> new UserInfo(resultSet), user.getId());
   }
 
   /**
@@ -185,14 +158,11 @@ public class UserDao {
    * @return информация о бане :-)
    */
   public BanInfo getBanInfoClass(User user) {
-    List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, new RowMapper<BanInfo>() {
-      @Override
-      public BanInfo mapRow(ResultSet resultSet, int i) throws SQLException {
-        Timestamp date = resultSet.getTimestamp("bandate");
-        String reason = resultSet.getString("reason");
-        User moderator = getUser(resultSet.getInt("ban_by"));
-        return new BanInfo(date, reason, moderator);
-      }
+    List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, (resultSet, i) -> {
+      Timestamp date = resultSet.getTimestamp("bandate");
+      String reason = resultSet.getString("reason");
+      User moderator = getUser(resultSet.getInt("ban_by"));
+      return new BanInfo(date, reason, moderator);
     }, user.getId());
 
     if (infoList.isEmpty()) {
@@ -202,79 +172,24 @@ public class UserDao {
     }
   }
 
-  /**
-   * Получить статситику пользователя
-   * @param user пользователь
-   * @param exact точная или приблизительная статистика
-   * @return статистика
-   */
-  public UserStatistics getUserStatisticsClass(User user, boolean exact, int ignoreCount) {
-    int commentCount = 0;
-
-    if (!exact) {
-      List<Integer> res = jdbcTemplate.queryForList("SELECT cnt FROM user_comment_counts WHERE userid=?", Integer.class, user.getId());
-
-      if (!res.isEmpty()) {
-        commentCount = (int) Math.round(res.get(0) / 1000.0) * 1000;
-      }
-    }
-
-    boolean exactCommentCount = false;
-    if (commentCount == 0) {
-      try {
-        commentCount = jdbcTemplate.queryForObject(queryCommentStat, Integer.class, user.getId());
-      } catch (EmptyResultDataAccessException exception) {
-      }
-
-      exactCommentCount = true;
-    }
-
-    List<Timestamp> commentStat;
-
+  public int getExactCommentCount(User user) {
     try {
-      commentStat = jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<List<Timestamp>>() {
-        @Override
-        public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-          return Lists.newArrayList(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-        }
-      }, user.getId());
+      return jdbcTemplate.queryForObject(queryCommentStat, Integer.class, user.getId());
     } catch (EmptyResultDataAccessException exception) {
-      commentStat = null;
+      return 0;
     }
+  }
 
-    List<Timestamp> topicStat;
-
-    try {
-      topicStat = jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<List<Timestamp>>() {
-        @Override
-        public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-          return Lists.newArrayList(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
-        }
-      }, user.getId());
-    } catch (EmptyResultDataAccessException exception) {
-      topicStat = null;
-    }
-
-    final ImmutableList.Builder<UsersSectionStatEntry> builder = ImmutableList.builder();
-    jdbcTemplate.query(queryTopicsBySectionStat, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        builder.add(new UsersSectionStatEntry(resultSet.getInt("section"), resultSet.getInt("c")));
-      }
-    }, user.getId());
-    
-    return new UserStatistics(ignoreCount, commentCount,
-            exactCommentCount, commentStat.get(0), commentStat.get(1),
-        topicStat.get(0), topicStat.get(1),
-        builder.build());
+  public Tuple2<Timestamp, Timestamp> getFirstAndLastCommentDate(User user) {
+    return jdbcTemplate.queryForObject(queryCommentDates, (resultSet, i) -> new Tuple2<>(resultSet.getTimestamp("first"), resultSet.getTimestamp("last")), user.getId());
   }
 
   /**
    * Получить список новых пользователей зарегистрирововавшихся за последние 3(три) дня
    * @return список новых пользователей
    */
-  public List<User> getNewUsers() {
-    return getUsersCached(jdbcTemplate.queryForList(queryNewUsers, Integer.class));
+  public List<Integer> getNewUserIds() {
+    return jdbcTemplate.queryForList(queryNewUsers, Integer.class);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -297,14 +212,20 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
   public boolean resetUserpic(User user, User cleaner) {
-    boolean r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
+    boolean r;
+
+    if (user.getPhoto()==null) {
+      r = jdbcTemplate.update("UPDATE users SET photo='' WHERE id=? and photo is null", user.getId()) > 0;
+    } else {
+      r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
+    }
 
     if (!r) {
       return false;
     }
 
     // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
-    if(cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()){
+    if(cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()) {
       changeScore(user.getId(), -10);
       userLogDao.logResetUserpic(user, cleaner, -10);
     } else {
@@ -355,11 +276,13 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void toggleCorrector(User user){
+  public void toggleCorrector(User user, User moderator) {
     if(user.canCorrect()){
       jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
-    }else{
+      userLogDao.unsetCorrector(user, moderator);
+    } else {
       jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.getId());
+      userLogDao.setCorrector(user, moderator);
     }
   }
   
@@ -427,6 +350,20 @@ public class UserDao {
   }
 
   /**
+   * Ставим score=50 если он меньше
+   *
+   * @param user кому ставим score
+   * @param moderator модератор
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
+  public void score50(@Nonnull User user, @Nonnull User moderator) {
+    if (jdbcTemplate.update("UPDATE users SET score=GREATEST(score, 50), max_score=GREATEST(max_score, 50) WHERE id=? AND score<50", user.getId()) > 0) {
+      userLogDao.logScore50(user, moderator);
+    }
+  }
+
+  /**
    * Разблокировка пользователя
    * @param user разблокируемый пользователь
    */
@@ -438,37 +375,12 @@ public class UserDao {
     userLogDao.logUnblockUser(user, moderator);
   }
 
-  @Nonnull
-  public User getAnonymous() {
-    try {
-      return getUserCached(2);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException("Anonymous not found!?", e);
-    }
+  public List<Integer> getModeratorIds() {
+    return jdbcTemplate.queryForList("SELECT id FROM users WHERE canmod ORDER BY id", Integer.class);
   }
 
-  public List<User> getModerators() {
-    return getUsersCached(jdbcTemplate.queryForList(
-            "SELECT id FROM users WHERE canmod ORDER BY id",
-            Integer.class
-    ));
-  }
-
-  public List<User> getCorrectors() {
-    return getUsersCached(jdbcTemplate.queryForList(
-            "SELECT id FROM users WHERE corrector ORDER BY id",
-            Integer.class
-    ));
-  }
-
-  public List<User> getUsersCached(List<Integer> ids) {
-    List<User> users = new ArrayList<>(ids.size());
-
-    for (int id : ids) {
-      users.add(getUserCached(id));
-    }
-
-    return users;
+  public List<Integer> getCorrectorIds() {
+    return jdbcTemplate.queryForList("SELECT id FROM users WHERE corrector ORDER BY id", Integer.class);
   }
 
   public User getByEmail(String email, boolean searchBlocked) {
@@ -514,19 +426,16 @@ public class UserDao {
           @Nonnull User user,
           String name,
           String url,
-          String new_email,
+          @Nullable String newEmail,
           String town,
           @Nullable String password,
           String info
   ) {
-    jdbcTemplate.update(
-            "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
-            name,
-            url,
-            new_email,
-            town,
-            user.getId()
-    );
+    jdbcTemplate.update("UPDATE users SET name=?, url=?, town=? WHERE id=?", name, url, town, user.getId());
+
+    if (newEmail!=null) {
+      jdbcTemplate.update("UPDATE users SET new_email=? WHERE id=?", newEmail, user.getId());
+    }
 
     if (password != null) {
       setPassword(user, password);
@@ -574,6 +483,14 @@ public class UserDao {
     return c>0;
   }
 
+  public boolean hasSimilarUsers(String nick) {
+    int c = jdbcTemplate.queryForObject("SELECT count(*) FROM users WHERE " +
+            "NOT blocked AND score>=200 AND lastlogin>CURRENT_TIMESTAMP-'3 years'::INTERVAL " +
+            "AND levenshtein_less_equal(lower(nick), ?, 1)<=1", Integer.class, nick.toLowerCase());
+
+    return c>0;
+  }
+
   public String getNewEmail(@Nonnull User user) {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
@@ -599,87 +516,14 @@ public class UserDao {
   }
 
   /**
-   * Получить комментарий пользователя user о ref
+   * Sign out from all sessions
    * @param user logged user
-   * @param ref  user 
-   * @throws SQLException on database failure
    */
-  public Remark getRemark(User user,User ref) {
-    List<Remark> remarkList = jdbcTemplate.query("SELECT * FROM user_remarks WHERE user_id=? AND ref_user_id=?", new RowMapper<Remark>() {
-      @Override
-      public Remark mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Remark(resultSet);
-      }
-    }, user.getId(),ref.getId());
-
-    if (remarkList.isEmpty()) {
-      return null;
-    } else {
-      return remarkList.get(0);
-    }
+  public void unloginAllSessions(User user) {
+    jdbcTemplate.update("UPDATE users SET token_generation=token_generation+1 WHERE id=?", user.getId());
   }
 
-  public int getRemarkCount(User user) {
-    return jdbcTemplate.queryForObject(
-            "SELECT count(*) as c FROM user_remarks WHERE user_id=?",
-            Integer.class,
-            user.getId()
-    );
-  }
-
-  /**
-   * Получить комментарии пользователя user
-   * @param user logged user
-   * @throws SQLException on database failure
-   */
-   
-  
-  public List<Remark> getRemarkList(User user, int offset, int sortorder, int limit) {
-    String qs;
-
-    if (sortorder==1) {
-      qs = "SELECT * FROM user_remarks WHERE user_id=? ORDER BY remark_text ASC LIMIT ? OFFSET ?";
-    } else {
-      qs = "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text " +
-              "FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?";
-    }
-
-    return jdbcTemplate.query(qs, new RowMapper<Remark>() {
-      @Override
-      public Remark mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Remark(resultSet);
-      }
-    }, user.getId(), limit, offset);
-  }
-
-  /**
-   * Сохранить комментарий пользователя user о ref
-   * @param user logged user
-   * @param ref  user 
-   * @param text текст комментария
-   * @throws SQLException on database failure
-   */
-  public void setRemark(User user, User ref, String text) {
-    if(text.isEmpty()) {
-      return;
-    }
-
-    jdbcTemplate.update("INSERT INTO user_remarks (user_id,ref_user_id,remark_text) VALUES (?,?,?)", 
-                        user.getId(),ref.getId(),text);
-  }
-  
-  /**
-   * Обновить комментарий пользователя user о ref
-   * @param id id of remark
-   * @param text - комментарий
-   * @throws SQLException on database failure
-   * если комментарий нулевой длины - он удаляется из базы
-   */
-  public void updateRemark(int id, String text) {
-    if(text.isEmpty()) {
-      jdbcTemplate.update("DELETE FROM user_remarks WHERE id=?", id);
-    } else {
-      jdbcTemplate.update("UPDATE user_remarks SET remark_text=? WHERE id=?", text, id);
-    }
+  public int getTokenGeneration(String nick) {
+    return jdbcTemplate.queryForObject("SELECT token_generation FROM users WHERE nick=?", Integer.class, nick);
   }
 }

@@ -1,12 +1,11 @@
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page buffer="60kb" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,7 +21,7 @@
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="userpic" type="ru.org.linux.user.Userpic"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
-<%--@elvariable id="userStat" type="ru.org.linux.user.UserStatistics"--%>
+<%--@elvariable id="userStat" type="ru.org.linux.user.UserStats"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="ignored" type="java.lang.Boolean"--%>
@@ -30,7 +29,6 @@
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
 <%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
-<%--@elvariable id="sectionStat" type="java.util.List<ru.org.linux.user.PreparedUsersSectionStatEntry>"--%>
 <%--@elvariable id="userlog" type="java.util.List<ru.org.linux.user.PreparedUserLogItem>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -41,16 +39,22 @@
         <link rel="me" href="${fn:escapeXml(userInfo.url)}">
     </c:if>
 </c:if>
-<LINK REL="alternate" HREF="/people/${user.nick}/?output=rss" TYPE="application/rss+xml">
+<link rel="alternate" href="/people/${user.nick}/?output=rss" type="application/rss+xml">
 
 <jsp:include page="header.jsp"/>
 
 <c:if test="${currentUser}">
-  <a href="/people/${user.nick}/edit" class="btn btn-default">Изменить регистрацию</a>
+  <a href="/people/${user.nick}/edit" class="btn btn-default">Редактировать профиль</a>
   <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
   <form action="logout" method="POST" style="display: inline-block">
+    <lor:csrf/>
     <button type="submit" class="btn btn-danger">Выйти</button>
+  </form>
+
+  <form action="logout_all_sessions" method="POST" style="display: inline-block">
+    <lor:csrf/>
+    <button type="submit" class="btn btn-danger">Выйти со всех устройств</button>
   </form>
 </c:if>
 
@@ -62,7 +66,7 @@
     <l:userpic userpic="${userpic}"/>
     <c:if test="${moderatorOrCurrentUser}">
         <span>
-        <c:if test="${user.photo != null}">
+        <c:if test="${user.photo != ''}">
             <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
                 <lor:csrf/>
                 <input type='hidden' name='id' value='${user.id}'>
@@ -84,7 +88,7 @@
     <b>ID:</b> ${user.id}<br>
     <b>Nick:</b> <span class="nickname">${user.nick}</span>
     <c:if test="${template.sessionAuthorized and !currentUser}">
-        <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/></i>
+        <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/>
         [<a href="/people/${user.nick}/remark/">Изменить</a>]
     </c:if>
     <br>
@@ -129,30 +133,42 @@
     </c:if>
 </div>
 <c:if test="${moderatorOrCurrentUser}">
-    <div>
-        <c:if test="${not empty user.email}">
-            <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
-            <form action="/lostpwd.jsp" method="POST" style="display: inline">
-                <lor:csrf/>
-                <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
-                <button type="submit">Получить забытый пароль</button>
-            </form>
-        </c:if>
+  <div>
+    <c:if test="${not empty user.email}">
+      <b>Email:</b> <a
+            href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
+      <form action="/lostpwd.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
+        <button type="submit" class="btn btn-small btn-default">Получить забытый пароль</button>
+      </form>
+    </c:if>
 
-        <c:if test="${template.moderatorSession}">
-            <form action="/usermod.jsp" method="POST" style="display: inline">
-                <lor:csrf/>
-                <input type="hidden" name="id" value="${user.id}">
-                <input type='hidden' name='action' value='reset-password'>
-                <button type="submit">Сбросить пароль</button>
-            </form>
-        </c:if>
-        <br>
-        <b>Score:</b> ${user.score}<br>
-        <c:if test="${not currentUser && template.moderatorSession}">
-            <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
-        </c:if>
-    </div>
+    <c:if test="${template.moderatorSession}">
+      <form action="/usermod.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type='hidden' name='action' value='reset-password'>
+        <button type="submit">Сбросить пароль</button>
+      </form>
+    </c:if>
+    <br>
+
+    <b>Score:</b> ${user.score}
+    <c:if test="${template.moderatorSession and user.score<50}">
+      <form action="/usermod.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type='hidden' name='action' value='score50'>
+        <button type="submit" class="btn btn-small btn-default">Установить score=50</button>
+      </form>
+    </c:if>
+    <br>
+
+    <c:if test="${not currentUser && template.moderatorSession}">
+      <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
+    </c:if>
+  </div>
 </c:if>
 
 <c:if test="${fn:length(favoriteTags)>0}">
@@ -163,6 +179,10 @@
         </spring:url>
         <a class="tag" href="${tagLink}">${tagName}</a><c:if test="${not status.last}">, </c:if>
     </c:forEach>
+
+    <c:if test="${currentUser}">
+        &emsp;<a href="<c:url value="/user-filter"/>">изменить</a>
+    </c:if>
     <br>
 </c:if>
 <c:if test="${moderatorOrCurrentUser && fn:length(ignoreTags)>0}">
@@ -182,7 +202,7 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             Вы игнорируете этого пользователя &nbsp;
-            <button type='submit' name='del'>не игнорировать</button>
+            <button type='submit' class="btn btn-small btn-default" name='del'>не игнорировать</button>
         </form>
     </c:if>
 
@@ -191,7 +211,7 @@
             <lor:csrf/>
             <input type='hidden' name='nick' value='${user.nick}'>
             Вы не игнорируете этого пользователя &nbsp;
-            <button type='submit' name='add'>игнорировать</button>
+            <button type='submit' class="btn btn-small btn-default" name='add'>игнорировать</button>
         </form>
     </c:if>
 </c:if>
@@ -204,11 +224,11 @@
             <lor:csrf/>
             <input type='hidden' name='id' value='${user.id}'>
             <c:if test="${user.blocked}">
-                <button type='submit' name='action' value="unblock">unblock</button>
+                <button type='submit' name='action' value="unblock">разблокировать</button>
             </c:if>
             <c:if test="${not user.blocked}">
                 <label>Причина: <input type="text" name="reason" size="40" required></label>
-                <button type='submit' name='action' value="block">block</button><br>
+                <button type='submit' name='action' value="block">заблокировать</button><br>
 
                 [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
             </c:if>
@@ -266,6 +286,12 @@
 </c:if>
 
 <h2>Статистика</h2>
+<c:if test="${userStat.incomplete}">
+  <div class="infoblock">
+  Внимание! Статистику пользователя не удалось полностью загрузить. Попробуйте обновить страницу позже.
+  </div>
+</c:if>
+
 <c:if test="${userStat.firstTopic != null}">
     <b>Первая созданная тема:</b> <lor:date date="${userStat.firstTopic}"/><br>
     <b>Последняя созданная тема:</b> <lor:date date="${userStat.lastTopic}"/><br>
@@ -274,9 +300,8 @@
     <b>Первый комментарий:</b> <lor:date date="${userStat.firstComment}"/><br>
     <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
 </c:if>
-<c:if test="${not user.anonymous and userStat.commentCount>0}">
-    <b>Число комментариев:</b> <c:if
-        test="${not userStat.exactCommentCount}">приблизительно </c:if> ${userStat.commentCount}
+<c:if test="${userStat.commentCount>0}">
+    <b>Число комментариев:</b> ${userStat.commentCount}
 </c:if>
 <p>
 
@@ -291,7 +316,7 @@
             <th>Число тем</th>
         </tr>
         <tbody>
-        <c:forEach items="${sectionStat}" var="i">
+        <c:forEach items="${userStat.topicsBySection}" var="i">
         <tr>
             <td>${i.section.name}</td>
             <td><a href="/people/${user.nick}/?section=${i.section.id}">${i.count}</a></td>
@@ -309,9 +334,13 @@
         </li>
     </c:if>
 
-    <c:if test="${userStat.commentCount>0}">
+    <c:if test="${userStat.commentCount>0 || template.moderatorSession}">
         <li>
-            <a href="show-comments.jsp?nick=${user.nick}">Комментарии</a>
+          <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
+
+          <c:if test="${template.moderatorSession}">
+            (<a href="/people/${user.nick}/deleted-comments">удаленные</a>)
+          </c:if>
         </li>
     </c:if>
 
@@ -368,7 +397,5 @@
         </table>
     </div>
 </c:if>
-
 </div>
-
 <jsp:include page="footer.jsp"/>

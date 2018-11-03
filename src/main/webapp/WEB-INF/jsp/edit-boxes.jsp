@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2016 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,12 +17,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<title>Конструктор страницы</title>
+<title>Конструктор главной страницы</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Конструктор страницы</h1>
-При помощи этого инструмента вы можете составить для себя свою собственную
-страничку, содержащую только необходимую вам информацию.
+<h1>Конструктор главной страницы</h1>
+При помощи этого инструмента вы можете изменить главную страницу, наполнив её только необходимой вам информацией.
 
 <table>
   <tr>

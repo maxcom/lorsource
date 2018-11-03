@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,11 +25,6 @@ BODY {
     background: #000000;
     color: $text_color;
     max-width: 100em;
-}
-
-#bd {
-  margin-left: 0.5em;
-  margin-right: 0.5em;
 }
 
 A {
@@ -119,13 +114,18 @@ DIV.forum A { text-decoration: none }
 }
 
 TR.color2 { background: #000080; }
+
 .message-table {
   background: #808080;
   border-spacing: 1px;
-}
 
-.message-table tbody {
-  background: #000080;
+  tbody {
+    background: #000080;
+
+    tr:hover {
+      background: #000060;
+    }
+  }
 }
 
 .entry-body .nav A {
@@ -184,12 +184,8 @@ DIV.notes
     background: #000020;
 }
 
-div.quote {
-    margin: 0;
-    border: 0 solid #808080;
-    border-left-width: 2px;
-    padding: 0 0.5em 0;
-    /*#AEA6F2;*/
+blockquote {
+    border-left-color: #808080;
 }
 
 .nav li:after {
@@ -231,6 +227,10 @@ div.quote {
   white-space: nowrap;
 }
 
+#comments .userpic {
+  margin-top: .75em;
+}
+
 @media screen and (max-width:360px) {
 	#head-main {
 		margin-left: 0;
@@ -254,3 +254,5 @@ div.quote {
 		margin-left: 0;
 	}
 }
+
+@import "../responsive";

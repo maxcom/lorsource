@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -62,7 +62,9 @@ public class MemoriesController {
 
     int id = memoriesDao.addToMemories(user, topic, watch);
 
-    int count = memoriesDao.getTopicStats(msgid).get(watch?0:1);
+    MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(msgid, user);
+
+    int count = watch? memoriesInfo.watchCount(): memoriesInfo.favsCount();
 
     return ImmutableMap.of("id", id, "count", count);
   }
@@ -83,18 +85,16 @@ public class MemoriesController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    MemoriesListItem m = memoriesDao.getMemoriesListItem(id);
-
-    if (m != null) {
+    return memoriesDao.getMemoriesListItem(id).map (m -> {
       if (m.getUserid() != user.getId()) {
         throw new AccessViolationException("Нельзя удалить чужую запись");
       }
 
       memoriesDao.delete(id);
 
-      return memoriesDao.getTopicStats(m.getTopic()).get(m.isWatch()?0:1);
-    } else {
-      return -1;
-    }
+      MemoriesInfo memoriesInfo = memoriesDao.getTopicInfo(m.getTopic(), user);
+
+      return m.isWatch()? memoriesInfo.watchCount(): memoriesInfo.favsCount();
+    }).orElse(-1);
   }
 }

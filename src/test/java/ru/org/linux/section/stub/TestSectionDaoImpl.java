@@ -30,7 +30,6 @@ public class TestSectionDaoImpl implements SectionDao {
     sectionList.add(new Section("Section 1", false, true, 1, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
     sectionList.add(new Section("Section 2", false, true, 2, false, "GROUP", TopicPermissionService.POSTSCORE_UNRESTRICTED));
     sectionList.add(new Section("Section 3", true, true, 3, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
-    sectionList.add(new Section("Section 4", false, false, 4, false, "NO_SCROLL", TopicPermissionService.POSTSCORE_UNRESTRICTED));
     sectionList.add(new Section("Section 5", false, false, 5, true, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED));
 
     return sectionList;

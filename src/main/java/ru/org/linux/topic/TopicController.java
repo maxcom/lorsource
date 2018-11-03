@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,8 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.*;
+import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.group.Group;
 import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.search.MoreLikeThisService;
@@ -42,19 +45,29 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.IgnoreListDao;
+import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
-import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
+import scala.Option;
 import scala.concurrent.Future;
+import scala.concurrent.duration.Deadline;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC;
 
 @Controller
 public class TopicController {
-  public static final int RSS_DEFAULT = 20;
+  private static final int RSS_DEFAULT = 20;
+  private static final FiniteDuration MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS);
+
   @Autowired
   private SectionService sectionService;
 
@@ -65,7 +78,7 @@ public class TopicController {
   private CommentPrepareService prepareService;
 
   @Autowired
-  private TopicPrepareService messagePrepareService;
+  private TopicPrepareService topicPrepareService;
 
   @Autowired
   private CommentService commentService;
@@ -94,6 +107,12 @@ public class TopicController {
   @Autowired
   private LorCodeService lorCodeService;
 
+  @Autowired
+  private MemoriesDao memoriesDao;
+
+  @Autowired
+  private EditHistoryService editHistoryService;
+
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
     WebRequest webRequest,
@@ -101,12 +120,13 @@ public class TopicController {
     HttpServletResponse response,
     @RequestParam(value = "filter", required = false) String filter,
     @RequestParam(value = "cid" , required = false) Integer cid,
+    @RequestParam(value = "skipdeleted" , required = false, defaultValue = "false") boolean skipDeleted,
     @PathVariable("section") String sectionName,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
-      return jumpMessage(request, msgid, cid);
+      return jumpMessage(request, msgid, cid, skipDeleted);
     }
 
     Section section = sectionService.getSectionByName(sectionName);
@@ -175,25 +195,36 @@ public class TopicController {
     String filter,
     String groupName,
     int msgid) throws Exception {
+
+    Deadline deadline = MoreLikeThisTimeout.fromNow();
+
     Topic topic = messageDao.getById(msgid);
-    Template tmpl = Template.getTemplate(request);
-
-    Map<String, Object> params = new HashMap<>();
-
     List<TagRef> tags = topicTagService.getTagRefs(topic);
+
+    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags);
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = lorCodeService.extractPlainText(messageText);
 
-    Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.search(topic, tags, plainText);
+    Template tmpl = Template.getTemplate(request);
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
             request.isSecure(),
             tmpl.getCurrentUser(),
             messageText
     );
+
+    Map<String, Object> params = new HashMap<>();
+
+    if (tmpl.isSessionAuthorized()) {
+      Option<EditInfoSummary> editInfoSummary = editHistoryService.editInfoSummary(topic.getId(), TOPIC);
+
+      if (editInfoSummary.nonEmpty()) {
+        params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get()));
+      }
+    }
 
     Group group = preparedMessage.getGroup();
 
@@ -212,7 +243,7 @@ public class TopicController {
       }
     }
 
-    if (page == -1 && !tmpl.isSessionAuthorized()) {
+    if (page == -1 && !showDeleted) {
       return new ModelAndView(new RedirectView(topic.getLink()));
     }
 
@@ -269,13 +300,14 @@ public class TopicController {
       }
     }
 
-    params.put("messageMenu", messagePrepareService.getTopicMenu(
+    params.put("messageMenu", topicPrepareService.getTopicMenu(
             preparedMessage,
             currentUser,
-            request.isSecure(),
             tmpl.getProf(),
             true
     ));
+
+    params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.getId(), currentUser));
 
     Set<Integer> ignoreList;
 
@@ -310,7 +342,7 @@ public class TopicController {
     boolean reverse = tmpl.getProf().isShowNewFirst();
 
     List<Comment> commentsFiltred = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), hideSet);
-    List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.<Integer>of());
+    List<Comment> commentsFull = cv.getCommentsForPage(reverse, page, tmpl.getProf().getMessages(), ImmutableSet.of());
 
     params.put("unfilteredCount", commentsFull.size());
 
@@ -324,6 +356,12 @@ public class TopicController {
 
     params.put("commentsPrepared", commentsPrepared);
 
+    if (comments.getList().isEmpty()) {
+      params.put("lastCommentId", 0);
+    } else {
+      params.put("lastCommentId", comments.getList().get(comments.getList().size()-1).getId());
+    }
+
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
@@ -331,9 +369,9 @@ public class TopicController {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 
-    if (moreLikeThis!=null) {
-      params.put("moreLikeThis", moreLikeThisService.resultsOrNothing(moreLikeThis));
-    }
+    params.put("moreLikeThisGetter", (Callable<List<List<MoreLikeThisTopic>>>) () ->
+            moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
+    );
 
     return new ModelAndView("view-message", params);
   }
@@ -353,7 +391,7 @@ public class TopicController {
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
 
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(
+    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
             request.isSecure(),
@@ -364,7 +402,7 @@ public class TopicController {
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
-      return new ModelAndView(new RedirectView(topic.getLink()));
+      return new ModelAndView(new RedirectView(topic.getLink()+"?output=rss"));
     }
 
     if (topic.isExpired()) {
@@ -386,13 +424,12 @@ public class TopicController {
 
     CommentFilter cv = new CommentFilter(comments);
 
-    List<Comment> commentsFiltred = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.<Integer>of());
+    List<Comment> commentsFiltered = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.of());
 
-    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltred, request.isSecure());
+    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered, request.isSecure());
 
     params.put("commentsPrepared", commentsPrepared);
-    LorURL lorURL = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl());
-    params.put("mainURL", lorURL.fixScheme(request.isSecure()));
+    params.put("mainURL", siteConfig.getSecureUrl());
 
     return new ModelAndView("view-message-rss", params);
   }
@@ -497,12 +534,24 @@ public class TopicController {
   private ModelAndView jumpMessage(
           HttpServletRequest request,
           int msgid,
-          int cid) throws Exception {
+          int cid, boolean skipDeleted) throws Exception {
     Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
 
     CommentList comments = commentService.getCommentList(topic, false);
     CommentNode node = comments.getNode(cid);
+
+    if (node == null && skipDeleted) {
+      ImmutableList<Comment> list = comments.getList();
+
+      if (list.isEmpty()) {
+        return new ModelAndView(new RedirectView(topic.getLink()));
+      }
+
+      Comment c = list.stream().filter(v -> v.getId() > cid).findFirst().orElse(list.get(list.size()-1));
+
+      node = comments.getNode(c.getId());
+    }
 
     boolean deleted = false;
 
@@ -522,7 +571,7 @@ public class TopicController {
             TopicLinkBuilder
                     .pageLink(topic, pagenum)
                     .lastmod(tmpl.getProf().getMessages())
-                    .comment(cid);
+                    .comment(node.getComment().getId());
 
     if (deleted) {
       redirectUrl = redirectUrl.showDeleted();
@@ -553,7 +602,7 @@ public class TopicController {
           @RequestParam(required = false) Integer cid
   ) throws Exception {
     if (cid!=null) {
-      return jumpMessage(request, msgid, cid);
+      return jumpMessage(request, msgid, cid, false);
     }
 
     Topic topic = messageDao.getById(msgid);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -47,10 +47,19 @@ public class RegisterRequestValidator implements Validator {
           "mintemail.com",
           "mailinator2.com",
           "rppkn.com",
+          "sharklasers.com",
+          "spam4.me",
+          "guerrillamail.info",
+          "grr.la",
+          "pokemail.net",
+          "guerrillamailblock.com",
+          "guerrillamail.org",
+          "guerrillamail.net",
+          "guerrillamail.de",
+          "guerrillamail.biz",
           "rtrtr.com",
           "mailmetrash.com",
           "getairmail.com",
-          "sharklasers.com",
           "mailseal.de",
           "fakeinbox.com",
           "drdrb.com",
@@ -65,7 +74,25 @@ public class RegisterRequestValidator implements Validator {
           "courriel.fr.nf",
           "moncourrier.fr.nf",
           "monemail.fr.nf",
-          "monmail.fr.nf"
+          "monmail.fr.nf",
+          "solvemail.info",
+          "burstmail.info",
+          "coldemail.info",
+          "mailtemp.info",
+          "one-time.email",
+          "lackmail.ru",
+          "extemail.ru",
+          "kismail.ru",
+	  "divismail.ru",
+	  "wimsg.com",
+	  "mvrht.com",
+	  "vmani.com",
+	  "abyssmail.com",
+	  "a.asu.mx",
+	  "10mail.org",
+	  "zasod.com",
+	  "msgos.com",
+          "trbvn.com"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {

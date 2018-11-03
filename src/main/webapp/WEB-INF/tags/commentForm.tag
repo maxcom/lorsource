@@ -1,6 +1,6 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -32,12 +32,17 @@
 <form method="POST" action="${form_action_url}" id="commentForm">
   <lor:csrf/>
   <c:if test="${!template.sessionAuthorized}">
-    <label for="nick">Имя:</label>
-    <input id="nick" type='text' name='nick' value="anonymous"><br>
-    <label for="password">Пароль:</label>
-    <input id="password" type=password name=password><br>
-    ${postscoreInfo}
-    <br>
+    <div class="control-group">
+      <label for="nick">Имя</label>
+      <input id="nick" type='text' name='nick' value="anonymous">
+    </div>
+    <div class="control-group">
+      <label for="password">Пароль:</label>
+      <input id="password" type=password name=password>
+    </div>
+    <div class="help-block">
+      ${postscoreInfo}
+    </div>
   </c:if>
 
   <input type=hidden name=topic value="${topic.id}">
@@ -55,15 +60,16 @@
   </select>  <br>
   </c:if>
 
-  <label for="title">Заглавие:</label>
-  <input type=text id="title" name=title value="<%= StringUtil.escapeHtml(title) %>"><br>
-
-  <label for="msg">Сообщение:</label>
-
-  <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
-  <font size="2">Пустая строка (два раза Enter) начинает новый абзац.<br>
-                 Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
-  <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank" title="[br] - перевод строки
+  <div class="control-group">
+    <label for="title">Заглавие</label>
+    <input type=text id="title" name=title value="<%= StringUtil.escapeHtml(title) %>">
+  </div>
+  <div class="control-group">
+    <label for="msg">Сообщение</label>
+    <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
+    <div class="help-block">Пустая строка (два раза Enter) начинает новый абзац.
+                 Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования.<br>
+      <b>Внимание:</b> <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
 
 [b]жирный текст[/b]
 
@@ -94,23 +100,29 @@
 Ссылка:
 [url]http://www.linux.org.ru/[/url] 
 можно с параметром, например: 
-[url=http://www.example.com/]Сюда![/url]">прочитайте описание разметки LORCODE</a></font><br>
+[url=http://www.example.com/]Сюда![/url]">прочитайте описание разметки LORCODE</a></div>
 
-  <br>
-  <lor:captcha ipBlockInfo="${ipBlockInfo}" />
+  </div>
 
-  <button type=submit>Поместить</button>
-  <button type=submit name=preview>Предпросмотр</button>
+  <div class="help-block">
+    <lor:captcha ipBlockInfo="${ipBlockInfo}" />
+  </div>
+
+  <div class="form-actions">
+  <button type=submit class="btn btn-primary">Поместить</button>
+  <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
   <c:if test="${cancel!=null && cancel}">
     <c:choose>
       <%-- Для режима редактирования --%>
       <c:when test="${original != null}">
-        <button type=reset name=cancel id="cancelButton">Отменить изменения</button>
+        <button type=reset name=cancel id="cancelButton" class="btn btn-default">Отменить изменения</button>
       </c:when>
       <%-- Для всех остальных режимов --%>
       <c:otherwise>
-        <button type=reset name=cancel id="cancelButton">Отменить</button>
+        <button type=reset name=cancel id="cancelButton" class="btn btn-default">Отменить</button>
       </c:otherwise>
     </c:choose>
   </c:if>
+    <div class="help-block">Используйте Ctrl-Enter для размещения комментария</div>
+  </div>
 </form>

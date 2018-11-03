@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -32,31 +32,23 @@
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<div class=nav>
-  <div id="navPath">
-    ${title}
-  </div>
+<h1>Последние сообщения</h1>
 
-  <div class="nav-buttons">
-    <ul>
-      <c:forEach items="${filters}" var="f">
-        <li>
-          <c:url var="fUrl" value="/tracker/">
-            <c:if test="${not f.defaultValue}">
-              <c:param name="filter">${f.value}</c:param>
-            </c:if>
-          </c:url>
-          <c:if test="${filter != f.value}">
-            <a href="${fUrl}">${f.label}</a>
-          </c:if>
-          <c:if test="${filter==f.value}">
-            <a href="${fUrl}" class="current">${f.label}</a>
-          </c:if>
-        </li>
-      </c:forEach>
-    </ul>
-  </div>
-</div>
+<nav>
+  <c:forEach items="${filters}" var="f">
+      <c:url var="fUrl" value="/tracker/">
+        <c:if test="${f != defaultFilter}">
+          <c:param name="filter">${f.value}</c:param>
+        </c:if>
+      </c:url>
+      <c:if test="${filter != f.value}">
+        <a class="btn btn-default" href="${fUrl}">${f.label}</a>
+      </c:if>
+      <c:if test="${filter==f.value}">
+        <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
+      </c:if>
+  </c:forEach>
+</nav>
 
 <div class=forum>
   <table class="message-table">
@@ -65,7 +57,7 @@
       <th class="hideon-tablet">Группа</th>
       <th>Заголовок</th>
       <th>Последнее сообщение</th>
-      <th>Ответы</th>
+      <th><i class="icon-reply"></i></th>
     </tr>
     </thead>
     <tbody>
@@ -74,8 +66,6 @@
                          --%><a href="${msg.groupUrl}" class="secondary">${msg.groupTitle}</a><%--
 
                          --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
-                        --%><c:if test="${msg.wikiArticle}">, статья</c:if><%--
-                         --%><c:if test="${msg.wikiComment}">, комментарий</c:if><%--
                         --%></c:set>
       <tr>
         <td class="hideon-tablet">${groupLink}</td>
@@ -95,24 +85,18 @@
               <l:title>${msg.title}</l:title>
             </a>
 
-                (<%--
-                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}"/><%--
-                  --%><span class="hideon-desktop"> в </span><%--
-                  --%></c:if><span class="hideon-desktop">${groupLink}</span>)
+            (<%--
+            --%><c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/><%--
+            --%><span class="hideon-desktop"> в </span><%--
+            --%></c:if><span class="hideon-desktop">${groupLink}</span>)
         </td>
         <td class="dateinterval">
-          <lor:dateinterval date="${msg.postdate}"/><%--
-          --%><c:if test="${msg.lastCommentBy != null}"><%--
-            --%>, <lor:user user="${msg.lastCommentBy}"/>
-          </c:if>
+          <lor:dateinterval date="${msg.postdate}"/>, <lor:user user="${msg.author}"/>
         </td>
         <td class='numbers'>
             <c:choose>
                 <c:when test="${msg.stat1==0}">
                     -
-                </c:when>
-                <c:when test="${msg.stat1 > 0 && msg.wiki}">
-                    +${msg.stat1}
                 </c:when>
                 <c:otherwise>
                     ${msg.stat1}
@@ -161,29 +145,4 @@
   (всего ${fn:length(newUsers)})
 </c:if>
 
-<c:if test="${deleteStats!=null and fn:length(deleteStats)!=0}">
-  <h2>Статистика удаленных за 24 часа</h2>
-  <div class=forum>
-
-  <table width="100%" class="message-table">
-    <thead>
-    <tr>
-      <th>Причина</th>
-      <th>Количество</th>
-      <th>Сумма score</th>
-      <th>Средний score</th>
-    </tr>
-    </thead>
-    <tbody>
-      <c:forEach items="${deleteStats}" var="stat">
-          <tr>
-              <td><c:out escapeXml="true" value="${stat.reason}"/></td>
-              <td>${stat.count}</td>
-              <td>${stat.sum}</td>
-              <td><ftm:formatNumber value="${stat.avg}" maxFractionDigits="2"/></td>
-          </tr>
-      </c:forEach>
-  </table>
-  </div>
-</c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

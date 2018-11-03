@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,14 +17,15 @@ package ru.org.linux.site;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- */
 @Controller
 public class HTTPErrorController {
-
   @RequestMapping("/errors/404")
   public String handle404() {
     return "errors/code404";
   }
 
+  @RequestMapping("/errors/403")
+  public String handle403() {
+    return "errors/code403";
+  }
 }

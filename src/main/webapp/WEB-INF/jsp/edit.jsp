@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -42,7 +42,9 @@
     });
   });
 
-  $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  $script.ready("jquery", function() {
+    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+  });
   $script.ready("jqueryui", function() {
     $script("/js/tagsAutocomplete.js");
   });
@@ -56,10 +58,12 @@
   <h1>Редактирование</h1>
 </c:if>
 
+<c:if test="${newPreparedMessage==null}">
 <h2>Текущая версия сообщения</h2>
 <div class=messages>
-  <lor:message messageMenu="${topicMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
+  <lor:message messageMenu="${topicMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" showImageDelete="true"/>
 </div>
+</c:if>
 
 <c:if test="${newPreparedMessage!=null}">
   <h2>Ваше сообщение</h2>
@@ -68,7 +72,9 @@
 </div>
 </c:if>
 
-<form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm">
+<form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm"
+           enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}">
+  <lor:csrf/>
   <form:errors cssClass="error" path="*" element="div"/>
 
   <input type="hidden" name="msgid" value="${message.id}">
@@ -77,9 +83,26 @@
   </c:if>
 
   <c:if test="${topicMenu.topicEditable}">
-  <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br>
 
-  <c:if test="${group.pollPostAllowed and template.moderatorSession}">
+  <div class="control-group">
+    <label for="title">Заглавие</label>
+    <form:input path="title" required="required" style="width: 40em"/>
+  </div>
+
+  <c:if test="${imagepost}">
+    <div class="control-group">
+      <c:if test="${preparedMessage.image!=null}">
+        <label for="image">Заменить изображение:</label>
+      </c:if>
+      <c:if test="${preparedMessage.image==null}">
+        <label for="image">Добавить изображение:</label>
+      </c:if>
+      <input id="image" type="file" name="image">
+    </div>
+  </c:if>
+
+
+    <c:if test="${group.pollPostAllowed and template.moderatorSession}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
                 <form:input path="poll[${v.key}]" size="40"/></label><br>
@@ -94,21 +117,36 @@
       <br>
   </c:if>
 
-  <form:textarea path="msg" style="width: 40em" rows="20"/>
-  <br><br>
+  <div class="control-group">
+    <label for="form_msg">Сообщение</label>
+    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+    <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>
+  </div>
+
     <c:if test="${preparedMessage.group.linksAllowed}">
-      <label>Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/></label>
-      <label>Ссылка:<br> <form:input path="url" type="url" style="width: 40em"/></label>
+      <div class="control-group">
+        <label for="linktext">Текст ссылки</label>
+        <form:input path="linktext" style="width: 40em"/>
+      </div>
+
+      <div class="control-group">
+        <label for="url">Ссылка (не забудьте <b>http://</b>)</label>
+        <form:input placeholder="http://" path="url" type="url" style="width: 40em"/>
+      </div>
     </c:if>
   </c:if>
 
   <c:if test="${topicMenu.tagsEditable}">
-    <label>Метки (разделенные запятой, не более <%= TagName.MAX_TAGS_PER_TOPIC() %>):<br>
-      <form:input autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
-    </label>
+    <div class="control-group">
+      <label for="tags">
+        Метки (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
+      </label>
+      <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+    </div>
+
   </c:if>
 
-  <c:if test="${group.premoderated and template.moderatorSession}">
+  <c:if test="${group.premoderated and template.moderatorSession and !group.pollPostAllowed}">
     <label>Мини-новость: <form:checkbox path="minor"/></label>
   </c:if>
 

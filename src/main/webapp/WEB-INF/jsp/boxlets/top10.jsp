@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -12,6 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.TopTenDao.TopTenMessageDTO>"--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
@@ -34,9 +35,9 @@
         <c:url value="${message.url}/page${message.pages-1}" var="page_link">
           <c:param name="lastmod" value="${message.lastmod.time}"/>
         </c:url>
-        (стр. <a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
+        (стр.&nbsp;<a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
       </c:if>
-      (${message.answers})
+      (${message.commentCount})
       </li>
     </c:forEach>
   </ul>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,13 +16,15 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.joda.time.DateTime;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -259,7 +261,7 @@ public class Topic implements Serializable {
   }
 
   public String getTitleUnescaped() {
-    return StringEscapeUtils.unescapeHtml(title);
+    return StringEscapeUtils.unescapeHtml4(title);
   }
 
   public Timestamp getLastModified() {
@@ -340,6 +342,20 @@ public class Topic implements Serializable {
 
   public Timestamp getCommitDate() {
     return commitDate;
+  }
+
+  /**
+   * Дата размещения сообщения на сайте
+   *
+   * @return postdate для постмодерируемых и commitdate для премодерируемых, прошедших модерацию
+   */
+  @Nonnull
+  public DateTime getEffectiveDate() {
+    if (moderate && commitDate!=null) {
+      return new DateTime(commitDate.getTime());
+    } else {
+      return new DateTime(postdate.getTime());
+    }
   }
 
   public boolean isResolved() {

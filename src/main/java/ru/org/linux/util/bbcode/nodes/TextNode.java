@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -62,7 +62,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
  */
 public class TextNode extends Node {
   final String text;
-  final Parser.ParserAutomatonState state;
+  private final Parser.ParserAutomatonState state;
 
   public TextNode(Node parent, ParserParameters parserParameters, String text, Parser.ParserAutomatonState state1) {
     super(parent, parserParameters);
@@ -83,7 +83,6 @@ public class TextNode extends Node {
         if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
           return toHtmlFormatter.format(
               text,
-              state.getRootNode().isSecure(),
               state.getRootNode().isNofollow(),
               state.getTypoChanger()
               );

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,20 +15,13 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.edithistory.EditHistoryDto;
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
-import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.gallery.Image;
-import ru.org.linux.gallery.ImageDao;
+import ru.org.linux.gallery.ImageService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -45,23 +38,18 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.LorCodeService;
-import ru.org.linux.util.image.ImageInfo;
+import scala.Option;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class TopicPrepareService {
-  private static final Logger logger = LoggerFactory.getLogger(TopicPrepareService.class);
-
   @Autowired
   private GroupDao groupDao;
 
@@ -84,9 +72,6 @@ public class TopicPrepareService {
   private SiteConfig siteConfig;
 
   @Autowired
-  private MemoriesDao memoriesDao;
-
-  @Autowired
   private TopicPermissionService topicPermissionService;
   
   @Autowired
@@ -96,16 +81,16 @@ public class TopicPrepareService {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private EditHistoryService editHistoryService;
-
-  @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @Autowired
   private UserService userService;
 
   @Autowired
   private TopicTagService topicTagService;
+
+  @Autowired
+  private RemarkDao remarkDao;
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
     return prepareMessage(
@@ -145,12 +130,19 @@ public class TopicPrepareService {
             message,
             tags,
             false,
-            newPoll!=null?pollPrepareService.preparePollPreview(newPoll):null,
+            newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
             secure,
             null,
             new MessageText(text, true),
             image
     );
+  }
+
+  public PreparedEditInfoSummary prepareEditInfo(EditInfoSummary editInfo) {
+    String lastEditor = userDao.getUserCached(editInfo.editor()).getNick();
+    int editCount = editInfo.editCount();
+    Date lastEditDate = editInfo.editdate();
+    return PreparedEditInfoSummary.apply(lastEditor, editCount, lastEditDate);
   }
 
   /**
@@ -212,34 +204,18 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      List<EditHistoryDto> editHistoryDtoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
-      EditHistoryDto editHistoryDto;
-      User lastEditor;
-      int editCount;
-
-      if (!editHistoryDtoList.isEmpty()) {
-        editHistoryDto = editHistoryDtoList.get(0);
-        lastEditor = userDao.getUserCached(editHistoryDto.getEditor());
-        editCount = editHistoryDtoList.size();
-      } else {
-        editHistoryDto = null;
-        lastEditor = null;
-        editCount = 0;
-      }
-
       String processedMessage;
 
       if (text.isLorcode()) {
         if (minimizeCut) {
-          String url = siteConfig.getMainUrl() + message.getLink();
+          String url = siteConfig.getSecureUrlWithoutSlash() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
                   text.getText(),
                   url,
-                  secure,
-                  ! topicPermissionService.followInTopic(message, author)
+                  !topicPermissionService.followInTopic(message, author)
           );
         } else {
-          processedMessage = lorCodeService.parseTopic(text.getText(), secure, ! topicPermissionService.followInTopic(message, author));
+          processedMessage = lorCodeService.parseTopic(text.getText(), !topicPermissionService.followInTopic(message, author));
         }
       } else {
         processedMessage = "<p>" + text.getText();
@@ -249,16 +225,24 @@ public class TopicPrepareService {
 
       if (section.isImagepost() || section.isImageAllowed()) {
         if (message.getId()!=0) {
-          image = imageDao.imageForTopic(message);
+          image = imageService.imageForTopic(message);
         }
 
         if (image != null) {
-          preparedImage = prepareImage(image, secure);
+          Option<PreparedImage> maybeImage = imageService.prepareImage(image);
+
+          if (maybeImage.isDefined()) {
+            preparedImage = maybeImage.get();
+          }
         }
       }
       Remark remark = null;
       if (user != null ){
-        remark = userDao.getRemark(user, author);
+        Option<Remark> remarkOption = remarkDao.getRemark(user, author);
+
+        if (remarkOption.isDefined()) {
+          remark = remarkOption.get();
+        }
       }
 
       int postscore = topicPermissionService.getPostscore(group, message);
@@ -274,41 +258,12 @@ public class TopicPrepareService {
               tags,
               group,
               section,
-              editHistoryDto,
-              lastEditor, 
-              editCount,
               text.isLorcode(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(postscore),
               remark);
     } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
-    }
-  }
-  
-  private PreparedImage prepareImage(@Nonnull Image image, boolean secure) {
-    Preconditions.checkNotNull(image);
-
-    String mediumName = image.getMedium();
-
-    String htmlPath = siteConfig.getHTMLPathPrefix();
-    if (!new File(htmlPath, mediumName).exists()) {
-      mediumName = image.getIcon();
-    }
-
-    try {
-      ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
-      ImageInfo fullInfo = new ImageInfo(htmlPath + image.getOriginal());
-      LorURL medURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+mediumName);
-      LorURL fullURI = new LorURL(siteConfig.getMainURI(), siteConfig.getMainUrl()+image.getOriginal());
-
-      return new PreparedImage(medURI.fixScheme(secure), mediumImageInfo, fullURI.fixScheme(secure), fullInfo, image);
-    } catch (BadImageException e) {
-      logger.warn("Failed to prepare image", e);
-      return null;
-    } catch (IOException e) {
-      logger.warn("Failed to prepare image", e);
-      return null;
     }
   }
 
@@ -335,7 +290,6 @@ public class TopicPrepareService {
     ImmutableListMultimap<Integer,TagRef> tags = topicTagService.getTagRefs(messages);
 
     for (Topic message : messages) {
-
       PreparedTopic preparedMessage = prepareMessage(
               message,
               tags.get(message.getId()),
@@ -350,7 +304,6 @@ public class TopicPrepareService {
       TopicMenu topicMenu = getTopicMenu(
               preparedMessage,
               user,
-              secure,
               profile,
               loadUserpics
       );
@@ -362,16 +315,7 @@ public class TopicPrepareService {
   }
 
   private Map<Integer, MessageText> loadTexts(List<Topic> messages) {
-    return msgbaseDao.getMessageText(
-            Lists.newArrayList(
-                    Iterables.transform(messages, new Function<Topic, Integer>() {
-                      @Override
-                      public Integer apply(Topic comment) {
-                        return comment.getId();
-                      }
-                    })
-            )
-    );
+    return msgbaseDao.getMessageText(Lists.transform(messages, Topic::getId));
   }
 
   /**
@@ -381,7 +325,7 @@ public class TopicPrepareService {
    * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PreparedTopic> prepareMessages(List<Topic> messages, boolean secure) {
+  public List<PreparedTopic> prepareMessages(List<Topic> messages) {
     List<PreparedTopic> pm = new ArrayList<>(messages.size());
 
     Map<Integer,MessageText> textMap = loadTexts(messages);
@@ -393,7 +337,7 @@ public class TopicPrepareService {
               tags.get(message.getId()),
               true,
               null,
-              secure,
+              true,
               null,
               textMap.get(message.getId()),
               null
@@ -409,30 +353,21 @@ public class TopicPrepareService {
   public TopicMenu getTopicMenu(
           @Nonnull PreparedTopic message,
           @Nullable User currentUser,
-          boolean secure,
           Profile profile,
           boolean loadUserpics
   ) {
     boolean topicEditable = groupPermissionService.isEditable(message, currentUser);
     boolean tagsEditable = groupPermissionService.isTagsEditable(message, currentUser);
     boolean resolvable;
-    int memoriesId;
-    int favsId;
     boolean deletable;
-
-    List<Integer> topicStats = memoriesDao.getTopicStats(message.getMessage().getId());
 
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
-      memoriesId = memoriesDao.getId(currentUser, message.getMessage(), true);
-      favsId = memoriesDao.getId(currentUser, message.getMessage(), false);
       deletable = groupPermissionService.isDeletable(message.getMessage(), currentUser);
     } else {
       resolvable = false;
-      memoriesId = 0;
-      favsId = 0;
       deletable = false;
     }
 
@@ -441,7 +376,6 @@ public class TopicPrepareService {
     if (loadUserpics && profile.isShowPhotos()) {
       userpic = userService.getUserpic(
               message.getAuthor(),
-              secure,
               profile.getAvatarMode(),
               true
       );
@@ -451,10 +385,6 @@ public class TopicPrepareService {
             topicEditable,
             tagsEditable,
             resolvable, 
-            memoriesId,
-            favsId,
-            topicStats.get(0),
-            topicStats.get(1),
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             userpic

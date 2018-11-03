@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,6 +15,8 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -25,21 +25,43 @@
 <h1>Активация</h1>
 
 <c:if test="${not template.sessionAuthorized}">
-  <form method=POST action="/activate.jsp" id="activateForm">
+  <form method=POST action="/activate.jsp" id="activateForm" class="form-horizontal">
     <lor:csrf/>
-    <dl>
-      <dt><label>Login:</label></dt>
-      <dd><input type="text" name="nick" /></dd>
-    </dl>
-    <dl>
-      <dt><label>Пароль:</label></dt>
-      <dd><input type="password" name="passwd" /></dd>
-    </dl>
-    <dl>
-      <dt><label>Код активациии:</label></dt>
-      <dd><input type="text" name="activation" /></dd>
-    </dl>
-    <input type=submit value="Активировать">
+
+    <c:if test="${not empty error}">
+      <div class="error">${error}</div>
+    </c:if>
+
+    <div class="control-group">
+      <label class="control-label" for="field_nick">Login/Email</label>
+      <div class="controls">
+        <input type="text" name="nick" required autofocus id="field_nick" value="${fn:escapeXml(nick)}">
+        <span class="help-block">
+          Регистр имеет значение! Вместо имени пользователя
+          можно ввести email, указанный при регистрации.
+        </span>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="field_password" class="control-label">Пароль</label>
+      <div class="controls">
+        <input type="password" name="passwd" required id="field_password">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="field_code" class="control-label">Код активации</label>
+      <div class="controls">
+        <input type="text" name="activation" required id="field_code" value="${fn:escapeXml(activation)}">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="controls">
+        <button type=submit class="btn btn-primary">Активировать</button>
+      </div>
+    </div>
     <input type="hidden" name="action" value="new" />
   </form>
 </c:if>
@@ -47,12 +69,17 @@
 <c:if test="${template.sessionAuthorized}">
   <form method=POST action="/activate.jsp" id="activateForm">
     <lor:csrf/>
+
+    <c:if test="${not empty error}">
+      <div class="error">${error}</div>
+    </c:if>
+
     <dl>
-      <dt><label>Код активациии:</label></dt>
-      <dd><input type="text" name="activation" /></dd>
+      <dt><label for="field_code">Код активации:</label></dt>
+      <dd><input type="text" name="activation" required autofocus id="field_code" value="${fn:escapeXml(activation)}"></dd>
     </dl>
 
-    <input type=submit value="Активировать">
+    <button type=submit>Активировать</button>
   </form>
 </c:if>
 

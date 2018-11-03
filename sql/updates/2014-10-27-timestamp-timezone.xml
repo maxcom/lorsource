@@ -1,0 +1,52 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet id="2014102701" author="Maxim Valyanskiy">
+    <sql>
+      alter table user_events alter column event_date type timestamp with time zone;
+    </sql>
+  </changeSet>
+
+  <changeSet id="2014102702" author="Maxim Valyanskiy">
+    <sql>
+      alter table b_ips alter column ban_date type timestamp with time zone;
+      alter table ban_info alter column bandate type timestamp with time zone;
+      alter table del_info alter column deldate type timestamp with time zone;
+      alter table edit_info alter column editdate type timestamp with time zone;
+      alter table memories alter column add_date type timestamp with time zone;
+      alter table topics alter column commitdate type timestamp with time zone;
+      alter table user_log alter column action_date type timestamp with time zone;
+    </sql>
+  </changeSet>
+
+  <changeSet id="2014102703" author="Maxim Valyanskiy">
+    <sql>
+      drop view jam_wiki_user;
+      alter table users alter column lastlogin type timestamp with time zone;
+      alter table users alter column regdate type timestamp with time zone;
+      CREATE VIEW jam_wiki_user AS
+       SELECT users.id AS wiki_user_id,
+          users.nick AS login,
+          users.name AS display_name,
+          users.regdate AS create_date,
+          users.lastlogin AS last_login_date,
+          '127.0.0.1'::character varying(15) AS create_ip_address,
+          '127.0.0.1'::character varying(15) AS last_login_ip_address,
+          'ru_RU'::character varying(8) AS default_locale,
+          users.email,
+          'toolbar'::character varying(50) AS editor,
+          ''::character varying(255) AS signature,
+          users.style
+         FROM users;
+    </sql>
+  </changeSet>
+
+  <changeSet id="2014102901" author="Maxim Valyanskiy">
+    <sql>
+      GRANT SELECT ON TABLE jam_wiki_user TO jamwiki;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -34,9 +34,9 @@
   }
   // -->
 </script>
-<h1>Удаление сообщения</h1>
-Вы можете удалить свое сообщение в течении часа с момента
-его помещения.
+<h1>Удаление комментария</h1>
+Вы можете удалить свой комментарий в течении трех часов с момента
+его помещения, если на него еще нет ответов.
 <form method=POST action="delete_comment.jsp" class="form-horizontal">
   <lor:csrf/>
   <div class="control-group">
@@ -59,6 +59,7 @@
           <option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
           <option value="4.6 Спам">4.6 Спам
           <option value="4.7 Флуд">4.7 Флуд
+          <option value="4.8 Дискуссия не на русском языке">4.8 Дискуссия не на русском языке
           <option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
           <option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
           <option value="5.3 Национальные/политические/религиозные споры">5.3
@@ -90,10 +91,19 @@
   </div>
   </c:if>
 
+  <c:if test="${template.moderatorSession}">
+  <div class="control-group">
+    <label class="control-label">Удалять ответы</label>
+    <div class="controls">
+      <input type="checkbox" name="delete_replys" checked>
+    </div>
+  </div>
+  </c:if>
+
  <input type=hidden name=msgid value="${msgid}">
   <div class="control-group">
     <div class="controls">
-      <button type=submit>Удалить</button>
+      <button type=submit class="btn btn-danger">Удалить</button>
     </div>
   </div>
 </form>

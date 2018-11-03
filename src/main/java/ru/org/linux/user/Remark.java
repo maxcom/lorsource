@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,13 +20,11 @@ import java.sql.SQLException;
 
 public class Remark {
   private final int id;
-  private final int userId;
   private final int refUserId;
   private final String text;
 
   public Remark(ResultSet resultSet) throws SQLException {
     id = resultSet.getInt("id");
-    userId = resultSet.getInt("user_id");
     refUserId = resultSet.getInt("ref_user_id");
     text = resultSet.getString("remark_text");
   }
@@ -37,10 +35,6 @@ public class Remark {
 
   public int getRefUserId() {
     return refUserId;
-  }
-
-  public int getUserId() {
-    return userId;
   }
 
   public String getText() {

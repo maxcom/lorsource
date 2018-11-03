@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,10 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.image.ImageParam;
@@ -37,13 +38,15 @@ import ru.org.linux.util.image.ImageParam;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Random;
 
 @Controller
 public class AddPhotoController {
   private static final Logger logger = LoggerFactory.getLogger(AddPhotoController.class);
 
-  public static final UriTemplate PROFILE_NOCACHE_URI_TEMPLATE = new UriTemplate("/people/{nick}/profile");
+  public static final UriTemplate PROFILE_URI_TEMPLATE = new UriTemplate("/people/{nick}/profile");
 
   @Autowired
   private UserDao userDao;
@@ -56,7 +59,7 @@ public class AddPhotoController {
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView showForm() {
+  public ModelAndView showForm() throws AccessViolationException {
     return new ModelAndView("addphoto");
   }
 
@@ -68,12 +71,12 @@ public class AddPhotoController {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
     }
 
+    Path uploadedFile = Files.createTempFile("userpic-", "");
+
     try {
-      File uploadedFile = File.createTempFile("userpic", "", new File(siteConfig.getPathPrefix() + "/linux-storage/tmp/"));
+      file.transferTo(uploadedFile.toFile());
 
-      file.transferTo(uploadedFile);
-
-      ImageParam param = userService.checkUserPic(uploadedFile);
+      ImageParam param = userService.checkUserPic(uploadedFile.toFile());
       String extension = param.getExtension();
 
       Random random = new Random();
@@ -83,19 +86,20 @@ public class AddPhotoController {
 
       do {
         photoname = Integer.toString(AuthUtil.getCurrentUser().getId()) + ':' + random.nextInt() + '.' + extension;
-        photofile = new File(siteConfig.getHTMLPathPrefix() + "/photos", photoname);
+        photofile = new File(siteConfig.getUploadPath() + "/photos", photoname);
       } while (photofile.exists());
 
-      if (!uploadedFile.renameTo(photofile)) {
-        logger.warn("Can't move photo to " + photofile);
-        throw new ScriptErrorException("Can't move photo: internal error");
-      }
+      Files.move(uploadedFile, photofile.toPath());
 
       userDao.setPhoto(AuthUtil.getCurrentUser(), photoname);
 
       logger.info("Установлена фотография пользователем " + AuthUtil.getCurrentUser().getNick());
 
-      return new ModelAndView(new RedirectView(UriComponentsBuilder.fromUri(PROFILE_NOCACHE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick())).queryParam("nocache", Integer.toString(random.nextInt()) + '=').build().encode().toString()));
+      UriComponents profileUri = UriComponentsBuilder
+              .fromUri(PROFILE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick()))
+              .queryParam("nocache", Integer.toString(random.nextInt())).build().encode();
+
+      return new ModelAndView(new RedirectView(profileUri.toString()));
     } catch (IOException ex){
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return new ModelAndView("addphoto", "error", ex.getMessage());
@@ -105,6 +109,8 @@ public class AddPhotoController {
     } catch (UserErrorException ex) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return new ModelAndView("addphoto", "error", ex.getMessage());
+    } finally {
+      Files.deleteIfExists(uploadedFile);
     }
   }
 }

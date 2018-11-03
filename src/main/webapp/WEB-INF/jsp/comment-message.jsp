@@ -1,10 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page buffer="200kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -39,7 +38,7 @@
 
 <%--<% } %>--%>
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
-<a href="rules.jsp">правилами</a> сайта.</font><p>
+<a href="/help/rules.md">правилами</a> сайта.</font><p>
 
 <c:url var="form_action_url" value="/add_comment.jsp" />
 

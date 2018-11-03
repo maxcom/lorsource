@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2017 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,47 +20,26 @@
 
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
-  <a href="/rules.jsp">Правила форума</a><br>
-  <c:if test="${not pageContext.request.secure}">
-    <a href="${template.mainUrl}">${template.mainUrl}</a>
-  </c:if>
-  <c:if test="${pageContext.request.secure}">
-    <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
-  </c:if>
-
+  <a href="/help/rules.md">Правила форума</a> -
+  <a href="/help/lorcode.md">Правила разметки</a><br>
+  <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
 </p>
 
-<div id="ft-buttons">
-<c:if test="${not pageContext.request.secure}">
-  <!-- begin of Top100 logo -->
-  <a href="http://top100.rambler.ru/home?id=29833" target="_blank"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-black2.gif" alt="Rambler's Top100" width="88" height="31" /></a>
-  <!-- end of Top100 logo -->
-    <!-- Rating@Mail.ru logo -->
-    <a target="_top" href="http://top.mail.ru/jump?from=71642">
-    <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642;t=11;l=1"
-    height="31" width="88" alt="Рейтинг@Mail.ru"></a>
-    <!-- //Rating@Mail.ru logo -->
-</c:if>
-</div>
-
 <script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2184304-1']);
+  _gaq.push(['_setCustomVar', 1, 'Authorized', '${template.sessionAuthorized}']);
+  _gaq.push(['_setCustomVar', 2, 'Style', '${template.style}']);
+  _gaq.push(['_setSiteSpeedSampleRate', 10]);
+  _gaq.push(['_gat._forceSSL']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
 </script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-2184304-1");
-pageTracker._setCustomVar(1, "Authorized", "${template.sessionAuthorized}");
-pageTracker._setCustomVar(2, "Style", "${template.style}");
-pageTracker._setSiteSpeedSampleRate(10);
-pageTracker._trackPageview();
-} catch(err) {}</script>
-
-<c:if test="${not pageContext.request.secure}">
-    <!-- begin of Top100 code -->
-    <script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?29833"></script><noscript><img src="http://counter.rambler.ru/top100.cnt?29833" alt="" width="1" height="1"/></noscript>
-    <!-- end of Top100 code -->
-</c:if>
 
 </footer>
 </body></html>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,14 +17,15 @@ package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.gallery.ImageDao;
-import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.gallery.ImageService;
+import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -32,18 +33,18 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.tag.TagModificationService;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.*;
 
@@ -58,10 +59,7 @@ public class TopicService {
   private SectionService sectionService;
 
   @Autowired
-  private SiteConfig siteConfig;
-
-  @Autowired
-  private ImageDao imageDao;
+  private ImageService imageService;
 
   @Autowired
   private PollDao pollDao;
@@ -70,10 +68,10 @@ public class TopicService {
   private UserEventService userEventService;
 
   @Autowired
-  private TagModificationService tagService;
+  private TopicTagService topicTagService;
 
   @Autowired
-  private TopicTagService topicTagService;
+  private UserService userService;
 
   @Autowired
   private UserTagService userTagService;
@@ -94,9 +92,9 @@ public class TopicService {
           String message,
           Group group,
           User user,
-          Screenshot scrn,
+          UploadedImagePreview imagePreview,
           Topic previewMsg
-  ) throws IOException, ScriptErrorException {
+  ) throws ScriptErrorException {
     final int msgid = topicDao.saveNewMessage(
             previewMsg,
             user,
@@ -107,18 +105,12 @@ public class TopicService {
 
     Section section = sectionService.getSection(group.getSectionId());
 
-    if (section.isImagepost() && scrn == null) {
+    if (section.isImagepost() && imagePreview == null) {
       throw new ScriptErrorException("scrn==null!?");
     }
 
-    if (scrn!=null) {
-      Screenshot screenShot = scrn.moveTo(siteConfig.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
-
-      imageDao.saveImage(
-              msgid,
-              "gallery/" + screenShot.getMainFile().getName(),
-              "gallery/" + screenShot.getIconFile().getName()
-      );
+    if (imagePreview!=null) {
+      imageService.saveScreenshot(imagePreview, msgid);
     }
 
     if (section.isPollPostAllowed()) {
@@ -127,11 +119,11 @@ public class TopicService {
 
     List<String> tags = TagName.parseAndSanitizeTags(form.getTags());
 
-    topicTagService.updateTags(msgid, ImmutableList.<String>of(), tags);
+    topicTagService.updateTags(msgid, ImmutableList.of(), tags);
 
     if (!previewMsg.isDraft()) {
       if (section.isPremoderated()) {
-        sendEvents(message, msgid, ImmutableList.<String>of(), user.getId());
+        sendEvents(message, msgid, ImmutableList.of(), user.getId());
       } else {
         sendEvents(message, msgid, tags, user.getId());
       }
@@ -154,16 +146,18 @@ public class TopicService {
     Set<Integer> notifiedUsers = userEventService.getNotifiedUsers(msgid);
 
     Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+    userRefs = userRefs.stream()
+            .filter(p -> !userService.isIgnoring(p.getId(), author))
+            .collect(Collectors.toSet());
 
     // оповещение пользователей по тегам
     List<Integer> userIdListByTags = userTagService.getUserIdListByTags(author, tags);
 
-    final Set<Integer> userRefIds = new HashSet<>();
-    for (User userRef : userRefs) {
-      if (!notifiedUsers.contains(userRef.getId())) {
-        userRefIds.add(userRef.getId());
-      }
-    }
+    Set<Integer> userRefIds = userRefs
+            .stream()
+            .filter(userRef -> !notifiedUsers.contains(userRef.getId()))
+            .map(User::getId)
+            .collect(Collectors.toSet());
 
     // не оповещать пользователей. которые ранее были оповещены через упоминание
     Iterable<Integer> tagUsers = Iterables.filter(
@@ -249,29 +243,37 @@ public class TopicService {
     return deletedTopics;
   }
 
+  private static boolean sendTagEventsNeeded(Section section, Topic oldMsg, boolean commit) {
+    boolean needCommit = section.isPremoderated() && !oldMsg.isCommited();
+    boolean fresh = oldMsg.getEffectiveDate().isAfter(DateTime.now().minusMonths(1));
+
+    return commit || (!needCommit && fresh);
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateAndCommit(
           Topic newMsg,
           Topic oldMsg,
           User user,
-          List<String> newTags,
+          @Nullable List<String> newTags,
           String newText,
           boolean commit,
           Integer changeGroupId,
           int bonus,
           List<PollVariant> pollVariants,
           boolean multiselect,
-          Map<Integer, Integer> editorBonus
-  )  {
-    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText);
+          Map<Integer, Integer> editorBonus,
+          UploadedImagePreview imagePreview
+  ) throws IOException {
+    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText, imagePreview);
 
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());
 
-      if (section.isPremoderated() && !oldMsg.isCommited() && !commit) {
-        sendEvents(newText, oldMsg.getId(), ImmutableList.<String>of(), oldMsg.getUid());
-      } else {
+      if (newTags!=null && sendTagEventsNeeded(section, oldMsg, commit)) {
         sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
+      } else {
+        sendEvents(newText, oldMsg.getId(), ImmutableList.of(), oldMsg.getUid());
       }
     }
 

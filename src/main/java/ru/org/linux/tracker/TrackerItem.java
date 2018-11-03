@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,6 @@ package ru.org.linux.tracker;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
-import ru.org.linux.util.URLUtil;
 
 import java.sql.Timestamp;
 
@@ -68,23 +67,15 @@ public class TrackerItem {
   }
 
   public String getUrl() {
-    if(section != 0) {
-      if (pages > 1) {
-        return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
-      } else {
-        return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
-      }
+    if (pages > 1) {
+      return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
     } else {
-      return String.format("/wiki/en/%s", URLUtil.encodeAndEscapeTopicName(title));
+      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
     }
   }
 
   public String getUrlReverse() {
-    if(section != 0) {
-      return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
-    } else {
-      return String.format("/wiki/en/%s", URLUtil.encodeAndEscapeTopicName(title));
-    }
+    return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
   }
 
   public String getGroupUrl() {
@@ -93,14 +84,6 @@ public class TrackerItem {
     } else {
       return "/wiki/";
     }
-  }
-
-  public boolean isWiki() {
-    return section == 0;
-  }
-
-  public User getAuthor() {
-    return author;
   }
 
   public int getMsgid() {
@@ -135,20 +118,20 @@ public class TrackerItem {
     }
   }
 
-  public boolean isWikiArticle() {
-    return isWiki() && !title.startsWith("Comments:");
-  }
-
-  public boolean isWikiComment() {
-    return isWiki() && title.startsWith("Comments:");
-  }
-
   public int getPages() {
     return pages;
   }
 
-  public User getLastCommentBy() {
-    return lastCommentBy;
+  public User getAuthor() {
+    if (lastCommentBy!=null) {
+      return lastCommentBy;
+    } else {
+      return author;
+    }
+  }
+
+  public User getTopicAuthor() {
+    return author;
   }
 
   public boolean isResolved() {
@@ -157,10 +140,6 @@ public class TrackerItem {
 
   public int getSection() {
     return section;
-  }
-
-  public String getGroupUrlName() {
-    return groupUrlName;
   }
 
   public Timestamp getPostdate() {

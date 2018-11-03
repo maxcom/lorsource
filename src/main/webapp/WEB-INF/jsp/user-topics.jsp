@@ -4,7 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -18,45 +18,62 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
+<%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
 
 <c:if test="${rssLink != null}">
-  <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
+  <link rel="alternate" href="${rssLink}" type="application/rss+xml">
 </c:if>
 
 <c:if test="${meLink != null}">
-  <LINK REL="me" HREF="${fn:escapeXml(meLink)}">
+  <link rel="me" href="${fn:escapeXml(meLink)}">
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-  <div class=nav>
-    <div id="navPath">
-      ${navtitle}
+
+<h1>${navtitle}<%= " "%><a href="${whoisLink}">${user.nick}</a></h1>
+
+<nav>
+  <c:if test="${sectionList != null}">
+    <c:if test="${section == null}">
+      <a href="${url}" class="btn btn-selected">Все</a>
+    </c:if>
+    <c:if test="${section != null}">
+      <a href="${url}" class="btn btn-default">Все</a>
+    </c:if>
+
+    <c:forEach items="${sectionList}" var="cursection">
+      <c:if test="${section == cursection}">
+        <a href="${url}?section=${cursection.id}" class="btn btn-selected">${cursection.name}</a>
+      </c:if>
+      <c:if test="${section != cursection}">
+        <a href="${url}?section=${cursection.id}" class="btn btn-default">${cursection.name}</a>
+      </c:if>
+    </c:forEach>
+  </c:if>
+</nav>
+
+<c:if test="${showSearch}">
+<div class="infoblock">
+  <form method="GET" commandName="query" action="search.jsp">
+    <div class="control-group">
+      <input name="q" type="search" size="50" maxlength="250" placeholder="Поиск в темах пользователя"/>&nbsp;
+      <button type="submit" class="btn btn-default btn-small">Поиск</button>
     </div>
-    <div class="nav-buttons">
-      <ul>
 
-      <c:if test="${whoisLink != null}">
-        <li><a href="${whoisLink}">Профиль</a></li>
-      </c:if>
-
-      <c:if test="${rssLink != null}">
-        <li><a href="${rssLink}">RSS</a></li>
-      </c:if>
-      </ul>
-      <c:if test="${sectionList != null}">
-        <li><a href="${url}" <c:if test="${section == null}">class="current"</c:if>>Все</a></li>
-
-        <c:forEach items="${sectionList}" var="cursection">
-          <li>
-            <a href="${url}?section=${cursection.id}"
-               <c:if test="${section == cursection}">class="current"</c:if>>${cursection.name}</a>
-          </li>
-        </c:forEach>
-      </c:if>
+    <div class="control-group">
+      <select name="range">
+        <option value="ALL">включая комментарии</option>
+        <option value="TOPICS">без комментариев</option>
+      </select>
     </div>
+
+    <input type="hidden" name="user" value="${nick}"/>
+    <input type="hidden" name="usertopic" value="true"/>
+  </form>
 </div>
+</c:if>
 
 <c:forEach var="msg" items="${messages}">
   <lor:news
@@ -96,5 +113,14 @@
     </c:if>
   </tr>
 </table>
+
+<c:if test="${rssLink != null}">
+<p>
+  <i class="icon-rss"></i>
+  <a href="${rssLink}">
+    RSS подписка на новые темы
+  </a>
+</p>
+</c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

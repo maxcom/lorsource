@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,7 +31,6 @@ public class TopicsListItem implements Serializable {
   private final boolean deleted;
   private final int stat1;
   private final int stat3;
-  private final int stat4;
   private final boolean sticky;
   private final int pages;
   private final User author;
@@ -40,7 +39,7 @@ public class TopicsListItem implements Serializable {
   
   private static final long serialVersionUID = 5344250574674257995L;
 
-  // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
+  // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.sticky, userid
   public TopicsListItem(User author, SqlRowSet rs, int messagesInPage, ImmutableList<String> tags) {
     this.author = author;
     this.tags = tags;
@@ -57,7 +56,6 @@ public class TopicsListItem implements Serializable {
     deleted = rs.getBoolean("deleted");
     stat1 = rs.getInt("stat1");
     stat3 = rs.getInt("stat3");
-    stat4 = rs.getInt("stat4");
     sticky = rs.getBoolean("sticky");
     resolved = rs.getBoolean("resolved");
 
@@ -90,10 +88,6 @@ public class TopicsListItem implements Serializable {
 
   public int getStat3() {
     return stat3;
-  }
-
-  public int getStat4() {
-    return stat4;
   }
 
   public boolean isSticky() {

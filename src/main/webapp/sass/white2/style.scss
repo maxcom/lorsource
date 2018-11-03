@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2015 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -157,12 +157,8 @@ DIV.notes {
     font-family: monospace !important;
 }
 
-div.quote {
-    margin: 0;
-    border-style: solid;
-    border-width: 0 0 0 2px;
-    padding: 0em 0.5em 0em;
-    border-color: black; /*#AEA6F2;*/
+blockquote {
+    border-left-color: black;
 }
 
 .message-table tbody tr:hover {
@@ -245,11 +241,6 @@ textarea {
     margin: 0;
 }
 
-#bd {
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-}
-
 #bd .btn {
     color: black;
     border: 1px solid black;
@@ -267,5 +258,24 @@ textarea {
   background-color: $group_label_color;
   font-size: 0.8em;
 }
+
+#related-topics-list {
+  overflow-x: hidden;  
+}
+
+@include respond-to(desktops) {
+  .medium-image-container {
+    width: 80%;
+  }
+
+  .news .medium-image-container {
+    margin-left: 1em;
+    width: 40%;
+    float: right;
+    text-align: left;
+  }
+}
+
+
 
 @import "../responsive";

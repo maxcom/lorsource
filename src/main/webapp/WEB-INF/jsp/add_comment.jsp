@@ -1,12 +1,11 @@
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page
-        import="ru.org.linux.comment.PreparedComment" %>
+<%@ page import="ru.org.linux.comment.PreparedComment" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +22,7 @@
 <%--@elvariable id="comment" type="ru.org.linux.comment.PreparedComment"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Добавить сообщение</title>
+<title>Добавить комментарий</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class=nav>
@@ -46,7 +45,7 @@
 
 <%--<% } %>--%>
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
-  <a href="rules.jsp">правилами</a> сайта.</font>
+  <a href="/help/rules.md">правилами</a> сайта.</font>
 
 <p>
   <%

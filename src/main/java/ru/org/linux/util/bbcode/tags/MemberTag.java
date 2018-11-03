@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2017 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,8 +53,9 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
@@ -63,13 +64,9 @@ import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.util.Set;
-
-/**
- */
 public class MemberTag extends Tag {
-  public MemberTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    super(name, allowedChildren, implicitTag, parserParameters);
+  public MemberTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
+    super("user", allowedChildren, "p", parserParameters);
   }
 
   @Override
@@ -79,28 +76,27 @@ public class MemberTag extends Tag {
     }
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
     String memberName = Parser.escape(txtNode.getText()).trim();
-    String result;
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
     ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
-    boolean secure = rootNode.isSecure();
-    UserDao userDao = rootNode.getUserDao();
+    UserService userService = rootNode.getUserService();
+    String result;
     try {
-      if(userDao != null && toHtmlFormatter != null){
-        User user = rootNode.getUserDao().getUser(memberName);
+      if(userService != null && toHtmlFormatter != null){
+        User user = userService.getUserCached(memberName);
         if (!user.isBlocked()) {
-          result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
-              toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
+          result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
+              toHtmlFormatter.memberURL(user), Parser.escape(memberName));
           rootNode.addReplier(user);
         } else {
-          result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
-              toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
+          result = String.format(" <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
+              toHtmlFormatter.memberURL(user), Parser.escape(memberName));
         }
-      }else{
+      } else {
         result = Parser.escape(memberName);
       }
     } catch (Exception ex) {
-      result = String.format("<s>%s</s>", Parser.escape(memberName));
+      result = String.format(" <s>%s</s>", Parser.escape(memberName));
     }
     return result;
   }

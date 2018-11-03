@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet id="2017021701" author="Maxim Valyanskiy">
+    <addColumn tableName="images">
+      <column name="extension" type="text"/>
+    </addColumn>
+    <sql>UPDATE images SET extension=substring(original from '.*\.(\w+)$')</sql>
+    <dropColumn tableName="images" columnName="original"/>
+    <dropColumn tableName="images" columnName="icon"/>
+    <addNotNullConstraint tableName="images" columnName="extension"/>
+  </changeSet>
+</databaseChangeLog>

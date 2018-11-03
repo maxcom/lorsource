@@ -2,7 +2,7 @@
 <%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2013 Linux.org.ru
+  ~ Copyright 1998-2015 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,28 +22,22 @@
 <title>Загрузка фотографии</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <div class=nav>
-    <div id="navPath">
-      Загрузка фотографии
-    </div>
-
-    <div class="nav-buttons">
-      <ul>
-        <li><a href="register.jsp">Изменение регистрации</a></li>
-        <li><a href="rules.jsp">Правила форума</a></li>
-      </ul>
-     </div>
- </div>
+<h1>Загрузка фотографии</h1>
+<nav>
+  <a href="/people/${template.nick}/edit" class="btn btn-default">Редактировать профиль</a>
+  <a class="btn btn-selected" href="/addphoto.jsp">Добавить фотографию</a>
+  <a href="/people/${template.nick}/settings" class="btn btn-default">Настройки</a>
+</nav>
 
 <p>
-Загрузите вашу фотографию на форум. Изображение должно соответствовать <a href="rules.jsp">правилам</a> сайта.
+Загрузите вашу фотографию на форум. Изображение должно соответствовать <a href="/help/rules.md">правилам</a> сайта.
 </p>
 <p>
   Технические требования к изображению:
   <ul>
-    <li>Ширина x Высота: от <%= UserService.MIN_IMAGESIZE %>x<%= UserService.MIN_IMAGESIZE %> до <%= UserService.MAX_IMAGESIZE %>x<%= UserService.MAX_IMAGESIZE %> пикселей</li>
+    <li>Ширина x Высота: от <%= UserService.MinImageSize() %>x<%= UserService.MinImageSize() %> до <%= UserService.MaxImageSize() %>x<%= UserService.MaxImageSize() %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= UserService.MAX_USERPIC_FILESIZE / 1024 %> Kb</li>
+    <li>Размер не более <%= UserService.MaxFileSize() / 1024 %> Kb</li>
   </ul>
 </p>
 
@@ -54,8 +48,10 @@
     Ошибка! ${error}
   </div>
 </c:if>
-  <input type="file" name="file"><br>
-  <input type="submit" value="Отправить">
+  <input type="file" name="file">
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Отправить</button>
+  </div>
 </form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

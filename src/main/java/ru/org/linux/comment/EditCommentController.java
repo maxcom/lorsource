@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2013 Linux.org.ru
+ * Copyright 1998-2016 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.comment;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
@@ -34,6 +33,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 import ru.org.linux.util.ServletParameterException;
@@ -42,10 +42,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
-public class EditCommentController extends ApplicationObjectSupport {
-
+public class EditCommentController {
   @Autowired
   private CommentService commentService;
 
@@ -81,28 +81,45 @@ public class EditCommentController extends ApplicationObjectSupport {
 
   /**
    * Показ формы изменения комментария.
-   *
-   *
-   * @param commentRequest  WEB-форма, содержащая данные
-   * @return объект web-модели
-   * @throws ServletParameterException
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.GET)
   public ModelAndView editCommentShowHandler(
-          @ModelAttribute("edit") @Valid CommentRequest commentRequest
-  ) throws ServletParameterException {
-    if (commentRequest.getTopic() == null) {
+          @ModelAttribute("edit") @Valid CommentRequest commentRequest,
+          HttpServletRequest request
+  ) throws Exception {
+    Topic topic = commentRequest.getTopic();
+
+    if (topic == null) {
       throw new ServletParameterException("тема на задана");
     }
+
     Comment original = commentRequest.getOriginal();
+
     if (original == null) {
       throw new ServletParameterException("Комментарий на задан");
     }
-    MessageText messageText = msgbaseDao.getMessageText(original.getId());
-    commentRequest.setMsg(messageText.getText());
-    commentRequest.setTitle(original.getTitle());
 
-    return new ModelAndView("edit_comment");
+    Comment comment = commentRequest.getOriginal();
+
+    Template tmpl = Template.getTemplate(request);
+
+    if (topicPermissionService.isCommentEditableNow(comment,
+            tmpl.getCurrentUser(), commentService.isHaveAnswers(comment), topic)) {
+      MessageText messageText = msgbaseDao.getMessageText(original.getId());
+      commentRequest.setMsg(messageText.getText());
+      commentRequest.setTitle(original.getTitle());
+
+      Map<String, Object> formParams = new HashMap<>();
+
+      formParams.put("comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
+
+      topicPermissionService.getEditDeadline(comment).ifPresent(value -> formParams.put("deadline", value.toDate()));
+
+      return new ModelAndView("edit_comment", formParams);
+    } else {
+      return new ModelAndView(
+              new RedirectView(topic.getLink()+"?cid="+original.getId()));
+    }
   }
 
   /**
@@ -127,7 +144,8 @@ public class EditCommentController extends ApplicationObjectSupport {
     User user = commentService.getCommentUser(commentRequest, request, errors);
 
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors);
-    commentService.prepareReplyto(commentRequest, formParams, request);
+
+    formParams.putAll(commentService.prepareReplyto(commentRequest, request));
 
     String msg = commentService.getCommentBody(commentRequest, user, errors);
     Comment comment = commentService.getComment(commentRequest, user, request);
@@ -142,19 +160,20 @@ public class EditCommentController extends ApplicationObjectSupport {
 
     Template tmpl = Template.getTemplate(request);
 
-    boolean editable = topicPermissionService.isCommentsEditingAllowed(
+    topicPermissionService.checkCommentsEditingAllowed(
             commentRequest.getOriginal(),
             commentRequest.getTopic(),
-            tmpl.getCurrentUser()
+            tmpl.getCurrentUser(),
+            errors
     );
 
-    if (!editable) {
-      throw new AccessViolationException("у Вас нет прав на редактирование этого сообщения");
-    }
-
-    if (commentRequest.isPreviewMode() || errors.hasErrors() && comment == null) {
+    if (commentRequest.isPreviewMode() || errors.hasErrors() || comment == null) {
       ModelAndView modelAndView = new ModelAndView("edit_comment", formParams);
       modelAndView.addObject("ipBlockInfo", ipBlockInfo);
+      Optional<DateTime> deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal());
+
+      deadline.ifPresent(dateTime -> modelAndView.addObject("deadline", dateTime.toDate()));
+
       return modelAndView;
     }
 
