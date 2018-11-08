@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -86,7 +86,7 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
       bucket <- r.aggregations.getAs[SignificantTerms]("related").asScala
     } yield {
       tagRef(bucket.getKeyAsString)
-    }).toSeq.sorted.filterNot(_ == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
+    }).toSeq.sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
@@ -154,7 +154,7 @@ object TagService {
       None
     })
 
-  def tagRef(name: String) = TagRef(name,
+  def tagRef(name: String): TagRef = TagRef(name,
     if (TagName.isGoodTag(name)) {
       Some(TagTopicListController.tagListUrl(name))
     } else {
