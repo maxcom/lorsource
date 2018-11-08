@@ -16,7 +16,7 @@
     <dependency.spring.version>4.3.20.RELEASE</dependency.spring.version>
     <spring.security.version>4.2.5.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
-    <elastic4s.version>6.1.4</elastic4s.version>
+    <elastic4s.version>6.2.10</elastic4s.version>
     <scala.version>2.12.7</scala.version>
     <scala.suffix>2.12</scala.suffix>
     <activemq.version>5.15.6</activemq.version>
@@ -70,7 +70,7 @@
     <dependency>
       <groupId>org.codelibs.elasticsearch.module</groupId>
       <artifactId>analysis-common</artifactId>
-      <version>6.1.1</version>
+      <version>6.2.2</version>
     </dependency>
 
     <dependency>
