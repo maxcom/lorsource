@@ -79,14 +79,14 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
       search(MessageIndexTypes) size 0 query
         boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
         sigTermsAggregation("related") field "tag" backgroundFilter
-          termQuery("is_comment", "false") includeExclude(Seq.empty, Seq(tag)))
+          termQuery("is_comment", "false") /* broken in 6.x tcp client: includeExclude(Seq.empty, Seq(tag))*/)
     }
   } map { r ⇒
     (for {
       bucket <- r.aggregations.getAs[SignificantTerms]("related").asScala
     } yield {
       tagRef(bucket.getKeyAsString)
-    }).toSeq.sorted
+    }).toSeq.sorted.filterNot(_ == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
