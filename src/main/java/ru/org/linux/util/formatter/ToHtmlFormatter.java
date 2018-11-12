@@ -245,7 +245,16 @@ public class ToHtmlFormatter {
         out.append("<s>");
       }
 
-      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">").append(StringUtil.escapeHtml(fixedUrlBody)).append("</a>");
+      //out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">").append(StringUtil.escapeHtml(fixedUrlBody)).append("</a>");
+
+      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">")
+              //.append(StringUtil.escapeHtml(fixedUrlBody))
+              .append("<span>")
+              .append("<img alt=\"LOR:\" src=\"/img/tuxlor.png\"/>")
+              .append("&nbsp;")
+              .append(urlTitle)
+              .append("</span>")
+              .append("</a>");
 
       if (deleted) {
         out.append("</s>");
