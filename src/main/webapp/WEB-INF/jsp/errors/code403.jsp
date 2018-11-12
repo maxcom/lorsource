@@ -29,7 +29,7 @@
 
   String message = exception==null ? "":(exception.getMessage()==null?"":exception.getMessage());
 
-  logger.info("Forbidden. {} ({})", message, AuthUtil.getNick());
+  logger.info("Forbidden. {}: {} ({})", request.getServletPath(), message, AuthUtil.getNick());
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
