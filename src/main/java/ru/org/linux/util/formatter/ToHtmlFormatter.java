@@ -239,7 +239,6 @@ public class ToHtmlFormatter {
       String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
       String newUrlHref = url.formatJump(messageDao, siteConfig.getSecureURI());
-      String fixedUrlBody = url.formatUrlBody(maxLength);
 
       if (deleted) {
         out.append("<s>");
