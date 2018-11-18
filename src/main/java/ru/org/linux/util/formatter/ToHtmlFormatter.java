@@ -239,14 +239,21 @@ public class ToHtmlFormatter {
       String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
       String newUrlHref = url.formatJump(messageDao, siteConfig.getSecureURI());
+      String fixedUrlBody = url.formatUrlBody(maxLength);
 
       if (deleted) {
         out.append("<s>");
       }
       
-      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">")
-              .append(urlTitle)
-              .append("</a>");
+      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">");
+
+      if (deleted) {
+        out.append(StringUtil.escapeHtml(fixedUrlBody));
+      } else {
+        out.append(urlTitle);
+      }
+
+      out.append("</a>");
 
       if (deleted) {
         out.append("</s>");
