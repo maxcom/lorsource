@@ -18,6 +18,7 @@ package ru.org.linux.topic;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -46,13 +47,12 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserPropertyEditor;
-import ru.org.linux.user.UserService;
+import ru.org.linux.user.*;
+import ru.org.linux.util.CommonMessageFormatter;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
+import ru.org.linux.util.markdown.MarkdownFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -60,10 +60,7 @@ import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class AddTopicController {
@@ -85,6 +82,9 @@ public class AddTopicController {
   private UserService userService;
 
   @Autowired
+  private ProfileDao profileDao;
+
+  @Autowired
   private TopicPrepareService prepareService;
 
   @Autowired
@@ -104,6 +104,9 @@ public class AddTopicController {
 
   @Autowired
   private TopicService topicService;
+
+  @Autowired
+  private CommonMessageFormatter commonMessageFormatter;
 
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
   private static final int MAX_MESSAGE_LENGTH = 32768;
@@ -160,15 +163,7 @@ public class AddTopicController {
   }
 
   private String processMessage(String msg, String mode) {
-    if (msg == null) {
-      return "";
-    }
-
-    if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg);
-    } else {
-      return toLorCodeTexFormatter.format(msg);
-    }
+    return commonMessageFormatter.processMessage(msg, mode);
   }
 
   private ImmutableMap<String, Object> prepareModel(AddTopicRequest form, User currentUser) {
@@ -238,13 +233,17 @@ public class AddTopicController {
 
     user.checkBlocked(errors);
 
+    Profile profile = profileDao.readProfile(user);
+
+    String formatMode = form.getMode() != null ? form.getMode() : profile.getFormatMode();
+
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (group!=null && !groupPermissionService.isTopicPostingAllowed(group, user)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу");
     }
 
-    String message = processMessage(form.getMsg(), form.getMode());
+    String message = processMessage(form.getMsg(), formatMode);
 
     if (user.isAnonymous()) {
       if (message.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
@@ -303,7 +302,8 @@ public class AddTopicController {
               poll,
               request.isSecure(),
               message,
-              imageObject
+              imageObject,
+              formatMode
       );
 
       params.put("message", preparedTopic);
@@ -332,7 +332,7 @@ public class AddTopicController {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
-      return createNewTopic(request, form, session, group, params, section, user, message, imagePreview, previewMsg);
+      return createNewTopic(request, form, session, group, params, section, user, form.getMsg(), imagePreview, previewMsg);
     } else {
       return new ModelAndView("add", params);
     }
@@ -341,6 +341,8 @@ public class AddTopicController {
   private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
     session.removeAttribute("image");
 
+    Profile profile = profileDao.readProfile(user);
+
     int msgid = topicService.addMessage(
             request,
             form,
@@ -348,7 +350,8 @@ public class AddTopicController {
             group,
             user,
             scrn,
-            previewMsg
+            previewMsg,
+            commonMessageFormatter.getFormatToStoreInDB(profile, form.getMode())
     );
 
     if (!previewMsg.isDraft())  {
@@ -434,7 +437,7 @@ public class AddTopicController {
 
   @ModelAttribute("modes")
   public Map<String, String> getModes() {
-    return ImmutableMap.of("lorcode", "LORCODE", "ntobr", "User line break");
+    return commonMessageFormatter.getModes();
   }
 
   public static String getAddUrl(Section section, String tag) {

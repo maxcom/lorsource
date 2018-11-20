@@ -18,6 +18,7 @@ package ru.org.linux.topic;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.gallery.Image;
@@ -39,6 +40,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
 import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.markdown.MarkdownFormatter;
 import scala.Option;
 
 import javax.annotation.Nonnull;
@@ -91,6 +93,11 @@ public class TopicPrepareService {
 
   @Autowired
   private RemarkDao remarkDao;
+
+  @Autowired
+  @Qualifier("flexmark")
+  private MarkdownFormatter markdownFormatter;
+
   
   public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
     return prepareMessage(
@@ -133,10 +140,35 @@ public class TopicPrepareService {
             newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
             secure,
             null,
-            new MessageText(text, true),
+            new MessageText(text, true, false),
             image
     );
   }
+
+    public PreparedTopic prepareTopicPreview(
+            Topic message,
+            List<TagRef> tags,
+            Poll newPoll,
+            boolean secure,
+            String text,
+            Image image,
+            String formatMode
+    ) {
+
+    boolean isMarkdown = "markdown".equals(formatMode);
+    boolean isLorcode = !isMarkdown; //as default
+
+    return prepareMessage(
+            message,
+            tags,
+            false,
+            newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
+            secure,
+            null,
+            new MessageText(text, isLorcode, isMarkdown),
+            image
+    );
+    }
 
   public PreparedEditInfoSummary prepareEditInfo(EditInfoSummary editInfo) {
     String lastEditor = userDao.getUserCached(editInfo.editor()).getNick();
@@ -217,8 +249,10 @@ public class TopicPrepareService {
         } else {
           processedMessage = lorCodeService.parseTopic(text.getText(), !topicPermissionService.followInTopic(message, author));
         }
+      } else if (text.isMarkdown()) {
+        processedMessage = markdownFormatter.renderToHtml(text.getText());
       } else {
-        processedMessage = "<p>" + text.getText();
+        processedMessage = "<p>" + text.getText() + "</p>";
       }
 
       PreparedImage preparedImage = null;
@@ -261,7 +295,8 @@ public class TopicPrepareService {
               text.isLorcode(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(postscore),
-              remark);
+              remark,
+              text.isMarkdown());
     } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -322,7 +357,7 @@ public class TopicPrepareService {
    * Подготовка ленты топиков, используется в TopicListController например
    * сообщения рендерятся со свернутым cut
    * @param messages список топиков
-   * @param secure является ли соединение https
+   * ?@param secure является ли соединение https
    * @return список подготовленных топиков
    */
   public List<PreparedTopic> prepareMessages(List<Topic> messages) {

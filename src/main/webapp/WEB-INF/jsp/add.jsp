@@ -150,14 +150,14 @@
   </c:if>
 
 <c:if test="${template.prof.formatMode == 'ntobr'}">
-<label>Разметка:*<br>
-<form:select path="mode" items="${modes}"/></label><br>
+  <label>Разметка:*<br>
+  <form:select path="mode" items="${modes}"/></label><br>
 </c:if>
 
 <div class="control-group">
   <label for="form_msg">Сообщение</label>
-    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
-    <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>
+  <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+  <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>
 </div>
 
 <c:if test="${group!=null and group.linksAllowed}">

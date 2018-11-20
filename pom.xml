@@ -12,6 +12,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <java.version>1.8</java.version>
+
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>4.3.20.RELEASE</dependency.spring.version>
     <spring.security.version>4.2.5.RELEASE</spring.security.version>
@@ -114,11 +116,6 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
       <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pegdown</groupId>
-      <artifactId>pegdown</artifactId>
-      <version>1.6.0</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
@@ -448,6 +445,13 @@
       <artifactId>html5shiv</artifactId>
       <version>3.7.2</version>
     </dependency>
+
+    <!-- MarkDown implementation -->
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-all</artifactId>
+      <version>0.34.48</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -729,6 +733,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.13</version>
         <configuration>
+          <!--<skipTests>true</skipTests>-->
           <!-- Skip the default running of this plug-in (or everything is run twice...see below) -->
           <skip>true</skip>
           <!-- Show 100% of the lines from the stack trace (doesn't work) -->
@@ -819,7 +824,13 @@
         </executions>
       </plugin>
     </plugins>
+    <testResources>
+      <testResource>
+        <directory>src/main/webapp</directory>
+      </testResource>
+    </testResources>
   </build>
+
   <profiles>
     <profile>
       <id>integration-testing</id>

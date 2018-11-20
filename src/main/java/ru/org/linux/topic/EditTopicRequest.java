@@ -22,6 +22,7 @@ public class EditTopicRequest {
   private String linktext;
   private String title;
   private String msg;
+  private String mode;
   private Boolean minor;
   private int bonus = 3;
   private String tags;
@@ -117,5 +118,13 @@ public class EditTopicRequest {
 
   public void setEditorBonus(Map<Integer, Integer> editorBonus) {
     this.editorBonus = editorBonus;
+  }
+
+  public String getMode() {
+    return mode;
+  }
+
+  public void setMode(String mode) {
+    this.mode = mode;
   }
 }

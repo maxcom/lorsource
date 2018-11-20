@@ -30,9 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers._
 import org.springframework.test.web.servlet.setup.MockMvcBuilders._
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.servlet.config.annotation.{EnableWebMvc, PathMatchConfigurer, WebMvcConfigurerAdapter}
-import ru.org.linux.markdown.MarkdownRenderService
-
-import scala.concurrent.Future
+import ru.org.linux.util.markdown.MarkdownFormatter
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @WebAppConfiguration
@@ -58,9 +56,9 @@ class HelpControllerTestConfig extends WebMvcConfigurerAdapter {
 
   @Bean
   def controller = {
-    val markdown: MarkdownRenderService = mock(classOf[MarkdownRenderService])
+    val markdown: MarkdownFormatter = mock(classOf[MarkdownFormatter])
 
-    when(markdown.render(anyString(), any())).thenReturn(Future.successful("ok"))
+    when(markdown.renderToHtml(anyString())).thenReturn("ok")
 
     new HelpController(markdown)
   }

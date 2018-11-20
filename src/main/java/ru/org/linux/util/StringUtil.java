@@ -236,4 +236,8 @@ public final class StringUtil {
   public static String removeInvalidXmlChars(String str) {
     return INVALID_XML.matcher(str).replaceAll("");
   }
+
+  public static boolean notEmpty(String str) {
+    return (str != null && !str.isEmpty());
+  }
 }

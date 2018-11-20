@@ -116,6 +116,7 @@ $script.ready('plugins', function() {
   <td>
       <label><input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> >TeX paragraphs (default)</label>
       <label><input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> >User line break</label>
+      <label><input type=radio name=format_mode id="format-markdown" value="markdown" <c:if test="${template.formatMode == 'markdown' }">checked</c:if> >Markdown</label>
   </td>
 </tr>
 

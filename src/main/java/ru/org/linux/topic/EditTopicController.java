@@ -46,13 +46,16 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.Profile;
+import ru.org.linux.user.ProfileDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
+import ru.org.linux.util.CommonMessageFormatter;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
@@ -105,6 +108,12 @@ public class EditTopicController {
 
   @Autowired
   private ImageService imageService;
+
+  @Autowired
+  private CommonMessageFormatter commonMessageFormatter;
+
+  @Autowired
+  private ProfileDao profileDao;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -243,6 +252,11 @@ public class EditTopicController {
     return new ModelAndView("edit", params);
   }
 
+  @ModelAttribute("modes")
+  public Map<String, String> getModes() {
+    return commonMessageFormatter.getModes();
+  }
+
   @ModelAttribute("ipBlockInfo")
   private IPBlockInfo loadIPBlock(HttpServletRequest request) {
     return ipBlockDao.getBlockInfo(request.getRemoteAddr());
@@ -271,6 +285,10 @@ public class EditTopicController {
     Group group = preparedTopic.getGroup();
 
     User user = tmpl.getCurrentUser();
+
+    Profile profile = profileDao.readProfile(user);
+
+    String formatMode = form.getMode() != null ? form.getMode() : profile.getFormatMode();
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
@@ -338,9 +356,13 @@ public class EditTopicController {
     }
     
     if (form.getMsg()!=null) {
-      String oldText = msgbaseDao.getMessageText(message.getId()).getText();
-  
-      if (!oldText.equals(form.getMsg())) {
+      MessageText oldMessage = msgbaseDao.getMessageText(message.getId());
+      String oldText = oldMessage.getText();
+
+//      String oldPreparedText = commonMessageFormatter.processMessage(oldText, commonMessageFormatter.detectFormat(oldMessage.isLorcode(), oldMessage.isMarkdown()));
+//      String newPreparedText = commonMessageFormatter.processMessage(form.getMsg(), form.getMode());
+
+      if (!oldText.equals(form.getMsg()) || !commonMessageFormatter.detectFormat(oldMessage.isLorcode(), oldMessage.isMarkdown()).equalsIgnoreCase(form.getMode())) {
         modified = true;
       }
     }
@@ -445,7 +467,8 @@ public class EditTopicController {
               newPoll!=null?newPoll.getVariants():null,
               form.isMultiselect(),
               form.getEditorBonus(),
-              imagePreview
+              imagePreview,
+              formatMode
       );
 
       if (changed || commit || publish) {
@@ -481,8 +504,9 @@ public class EditTopicController {
                     newTags!=null?TagService.namesToRefs(newTags):null,
                     newPoll,
                     request.isSecure(),
-                    newText,
-                    imageObject
+                    commonMessageFormatter.processMessage(newText, formatMode),
+                    imageObject,
+                    formatMode
             )
     );
 

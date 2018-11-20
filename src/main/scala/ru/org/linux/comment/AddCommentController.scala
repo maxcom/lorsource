@@ -105,6 +105,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val msg = commentService.getCommentBody(add, user, errors)
     val comment = commentService.getComment(add, user, request)
+    val mode = add.getMode
 
     if (add.getTopic != null) {
       topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
@@ -124,8 +125,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       new ModelAndView("add_comment", (commentService.prepareReplyto(add, request).asScala ++ info).asJava)
     } else {
-      val msgid = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
-        Optional.ofNullable(request.getHeader("user-agent")))
+      val msgid = commentService.create(user, comment, add.getMsg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
+        Optional.ofNullable(request.getHeader("user-agent")), mode)
 
       searchQueueSender.updateComment(msgid)
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
@@ -145,6 +146,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val msg = commentService.getCommentBody(add, user, errors)
     val comment = commentService.getComment(add, user, request)
+    val mode = add.getMode
 
     if (add.getTopic != null) {
       topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
@@ -160,8 +162,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         Map("errors" -> errorsList.asJava)
       }
     } else {
-      val msgid = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
-        Optional.ofNullable(request.getHeader("user-agent")))
+      val msgid = commentService.create(user, comment, add.getMsg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
+        Optional.ofNullable(request.getHeader("user-agent")), mode)
 
       searchQueueSender.updateComment(msgid)
 

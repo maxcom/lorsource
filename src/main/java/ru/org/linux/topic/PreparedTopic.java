@@ -35,6 +35,7 @@ public final class PreparedTopic {
   private final PreparedPoll poll;
   private final User commiter;
   private final boolean lorcode;
+  private final boolean markdown;
   private final ImmutableList<TagRef> tags;
   private final Group group;
   private final Section section;
@@ -59,7 +60,8 @@ public final class PreparedTopic {
           boolean lorcode,
           PreparedImage image,
           String postscoreInfo,
-          Remark remark) {
+          Remark remark,
+          boolean markdown) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -78,6 +80,7 @@ public final class PreparedTopic {
     this.section = section;
     this.image = image;
     this.remark = remark;
+    this.markdown = markdown;
   }
 
   public Topic getMessage() {
@@ -139,4 +142,6 @@ public final class PreparedTopic {
   public Remark getRemark() {
     return remark;
   }
+
+  public boolean isMarkdown() { return markdown; }
 }

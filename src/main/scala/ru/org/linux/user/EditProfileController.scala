@@ -47,6 +47,8 @@ class EditProfileController(
 
     val params = new util.HashMap[String, AnyRef]
 
+    //params.put("template", tmpl)
+
     val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
 
     if (DefaultProfile.getTheme(tmpl.getCurrentUser.getStyle).isDeprecated) {

@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -41,10 +42,16 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
+import ru.org.linux.user.Profile;
+import ru.org.linux.user.ProfileDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.util.CommonMessageFormatter;
+import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.markdown.MarkdownFormatter;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
@@ -86,6 +93,9 @@ public class TopicDao {
   @Autowired
   private SiteConfig siteConfig;
 
+  @Autowired
+  private ProfileDao profileDao;
+
   /**
    * Запрос получения полной информации о топике
    */
@@ -108,6 +118,9 @@ public class TopicDao {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private CommonMessageFormatter commonMessageFormatter;
 
   @Autowired
   public void setDataSource(DataSource dataSource) {
@@ -209,7 +222,8 @@ public class TopicDao {
           final User user,
           String text,
           final String userAgent,
-          final Group group
+          final Group group,
+          String formatMode
   ) {
     final int msgid = allocateMsgid();
 
@@ -236,29 +250,35 @@ public class TopicDao {
             }
     );
 
-    msgbaseDao.saveNewMessage(text, msgid);
+    msgbaseDao.saveNewMessage(text, msgid, formatMode);
 
     return msgid;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText,
-                               UploadedImagePreview imagePreview) throws IOException {
+                               UploadedImagePreview imagePreview, String formatMode) throws IOException {
     EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
 
     editHistoryRecord.setMsgid(msg.getId());
     editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
     editHistoryRecord.setEditor(editor.getId());
 
+    Profile profile = profileDao.readProfile(editor);
+
     boolean modified = false;
 
-    String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
+    MessageText oldMessage = msgbaseDao.getMessageText(msg.getId());
+    String oldText = oldMessage.getText();
 
-    if (!oldText.equals(newText)) {
+//      String oldPreparedText = commonMessageFormatter.processMessage(oldText, commonMessageFormatter.detectFormat(oldMessage.isLorcode(), oldMessage.isMarkdown()));
+//      String newPreparedText = commonMessageFormatter.processMessage(form.getMsg(), form.getMode());
+
+    if (!oldText.equals(newText) || !commonMessageFormatter.detectFormat(oldMessage.isLorcode(), oldMessage.isMarkdown()).equalsIgnoreCase(formatMode)) {
       editHistoryRecord.setOldmessage(oldText);
       modified = true;
 
-      msgbaseDao.updateMessage(msg.getId(), newText);
+      msgbaseDao.updateMessage(msg.getId(), newText, commonMessageFormatter.getFormatToStoreInDB(profile, formatMode));
     }
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {

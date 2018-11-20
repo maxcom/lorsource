@@ -93,14 +93,16 @@ public class TopicService {
           Group group,
           User user,
           UploadedImagePreview imagePreview,
-          Topic previewMsg
+          Topic previewMsg,
+          String formatMode
   ) throws ScriptErrorException {
     final int msgid = topicDao.saveNewMessage(
             previewMsg,
             user,
             message,
             request.getHeader("User-Agent"),
-            group
+            group,
+            formatMode
     );
 
     Section section = sectionService.getSection(group.getSectionId());
@@ -263,9 +265,10 @@ public class TopicService {
           List<PollVariant> pollVariants,
           boolean multiselect,
           Map<Integer, Integer> editorBonus,
-          UploadedImagePreview imagePreview
+          UploadedImagePreview imagePreview,
+          String formatMode
   ) throws IOException {
-    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText, imagePreview);
+    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText, imagePreview, formatMode);
 
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());

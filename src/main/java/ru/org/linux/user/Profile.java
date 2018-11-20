@@ -179,7 +179,9 @@ public class Profile {
   private static String fixFormat(String mode) {
     if (!"quot".equals(mode) &&
         !"ntobr".equals(mode) &&
-        !"lorcode".equals(mode)) {
+        !"lorcode".equals(mode) &&
+        !"markdown".equals(mode)
+    ) {
       return (String) DefaultProfile.getDefaultProfile().get("format.mode");
     }
 

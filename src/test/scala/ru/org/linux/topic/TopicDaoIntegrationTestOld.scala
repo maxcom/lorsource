@@ -20,25 +20,31 @@ import org.junit.{Assert, Test}
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
+import org.springframework.core.env.PropertySource
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import ru.org.linux.comment.{CommentDao, CommentService}
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
-import ru.org.linux.topic.TopicDaoIntegrationTest._
-import ru.org.linux.user.{IgnoreListDao, UserDao, UserLogDao, UserService}
+import ru.org.linux.topic.TopicDaoIntegrationTestOld._
+import ru.org.linux.user._
+import ru.org.linux.util.CommonMessageFormatter
 import ru.org.linux.util.bbcode.LorCodeService
+import ru.org.linux.util.formatter.{ToHtmlFormatter, ToLorCodeFormatter, ToLorCodeTexFormatter}
+import ru.org.linux.util.markdown.FlexmarkMarkdownFormatter
 
-@RunWith (classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
-class TopicDaoIntegrationTest {
+//@RunWith (classOf[SpringJUnit4ClassRunner])
+//@ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
+//@PropertySource({"classpath:config.properties.dist"})
+class TopicDaoIntegrationTestOld {
   @Autowired
   var topicDao: TopicDao = _
 
-  @Test
+  //@Test
   def testLoadTopic(): Unit = {
     val topic = topicDao.getById(TestTopic)
 
@@ -46,7 +52,7 @@ class TopicDaoIntegrationTest {
     Assert.assertEquals(TestTopic, topic.getId)
   }
 
-  @Test
+  //@Test
   def testNextPrev():Unit = {
     val topic = topicDao.getById(TestTopic)
 
@@ -58,7 +64,7 @@ class TopicDaoIntegrationTest {
   }
 }
 
-object TopicDaoIntegrationTest {
+object TopicDaoIntegrationTestOld {
   val TestTopic = 1937347
 }
 
@@ -81,7 +87,39 @@ class TopicDaoIntegrationTestConfiguration {
   def userDao = new UserDao()
 
   @Bean
+  def profileDao = new ProfileDao
+
+  @Bean
   def imageDao = new ImageDao()
+
+  @Bean
+  def commonMessageFormatter = new CommonMessageFormatter
+
+  @Bean
+  def toLorCodeFormatter = new ToLorCodeFormatter
+
+  @Bean
+  def toLorCodeTexFormatter = new ToLorCodeTexFormatter
+
+  @Bean
+  def markdownFormatter = new FlexmarkMarkdownFormatter
+
+  @Bean
+  def commentDao = new CommentDao
+
+  @Bean
+  def lorCodeService = Mockito.mock(classOf[LorCodeService])
+
+  @Bean
+  def toHtmlFormatter = Mockito.mock(classOf[ToHtmlFormatter])
+
+  @Bean
+  def commentService = Mockito.mock(classOf[CommentService])
+
+  @Bean
+  def siteConfig = Mockito.mock(classOf[SiteConfig])
+
+
 
   @Bean
   def imageService = Mockito.mock(classOf[ImageService])
@@ -113,4 +151,5 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def lorcodeService = Mockito.mock(classOf[LorCodeService])
+
 }

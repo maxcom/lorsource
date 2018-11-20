@@ -29,6 +29,7 @@ import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
+import ru.org.linux.util.CommonMessageFormatter;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
@@ -62,6 +63,9 @@ public class CommentPrepareService {
 
   @Autowired
   private RemarkDao remarkDao;
+
+  @Autowired
+  private CommonMessageFormatter commonMessageFormatter;
 
   private PreparedComment prepareComment(
           @Nonnull Comment comment,
@@ -323,11 +327,7 @@ public class CommentPrepareService {
    * @return строку html комментария
    */
   private String prepareCommentText(MessageText messageText, boolean nofollow) {
-    if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.getText(), nofollow);
-    } else {
-      return "<p>" + messageText.getText() + "</p>";
-    }
+    return commonMessageFormatter.prepareCommentText(messageText, nofollow);
   }
 
   /**
@@ -338,6 +338,6 @@ public class CommentPrepareService {
    * @return строку html комментария
    */
   private String prepareCommentTextRSS(MessageText messageText, final boolean secure) {
-    return lorCodeService.prepareTextRSS(messageText.getText(), messageText.isLorcode());
+    return commonMessageFormatter.prepareCommentTextRSS(messageText);
   }
 }

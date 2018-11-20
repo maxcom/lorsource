@@ -186,7 +186,8 @@ public class EditCommentController {
       request.getRemoteAddr(),
       request.getHeader("X-Forwarded-For"),
       user,
-      originalMessageText
+      originalMessageText,
+      commentRequest.getMode()
     );
 
     searchQueueSender.updateComment(commentRequest.getOriginal().getId());

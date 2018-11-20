@@ -16,27 +16,24 @@
 package ru.org.linux.help
 
 import java.util.concurrent.CompletionStage
-import javax.servlet.ServletRequest
 
+import javax.servlet.ServletRequest
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.markdown.MarkdownRenderService
+import ru.org.linux.util.markdown.MarkdownFormatter
 
 import scala.collection.JavaConverters._
-import scala.compat.java8.FutureConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
 @Controller
-class HelpController(renderService: MarkdownRenderService) extends StrictLogging {
+class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
   import HelpController._
 
   @RequestMapping(Array("/help/{page}"))
-  def helpPage(request: ServletRequest, @PathVariable page: String): CompletionStage[ModelAndView] = {
+  def helpPage(request: ServletRequest, @PathVariable page: String): ModelAndView = {
     val title = HelpPages.getOrElse(page, {
       logger.info(s"Help page not found $page")
       throw new HelpPageNotFoundException()
@@ -44,12 +41,10 @@ class HelpController(renderService: MarkdownRenderService) extends StrictLogging
 
     val source = IOUtils.toString(request.getServletContext.getResource(s"/help/$page"), "UTF-8")
 
-    renderService.render(source, RenderTimeout.fromNow).map { result ⇒
-      new ModelAndView("help", Map(
-        "title" -> title,
-        "helpText" -> result
-      ).asJava)
-    }.toJava
+    return new ModelAndView("help", Map(
+      "title" -> title,
+      "helpText" -> renderService.renderToHtml(source)
+    ).asJava)
   }
 
   @ExceptionHandler(Array(classOf[HelpPageNotFoundException]))
@@ -60,8 +55,6 @@ class HelpController(renderService: MarkdownRenderService) extends StrictLogging
 class HelpPageNotFoundException extends RuntimeException
 
 object HelpController {
-  private val RenderTimeout = 30.seconds
-
   val HelpPages = Map(
     "lorcode.md" -> "Разметка сообщений (LORCODE)",
     "rules.md" -> "Правила форума"

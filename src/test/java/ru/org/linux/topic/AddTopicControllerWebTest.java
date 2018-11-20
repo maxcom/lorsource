@@ -39,6 +39,7 @@ public class AddTopicControllerWebTest {
   private static final String TEST_USER = "Shaman007";
   private static final String TEST_PASSWORD = "passwd";
   private static final String TEST_TITLE = "Test Title";
+  private static final String TEST_MESSAGE = "Test message";
 
   private WebResource resource;
 
@@ -97,6 +98,7 @@ public class AddTopicControllerWebTest {
     formData.add("group", Integer.toString(TEST_GROUP));
     formData.add("csrf", "csrf");
     formData.add("title", TEST_TITLE);
+    formData.add("msg", TEST_MESSAGE);
 
     ClientResponse cr = resource
             .path("add.jsp")

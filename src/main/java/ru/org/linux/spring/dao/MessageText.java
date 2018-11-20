@@ -18,10 +18,23 @@ package ru.org.linux.spring.dao;
 public class MessageText {
   private final String text;
   private final boolean lorcode;
+  private final boolean markdown;
 
+  /**
+   * @deprecated
+   * Please use another constructor
+   */
+  @Deprecated
   public MessageText(String text, boolean lorcode) {
     this.text = text;
     this.lorcode = lorcode;
+    this.markdown = false;
+  }
+
+  public MessageText(String text, boolean lorcode, boolean markdown) {
+    this.text = text;
+    this.lorcode = lorcode;
+    this.markdown = markdown;
   }
 
   public String getText() {
@@ -30,5 +43,9 @@ public class MessageText {
 
   public boolean isLorcode() {
     return lorcode;
+  }
+
+  public boolean isMarkdown() {
+    return markdown;
   }
 }

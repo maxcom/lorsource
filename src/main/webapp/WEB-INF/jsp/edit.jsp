@@ -28,6 +28,7 @@
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="topicMenu" type="ru.org.linux.topic.TopicMenu"--%>
+<%--@elvariable id="modes" type="java.util.Map"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -117,7 +118,14 @@
       <br>
   </c:if>
 
-  <div class="control-group">
+
+      <c:if test="${template.prof.formatMode == 'ntobr'}">
+          <label>Разметка:<br>
+              <form:select path="mode" items="${modes}"/></label><br>
+      </c:if>
+
+
+      <div class="control-group">
     <label for="form_msg">Сообщение</label>
     <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
     <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>

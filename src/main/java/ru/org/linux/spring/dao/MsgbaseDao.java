@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,14 +58,15 @@ public class MsgbaseDao {
 
     insertMsgbase = new SimpleJdbcInsert(dataSource);
     insertMsgbase.setTableName("msgbase");
-    insertMsgbase.usingColumns("id", "message");
+    insertMsgbase.usingColumns("id", "message", "markup");
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void saveNewMessage(String message, int msgid) {
+  public void saveNewMessage(String message, int msgid, @Nullable String markup) {
     insertMsgbase.execute(ImmutableMap.<String, Object>of(
             "id", msgid,
-            "message", message)
+            "message", message,
+            "markup", markup)
     );
   }
 
@@ -72,18 +74,18 @@ public class MsgbaseDao {
     return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topicId);
   }
 
-  public MessageText getMessageText(int msgid) {
-    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT, new RowMapper<MessageText>() {
-      @Override
-      public MessageText mapRow(ResultSet resultSet, int i) throws SQLException {
-        String text = resultSet.getString("message");
-        String markup = resultSet.getString("markup");
-        boolean lorcode = !"PLAIN".equals(markup);
+  private MessageText prepareMessageTextFromResultSet(ResultSet resultSet) throws SQLException {
+    String text = resultSet.getString("message");
+    String markup = resultSet.getString("markup");
+    boolean markdown = "MARKDOWN".equals(markup);
+    boolean lorcode = !markdown && !"PLAIN".equals(markup);
 
-        return new MessageText(text, lorcode);
-      }
-    }, msgid);
-  }                  
+    return new MessageText(text, lorcode, markdown);
+  }
+
+  public MessageText getMessageText(int msgid) {
+    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT, (resultSet, i) -> prepareMessageTextFromResultSet(resultSet), msgid);
+  }
 
   public Map<Integer, MessageText> getMessageText(Collection<Integer> msgids) {
     if (msgids.isEmpty()) {
@@ -95,24 +97,17 @@ public class MsgbaseDao {
     namedJdbcTemplate.query(
             "SELECT message, markup, id FROM msgbase WHERE id IN (:list)",
             ImmutableMap.of("list", msgids),
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                String text = resultSet.getString("message");
-                String markup = resultSet.getString("markup");
-                boolean lorcode = !"PLAIN".equals(markup);
-
-                out.put(resultSet.getInt("id"), new MessageText(text, lorcode));
-              }
+            resultSet -> {
+              out.put(resultSet.getInt("id"), prepareMessageTextFromResultSet(resultSet));
             });
 
     return out;
   }
 
-  public void updateMessage(int msgid, String text) {
+  public void updateMessage(int msgid, String text, @Nullable String formatMode) {
     namedJdbcTemplate.update(
-      "UPDATE msgbase SET message=:message WHERE id=:msgid",
-      ImmutableMap.of("message", text, "msgid", msgid)
+      "UPDATE msgbase SET message=:message, markup=:markup WHERE id=:msgid",
+      ImmutableMap.of("message", text, "msgid", msgid, "markup", formatMode)
     );
   }
 

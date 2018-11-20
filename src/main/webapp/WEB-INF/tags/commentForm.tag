@@ -55,8 +55,9 @@
   <c:if test="${template.prof.formatMode == 'ntobr'}">
   <label for="mode">Разметка:*</label><br>
   <select id="mode" name="mode">
-  <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
-  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
+    <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
+    <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
+    <option value=markdown <%= "markdown".equals(mode)?"selected":""%> >Markdown
   </select>  <br>
   </c:if>
 

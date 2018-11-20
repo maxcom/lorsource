@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,13 +45,16 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
+import ru.org.linux.util.CommonMessageFormatter;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
+import ru.org.linux.util.markdown.MarkdownFormatter;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.sql.SQLException;
@@ -72,12 +76,6 @@ public class CommentService {
 
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private ToLorCodeFormatter toLorCodeFormatter;
-
-  @Autowired
-  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
   private CaptchaService captcha;
@@ -105,6 +103,12 @@ public class CommentService {
 
   @Autowired
   private TopicPermissionService permissionService;
+
+  @Autowired
+  private ProfileDao profileDao;
+
+  @Autowired
+  private CommonMessageFormatter commonMessageFormatter;
 
   private final Cache<Integer, CommentList> cache =
           CacheBuilder.newBuilder()
@@ -321,11 +325,15 @@ public class CommentService {
           String commentBody,
           String remoteAddress,
           String xForwardedFor,
-          Optional<String> userAgent) throws MessageNotFoundException {
+          Optional<String> userAgent,
+          @Nullable String formatMode
+  ) throws MessageNotFoundException {
+    Profile profile = profileDao.readProfile(author);
+
     Preconditions.checkArgument(comment.getUserid() == author.getId());
 
     int commentId = commentDao.saveNewMessage(comment, userAgent);
-    msgbaseDao.saveNewMessage(commentBody, commentId);
+    msgbaseDao.saveNewMessage(commentBody, commentId, commonMessageFormatter.getFormatToStoreInDB(profile, formatMode));
 
     /* кастование пользователей */
     if (permissionService.isUserCastAllowed(author)) {
@@ -380,10 +388,13 @@ public class CommentService {
     String remoteAddress,
     String xForwardedFor,
     @Nonnull User editor,
-    String originalMessageText
+    String originalMessageText,
+    @Nullable String formatMode
   ) {
+    Profile profile = profileDao.readProfile(editor);
+
     commentDao.changeTitle(oldComment, newComment.getTitle());
-    msgbaseDao.updateMessage(oldComment.getId(), commentBody);
+    msgbaseDao.updateMessage(oldComment.getId(), commentBody, commonMessageFormatter.getFormatToStoreInDB(profile, formatMode));
 
     /* кастование пользователей */
     Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
@@ -550,11 +561,7 @@ public class CommentService {
    * @return обработанная строка
    */
   private String processMessage(String msg, String mode) {
-    if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg);
-    } else {
-      return toLorCodeTexFormatter.format(msg);
-    }
+    return commonMessageFormatter.processMessage(msg, mode);
   }
 
   @Nonnull
