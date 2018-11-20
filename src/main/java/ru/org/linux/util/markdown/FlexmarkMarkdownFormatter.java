@@ -28,8 +28,8 @@ public class FlexmarkMarkdownFormatter implements MarkdownFormatter {
     private Parser parser;
     private HtmlRenderer renderer;
 
-    private static final Pattern PATTERN_ESCAPE_SCRIPT_TAG = Pattern.compile("(<script)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    private static final Pattern PATTERN_ESCAPE_SCRIPT_CLOSE_TAG = Pattern.compile("(</script)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+//    private static final Pattern PATTERN_ESCAPE_SCRIPT_TAG = Pattern.compile("(<script)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+//    private static final Pattern PATTERN_ESCAPE_SCRIPT_CLOSE_TAG = Pattern.compile("(</script)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     public FlexmarkMarkdownFormatter() {
         options = new MutableDataSet();
@@ -46,8 +46,8 @@ public class FlexmarkMarkdownFormatter implements MarkdownFormatter {
         ));
 
         options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*");
-        //options.set(Parser.HTML_BLOCK_PARSER, false);
-        //options.set(HtmlRenderer.ESCAPE_HTML_BLOCKS, true);
+        options.set(Parser.HTML_BLOCK_PARSER, false);
+        options.set(HtmlRenderer.SUPPRESS_HTML, true);
 
         // uncomment to convert soft-breaks to hard breaks
         //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
@@ -60,15 +60,15 @@ public class FlexmarkMarkdownFormatter implements MarkdownFormatter {
     public String renderToHtml(String content) {
         //escape script blocks in cause of vulnerability
 
-        Matcher matcherOpenTag = PATTERN_ESCAPE_SCRIPT_TAG.matcher(content);
-        if (matcherOpenTag.find()) {
-            content = matcherOpenTag.replaceAll("&lt;script");
-        }
-
-        Matcher matcherCloseTag = PATTERN_ESCAPE_SCRIPT_CLOSE_TAG.matcher(content);
-        if (matcherCloseTag.find()) {
-            content = matcherCloseTag.replaceAll("&lt;/script");
-        }
+//        Matcher matcherOpenTag = PATTERN_ESCAPE_SCRIPT_TAG.matcher(content);
+//        if (matcherOpenTag.find()) {
+//            content = matcherOpenTag.replaceAll("&lt;script");
+//        }
+//
+//        Matcher matcherCloseTag = PATTERN_ESCAPE_SCRIPT_CLOSE_TAG.matcher(content);
+//        if (matcherCloseTag.find()) {
+//            content = matcherCloseTag.replaceAll("&lt;/script");
+//        }
 
         // You can re-use parser and renderer instances
         Node document = parser.parse(content);
