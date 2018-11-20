@@ -18,7 +18,7 @@ SecureUrl=http://127.0.0.1:8080/
 WSUrl=ws://127.0.0.1:8080/
 activemq.path=target/tmp/activemq
 HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
-upload.path=C:/Temp/uploads/
+upload.path=target/uploads/
 Secret=secret
 # development keys - for use on localhost only
 recaptcha.private=6LcdM0oUAAAAANYhnHF3jmD1r1TvkiyPaWHjC83x
