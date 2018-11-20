@@ -209,7 +209,7 @@ public class CommentService {
     User user,
     Errors errors
   ) {
-    String commentBody = processMessage(commentRequest.getMsg(), commentRequest.getMode());
+    String commentBody = commentRequest.getMsg(); //processMessage(commentRequest.getMsg(), commentRequest.getMode());
     if (user.isAnonymous()) {
       if (commentBody.length() > 4096) {
         errors.rejectValue("msg", null, "Слишком большое сообщение");

@@ -46,7 +46,7 @@ public class FlexmarkMarkdownFormatter implements MarkdownFormatter {
         ));
 
         options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*");
-        options.set(Parser.HTML_BLOCK_PARSER, false);
+        //options.set(Parser.HTML_BLOCK_PARSER, false);
         options.set(HtmlRenderer.SUPPRESS_HTML, true);
 
         // uncomment to convert soft-breaks to hard breaks
