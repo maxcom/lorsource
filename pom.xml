@@ -824,11 +824,11 @@
         </executions>
       </plugin>
     </plugins>
-    <testResources>
-      <testResource>
-        <directory>src/main/webapp</directory>
-      </testResource>
-    </testResources>
+    <!--<testResources>-->
+      <!--<testResource>-->
+        <!--<directory>src/main/webapp</directory>-->
+      <!--</testResource>-->
+    <!--</testResources>-->
   </build>
 
   <profiles>
