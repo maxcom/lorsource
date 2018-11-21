@@ -82,14 +82,14 @@
   </p>
     <ul>
       <li>CentOS 7.x;</li>
-      <li>СУБД PostgreSQL 9.6;</li>
+      <li>СУБД PostgreSQL 10;</li>
       <li>OpenJDK 1.8.0;</li>
       <li>Scala 2.12;</li>
       <li>Apache Tomcat 7;</li>
       <li>ActiveMQ 5.11;</li>
       <li>Spring 4.3;</li>
       <li>поиск: Elasticsearch 6.x;</li>
-      <li>Nginx 1.10.</li>
+      <li>Nginx 1.14.</li>
     </ul>
 
 <h1>Исходные тексты</h1>
