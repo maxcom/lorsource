@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,21 +30,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers._
 import org.springframework.test.web.servlet.setup.MockMvcBuilders._
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.servlet.config.annotation.{EnableWebMvc, PathMatchConfigurer, WebMvcConfigurerAdapter}
-import ru.org.linux.markdown.MarkdownRenderService
-
-import scala.concurrent.Future
+import ru.org.linux.util.markdown.MarkdownFormatter
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @WebAppConfiguration
 @ContextConfiguration(classes = Array(classOf[HelpControllerTestConfig]))
 class HelpControllerTest extends MVCTest {
   @Test
-  def testOk():Unit = {
+  def testOk(): Unit = {
     mockMvc.perform(get("/help/lorcode.md")).andExpect(status.is(200))
   }
 
   @Test
-  def test404():Unit = {
+  def test404(): Unit = {
     mockMvc.perform(get("/help/wrong.md")).andExpect(status.is(404))
   }
 }
@@ -58,9 +56,9 @@ class HelpControllerTestConfig extends WebMvcConfigurerAdapter {
 
   @Bean
   def controller = {
-    val markdown: MarkdownRenderService = mock(classOf[MarkdownRenderService])
+    val markdown: MarkdownFormatter = mock(classOf[MarkdownFormatter])
 
-    when(markdown.render(anyString(), any())).thenReturn(Future.successful("ok"))
+    when(markdown.renderToHtml(anyString())).thenReturn("ok")
 
     new HelpController(markdown)
   }
@@ -68,12 +66,12 @@ class HelpControllerTestConfig extends WebMvcConfigurerAdapter {
 
 trait MVCTest {
   @Autowired
-  var wac : WebApplicationContext = null
+  var wac: WebApplicationContext = _
 
-  var mockMvc : MockMvc = null
+  var mockMvc: MockMvc = _
 
   @Before
-  def setup():Unit = {
+  def setup(): Unit = {
     this.mockMvc = webAppContextSetup(this.wac).build()
   }
 }
