@@ -6,3 +6,4 @@ target
 *.ids
 *.iws
 .idea
+.DS_Store
