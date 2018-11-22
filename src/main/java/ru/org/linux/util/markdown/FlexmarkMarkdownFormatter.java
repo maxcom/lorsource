@@ -1,3 +1,18 @@
+/*
+ * Copyright 1998-2018 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.util.markdown;
 
 import com.vladsch.flexmark.ast.Node;
@@ -13,8 +28,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /*
@@ -24,57 +37,40 @@ import java.util.regex.Pattern;
 @Qualifier("flexmark")
 public class FlexmarkMarkdownFormatter implements MarkdownFormatter {
 
-    private MutableDataSet options;
-    private Parser parser;
-    private HtmlRenderer renderer;
+  private final Parser parser;
+  private final HtmlRenderer renderer;
 
-//    private static final Pattern PATTERN_ESCAPE_SCRIPT_TAG = Pattern.compile("(<script)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-//    private static final Pattern PATTERN_ESCAPE_SCRIPT_CLOSE_TAG = Pattern.compile("(</script)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  public FlexmarkMarkdownFormatter() {
+    MutableDataSet options = new MutableDataSet();
 
-    public FlexmarkMarkdownFormatter() {
-        options = new MutableDataSet();
-
-        // uncomment to set optional extensions
-        options.set(Parser.EXTENSIONS, Arrays.asList(
-                TablesExtension.create(),
-                StrikethroughExtension.create(),
-                YouTubeLinkExtension.create(),
-                WikiLinkExtension.create(),
-                SuperscriptExtension.create()
+    // uncomment to set optional extensions
+    options.set(Parser.EXTENSIONS, Arrays.asList(
+            TablesExtension.create(),
+            StrikethroughExtension.create(),
+            YouTubeLinkExtension.create(),
+            WikiLinkExtension.create(),
+            SuperscriptExtension.create()
                 /*,
                 EnumeratedReferenceExtension.create()*/
-        ));
+    ));
 
-        options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*");
-        //options.set(Parser.HTML_BLOCK_PARSER, false);
-        options.set(HtmlRenderer.SUPPRESS_HTML, true);
+    options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*");
+    //options.set(Parser.HTML_BLOCK_PARSER, false);
+    options.set(HtmlRenderer.SUPPRESS_HTML, true);
 
-        // uncomment to convert soft-breaks to hard breaks
-        //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
+    // uncomment to convert soft-breaks to hard breaks
+    //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
 
-        parser = Parser.builder(options).build();
-        renderer = HtmlRenderer.builder(options).build();
-    }
+    parser = Parser.builder(options).build();
+    renderer = HtmlRenderer.builder(options).build();
+  }
 
-    @Override
-    public String renderToHtml(String content) {
-        //escape script blocks in cause of vulnerability
+  @Override
+  public String renderToHtml(String content) {
+    // You can re-use parser and renderer instances
+    Node document = parser.parse(content);
 
-//        Matcher matcherOpenTag = PATTERN_ESCAPE_SCRIPT_TAG.matcher(content);
-//        if (matcherOpenTag.find()) {
-//            content = matcherOpenTag.replaceAll("&lt;script");
-//        }
-//
-//        Matcher matcherCloseTag = PATTERN_ESCAPE_SCRIPT_CLOSE_TAG.matcher(content);
-//        if (matcherCloseTag.find()) {
-//            content = matcherCloseTag.replaceAll("&lt;/script");
-//        }
-
-        // You can re-use parser and renderer instances
-        Node document = parser.parse(content);
-        String html = renderer.render(document);  // "<p>This is <em>Sparta</em></p>\n"
-
-        return html;
-    }
+    return renderer.render(document);
+  }
 
 }

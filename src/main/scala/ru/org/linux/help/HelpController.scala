@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,10 +15,8 @@
 
 package ru.org.linux.help
 
-import java.util.concurrent.CompletionStage
-
-import javax.servlet.ServletRequest
 import com.typesafe.scalalogging.StrictLogging
+import javax.servlet.ServletRequest
 import org.apache.commons.io.IOUtils
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -41,7 +39,7 @@ class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
 
     val source = IOUtils.toString(request.getServletContext.getResource(s"/help/$page"), "UTF-8")
 
-    return new ModelAndView("help", Map(
+    new ModelAndView("help", Map(
       "title" -> title,
       "helpText" -> renderService.renderToHtml(source)
     ).asJava)
@@ -55,7 +53,7 @@ class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
 class HelpPageNotFoundException extends RuntimeException
 
 object HelpController {
-  val HelpPages = Map(
+  val HelpPages: Map[String, String] = Map(
     "lorcode.md" -> "Разметка сообщений (LORCODE)",
     "rules.md" -> "Правила форума"
   )

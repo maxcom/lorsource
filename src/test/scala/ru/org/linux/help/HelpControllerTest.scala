@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,12 +37,12 @@ import ru.org.linux.util.markdown.MarkdownFormatter
 @ContextConfiguration(classes = Array(classOf[HelpControllerTestConfig]))
 class HelpControllerTest extends MVCTest {
   @Test
-  def testOk():Unit = {
+  def testOk(): Unit = {
     mockMvc.perform(get("/help/lorcode.md")).andExpect(status.is(200))
   }
 
   @Test
-  def test404():Unit = {
+  def test404(): Unit = {
     mockMvc.perform(get("/help/wrong.md")).andExpect(status.is(404))
   }
 }
@@ -66,12 +66,12 @@ class HelpControllerTestConfig extends WebMvcConfigurerAdapter {
 
 trait MVCTest {
   @Autowired
-  var wac : WebApplicationContext = null
+  var wac: WebApplicationContext = _
 
-  var mockMvc : MockMvc = null
+  var mockMvc: MockMvc = _
 
   @Before
-  def setup():Unit = {
+  def setup(): Unit = {
     this.mockMvc = webAppContextSetup(this.wac).build()
   }
 }
