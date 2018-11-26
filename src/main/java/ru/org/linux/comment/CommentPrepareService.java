@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -64,13 +64,12 @@ public class CommentPrepareService {
   private RemarkDao remarkDao;
 
   private PreparedComment prepareComment(
-          @Nonnull Comment comment,
-          boolean secure
+          @Nonnull Comment comment
   ) throws UserNotFoundException {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
     User author = userDao.getUserCached(comment.getUserid());
 
-    return prepareComment(messageText, author, null, comment, null, secure, null, null);
+    return prepareComment(messageText, author, null, comment, null, null, null);
   }
 
   private PreparedComment prepareComment(
@@ -79,7 +78,6 @@ public class CommentPrepareService {
           @Nullable String remark,
           @Nonnull Comment comment,
           CommentList comments,
-          boolean secure,
           Template tmpl,
           Topic topic
   ) throws UserNotFoundException {
@@ -205,18 +203,17 @@ public class CommentPrepareService {
 
   private PreparedRSSComment prepareRSSComment(
           @Nonnull MessageText messageText,
-          @Nonnull Comment comment,
-          boolean secure
+          @Nonnull Comment comment
   ) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
 
-    String processedMessage = prepareCommentTextRSS(messageText, secure);
+    String processedMessage = prepareCommentTextRSS(messageText);
 
     return new PreparedRSSComment(comment, author, processedMessage);
   }
 
-  public PreparedComment prepareCommentForReplayto(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, secure);
+  public PreparedComment prepareCommentForReplyto(Comment comment) throws UserNotFoundException {
+    return prepareComment(comment);
   }
 
   /**
@@ -250,14 +247,13 @@ public class CommentPrepareService {
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(
-          @Nonnull List<Comment> list,
-          boolean secure
+          @Nonnull List<Comment> list
   ) throws UserNotFoundException {
     List<PreparedRSSComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
       MessageText messageText = msgbaseDao.getMessageText(comment.getId());
 
-      commentsPrepared.add(prepareRSSComment(messageText, comment, secure));
+      commentsPrepared.add(prepareRSSComment(messageText, comment));
     }
     return commentsPrepared;
   }
@@ -310,7 +306,7 @@ public class CommentPrepareService {
         remarkText = remark.getText();
       }
 
-      commentsPrepared.add(prepareComment(text, author, remarkText, comment, comments, secure, tmpl, topic));
+      commentsPrepared.add(prepareComment(text, author, remarkText, comment, comments, tmpl, topic));
     }
 
     return commentsPrepared;
@@ -324,9 +320,9 @@ public class CommentPrepareService {
    */
   private String prepareCommentText(MessageText messageText, boolean nofollow) {
     if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.getText(), nofollow);
+      return lorCodeService.parseComment(messageText.text(), nofollow);
     } else {
-      return "<p>" + messageText.getText() + "</p>";
+      return "<p>" + messageText.text() + "</p>";
     }
   }
 
@@ -334,10 +330,9 @@ public class CommentPrepareService {
    * Получить RSS представление текста комментария
    *
    * @param messageText текст комментария
-   * @param secure https соединение?
    * @return строку html комментария
    */
-  private String prepareCommentTextRSS(MessageText messageText, final boolean secure) {
-    return lorCodeService.prepareTextRSS(messageText.getText(), messageText.isLorcode());
+  private String prepareCommentTextRSS(MessageText messageText) {
+    return lorCodeService.prepareTextRSS(messageText.text(), messageText.isLorcode());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -106,12 +106,12 @@ public class EditCommentController {
     if (topicPermissionService.isCommentEditableNow(comment,
             tmpl.getCurrentUser(), commentService.isHaveAnswers(comment), topic)) {
       MessageText messageText = msgbaseDao.getMessageText(original.getId());
-      commentRequest.setMsg(messageText.getText());
+      commentRequest.setMsg(messageText.text());
       commentRequest.setTitle(original.getTitle());
 
       Map<String, Object> formParams = new HashMap<>();
 
-      formParams.put("comment", commentPrepareService.prepareCommentForReplayto(comment, request.isSecure()));
+      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment));
 
       topicPermissionService.getEditDeadline(comment).ifPresent(value -> formParams.put("deadline", value.toDate()));
 
@@ -129,7 +129,6 @@ public class EditCommentController {
    * @param errors         обработчик ошибок ввода для формы
    * @param request        данные запроса от web-клиента
    * @return объект web-модели
-   * @throws Exception
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.POST)
   @CSRFNoAuto
@@ -138,14 +137,12 @@ public class EditCommentController {
     Errors errors,
     HttpServletRequest request,
     @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
-  ) throws Exception {
-    Map<String, Object> formParams = new HashMap<>();
-
+  ) {
     User user = commentService.getCommentUser(commentRequest, request, errors);
 
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors);
 
-    formParams.putAll(commentService.prepareReplyto(commentRequest, request));
+    Map<String, Object> formParams = new HashMap<>(commentService.prepareReplyto(commentRequest));
 
     String msg = commentService.getCommentBody(commentRequest, user, errors);
     Comment comment = commentService.getComment(commentRequest, user, request);
@@ -177,7 +174,7 @@ public class EditCommentController {
       return modelAndView;
     }
 
-    String originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal().getId()).getText();
+    String originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal().getId()).text();
 
     commentService.edit(
       commentRequest.getOriginal(),

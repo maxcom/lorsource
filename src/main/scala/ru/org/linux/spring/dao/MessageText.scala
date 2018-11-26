@@ -13,26 +13,30 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.group;
+package ru.org.linux.spring.dao
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import ru.org.linux.util.bbcode.LorCodeService;
+sealed trait MarkupType {
+  def id: String
+}
 
-@Service
-public class GroupInfoPrepareService {
-  @Autowired
-  private LorCodeService lorCodeService;
-
-  public PreparedGroupInfo prepareGroupInfo(Group group) {
-    String longInfo;
-
-    if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), false);
-    } else {
-      longInfo = null;
-    }
-
-    return new PreparedGroupInfo(group, longInfo);
+object MarkupType {
+  case object Html extends MarkupType {
+    override val id = "PLAIN"
   }
+
+  case object Lorcode extends MarkupType {
+    override val id = "BBCODE_TEX"
+  }
+
+//  case object Markdown extends MarkupType
+
+  def of(v: String): MarkupType = v match {
+    case Html.id      ⇒ Html
+    case Lorcode.id   ⇒ Lorcode
+    case other        ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
+  }
+}
+
+case class MessageText(text: String, markup: MarkupType) {
+  def isLorcode: Boolean = markup == MarkupType.Lorcode
 }

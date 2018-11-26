@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -211,7 +211,6 @@ public class TopicController {
     PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
-            request.isSecure(),
             tmpl.getCurrentUser(),
             messageText
     );
@@ -249,7 +248,7 @@ public class TopicController {
 
     int pages = topic.getPageCount(tmpl.getProf().getMessages());
 
-    if (page >= pages && (page > 0 || pages > 0)) {
+    if (page >= pages && page > 0) {
       if (pages==0) {
         return new ModelAndView(new RedirectView(topic.getLink()));
       } else {
@@ -394,7 +393,6 @@ public class TopicController {
     PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
-            request.isSecure(),
             tmpl.getCurrentUser(),
             messageText
     );
@@ -426,7 +424,7 @@ public class TopicController {
 
     List<Comment> commentsFiltered = cv.getCommentsForPage(true, 0, RSS_DEFAULT, ImmutableSet.of());
 
-    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered, request.isSecure());
+    List<PreparedRSSComment> commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered);
 
     params.put("commentsPrepared", commentsPrepared);
     params.put("mainURL", siteConfig.getSecureUrl());
@@ -449,7 +447,7 @@ public class TopicController {
     params.put("prevMessage", prevMessage);
     params.put("nextMessage", nextMessage);
 
-    Boolean topScroller;
+    boolean topScroller;
     SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(topic.getSectionId());
 
     if (prevMessage == null && nextMessage == null) {

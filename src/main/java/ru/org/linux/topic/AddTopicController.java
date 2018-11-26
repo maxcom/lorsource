@@ -42,7 +42,6 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
@@ -59,7 +58,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -224,9 +222,7 @@ public class AddTopicController {
 
     Group group = form.getGroup();
 
-    Map<String, Object> params = new HashMap<>();
-
-    params.putAll(prepareModel(form, tmpl.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, tmpl.getCurrentUser()));
 
     Section section = null;
 
@@ -301,7 +297,6 @@ public class AddTopicController {
               previewMsg,
               TagService.namesToRefs(tagNames),
               poll,
-              request.isSecure(),
               message,
               imageObject
       );

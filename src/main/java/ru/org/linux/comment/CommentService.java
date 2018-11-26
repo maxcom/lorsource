@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -292,12 +292,9 @@ public class CommentService {
     }
   }
 
-  public ImmutableMap<String, Object> prepareReplyto(
-    CommentRequest add,
-    HttpServletRequest request
-  ) throws UserNotFoundException {
+  public ImmutableMap<String, Object> prepareReplyto(CommentRequest add) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplayto(add.getReplyto(), request.isSecure()));
+      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplyto(add.getReplyto()));
     } else {
       return ImmutableMap.of();
     }
@@ -389,7 +386,7 @@ public class CommentService {
     Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
 
     MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
-    Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.getText());
+    Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.text());
     Set<User> userRefs = new HashSet<>();
     /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
     for (User user : newUserRefs) {

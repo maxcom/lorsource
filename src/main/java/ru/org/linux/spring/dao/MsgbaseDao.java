@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,8 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -39,11 +37,6 @@ public class MsgbaseDao {
    * Запрос тела сообщения и признака bbcode для сообщения
    */
   private static final String QUERY_MESSAGE_TEXT = "SELECT message, markup FROM msgbase WHERE id=?";
-  private static final String QUERY_MESSAGE_TEXT_FROM_WIKI =
-      "    select jam_topic_version.version_content " +
-          "    from jam_topic, jam_topic_version " +
-          "    where jam_topic.current_version_id = jam_topic_version.topic_version_id " +
-          "    and jam_topic.topic_id = ?";
 
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -57,33 +50,28 @@ public class MsgbaseDao {
 
     insertMsgbase = new SimpleJdbcInsert(dataSource);
     insertMsgbase.setTableName("msgbase");
-    insertMsgbase.usingColumns("id", "message");
+    insertMsgbase.usingColumns("id", "message", "markup");
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void saveNewMessage(String message, int msgid) {
     insertMsgbase.execute(ImmutableMap.<String, Object>of(
             "id", msgid,
-            "message", message)
+            "message", message,
+            "markup", MarkupType.Lorcode$.MODULE$.id())
     );
   }
 
-  public String getMessageTextFromWiki(int topicId) {
-    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topicId);
+  private MessageText messageTextOf(ResultSet resultSet) throws SQLException {
+    String text = resultSet.getString("message");
+    String markup = resultSet.getString("markup");
+
+    return new MessageText(text, MarkupType$.MODULE$.of(markup));
   }
 
   public MessageText getMessageText(int msgid) {
-    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT, new RowMapper<MessageText>() {
-      @Override
-      public MessageText mapRow(ResultSet resultSet, int i) throws SQLException {
-        String text = resultSet.getString("message");
-        String markup = resultSet.getString("markup");
-        boolean lorcode = !"PLAIN".equals(markup);
-
-        return new MessageText(text, lorcode);
-      }
-    }, msgid);
-  }                  
+    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT, (resultSet, i) -> messageTextOf(resultSet), msgid);
+  }
 
   public Map<Integer, MessageText> getMessageText(Collection<Integer> msgids) {
     if (msgids.isEmpty()) {
@@ -95,15 +83,8 @@ public class MsgbaseDao {
     namedJdbcTemplate.query(
             "SELECT message, markup, id FROM msgbase WHERE id IN (:list)",
             ImmutableMap.of("list", msgids),
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet resultSet) throws SQLException {
-                String text = resultSet.getString("message");
-                String markup = resultSet.getString("markup");
-                boolean lorcode = !"PLAIN".equals(markup);
-
-                out.put(resultSet.getInt("id"), new MessageText(text, lorcode));
-              }
+            resultSet -> {
+              out.put(resultSet.getInt("id"), messageTextOf(resultSet));
             });
 
     return out;

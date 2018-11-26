@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -88,7 +88,7 @@ public class GroupController {
   public ModelAndView topics(
           @RequestParam("group") int groupId,
           @RequestParam(value = "offset", required = false) Integer offsetObject
-  ) throws Exception {
+  ) {
     Group group = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
@@ -102,7 +102,7 @@ public class GroupController {
   public ModelAndView topicsLastmod(
           @RequestParam("group") int groupId,
           @RequestParam(value = "offset", required = false) Integer offsetObject
-  ) throws Exception {
+  ) {
     Group group = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
@@ -307,7 +307,7 @@ public class GroupController {
 
     params.put("section", section);
 
-    params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+    params.put("groupInfo", prepareService.prepareGroupInfo(group));
 
     if (year!=null) {
       if (year<1990 || year > 3000) {

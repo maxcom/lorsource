@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -107,7 +107,7 @@ class TagTopicListController (
     val tmpl = Template.getTemplate(request)
 
     val preparedTopics =
-      prepareService.prepareMessagesForUser(topics, request.isSecure, tmpl.getCurrentUser, tmpl.getProf, false)
+      prepareService.prepareMessagesForUser(topics, tmpl.getCurrentUser, tmpl.getProf, false)
 
     modelAndView.addObject("messages", preparedTopics)
     modelAndView.addObject("offsetNavigation", true)

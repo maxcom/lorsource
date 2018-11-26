@@ -41,7 +41,7 @@ public class GroupModificationController {
   private GroupInfoPrepareService prepareService;
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.GET)
-  public ModelAndView showForm(@RequestParam("group") int id, ServletRequest request) throws Exception {
+  public ModelAndView showForm(@RequestParam("group") int id, ServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
@@ -52,7 +52,7 @@ public class GroupModificationController {
 
     ModelAndView mv = new ModelAndView("groupmod", "group", group);
 
-    mv.getModel().put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+    mv.getModel().put("groupInfo", prepareService.prepareGroupInfo(group));
 
     return mv;
   }
@@ -67,7 +67,7 @@ public class GroupModificationController {
     @RequestParam(value = "preview", required = false) String preview,
     @RequestParam(value = "resolvable", required = false) String resolvable,
     ServletRequest request
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
@@ -83,7 +83,7 @@ public class GroupModificationController {
 
       Map<String, Object> params = new HashMap<>();
       params.put("group", group);
-      params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+      params.put("groupInfo", prepareService.prepareGroupInfo(group));
       params.put("preview", true);
 
       return new ModelAndView("groupmod", params);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -34,6 +34,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
@@ -92,26 +93,24 @@ public class TopicPrepareService {
   @Autowired
   private RemarkDao remarkDao;
   
-  public PreparedTopic prepareTopic(Topic message, boolean secure, User user) {
+  public PreparedTopic prepareTopic(Topic message, User user) {
     return prepareMessage(
             message,
             topicTagService.getTagRefs(message),
             false,
             null,
-            secure,
             user,
             msgbaseDao.getMessageText(message.getId()),
             null
     );
   }
 
-  public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, boolean secure, User user, MessageText text) {
+  public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, User user, MessageText text) {
     return prepareMessage(
             message,
             tags,
             false,
             null,
-            secure,
             user,
             text,
             null
@@ -122,7 +121,6 @@ public class TopicPrepareService {
           Topic message,
           List<TagRef> tags,
           Poll newPoll,
-          boolean secure,
           String text,
           Image image
   ) {
@@ -131,9 +129,8 @@ public class TopicPrepareService {
             tags,
             false,
             newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
-            secure,
             null,
-            new MessageText(text, true),
+            new MessageText(text, MarkupType.Lorcode$.MODULE$),
             image
     );
   }
@@ -151,7 +148,6 @@ public class TopicPrepareService {
    * @param tags список тэгов
    * @param minimizeCut сворачивать ли cut
    * @param poll опрос к топику
-   * @param secure является ли соединение https
    * @param user пользователь
    * @return подготовленный топик
    */
@@ -160,7 +156,6 @@ public class TopicPrepareService {
           List<TagRef> tags,
           boolean minimizeCut, 
           PreparedPoll poll,
-          boolean secure, 
           User user,
           MessageText text,
           @Nullable Image image) {
@@ -210,15 +205,15 @@ public class TopicPrepareService {
         if (minimizeCut) {
           String url = siteConfig.getSecureUrlWithoutSlash() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
-                  text.getText(),
+                  text.text(),
                   url,
                   !topicPermissionService.followInTopic(message, author)
           );
         } else {
-          processedMessage = lorCodeService.parseTopic(text.getText(), !topicPermissionService.followInTopic(message, author));
+          processedMessage = lorCodeService.parseTopic(text.text(), !topicPermissionService.followInTopic(message, author));
         }
       } else {
-        processedMessage = "<p>" + text.getText();
+        processedMessage = "<p>" + text.text();
       }
 
       PreparedImage preparedImage = null;
@@ -271,7 +266,6 @@ public class TopicPrepareService {
    * Подготовка ленты топиков для пользователя
    * сообщения рендерятся со свернутым cut
    * @param messages список топиков
-   * @param secure является ли соединение https
    * @param user пользователь
    * @param profile профиль пользователя
    * @param loadUserpics флаг загрузки аватар
@@ -279,7 +273,6 @@ public class TopicPrepareService {
    */
   public List<PersonalizedPreparedTopic> prepareMessagesForUser(
           List<Topic> messages,
-          boolean secure,
           User user,
           Profile profile,
           boolean loadUserpics
@@ -295,7 +288,6 @@ public class TopicPrepareService {
               tags.get(message.getId()),
               true,
               null,
-              secure,
               user,
               textMap.get(message.getId()),
               null
@@ -322,7 +314,6 @@ public class TopicPrepareService {
    * Подготовка ленты топиков, используется в TopicListController например
    * сообщения рендерятся со свернутым cut
    * @param messages список топиков
-   * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
   public List<PreparedTopic> prepareMessages(List<Topic> messages) {
@@ -337,7 +328,6 @@ public class TopicPrepareService {
               tags.get(message.getId()),
               true,
               null,
-              true,
               null,
               textMap.get(message.getId()),
               null

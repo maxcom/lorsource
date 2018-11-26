@@ -76,7 +76,7 @@ public class EditHistoryService {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    String currentMessage = msgbaseDao.getMessageText(message.getId()).getText();
+    String currentMessage = msgbaseDao.getMessageText(message.getId()).text();
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
@@ -168,7 +168,7 @@ public class EditHistoryService {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    String currentMessage = msgbaseDao.getMessageText(comment.getId()).getText();
+    String currentMessage = msgbaseDao.getMessageText(comment.getId()).text();
     String currentTitle = comment.getTitle();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {

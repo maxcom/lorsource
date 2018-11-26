@@ -124,7 +124,7 @@ public class EditTopicController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, tmpl.getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -158,7 +158,7 @@ public class EditTopicController {
 
     User user = tmpl.getCurrentUser();
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, tmpl.getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -220,7 +220,7 @@ public class EditTopicController {
     }
 
     form.setTitle(StringEscapeUtils.unescapeHtml4(message.getTitle()));
-    form.setMsg(msgbaseDao.getMessageText(message.getId()).getText());
+    form.setMsg(msgbaseDao.getMessageText(message.getId()).text());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
       form.setMinor(message.isMinor());
@@ -267,7 +267,7 @@ public class EditTopicController {
     Map<String, Object> params = new HashMap<>();
 
     final Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedTopic = prepareService.prepareTopic(message, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(message, tmpl.getCurrentUser());
     Group group = preparedTopic.getGroup();
 
     User user = tmpl.getCurrentUser();
@@ -338,7 +338,7 @@ public class EditTopicController {
     }
     
     if (form.getMsg()!=null) {
-      String oldText = msgbaseDao.getMessageText(message.getId()).getText();
+      String oldText = msgbaseDao.getMessageText(message.getId()).text();
   
       if (!oldText.equals(form.getMsg())) {
         modified = true;
@@ -414,7 +414,7 @@ public class EditTopicController {
     if (form.getMsg() != null) {
       newText = form.getMsg();
     } else {
-      newText = msgbaseDao.getMessageText(message.getId()).getText();
+      newText = msgbaseDao.getMessageText(message.getId()).text();
     }
 
     if (form.getEditorBonus() != null) {
@@ -480,7 +480,6 @@ public class EditTopicController {
                     newMsg,
                     newTags!=null?TagService.namesToRefs(newTags):null,
                     newPoll,
-                    request.isSecure(),
                     newText,
                     imageObject
             )

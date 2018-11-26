@@ -94,7 +94,6 @@ public class UncommitedTopicsController {
             "messages",
             prepareService.prepareMessagesForUser(
                     messages,
-                    request.isSecure(),
                     tmpl.getCurrentUser(),
                     tmpl.getProf(),
                     false

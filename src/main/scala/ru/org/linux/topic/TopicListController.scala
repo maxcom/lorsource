@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package ru.org.linux.topic
 
 import java.net.URLEncoder
@@ -78,7 +79,7 @@ object TopicListController {
     navTitle.toString
   }
 
-  val RssFilters = Set("all", "notalks", "tech")
+  val RssFilters: Set[String] = Set("all", "notalks", "tech")
 }
 
 @Controller
@@ -116,7 +117,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareMessagesForUser(messages, request.isSecure, tmpl.getCurrentUser, tmpl.getProf, false))
+      prepareService.prepareMessagesForUser(messages, tmpl.getCurrentUser, tmpl.getProf, false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth == null)
 

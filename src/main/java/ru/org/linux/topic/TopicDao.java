@@ -252,7 +252,7 @@ public class TopicDao {
 
     boolean modified = false;
 
-    String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
+    String oldText = msgbaseDao.getMessageText(msg.getId()).text();
 
     if (!oldText.equals(newText)) {
       editHistoryRecord.setOldmessage(oldText);

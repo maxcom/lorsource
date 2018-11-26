@@ -67,7 +67,7 @@ public class DeleteImageController {
 
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, tmpl.getCurrentUser());
 
     checkDelete(preparedTopic, tmpl.getCurrentUser());
 
@@ -88,7 +88,7 @@ public class DeleteImageController {
 
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, tmpl.getCurrentUser());
 
     checkDelete(preparedTopic, tmpl.getCurrentUser());
 

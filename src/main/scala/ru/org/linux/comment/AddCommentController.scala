@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package ru.org.linux.comment
 
 import java.util
@@ -65,7 +66,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, request).asScala + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add).asScala + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -76,7 +77,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @RequestMapping(Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest, request: HttpServletRequest): ModelAndView = {
     val tmpl = Template.getTemplate(request)
-    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, request.isSecure, tmpl.getCurrentUser)
+    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, tmpl.getCurrentUser)
 
     if (!topicPermissionService.isCommentsAllowed(preparedTopic.getGroup, add.getTopic, tmpl.getCurrentUser))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
@@ -122,7 +123,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, request).asScala ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add).asScala ++ info).asJava)
     } else {
       val msgid = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
         Optional.ofNullable(request.getHeader("user-agent")))
