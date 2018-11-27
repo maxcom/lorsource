@@ -116,7 +116,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         val postscore = topicPermissionService.getPostscore(add.getTopic)
 
         Map("postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore),
-          "comment" -> commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure))
+          "comment" -> commentPrepareService.prepareCommentForEdit(comment, msg))
       } else {
         Map.empty
       }
@@ -156,7 +156,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       if (comment != null) {
         Map("errors" -> errorsList.asJava,
-          "preview" -> commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure))
+          "preview" -> commentPrepareService.prepareCommentForEdit(comment, msg))
       } else {
         Map("errors" -> errorsList.asJava)
       }

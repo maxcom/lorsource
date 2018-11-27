@@ -54,11 +54,11 @@ public class MsgbaseDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void saveNewMessage(String message, int msgid) {
+  public void saveNewMessage(MessageText message, int msgid) {
     insertMsgbase.execute(ImmutableMap.<String, Object>of(
             "id", msgid,
-            "message", message,
-            "markup", MarkupType.Lorcode$.MODULE$.id())
+            "message", message.text(),
+            "markup", message.markup().id())
     );
   }
 

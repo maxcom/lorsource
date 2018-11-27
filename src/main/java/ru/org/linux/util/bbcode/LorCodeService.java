@@ -16,13 +16,10 @@
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.httpclient.URI;
-import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserService;
-import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -57,7 +54,7 @@ public class LorCodeService {
     return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(false, nofollow), text).renderXHtml();
   }
 
-  private String parseCommentRSS(String text) {
+  public String parseCommentRSS(String text) {
     return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(true, false), text).renderXHtml();
   }
 
@@ -69,48 +66,6 @@ public class LorCodeService {
    */
   public String extractPlainTextFromLorcode(String text) {
     return DEFAULT_PARSER.parseRoot(prepareCommentRootNode(true, false), text).renderOg();
-  }
-
-  /**
-   * Обрезать чистый текст до заданого размера
-   *
-   * @param plainText обрабатываемый текст (не lorcode!)
-   * @param maxLength обрезать текст до указанной длинны
-   * @param encodeHtml экранировать теги
-   *
-   * @return обрезанный текст
-   */
-  public String trimPlainText(String plainText, int maxLength, boolean encodeHtml) {
-    String cut;
-
-    if(plainText.length() < maxLength) {
-      cut = plainText;
-    } else {
-      cut = plainText.substring(0, maxLength).trim() + "...";
-    }
-
-    if (encodeHtml) {
-      return StringUtil.escapeForceHtml(cut);
-    } else {
-      return cut;
-    }
-  }
-
-  public String extractPlainText(MessageText text) {
-    if (text.isLorcode()) {
-      return extractPlainTextFromLorcode(text.text());
-    } else {
-      return Jsoup.parse(text.text()).text();
-    }
-  }
-
-  /**
-   * Проверяем комментарий на отсутствие текста
-   * @param msg текст
-   * @return флаг пустоты
-   */
-  public boolean isEmptyTextComment(String msg) {
-    return extractPlainTextFromLorcode(msg.trim()).isEmpty();
   }
 
   /**
@@ -172,13 +127,5 @@ public class LorCodeService {
     rootNode.setNofollow(nofollow);
 
     return rootNode;
-  }
-  
-  public String prepareTextRSS(String text, boolean lorcode) {
-    if (lorcode) {
-      return parseCommentRSS(text);
-    } else {
-      return "<p>" + text + "</p>";
-    }
   }
 }

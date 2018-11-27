@@ -34,7 +34,6 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
@@ -121,7 +120,7 @@ public class TopicPrepareService {
           Topic message,
           List<TagRef> tags,
           Poll newPoll,
-          String text,
+          MessageText text,
           Image image
   ) {
     return prepareMessage(
@@ -130,7 +129,7 @@ public class TopicPrepareService {
             false,
             newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
             null,
-            new MessageText(text, MarkupType.Lorcode$.MODULE$),
+            text,
             image
     );
   }

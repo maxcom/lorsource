@@ -17,23 +17,17 @@ package ru.org.linux.user
 
 import org.springframework.stereotype.Service
 import ru.org.linux.group.GroupDao
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
-import ru.org.linux.util.bbcode.LorCodeService
 
 import scala.collection.JavaConverters._
 
 @Service
-class UserEventPrepareService(
-  msgbaseDao:MsgbaseDao,
-  lorCodeService: LorCodeService,
-  userService:UserService,
-  deleteInfoDao:DeleteInfoDao,
-  sectionService:SectionService,
-  groupDao:GroupDao,
-  tagService: TopicTagService
-) {
+class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: MessageTextService, userService: UserService,
+                              deleteInfoDao: DeleteInfoDao, sectionService: SectionService, groupDao: GroupDao,
+                              tagService: TopicTagService) {
   /**
    * @param events      список событий
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
@@ -55,7 +49,7 @@ class UserEventPrepareService(
       val text = if (readMessage) {
         val messageText = msgbaseDao.getMessageText(msgid)
 
-        Some(lorCodeService.prepareTextRSS(messageText.text, messageText.isLorcode))
+        Some(messageTextService.renderTextRSS(messageText))
       } else {
         None
       }

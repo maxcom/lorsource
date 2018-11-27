@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.gallery.ImageService;
 import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
@@ -34,10 +34,10 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -83,13 +83,13 @@ public class TopicService {
   private DeleteInfoDao deleteInfoDao;
 
   @Autowired
-  private LorCodeService lorCodeService;
+  private MessageTextService textService;
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int addMessage(
           HttpServletRequest request,
           AddTopicRequest form,
-          String message,
+          MessageText message,
           Group group,
           User user,
           UploadedImagePreview imagePreview,
@@ -142,10 +142,10 @@ public class TopicService {
    * @param msgid идентификатор сообщения
    * @param author автор сообщения (ему не будет отправлено уведомление)
    */
-  private void sendEvents(String message, int msgid, List<String> tags, int author) {
+  private void sendEvents(MessageText message, int msgid, List<String> tags, int author) {
     Set<Integer> notifiedUsers = userEventService.getNotifiedUsers(msgid);
 
-    Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+    Set<User> userRefs = textService.mentions(message);
     userRefs = userRefs.stream()
             .filter(p -> !userService.isIgnoring(p.getId(), author))
             .collect(Collectors.toSet());
@@ -160,10 +160,8 @@ public class TopicService {
             .collect(Collectors.toSet());
 
     // не оповещать пользователей. которые ранее были оповещены через упоминание
-    Iterable<Integer> tagUsers = Iterables.filter(
-            userIdListByTags,
-            not(or(in(userRefIds), in(notifiedUsers)))
-    );
+    Iterable<Integer> tagUsers = userIdListByTags.stream()
+            .filter(not(or(in(userRefIds), in(notifiedUsers)))).collect(Collectors.toList());
 
     userEventService.addUserRefEvent(userRefIds, msgid);
     userEventService.addUserTagEvent(tagUsers, msgid);
@@ -256,7 +254,7 @@ public class TopicService {
           Topic oldMsg,
           User user,
           @Nullable List<String> newTags,
-          String newText,
+          MessageText newText,
           boolean commit,
           Integer changeGroupId,
           int bonus,
@@ -265,7 +263,7 @@ public class TopicService {
           Map<Integer, Integer> editorBonus,
           UploadedImagePreview imagePreview
   ) throws IOException {
-    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText, imagePreview);
+    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText.text(), imagePreview);
 
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());

@@ -19,6 +19,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.Template;
@@ -29,7 +30,6 @@ import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class CommentPrepareService {
   private UserDao userDao;
 
   @Autowired
-  private LorCodeService lorCodeService;
+  private MessageTextService textService;
 
   @Autowired
   private MsgbaseDao msgbaseDao;
@@ -81,7 +81,7 @@ public class CommentPrepareService {
           Template tmpl,
           Topic topic
   ) throws UserNotFoundException {
-    String processedMessage = prepareCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
+    String processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
     boolean deletable = false;
@@ -207,7 +207,7 @@ public class CommentPrepareService {
   ) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
 
-    String processedMessage = prepareCommentTextRSS(messageText);
+    String processedMessage = textService.renderTextRSS(messageText);
 
     return new PreparedRSSComment(comment, author, processedMessage);
   }
@@ -221,13 +221,12 @@ public class CommentPrepareService {
    * в комментарии не используется автор и не важно существует ли ответ и автор ответа
    * @param comment Редактируемый комментарий
    * @param message Тело комментария
-   * @param secure флаг защищенного соединения
    * @return подготовленный коментарий
    * @throws UserNotFoundException
    */
-  public PreparedComment prepareCommentForEdit(Comment comment, String message, boolean secure) throws UserNotFoundException {
+  public PreparedComment prepareCommentForEdit(Comment comment, MessageText message) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = lorCodeService.parseComment(message, false);
+    String processedMessage = textService.renderCommentText(message, false);
 
     ApiUserRef ref = userService.ref(author, null);
 
@@ -310,29 +309,5 @@ public class CommentPrepareService {
     }
 
     return commentsPrepared;
-  }
-
-  /**
-   * Получить html представление текста комментария
-   *
-   * @param messageText текст комментария
-   * @return строку html комментария
-   */
-  private String prepareCommentText(MessageText messageText, boolean nofollow) {
-    if (messageText.isLorcode()) {
-      return lorCodeService.parseComment(messageText.text(), nofollow);
-    } else {
-      return "<p>" + messageText.text() + "</p>";
-    }
-  }
-
-  /**
-   * Получить RSS представление текста комментария
-   *
-   * @param messageText текст комментария
-   * @return строку html комментария
-   */
-  private String prepareCommentTextRSS(MessageText messageText) {
-    return lorCodeService.prepareTextRSS(messageText.text(), messageText.isLorcode());
   }
 }

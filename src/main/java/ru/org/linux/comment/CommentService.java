@@ -36,8 +36,10 @@ import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryService;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -46,7 +48,6 @@ import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
@@ -89,7 +90,7 @@ public class CommentService {
   private FloodProtector floodProtector;
 
   @Autowired
-  private LorCodeService lorCodeService;
+  private MessageTextService textService;
 
   @Autowired
   private UserEventService userEventService;
@@ -112,7 +113,7 @@ public class CommentService {
           .build();
 
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new CommentRequestValidator(lorCodeService));
+    binder.setValidator(new CommentRequestValidator(textService));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 
@@ -200,12 +201,14 @@ public class CommentService {
    * @param errors          обработчик ошибок ввода для формы
    * @return текст комментария
    */
-  public String getCommentBody(
+  public MessageText getCommentBody(
     CommentRequest commentRequest,
     User user,
     Errors errors
   ) {
-    String commentBody = processMessage(commentRequest.getMsg(), commentRequest.getMode());
+    MessageText messageText = processMessage(commentRequest.getMsg(), commentRequest.getMode());
+    String commentBody = (messageText.text());
+
     if (user.isAnonymous()) {
       if (commentBody.length() > 4096) {
         errors.rejectValue("msg", null, "Слишком большое сообщение");
@@ -215,7 +218,8 @@ public class CommentService {
         errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
     }
-    return commentBody;
+
+    return messageText;
   }
 
   /**
@@ -315,7 +319,7 @@ public class CommentService {
   public int create(
           @Nonnull User author,
           @Nonnull Comment comment,
-          String commentBody,
+          MessageText commentBody,
           String remoteAddress,
           String xForwardedFor,
           Optional<String> userAgent) throws MessageNotFoundException {
@@ -326,7 +330,7 @@ public class CommentService {
 
     /* кастование пользователей */
     if (permissionService.isUserCastAllowed(author)) {
-      Set<User> userRefs = lorCodeService.getReplierFromMessage(commentBody);
+      Set<User> userRefs = textService.mentions(commentBody);
       userRefs = userRefs.stream()
               .filter(p -> !userService.isIgnoring(p.getId(), author.getId()))
               .collect(Collectors.toSet());
@@ -383,13 +387,13 @@ public class CommentService {
     msgbaseDao.updateMessage(oldComment.getId(), commentBody);
 
     /* кастование пользователей */
-    Set<User> newUserRefs = lorCodeService.getReplierFromMessage(commentBody);
+    Set<User> newUserRefs = textService.mentions(MessageText.apply(commentBody, MarkupType.Lorcode$.MODULE$));
 
     MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
-    Set<User> oldUserRefs = lorCodeService.getReplierFromMessage(messageText.text());
+    Set<User> oldUserRefs = textService.mentions(messageText);
     Set<User> userRefs = new HashSet<>();
     /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
-    for (User user : newUserRefs) {
+    for (User user :newUserRefs) {
       if (!oldUserRefs.contains(user)) {
         userRefs.add(user);
       }
@@ -546,11 +550,11 @@ public class CommentService {
    * @param mode  режим обработки
    * @return обработанная строка
    */
-  private String processMessage(String msg, String mode) {
+  private MessageText processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg);
+      return MessageText.apply(toLorCodeFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
     } else {
-      return toLorCodeTexFormatter.format(msg);
+      return MessageText.apply(toLorCodeTexFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,9 +20,13 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.comment.Comment;
+import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -105,6 +109,7 @@ public class HTMLFormatterTest {
   private ToHtmlFormatter toHtmlFormatter20;
   private ToLorCodeFormatter toLorCodeFormatter;
   private LorCodeService lorCodeService;
+  private MessageTextService textService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Before
@@ -126,7 +131,7 @@ public class HTMLFormatterTest {
     Group group15 = mock(Group.class);
     Topic messageHistory = mock(Topic.class);
     Group groupHistory = mock(Group.class);
-    CommentService commentService = mock(CommentService.class);
+    CommentDao commentDao = mock(CommentDao.class);
 
     Comment comment = mock(Comment.class);
 
@@ -154,9 +159,9 @@ public class HTMLFormatterTest {
     when(messageDao.getById(1948661)).thenReturn(message12);
     when(messageDao.getById(6944260)).thenReturn(message15);
     when(messageDao.getById(6992532)).thenReturn(messageHistory);
-    when(commentService.getById(6892917)).thenReturn(comment);
-    when(commentService.getById(1948675)).thenReturn(comment);
-    when(commentService.getById(6944831)).thenReturn(comment);
+    when(commentDao.getById(6892917)).thenReturn(comment);
+    when(commentDao.getById(1948675)).thenReturn(comment);
+    when(commentDao.getById(6944831)).thenReturn(comment);
 
     SiteConfig siteConfig = mock(SiteConfig.class);
 
@@ -166,19 +171,21 @@ public class HTMLFormatterTest {
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
     toHtmlFormatter.setMessageDao(messageDao);
-    toHtmlFormatter.setCommentService(commentService);
+    toHtmlFormatter.setCommentDao(commentDao);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
     toHtmlFormatter20.setSiteConfig(siteConfig);
     toHtmlFormatter20.setMessageDao(messageDao);
     toHtmlFormatter20.setMaxLength(20);
-    toHtmlFormatter20.setCommentService(commentService);
+    toHtmlFormatter20.setCommentDao(commentDao);
 
     toLorCodeTexFormatter = new ToLorCodeTexFormatter();
     toLorCodeFormatter = new ToLorCodeFormatter();
 
     lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
+
+    textService = new MessageTextService(lorCodeService);
   }
 
   @Test
@@ -213,7 +220,7 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testUrlParse() throws Exception {
+  public void testUrlParse() {
     assertEquals("<a href=\"http://el.wikipedia.org/wiki/%CE%AC%CE%BB%CE%BB%CE%B5%CF%82\">http://el.wikipedia.org/wiki/άλλες</a>", toHtmlFormatter.format(greek, false));
     assertEquals("<a href=\"http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;%D0%9C%D0%B0%D0%BC%D0%B0_%D0%BC%D1%8B%D0%BB%D0%B0_%D1%80%D0%B0%D0%BC%D1%83&amp;$-_.+!*'(,)=$-_.+!*'(),#anchor\">http://www.phoronix.com/scan.php?page=article&amp;item=intel_core_i7&amp;Мама...</a>", toHtmlFormatter.format(RFC1738, false));
     assertEquals("<a href=\"http://ru.wikipedia.org/wiki/%D0%9B%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D0%BD%D1%8B%D0%B9_'%D0%BD%D0%B5%D0%B3%D1%80'(Fran%C3%87ais%C5%92uvre_%D7%90)?%D0%BD%D0%B5%D0%B3%D1%80=%D1%8D%D1%84%D0%B8%D0%BE%D0%BF&amp;%D1%8D%D1%84%D0%B8%D0%BE%D0%BF\">http://ru.wikipedia.org/wiki/Литературный_'негр'(FranÇaisŒuvre_א)?негр=эфиоп&amp;...</a>", toHtmlFormatter.format(CYR_LINK, false));
@@ -511,16 +518,16 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "&amp;#9618;",
-            lorCodeService.trimPlainText(lorCodeService.extractPlainTextFromLorcode("[code]&#9618;[/code]"), 250, true)
+            textService.trimPlainText(lorCodeService.extractPlainTextFromLorcode("[code]&#9618;[/code]"), 250, true)
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
     assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
-            lorCodeService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true)
+            textService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true)
     );
     assertEquals(
         250+3,
-        lorCodeService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true).length()
+        textService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true).length()
     );
   }
 
@@ -571,12 +578,12 @@ public class HTMLFormatterTest {
 
   @Test
   public void testEmpty() {
-    assertTrue(lorCodeService.isEmptyTextComment("[br]"));
-    assertTrue(lorCodeService.isEmptyTextComment("[br] "));
-    assertTrue(lorCodeService.isEmptyTextComment("[b] [br][/b][u] "));
-    assertTrue(lorCodeService.isEmptyTextComment("[list][*][br][br][*][u][/u][/list]"));
-    assertTrue(lorCodeService.isEmptyTextComment("[url]   [/url][list][*][br][br][*][u][/u][/list][/url]"));
-    assertFalse(lorCodeService.isEmptyTextComment("[code]text[/code]"));
+    assertTrue(textService.isEmpty(MessageText.apply("[br]", MarkupType.Lorcode$.MODULE$)));
+    assertTrue(textService.isEmpty(MessageText.apply("[br] ", MarkupType.Lorcode$.MODULE$)));
+    assertTrue(textService.isEmpty(MessageText.apply("[b] [br][/b][u] ", MarkupType.Lorcode$.MODULE$)));
+    assertTrue(textService.isEmpty(MessageText.apply("[list][*][br][br][*][u][/u][/list]", MarkupType.Lorcode$.MODULE$)));
+    assertTrue(textService.isEmpty(MessageText.apply("[url]   [/url][list][*][br][br][*][u][/u][/list][/url]", MarkupType.Lorcode$.MODULE$)));
+    assertFalse(textService.isEmpty(MessageText.apply("[code]text[/code]", MarkupType.Lorcode$.MODULE$)));
   }
 
   @Test

@@ -41,6 +41,7 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
@@ -207,7 +208,7 @@ public class TopicDao {
   public int saveNewMessage(
           final Topic msg,
           final User user,
-          String text,
+          MessageText text,
           final String userAgent,
           final Group group
   ) {

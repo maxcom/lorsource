@@ -144,7 +144,7 @@ public class EditCommentController {
 
     Map<String, Object> formParams = new HashMap<>(commentService.prepareReplyto(commentRequest));
 
-    String msg = commentService.getCommentBody(commentRequest, user, errors);
+    MessageText msg = commentService.getCommentBody(commentRequest, user, errors);
     Comment comment = commentService.getComment(commentRequest, user, request);
 
     if (commentRequest.getTopic() != null) {
@@ -152,7 +152,7 @@ public class EditCommentController {
 
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore));
       topicPermissionService.checkCommentsAllowed(commentRequest.getTopic(), user, errors);
-      formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg, request.isSecure()));
+      formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg));
     }
 
     Template tmpl = Template.getTemplate(request);
@@ -179,7 +179,7 @@ public class EditCommentController {
     commentService.edit(
       commentRequest.getOriginal(),
       comment,
-      msg,
+      msg.text(),
       request.getRemoteAddr(),
       request.getHeader("X-Forwarded-For"),
       user,

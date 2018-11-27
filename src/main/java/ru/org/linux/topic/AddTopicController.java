@@ -43,6 +43,8 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
@@ -157,15 +159,11 @@ public class AddTopicController {
     return new ModelAndView("add", params);
   }
 
-  private String processMessage(String msg, String mode) {
-    if (msg == null) {
-      return "";
-    }
-
+  private MessageText processMessage(String msg, String mode) {
     if ("ntobr".equals(mode)) {
-      return toLorCodeFormatter.format(msg);
+      return MessageText.apply(toLorCodeFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
     } else {
-      return toLorCodeTexFormatter.format(msg);
+      return MessageText.apply(toLorCodeTexFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
     }
   }
 
@@ -240,14 +238,14 @@ public class AddTopicController {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу");
     }
 
-    String message = processMessage(form.getMsg(), form.getMode());
+    MessageText message = processMessage(Strings.nullToEmpty(form.getMsg()), form.getMode());
 
     if (user.isAnonymous()) {
-      if (message.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
+      if (message.text().length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
         errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
     } else {
-      if (message.length() > MAX_MESSAGE_LENGTH) {
+      if (message.text().length() > MAX_MESSAGE_LENGTH) {
         errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
     }
@@ -333,7 +331,9 @@ public class AddTopicController {
     }
   }
 
-  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session, Group group, Map<String, Object> params, Section section, User user, String message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
+  private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session,
+                                      Group group, Map<String, Object> params, Section section, User user,
+                                      MessageText message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
     session.removeAttribute("image");
 
     int msgid = topicService.addMessage(

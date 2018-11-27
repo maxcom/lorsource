@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,16 +19,18 @@ import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.auth.BadPasswordException;
+import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 public class CommentRequestValidator implements Validator {
 
-  private final LorCodeService service;
+  private final MessageTextService service;
 
-  public CommentRequestValidator(LorCodeService lorCodeService) {
-    service = lorCodeService;
+  public CommentRequestValidator(MessageTextService textService) {
+    service = textService;
   }
 
   @Override
@@ -58,7 +60,7 @@ public class CommentRequestValidator implements Validator {
         errors.rejectValue("msg", null, "комментарий не может быть пустым");
       }
 
-      if(service.isEmptyTextComment(add.getMsg())) {
+      if (service.isEmpty(MessageText.apply(add.getMsg(), MarkupType.Lorcode$.MODULE$))) {
         errors.rejectValue("msg", null, "комментарий не может быть пустым");
       }
     }

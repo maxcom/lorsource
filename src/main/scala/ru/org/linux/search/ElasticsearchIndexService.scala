@@ -16,22 +16,22 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{IndexAndType, IndexesAndTypes, TcpClient}
 import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
 import com.sksamuel.elastic4s.indexes.IndexDefinition
 import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
+import com.sksamuel.elastic4s.{IndexAndType, IndexesAndTypes, TcpClient}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.StringEscapeUtils
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentList, CommentService}
 import ru.org.linux.group.GroupDao
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicTagService}
 import ru.org.linux.user.UserDao
-import ru.org.linux.util.bbcode.LorCodeService
 
 import scala.collection.JavaConverters._
 
@@ -59,7 +59,7 @@ object ElasticsearchIndexService {
     booleanField("topic_awaits_commit")
   ).all(false)
 
-  val Analyzers = Seq(
+  val Analyzers: Seq[CustomAnalyzerDefinition] = Seq(
     CustomAnalyzerDefinition(
       "text_analyzer",
       tokenizer = StandardTokenizer,
@@ -80,7 +80,7 @@ class ElasticsearchIndexService
   groupDao: GroupDao,
   userDao: UserDao,
   topicTagService: TopicTagService,
-  lorCodeService: LorCodeService,
+  messageTextService: MessageTextService,
   msgbaseDao: MsgbaseDao,
   topicDao: TopicDao,
   commentService: CommentService,
@@ -95,7 +95,7 @@ class ElasticsearchIndexService
       if (comment.isDeleted) {
         delete(comment.getId.toString) from MessageIndexType
       } else {
-        val message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
+        val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
         indexOfComment(topic, comment, message)
       }
     }
@@ -147,7 +147,7 @@ class ElasticsearchIndexService
       if (!isTopicSearchable(topic) || comment.isDeleted) {
         delete(comment.getId.toString) from MessageIndexType
       } else {
-        val message = lorCodeService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
+        val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
         indexOfComment(topic, comment, message)
       }
     }
@@ -229,7 +229,7 @@ class ElasticsearchIndexService
       "group" -> group.getUrlName,
       "title" -> topic.getTitleUnescaped,
       "topic_title" -> topic.getTitleUnescaped,
-      "message" -> lorCodeService.extractPlainText(msgbaseDao.getMessageText(topic.getId)),
+      "message" -> messageTextService.extractPlainText(msgbaseDao.getMessageText(topic.getId)),
       "postdate" -> new DateTime(topic.getPostdate),
       "tag" -> topicTagService.getTags(topic),
       COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),

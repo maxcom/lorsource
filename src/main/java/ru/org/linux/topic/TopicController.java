@@ -31,6 +31,7 @@ import ru.org.linux.comment.*;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.group.Group;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.paginator.PagesInfo;
 import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.MoreLikeThisTopic;
@@ -48,7 +49,6 @@ import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
-import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Deadline;
@@ -105,7 +105,7 @@ public class TopicController {
   private MsgbaseDao msgbaseDao;
 
   @Autowired
-  private LorCodeService lorCodeService;
+  private MessageTextService textService;
 
   @Autowired
   private MemoriesDao memoriesDao;
@@ -204,7 +204,7 @@ public class TopicController {
     Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags);
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
-    String plainText = lorCodeService.extractPlainText(messageText);
+    String plainText = textService.extractPlainText(messageText);
 
     Template tmpl = Template.getTemplate(request);
 
@@ -278,7 +278,7 @@ public class TopicController {
     CommentList comments = commentService.getCommentList(topic, showDeleted);
 
     if (messageText.isLorcode()) {
-      params.put("ogDescription", lorCodeService.trimPlainText(plainText, 250, true));
+      params.put("ogDescription", textService.trimPlainText(plainText, 250, true));
     }
 
     params.put("page", page);

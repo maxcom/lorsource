@@ -46,6 +46,8 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
@@ -409,12 +411,12 @@ public class EditTopicController {
       newPoll = buildNewPoll(message, form);
     }
 
-    String newText;
+    MessageText newText;
 
     if (form.getMsg() != null) {
-      newText = form.getMsg();
+      newText = MessageText.apply(form.getMsg(), MarkupType.Lorcode$.MODULE$);
     } else {
-      newText = msgbaseDao.getMessageText(message.getId()).text();
+      newText = msgbaseDao.getMessageText(message.getId());
     }
 
     if (form.getEditorBonus() != null) {
