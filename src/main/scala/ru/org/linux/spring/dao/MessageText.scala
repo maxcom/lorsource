@@ -37,6 +37,4 @@ object MarkupType {
   }
 }
 
-case class MessageText(text: String, markup: MarkupType) {
-  def isLorcode: Boolean = markup == MarkupType.Lorcode
-}
+case class MessageText(text: String, markup: MarkupType)

@@ -15,27 +15,30 @@
 
 package ru.org.linux.topic
 
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
-
-import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.group.GroupDao
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
+import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{UserDao, UserErrorException}
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.OptionConverters._
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
                                   sectionService: SectionService, groupDao: GroupDao,
-                                  userDao: UserDao, searchQueueSender: SearchQueueSender) extends StrictLogging {
+                                  userDao: UserDao, searchQueueSender: SearchQueueSender,
+                                  msgbaseDao: MsgbaseDao, textService: MessageTextService) extends StrictLogging {
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
@@ -125,7 +128,20 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val newGrp = groupDao.getGroup(newgr)
 
     if (msg.getGroupId != newGrp.getId) {
-      messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser)
+      val moveInfo = if (newGrp.isLinksAllowed) {
+        val moveFrom = msg.getGroupUrl
+        val linktext = msg.getLinktext
+        val url = msg.getUrl
+
+        val markup = msgbaseDao.getMessageText(msg.getId).markup
+
+        Some(textService.moveInfo(markup, url, linktext, tmpl.getCurrentUser, moveFrom))
+      } else {
+        None
+      }
+
+      messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
+      logger.info(s"topic ${msg.getId} moved by ${tmpl.getCurrentUser.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
     }
 
     searchQueueSender.updateMessage(msg.getId, true)

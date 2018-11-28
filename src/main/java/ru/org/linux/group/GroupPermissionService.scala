@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,10 +15,10 @@
 package ru.org.linux.group
 
 import javax.annotation.Nullable
-
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.spring.dao.MarkupType
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.User
 
@@ -156,7 +156,7 @@ class GroupPermissionService(sectionService: SectionService) {
       false
     } else if (by.isAdministrator) {
       true
-    } else if (!topic.isLorcode) {
+    } else if (topic.getMarkupType == MarkupType.Html) {
       false
     } else if (by.isModerator) {
       true

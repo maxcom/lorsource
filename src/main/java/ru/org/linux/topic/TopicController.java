@@ -277,9 +277,7 @@ public class TopicController {
 
     CommentList comments = commentService.getCommentList(topic, showDeleted);
 
-    if (messageText.isLorcode()) {
-      params.put("ogDescription", textService.trimPlainText(plainText, 250, true));
-    }
+    params.put("ogDescription", textService.trimPlainText(plainText, 250, true));
 
     params.put("page", page);
     params.put("group", group);

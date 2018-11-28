@@ -15,13 +15,15 @@
 
 package ru.org.linux.markup
 
+import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
 import ru.org.linux.spring.dao.MarkupType.{Html, Lorcode}
-import ru.org.linux.spring.dao.MessageText
+import ru.org.linux.spring.dao.{MarkupType, MessageText}
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
+
 import scala.collection.JavaConverters._
 
 @Service
@@ -53,6 +55,19 @@ class MessageTextService(lorCodeService: LorCodeService) {
         lorCodeService.parseCommentRSS(messageText.text)
       case Html ⇒
         "<p>" + messageText.text + "</p>"
+    }
+  }
+
+  def renderTopic(text: MessageText, minimizeCut: Boolean, nofollow: Boolean, canonicalUrl: String): String = {
+    text.markup match {
+      case Lorcode ⇒
+        if (minimizeCut) {
+          lorCodeService.parseTopicWithMinimizedCut(text.text, canonicalUrl, nofollow)
+        } else {
+          lorCodeService.parseTopic(text.text, nofollow)
+        }
+      case Html ⇒
+        "<p>" + text.text
     }
   }
 
@@ -96,7 +111,29 @@ class MessageTextService(lorCodeService: LorCodeService) {
     }
   }
 
-  def isEmpty(text: MessageText): Boolean = {
-    extractPlainText(text).trim.isEmpty
+  def isEmpty(text: MessageText): Boolean = extractPlainText(text).trim.isEmpty
+
+  // TODO надо бы извести эту логику; для moveBy/moveFrom если история; url/linktext лучше просто показывать всегда
+  def moveInfo(markup: MarkupType, url: String, linktext: String, moveBy: User, moveFrom: String): String = {
+    /* if url is not null, update the topic text */
+    val link = if (!Strings.isNullOrEmpty(url)) {
+      markup match {
+        case Html ⇒
+          s"""<br><a href="$url">$linktext</a>
+             |<br>
+             |""".stripMargin
+        case Lorcode ⇒
+          s"""
+             |[url=$url]$linktext[/url]
+             |""".stripMargin
+      }
+    } else ""
+
+    markup match {
+      case Lorcode ⇒
+        '\n' + link + "\n\n[i]Перемещено " + moveBy.getNick + " из " + moveFrom + "[/i]\n"
+      case Html ⇒
+        '\n' + link + "<br><i>Перемещено " + moveBy.getNick + " из " + moveFrom + "</i>\n"
+    }
   }
 }

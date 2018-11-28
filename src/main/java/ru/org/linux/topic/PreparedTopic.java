@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;
@@ -34,13 +35,13 @@ public final class PreparedTopic {
   private final String processedMessage;
   private final PreparedPoll poll;
   private final User commiter;
-  private final boolean lorcode;
   private final ImmutableList<TagRef> tags;
   private final Group group;
   private final Section section;
 
   private final PreparedImage image;
-  
+
+  private final MarkupType markupType;
   private final String postscoreInfo;
 
   private final Remark remark;
@@ -56,7 +57,7 @@ public final class PreparedTopic {
           List<TagRef> tags,
           Group group,
           Section section,
-          boolean lorcode,
+          MarkupType markupType,
           PreparedImage image,
           String postscoreInfo,
           Remark remark) {
@@ -67,7 +68,7 @@ public final class PreparedTopic {
     this.processedMessage = processedMessage;
     this.poll = poll;
     this.commiter = commiter;
-    this.lorcode = lorcode;
+    this.markupType = markupType;
     this.postscoreInfo = postscoreInfo;
     if (tags!=null) {
       this.tags=ImmutableList.copyOf(tags);
@@ -124,8 +125,8 @@ public final class PreparedTopic {
     return section;
   }
 
-  public boolean isLorcode() {
-    return lorcode;
+  public MarkupType getMarkupType() {
+    return markupType;
   }
 
   public PreparedImage getImage() {

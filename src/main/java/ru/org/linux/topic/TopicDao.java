@@ -27,8 +27,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Операции над сообщениями
@@ -527,51 +528,20 @@ public class TopicDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void moveTopic(Topic msg, Group newGrp, User moveBy) {
-    String url = msg.getUrl();
-
+  public void moveTopic(Topic msg, Group newGrp, Optional<String> moveInfo) {
     int oldId = jdbcTemplate.queryForObject("SELECT groupid FROM topics WHERE id=? FOR UPDATE", Integer.class, msg.getId());
 
     if (oldId==newGrp.getId()) {
       return;
     }
 
-    boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
-
     changeGroup(msg, newGrp.getId());
 
     if (!newGrp.isLinksAllowed()) {
       jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
-
-      String title = msg.getGroupUrl();
-      String linktext = msg.getLinktext();
-
-      /* if url is not null, update the topic text */
-      String link;
-
-      if (!Strings.isNullOrEmpty(url)) {
-        if (lorcode) {
-          link = "\n[url=" + url + ']' + linktext + "[/url]\n";
-        } else {
-          link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
-        }
-      } else {
-        link = "";
-      }
-
-      String add;
-
-      if (lorcode) {
-        add = '\n' + link + "\n\n[i]Перемещено " + moveBy.getNick() + " из " + title + "[/i]\n";
-      } else {
-        add = '\n' + link + "<br><i>Перемещено " + moveBy.getNick() + " из " + title + "</i>\n";
-      }
-
-      msgbaseDao.appendMessage(msg.getId(), add);
     }
 
-    logger.info("topic " + msg.getId() + " moved" +
-          " by " + moveBy.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
+    moveInfo.ifPresent(info -> msgbaseDao.appendMessage(msg.getId(), info));
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)

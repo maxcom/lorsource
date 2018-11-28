@@ -25,6 +25,7 @@ import ru.org.linux.gallery.ImageService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollPrepareService;
@@ -38,7 +39,6 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
-import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 
 import javax.annotation.Nonnull;
@@ -66,7 +66,7 @@ public class TopicPrepareService {
   private PollPrepareService pollPrepareService;
 
   @Autowired
-  private LorCodeService lorCodeService;
+  private MessageTextService textService;
 
   @Autowired
   private SiteConfig siteConfig;
@@ -198,22 +198,10 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      String processedMessage;
+      String url = siteConfig.getSecureUrlWithoutSlash() + message.getLink();
 
-      if (text.isLorcode()) {
-        if (minimizeCut) {
-          String url = siteConfig.getSecureUrlWithoutSlash() + message.getLink();
-          processedMessage = lorCodeService.parseTopicWithMinimizedCut(
-                  text.text(),
-                  url,
-                  !topicPermissionService.followInTopic(message, author)
-          );
-        } else {
-          processedMessage = lorCodeService.parseTopic(text.text(), !topicPermissionService.followInTopic(message, author));
-        }
-      } else {
-        processedMessage = "<p>" + text.text();
-      }
+      String processedMessage =
+              textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(message, author), url);
 
       PreparedImage preparedImage = null;
 
@@ -252,7 +240,7 @@ public class TopicPrepareService {
               tags,
               group,
               section,
-              text.isLorcode(),
+              text.markup(),
               preparedImage, 
               TopicPermissionService.getPostScoreInfo(postscore),
               remark);
