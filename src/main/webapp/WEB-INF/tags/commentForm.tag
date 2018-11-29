@@ -1,6 +1,6 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -55,8 +55,8 @@
   <c:if test="${template.prof.formatMode == 'ntobr'}">
   <label for="mode">Разметка:*</label><br>
   <select id="mode" name="mode">
-  <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
-  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
+  <option value=quot <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
+  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks
   </select>  <br>
   </c:if>
 

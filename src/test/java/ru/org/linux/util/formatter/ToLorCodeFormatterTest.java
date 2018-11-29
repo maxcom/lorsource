@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,16 @@
 
 package ru.org.linux.util.formatter;
 
+import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.comment.CommentDao;
+import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.topic.TopicDao;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public class ToLorCodeFormatterTest {
   private static final String QUOTING1 = "> 1";
@@ -29,23 +36,48 @@ public class ToLorCodeFormatterTest {
   private static final String QUOTING3 = "> 1\n2\n\n3";
   private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3";
 
-  private ToLorCodeTexFormatter toLorCodeTexFormatter = new ToLorCodeTexFormatter();
-  private ToLorCodeFormatter toLorCodeFormatter = new ToLorCodeFormatter();
+  private MessageTextService textService;
+
+  @Before
+  public void init() {
+    TopicDao messageDao = mock(TopicDao.class);
+    CommentDao commentDao = mock(CommentDao.class);
+
+    SiteConfig siteConfig = mock(SiteConfig.class);
+
+    ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
+    toHtmlFormatter.setSiteConfig(siteConfig);
+    toHtmlFormatter.setMessageDao(messageDao);
+    toHtmlFormatter.setCommentDao(commentDao);
+
+    LorCodeService lorCodeService = new LorCodeService();
+    lorCodeService.setToHtmlFormatter(toHtmlFormatter);
+
+    textService = new MessageTextService(lorCodeService);
+  }
+
+  private String formatNtobr(String str) {
+    return textService.preprocessPostingText(str, "ntobr").text();
+  }
+
+  private String format(String str) {
+    return textService.preprocessPostingText(str, "lorcode").text();
+  }
 
   @Test
   public void testToLorCodeTexFormatter() {
-    assertEquals(RESULT_QUOTING1, toLorCodeTexFormatter.format(QUOTING1));
-    assertEquals(RESULT_QUOTING2, toLorCodeTexFormatter.format(QUOTING2));
-    assertEquals(RESULT_QUOTING3, toLorCodeTexFormatter.format(QUOTING3));
+    assertEquals(RESULT_QUOTING1, format(QUOTING1));
+    assertEquals(RESULT_QUOTING2, format(QUOTING2));
+    assertEquals(RESULT_QUOTING3, format(QUOTING3));
 
-    assertEquals("[quote]test[br][/quote]test", toLorCodeTexFormatter.format(">test\n\ntest")); // 4
-    assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest")); // 1
-    assertEquals("test\n\n[quote]test[/quote]", toLorCodeTexFormatter.format("test\n\n>test")); // 7
-    assertEquals("test &", toLorCodeTexFormatter.format("test &")); // 8
-    assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest")); // 9
-    assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest")); // 10
-    assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest")); // 11
-    assertEquals("[quote]test[br]test[/quote]", toLorCodeFormatter.format(">test\n>test")); // 12
+    assertEquals("[quote]test[br][/quote]test", format(">test\n\ntest")); // 4
+    assertEquals("test\n\ntest\ntest", format("test\n\ntest\ntest")); // 1
+    assertEquals("test\n\n[quote]test[/quote]", format("test\n\n>test")); // 7
+    assertEquals("test &", formatNtobr("test &")); // 8
+    assertEquals("test[br]test", formatNtobr("test\r\ntest")); // 9
+    assertEquals("test[br]test", formatNtobr("test\ntest")); // 10
+    assertEquals("[quote]test[br][/quote]test", formatNtobr(">test\ntest")); // 11
+    assertEquals("[quote]test[br]test[/quote]", formatNtobr(">test\n>test")); // 12
   }
 
   @Test
@@ -65,8 +97,8 @@ public class ToLorCodeFormatterTest {
 
   @Test
   public void codeEscape() {
-    assertEquals("[code][/code]", toLorCodeTexFormatter.format("[code][/code]"));
-    assertEquals("[code=perl][/code]", toLorCodeTexFormatter.format("[code=perl][/code]"));
+    assertEquals("[code][/code]", format("[code][/code]"));
+    assertEquals("[code=perl][/code]", format("[code=perl][/code]"));
   }
 
   @Test
@@ -75,7 +107,7 @@ public class ToLorCodeFormatterTest {
             "[quote] test [br][/quote][code]\n" +
             "> test\n" +
             "[/code]",
-            toLorCodeTexFormatter.format(
+            format(
                     "> test \n\n"+
                     "[code]\n"+
                     "> test\n"+
@@ -86,7 +118,7 @@ public class ToLorCodeFormatterTest {
             "[quote] test [br][/quote][code]\n" +
             "> test\n" +
             "[/code]",
-            toLorCodeTexFormatter.format(
+            format(
                     "> test \n"+
                     "[code]\n"+
                     "> test\n"+
@@ -95,7 +127,7 @@ public class ToLorCodeFormatterTest {
 
     assertEquals(
             "[quote] test [br] [[code]] [br] test [/quote]",
-            toLorCodeTexFormatter.format(
+            format(
                     "> test \n"+
                     "> [code] \n"+
                     "> test \n")
@@ -103,7 +135,7 @@ public class ToLorCodeFormatterTest {
 
     assertEquals(
             "[quote] test [[code]] [br] test[br] test [[/code]][/quote]",
-            toLorCodeTexFormatter.format(
+            format(
                     "> test [code] \n"+
                     "> test\n"+
                     "> test [/code]\n")
@@ -112,21 +144,21 @@ public class ToLorCodeFormatterTest {
     assertEquals(
             "[code]test[/code]\n" +
             "[quote] test[/quote]",
-            toLorCodeTexFormatter.format(
+            format(
                     "[code]test[/code]\n"+
                     "> test\n")
     );
 
     assertEquals(
             "[[code]] test",
-            toLorCodeTexFormatter.format(
+            format(
               "[[code]] test"
             )
     );
 
     assertEquals(
             "[quote] [[code]] test[/quote]",
-            toLorCodeTexFormatter.format(
+            format(
               "> [[code]] test"
             )
     );
@@ -134,7 +166,7 @@ public class ToLorCodeFormatterTest {
     assertEquals(
             "[[code]] test\n" +
             "[quote] test[/quote]",
-            toLorCodeTexFormatter.format(
+            format(
               "[[code]] test\n" +
               "> test\n"
             )
@@ -145,8 +177,8 @@ public class ToLorCodeFormatterTest {
   @Test
   public void againQuoteFormatter() {
     assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
-        toLorCodeFormatter.format(">one\n>>two\n>one\n>>>three"));
+        formatNtobr(">one\n>>two\n>one\n>>>three"));
     assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
-        toLorCodeTexFormatter.format(">one\n>>two\n>one\n>>>three"));
+            format(">one\n>>two\n>one\n>>>three"));
   }
 }

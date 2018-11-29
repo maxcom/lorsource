@@ -23,6 +23,9 @@ import ru.org.linux.comment.Comment;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.ImageService;
+import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagRef;
@@ -34,7 +37,6 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.user.UserService;
-import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 
 import java.util.ArrayList;
@@ -53,7 +55,7 @@ public class EditHistoryService {
   private UserService userService;
 
   @Autowired
-  private LorCodeService lorCodeService;
+  private MessageTextService textService;
   
   @Autowired
   private MsgbaseDao msgbaseDao;
@@ -76,7 +78,9 @@ public class EditHistoryService {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    String currentMessage = msgbaseDao.getMessageText(message.getId()).text();
+    MessageText messageText = msgbaseDao.getMessageText(message.getId());
+    String currentMessage = messageText.text();
+    MarkupType markup = messageText.markup();
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
@@ -90,7 +94,7 @@ public class EditHistoryService {
 
       editHistories.add(
         new PreparedEditHistory(
-          lorCodeService,
+                textService,
           userDao.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
@@ -102,7 +106,8 @@ public class EditHistoryService {
           false,
           dto.getOldminor() != null ? currentMinor : null,
           dto.getOldimage() != null && currentImage !=null ? currentImage : null,
-          currentImage == null && dto.getOldimage()!=null
+          currentImage == null && dto.getOldimage()!=null,
+          markup
         )
       );
 
@@ -146,7 +151,7 @@ public class EditHistoryService {
       }
 
       editHistories.add(new PreparedEditHistory(
-              lorCodeService,
+              textService,
               userDao.getUserCached(message.getUid()),
               message.getPostdate(),
               currentMessage,
@@ -158,7 +163,8 @@ public class EditHistoryService {
               true,
               null,
               currentImage,
-              false));
+              false,
+              markup));
     }
 
     return editHistories;
@@ -168,7 +174,9 @@ public class EditHistoryService {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(comment.getId(), EditHistoryObjectTypeEnum.COMMENT);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    String currentMessage = msgbaseDao.getMessageText(comment.getId()).text();
+    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+    MarkupType markup = messageText.markup();
+    String currentMessage = messageText.text();
     String currentTitle = comment.getTitle();
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
@@ -176,7 +184,7 @@ public class EditHistoryService {
 
       editHistories.add(
         new PreparedEditHistory(
-          lorCodeService,
+                textService,
           userDao.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
@@ -187,7 +195,7 @@ public class EditHistoryService {
           i == 0,
           false,
           null,
-                null, false)
+                null, false, markup)
       );
 
       if (dto.getOldmessage() != null) {
@@ -202,7 +210,7 @@ public class EditHistoryService {
     if (!editInfoDTOs.isEmpty()) {
       editHistories.add(
         new PreparedEditHistory(
-          lorCodeService,
+                textService,
           userDao.getUserCached(comment.getUserid()),
           comment.getPostdate(),
           currentMessage,
@@ -213,7 +221,7 @@ public class EditHistoryService {
           false,
           true,
           null,
-                null, false)
+                null, false, markup)
       );
     }
 
@@ -222,10 +230,6 @@ public class EditHistoryService {
 
   public List<EditHistoryRecord> getEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
     return editHistoryDao.getEditInfo(id, objectTypeEnum);
-  }
-
-  public List<BriefEditInfo> getBriefEditInfo(int id, EditHistoryObjectTypeEnum objectTypeEnum) {
-    return editHistoryDao.getBriefEditInfo(id, objectTypeEnum);
   }
 
   public int editCount(int id, EditHistoryObjectTypeEnum objectTypeEnum) {

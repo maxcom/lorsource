@@ -23,6 +23,7 @@ import ru.org.linux.spring.dao.{MarkupType, MessageText}
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
+import ru.org.linux.util.formatter.ToLorCodeTexFormatter
 
 import scala.collection.JavaConverters._
 
@@ -80,28 +81,6 @@ class MessageTextService(lorCodeService: LorCodeService) {
     }
   }
 
-  /**
-    * Обрезать чистый текст до заданого размера
-    *
-    * @param plainText  обрабатываемый текст (не lorcode!)
-    * @param maxLength  обрезать текст до указанной длинны
-    * @param encodeHtml экранировать теги
-    * @return обрезанный текст
-    */
-  def trimPlainText(plainText: String, maxLength: Int, encodeHtml: Boolean): String = {
-    val cut = if (plainText.length < maxLength) {
-      plainText
-    } else {
-      plainText.substring(0, maxLength).trim + "..."
-    }
-
-    if (encodeHtml) {
-      StringUtil.escapeForceHtml(cut)
-    } else {
-      cut
-    }
-  }
-
   def mentions(text: MessageText): java.util.Set[User] = {
     text.markup match {
       case Lorcode ⇒
@@ -134,6 +113,48 @@ class MessageTextService(lorCodeService: LorCodeService) {
         '\n' + link + "\n\n[i]Перемещено " + moveBy.getNick + " из " + moveFrom + "[/i]\n"
       case Html ⇒
         '\n' + link + "<br><i>Перемещено " + moveBy.getNick + " из " + moveFrom + "</i>\n"
+    }
+  }
+}
+
+object MessageTextService {
+  /**
+    * Предобработка нового сообщения. При редактировании не используется.
+    *
+    * По сути костыли, которым надо переехать на фазу рендеринга.
+    *
+    * @param message текст нового сообщения из формы
+    * @param mode режим постинга (lorcode или ntobr)
+    * @return обработанный текст для сохранения и рендеринга
+    */
+  def preprocessPostingText(message: String, mode: String): MessageText = {
+    mode match {
+      case "ntobr" ⇒
+        MessageText.apply(ToLorCodeTexFormatter.quote(message, "[br]"), MarkupType.Lorcode)
+      case "lorcode" ⇒
+        MessageText.apply(ToLorCodeTexFormatter.quote(message, "\n"), MarkupType.Lorcode)
+    }
+  }
+
+  /**
+    * Обрезать чистый текст до заданого размера
+    *
+    * @param plainText  обрабатываемый текст (не lorcode!)
+    * @param maxLength  обрезать текст до указанной длинны
+    * @param encodeHtml экранировать теги
+    * @return обрезанный текст
+    */
+  def trimPlainText(plainText: String, maxLength: Int, encodeHtml: Boolean): String = {
+    val cut = if (plainText.length < maxLength) {
+      plainText
+    } else {
+      plainText.substring(0, maxLength).trim + "..."
+    }
+
+    if (encodeHtml) {
+      StringUtil.escapeForceHtml(cut)
+    } else {
+      cut
     }
   }
 }

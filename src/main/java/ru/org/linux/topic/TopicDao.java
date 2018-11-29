@@ -17,8 +17,6 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,9 +25,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.edithistory.EditHistoryDao;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryRecord;
-import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.UploadedImagePreview;
@@ -62,8 +60,6 @@ import java.util.Optional;
 
 @Repository
 public class TopicDao {
-  private static final Logger logger = LoggerFactory.getLogger(TopicDao.class);
-
   @Autowired
   private GroupDao groupDao;
 
@@ -80,7 +76,7 @@ public class TopicDao {
   private DeleteInfoDao deleteInfoDao; // TODO move to TopicService
 
   @Autowired
-  private EditHistoryService editHistoryService; // TODO move to TopicService
+  private EditHistoryDao editHistoryDao; // TODO move to TopicService
 
   @Autowired
   private ImageDao imageDao; // TODO move to TopicService
@@ -336,7 +332,7 @@ public class TopicDao {
     }
 
     if (modified) {
-      editHistoryService.insert(editHistoryRecord);
+      editHistoryDao.insert(editHistoryRecord);
       updateLastmod(msg.getId(), false);
     }
 

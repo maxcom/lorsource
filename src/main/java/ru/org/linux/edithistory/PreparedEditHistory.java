@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,10 +15,12 @@
 
 package ru.org.linux.edithistory;
 
+import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.topic.PreparedImage;
 import ru.org.linux.user.User;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +42,7 @@ public class PreparedEditHistory {
   private final boolean imageDeleted;
 
   public PreparedEditHistory(
-          LorCodeService lorCodeService,
+          MessageTextService lorCodeService,
           @Nonnull User editor,
           Date editdate,
           String message,
@@ -52,7 +54,8 @@ public class PreparedEditHistory {
           boolean original,
           @Nullable Boolean minor,
           PreparedImage image,
-          Boolean imageDeleted) {
+          Boolean imageDeleted,
+          MarkupType markup) {
     this.original = original;
 
     this.editor = editor;
@@ -60,7 +63,7 @@ public class PreparedEditHistory {
     this.imageDeleted = imageDeleted;
 
     if (message!=null) {
-      this.message = lorCodeService.parseComment(message, false);
+      this.message = lorCodeService.renderCommentText(MessageText.apply(message, markup), false);
     } else {
       this.message = null;
     }

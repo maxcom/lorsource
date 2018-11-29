@@ -48,8 +48,6 @@ import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.formatter.ToLorCodeFormatter;
-import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
@@ -73,12 +71,6 @@ public class CommentService {
 
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private ToLorCodeFormatter toLorCodeFormatter;
-
-  @Autowired
-  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
   private CaptchaService captcha;
@@ -206,7 +198,7 @@ public class CommentService {
     User user,
     Errors errors
   ) {
-    MessageText messageText = processMessage(commentRequest.getMsg(), commentRequest.getMode());
+    MessageText messageText = MessageTextService.preprocessPostingText(commentRequest.getMsg(), commentRequest.getMode());
     String commentBody = (messageText.text());
 
     if (user.isAnonymous()) {
@@ -541,21 +533,6 @@ public class CommentService {
     }
 
     return logMessage.toString();
-  }
-
-  /**
-   * Обработать тект комментария посредством парсеров (LorCode или Tex).
-   *
-   * @param msg   текст комментария
-   * @param mode  режим обработки
-   * @return обработанная строка
-   */
-  private MessageText processMessage(String msg, String mode) {
-    if ("ntobr".equals(mode)) {
-      return MessageText.apply(toLorCodeFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
-    } else {
-      return MessageText.apply(toLorCodeTexFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
-    }
   }
 
   @Nonnull

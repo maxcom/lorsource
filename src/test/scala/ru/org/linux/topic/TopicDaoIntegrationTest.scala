@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.GroupDao
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
@@ -113,4 +114,7 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def lorcodeService = Mockito.mock(classOf[LorCodeService])
+
+  @Bean
+  def textService = Mockito.mock(classOf[MessageTextService])
 }

@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -114,7 +114,7 @@ $script.ready('plugins', function() {
 <tr>
   <td valign=top>Форматирование по умолчанию</td>
   <td>
-      <label><input type=radio name=format_mode id="format-quot"  value="quot" <c:if test="${template.formatMode == 'quot' }">checked</c:if> >TeX paragraphs (default)</label>
+      <label><input type=radio name=format_mode id="format-lorcode"  value="lorcode" <c:if test="${template.formatMode == 'lorcode' }">checked</c:if> >LORCODE</label>
       <label><input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> >User line break</label>
   </td>
 </tr>

@@ -37,13 +37,13 @@ import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
@@ -52,8 +52,6 @@ import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.UserService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.formatter.ToLorCodeFormatter;
-import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -86,12 +84,6 @@ public class AddTopicController {
 
   @Autowired
   private TopicPrepareService prepareService;
-
-  @Autowired
-  private ToLorCodeFormatter toLorCodeFormatter;
-
-  @Autowired
-  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
   private GroupPermissionService groupPermissionService;
@@ -157,14 +149,6 @@ public class AddTopicController {
     }
 
     return new ModelAndView("add", params);
-  }
-
-  private MessageText processMessage(String msg, String mode) {
-    if ("ntobr".equals(mode)) {
-      return MessageText.apply(toLorCodeFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
-    } else {
-      return MessageText.apply(toLorCodeTexFormatter.format(msg), MarkupType.Lorcode$.MODULE$);
-    }
   }
 
   private ImmutableMap<String, Object> prepareModel(AddTopicRequest form, User currentUser) {
@@ -238,7 +222,11 @@ public class AddTopicController {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу");
     }
 
-    MessageText message = processMessage(Strings.nullToEmpty(form.getMsg()), form.getMode());
+    if (form.getMode()==null) {
+      form.setMode(tmpl.getFormatMode());
+    }
+
+    MessageText message = MessageTextService.preprocessPostingText(Strings.nullToEmpty(form.getMsg()), form.getMode());
 
     if (user.isAnonymous()) {
       if (message.text().length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {

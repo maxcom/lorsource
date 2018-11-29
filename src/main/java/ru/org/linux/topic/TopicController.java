@@ -277,7 +277,7 @@ public class TopicController {
 
     CommentList comments = commentService.getCommentList(topic, showDeleted);
 
-    params.put("ogDescription", textService.trimPlainText(plainText, 250, true));
+    params.put("ogDescription", MessageTextService.trimPlainText(plainText, 250, true));
 
     params.put("page", page);
     params.put("group", group);

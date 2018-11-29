@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
-import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.spring.SiteConfig;
@@ -31,8 +30,6 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
-import ru.org.linux.util.formatter.ToLorCodeFormatter;
-import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -107,10 +104,8 @@ public class HTMLFormatterTest {
 
   private ToHtmlFormatter toHtmlFormatter;
   private ToHtmlFormatter toHtmlFormatter20;
-  private ToLorCodeFormatter toLorCodeFormatter;
   private LorCodeService lorCodeService;
   private MessageTextService textService;
-  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Before
   public void init() throws Exception {
@@ -179,9 +174,6 @@ public class HTMLFormatterTest {
     toHtmlFormatter20.setMaxLength(20);
     toHtmlFormatter20.setCommentDao(commentDao);
 
-    toLorCodeTexFormatter = new ToLorCodeTexFormatter();
-    toLorCodeFormatter = new ToLorCodeFormatter();
-
     lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
@@ -232,13 +224,13 @@ public class HTMLFormatterTest {
   @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
-    assertEquals("<a href=\"https://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68...</a>",
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">привет3</a>",
         toHtmlFormatter.format(url1,false));
     String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
-    assertEquals("<a href=\"https://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">привет12</a>",
         toHtmlFormatter.format(url3,false));
     String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    assertEquals("<a href=\"https://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comme...</a>",
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">привет15</a>",
         toHtmlFormatter.format(url15, false));
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
@@ -321,11 +313,11 @@ public class HTMLFormatterTest {
 
     for(int i = 0; i<text.length; i++){
       String entry = text[i];
-      assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry));
-      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry), false));
+      assertEquals(bb_tex[i], MessageTextService.preprocessPostingText(entry, "lorcode").text());
+      assertEquals(html_tex[i], lorCodeService.parseComment(MessageTextService.preprocessPostingText(entry, "lorcode").text(), false));
 
-      assertEquals(bb[i], toLorCodeFormatter.format(entry));
-      assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry), false));
+      assertEquals(bb[i], MessageTextService.preprocessPostingText(entry, "ntobr").text());
+      assertEquals(html[i], lorCodeService.parseComment(MessageTextService.preprocessPostingText(entry, "ntobr").text(), false));
     }
   }
 
@@ -347,15 +339,15 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a)
+        MessageTextService.preprocessPostingText(a, "ntobr").text()
     );
     assertEquals(
         "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a)
+        MessageTextService.preprocessPostingText(a, "lorcode").text()
     );
 
     // toLorCodeFormatter.format(a)
-    String b = toLorCodeFormatter.format(a);
+    String b = MessageTextService.preprocessPostingText(a, "ntobr").text();
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
@@ -374,7 +366,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = toLorCodeTexFormatter.format(a);
+    b = MessageTextService.preprocessPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -398,15 +390,15 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a)
+        MessageTextService.preprocessPostingText(a, "ntobr").text()
     );
     assertEquals(
         "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a)
+            MessageTextService.preprocessPostingText(a, "lorcode").text()
     );
 
     // toLorCodeFormatter.format(a, true)
-    String b = toLorCodeFormatter.format(a);
+    String b = MessageTextService.preprocessPostingText(a, "ntobr").text();
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
@@ -425,7 +417,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = toLorCodeTexFormatter.format(a);
+    b = MessageTextService.preprocessPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -449,15 +441,15 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
-        toLorCodeFormatter.format(a)
+            MessageTextService.preprocessPostingText(a, "ntobr").text()
     );
     assertEquals(
         "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
-        toLorCodeTexFormatter.format(a)
+            MessageTextService.preprocessPostingText(a, "lorcode").text()
     );
 
     // toLorCodeFormatter.format(a)
-    String b = toLorCodeFormatter.format(a);
+    String b = MessageTextService.preprocessPostingText(a, "ntobr").text();
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
@@ -476,7 +468,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = toLorCodeTexFormatter.format(a);
+    b = MessageTextService.preprocessPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -518,16 +510,16 @@ public class HTMLFormatterTest {
     );
     assertEquals(
         "&amp;#9618;",
-            textService.trimPlainText(lorCodeService.extractPlainTextFromLorcode("[code]&#9618;[/code]"), 250, true)
+            MessageTextService.trimPlainText(lorCodeService.extractPlainTextFromLorcode("[code]&#9618;[/code]"), 250, true)
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
     assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
-            textService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true)
+            MessageTextService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true)
     );
     assertEquals(
         250+3,
-        textService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true).length()
+        MessageTextService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true).length()
     );
   }
 

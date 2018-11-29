@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.{MultipartHttpServletRequest, MultipartRequest}
-import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
+import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserDao}
@@ -36,7 +36,7 @@ import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 @Service
-class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
+class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
                    topicDao: TopicDao, userDao: UserDao, siteConfig: SiteConfig,
                    val transactionManager: PlatformTransactionManager)
   extends StrictLogging with TransactionManagement {
@@ -53,7 +53,7 @@ class ImageService(imageDao: ImageDao, editHistoryService: EditHistoryService,
       info.setObjectType(EditHistoryObjectTypeEnum.TOPIC)
 
       imageDao.deleteImage(image)
-      editHistoryService.insert(info)
+      editHistoryDao.insert(info)
       topicDao.updateLastmod(image.getTopicId, false)
     }
   }

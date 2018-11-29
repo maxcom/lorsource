@@ -16,7 +16,6 @@
 package ru.org.linux.util.formatter;
 
 import com.google.common.base.Strings;
-import org.springframework.stereotype.Service;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,12 +24,14 @@ import java.util.regex.Pattern;
  * Формирует сообщение с TeX переносами для сохранения в базе
  * Основная функции: экранирование тэга code и выделение цитат
  */
-@Service
 public class ToLorCodeTexFormatter {
-  private static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
+  private static final Pattern QUOTE_PATTERN = Pattern.compile("^(>+)");
   private static final Pattern CODE_PATTERN = Pattern.compile("(?:[^\\[]|^)\\[code(:?=[\\w\\s]+)?]");
   private static final Pattern CODE_END_PATTERN = Pattern.compile("\\[/code]");
   private static final Pattern NL_REGEXP = Pattern.compile("\r?\n");
+
+  private ToLorCodeTexFormatter() {
+  }
 
   public static String quote(String text, String newLine) {
     StringBuilder buf = new StringBuilder();
@@ -88,11 +89,7 @@ public class ToLorCodeTexFormatter {
 
         Matcher codeEndMatcher = CODE_END_PATTERN.matcher(line);
         if (codeEndMatcher.find()) {
-          if (globalNestingLevel>0) {
-            line = escapeCode(line);
-          } else {
-            isCode = false;
-          }
+          isCode = false;
         }
 
         buf.append(line);
@@ -114,18 +111,9 @@ public class ToLorCodeTexFormatter {
     return buf.toString();
   }
 
-  /**
-   * Форматирует текст
-   * @param text текст
-   * @return отформатированный текст
-   */
-  public String format(String text) {
-    return quote(text, "\n");
-  }
-
   private static final Pattern CODE_ESCAPE_REGEXP = Pattern.compile("([^\\[]|^)\\[(/?code(:?=[\\w\\s]+)?)]");
 
-  public static String escapeCode(String text) {
+  static String escapeCode(String text) {
     return CODE_ESCAPE_REGEXP.matcher(text).replaceAll("$1[[$2]]");
   }
 }
