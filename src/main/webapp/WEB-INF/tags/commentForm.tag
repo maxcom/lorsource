@@ -55,7 +55,7 @@
   <c:if test="${template.prof.formatMode == 'ntobr'}">
   <label for="mode">Разметка:*</label><br>
   <select id="mode" name="mode">
-  <option value=quot <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
+  <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
   <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks
   </select>  <br>
   </c:if>
