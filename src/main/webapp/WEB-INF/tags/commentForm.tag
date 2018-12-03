@@ -18,6 +18,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
@@ -29,7 +30,9 @@
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
 <%@ attribute name="postscoreInfo" required="true" type="java.lang.String" %>
-<form method="POST" action="${form_action_url}" id="commentForm">
+<%@ attribute name="modes" required="true" type="java.util.Map" %>
+
+<form:form modelAttribute="add" method="POST" action="${form_action_url}" id="commentForm">
   <lor:csrf/>
   <c:if test="${!template.sessionAuthorized}">
     <div class="control-group">
@@ -52,13 +55,11 @@
   <c:if test="${original != null}">
     <input type="hidden" name="original" value="${original}">
   </c:if>
-  <c:if test="${template.prof.formatMode == 'ntobr'}">
-  <label for="mode">Разметка:*</label><br>
-  <select id="mode" name="mode">
-  <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
-  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks
-  </select>  <br>
+  <c:if test="${not empty modes}">
+    <label>Разметка:*<br>
+      <form:select path="mode" items="${modes}"/></label><br>
   </c:if>
+
 
   <div class="control-group">
     <label for="title">Заглавие</label>
@@ -125,4 +126,4 @@
   </c:if>
     <div class="help-block">Используйте Ctrl-Enter для размещения комментария</div>
   </div>
-</form>
+</form:form>

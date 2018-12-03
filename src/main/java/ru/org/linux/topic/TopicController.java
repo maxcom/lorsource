@@ -362,6 +362,14 @@ public class TopicController {
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
+    if (tmpl.getProf().getFormatMode().equals("ntobr")) {
+      params.put("modes", MessageTextService.PostingModesJava());
+    }
+
+    CommentRequest add = new CommentRequest();
+    add.setMode(tmpl.getFormatMode());
+    params.put("add", add);
+
     if (pages>1 && !showDeleted) {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }

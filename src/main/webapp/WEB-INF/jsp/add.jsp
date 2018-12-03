@@ -3,7 +3,7 @@
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%@ page import="ru.org.linux.gallery.Image" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -149,7 +149,7 @@
       </p>
   </c:if>
 
-<c:if test="${template.prof.formatMode == 'ntobr'}">
+<c:if test="${not empty modes}">
 <label>Разметка:*<br>
 <form:select path="mode" items="${modes}"/></label><br>
 </c:if>

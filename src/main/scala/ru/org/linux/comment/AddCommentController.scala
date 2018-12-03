@@ -17,10 +17,10 @@ package ru.org.linux.comment
 
 import java.util
 import java.util.Optional
-import javax.servlet.http.HttpServletRequest
-import javax.validation.Valid
 
 import akka.actor.ActorRef
+import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.{AccessViolationException, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
@@ -46,6 +47,17 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+
+  @ModelAttribute("modes")
+  def getModes(request: HttpServletRequest): util.Map[String, String] = {
+    val tmpl = Template.getTemplate(request)
+
+    (if (tmpl.getProf.getFormatMode == "ntobr") {
+      MessageTextService.PostingModes
+    } else {
+      Map[String, String]()
+    }).asJava
+  }
 
   /**
     * Показ формы добавления ответа на комментарий.

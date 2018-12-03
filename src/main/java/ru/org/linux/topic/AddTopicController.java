@@ -416,8 +416,14 @@ public class AddTopicController {
   }
 
   @ModelAttribute("modes")
-  public Map<String, String> getModes() {
-    return ImmutableMap.of("lorcode", "LORCODE", "ntobr", "User line break");
+  public Map<String, String> getModes(HttpServletRequest request) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (tmpl.getProf().getFormatMode().equals("ntobr")) {
+      return MessageTextService.PostingModesJava();
+    } else {
+      return ImmutableMap.of();
+    }
   }
 
   public static String getAddUrl(Section section, String tag) {

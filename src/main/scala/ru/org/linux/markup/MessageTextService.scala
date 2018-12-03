@@ -118,6 +118,9 @@ class MessageTextService(lorCodeService: LorCodeService) {
 }
 
 object MessageTextService {
+  val PostingModes: Map[String, String] = Map("lorcode" -> "LORCODE", "ntobr" -> "User line break")
+  val PostingModesJava: java.util.Map[String, String] = PostingModes.asJava
+
   /**
     * Предобработка нового сообщения. При редактировании не используется.
     *

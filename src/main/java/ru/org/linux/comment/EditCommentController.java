@@ -15,6 +15,7 @@
 
 package ru.org.linux.comment;
 
+import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.csrf.CSRFNoAuto;
+import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.MessageText;
@@ -77,6 +79,17 @@ public class EditCommentController {
   @ModelAttribute("ipBlockInfo")
   private IPBlockInfo loadIPBlock(HttpServletRequest request) {
     return ipBlockDao.getBlockInfo(request.getRemoteAddr());
+  }
+
+  @ModelAttribute("modes")
+  public Map<String, String> getModes(HttpServletRequest request) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (tmpl.getProf().getFormatMode().equals("ntobr")) {
+      return MessageTextService.PostingModesJava();
+    } else {
+      return ImmutableMap.of();
+    }
   }
 
   /**
