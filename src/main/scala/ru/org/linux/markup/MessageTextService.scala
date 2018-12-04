@@ -29,6 +29,9 @@ import scala.collection.JavaConverters._
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService) {
+  // раньше это делалось при постинге, теперь будем делать при рендеринге
+  private def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
+
   /**
     * Получить html представление текста комментария
     *
@@ -38,7 +41,7 @@ class MessageTextService(lorCodeService: LorCodeService) {
   def renderCommentText(messageText: MessageText, nofollow: Boolean): String = {
     messageText.markup match {
       case Lorcode ⇒
-        lorCodeService.parseComment(messageText.text, nofollow)
+        lorCodeService.parseComment(prepareLorcode(messageText.text), nofollow)
       case Html ⇒
         "<p>" + messageText.text + "</p>"
     }
@@ -53,7 +56,7 @@ class MessageTextService(lorCodeService: LorCodeService) {
   def renderTextRSS(messageText: MessageText): String = {
     messageText.markup match {
       case Lorcode ⇒
-        lorCodeService.parseCommentRSS(messageText.text)
+        lorCodeService.parseCommentRSS(prepareLorcode(messageText.text))
       case Html ⇒
         "<p>" + messageText.text + "</p>"
     }
@@ -63,9 +66,9 @@ class MessageTextService(lorCodeService: LorCodeService) {
     text.markup match {
       case Lorcode ⇒
         if (minimizeCut) {
-          lorCodeService.parseTopicWithMinimizedCut(text.text, canonicalUrl, nofollow)
+          lorCodeService.parseTopicWithMinimizedCut(prepareLorcode(text.text), canonicalUrl, nofollow)
         } else {
-          lorCodeService.parseTopic(text.text, nofollow)
+          lorCodeService.parseTopic(prepareLorcode(text.text), nofollow)
         }
       case Html ⇒
         "<p>" + text.text
@@ -75,7 +78,7 @@ class MessageTextService(lorCodeService: LorCodeService) {
   def extractPlainText(text: MessageText): String = {
     text.markup match {
       case Lorcode ⇒
-        lorCodeService.extractPlainTextFromLorcode(text.text)
+        lorCodeService.extractPlainTextFromLorcode(prepareLorcode(text.text))
       case Html ⇒
         Jsoup.parse(text.text).text
     }
@@ -84,7 +87,7 @@ class MessageTextService(lorCodeService: LorCodeService) {
   def mentions(text: MessageText): java.util.Set[User] = {
     text.markup match {
       case Lorcode ⇒
-        lorCodeService.getReplierFromMessage(text.text)
+        lorCodeService.getReplierFromMessage(prepareLorcode(text.text))
       case Html ⇒
         Set.empty[User].asJava
     }
@@ -135,6 +138,7 @@ object MessageTextService {
       case "ntobr" ⇒
         MessageText.apply(ToLorCodeTexFormatter.quote(message, "[br]"), MarkupType.Lorcode)
       case "lorcode" ⇒
+        // это надо убрать, так как все равно еще раз делаем при рендеринге
         MessageText.apply(ToLorCodeTexFormatter.quote(message, "\n"), MarkupType.Lorcode)
     }
   }
