@@ -27,17 +27,17 @@
 <h1>Изменить комментарий</h1>
 
 <p>
-<a href="${edit.topic.link}?cid=${edit.original.id}">Комментарий</a> написан <lor:date date="${comment.postdate}"/>.
+<a href="${add.topic.link}?cid=${add.original.id}">Комментарий</a> написан <lor:date date="${comment.postdate}"/>.
 <c:if test="${deadline!=null}">
   Редактирование возможно до <lor:date date="${deadline}"/>.
 </c:if>
 </p>
 
 <div class=messages>
-  <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${edit.topic}" enableSchema="false"/>
+  <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${add.topic}" enableSchema="false"/>
 </div>
 
-<form:form modelAttribute="edit">
+<form:form modelAttribute="add">
     <form:errors path="*" cssClass="error" element="div" />
 </form:form>
 
@@ -50,12 +50,12 @@
 <c:url var="form_action_url" value="/edit_comment" />
 
 <lor:commentForm
-        topic="${edit.topic}"
-        title="${edit.title}"
+        topic="${add.topic}"
+        title="${add.title}"
         replyto="0"
-        original="${edit.original.id}"
-        msg="${edit.msg}"
-        mode="${edit.mode}"
+        original="${add.original.id}"
+        msg="${add.msg}"
+        mode="${add.mode}"
         form_action_url="${form_action_url}"
         cancel="true"
         postscoreInfo="${postscoreInfo}" modes="${modes}" />

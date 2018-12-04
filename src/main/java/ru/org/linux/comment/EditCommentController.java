@@ -97,7 +97,7 @@ public class EditCommentController {
    */
   @RequestMapping(value = "/edit_comment", method = RequestMethod.GET)
   public ModelAndView editCommentShowHandler(
-          @ModelAttribute("edit") @Valid CommentRequest commentRequest,
+          @ModelAttribute("add") @Valid CommentRequest commentRequest,
           HttpServletRequest request
   ) throws Exception {
     Topic topic = commentRequest.getTopic();
