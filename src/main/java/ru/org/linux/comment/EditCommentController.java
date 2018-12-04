@@ -146,7 +146,7 @@ public class EditCommentController {
   @RequestMapping(value = "/edit_comment", method = RequestMethod.POST)
   @CSRFNoAuto
   public ModelAndView editCommentPostHandler(
-    @ModelAttribute("edit") @Valid CommentRequest commentRequest,
+    @ModelAttribute("add") @Valid CommentRequest commentRequest,
     Errors errors,
     HttpServletRequest request,
     @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
