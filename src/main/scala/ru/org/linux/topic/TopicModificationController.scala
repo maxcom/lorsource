@@ -128,7 +128,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val newGrp = groupDao.getGroup(newgr)
 
     if (msg.getGroupId != newGrp.getId) {
-      val moveInfo = if (newGrp.isLinksAllowed) {
+      val moveInfo = if (!newGrp.isLinksAllowed) {
         val moveFrom = msg.getGroupUrl
         val linktext = msg.getLinktext
         val url = msg.getUrl
