@@ -36,8 +36,6 @@ public class ToLorCodeFormatterTest {
   private static final String QUOTING3 = "> 1\n2\n\n3";
   private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3";
 
-  private MessageTextService textService;
-
   @Before
   public void init() {
     TopicDao messageDao = mock(TopicDao.class);
@@ -52,16 +50,14 @@ public class ToLorCodeFormatterTest {
 
     LorCodeService lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
-
-    textService = new MessageTextService(lorCodeService);
   }
 
   private String formatNtobr(String str) {
-    return textService.preprocessPostingText(str, "ntobr").text();
+    return MessageTextService.preprocessPostingText(str, "ntobr").text();
   }
 
   private String format(String str) {
-    return textService.preprocessPostingText(str, "lorcode").text();
+    return MessageTextService.preprocessPostingText(str, "lorcode").text();
   }
 
   @Test

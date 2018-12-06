@@ -28,12 +28,22 @@ object MarkupType {
     override val id = "BBCODE_TEX"
   }
 
+  case object LorcodeUlb extends MarkupType {
+    override val id = "BBCODE_ULB"
+  }
+
+  case object Markdown extends MarkupType {
+    override val id = "MARKDOWN"
+  }
+
 //  case object Markdown extends MarkupType
 
   def of(v: String): MarkupType = v match {
-    case Html.id      ⇒ Html
-    case Lorcode.id   ⇒ Lorcode
-    case other        ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
+    case Html.id       ⇒ Html
+    case Lorcode.id    ⇒ Lorcode
+    case LorcodeUlb.id ⇒ LorcodeUlb
+    case Markdown.id   ⇒ Markdown
+    case other         ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
   }
 }
 

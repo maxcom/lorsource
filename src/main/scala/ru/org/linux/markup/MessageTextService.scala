@@ -18,47 +18,59 @@ package ru.org.linux.markup
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
-import ru.org.linux.spring.dao.MarkupType.{Html, Lorcode}
+import ru.org.linux.spring.dao.MarkupType._
 import ru.org.linux.spring.dao.{MarkupType, MessageText}
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter
+import ru.org.linux.util.markdown.MarkdownFormatter
 
 import scala.collection.JavaConverters._
 
 @Service
-class MessageTextService(lorCodeService: LorCodeService) {
-  // раньше это делалось при постинге, теперь будем делать при рендеринге
-  private def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
+class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
+  // TODO Markdown: implement LorURI rendering
+
+  import MessageTextService._
 
   /**
     * Получить html представление текста комментария
     *
-    * @param messageText текст комментария
+    * @param text текст комментария
     * @return строку html комментария
     */
-  def renderCommentText(messageText: MessageText, nofollow: Boolean): String = {
-    messageText.markup match {
+  def renderCommentText(text: MessageText, nofollow: Boolean): String = {
+    text.markup match {
       case Lorcode ⇒
-        lorCodeService.parseComment(prepareLorcode(messageText.text), nofollow)
+        lorCodeService.parseComment(prepareLorcode(text.text), nofollow)
+      case LorcodeUlb ⇒
+        lorCodeService.parseComment(prepareUlb(text.text), nofollow)
       case Html ⇒
-        "<p>" + messageText.text + "</p>"
+        "<p>" + text.text + "</p>"
+      case Markdown ⇒
+        // TODO nofollow support
+        markdownFormatter.renderToHtml(text.text)
     }
   }
 
   /**
     * Получить RSS представление текста комментария
     *
-    * @param messageText текст комментария
+    * @param text текст комментария
     * @return строку html комментария
     */
-  def renderTextRSS(messageText: MessageText): String = {
-    messageText.markup match {
+  def renderTextRSS(text: MessageText): String = {
+    text.markup match {
       case Lorcode ⇒
-        lorCodeService.parseCommentRSS(prepareLorcode(messageText.text))
+        lorCodeService.parseCommentRSS(prepareLorcode(text.text))
+      case LorcodeUlb ⇒
+        lorCodeService.parseCommentRSS(prepareUlb(text.text))
       case Html ⇒
-        "<p>" + messageText.text + "</p>"
+        "<p>" + text.text + "</p>"
+      case Markdown ⇒
+        // TODO check if rss needs special rendering
+        markdownFormatter.renderToHtml(text.text)
     }
   }
 
@@ -70,8 +82,18 @@ class MessageTextService(lorCodeService: LorCodeService) {
         } else {
           lorCodeService.parseTopic(prepareLorcode(text.text), nofollow)
         }
+      case LorcodeUlb ⇒
+        if (minimizeCut) {
+          lorCodeService.parseTopicWithMinimizedCut(prepareUlb(text.text), canonicalUrl, nofollow)
+        } else {
+          lorCodeService.parseTopic(prepareUlb(text.text), nofollow)
+        }
       case Html ⇒
         "<p>" + text.text
+      case Markdown ⇒
+        // TODO nofollow support
+        // TODO [cut] support
+        markdownFormatter.renderToHtml(text.text)
     }
   }
 
@@ -79,8 +101,12 @@ class MessageTextService(lorCodeService: LorCodeService) {
     text.markup match {
       case Lorcode ⇒
         lorCodeService.extractPlainTextFromLorcode(prepareLorcode(text.text))
+      case LorcodeUlb ⇒
+        lorCodeService.extractPlainTextFromLorcode(prepareUlb(text.text))
       case Html ⇒
         Jsoup.parse(text.text).text
+      case Markdown ⇒
+        text.text
     }
   }
 
@@ -88,7 +114,12 @@ class MessageTextService(lorCodeService: LorCodeService) {
     text.markup match {
       case Lorcode ⇒
         lorCodeService.getReplierFromMessage(prepareLorcode(text.text))
+      case LorcodeUlb ⇒
+        lorCodeService.getReplierFromMessage(prepareUlb(text.text))
       case Html ⇒
+        Set.empty[User].asJava
+      case Markdown ⇒
+        // TODO support mentions
         Set.empty[User].asJava
     }
   }
@@ -99,23 +130,41 @@ class MessageTextService(lorCodeService: LorCodeService) {
   def moveInfo(markup: MarkupType, url: String, linktext: String, moveBy: User, moveFrom: String): String = {
     /* if url is not null, update the topic text */
     val link = if (!Strings.isNullOrEmpty(url)) {
+      // TODO escape linktext everywhere; encode url in html
+
       markup match {
         case Html ⇒
           s"""<br><a href="$url">$linktext</a>
              |<br>
              |""".stripMargin
-        case Lorcode ⇒
+        case Lorcode | LorcodeUlb ⇒
           s"""
              |[url=$url]$linktext[/url]
+             |""".stripMargin
+        case Markdown ⇒
+          s"""
+             |[$linktext]($url)
              |""".stripMargin
       }
     } else ""
 
     markup match {
-      case Lorcode ⇒
-        '\n' + link + "\n\n[i]Перемещено " + moveBy.getNick + " из " + moveFrom + "[/i]\n"
+      case Lorcode | LorcodeUlb ⇒
+        s"""
+           |$link
+           |
+           |[i]Перемещено ${moveBy.getNick} из $moveFrom[/i]
+           |""".stripMargin
       case Html ⇒
-        '\n' + link + "<br><i>Перемещено " + moveBy.getNick + " из " + moveFrom + "</i>\n"
+        s"""
+           |$link<br><i>Перемещено ${moveBy.getNick} из $moveFrom</i>
+           |""".stripMargin
+      case Markdown ⇒
+        s"""
+           |$link
+           |
+           |Перемещено ${moveBy.getNick} из $moveFrom
+           |""".stripMargin
     }
   }
 }
@@ -136,10 +185,9 @@ object MessageTextService {
   def preprocessPostingText(message: String, mode: String): MessageText = {
     mode match {
       case "ntobr" ⇒
-        MessageText.apply(ToLorCodeTexFormatter.quote(message, "[br]"), MarkupType.Lorcode)
+        MessageText.apply(prepareUlb(message), MarkupType.Lorcode)
       case "lorcode" ⇒
-        // это надо убрать, так как все равно еще раз делаем при рендеринге
-        MessageText.apply(ToLorCodeTexFormatter.quote(message, "\n"), MarkupType.Lorcode)
+        MessageText.apply(message, MarkupType.Lorcode)
     }
   }
 
@@ -164,4 +212,9 @@ object MessageTextService {
       cut
     }
   }
+
+  // TODO move to LorCodeService
+  // раньше это делалось при постинге, теперь будем делать при рендеринге
+  def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
+  def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
 }

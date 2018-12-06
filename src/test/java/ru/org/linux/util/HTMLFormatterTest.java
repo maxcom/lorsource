@@ -30,6 +30,7 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
+import ru.org.linux.util.markdown.FlexmarkMarkdownFormatter;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -177,7 +178,7 @@ public class HTMLFormatterTest {
     lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
-    textService = new MessageTextService(lorCodeService);
+    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter());
   }
 
   @Test
@@ -313,11 +314,11 @@ public class HTMLFormatterTest {
 
     for(int i = 0; i<text.length; i++){
       String entry = text[i];
-      assertEquals(bb_tex[i], MessageTextService.preprocessPostingText(entry, "lorcode").text());
-      assertEquals(html_tex[i], lorCodeService.parseComment(MessageTextService.preprocessPostingText(entry, "lorcode").text(), false));
+      assertEquals(bb_tex[i], MessageTextService.prepareLorcode(entry));
+      assertEquals(html_tex[i], lorCodeService.parseComment(MessageTextService.prepareLorcode(entry), false));
 
-      assertEquals(bb[i], MessageTextService.preprocessPostingText(entry, "ntobr").text());
-      assertEquals(html[i], lorCodeService.parseComment(MessageTextService.preprocessPostingText(entry, "ntobr").text(), false));
+      assertEquals(bb[i], MessageTextService.prepareUlb(entry));
+      assertEquals(html[i], lorCodeService.parseComment(MessageTextService.prepareUlb(entry), false));
     }
   }
 
