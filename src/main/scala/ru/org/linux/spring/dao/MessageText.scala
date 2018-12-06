@@ -35,9 +35,7 @@ object MarkupType {
   case object Markdown extends MarkupType {
     override val id = "MARKDOWN"
   }
-
-//  case object Markdown extends MarkupType
-
+  
   def of(v: String): MarkupType = v match {
     case Html.id       ⇒ Html
     case Lorcode.id    ⇒ Lorcode
