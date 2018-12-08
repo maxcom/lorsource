@@ -21,7 +21,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.TcpClient
 import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
 import org.springframework.stereotype.Service
-import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
+import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
@@ -63,7 +63,7 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
   def countTagTopics(tag: String): Future[Long] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search(MessageIndexTypes) size 0 query
+        search(MessageIndex) size 0 query
           boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
       }
     } map {
@@ -76,7 +76,7 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic) flatMap {
     _ execute {
-      search(MessageIndexTypes) size 0 query
+      search(MessageIndex) size 0 query
         boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
         sigTermsAggregation("related") field "tag" backgroundFilter
           termQuery("is_comment", "false") /* broken in 6.x tcp client: includeExclude(Seq.empty, Seq(tag))*/)
@@ -92,7 +92,7 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search(MessageIndexTypes) size 0 query
+        search(MessageIndex) size 0 query
           boolQuery().filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),

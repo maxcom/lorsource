@@ -30,7 +30,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.elasticsearch.ElasticsearchException
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageIndexTypes, MessageType}
+import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageType}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
@@ -104,7 +104,7 @@ class MoreLikeThisService(
 
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
-    search(MessageIndexTypes) query {
+    search(MessageIndex) query {
       boolQuery.should(queries:_*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
     } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
@@ -170,7 +170,7 @@ class MoreLikeThisService(
 object MoreLikeThisService {
   val CacheSize = 10000
 
-  val StopWords = {
+  val StopWords: Seq[String] = {
     val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr ⇒ new String(arr.asInstanceOf[Array[Char]]))
     val analyzedStream = new RussianAnalyzer(CharArraySet.EMPTY_SET).tokenStream(null, stop.mkString(" "))
 

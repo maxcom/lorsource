@@ -40,7 +40,6 @@ object ElasticsearchIndexService {
   val MessageType = "message"
 
   val MessageIndexType = IndexAndType(MessageIndex, MessageType)
-  val MessageIndexTypes = IndexesAndTypes(MessageIndexType)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
 

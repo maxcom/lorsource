@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
-import ru.org.linux.search.ElasticsearchIndexService.MessageIndexTypes
+import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService._
 
@@ -92,7 +92,7 @@ class UserStatisticsService(
     }
   }
 
-  private def statSearch = search(MessageIndexTypes) size 0 timeout ElasticTimeout
+  private def statSearch = search(MessageIndex) size 0 timeout ElasticTimeout
 
   private def countComments(user: User): Future[Long] = {
     try {
@@ -143,7 +143,7 @@ class UserStatisticsService(
 object UserStatisticsService {
   val ElasticTimeout = 1.second
 
-  private def extractValue[T](value:Option[Try[T]])(f:(Throwable => Unit)):Option[T] = {
+  private def extractValue[T](value:Option[Try[T]])(f: Throwable => Unit):Option[T] = {
     value flatMap {
       case Failure(ex) =>
         f(ex)
