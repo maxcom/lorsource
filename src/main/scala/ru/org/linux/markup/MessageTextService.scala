@@ -31,6 +31,7 @@ import scala.collection.JavaConverters._
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
   // TODO Markdown: implement LorURI rendering
+  // TODO show markup mode in edit form for correctors
 
   import MessageTextService._
 
