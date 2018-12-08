@@ -53,11 +53,11 @@ public class ToLorCodeFormatterTest {
   }
 
   private String formatNtobr(String str) {
-    return MessageTextService.preprocessPostingText(str, "ntobr").text();
+    return MessageTextService.prepareUlb(str);
   }
 
   private String format(String str) {
-    return MessageTextService.preprocessPostingText(str, "lorcode").text();
+    return MessageTextService.prepareLorcode(str);
   }
 
   @Test

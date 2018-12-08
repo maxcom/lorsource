@@ -180,7 +180,7 @@ public class EditCommentController {
       return modelAndView;
     }
 
-    String originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal().getId()).text();
+    MessageText originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal().getId());
 
     commentService.edit(
       commentRequest.getOriginal(),

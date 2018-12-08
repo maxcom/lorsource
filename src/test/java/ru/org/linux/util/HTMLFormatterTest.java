@@ -340,15 +340,15 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][*]two[br][*]three[br][/list]",
-        MessageTextService.preprocessPostingText(a, "ntobr").text()
+        MessageTextService.prepareUlb(a)
     );
     assertEquals(
         "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
-        MessageTextService.preprocessPostingText(a, "lorcode").text()
+        MessageTextService.processPostingText(a, "lorcode").text()
     );
 
     // toLorCodeFormatter.format(a)
-    String b = MessageTextService.preprocessPostingText(a, "ntobr").text();
+    String b = MessageTextService.prepareUlb(a);
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
@@ -367,7 +367,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = MessageTextService.preprocessPostingText(a, "lorcode").text();
+    b = MessageTextService.processPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -391,15 +391,15 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
-        MessageTextService.preprocessPostingText(a, "ntobr").text()
+        MessageTextService.prepareUlb(a)
     );
     assertEquals(
         "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
-            MessageTextService.preprocessPostingText(a, "lorcode").text()
+            MessageTextService.processPostingText(a, "lorcode").text()
     );
 
     // toLorCodeFormatter.format(a, true)
-    String b = MessageTextService.preprocessPostingText(a, "ntobr").text();
+    String b = MessageTextService.prepareUlb(a);
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
@@ -418,7 +418,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = MessageTextService.preprocessPostingText(a, "lorcode").text();
+    b = MessageTextService.processPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)
@@ -442,15 +442,15 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
-            MessageTextService.preprocessPostingText(a, "ntobr").text()
+            MessageTextService.prepareUlb(a)
     );
     assertEquals(
         "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
-            MessageTextService.preprocessPostingText(a, "lorcode").text()
+            MessageTextService.processPostingText(a, "lorcode").text()
     );
 
     // toLorCodeFormatter.format(a)
-    String b = MessageTextService.preprocessPostingText(a, "ntobr").text();
+    String b = MessageTextService.prepareUlb(a);
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
         lorCodeService.parseComment(b, false)
@@ -469,7 +469,7 @@ public class HTMLFormatterTest {
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = MessageTextService.preprocessPostingText(a, "lorcode").text();
+    b = MessageTextService.processPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
         lorCodeService.parseComment(b, false)

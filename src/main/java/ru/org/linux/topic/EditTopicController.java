@@ -46,7 +46,6 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
@@ -338,11 +337,11 @@ public class EditTopicController {
     if (!message.getTitle().equals(newMsg.getTitle())) {
       modified = true;
     }
-    
+
+    MessageText oldText = msgbaseDao.getMessageText(message.getId());
+
     if (form.getMsg()!=null) {
-      String oldText = msgbaseDao.getMessageText(message.getId()).text();
-  
-      if (!oldText.equals(form.getMsg())) {
+      if (!oldText.text().equals(form.getMsg())) {
         modified = true;
       }
     }
@@ -414,9 +413,9 @@ public class EditTopicController {
     MessageText newText;
 
     if (form.getMsg() != null) {
-      newText = MessageText.apply(form.getMsg(), MarkupType.Lorcode$.MODULE$);
+      newText = MessageText.apply(form.getMsg(), oldText.markup());
     } else {
-      newText = msgbaseDao.getMessageText(message.getId());
+      newText = oldText;
     }
 
     if (form.getEditorBonus() != null) {

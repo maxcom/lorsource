@@ -34,6 +34,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
+import ru.org.linux.spring.dao.MarkupType.LorcodeUlb
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
 
@@ -52,7 +53,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def getModes(request: HttpServletRequest): util.Map[String, String] = {
     val tmpl = Template.getTemplate(request)
 
-    (if (tmpl.getProf.getFormatMode == "ntobr") {
+    (if (tmpl.getProf.getFormatMode == LorcodeUlb.formId) {
       MessageTextService.PostingModes
     } else {
       Map[String, String]()

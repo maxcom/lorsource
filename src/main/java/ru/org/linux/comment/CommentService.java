@@ -39,7 +39,6 @@ import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.topic.Topic;
@@ -198,7 +197,7 @@ public class CommentService {
     User user,
     Errors errors
   ) {
-    MessageText messageText = MessageTextService.preprocessPostingText(commentRequest.getMsg(), commentRequest.getMode());
+    MessageText messageText = MessageTextService.processPostingText(commentRequest.getMsg(), commentRequest.getMode());
     String commentBody = (messageText.text());
 
     if (user.isAnonymous()) {
@@ -373,13 +372,13 @@ public class CommentService {
     String remoteAddress,
     String xForwardedFor,
     @Nonnull User editor,
-    String originalMessageText
+    MessageText originalMessageText
   ) {
     commentDao.changeTitle(oldComment, newComment.getTitle());
     msgbaseDao.updateMessage(oldComment.getId(), commentBody);
 
     /* кастование пользователей */
-    Set<User> newUserRefs = textService.mentions(MessageText.apply(commentBody, MarkupType.Lorcode$.MODULE$));
+    Set<User> newUserRefs = textService.mentions(MessageText.apply(commentBody, originalMessageText.markup()));
 
     MessageText messageText = msgbaseDao.getMessageText(oldComment.getId());
     Set<User> oldUserRefs = textService.mentions(messageText);
@@ -398,7 +397,7 @@ public class CommentService {
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
     topicDao.updateLastmod(oldComment.getTopicId(), false);
 
-    addEditHistoryItem(editor, oldComment, originalMessageText, newComment, commentBody);
+    addEditHistoryItem(editor, oldComment, originalMessageText.text(), newComment, commentBody);
 
     updateLatestEditorInfo(editor, oldComment, newComment);
 

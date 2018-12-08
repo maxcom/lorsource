@@ -170,23 +170,14 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 }
 
 object MessageTextService {
-  val PostingModes: Map[String, String] = Map("lorcode" -> "LORCODE", "ntobr" -> "User line break")
+  val PostingModes: Map[String, String] = Seq(Lorcode, LorcodeUlb).map(m ⇒ m.formId -> m.title).toMap
   val PostingModesJava: java.util.Map[String, String] = PostingModes.asJava
 
-  /**
-    * Предобработка нового сообщения. При редактировании не используется.
-    *
-    * По сути костыли, которым надо переехать на фазу рендеринга.
-    *
-    * @param message текст нового сообщения из формы
-    * @param mode режим постинга (lorcode или ntobr)
-    * @return обработанный текст для сохранения и рендеринга
-    */
-  def preprocessPostingText(message: String, mode: String): MessageText = {
+  def processPostingText(message: String, mode: String): MessageText = {
     mode match {
-      case "ntobr" ⇒
-        MessageText.apply(prepareUlb(message), MarkupType.Lorcode)
-      case "lorcode" ⇒
+      case LorcodeUlb.formId ⇒
+        MessageText.apply(message, MarkupType.LorcodeUlb)
+      case Lorcode.formId ⇒
         MessageText.apply(message, MarkupType.Lorcode)
     }
   }

@@ -44,6 +44,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
@@ -226,7 +227,7 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    MessageText message = MessageTextService.preprocessPostingText(Strings.nullToEmpty(form.getMsg()), form.getMode());
+    MessageText message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg()), form.getMode());
 
     if (user.isAnonymous()) {
       if (message.text().length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
@@ -419,7 +420,7 @@ public class AddTopicController {
   public Map<String, String> getModes(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    if (tmpl.getProf().getFormatMode().equals("ntobr")) {
+    if (tmpl.getProf().getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
       return MessageTextService.PostingModesJava();
     } else {
       return ImmutableMap.of();
