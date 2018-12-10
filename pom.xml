@@ -27,8 +27,8 @@
     <jquery.form.version>4.2.1</jquery.form.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
     <akka.version>2.5.19</akka.version>
-    <log4j.version>2.8.2</log4j.version>
-    <play-ws.version>1.1.10</play-ws.version>
+    <log4j.version>2.11.1</log4j.version>
+    <play-ws.version>1.1.12</play-ws.version>
   </properties>
 
   <dependencies>
@@ -96,36 +96,21 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>3.8.9</version>
+      <version>4.0.5</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>3.8.9</version>
+      <version>4.0.5</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.10</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
       <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-      <version>5.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-commons</artifactId>
-      <version>5.2</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -343,7 +328,7 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.9.9</version>
+      <version>2.10.1</version>
     </dependency>
 
     <dependency>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.csrf;
 
 import com.google.common.base.Strings;
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
@@ -25,6 +24,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 public class CSRFProtectionService {
   private static final Logger logger = LoggerFactory.getLogger(CSRFProtectionService.class);
@@ -40,7 +40,7 @@ public class CSRFProtectionService {
     byte[] value = new byte[16];
     random.nextBytes(value);
 
-    String token = new String(Base64.encodeBase64(value));
+    String token = Base64.getEncoder().encodeToString(value);
 
     Cookie cookie = new Cookie(CSRF_COOKIE, token);
     cookie.setMaxAge(TWO_YEARS);

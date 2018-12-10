@@ -20,7 +20,7 @@ import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
 import com.sksamuel.elastic4s.indexes.IndexDefinition
 import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
-import com.sksamuel.elastic4s.{IndexAndType, IndexesAndTypes, TcpClient}
+import com.sksamuel.elastic4s.{IndexAndType, TcpClient}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.StringEscapeUtils
 import org.joda.time.DateTime
