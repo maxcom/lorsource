@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
@@ -28,9 +27,11 @@ import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
@@ -43,18 +44,19 @@ public class TopicPermissionService {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
-  public static final int LINK_FOLLOW_MIN_SCORE = 100;
-  public static final int VIEW_DELETED_SCORE = 100;
-  public static final Duration DELETE_PERIOD = Duration.standardHours(3);
+  private static final int LINK_FOLLOW_MIN_SCORE = 100;
+  private static final int VIEW_DELETED_SCORE = 100;
+  private static final Duration DELETE_PERIOD = Duration.standardHours(3);
 
-  @Autowired
-  private CommentService commentService;
+  private final CommentService commentService;
+  private final SiteConfig siteConfig;
+  private final GroupDao groupDao;
 
-  @Autowired
-  private SiteConfig siteConfig;
-
-  @Autowired
-  private GroupDao groupDao;
+  public TopicPermissionService(CommentService commentService, SiteConfig siteConfig, GroupDao groupDao) {
+    this.commentService = commentService;
+    this.siteConfig = siteConfig;
+    this.groupDao = groupDao;
+  }
 
   public static String getPostScoreInfo(int postscore) {
     switch (postscore) {
@@ -234,26 +236,20 @@ public class TopicPermissionService {
 
   /**
    * Проверка на права редактирования комментария.
-   *
-   * @return true если комментарий доступен для редактирования текущему пользователю, иначе false
    */
   public void checkCommentsEditingAllowed(
           @Nonnull Comment comment,
           @Nonnull Topic topic,
           @Nullable User currentUser,
-          Errors errors
+          Errors errors,
+          MarkupType markup
   ) {
     Preconditions.checkNotNull(comment);
     Preconditions.checkNotNull(topic);
 
     boolean haveAnswers = commentService.isHaveAnswers(comment);
-    checkCommentEditableNow(
-        comment,
-        currentUser,
-        haveAnswers,
-        topic,
-        errors
-    );
+
+    checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup);
   }
 
   public Optional<DateTime> getEditDeadline(Comment comment) {
@@ -272,11 +268,11 @@ public class TopicPermissionService {
    * @return результат
    */
   public boolean isCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
-                                      boolean haveAnswers, @Nonnull Topic topic) {
+                                      boolean haveAnswers, @Nonnull Topic topic, MarkupType markup) {
     Errors errors = new MapBindingResult(ImmutableMap.of(), "obj");
 
     checkCommentsAllowed(topic, currentUser, errors);
-    checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors);
+    checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup);
 
     return !errors.hasErrors();
   }
@@ -285,10 +281,9 @@ public class TopicPermissionService {
    * Проверяем можно ли редактировать комментарий на текущий момент
    *
    * @param haveAnswers есть у комменатрия ответы
-   * @return результат
    */
   private void checkCommentEditableNow(@Nonnull Comment comment, @Nullable User currentUser,
-                                      boolean haveAnswers, @Nonnull Topic topic, Errors errors) {
+                                      boolean haveAnswers, @Nonnull Topic topic, Errors errors, MarkupType markup) {
     if (comment.isDeleted() || topic.isDeleted()) {
       errors.reject(null, "Тема или комментарий удалены");
     }
@@ -318,6 +313,10 @@ public class TopicPermissionService {
       /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
       if (currentUser.getScore() < siteConfig.getCommentScoreValueForEditing()) {
         errors.reject(null, "У вас недостаточно прав для редактирования этого комментария");
+      }
+
+      if (!MarkupPermissions.allowedFormatsJava(currentUser).contains(markup)) {
+        errors.reject(null, "Вы не можете редактировать тексты данного формата");
       }
     } else {
       errors.reject(null, "У вас недостаточно прав для редактирования этого комментария");
@@ -373,9 +372,6 @@ public class TopicPermissionService {
   /**
    * follow топиков которые подтверждены и у которых автор не заблокирован и
    * score > LINK_FOLLOW_MIN_SCORE
-   * @param topic
-   * @param author
-   * @return
    */
   public boolean followInTopic(Topic topic, User author) {
     return topic.isCommited() || followAuthorLinks(author);

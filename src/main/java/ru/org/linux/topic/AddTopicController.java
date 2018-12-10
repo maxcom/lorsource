@@ -37,6 +37,7 @@ import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
+import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollVariant;
@@ -225,6 +226,11 @@ public class AddTopicController {
 
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
+    }
+
+    if (MarkupPermissions.allowedFormatsJava(tmpl.getCurrentUser()).stream().map(MarkupType::formId).noneMatch(s -> s.equals(form.getMode()))) {
+      errors.rejectValue("mode", null, "Некорректный режим разметки");
+      form.setMode(MarkupType.Lorcode$.MODULE$.formId());
     }
 
     MessageText message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg()), form.getMode());

@@ -30,10 +30,11 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.{AccessViolationException, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.markup.MessageTextService
+import ru.org.linux.markup.{MarkupPermissions, MessageTextService}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
+import ru.org.linux.spring.dao.MarkupType
 import ru.org.linux.spring.dao.MarkupType.LorcodeUlb
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
@@ -122,6 +123,13 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     if (add.getTopic != null) {
       topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
+    }
+
+    val tmpl = Template.getTemplate(request)
+
+    if (!MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(_.formId).contains(add.getMode)) {
+      errors.rejectValue("mode", null, "Некорректный режим разметки")
+      add.setMode(MarkupType.Lorcode.formId)
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {

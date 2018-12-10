@@ -131,12 +131,8 @@ public class CommentPrepareService {
         );
 
         if (currentUser != null) {
-          editable = topicPermissionService.isCommentEditableNow(
-              comment,
-              currentUser,
-              haveAnswers,
-              topic
-          );
+          editable = topicPermissionService.isCommentEditableNow(comment, currentUser, haveAnswers, topic,
+                  messageText.markup());
         }
       }
     }
@@ -222,7 +218,6 @@ public class CommentPrepareService {
    * @param comment Редактируемый комментарий
    * @param message Тело комментария
    * @return подготовленный коментарий
-   * @throws UserNotFoundException
    */
   public PreparedComment prepareCommentForEdit(Comment comment, MessageText message) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());

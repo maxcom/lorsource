@@ -55,7 +55,6 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  @throws[Exception]
   def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest,
                              request: HttpServletRequest): ModelAndView = {
     val topic = commentRequest.getTopic
@@ -67,8 +66,12 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     val comment = commentRequest.getOriginal
     val tmpl = Template.getTemplate(request)
 
-    if (topicPermissionService.isCommentEditableNow(comment, tmpl.getCurrentUser, commentService.isHaveAnswers(comment), topic)) {
-      val messageText = msgbaseDao.getMessageText(original.getId)
+    val messageText = msgbaseDao.getMessageText(original.getId)
+
+    val commentEditable = topicPermissionService.isCommentEditableNow(comment, tmpl.getCurrentUser,
+      commentService.isHaveAnswers(comment), topic, messageText.markup)
+
+    if (commentEditable) {
       commentRequest.setMsg(messageText.text)
       commentRequest.setTitle(original.getTitle)
 
@@ -100,10 +103,15 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     val user = commentService.getCommentUser(commentRequest, request, errors)
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors)
 
-    val msg = commentService.getCommentBody(commentRequest, user, errors)
     val comment = commentService.getComment(commentRequest, user, request)
 
     val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest))
+
+    val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
+
+    commentRequest.setMode(originalMessageText.markup.formId)
+
+    val msg = commentService.getCommentBody(commentRequest, user, errors)
 
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
@@ -113,7 +121,8 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     }
 
     val tmpl = Template.getTemplate(request)
-    topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic, tmpl.getCurrentUser, errors)
+    topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
+      tmpl.getCurrentUser, errors, originalMessageText.markup)
 
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)
@@ -122,7 +131,6 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
       deadline.foreach(value ⇒ formParams.put("deadline", value.toDate))
       modelAndView
     } else {
-      val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
       commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr, request.getHeader("X-Forwarded-For"), user, originalMessageText)
       searchQueueSender.updateComment(commentRequest.getOriginal.getId)
       val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.getId + "&cid=" + commentRequest.getOriginal.getId

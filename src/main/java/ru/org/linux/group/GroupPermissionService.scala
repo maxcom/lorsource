@@ -17,8 +17,8 @@ package ru.org.linux.group
 import javax.annotation.Nullable
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
+import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.spring.dao.MarkupType
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.User
 
@@ -156,7 +156,7 @@ class GroupPermissionService(sectionService: SectionService) {
       false
     } else if (by.isAdministrator) {
       true
-    } else if (topic.getMarkupType == MarkupType.Html) {
+    } else if (!MarkupPermissions.allowedFormatsJava(by).contains(topic.getMarkupType)) {
       false
     } else if (by.isModerator) {
       true

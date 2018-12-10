@@ -15,7 +15,7 @@
 
 package ru.org.linux.spring.dao
 
-sealed trait MarkupType {
+sealed trait MarkupType extends Product with Serializable {
   def id: String
   def title: String
   def formId: String

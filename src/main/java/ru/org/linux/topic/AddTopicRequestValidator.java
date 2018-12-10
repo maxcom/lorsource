@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,8 +26,8 @@ import ru.org.linux.util.URLUtil;
 
 @Component
 public class AddTopicRequestValidator implements Validator {
-  public static final int MAX_TITLE_LENGTH = 140;
-  public static final int MAX_URL_LENGTH = 255;
+  private static final int MAX_TITLE_LENGTH = 140;
+  private static final int MAX_URL_LENGTH = 255;
 
   @Override
   public boolean supports(Class<?> clazz) {

@@ -171,6 +171,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 }
 
 object MessageTextService {
+  // TODO permissions
   val PostingModes: Map[String, String] = Seq(Lorcode, LorcodeUlb).map(m ⇒ m.formId -> m.title).toMap
   val PostingModesJava: java.util.Map[String, String] = PostingModes.asJava
 
@@ -209,4 +210,18 @@ object MessageTextService {
   // раньше это делалось при постинге, теперь будем делать при рендеринге
   def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
+}
+
+object MarkupPermissions {
+  def allowedFormats(user: User): Set[MarkupType] = {
+    if (user==null) { // anonymous
+      Set(Lorcode)
+    } else if (user.isAdministrator) {
+      Set(Lorcode, LorcodeUlb, Markdown, Html)
+    } else {
+      Set(Lorcode, LorcodeUlb)
+    }
+  }
+
+  def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
 }
