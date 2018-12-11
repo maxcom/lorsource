@@ -54,7 +54,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def getModes(request: HttpServletRequest): util.Map[String, String] = {
     val tmpl = Template.getTemplate(request)
 
-    (if (tmpl.getProf.getFormatMode == LorcodeUlb.formId) {
+    (if (tmpl.getFormatMode == LorcodeUlb.formId) {
       MessageTextService.PostingModes
     } else {
       Map[String, String]()

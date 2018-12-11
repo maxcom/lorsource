@@ -363,7 +363,7 @@ public class TopicController {
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
-    if (tmpl.getProf().getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
+    if (tmpl.getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
       params.put("modes", MessageTextService.PostingModesJava());
     }
 

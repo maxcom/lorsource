@@ -426,7 +426,7 @@ public class AddTopicController {
   public Map<String, String> getModes(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    if (tmpl.getProf().getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
+    if (tmpl.getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
       return MessageTextService.PostingModesJava();
     } else {
       return ImmutableMap.of();

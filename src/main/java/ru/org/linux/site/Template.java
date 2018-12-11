@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,9 @@ package ru.org.linux.site;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
+import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
@@ -57,7 +59,13 @@ public final class Template {
   }
 
   public String getFormatMode() {
-    return userProfile.getFormatMode();
+    String mode = userProfile.getFormatMode();
+
+    if (MarkupPermissions.allowedFormatsJava(getCurrentUser()).stream().map(MarkupType::formId).anyMatch(s -> s.equals(mode))) {
+      return mode;
+    } else {
+      return MarkupType.Lorcode$.MODULE$.formId();
+    }
   }
 
   @Nonnull
