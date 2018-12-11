@@ -15,44 +15,6 @@
 
 package ru.org.linux.spring.dao
 
-sealed trait MarkupType extends Product with Serializable {
-  def id: String
-  def title: String
-  def formId: String
-}
-
-object MarkupType {
-  case object Html extends MarkupType {
-    override val id = "PLAIN"
-    override val title: String = "HTML"
-    override val formId: String = "plain"
-  }
-
-  case object Lorcode extends MarkupType {
-    override val id = "BBCODE_TEX"
-    override val title: String = "LORCODE"
-    override val formId: String = "lorcode"
-  }
-
-  case object LorcodeUlb extends MarkupType {
-    override val id = "BBCODE_ULB"
-    override val title: String = "User line break"
-    override val formId: String = "ntobr"
-  }
-
-  case object Markdown extends MarkupType {
-    override val id = "MARKDOWN"
-    override val title: String = "Markdown (beta)"
-    override val formId: String = "markdown"
-  }
-
-  def of(v: String): MarkupType = v match {
-    case Html.id       ⇒ Html
-    case Lorcode.id    ⇒ Lorcode
-    case LorcodeUlb.id ⇒ LorcodeUlb
-    case Markdown.id   ⇒ Markdown
-    case other         ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
-  }
-}
+import ru.org.linux.markup.MarkupType
 
 case class MessageText(text: String, markup: MarkupType)

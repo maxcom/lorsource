@@ -24,7 +24,7 @@ import ru.org.linux.comment.CommentDao;
 import ru.org.linux.group.Group;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;

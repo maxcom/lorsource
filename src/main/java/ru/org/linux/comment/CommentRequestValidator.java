@@ -20,7 +20,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.markup.MessageTextService;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.util.StringUtil;

@@ -20,7 +20,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 

@@ -15,7 +15,7 @@
 
 package ru.org.linux.user;
 
-import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.markup.MarkupType$;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.util.ProfileHashtable;
@@ -178,7 +178,7 @@ public class Profile {
   }
 
   private static String fixFormat(String mode) {
-    if (MessageTextService.PostingModesJava().containsKey(mode)) {
+    if (MarkupType$.MODULE$.AllFormIds().contains(mode)) {
       return mode;
     } else {
       return (String) DefaultProfile.getDefaultProfile().get("format.mode");

@@ -45,7 +45,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagService;
@@ -426,11 +426,7 @@ public class AddTopicController {
   public Map<String, String> getModes(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    if (tmpl.getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
-      return MessageTextService.PostingModesJava();
-    } else {
-      return ImmutableMap.of();
-    }
+    return MessageTextService.postingModeSelector(tmpl.getCurrentUser(), tmpl.getFormatMode());
   }
 
   public static String getAddUrl(Section section, String tag) {

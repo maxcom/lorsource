@@ -31,7 +31,7 @@ import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;

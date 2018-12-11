@@ -24,7 +24,7 @@ import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.ImageService;
 import ru.org.linux.markup.MessageTextService;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;

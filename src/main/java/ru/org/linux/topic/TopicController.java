@@ -42,7 +42,6 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
@@ -363,9 +362,7 @@ public class TopicController {
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
-    if (tmpl.getFormatMode().equals(MarkupType.LorcodeUlb$.MODULE$.formId())) {
-      params.put("modes", MessageTextService.PostingModesJava());
-    }
+    params.put("modes", MessageTextService.postingModeSelector(tmpl.getCurrentUser(), tmpl.getFormatMode()));
 
     CommentRequest add = new CommentRequest();
     add.setMode(tmpl.getFormatMode());

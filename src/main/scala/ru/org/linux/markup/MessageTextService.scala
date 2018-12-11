@@ -18,8 +18,8 @@ package ru.org.linux.markup
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
-import ru.org.linux.spring.dao.MarkupType._
-import ru.org.linux.spring.dao.{MarkupType, MessageText}
+import ru.org.linux.markup.MarkupType._
+import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
@@ -27,9 +27,11 @@ import ru.org.linux.util.formatter.ToLorCodeTexFormatter
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
+  // TODO Markdown: fix header font size
   // TODO Markdown: implement LorURI rendering
   // TODO show markup mode in edit form for correctors
 
@@ -171,16 +173,14 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 }
 
 object MessageTextService {
-  // TODO permissions
-  val PostingModes: Map[String, String] = Seq(Lorcode, LorcodeUlb).map(m ⇒ m.formId -> m.title).toMap
-  val PostingModesJava: java.util.Map[String, String] = PostingModes.asJava
-
   def processPostingText(message: String, mode: String): MessageText = {
     mode match {
       case LorcodeUlb.formId ⇒
         MessageText.apply(message, MarkupType.LorcodeUlb)
       case Lorcode.formId ⇒
         MessageText.apply(message, MarkupType.Lorcode)
+      case Markdown.formId ⇒
+        MessageText.apply(message, MarkupType.Markdown)
     }
   }
 
@@ -210,6 +210,16 @@ object MessageTextService {
   // раньше это делалось при постинге, теперь будем делать при рендеринге
   def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
+
+  def postingModeSelector(user: User, defaultMarkup: String): java.util.Map[String, String] = {
+    val modes = MarkupPermissions.allowedFormats(user).filter(f ⇒ !f.deprecated || f.formId == defaultMarkup)
+
+    (if (modes.size > 1) {
+      ListMap(modes.toSeq.sortBy(_.order).map(m ⇒ m.formId -> m.title): _*)
+    } else {
+      Map.empty[String, String]
+    }).asJava
+  }
 }
 
 object MarkupPermissions {

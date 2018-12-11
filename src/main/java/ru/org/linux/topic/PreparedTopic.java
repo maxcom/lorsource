@@ -20,7 +20,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.Remark;
 import ru.org.linux.user.User;

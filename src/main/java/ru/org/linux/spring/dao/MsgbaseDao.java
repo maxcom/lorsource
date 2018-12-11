@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.markup.MarkupType$;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;

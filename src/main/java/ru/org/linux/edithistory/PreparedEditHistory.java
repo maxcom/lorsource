@@ -16,7 +16,7 @@
 package ru.org.linux.edithistory;
 
 import ru.org.linux.markup.MessageTextService;
-import ru.org.linux.spring.dao.MarkupType;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.topic.PreparedImage;
