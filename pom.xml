@@ -16,7 +16,7 @@
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>4.3.21.RELEASE</dependency.spring.version>
-    <spring.security.version>4.2.5.RELEASE</spring.security.version>
+    <spring.security.version>4.2.10.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
     <elastic4s.version>6.2.10</elastic4s.version>
     <scala.version>2.12.8</scala.version>
@@ -435,7 +435,7 @@
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
-      <version>0.34.58</version>
+      <version>0.35.0</version>
     </dependency>
   </dependencies>
 
