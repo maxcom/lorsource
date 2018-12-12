@@ -31,7 +31,6 @@ import scala.collection.immutable.ListMap
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
-  // TODO Markdown: fix header font size
   // TODO Markdown: typography
   // TODO Markdown: implement LorURI rendering
 

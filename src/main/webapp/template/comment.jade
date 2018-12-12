@@ -52,7 +52,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
     
             div(class='msg_body #{msgBodyStyle}')
                 if comment.title
-                    h2= comment.title
+                    h1= comment.title
     
                 | !{comment.processedMessage}
 

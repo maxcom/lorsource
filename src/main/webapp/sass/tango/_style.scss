@@ -19,7 +19,7 @@ body {
 }
 
 
-h1,h2,h3 {
+h1,h2,h3,h4,h5,h6 {
     font-weight: 600;
     font-family: "Open Sans", sans-serif;
 }
@@ -82,15 +82,9 @@ p {
     }
 }
 
-#bd .news {
+.news {
 	margin-bottom: 2em;
     border-top: none;
-
-    h2 {
-        font-size: 1.6em;
-        margin-top: 0.25em;
-        margin-bottom: 0;
-    }
 
     .entry-body {
         padding-top: 0.5em;
@@ -163,8 +157,7 @@ p {
 
   table {
     th {
-      border: 1px solid;
-      border-color: $table_border_color;
+      border: 1px solid $table_border_color;
     }
 
     tbody td {
@@ -202,18 +195,6 @@ p {
 #ft {
     padding: 1.5em;
     border-top: 1px dashed;
-}
-
-div.msg_body {
-    h1 {
-        font-size: 1.6em;
-    }
-
-    h2 {
-        font-size: 1em;
-        font-weight: 600;
-        font-family: "Open Sans", sans-serif;
-    }
 }
 
 .msg {

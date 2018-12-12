@@ -76,9 +76,9 @@
   String image = preparedMessage.getGroup().getImage();
   Group group = preparedMessage.getGroup();
 %>
-<h2>
+<h1>
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
-</h2>
+</h1>
 
   <c:if test="${multiPortal}">
     <div class="group">

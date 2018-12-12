@@ -101,23 +101,86 @@ textarea {
 
 .news {
   border-top: 1px solid;
+
+  // sizes calculated at https://www.modularscale.com/?1&em&1.098
+  h1 {
+    font-size: 1.752em;
+    margin-top: 0.25em;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: 1.596em
+  }
+
+  h3 {
+    font-size: 1.453em
+  }
+
+  h4 {
+    font-size: 1.324em
+  }
+
+  h5 {
+    font-size: 1.206em
+  }
+
+  h6 {
+    font-size: 1.098em
+  }
 }
 
-.entry-body .nav {
-  border: none;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 1em;
+.msg_body {
+  // sizes calculated at https://www.modularscale.com/?1&em&1.098
+  h1 {
+    font-size: 1.752em;
+    margin-top: 0.25em;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: 1.596em
+  }
+
+  h3 {
+    font-size: 1.453em
+  }
+
+  h4 {
+    font-size: 1.324em
+  }
+
+  h5 {
+    font-size: 1.206em
+  }
+
+  h6 {
+    font-size: 1.098em
+  }
+}
+
+.comment {
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1em;
+  }
+}
+
+.entry-body {
+  margin-left: 75px;
+  padding-top: 5px;
+
+  .nav {
+    border: none;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 1em;
+  }
 }
 
 div.entry-userpic {
   float: left;
   text-align: center;
   width: 70px;
-}
-
-div.entry-body {
-  margin-left: 75px;
 }
 
 .messages H2 { margin-bottom: 5px; margin-top: 5px; }
@@ -367,10 +430,6 @@ textarea.error {
 .news {
   .group {
     font-size: smaller;
-  }
-
-  .entry-body {
-    padding-top: 5px;
   }
 
   .entry-userpic {
