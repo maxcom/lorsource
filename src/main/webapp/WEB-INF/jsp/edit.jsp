@@ -117,6 +117,11 @@
       <br>
   </c:if>
 
+  <label>Разметка:*<br>
+  <select disabled>
+    <option selected>${mode}</option>
+  </select></label><br>
+
   <div class="control-group">
     <label for="form_msg">Сообщение</label>
     <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>

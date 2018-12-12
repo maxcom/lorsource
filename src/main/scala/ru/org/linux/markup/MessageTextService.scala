@@ -34,7 +34,6 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
   // TODO Markdown: fix header font size
   // TODO Markdown: typography
   // TODO Markdown: implement LorURI rendering
-  // TODO show markup mode in edit form for correctors
 
   import MessageTextService._
 

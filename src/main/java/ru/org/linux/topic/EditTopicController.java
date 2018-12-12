@@ -221,7 +221,8 @@ public class EditTopicController {
     }
 
     form.setTitle(StringEscapeUtils.unescapeHtml4(message.getTitle()));
-    form.setMsg(msgbaseDao.getMessageText(message.getId()).text());
+    MessageText messageText = msgbaseDao.getMessageText(message.getId());
+    form.setMsg(messageText.text());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
       form.setMinor(message.isMinor());
@@ -240,6 +241,8 @@ public class EditTopicController {
     }
 
     params.put("imagepost", permissionService.isImagePostingAllowed(preparedTopic.getSection(), currentUser));
+
+    params.put("mode", messageText.markup().title());
 
     return new ModelAndView("edit", params);
   }
