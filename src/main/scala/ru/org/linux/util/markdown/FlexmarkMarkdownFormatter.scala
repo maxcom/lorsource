@@ -32,7 +32,7 @@ class FlexmarkMarkdownFormatter() extends MarkdownFormatter {
     val options = new MutableDataSet
 
     options.set(Parser.EXTENSIONS, Seq(TablesExtension.create, StrikethroughExtension.create,
-      YouTubeLinkExtension.create).asJava)
+      YouTubeLinkExtension.create, new SuppressImagesExtension).asJava)
 
     options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*")
     options.set(HtmlRenderer.SUPPRESS_HTML, Boolean.box(true))
