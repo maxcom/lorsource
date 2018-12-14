@@ -46,7 +46,7 @@ public class MarkdownFormatterTest {
 
   @Test
   public void testMarkdownFormatter() {
-    assertEquals(TEXT1_RESULT, markdownFormatter.renderToHtml(TEXT1));
+    assertEquals(TEXT1_RESULT, markdownFormatter.renderToHtml(TEXT1, false));
   }
 
 }

@@ -51,8 +51,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Html ⇒
         "<p>" + text.text + "</p>"
       case Markdown ⇒
-        // TODO nofollow support
-        markdownFormatter.renderToHtml(text.text)
+        markdownFormatter.renderToHtml(text.text, nofollow)
     }
   }
 
@@ -72,7 +71,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
         "<p>" + text.text + "</p>"
       case Markdown ⇒
         // TODO check if rss needs special rendering
-        markdownFormatter.renderToHtml(text.text)
+        markdownFormatter.renderToHtml(text.text, nofollow = false)
     }
   }
 
@@ -95,7 +94,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Markdown ⇒
         // TODO nofollow support
         // TODO [cut] support
-        markdownFormatter.renderToHtml(text.text)
+        markdownFormatter.renderToHtml(text.text, nofollow)
     }
   }
 

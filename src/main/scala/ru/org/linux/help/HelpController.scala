@@ -41,7 +41,7 @@ class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
 
     new ModelAndView("help", Map(
       "title" -> title,
-      "helpText" -> renderService.renderToHtml(source)
+      "helpText" -> renderService.renderToHtml(source, nofollow = false)
     ).asJava)
   }
 

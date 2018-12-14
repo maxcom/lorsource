@@ -14,6 +14,7 @@
  */
 package ru.org.linux.util.markdown
 
+import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.youtube.embedded.YouTubeLinkExtension
@@ -28,11 +29,19 @@ import scala.collection.JavaConverters._
 @Service
 @Qualifier("flexmark")
 class FlexmarkMarkdownFormatter() extends MarkdownFormatter {
-  private val options = {
+  private def options(nofollow: Boolean) = {
     val options = new MutableDataSet
 
-    options.set(Parser.EXTENSIONS, Seq(TablesExtension.create, StrikethroughExtension.create,
-      YouTubeLinkExtension.create, new SuppressImagesExtension).asJava)
+    val extensions = Seq(TablesExtension.create, StrikethroughExtension.create,
+      YouTubeLinkExtension.create, AutolinkExtension.create(), new SuppressImagesExtension)
+
+    val allExtensions = (if (nofollow) {
+      extensions :+ new NofollowExtension
+    } else {
+      extensions
+    }).asJava
+
+    options.set(Parser.EXTENSIONS, allExtensions)
 
     options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*")
     options.set(HtmlRenderer.SUPPRESS_HTML, Boolean.box(true))
@@ -43,12 +52,18 @@ class FlexmarkMarkdownFormatter() extends MarkdownFormatter {
     options.toImmutable
   }
 
-  private val parser = Parser.builder(options).build
-  private val renderer = HtmlRenderer.builder(options).build
+  private val parser = Parser.builder(options(nofollow = false)).build
+  private val renderer = HtmlRenderer.builder(options(nofollow = false)).build
+  private val rendererNofollow = HtmlRenderer.builder(options(nofollow = true)).build
 
-  override def renderToHtml(content: String): String = {
+  override def renderToHtml(content: String, nofollow: Boolean): String = {
     // You can re-use parser and renderer instances
     val document = parser.parse(content)
-    renderer.render(document)
+
+    (if (nofollow) {
+      rendererNofollow
+    } else {
+      renderer
+    }).render(document)
   }
 }

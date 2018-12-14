@@ -58,7 +58,7 @@ class HelpControllerTestConfig extends WebMvcConfigurerAdapter {
   def controller = {
     val markdown: MarkdownFormatter = mock(classOf[MarkdownFormatter])
 
-    when(markdown.renderToHtml(anyString())).thenReturn("ok")
+    when(markdown.renderToHtml(anyString(), anyBoolean())).thenReturn("ok")
 
     new HelpController(markdown)
   }
