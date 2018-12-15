@@ -110,13 +110,12 @@
   </c:if>
 
   <div class="messages">
-  <div class="comment">
     <c:forEach items="${result}" var="item">
       <article class="msg">
-        <h2>
+        <h1>
           <c:if test="${item.comment}"><i class="icon-comment"></i></c:if>
           <a href="${item.url}"><l:title>${item.title}</l:title></a>
-        </h2>
+        </h1>
 
         <div class="msg_body">
           <p>${item.message}</p>
@@ -133,7 +132,6 @@
         </div>
       </article>
     </c:forEach>
-  </div>
   </div>
 
 <div class="nav">

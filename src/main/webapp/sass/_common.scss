@@ -97,37 +97,37 @@ textarea {
   @include clearfix;
 }
 
+// sizes calculated at https://www.modularscale.com/?1&em&1.098
+h1 {
+  font-size: 1.752em;
+  margin-top: 0.25em;
+  margin-bottom: 0;
+}
+
+h2 {
+  font-size: 1.596em
+}
+
+h3 {
+  font-size: 1.453em
+}
+
+h4 {
+  font-size: 1.324em
+}
+
+h5 {
+  font-size: 1.206em
+}
+
+h6 {
+  font-size: 1.098em
+}
+
 /* specific styles */
 
 .news {
   border-top: 1px solid;
-
-  // sizes calculated at https://www.modularscale.com/?1&em&1.098
-  h1 {
-    font-size: 1.752em;
-    margin-top: 0.25em;
-    margin-bottom: 0;
-  }
-
-  h2 {
-    font-size: 1.596em
-  }
-
-  h3 {
-    font-size: 1.453em
-  }
-
-  h4 {
-    font-size: 1.324em
-  }
-
-  h5 {
-    font-size: 1.206em
-  }
-
-  h6 {
-    font-size: 1.098em
-  }
 }
 
 .msg_body {
@@ -469,7 +469,6 @@ textarea.error {
 }
 
 h1 {
-    font-size: 2em;
     line-height: 1.2;
     margin-top: 0;
     margin-bottom: 5px
