@@ -90,11 +90,16 @@
 
 <c:if test="${showAdsense and counter>=5}">
 <style>
-.yandex-adaptive { height: 250px; width: 100%;}
+  @media screen and (max-width: 480px) {
+    .yandex-adaptive {
+      height: 250px;
+      width: 100%;
+    }
+  }
 
-@media screen and (min-width: 40em) {
-  .yandex-adaptive { height: 120px; width: 100% }
-}
+  @media screen and (min-width: 481px) {
+    .yandex-adaptive { height: 120px; width: 100% }
+  }
 </style>
 <!-- Yandex.RTB R-A-337082-4 -->
 <div id="yandex_rtb_R-A-337082-4" class="yandex-adaptive"></div>
