@@ -213,15 +213,14 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-<!-- Yandex.RTB R-A-337082-2 -->
 <style>
 .yandex-adaptive { height: 250px; width: 100%;}
 
 @media screen and (min-width: 40em) {
   .yandex-adaptive { height: 120px; width: 100% }
 }
-
 </style>
+<!-- Yandex.RTB R-A-337082-2 -->
 <div id="yandex_rtb_R-A-337082-2" class="yandex-adaptive"></div>
 <script type="text/javascript">
     (function(w, d, n, s, t) {
