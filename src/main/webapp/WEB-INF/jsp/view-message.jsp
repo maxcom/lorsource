@@ -213,24 +213,26 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <div align="center" width="100%" style="margin-bottom: 1em">
-    <style>
-    .lor-topic-adaptive-tango { width: 320px; height: 100px; }
-    @media(min-width: 500px) { .lor-topic-adaptive-tango { width: 468px; height: 60px; } }
-    @media(min-width: 768px) { .lor-topic-adaptive-tango { width: 100%; height: 90px; } }
-    </style>
-
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <!-- lor-topic-adaptive-tango -->
-    <ins class="adsbygoogle lor-topic-adaptive-tango"
-         style="display:block"
-         data-ad-client="ca-pub-6069094673001350"
-         data-ad-slot="2435162839"
-         data-ad-format="horizontal"></ins>
-    <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
+  <!-- Yandex.RTB R-A-337082-1 -->
+  <div id="yandex_rtb_R-A-337082-1"></div>
+  <script type="text/javascript">
+      (function(w, d, n, s, t) {
+          w[n] = w[n] || [];
+          w[n].push(function() {
+              Ya.Context.AdvManager.render({
+                  blockId: "R-A-337082-1",
+                  renderTo: "yandex_rtb_R-A-337082-1",
+                  async: true
+              });
+          });
+          t = d.getElementsByTagName("script")[0];
+          s = d.createElement("script");
+          s.type = "text/javascript";
+          s.src = "//an.yandex.ru/system/context.js";
+          s.async = true;
+          t.parentNode.insertBefore(s, t);
+      })(this, this.document, "yandexContextAsyncCallbacks");
+  </script>
 </c:if>
 
 <%--
