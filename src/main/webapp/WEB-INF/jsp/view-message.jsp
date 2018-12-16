@@ -213,26 +213,38 @@
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
 <c:if test="${showAdsense}">
-  <!-- Yandex.RTB R-A-337082-1 -->
-  <div id="yandex_rtb_R-A-337082-1"></div>
-  <script type="text/javascript">
-      (function(w, d, n, s, t) {
-          w[n] = w[n] || [];
-          w[n].push(function() {
-              Ya.Context.AdvManager.render({
-                  blockId: "R-A-337082-1",
-                  renderTo: "yandex_rtb_R-A-337082-1",
-                  async: true
-              });
-          });
-          t = d.getElementsByTagName("script")[0];
-          s = d.createElement("script");
-          s.type = "text/javascript";
-          s.src = "//an.yandex.ru/system/context.js";
-          s.async = true;
-          t.parentNode.insertBefore(s, t);
-      })(this, this.document, "yandexContextAsyncCallbacks");
-  </script>
+<!-- Yandex.RTB R-A-337082-2 -->
+<style>
+.yandex-adaptive { height: 250px; width: 100%;}
+
+@media screen and (min-width: 40em) {
+  .yandex-adaptive { height: 90px; width: 100% }
+}
+
+@media screen and (min-width: 60em) {
+  .yandex-adaptive { height: 120px; width: 100% }
+}
+
+</style>
+<div id="yandex_rtb_R-A-337082-2" class="yandex-adaptive"></div>
+<script type="text/javascript">
+    (function(w, d, n, s, t) {
+        w[n] = w[n] || [];
+        w[n].push(function() {
+            Ya.Context.AdvManager.render({
+                blockId: "R-A-337082-2",
+                renderTo: "yandex_rtb_R-A-337082-2",
+                async: true
+            });
+        });
+        t = d.getElementsByTagName("script")[0];
+        s = d.createElement("script");
+        s.type = "text/javascript";
+        s.src = "//an.yandex.ru/system/context.js";
+        s.async = true;
+        t.parentNode.insertBefore(s, t);
+    })(this, this.document, "yandexContextAsyncCallbacks");
+</script>
   <p>
 </c:if>
 
