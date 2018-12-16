@@ -218,10 +218,6 @@
 .yandex-adaptive { height: 250px; width: 100%;}
 
 @media screen and (min-width: 40em) {
-  .yandex-adaptive { height: 90px; width: 100% }
-}
-
-@media screen and (min-width: 60em) {
   .yandex-adaptive { height: 120px; width: 100% }
 }
 
