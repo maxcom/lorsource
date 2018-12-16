@@ -233,6 +233,7 @@
           t.parentNode.insertBefore(s, t);
       })(this, this.document, "yandexContextAsyncCallbacks");
   </script>
+  <p>
 </c:if>
 
 <%--
