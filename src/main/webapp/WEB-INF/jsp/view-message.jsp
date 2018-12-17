@@ -216,13 +216,13 @@
 <style>
 @media screen and (max-width: 480px) {
   .yandex-adaptive {
-    height: 250px;
+    min-height: 250px;
     width: 100%;
   }
 }
 
 @media screen and (min-width: 481px) {
-  .yandex-adaptive { height: 120px; width: 100% }
+  .yandex-adaptive { min-height: 90px; width: 100% }
 }
 </style>
 <!-- Yandex.RTB R-A-337082-2 -->
