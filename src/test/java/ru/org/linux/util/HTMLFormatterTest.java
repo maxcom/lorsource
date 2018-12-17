@@ -178,7 +178,7 @@ public class HTMLFormatterTest {
     lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
-    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter());
+    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter(siteConfig));
   }
 
   @Test

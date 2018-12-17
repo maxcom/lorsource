@@ -15,9 +15,14 @@
 
 package ru.org.linux.util.markdown;
 
+import org.apache.commons.httpclient.URI;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import ru.org.linux.spring.SiteConfig;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by bvn13 on 15.11.2018.
@@ -42,7 +47,19 @@ public class MarkdownFormatterTest {
           "<p>Вот такой должно получиться</p>\n" +
           "<p>И это тоже должно работать</p>\n";
 
-  private final MarkdownFormatter markdownFormatter = new FlexmarkMarkdownFormatter();
+  private SiteConfig siteConfig;
+
+  @Before
+  public void init() throws Exception {
+    siteConfig = mock(SiteConfig.class);
+    URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
+    URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
+
+    Mockito.when(siteConfig.getMainURI()).thenReturn(mainURI);
+    Mockito.when(siteConfig.getSecureURI()).thenReturn(secureURI);
+  }
+
+  private final MarkdownFormatter markdownFormatter = new FlexmarkMarkdownFormatter(siteConfig);
 
   @Test
   public void testMarkdownFormatter() {
