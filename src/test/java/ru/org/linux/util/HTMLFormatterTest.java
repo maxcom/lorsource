@@ -114,7 +114,7 @@ public class HTMLFormatterTest {
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
     URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
 
-    TopicDao messageDao = mock(TopicDao.class);
+    TopicDao topicDao = mock(TopicDao.class);
     Topic message1 = mock(Topic.class);
     Group group1 = mock(Group.class);
     Topic message2 = mock(Topic.class);
@@ -143,18 +143,18 @@ public class HTMLFormatterTest {
     when(group12.getUrl()).thenReturn("/forum/security/");
     when(group15.getUrl()).thenReturn("/forum/linux-org-ru/");
     when(groupHistory.getUrl()).thenReturn("/news/kernel/");
-    when(messageDao.getGroup(message1)).thenReturn(group1);
-    when(messageDao.getGroup(message2)).thenReturn(group2);
-    when(messageDao.getGroup(message3)).thenReturn(group3);
-    when(messageDao.getGroup(message12)).thenReturn(group12);
-    when(messageDao.getGroup(message15)).thenReturn(group15);
-    when(messageDao.getGroup(messageHistory)).thenReturn(groupHistory);
-    when(messageDao.getById(6753486)).thenReturn(message1);
-    when(messageDao.getById(6893165)).thenReturn(message2);
-    when(messageDao.getById(6890857)).thenReturn(message3);
-    when(messageDao.getById(1948661)).thenReturn(message12);
-    when(messageDao.getById(6944260)).thenReturn(message15);
-    when(messageDao.getById(6992532)).thenReturn(messageHistory);
+    when(topicDao.getGroup(message1)).thenReturn(group1);
+    when(topicDao.getGroup(message2)).thenReturn(group2);
+    when(topicDao.getGroup(message3)).thenReturn(group3);
+    when(topicDao.getGroup(message12)).thenReturn(group12);
+    when(topicDao.getGroup(message15)).thenReturn(group15);
+    when(topicDao.getGroup(messageHistory)).thenReturn(groupHistory);
+    when(topicDao.getById(6753486)).thenReturn(message1);
+    when(topicDao.getById(6893165)).thenReturn(message2);
+    when(topicDao.getById(6890857)).thenReturn(message3);
+    when(topicDao.getById(1948661)).thenReturn(message12);
+    when(topicDao.getById(6944260)).thenReturn(message15);
+    when(topicDao.getById(6992532)).thenReturn(messageHistory);
     when(commentDao.getById(6892917)).thenReturn(comment);
     when(commentDao.getById(1948675)).thenReturn(comment);
     when(commentDao.getById(6944831)).thenReturn(comment);
@@ -166,19 +166,19 @@ public class HTMLFormatterTest {
 
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
-    toHtmlFormatter.setMessageDao(messageDao);
+    toHtmlFormatter.setTopicDao(topicDao);
     toHtmlFormatter.setCommentDao(commentDao);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
     toHtmlFormatter20.setSiteConfig(siteConfig);
-    toHtmlFormatter20.setMessageDao(messageDao);
+    toHtmlFormatter20.setTopicDao(topicDao);
     toHtmlFormatter20.setMaxLength(20);
     toHtmlFormatter20.setCommentDao(commentDao);
 
     lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
-    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter(siteConfig));
+    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao));
   }
 
   @Test
@@ -594,4 +594,6 @@ public class HTMLFormatterTest {
             "<p><a href=\"https://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>",
             lorCodeService.parseComment("www.linux.org.ru/forum/linux%3C%3E-org-ru/", false));
   }
+
+
 }

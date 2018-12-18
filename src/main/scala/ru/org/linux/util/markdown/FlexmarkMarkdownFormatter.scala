@@ -17,23 +17,27 @@ package ru.org.linux.util.markdown
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
+import com.vladsch.flexmark.ext.youtube.embedded.YouTubeLinkExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.options.MutableDataSet
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import ru.org.linux.comment.CommentDao
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.topic.TopicDao
 
 import scala.collection.JavaConverters._
 
 @Service
 @Qualifier("flexmark")
-class FlexmarkMarkdownFormatter(siteConfig: SiteConfig) extends MarkdownFormatter {
+class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends MarkdownFormatter {
   private def options(nofollow: Boolean) = {
     val options = new MutableDataSet
 
     val extensions = Seq(TablesExtension.create, StrikethroughExtension.create,
-      AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig))
+      AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig, topicDao, commentDao),
+      YouTubeLinkExtension.create())
 
     val allExtensions = (if (nofollow) {
       extensions :+ new NofollowExtension

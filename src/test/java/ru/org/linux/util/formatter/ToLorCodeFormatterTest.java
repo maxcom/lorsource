@@ -45,7 +45,7 @@ public class ToLorCodeFormatterTest {
 
     ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
-    toHtmlFormatter.setMessageDao(messageDao);
+    toHtmlFormatter.setTopicDao(messageDao);
     toHtmlFormatter.setCommentDao(commentDao);
 
     LorCodeService lorCodeService = new LorCodeService();

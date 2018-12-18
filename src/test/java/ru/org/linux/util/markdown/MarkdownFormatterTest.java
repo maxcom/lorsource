@@ -19,7 +19,9 @@ import org.apache.commons.httpclient.URI;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import ru.org.linux.comment.CommentDao;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.topic.TopicDao;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -47,19 +49,23 @@ public class MarkdownFormatterTest {
           "<p>Вот такой должно получиться</p>\n" +
           "<p>И это тоже должно работать</p>\n";
 
-  private SiteConfig siteConfig;
+  private MarkdownFormatter markdownFormatter;
 
   @Before
   public void init() throws Exception {
-    siteConfig = mock(SiteConfig.class);
+    SiteConfig siteConfig = mock(SiteConfig.class);
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
     URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
 
+    TopicDao topicDao = mock(TopicDao.class);
+    CommentDao commentDao = mock(CommentDao.class);
+
     Mockito.when(siteConfig.getMainURI()).thenReturn(mainURI);
     Mockito.when(siteConfig.getSecureURI()).thenReturn(secureURI);
+
+    markdownFormatter = new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao);
   }
 
-  private final MarkdownFormatter markdownFormatter = new FlexmarkMarkdownFormatter(siteConfig);
 
   @Test
   public void testMarkdownFormatter() {

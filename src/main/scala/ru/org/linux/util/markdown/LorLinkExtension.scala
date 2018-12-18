@@ -16,27 +16,29 @@
 package ru.org.linux.util.markdown
 
 import com.vladsch.flexmark.ast._
-import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
 import com.vladsch.flexmark.html.renderer._
+import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
 import com.vladsch.flexmark.util.options.MutableDataHolder
+import ru.org.linux.comment.CommentDao
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.LorURL
 
 import scala.collection.JavaConverters._
 
-class LorLinkExtension(siteConfig: SiteConfig) extends HtmlRenderer.HtmlRendererExtension {
+class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
 
   // TODO поддержка Link, а не только AutoLink
   override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit = {
     if (rendererBuilder.isRendererType("HTML")) {
-      rendererBuilder.nodeRendererFactory(_ ⇒ new LorLinkRenderer(siteConfig))
+      rendererBuilder.nodeRendererFactory(_ ⇒ new LorLinkRenderer(siteConfig, topicDao, commentDao))
     }
   }
 }
 
 
-class LorLinkRenderer(siteConfig: SiteConfig) extends NodeRenderer {
+class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends NodeRenderer {
   override def getNodeRenderingHandlers = Set(new NodeRenderingHandler[AutoLink](classOf[AutoLink], (node, ctx, html) => {
     val url: LorURL = new LorURL(siteConfig.getMainURI, node.getUrl.toString)
 
@@ -52,11 +54,40 @@ class LorLinkRenderer(siteConfig: SiteConfig) extends NodeRenderer {
 
     val resolvedLink = ctx.resolveLink(LinkType.LINK, canonical, null)
 
-    // TODO process topic and comment links
+    if (url.isMessageUrl) {
+      val message = topicDao.getById(url.getMessageId)
 
-    html.srcPos(node.getText)
-      .attr("href", canonical)
-      .withAttr(resolvedLink)
-      .tag("a", false, false, () ⇒ html.text(url.toString))
+      val deleted = if (url.isCommentUrl && !message.isDeleted) {
+        val comment = commentDao.getById(url.getCommentId)
+        comment.isDeleted
+      } else {
+        message.isDeleted
+      }
+
+      html.srcPos(node.getText)
+
+      if (deleted) {
+        html.tag("s")
+      }
+
+      val text = if (deleted) {
+        canonical
+      } else {
+        message.getTitleUnescaped
+      }
+
+      html.attr("href", canonical)
+      html.withAttr(resolvedLink)
+      html.tag("a", false, false, () ⇒ html.text(text))
+
+      if (deleted) {
+        html.closeTag("s")
+      }
+    } else {
+      html.srcPos(node.getText)
+        .attr("href", canonical)
+        .withAttr(resolvedLink)
+        .tag("a", false, false, () ⇒ html.text(url.toString))
+    }
   }
 }

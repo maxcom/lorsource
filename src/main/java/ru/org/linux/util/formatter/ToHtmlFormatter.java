@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
-import ru.org.linux.comment.CommentService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.Topic;
@@ -58,7 +57,7 @@ public class ToHtmlFormatter {
   public static final String MDASH_REPLACE = "&nbsp;&mdash; ";
 
   private SiteConfig siteConfig;
-  private TopicDao messageDao;
+  private TopicDao topicDao;
 
   @Autowired
   private CommentDao commentDao;
@@ -71,8 +70,8 @@ public class ToHtmlFormatter {
   }
 
   @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
+  public void setTopicDao(TopicDao topicDao) {
+    this.topicDao = topicDao;
   }
 
   // для тестирования (todo: заюзать SpringContext)
@@ -89,7 +88,6 @@ public class ToHtmlFormatter {
    * Форматирует текст
    *
    * @param text текст
-   * @param nofollow
    * @return отфарматированный текст
    */
   public String format(String text, boolean nofollow) {
@@ -227,7 +225,7 @@ public class ToHtmlFormatter {
           @Nullable String linkText
   ) throws URIException {
     try {
-      Topic message = messageDao.getById(url.getMessageId());
+      Topic message = topicDao.getById(url.getMessageId());
 
       boolean deleted = message.isDeleted();
 
@@ -239,7 +237,7 @@ public class ToHtmlFormatter {
 
       String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
-      String newUrlHref = url.formatJump(messageDao, siteConfig.getSecureURI());
+      String newUrlHref = url.formatJump(topicDao, siteConfig.getSecureURI());
       String fixedUrlBody = url.formatUrlBody(maxLength);
 
       if (deleted) {
