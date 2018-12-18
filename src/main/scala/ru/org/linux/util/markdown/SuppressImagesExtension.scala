@@ -1,6 +1,6 @@
 package ru.org.linux.util.markdown
 
-import com.vladsch.flexmark.ast.Image
+import com.vladsch.flexmark.ast.{Image, ImageRef}
 import com.vladsch.flexmark.ast.util.TextCollectingVisitor
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{NodeRenderer, NodeRenderingHandler}
@@ -24,7 +24,12 @@ class SuppressImagesRenderer extends NodeRenderer {
       val altText = new TextCollectingVisitor().collectAndGetText(node)
 
       html.text(altText)
-    })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+    }), new NodeRenderingHandler[ImageRef](classOf[ImageRef], (node, _, html) => {
+      val altText = new TextCollectingVisitor().collectAndGetText(node)
+
+      html.text(altText)
+    })
+    ).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
   }
 }
 
