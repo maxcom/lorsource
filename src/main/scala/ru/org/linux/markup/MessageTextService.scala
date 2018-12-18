@@ -223,6 +223,8 @@ object MarkupPermissions {
       Set(Lorcode)
     } else if (user.isAdministrator) {
       Set(Lorcode, LorcodeUlb, Markdown, Html)
+    } else if (user.isModerator) {
+      Set(Lorcode, LorcodeUlb, Markdown)
     } else {
       Set(Lorcode, LorcodeUlb)
     }
