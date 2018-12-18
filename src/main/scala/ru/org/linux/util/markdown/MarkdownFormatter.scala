@@ -12,13 +12,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.util.markdown
 
+import ru.org.linux.user.User
 
-package ru.org.linux.util.markdown;
-
-/**
- * @author bvn13 at 2018-11-11
- */
-public interface MarkdownFormatter {
-  String renderToHtml(String content, boolean nofollow);
+trait MarkdownFormatter {
+  def renderToHtml(content: String, nofollow: Boolean): String
+  def mentions(content: String): Set[User]
 }

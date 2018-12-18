@@ -14,6 +14,7 @@
  */
 package ru.org.linux.util.markdown
 
+import com.vladsch.flexmark.ast.{NodeVisitor, VisitHandler}
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -26,10 +27,11 @@ import org.springframework.stereotype.Service
 import ru.org.linux.comment.CommentDao
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
-import ru.org.linux.user.UserService
+import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 @Service
 @Qualifier("flexmark")
@@ -72,5 +74,19 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     } else {
       renderer
     }).render(document)
+  }
+
+  override def mentions(content: String): Set[User] = {
+    val document = parser.parse(content)
+
+    val mentions = mutable.Set[String]()
+
+    val visitor = new NodeVisitor(new VisitHandler[LorUser](classOf[LorUser], (node: LorUser) => {
+      mentions.add(node.getChars.subSequence(1).toString)
+    }))
+
+    visitor.visit(document)
+
+    mentions.toSet.map { s: String ⇒ userService.getUserCached(s) }
   }
 }

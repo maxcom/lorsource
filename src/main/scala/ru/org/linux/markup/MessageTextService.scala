@@ -32,7 +32,6 @@ import scala.collection.immutable.ListMap
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
   // TODO Markdown: typography
-  // TODO Markdown: implement LorURI rendering
 
   import MessageTextService._
 
@@ -92,7 +91,6 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Html ⇒
         "<p>" + text.text
       case Markdown ⇒
-        // TODO nofollow support
         // TODO [cut] support
         markdownFormatter.renderToHtml(text.text, nofollow)
     }
@@ -120,8 +118,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Html ⇒
         Set.empty[User].asJava
       case Markdown ⇒
-        // TODO support mentions
-        Set.empty[User].asJava
+        markdownFormatter.mentions(text.text).asJava
     }
   }
 
