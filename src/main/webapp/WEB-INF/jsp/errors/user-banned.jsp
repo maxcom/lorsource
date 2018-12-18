@@ -24,14 +24,14 @@
 <div id="warning-body">
     <div id="warning-logo"><img src="/img/good-penguin.png" alt="good-penguin" /></div>
     <div id="warning-text">
-        <h1>Пользователь <c:out value="${exception.user.nick}" escapeXml="true"/> забанен.</h1>
+        <h1>Пользователь <c:out value="${exception.user.nick}" escapeXml="true"/> забанене.</h1>
         <p>К сожалению, пользователь <b><c:out value="${exception.user.nick}" escapeXml="true"/></b> не может более посещать LOR, </p>
         <c:choose>
             <c:when test="${not empty exception.banInfo.date}">
                 <p>начиная с <fmt:formatDate value="${exception.banInfo.date}" type="both" pattern="dd.MM.yyyy hh:mm:ss"/>.</p>
             </c:when>
             <c:otherwise>
-                <p>причём забанен он был настолько давно, что никто уже и не помнит, когда.</p>
+                <p>причём забанене оне быле настолько давно, что никто уже и не помнит, когда.</p>
             </c:otherwise>
         </c:choose>
         <c:choose>
@@ -39,7 +39,7 @@
                 <p>Причина тому проста: <i><c:out value="${exception.banInfo.reason}" escapeXml="true"/></i>.</p>
             </c:when>
             <c:otherwise>
-                <p>Мы не знаем, за что его забанили. Видимо, он был большой редиской.</p>
+                <p>Мы не знаем, за что ее забанили. Видимо, оне быле большой редиской.</p>
             </c:otherwise>
         </c:choose>
         <p>Мы сожалеем, правда.</p>
