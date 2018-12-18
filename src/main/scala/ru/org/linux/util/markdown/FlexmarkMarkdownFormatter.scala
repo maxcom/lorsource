@@ -42,7 +42,7 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     val extensions = Seq(TablesExtension.create, StrikethroughExtension.create,
       AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig, topicDao, commentDao),
-      new LorUserExtension(userService, toHtmlFormatter), YouTubeLinkExtension.create())
+      new LorUserExtension(userService, toHtmlFormatter)/*, YouTubeLinkExtension.create()*/)
 
     val allExtensions = (if (nofollow) {
       extensions :+ new NofollowExtension
