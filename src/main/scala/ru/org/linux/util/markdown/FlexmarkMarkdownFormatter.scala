@@ -26,18 +26,21 @@ import org.springframework.stereotype.Service
 import ru.org.linux.comment.CommentDao
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
+import ru.org.linux.user.UserService
+import ru.org.linux.util.formatter.ToHtmlFormatter
 
 import scala.collection.JavaConverters._
 
 @Service
 @Qualifier("flexmark")
-class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends MarkdownFormatter {
+class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao,
+                                userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends MarkdownFormatter {
   private def options(nofollow: Boolean) = {
     val options = new MutableDataSet
 
     val extensions = Seq(TablesExtension.create, StrikethroughExtension.create,
       AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig, topicDao, commentDao),
-      YouTubeLinkExtension.create())
+      new LorUserExtension(userService, toHtmlFormatter), YouTubeLinkExtension.create())
 
     val allExtensions = (if (nofollow) {
       extensions :+ new NofollowExtension

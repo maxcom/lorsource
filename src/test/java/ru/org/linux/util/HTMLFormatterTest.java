@@ -28,6 +28,7 @@ import ru.org.linux.markup.MarkupType;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.markdown.FlexmarkMarkdownFormatter;
@@ -178,7 +179,8 @@ public class HTMLFormatterTest {
     lorCodeService = new LorCodeService();
     lorCodeService.setToHtmlFormatter(toHtmlFormatter);
 
-    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao));
+    textService = new MessageTextService(lorCodeService, new FlexmarkMarkdownFormatter(siteConfig, topicDao,
+            commentDao, mock(UserService.class), toHtmlFormatter));
   }
 
   @Test

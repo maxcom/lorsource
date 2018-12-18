@@ -22,6 +22,8 @@ import org.mockito.Mockito;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.UserService;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -63,7 +65,8 @@ public class MarkdownFormatterTest {
     Mockito.when(siteConfig.getMainURI()).thenReturn(mainURI);
     Mockito.when(siteConfig.getSecureURI()).thenReturn(secureURI);
 
-    markdownFormatter = new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao);
+    markdownFormatter = new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao, mock(UserService.class),
+            new ToHtmlFormatter());
   }
 
 
