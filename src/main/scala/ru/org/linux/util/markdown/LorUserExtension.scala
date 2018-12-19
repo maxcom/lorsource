@@ -96,19 +96,37 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
       maybeUser match {
         case Some(user) ⇒
           val resolvedLink = ctx.resolveLink(LinkType.LINK, toHtmlFormatter.memberURL(user), null)
+          val tuxLink = ctx.resolveLink(LinkType.LINK, "/img/tuxlor.png", null)
+
+          html
+            .withAttr()
+            .attr("style", "white-space: nowrap")
+            .tag("span")
+
+          html
+            .attr("src", "/img/tuxlor.png")
+            .withAttr(tuxLink)
+            .attr("alt", "@")
+            .attr("title", "@")
+            .attr("width", "7")
+            .attr("height", "16")
+            .tagVoid("img")
 
           if (user.isBlocked) {
             html.tag("s")
           }
 
           html
+            .attr("style", "text-decoration: none")
             .attr("href", resolvedLink.getUrl)
             .withAttr(resolvedLink)
-            .tag("a", false, false, () ⇒ html.text(node.getChars.toString))
+            .tag("a", false, false, () ⇒ html.text(nick))
 
           if (user.isBlocked) {
             html.closeTag("s")
           }
+
+          html.closeTag("span")
         case _ ⇒
           html.tag("s")
           html.text(node.getChars.toString)
