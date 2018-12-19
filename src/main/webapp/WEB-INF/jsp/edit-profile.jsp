@@ -15,6 +15,7 @@
   --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -114,8 +115,14 @@ $script.ready('plugins', function() {
 <tr>
   <td valign=top>Форматирование по умолчанию</td>
   <td>
-      <label><input type=radio name=format_mode id="format-lorcode"  value="lorcode" <c:if test="${template.formatMode == 'lorcode' }">checked</c:if> >LORCODE</label>
-      <label><input type=radio name=format_mode id="format-ntobr" value="ntobr" <c:if test="${template.formatMode == 'ntobr' }">checked</c:if> >User line break</label>
+    <c:forEach var="s" items="${formatModes}">
+      <c:if test="${s.key == format_mode}">
+        <label><input type=radio name=format_mode value="${s.key}" checked>${s.value}</label>
+      </c:if>
+      <c:if test="${s.key != format_mode}">
+        <label><input type=radio name=format_mode value="${s.key}">${s.value}</label>
+      </c:if>
+    </c:forEach>
   </td>
 </tr>
 

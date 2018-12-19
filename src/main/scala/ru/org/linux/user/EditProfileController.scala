@@ -16,13 +16,14 @@
 package ru.org.linux.user
 
 import java.util
-import javax.servlet.ServletRequest
 
+import javax.servlet.ServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 
@@ -57,17 +58,22 @@ class EditProfileController(
 
     params.put("trackerModes", TrackerFilterEnum.values)
 
+    params.put("format_mode", tmpl.getFormatMode)
+
+    params.put("formatModes",
+      MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(m ⇒ m.formId -> m.title).toMap.asJava)
+
     params.put("avatarsList", DefaultProfile.getAvatars)
 
     new ModelAndView("edit-profile", params)
   }
 
   @RequestMapping(method = Array(RequestMethod.POST))
-  def editProfile(
-    request: ServletRequest, @RequestParam("topics") topics: Int,
-    @RequestParam("messages") messages: Int,
-    @PathVariable nick: String
-  ): ModelAndView = {
+  def editProfile(request: ServletRequest, @RequestParam("topics") topics: Int,
+                  @RequestParam("messages") messages: Int,
+                  @RequestParam("format_mode") formatMode: String,
+                  @PathVariable nick: String
+                 ): ModelAndView = {
     val tmpl: Template = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
@@ -84,13 +90,18 @@ class EditProfileController(
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы")
     }
+
+    if (!MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(_.formId).contains(formatMode)) {
+      throw new BadInputException("некорректный режим форматирования")
+    }
+
     tmpl.getProf.setTopics(topics)
     tmpl.getProf.setMessages(messages)
     tmpl.getProf.setShowNewFirst("on" == request.getParameter("newfirst"))
     tmpl.getProf.setShowPhotos("on" == request.getParameter("photos"))
     tmpl.getProf.setHideAdsense("on" == request.getParameter("hideAdsense"))
     tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
-    tmpl.getProf.setFormatMode(request.getParameter("format_mode"))
+    tmpl.getProf.setFormatMode(formatMode)
     tmpl.getProf.setStyle(request.getParameter("style"))
     userDao.setStyle(tmpl.getCurrentUser, request.getParameter("style"))
     tmpl.getProf.setShowSocial("on" == request.getParameter("showSocial"))
