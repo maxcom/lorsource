@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -165,11 +165,18 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def getUserCached(nick: String) = userDao.getUserCached(findUserIdCached(nick))
+  def getUserCached(nick: String): User = userDao.getUserCached(findUserIdCached(nick))
+
+  def findUserCached(nick: String): Option[User] = try {
+    Some(userDao.getUserCached(findUserIdCached(nick)))
+  } catch {
+    case _: UserNotFoundException ⇒
+      None
+  }
 
   def getUserCached(id: Int) = userDao.getUserCached(id)
 
-  def getUser(nick:String) = userDao.getUser(findUserIdCached(nick))
+  def getUser(nick: String) = userDao.getUser(findUserIdCached(nick))
 
   def getAnonymous: User = {
     try {

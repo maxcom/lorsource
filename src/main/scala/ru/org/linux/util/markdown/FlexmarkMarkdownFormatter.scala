@@ -18,7 +18,6 @@ import com.vladsch.flexmark.ast.{NodeVisitor, VisitHandler}
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
-import com.vladsch.flexmark.ext.youtube.embedded.YouTubeLinkExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.options.MutableDataSet
@@ -87,6 +86,6 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     visitor.visit(document)
 
-    mentions.toSet.map { s: String ⇒ userService.getUserCached(s) }
+    mentions.toSet.flatMap { s: String ⇒ userService.findUserCached(s) }
   }
 }

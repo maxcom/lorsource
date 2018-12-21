@@ -9,7 +9,7 @@ import com.vladsch.flexmark.html.renderer.{LinkType, NodeRenderer, NodeRendering
 import com.vladsch.flexmark.parser.{InlineParser, InlineParserExtension, InlineParserExtensionFactory, Parser}
 import com.vladsch.flexmark.util.options.MutableDataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
-import ru.org.linux.user.{UserNotFoundException, UserService}
+import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
 import scala.collection.JavaConverters._
@@ -86,12 +86,7 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
     Set(new NodeRenderingHandler[LorUser](classOf[LorUser], (node, ctx, html) => {
       val nick = node.getChars.subSequence(1).toString
 
-      val maybeUser = try {
-        Some(userService.getUserCached(nick))
-      } catch {
-        case _: UserNotFoundException ⇒
-          None
-      }
+      val maybeUser = userService.findUserCached(nick)
 
       maybeUser match {
         case Some(user) ⇒
