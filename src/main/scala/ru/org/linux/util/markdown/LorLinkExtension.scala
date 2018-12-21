@@ -25,6 +25,7 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.LorURL
 
 import scala.collection.JavaConverters._
+import scala.compat.java8.OptionConverters._
 
 class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
@@ -51,43 +52,49 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
 
   private def renderLorUrl(node: AutoLink, html: HtmlWriter, url: LorURL, ctx: NodeRendererContext): Unit = {
     val canonical = url.canonize(siteConfig.getSecureURI)
-
     val resolvedLink = ctx.resolveLink(LinkType.LINK, canonical, null)
 
-    if (url.isMessageUrl) {
-      val message = topicDao.getById(url.getMessageId)
-
-      val deleted = if (url.isCommentUrl && !message.isDeleted) {
-        val comment = commentDao.getById(url.getCommentId)
-        comment.isDeleted
-      } else {
-        message.isDeleted
-      }
-
-      html.srcPos(node.getText)
-
-      if (deleted) {
-        html.tag("s")
-      }
-
-      val text = if (deleted) {
-        canonical
-      } else {
-        message.getTitleUnescaped
-      }
-
-      html.attr("href", canonical)
-      html.withAttr(resolvedLink)
-      html.tag("a", false, false, () ⇒ html.text(text))
-
-      if (deleted) {
-        html.closeTag("s")
-      }
-    } else {
+    def renderLink(): Unit = {
       html.srcPos(node.getText)
         .attr("href", canonical)
         .withAttr(resolvedLink)
         .tag("a", false, false, () ⇒ html.text(url.toString))
+    }
+
+    if (url.isMessageUrl) {
+      topicDao.findById(url.getMessageId).asScala match {
+        case Some(message) ⇒
+          val deleted = if (url.isCommentUrl && !message.isDeleted) {
+            val comment = commentDao.getById(url.getCommentId)
+            comment.isDeleted
+          } else {
+            message.isDeleted
+          }
+
+          html.srcPos(node.getText)
+
+          if (deleted) {
+            html.tag("s")
+          }
+
+          val text = if (deleted) {
+            canonical
+          } else {
+            message.getTitleUnescaped
+          }
+
+          html.attr("href", canonical)
+          html.withAttr(resolvedLink)
+          html.tag("a", false, false, () ⇒ html.text(text))
+
+          if (deleted) {
+            html.closeTag("s")
+          }
+        case None ⇒
+          renderLink()
+      }
+    } else {
+      renderLink()
     }
   }
 }

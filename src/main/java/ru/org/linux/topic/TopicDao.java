@@ -45,7 +45,6 @@ import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
-import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -140,16 +139,16 @@ public class TopicDao {
    * @return сообщение
    * @throws MessageNotFoundException при отсутствии сообщения
    */
-  @Nonnull
   public Topic getById(int id) throws MessageNotFoundException {
-    Topic message;
+    return findById(id).orElseThrow(() -> new MessageNotFoundException(id));
+  }
+
+  public Optional<Topic> findById(int id) {
     try {
-      message = jdbcTemplate.queryForObject(queryMessage, (resultSet, i) -> new Topic(resultSet), id);
+      return Optional.of(jdbcTemplate.queryForObject(queryMessage, (resultSet, i) -> new Topic(resultSet), id));
     } catch (EmptyResultDataAccessException exception) {
-      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw new MessageNotFoundException(id);
+      return Optional.empty();
     }
-    return message;
   }
 
   /**
