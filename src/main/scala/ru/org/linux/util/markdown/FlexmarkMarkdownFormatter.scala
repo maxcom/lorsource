@@ -53,6 +53,7 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*")
     options.set(HtmlRenderer.SUPPRESS_HTML, Boolean.box(true))
+    options.set(HtmlRenderer.FENCED_CODE_NO_LANGUAGE_CLASS, "no-highlight")
 
     // uncomment to convert soft-breaks to hard breaks
     //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
@@ -86,6 +87,6 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     visitor.visit(document)
 
-    mentions.toSet.flatMap { s: String ⇒ userService.findUserCached(s) }
+    mentions.toSet.flatMap(userService.findUserCached)
   }
 }
