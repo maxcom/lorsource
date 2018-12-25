@@ -36,6 +36,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
 <div align="center" width="100%">
 <style>
@@ -73,7 +74,7 @@
 </script>
 </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -81,24 +82,15 @@
       var ads = [
         {
           type: 'rimg',
-          img728: '/linuxpiter/728x90 Linux.jpg',
-          img468: '/linuxpiter/468x60 Linux.jpg',
-          img320: '/linuxpiter/320x100 Linux.jpg',
-          href: 'https://linuxpiter.com/speakers'
-        },
-        {
-          type: 'rimg',
-          img728: '/linuxpiter/728x90 PiterPy.jpg',
-          img468: '/linuxpiter/468x60 PiterPy.jpg',
-          img320: '/linuxpiter/320x100 PiterPy.jpg',
-          href: 'https://piterpy.com/speakers'
+          img730: '/adv/Linux_730x90.png',
+          img320: '/adv/Linux_320x100.png',
+          href: 'https://otus.ru/lessons/linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
         }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">

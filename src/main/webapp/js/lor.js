@@ -111,11 +111,7 @@ function init_interpage_adv(ads) {
             if (window.matchMedia("(min-width: 768px)").matches) {
                 // img.attr('width', 728);
                 img.attr('height', 90);
-                img.attr('src', ad.img728);
-            } else if (window.matchMedia("(min-width: 500px)").matches) {
-                img.attr('width', 468);
-                img.attr('height', 60);
-                img.attr('src', ad.img468);
+                img.attr('src', ad.img730);
             } else {
                 img.attr('width', 320);
                 img.attr('height', 100);
