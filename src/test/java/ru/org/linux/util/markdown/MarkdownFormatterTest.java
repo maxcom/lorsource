@@ -46,8 +46,8 @@ public class MarkdownFormatterTest {
           "И это тоже должно работать";
   private static final String TEXT1_RESULT = "<h1>First header</h1>\n" +
           "<h2>Second Header</h2>\n" +
-          "<pre><code class=\"language-sql\">select id from table1;\n" +
-          "</code></pre>\n" +
+          "<div class=\"code\"><pre><code class=\"language-sql\">select id from table1;\n" +
+          "</code></pre>\n</div>\n" +
           "<p>Вот такой должно получиться</p>\n" +
           "<p>И это тоже должно работать</p>\n";
 
