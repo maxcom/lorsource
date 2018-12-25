@@ -18,6 +18,7 @@ import com.vladsch.flexmark.ast.{NodeVisitor, VisitHandler}
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
+import com.vladsch.flexmark.ext.typographic.TypographicExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.options.MutableDataSet
@@ -39,7 +40,7 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
   private def options(nofollow: Boolean) = {
     val options = new MutableDataSet
 
-    val extensions = Seq(TablesExtension.create, StrikethroughExtension.create,
+    val extensions = Seq(TablesExtension.create, StrikethroughExtension.create, TypographicExtension.create(),
       AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig, topicDao, commentDao),
       new LorUserExtension(userService, toHtmlFormatter), new FencedCodeExtension/*, YouTubeLinkExtension.create()*/)
 
@@ -54,6 +55,9 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*")
     options.set(HtmlRenderer.SUPPRESS_HTML, Boolean.box(true))
     options.set(HtmlRenderer.FENCED_CODE_NO_LANGUAGE_CLASS, "no-highlight")
+
+    options.set(TypographicExtension.DOUBLE_QUOTE_OPEN, "&laquo;")
+    options.set(TypographicExtension.DOUBLE_QUOTE_CLOSE, "&raquo;")
 
     // uncomment to convert soft-breaks to hard breaks
     //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
