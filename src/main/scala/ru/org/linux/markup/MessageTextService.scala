@@ -221,7 +221,7 @@ object MarkupPermissions {
       Set(Lorcode)
     } else if (user.isAdministrator) {
       Set(Lorcode, LorcodeUlb, Markdown, Html)
-    } else if (user.getScore >= 500 || user.isCorrector) {
+    } else if (user.getScore >= 400 || user.isCorrector) {
       Set(Lorcode, LorcodeUlb, Markdown)
     } else {
       Set(Lorcode, LorcodeUlb)
