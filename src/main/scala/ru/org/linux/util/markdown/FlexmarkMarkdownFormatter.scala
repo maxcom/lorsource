@@ -14,7 +14,7 @@
  */
 package ru.org.linux.util.markdown
 
-import com.vladsch.flexmark.ast.{NodeVisitor, VisitHandler}
+import com.vladsch.flexmark.util.ast.{NodeVisitor, VisitHandler}
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
