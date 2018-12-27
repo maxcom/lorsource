@@ -56,6 +56,9 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     options.set(HtmlRenderer.SUPPRESS_HTML, Boolean.box(true))
     options.set(HtmlRenderer.FENCED_CODE_NO_LANGUAGE_CLASS, "no-highlight")
 
+    options.set(HtmlRenderer.CODE_STYLE_HTML_OPEN, "<span class=\"code\"><code>")
+    options.set(HtmlRenderer.CODE_STYLE_HTML_CLOSE, "</code></span>")
+
     options.set(TypographicExtension.DOUBLE_QUOTE_OPEN, "&laquo;")
     options.set(TypographicExtension.DOUBLE_QUOTE_CLOSE, "&raquo;")
 
