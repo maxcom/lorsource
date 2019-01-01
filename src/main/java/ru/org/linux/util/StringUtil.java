@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import com.ibm.icu.lang.UProperty;
+import com.ibm.icu.lang.UCharacter;
 import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -132,6 +134,25 @@ public final class StringUtil {
           res.append(str.charAt(i));
       }
 
+    }
+
+    return removeAllEmojis(res.toString());
+  }
+
+  /**
+   * Удаление unicode смайликов из строки
+   * @param str сырая строка
+   * @return строка без смайликов
+   */
+  public static String removeAllEmojis(String str) {
+    StringBuilder res = new StringBuilder();
+
+    for(int codePoint : str.codePoints().toArray()) {
+      boolean isEmoji = UCharacter.hasBinaryProperty(codePoint, UProperty.EMOJI);
+      boolean isAscii = codePoint < 0x7F;
+      if (!isEmoji || isAscii) {
+        res.appendCodePoint(codePoint);
+      }
     }
 
     return res.toString();

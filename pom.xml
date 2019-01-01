@@ -437,6 +437,12 @@
       <artifactId>flexmark-all</artifactId>
       <version>0.35.6</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+      <version>63.1</version>
+    </dependency>
   </dependencies>
 
   <build>

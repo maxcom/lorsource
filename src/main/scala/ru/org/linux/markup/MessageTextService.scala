@@ -166,7 +166,8 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 }
 
 object MessageTextService {
-  def processPostingText(message: String, mode: String): MessageText = {
+  def processPostingText(text: String, mode: String): MessageText = {
+    val message = StringUtil.removeAllEmojis(text)
     mode match {
       case LorcodeUlb.formId ⇒
         MessageText.apply(message, MarkupType.LorcodeUlb)
