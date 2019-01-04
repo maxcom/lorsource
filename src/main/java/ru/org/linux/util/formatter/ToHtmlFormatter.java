@@ -228,8 +228,9 @@ public class ToHtmlFormatter {
       Topic message = topicDao.getById(url.getMessageId());
 
       boolean deleted = message.isDeleted();
+      boolean commentUrl = url.isCommentUrl();
 
-      if (!deleted && url.isCommentUrl()) {
+      if (!deleted && commentUrl) {
         Comment comment = commentDao.getById(url.getCommentId());
 
         deleted = comment.isDeleted();
@@ -248,6 +249,8 @@ public class ToHtmlFormatter {
 
       if (deleted) {
         out.append(StringUtil.escapeHtml(fixedUrlBody));
+      } else if (commentUrl) {
+        out.append(">>").append(url.getCommentId()).append(" ").append(urlTitle);
       } else {
         out.append(urlTitle);
       }

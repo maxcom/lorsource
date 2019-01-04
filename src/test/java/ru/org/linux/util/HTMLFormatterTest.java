@@ -227,13 +227,13 @@ public class HTMLFormatterTest {
   @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
-    assertEquals("<a href=\"https://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">привет3</a>",
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">>>6892917 привет3</a>",
         toHtmlFormatter.format(url1,false));
     String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
-    assertEquals("<a href=\"https://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">привет12</a>",
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">>>1948675 привет12</a>",
         toHtmlFormatter.format(url3,false));
     String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    assertEquals("<a href=\"https://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">привет15</a>",
+    assertEquals("<a href=\"https://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">>>6944831 привет15</a>",
         toHtmlFormatter.format(url15, false));
     String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
