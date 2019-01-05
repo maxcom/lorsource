@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -42,7 +42,8 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     val extensions = Seq(TablesExtension.create, StrikethroughExtension.create, TypographicExtension.create(),
       AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig, topicDao, commentDao),
-      new LorUserExtension(userService, toHtmlFormatter), new FencedCodeExtension/*, YouTubeLinkExtension.create()*/)
+      new LorUserExtension(userService, toHtmlFormatter), new CutExtension,
+      new FencedCodeExtension/*, YouTubeLinkExtension.create()*/)
 
     val allExtensions = (if (nofollow) {
       extensions :+ new NofollowExtension
