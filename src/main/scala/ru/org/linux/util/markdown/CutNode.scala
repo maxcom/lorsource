@@ -50,7 +50,7 @@ class CutNode extends Block with ParagraphContainer with AnchorRefTarget {
 
   def setClosingTrailing(closingTrailing: BasedSequence): Unit = this.closingTrailing = closingTrailing
 
-  override def getAnchorRefText: String = new TextCollectingVisitor().collectAndGetText(this).trim
+  override def getAnchorRefText: String = "cut"
 
   override def getAnchorRefSegments: Array[BasedSequence] = new TextCollectingVisitor().collectAndGetSegments(this)
 
