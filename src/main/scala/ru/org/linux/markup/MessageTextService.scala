@@ -89,8 +89,11 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Html ⇒
         "<p>" + text.text
       case Markdown ⇒
-        // TODO [cut] support
-        markdownFormatter.renderToHtml(text.text, nofollow)
+        if (minimizeCut) {
+          markdownFormatter.renderWithMinimizedCut(text.text, nofollow, canonicalUrl)
+        } else {
+          markdownFormatter.renderToHtml(text.text, nofollow)
+        }
     }
   }
 

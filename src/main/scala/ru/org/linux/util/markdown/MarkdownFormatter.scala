@@ -18,5 +18,6 @@ import ru.org.linux.user.User
 
 trait MarkdownFormatter {
   def renderToHtml(content: String, nofollow: Boolean): String
+  def renderWithMinimizedCut(content: String, nofollow: Boolean, canonicalUrl: String): String
   def mentions(content: String): Set[User]
 }

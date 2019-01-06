@@ -37,7 +37,7 @@ import scala.collection.mutable
 @Qualifier("flexmark")
 class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao,
                                 userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends MarkdownFormatter {
-  private def options(nofollow: Boolean) = {
+  private def options(nofollow: Boolean, minimizeCut: Boolean, cutUrl: Option[String] = None) = {
     val options = new MutableDataSet
 
     val extensions = Seq(TablesExtension.create, StrikethroughExtension.create, TypographicExtension.create(),
@@ -63,15 +63,21 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     options.set(TypographicExtension.DOUBLE_QUOTE_OPEN, "&laquo;")
     options.set(TypographicExtension.DOUBLE_QUOTE_CLOSE, "&raquo;")
 
+    options.set(CutExtension.CutCollapsed, minimizeCut)
+
+    cutUrl foreach { url ⇒
+      options.set(CutExtension.CutLink, url)
+    }
+
     // uncomment to convert soft-breaks to hard breaks
     //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
 
     options.toImmutable
   }
 
-  private val parser = Parser.builder(options(nofollow = false)).build
-  private val renderer = HtmlRenderer.builder(options(nofollow = false)).build
-  private val rendererNofollow = HtmlRenderer.builder(options(nofollow = true)).build
+  private val parser = Parser.builder(options(nofollow = false, minimizeCut = false)).build
+  private val renderer = HtmlRenderer.builder(options(nofollow = false, minimizeCut = false)).build
+  private val rendererNofollow = HtmlRenderer.builder(options(nofollow = true, minimizeCut = false)).build
 
   override def renderToHtml(content: String, nofollow: Boolean): String = {
     // You can re-use parser and renderer instances
@@ -82,6 +88,15 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     } else {
       renderer
     }).render(document)
+  }
+
+
+  override def renderWithMinimizedCut(content: String, nofollow: Boolean, canonicalUrl: String): String = {
+    val document = parser.parse(content)
+
+    val renderer = HtmlRenderer.builder(options(nofollow = false, minimizeCut = true, cutUrl = Some(canonicalUrl))).build
+
+    renderer.render(document)
   }
 
   override def mentions(content: String): Set[User] = {
