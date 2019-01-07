@@ -526,4 +526,13 @@ public class UserDao {
   public int getTokenGeneration(String nick) {
     return jdbcTemplate.queryForObject("SELECT token_generation FROM users WHERE nick=?", Integer.class, nick);
   }
+
+  /**
+   * Move all comments and topics to another user
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void moveMessages(int user, int targetUser) {
+    jdbcTemplate.update("UPDATE comments SET userid=? WHERE userid=?", targetUser, user);
+    jdbcTemplate.update("UPDATE topics SET userid=? WHERE userid=?", targetUser, user);
+  }
 }

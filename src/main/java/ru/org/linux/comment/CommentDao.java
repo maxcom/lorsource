@@ -169,6 +169,10 @@ public class CommentDao {
     );
   }
 
+  public List<Integer> getAllByUser(User user) {
+    return jdbcTemplate.queryForList("SELECT id FROM comments WHERE userid=? AND not deleted", Integer.class, user.getId());
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public List<Integer> getCommentsByIPAddressForUpdate(String ip, Timestamp timedelta) {
     return jdbcTemplate.queryForList("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",

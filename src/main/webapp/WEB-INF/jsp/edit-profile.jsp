@@ -137,6 +137,7 @@ $script.ready('plugins', function() {
 <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
 <li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
 <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
+<li><a href="/deregister.jsp">Удаление аккаунта</a>
 </ul>
 
 <p><b>Внимание!</b> Настройки на некоторых уже посещенных страницах могут
