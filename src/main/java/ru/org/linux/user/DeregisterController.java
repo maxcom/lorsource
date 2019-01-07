@@ -64,6 +64,10 @@ public class DeregisterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
+    if (user.isAdministrator() || user.isModerator()) {
+      throw new AccessViolationException("Нельзя удалить модераторский аккаунт");
+    }
+
     return new ModelAndView("deregister");
   }
 
@@ -85,6 +89,10 @@ public class DeregisterController {
 
     if (!user.matchPassword(form.getPassword())) {
       errors.rejectValue("password", null, "Неверный пароль");
+    }
+
+    if (user.isAdministrator() || user.isModerator()) {
+      throw new AccessViolationException("Нельзя удалить модераторский аккаунт");
     }
 
     if (errors.hasErrors()) {
