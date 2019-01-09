@@ -19,6 +19,7 @@ import com.vladsch.flexmark.ast._
 import com.vladsch.flexmark.html.renderer._
 import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
 import com.vladsch.flexmark.util.options.MutableDataHolder
+import javax.print.URIException
 import ru.org.linux.comment.CommentDao
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
@@ -41,12 +42,17 @@ class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: C
 
 class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends NodeRenderer {
   override def getNodeRenderingHandlers = Set(new NodeRenderingHandler[AutoLink](classOf[AutoLink], (node, ctx, html) => {
-    val url: LorURL = new LorURL(siteConfig.getMainURI, node.getUrl.toString)
+    try {
+      val url: LorURL = new LorURL(siteConfig.getMainURI, node.getUrl.toString)
 
-    if (url.isTrueLorUrl && !ctx.isDoNotRenderLinks) {
-      renderLorUrl(node, html, url, ctx)
-    } else {
-      ctx.delegateRender()
+      if (url.isTrueLorUrl && !ctx.isDoNotRenderLinks) {
+        renderLorUrl(node, html, url, ctx)
+      } else {
+        ctx.delegateRender()
+      }
+    } catch {
+      case _: URIException ⇒
+        ctx.delegateRender()
     }
   })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
 
