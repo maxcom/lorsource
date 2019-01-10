@@ -78,7 +78,7 @@ public class ImageDao {
             "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate " +
             "FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate AND section="+Section.SECTION_GALLERY+ " " +
             "AND NOT topics.deleted AND commitdate IS NOT NULL AND topics.id IN (SELECT msgid FROM tags WHERE tagid=?) ORDER BY commitdate DESC LIMIT ?) " +
-            "as t JOIN images ON t.msgid = images.topic";
+            "as t JOIN images ON t.msgid = images.topic WHERE NOT images.deleted";
 
     return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), tagId, countItems);
   }
