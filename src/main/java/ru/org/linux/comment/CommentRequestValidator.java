@@ -56,10 +56,6 @@ public class CommentRequestValidator implements Validator {
         errors.rejectValue("msg", null, error);
       }
 
-      if (add.getMsg().trim().isEmpty()) {
-        errors.rejectValue("msg", null, "комментарий не может быть пустым");
-      }
-
       if (service.isEmpty(MessageText.apply(add.getMsg(), MarkupType.Lorcode$.MODULE$))) {
         errors.rejectValue("msg", null, "комментарий не может быть пустым");
       }
