@@ -175,7 +175,7 @@ class ElasticsearchIndexService
     if (bulkRequest.requests.nonEmpty) {
       val bulkResponse = elastic.execute(bulkRequest).await
 
-      if (bulkResponse.result.hasFailures) {
+      if (bulkResponse.result.failures.exists(_.status != 404)) {
         logger.warn(s"Bulk index failed: ${bulkResponse.result.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
         throw new RuntimeException("Bulk request failed")
       }

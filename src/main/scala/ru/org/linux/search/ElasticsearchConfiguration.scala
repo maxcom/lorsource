@@ -24,16 +24,29 @@ import org.elasticsearch.transport.Netty4Plugin
 import org.springframework.context.annotation.{Bean, Configuration}
 import ru.org.linux.spring.SiteConfig
 
+case class MaybeNode(node: Option[InternalLocalNode]) {
+  def close() = node.foreach(_.close())
+}
+
 @Configuration
 class ElasticsearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
-  def elasticsearch: ElasticClient = {
-    config.getElasticsearch match {
+  def elasticsearch: MaybeNode = {
+    MaybeNode(config.getElasticsearch match {
       case "embedded" ⇒
-        ElasticsearchConfiguration.createEmbedded("elasticsearch", "target/elasticsearch-data")
+        Some(ElasticsearchConfiguration.createEmbedded("elasticsearch", "target/elasticsearch-data"))
+      case _ ⇒
+        None
+    })
+  }
+
+  @Bean(destroyMethod = "close")
+  def client(node: MaybeNode): ElasticClient = {
+    node.node match {
+      case Some(node) ⇒
         ElasticClient(ElasticsearchClientUri("localhost", 9200))
-      case address ⇒
-        ElasticClient(ElasticsearchClientUri(address, 9200))
+      case None ⇒
+        ElasticClient(ElasticsearchClientUri(config.getElasticsearch, 9200))
     }
   }
 }

@@ -34,6 +34,8 @@ class SearchViewerIntegrationSpec  extends SpecificationWithJUnit {
   var elastic: ElasticClient = _
 
   trait IndexFixture extends Scope with After {
+    elastic execute { deleteIndex("*") } await
+
     indexService.createIndexIfNeeded()
 
     override def after = elastic execute { deleteIndex("*") } await

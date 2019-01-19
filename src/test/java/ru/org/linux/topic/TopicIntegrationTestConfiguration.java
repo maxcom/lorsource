@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.sksamuel.elastic4s.http.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import play.api.libs.ws.StandaloneWSClient;
@@ -83,5 +84,10 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public StandaloneWSClient httpClient() {
     return mock(StandaloneWSClient.class);
+  }
+
+  @Bean
+  public ElasticClient elasticClient() {
+    return mock(ElasticClient.class);
   }
 }

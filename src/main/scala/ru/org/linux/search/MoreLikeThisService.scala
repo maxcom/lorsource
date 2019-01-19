@@ -43,6 +43,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, TimeoutException}
+import scala.util.control.NonFatal
 
 @Service
 class MoreLikeThisService(
@@ -118,11 +119,11 @@ class MoreLikeThisService(
         case _: CircuitBreakerOpenException ⇒
           logger.debug(s"Similar topics circuit breaker is open")
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
-        case ex: ElasticsearchException ⇒
-          logger.warn("Unable to find similar topics", ex)
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
         case ex: TimeoutException ⇒
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
+          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+        case NonFatal(ex) ⇒
+          logger.warn("Unable to find similar topics", ex)
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
       }
     }

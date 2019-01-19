@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2018 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -38,7 +38,7 @@ object Perf4jHandlerInterceptor {
   private val ElasticProbability = 0.2
 
 
-  private class Metrics(val name:String, val path:String, val start:DateTime, controller:Stopwatch, view:Stopwatch) {
+  private class Metrics(val name: String, val path: String, val start: DateTime, controller: Stopwatch, view: Stopwatch) {
     def controllerDone():Unit = {
       controller.stop()
       view.start()
@@ -60,12 +60,12 @@ object Perf4jHandlerInterceptor {
   }
 
   private object Metrics {
-    def start(name:String, path:String) =
+    def start(name: String, path: String) =
       new Metrics(name, path, DateTime.now, Stopwatch.createStarted(), Stopwatch.createUnstarted())
   }
 }
 
-class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor:ActorRef)
+class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor: ActorRef)
   extends HandlerInterceptorAdapter with StrictLogging {
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef): Boolean = {
