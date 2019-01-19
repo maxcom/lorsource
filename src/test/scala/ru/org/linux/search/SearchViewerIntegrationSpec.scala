@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,8 +14,8 @@
  */
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.TcpClient
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import org.specs2.mutable.{After, SpecificationWithJUnit}
 import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +31,7 @@ class SearchViewerIntegrationSpec  extends SpecificationWithJUnit {
   var indexService: ElasticsearchIndexService = _
 
   @Autowired
-  var elastic: TcpClient = _
+  var elastic: ElasticClient = _
 
   trait IndexFixture extends Scope with After {
     indexService.createIndexIfNeeded()

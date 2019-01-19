@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,21 +18,22 @@ package ru.org.linux.monitoring
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.pattern.PipeToSupport
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.TcpClient
-import com.sksamuel.elastic4s.bulk.RichBulkResponse
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.bulk.BulkResponse
+import com.sksamuel.elastic4s.http.index.CreateIndexTemplateResponse
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.springframework.context.annotation.{Bean, Configuration}
 
+import scala.collection.immutable
 import scala.concurrent.duration._
 
-class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLogging with PipeToSupport {
+class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLogging with PipeToSupport {
   import PerformanceLoggingActor._
   import context.dispatcher
 
-  private var queue = Vector.empty[Metric]
+  private var queue: immutable.Seq[Metric] = Vector.empty[Metric]
 
   override def receive: Actor.Receive = initializing
 
@@ -45,7 +46,7 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
     case Initialize ⇒
       createIndex() pipeTo self
 
-    case _: PutIndexTemplateResponse ⇒
+    case _: CreateIndexTemplateResponse ⇒
       log.info("Initialized performance logging")
       createSchedule.cancel()
       context.become(ready)
@@ -71,7 +72,7 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
             )
           }
         }
-      } pipeTo self
+      } map (_.result) pipeTo self
 
       queue = Vector.empty[Metric]
 
@@ -81,9 +82,9 @@ class PerformanceLoggingActor(elastic: TcpClient) extends Actor with ActorLoggin
   private val waiting: Receive = {
     case m: Metric ⇒
       enqueue(m)
-    case r: RichBulkResponse ⇒
+    case r: BulkResponse ⇒
       if (r.hasFailures) {
-        log.warning(s"Failed to write perf metrics: ${r.failureMessage}")
+        log.warning(s"Failed to write perf metrics: ${r.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
       }
       log.debug(s"Logged ${r.items.length} metrics")
       context.become(ready)
@@ -126,7 +127,7 @@ object PerformanceLoggingActor {
 
   private case object Initialize
 
-  def props(elastic: TcpClient) = Props(classOf[PerformanceLoggingActor], elastic)
+  def props(elastic: ElasticClient) = Props(new PerformanceLoggingActor(elastic))
 }
 
 case class Metric(name: String, start: DateTime, controllerTime: Long, viewTime: Long)
@@ -134,7 +135,7 @@ case class Metric(name: String, start: DateTime, controllerTime: Long, viewTime:
 @Configuration
 class PerformanceLoggingConfiguration {
   @Bean(name=Array("loggingActor"))
-  def loggingActor(actorSystem: ActorSystem, elastic: TcpClient): ActorRef = {
+  def loggingActor(actorSystem: ActorSystem, elastic: ElasticClient): ActorRef = {
     actorSystem.actorOf(PerformanceLoggingActor.props(elastic), "PerformanceLogger")
   }
 }

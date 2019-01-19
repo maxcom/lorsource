@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,10 +19,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import com.sksamuel.elastic4s.TcpClient;
-import com.sksamuel.elastic4s.searches.RichSearchResponse;
-import org.elasticsearch.search.aggregations.bucket.filter.Filter;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import com.sksamuel.elastic4s.http.ElasticClient;
+import com.sksamuel.elastic4s.http.search.FilterAggregationResult;
+import com.sksamuel.elastic4s.http.search.SearchResponse;
+import com.sksamuel.elastic4s.http.search.TermBucket;
+import com.sksamuel.elastic4s.http.search.TermsAggResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -64,7 +65,7 @@ public class SearchController {
   private GroupDao groupDao;
 
   @Autowired
-  private TcpClient client;
+  private ElasticClient client;
 
   @Autowired
   private SearchResultsService resultsService;
@@ -107,7 +108,7 @@ public class SearchController {
           Model model,
           @ModelAttribute("query") SearchRequest query,
           BindingResult bindingResult
-  ) throws Exception {
+  ) {
     Map<String, Object> params = model.asMap();
 
     if (!query.isInitial() && !bindingResult.hasErrors()) {
@@ -115,21 +116,21 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query, client);
 
-      RichSearchResponse response = sv.performSearch();
+      SearchResponse response = sv.performSearch();
 
       long current = System.currentTimeMillis();
 
-      Collection<SearchItem> res = resultsService.prepareAll(Arrays.asList(response.hits()));
+      Collection<SearchItem> res = resultsService.prepareAll(Arrays.asList(response.hits().hits()));
 
       if (response.aggregations() != null) {
-        Filter countFacet = response.aggregations().getAs("sections");
-        Terms sectionsFacet = countFacet.getAggregations().get("sections");
+        FilterAggregationResult countFacet = response.aggregations().filter("sections");
+        TermsAggResult sectionsFacet = countFacet.terms("sections");
 
         if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
           params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection()))));
 
           if (!Strings.isNullOrEmpty(query.getSection())) {
-            Option<Terms.Bucket> selectedSection = Option.apply(sectionsFacet.getBucketByKey(query.getSection()));
+            Option<TermBucket> selectedSection = Option.apply(sectionsFacet.getBucketByKey(query.getSection()));
 
             if (!Strings.isNullOrEmpty(query.getGroup())) {
               params.put("groupFacet", resultsService.buildGroupFacet(
@@ -140,20 +141,20 @@ public class SearchController {
             }
 
           }
-        } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.getBuckets().size()==1) {
-          Terms.Bucket onlySection = sectionsFacet.getBuckets().iterator().next();
-          query.setSection(onlySection.getKeyAsString());
+        } else if (Strings.isNullOrEmpty(query.getSection()) && sectionsFacet.buckets().size()==1) {
+          TermBucket onlySection = sectionsFacet.buckets().head();
+          query.setSection(onlySection.key());
 
           params.put("groupFacet", resultsService.buildGroupFacet(Option.apply(onlySection), None$.empty()));
         }
 
-        params.put("tags", resultsService.foundTags(response.aggregations().aggregations()));
+        params.put("tags", resultsService.foundTags(response.aggregations()));
       }
 
       long time = System.currentTimeMillis() - current;
 
       params.put("result", res);
-      params.put("searchTime", response.tookInMillis());
+      params.put("searchTime", response.took());
       params.put("numFound", response.totalHits());
 
       if (response.totalHits() > query.getOffset() + SearchViewer.SearchRows()) {

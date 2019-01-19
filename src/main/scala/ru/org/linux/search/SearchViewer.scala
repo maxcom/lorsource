@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,16 +15,16 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl.{termsAggregation, _}
-import com.sksamuel.elastic4s.TcpClient
-import com.sksamuel.elastic4s.searches.RichSearchResponse
-import com.sksamuel.elastic4s.searches.queries.QueryDefinition
-import com.sksamuel.elastic4s.searches.queries.funcscorer.WeightScoreDefinition
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl.{termsAggregation, _}
+import com.sksamuel.elastic4s.http.search.SearchResponse
+import com.sksamuel.elastic4s.searches.queries.Query
+import com.sksamuel.elastic4s.searches.queries.funcscorer.WeightScore
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class SearchViewer(query: SearchRequest, elastic: TcpClient) {
+class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
   import ru.org.linux.search.SearchViewer._
 
   private def processQueryString(queryText: String) = {
@@ -40,14 +40,14 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
     }
   }
 
-  private def boost(query: QueryDefinition) = {
+  private def boost(query: Query) = {
     functionScoreQuery(query) functions(
-      WeightScoreDefinition(TopicBoost).filter(termQuery("is_comment", "false")),
-      WeightScoreDefinition(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
+      WeightScore(TopicBoost).filter(termQuery("is_comment", "false")),
+      WeightScore(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
     )
   }
 
-  private def wrapQuery(q: QueryDefinition, filters: Seq[QueryDefinition]) = {
+  private def wrapQuery(q: Query, filters: Seq[Query]) = {
     if (filters.nonEmpty) {
       boolQuery.must(q).filter(filters)
     } else {
@@ -55,7 +55,7 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
     }
   }
 
-  def performSearch: RichSearchResponse = {
+  def performSearch: SearchResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value ⇒
       termQuery(query.getRange.getColumn, value)
     }
@@ -102,10 +102,10 @@ class SearchViewer(query: SearchRequest, elastic: TcpClient) {
         ) size SearchRows from this.query.getOffset postFilter andFilters(postFilters) timeout SearchTimeout
     }
 
-    Await.result(future, SearchHardTimeout)
+    Await.result(future, SearchHardTimeout).result
   }
 
-  private def andFilters(filters: Seq[QueryDefinition]) = {
+  private def andFilters(filters: Seq[Query]) = {
     filters match {
       case Seq()       ⇒ matchAllQuery
       case Seq(single) ⇒ single

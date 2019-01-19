@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,9 +20,10 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.searches.RichSearchHit
-import com.sksamuel.elastic4s.{DocumentRef, TcpClient}
+import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.DocumentRef
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.search.SearchHit
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
@@ -45,7 +46,7 @@ import scala.concurrent.{Await, Future, TimeoutException}
 
 @Service
 class MoreLikeThisService(
-  elastic: TcpClient,
+  elastic: ElasticClient,
   sectionService: SectionService,
   scheduler: Scheduler
 ) extends StrictLogging {
@@ -77,10 +78,10 @@ class MoreLikeThisService(
         try {
           val searchResult = elastic execute makeQuery(topic, tags.asScala)
 
-          val result: Future[Result] = searchResult.map(result => if (result.hits.nonEmpty) {
-            val half = result.hits.length / 2 + result.hits.length % 2
+          val result: Future[Result] = searchResult.map(_.result).map(result => if (result.hits.nonEmpty) {
+            val half = result.hits.hits.length / 2 + result.hits.hits.length % 2
 
-            result.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
+            result.hits.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
           } else Seq().asJava)
 
           result.foreach {
@@ -127,7 +128,7 @@ class MoreLikeThisService(
     }
   }
 
-  private def processHit(hit: RichSearchHit): MoreLikeThisTopic = {
+  private def processHit(hit: SearchHit): MoreLikeThisTopic = {
     val section = SearchResultsService.section(hit)
     val group = SearchResultsService.group(hit)
 

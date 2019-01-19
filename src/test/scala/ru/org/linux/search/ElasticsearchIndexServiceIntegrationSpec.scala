@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,8 +16,9 @@ package ru.org.linux.search
 
 import java.nio.file.Files
 
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.TcpClient
+import com.sksamuel.elastic4s.ElasticsearchClientUri
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import org.mockito.Mockito
 import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +37,7 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   var indexService: ElasticsearchIndexService = _
 
   @Autowired
-  var elastic: TcpClient = _
+  var elastic: ElasticClient = _
 
   "ElasticsearchIndexService" should {
     "create index" in {
@@ -44,7 +45,7 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 
       val exists = elastic execute { indexExists(MessageIndex) } await
 
-      exists.isExists must beTrue
+      exists.result.isExists must beTrue
     }
   }
 }
@@ -71,8 +72,8 @@ class SearchIntegrationTestConfiguration {
   def elasticNode: LocalNodeProvider = new LocalNodeProvider()
 
   @Bean
-  def elasticClient(node: LocalNodeProvider): TcpClient = {
-    node.node.tcp(shutdownNodeOnClose = false)
+  def elasticClient(node: LocalNodeProvider): ElasticClient = {
+    ElasticClient(ElasticsearchClientUri("localhost", 9200))
   }
 
   @Bean

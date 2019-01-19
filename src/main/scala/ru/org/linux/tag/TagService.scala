@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,9 +17,8 @@ package ru.org.linux.tag
 
 import java.util
 
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.TcpClient
-import org.elasticsearch.search.aggregations.bucket.significant.SignificantTerms
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.Section
@@ -31,7 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Service
-class TagService(tagDao: TagDao, elastic: TcpClient) {
+class TagService(tagDao: TagDao, elastic: ElasticClient) {
   import ru.org.linux.tag.TagService._
 
   /**
@@ -67,7 +66,7 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
           boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
       }
     } map {
-      _.totalHits
+      _.result.totalHits
     }
   }
 
@@ -83,10 +82,10 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
     }
   } map { r ⇒
     (for {
-      bucket <- r.aggregations.getAs[SignificantTerms]("related").asScala
+      bucket <- r.result.aggregations.significantTerms("related").buckets
     } yield {
-      tagRef(bucket.getKeyAsString)
-    }).toSeq.sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
+      tagRef(bucket.key)
+    }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
@@ -107,9 +106,9 @@ class TagService(tagDao: TagDao, elastic: TcpClient) {
       }
     } map { r ⇒
       (for {
-        bucket <- r.aggregations.getAs[SignificantTerms]("active").getBuckets.asScala
+        bucket <- r.result.aggregations.significantTerms("active").buckets
       } yield {
-        tagRef(bucket.getKeyAsString)
+        tagRef(bucket.key)
       }).sorted
     }
   }

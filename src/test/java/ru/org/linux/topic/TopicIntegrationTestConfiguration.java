@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,12 +15,6 @@
 
 package ru.org.linux.topic;
 
-import com.sksamuel.elastic4s.TcpClient;
-import com.sksamuel.elastic4s.TcpClient$;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.client.Client;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import play.api.libs.ws.StandaloneWSClient;
@@ -79,15 +73,6 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public MoreLikeThisService moreLikeThisService() {
     return mock(MoreLikeThisService.class);
-  }
-
-  @Bean
-  public TcpClient elasticsearch() {
-    Client mockClient = mock(Client.class);
-
-    Mockito.when(mockClient.prepareSearch(Matchers.anyString())).thenThrow(new ElasticsearchException("no ES here"));
-
-    return TcpClient$.MODULE$.fromClient(mockClient);
   }
 
   @Bean

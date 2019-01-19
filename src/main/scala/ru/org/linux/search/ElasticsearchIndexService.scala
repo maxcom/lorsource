@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,12 +15,13 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.IndexAndType
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.analyzers._
-import com.sksamuel.elastic4s.bulk.{BulkCompatibleDefinition, BulkDefinition}
-import com.sksamuel.elastic4s.indexes.IndexDefinition
+import com.sksamuel.elastic4s.bulk.{BulkCompatibleRequest, BulkRequest}
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.indexes.IndexRequest
 import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
-import com.sksamuel.elastic4s.{IndexAndType, TcpClient}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.StringEscapeUtils
 import org.joda.time.DateTime
@@ -83,13 +84,13 @@ class ElasticsearchIndexService
   msgbaseDao: MsgbaseDao,
   topicDao: TopicDao,
   commentService: CommentService,
-  elastic: TcpClient
+  elastic: ElasticClient
 ) extends StrictLogging {
   import ElasticsearchIndexService._
 
   private def isTopicSearchable(msg: Topic) = !msg.isDeleted && !msg.isDraft
 
-  private def reindexComments(topic: Topic, comments: CommentList): Seq[BulkCompatibleDefinition] = {
+  private def reindexComments(topic: Topic, comments: CommentList): Seq[BulkCompatibleRequest] = {
     for (comment <- comments.getList.asScala) yield {
       if (comment.isDeleted) {
         delete(comment.getId.toString) from MessageIndexType
@@ -126,7 +127,7 @@ class ElasticsearchIndexService
     }
   }
 
-  def reindexMonth(year:Int, month:Int):Unit = {
+  def reindexMonth(year: Int, month: Int):Unit = {
     val topicIds = topicDao.getMessageForMonth(year, month)
 
     for (topicId <- topicIds.asScala) {
@@ -134,7 +135,7 @@ class ElasticsearchIndexService
     }
   }
 
-  def reindexComments(comments:Seq[Int]): Unit = {
+  def reindexComments(comments: Seq[Int]): Unit = {
     if (comments.contains(0)) {
       logger.warn("Skipping MSGID=0!!!")
     }
@@ -155,7 +156,7 @@ class ElasticsearchIndexService
   }
 
   def reindexComments(comments: java.util.List[java.lang.Integer]): Unit = {
-    reindexComments(comments.asScala.map(x ⇒ x.toInt));
+    reindexComments(comments.asScala.map(x ⇒ x.toInt))
   }
 
   def createIndexIfNeeded(): Unit = {
@@ -163,25 +164,25 @@ class ElasticsearchIndexService
       indexExists(MessageIndex)
     } await
 
-    if (!indexExistsResult.isExists) {
+    if (!indexExistsResult.result.isExists) {
       elastic execute {
         createIndex(MessageIndex).mappings(Mapping).analysis(Analyzers)
       } await
     }
   }
 
-  private def executeBulk(bulkRequest: BulkDefinition): Unit = {
+  private def executeBulk(bulkRequest: BulkRequest): Unit = {
     if (bulkRequest.requests.nonEmpty) {
       val bulkResponse = elastic.execute(bulkRequest).await
 
-      if (bulkResponse.hasFailures) {
-        logger.warn(s"Bulk index failed: ${bulkResponse.failureMessage}")
+      if (bulkResponse.result.hasFailures) {
+        logger.warn(s"Bulk index failed: ${bulkResponse.result.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
         throw new RuntimeException("Bulk request failed")
       }
     }
   }
 
-  private def indexOfComment(topic: Topic, comment: Comment, message: String):IndexDefinition = {
+  private def indexOfComment(topic: Topic, comment: Comment, message: String): IndexRequest = {
     val section = sectionService.getSection(topic.getSectionId)
     val group = groupDao.getGroup(topic.getGroupId)
     val author = userDao.getUserCached(comment.getUserid)
@@ -219,7 +220,7 @@ class ElasticsearchIndexService
     section.isPremoderated && !msg.isCommited
   }
 
-  private def indexOfTopic(topic: Topic): IndexDefinition = {
+  private def indexOfTopic(topic: Topic): IndexRequest = {
     val section = sectionService.getSection(topic.getSectionId)
     val group = groupDao.getGroup(topic.getGroupId)
     val author = userDao.getUserCached(topic.getUid)
@@ -236,7 +237,6 @@ class ElasticsearchIndexService
       "postdate" -> new DateTime(topic.getPostdate),
       "tag" -> topicTagService.getTags(topic),
       COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
-      "is_comment" -> false
-      )
+      "is_comment" -> false)
   }
 }

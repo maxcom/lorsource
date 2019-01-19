@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,9 @@
 
 package ru.org.linux.search
 
+import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.embedded.{InternalLocalNode, LocalNode}
-import com.sksamuel.elastic4s.{ElasticsearchClientUri, TcpClient}
+import com.sksamuel.elastic4s.http.ElasticClient
 import org.elasticsearch.analysis.common.CommonAnalysisPlugin
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.transport.Netty4Plugin
@@ -26,12 +27,13 @@ import ru.org.linux.spring.SiteConfig
 @Configuration
 class ElasticsearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
-  def elasticsearch: TcpClient = {
+  def elasticsearch: ElasticClient = {
     config.getElasticsearch match {
       case "embedded" ⇒
-        ElasticsearchConfiguration.createEmbedded("elasticsearch", "target/elasticsearch-data").tcp()
+        ElasticsearchConfiguration.createEmbedded("elasticsearch", "target/elasticsearch-data")
+        ElasticClient(ElasticsearchClientUri("localhost", 9200))
       case address ⇒
-        TcpClient.transport(ElasticsearchClientUri(address, 9300))
+        ElasticClient(ElasticsearchClientUri(address, 9200))
     }
   }
 }

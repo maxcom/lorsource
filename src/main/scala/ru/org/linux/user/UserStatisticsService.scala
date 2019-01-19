@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,14 +18,11 @@ package ru.org.linux.user
 import java.sql.Timestamp
 import java.util.Date
 
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.TcpClient
-import com.sksamuel.elastic4s.searches.RichSearchResponse
-import com.sksamuel.elastic4s.searches.queries.BoolQueryDefinition
+import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import org.elasticsearch.search.aggregations.bucket.terms.Terms
-import org.elasticsearch.search.aggregations.metrics.stats.Stats
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
@@ -44,7 +41,7 @@ class UserStatisticsService(
   userDao: UserDao,
   ignoreListDao: IgnoreListDao,
   sectionService: SectionService,
-  elastic: TcpClient
+  elastic: ElasticClient
 ) extends StrictLogging {
   def getStats(user:User): UserStats = {
     val commentCountFuture = countComments(user)
@@ -84,7 +81,7 @@ class UserStatisticsService(
     )
   }
 
-  private def timeoutHandler(response: RichSearchResponse): Future[RichSearchResponse] = {
+  private def timeoutHandler(response: SearchResponse): Future[SearchResponse] = {
     if (response.isTimedOut) {
       Future failed new RuntimeException("ES Request timed out")
     } else {
@@ -102,7 +99,7 @@ class UserStatisticsService(
               termQuery("is_comment", true))
 
         statSearch query root
-      } flatMap timeoutHandler map { _.totalHits }
+      } map (_.result) flatMap timeoutHandler map { _.totalHits }
     } catch {
       case ex: ElasticsearchException => Future.failed(ex)
     }
@@ -111,25 +108,25 @@ class UserStatisticsService(
   private def topicStats(user: User): Future[TopicStats] = {
     try {
       elastic execute {
-        val root = new BoolQueryDefinition filter (
+        val root = filter (
           termQuery("author", user.getNick),
           termQuery("is_comment", false))
 
         statSearch query root aggs(
           statsAggregation("topic_stats") field "postdate",
           termsAggregation("sections") field "section")
-      } flatMap timeoutHandler map { response ⇒
-        val topicStatsResult = response.aggregations.getAs[Stats]("topic_stats")
-        val sectionsResult = response.aggregations.getAs[Terms]("sections")
+      } map(_.result) flatMap timeoutHandler map { response ⇒
+        val topicStatsResult = response.aggregations.statsBucket("topic_stats")
+        val sectionsResult = response.aggregations.terms("sections")
 
-        val (firstTopic, lastTopic) = if (topicStatsResult.getCount > 0) {
-          (Some(new DateTime(topicStatsResult.getMin.toLong)), Some(new DateTime(topicStatsResult.getMax.toLong)))
+        val (firstTopic, lastTopic) = if (topicStatsResult.count > 0) {
+          (Some(new DateTime(topicStatsResult.min.toLong)), Some(new DateTime(topicStatsResult.max.toLong)))
         } else {
           (None, None)
         }
 
-        val sections = sectionsResult.getBuckets.asScala.map { bucket =>
-          (bucket.getKeyAsString, bucket.getDocCount)
+        val sections = sectionsResult.buckets.map { bucket =>
+          (bucket.key, bucket.docCount)
         }
 
         TopicStats(firstTopic, lastTopic, sections)
