@@ -130,7 +130,7 @@ public class SearchController {
           params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection()))));
 
           if (!Strings.isNullOrEmpty(query.getSection())) {
-            Option<TermBucket> selectedSection = Option.apply(sectionsFacet.getBucketByKey(query.getSection()));
+            Option<TermBucket> selectedSection = sectionsFacet.bucketOpt(query.getSection());
 
             if (!Strings.isNullOrEmpty(query.getGroup())) {
               params.put("groupFacet", resultsService.buildGroupFacet(
