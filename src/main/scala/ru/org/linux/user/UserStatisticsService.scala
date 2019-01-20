@@ -116,11 +116,12 @@ class UserStatisticsService(
           statsAggregation("topic_stats") field "postdate",
           termsAggregation("sections") field "section")
       } map(_.result) flatMap timeoutHandler map { response ⇒
-        val topicStatsResult = response.aggregations.statsBucket("topic_stats")
+        // workaround https://github.com/sksamuel/elastic4s/issues/1614
+        val topicStatsResult = Try(response.aggregations.statsBucket("topic_stats")).toOption
         val sectionsResult = response.aggregations.terms("sections")
 
-        val (firstTopic, lastTopic) = if (topicStatsResult.count > 0) {
-          (Some(new DateTime(topicStatsResult.min.toLong)), Some(new DateTime(topicStatsResult.max.toLong)))
+        val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count > 0)) {
+          (Some(new DateTime(topicStatsResult.get.min.toLong)), Some(new DateTime(topicStatsResult.get.max.toLong)))
         } else {
           (None, None)
         }
@@ -140,7 +141,7 @@ class UserStatisticsService(
 object UserStatisticsService {
   val ElasticTimeout = 1.second
 
-  private def extractValue[T](value:Option[Try[T]])(f: Throwable => Unit):Option[T] = {
+  private def extractValue[T](value:Option[Try[T]])(f: Throwable => Unit): Option[T] = {
     value flatMap {
       case Failure(ex) =>
         f(ex)
