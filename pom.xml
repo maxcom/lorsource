@@ -435,7 +435,7 @@
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
-      <version>0.40.4</version>
+      <version>0.40.10</version>
     </dependency>
   </dependencies>
 

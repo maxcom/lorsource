@@ -12,6 +12,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package ru.org.linux.util.markdown
 
 import com.vladsch.flexmark.util.ast.{NodeVisitor, VisitHandler}
@@ -40,10 +41,10 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
   private def options(nofollow: Boolean, minimizeCut: Boolean, cutUrl: Option[String] = None) = {
     val options = new MutableDataSet
 
-    val extensions = Seq(TablesExtension.create, StrikethroughExtension.create, TypographicExtension.create(),
-      AutolinkExtension.create(), new SuppressImagesExtension, new LorLinkExtension(siteConfig, topicDao, commentDao),
-      new LorUserExtension(userService, toHtmlFormatter), new CutExtension,
-      new FencedCodeExtension/*, YouTubeLinkExtension.create()*/)
+    val extensions = Seq(TablesExtension.create, StrikethroughExtension.create, AutolinkExtension.create(),
+      TypographicExtension.create(), new SuppressImagesExtension,
+      new LorLinkExtension(siteConfig, topicDao, commentDao), new LorUserExtension(userService, toHtmlFormatter),
+      new CutExtension, new FencedCodeExtension/*, YouTubeLinkExtension.create()*/)
 
     val allExtensions = (if (nofollow) {
       extensions :+ new NofollowExtension
