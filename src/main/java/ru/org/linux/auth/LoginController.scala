@@ -14,6 +14,9 @@
  */
 package ru.org.linux.auth
 
+import java.util.concurrent.CompletionStage
+
+import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
@@ -27,6 +30,12 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.site.{PublicApi, Template}
 import ru.org.linux.user.UserDao
 
+import scala.compat.java8.FutureConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Promise
+import scala.concurrent.duration._
+import scala.util.{Random, Try}
+
 @PublicApi
 case class LoginStatus(success: Boolean, username: String) {
   def isLoggedIn: Boolean = success
@@ -36,34 +45,11 @@ case class LoginStatus(success: Boolean, username: String) {
 
 @Controller
 class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
-                      rememberMeServices: GenerationBasedTokenRememberMeServices, authenticationManager: AuthenticationManager) extends StrictLogging {
+                      rememberMeServices: GenerationBasedTokenRememberMeServices,
+                      authenticationManager: AuthenticationManager, actorSystem: ActorSystem) extends StrictLogging {
   @RequestMapping(value = Array("/login_process"), method = Array(RequestMethod.POST))
   def loginProcess(@RequestParam("nick") username: String, @RequestParam("passwd") password: String,
-                   request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
-    val token = new UsernamePasswordAuthenticationToken(username, password)
-    try {
-      val details = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
-      token.setDetails(details)
-      val auth = authenticationManager.authenticate(token)
-      val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
-      if (!userDetails.getUser.isActivated) new ModelAndView(new RedirectView("/login.jsp?error=not_activated"))
-      else {
-        SecurityContextHolder.getContext.setAuthentication(auth)
-        rememberMeServices.loginSuccess(request, response, auth)
-        AuthUtil.updateLastLogin(auth, userDao)
-        new ModelAndView(new RedirectView("/"))
-      }
-    } catch {
-      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) ⇒
-        logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
-        new ModelAndView(new RedirectView("/login.jsp?error=true"))
-    }
-  }
-
-  @RequestMapping(value = Array("/ajax_login_process"), method = Array(RequestMethod.POST))
-  @ResponseBody
-  def loginAjax(@RequestParam("nick") username: String, @RequestParam("passwd") password: String,
-                request: HttpServletRequest, response: HttpServletResponse): LoginStatus = {
+                   request: HttpServletRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
     val token = new UsernamePasswordAuthenticationToken(username, password)
     try {
       val details = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
@@ -72,17 +58,52 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
       val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
       if (!userDetails.getUser.isActivated) {
-        LoginStatus(success = false, "User not activated")
+        delayResponse { new ModelAndView(new RedirectView("/login.jsp?error=not_activated")) }
       } else {
         SecurityContextHolder.getContext.setAuthentication(auth)
         rememberMeServices.loginSuccess(request, response, auth)
-        AuthUtil.updateLastLogin(auth, userDao)
-        LoginStatus(auth.isAuthenticated, auth.getName)
+
+        delayResponse {
+          AuthUtil.updateLastLogin(auth, userDao)
+          new ModelAndView(new RedirectView("/"))
+        }
       }
     } catch {
       case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) ⇒
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
-        LoginStatus(success = false, "Bad credentials")
+
+        delayResponse {
+          new ModelAndView(new RedirectView("/login.jsp?error=true"))
+        }
+    }
+  }
+
+  @RequestMapping(value = Array("/ajax_login_process"), method = Array(RequestMethod.POST))
+  @ResponseBody
+  def loginAjax(@RequestParam("nick") username: String, @RequestParam("passwd") password: String,
+                request: HttpServletRequest, response: HttpServletResponse): CompletionStage[LoginStatus] = {
+    val token = new UsernamePasswordAuthenticationToken(username, password)
+    try {
+      val details = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
+      token.setDetails(details)
+      val auth = authenticationManager.authenticate(token)
+      val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
+
+      if (!userDetails.getUser.isActivated) {
+        delayResponse { LoginStatus(success = false, "User not activated") }
+      } else {
+        SecurityContextHolder.getContext.setAuthentication(auth)
+        rememberMeServices.loginSuccess(request, response, auth)
+
+        delayResponse {
+          AuthUtil.updateLastLogin(auth, userDao)
+          LoginStatus(auth.isAuthenticated, auth.getName)
+        }
+      }
+    } catch {
+      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) ⇒
+        logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
+        delayResponse { LoginStatus(success = false, "Bad credentials") }
     }
   }
 
@@ -112,4 +133,16 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
 
   @RequestMapping(value = Array("/login.jsp"), method = Array(RequestMethod.GET))
   def loginForm = new ModelAndView("login-form")
+
+  private def delayResponse[T](resp : => T): CompletionStage[T] = {
+    val r = Random.nextInt(2000) + 1000 // 1 to 3 seconds
+
+    val p = Promise[T]
+
+    actorSystem.scheduler.scheduleOnce(r.millis) {
+      p.complete(Try(resp))
+    }
+
+    p.future.toJava
+  }
 }
