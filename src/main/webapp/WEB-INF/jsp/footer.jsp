@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2018 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -21,7 +21,8 @@
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
   <a href="/help/rules.md">Правила форума</a> -
-  <a href="/help/lorcode.md">Правила разметки</a><br>
+  <a href="/help/lorcode.md">Правила разметки (LORCODE)</a><br>
+  <a href="/help/markdown.md">Правила разметки (Markdown)</a><br>
   <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
 </p>
 
