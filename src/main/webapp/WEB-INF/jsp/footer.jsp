@@ -21,7 +21,7 @@
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
   <a href="/help/rules.md">Правила форума</a> -
-  <a href="/help/lorcode.md">Правила разметки (LORCODE) -</a>
+  <a href="/help/lorcode.md">Правила разметки (LORCODE)</a> -
   <a href="/help/markdown.md">Правила разметки (Markdown)</a><br>
   <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
 </p>
