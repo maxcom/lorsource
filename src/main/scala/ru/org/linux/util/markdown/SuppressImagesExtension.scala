@@ -23,7 +23,13 @@ class SuppressImagesRenderer extends NodeRenderer {
     Set(new NodeRenderingHandler[Image](classOf[Image], (node, _, html) => {
       val altText = new TextCollectingVisitor().collectAndGetText(node)
 
-      html.text(altText)
+      html
+        .withAttr()
+        .attr("href", node.getUrl)
+        .attr("rel", "nofollow")
+        .tag("a")
+        .text(altText)
+        .closeTag("a")
     }), new NodeRenderingHandler[ImageRef](classOf[ImageRef], (node, _, html) => {
       val altText = new TextCollectingVisitor().collectAndGetText(node)
 
