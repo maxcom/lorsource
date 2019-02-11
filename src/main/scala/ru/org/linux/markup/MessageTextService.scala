@@ -221,13 +221,11 @@ object MessageTextService {
 object MarkupPermissions {
   def allowedFormats(user: User): Set[MarkupType] = {
     if (user==null) { // anonymous
-      Set(Lorcode)
+      Set(Lorcode, Markdown)
     } else if (user.isAdministrator) {
       Set(Lorcode, LorcodeUlb, Markdown, Html)
-    } else if (user.getScore >= 50 || user.isCorrector) {
-      Set(Lorcode, LorcodeUlb, Markdown)
     } else {
-      Set(Lorcode, LorcodeUlb)
+      Set(Lorcode, LorcodeUlb, Markdown)
     }
   }
 
