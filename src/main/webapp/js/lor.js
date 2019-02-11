@@ -297,6 +297,19 @@ function tag_memories_form_setup(tag, csrf_token) {
  
 }
 
+function replace_state() {
+    if (typeof(history.replaceState) !== 'function') return;
+    
+    if (document.location.hash.indexOf('#comment-') == 0) {
+        // Yes, we are viewing a comment
+        var hash = document.location.hash.split('-');
+        if (parseInt(hash[1]) > 0) {
+            // OK, comment ID is valid, now replace state
+            history.replaceState({}, document.title, document.location.pathname + '?cid=' + hash[1]);
+        }
+    }
+}
+
 $script.ready('plugins', function() {
   function initLoginForm() {
     var options = {
@@ -405,6 +418,7 @@ $(document).ready(function() {
 
   initSamepageCommentNavigation();
   initScollupButton();
+  
+  replace_state()
+  $(window).bind('hashchange', replace_state);
 });
-
-
