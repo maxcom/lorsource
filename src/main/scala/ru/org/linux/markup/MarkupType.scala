@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -59,6 +59,14 @@ object MarkupType {
     case LorcodeUlb.id ⇒ LorcodeUlb
     case Markdown.id   ⇒ Markdown
     case other         ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
+  }
+
+  def ofFormId(v: String): MarkupType = v match {
+    case Html.formId       ⇒ Html
+    case Lorcode.formId    ⇒ Lorcode
+    case LorcodeUlb.formId ⇒ LorcodeUlb
+    case Markdown.formId   ⇒ Markdown
+    case other             ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
   }
 
   val All: Set[MarkupType] = Set(Lorcode, LorcodeUlb, Markdown, Html)

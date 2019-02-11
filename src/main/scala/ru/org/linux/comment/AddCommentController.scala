@@ -127,7 +127,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       add.setMode(MarkupType.Lorcode.formId)
     }
 
-    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.of(add.getMode)))) {
+    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(add.getMode)))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
