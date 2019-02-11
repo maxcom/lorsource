@@ -104,7 +104,7 @@ public class CommentService {
           .build();
 
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new CommentRequestValidator(textService));
+    binder.setValidator(new CommentRequestValidator());
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 

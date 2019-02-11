@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -34,6 +34,7 @@ import ru.org.linux.markup.{MarkupPermissions, MarkupType, MessageTextService}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
+import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
 
@@ -43,7 +44,7 @@ import scala.collection.JavaConverters._
 class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: CommentPrepareService,
                            commentService: CommentService, topicPermissionService: TopicPermissionService,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
-                           @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef) {
+                           @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef, textService: MessageTextService) {
 
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
@@ -124,6 +125,10 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     if (!MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(_.formId).contains(add.getMode)) {
       errors.rejectValue("mode", null, "Некорректный режим разметки")
       add.setMode(MarkupType.Lorcode.formId)
+    }
+
+    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.of(add.getMode)))) {
+      errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {

@@ -26,9 +26,10 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
+import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
-import ru.org.linux.spring.dao.MsgbaseDao
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.util.ServletParameterException
 
@@ -38,7 +39,7 @@ import scala.compat.java8.OptionConverters._
 @Controller
 class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
-                            searchQueueSender: SearchQueueSender) {
+                            searchQueueSender: SearchQueueSender, textService: MessageTextService) {
   @InitBinder(Array("edit"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)
 
@@ -110,6 +111,10 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
 
     commentRequest.setMode(originalMessageText.markup.formId)
+
+    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, MarkupType.of(commentRequest.getMode)))) {
+      errors.rejectValue("msg", null, "комментарий не может быть пустым")
+    }
 
     val msg = commentService.getCommentBody(commentRequest, user, errors)
 
