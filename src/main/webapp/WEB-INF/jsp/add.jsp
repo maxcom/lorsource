@@ -157,7 +157,8 @@
 <div class="control-group">
   <label for="form_msg">Сообщение</label>
     <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
-    <div class="help-block"><b>Внимание:</b> <a href="/help/lorcode.md" target="_blank">прочитайте описание разметки LORCODE</a></div>
+    <div class="help-block"><b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank">LORCODE</a>
+      или <a target="_blank" href="/help/markdown.md">Markdown</a>.</div>
 </div>
 
 <c:if test="${group!=null and group.linksAllowed}">
