@@ -106,7 +106,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Html ⇒
         Jsoup.parse(text.text).text
       case Markdown ⇒
-        text.text
+        Jsoup.parse(markdownFormatter.renderToHtml(text.text, nofollow = false)).text()
     }
   }
 
