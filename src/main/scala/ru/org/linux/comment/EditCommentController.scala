@@ -112,7 +112,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
 
     commentRequest.setMode(originalMessageText.markup.formId)
 
-    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, MarkupType.of(commentRequest.getMode)))) {
+    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, MarkupType.ofFormId(commentRequest.getMode)))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
