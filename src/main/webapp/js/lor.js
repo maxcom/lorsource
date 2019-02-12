@@ -304,8 +304,12 @@ function replace_state() {
         // Yes, we are viewing a comment
         var hash = document.location.hash.split('-');
         if (parseInt(hash[1]) > 0) {
-            // OK, comment ID is valid, now replace state
-            history.replaceState({}, document.title, document.location.pathname + '?cid=' + hash[1]);
+            // OK, comment ID is valid
+            var p = document.location.pathname.split('/');
+            // make sure that path doesn't contain /pagex or other parts
+            var pathname = [p[0], p[1], p[2], p[3]].join('/');
+            // now replace state
+            history.replaceState({}, document.title, pathname + '?cid=' + hash[1]);
         }
     }
 }
