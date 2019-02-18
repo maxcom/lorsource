@@ -310,6 +310,13 @@ function replace_state() {
             var pathname = [p[0], p[1], p[2], p[3]].join('/');
             // now replace state
             history.replaceState({}, document.title, pathname + '?cid=' + hash[1]);
+            
+            if(document.querySelector('article.msg:target') === null) {
+                // Target comment lost, this may occur due to race condition in some browsers
+                // trying to workaround, scroll to target comment again
+                // (and this function will be triggered once again)
+                document.location.hash = '#comment-' + hash[1];
+            }
         }
     }
 }
