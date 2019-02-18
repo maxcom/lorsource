@@ -86,7 +86,11 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
           val text = if (deleted) {
             canonical
           } else {
-            message.getTitleUnescaped
+             if (url.isCommentUrl) {
+              message.getTitleUnescaped + " (комментарий)"
+            } else {
+              message.getTitleUnescaped
+            }
           }
 
           html.attr("href", canonical)
