@@ -113,7 +113,6 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val user = commentService.getCommentUser(add, request, errors)
     commentService.checkPostData(add, user, ipBlockInfo, request, errors)
 
-    val msg = commentService.getCommentBody(add, user, errors)
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
@@ -130,6 +129,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(add.getMode)))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
+
+    val msg = commentService.getCommentBody(add, user, errors)
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val info = if (add.getTopic != null) {
