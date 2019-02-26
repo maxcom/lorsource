@@ -46,6 +46,10 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
 
     val msg = topicDao.getById(poll.getTopicId)
 
+    if (!msg.isCommited) {
+      throw new BadVoteException("Опрос еще не подтвержден")
+    }
+
     if (msg.isExpired) {
       throw new BadVoteException("Опрос завернен")
     }
