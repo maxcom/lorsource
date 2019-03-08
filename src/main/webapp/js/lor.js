@@ -302,6 +302,10 @@ function replace_state() {
     
     if (document.location.hash.indexOf('#comment-') == 0) {
         // Yes, we are viewing a comment
+        
+        // bypass if no such target to avoid looping
+        if (document.querySelector(document.location.hash) === null) return;
+        
         var hash = document.location.hash.split('-');
         if (parseInt(hash[1]) > 0) {
             // OK, comment ID is valid
