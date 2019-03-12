@@ -21,7 +21,7 @@ import java.util.regex.Pattern
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{LinkType, NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.parser.{InlineParser, InlineParserExtension, InlineParserExtensionFactory, Parser}
-import com.vladsch.flexmark.util.ast.{CustomNode, DoNotDecorate, Node}
+import com.vladsch.flexmark.util.ast.{DoNotDecorate, Node}
 import com.vladsch.flexmark.util.options.MutableDataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import ru.org.linux.user.UserService
@@ -62,7 +62,7 @@ object LorUserParserExtension {
 }
 
 class LorUser(openingMarker: BasedSequence, text: BasedSequence)
-  extends CustomNode(Node.spanningChars(openingMarker, text)) with DoNotDecorate {
+  extends Node(Node.spanningChars(openingMarker, text)) with DoNotDecorate {
 
   override def getSegments: Array[BasedSequence] = { //return EMPTY_SEGMENTS;
     Array[BasedSequence](openingMarker, text)
