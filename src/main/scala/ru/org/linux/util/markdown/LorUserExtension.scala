@@ -46,7 +46,7 @@ class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatte
 }
 
 object LorUserParserExtension {
-  val LorUser: Pattern = Pattern.compile("^(@)([a-z][a-z_\\d-]{0,80})\\b", Pattern.CASE_INSENSITIVE)
+  val LorUser: Pattern = Pattern.compile("^(@)([a-z][a-z_\\d-]{0,80})[\\b-]", Pattern.CASE_INSENSITIVE)
 
   class Factory extends InlineParserExtensionFactory {
     override def getAfterDependents = null
