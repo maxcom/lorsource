@@ -81,15 +81,27 @@ class LorUserParserExtension(val inlineParser: InlineParser) extends InlineParse
   }
 
   override def parse(inlineParser: InlineParser): Boolean = {
-    val matches = inlineParser.matchWithGroups(LorUserParserExtension.LorUser)
+    val index = inlineParser.getIndex
 
-    if (matches != null) {
-      inlineParser.flushTextNode
-      val openMarker = matches(1)
-      val text = matches(2)
-      val gitHubIssue = new LorUser(openMarker, text)
-      inlineParser.getBlock.appendChild(gitHubIssue)
-      true
+    val possible = index == 0 || {
+      val c = inlineParser.getInput.charAt(index - 1)
+
+      !Character.isUnicodeIdentifierPart(c) && c != '-' && c != '.'
+    }
+
+    if (possible) {
+      val matches = inlineParser.matchWithGroups(LorUserParserExtension.LorUser)
+
+      if (matches != null) {
+        inlineParser.flushTextNode
+        val openMarker = matches(1)
+        val text = matches(2)
+        val gitHubIssue = new LorUser(openMarker, text)
+        inlineParser.getBlock.appendChild(gitHubIssue)
+        true
+      } else {
+        false
+      }
     } else {
       false
     }
