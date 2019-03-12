@@ -16,7 +16,7 @@
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>4.3.22.RELEASE</dependency.spring.version>
-    <spring.security.version>4.2.10.RELEASE</spring.security.version>
+    <spring.security.version>4.2.11.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
     <elastic4s.version>6.5.1</elastic4s.version>
     <scala.version>2.12.8</scala.version>
@@ -96,14 +96,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.0.5</version>
+      <version>4.5.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.0.5</version>
+      <version>4.5.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -131,7 +131,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>27.0.1-jre</version>
+      <version>27.1-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -435,7 +435,7 @@
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
-      <version>0.40.16</version>
+      <version>0.40.22</version>
     </dependency>
   </dependencies>
 
