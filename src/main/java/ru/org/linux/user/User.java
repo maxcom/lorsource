@@ -286,7 +286,7 @@ public class User implements Serializable {
     if (score < ANONYMOUS_LEVEL_SCORE) {
       text = "анонимный";
     } else if (score < 100 && maxScore < 100) {
-      text = "новый пользователь";
+      text = "малоактивный пользователь";
     } else {
       text = "";
     }
