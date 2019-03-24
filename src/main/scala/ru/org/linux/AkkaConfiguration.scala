@@ -18,10 +18,22 @@ package ru.org.linux
 import akka.actor.ActorSystem
 import org.springframework.context.annotation.{Bean, Configuration}
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+case class TerminatableAkka(system: ActorSystem) {
+  def close(): Unit = {
+    Await.result(system.terminate(), 5.minutes)
+  }
+}
+
 @Configuration
 class AkkaConfiguration {
-  @Bean(destroyMethod = "terminate")
-  def actorSystem = ActorSystem("lor")
+  @Bean
+  def akka = TerminatableAkka(ActorSystem("lor"))
+
+  @Bean
+  def actorSystem(akka: TerminatableAkka): ActorSystem = akka.system
 
   @Bean
   def scheduler(actorSystem: ActorSystem) = actorSystem.scheduler
