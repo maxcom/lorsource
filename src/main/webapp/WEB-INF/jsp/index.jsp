@@ -50,6 +50,7 @@
     .yandex-adaptive { min-height: 90px; width: 100% }
   }
 </style>
+<%--
 
 <!-- Yandex.RTB R-A-337082-3 -->
 <div id="yandex_rtb_R-A-337082-3" class="yandex-adaptive"></div>
@@ -72,8 +73,8 @@
     })(this, this.document, "yandexContextAsyncCallbacks");
 </script>
 </div>
+--%>
 </c:if>
-<%--
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -81,8 +82,8 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/Linux_730x90.png',
-          img320: '/adv/Linux_320x100.png',
+          img730: '/adv/Linux_730x90.jpg',
+          img320: '/adv/Linux_320x100.jpg',
           href: 'https://otus.ru/lessons/linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
         }
       ];
@@ -90,7 +91,6 @@
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
