@@ -48,7 +48,7 @@ object MarkupType {
 
   case object Markdown extends MarkupType {
     override val id = "MARKDOWN"
-    override val title: String = "Markdown (beta)"
+    override val title: String = "Markdown"
     override val formId: String = "markdown"
     override val order: Int = 2
   }
