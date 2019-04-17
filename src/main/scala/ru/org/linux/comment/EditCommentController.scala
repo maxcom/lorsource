@@ -59,10 +59,10 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
   def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest,
                              request: HttpServletRequest): ModelAndView = {
     val topic = commentRequest.getTopic
-    if (topic == null) throw new ServletParameterException("тема на задана")
+    if (topic == null) throw new ServletParameterException("тема не задана")
 
     val original = commentRequest.getOriginal
-    if (original == null) throw new ServletParameterException("Комментарий на задан")
+    if (original == null) throw new ServletParameterException("Комментарий не задан")
 
     val comment = commentRequest.getOriginal
     val tmpl = Template.getTemplate(request)
