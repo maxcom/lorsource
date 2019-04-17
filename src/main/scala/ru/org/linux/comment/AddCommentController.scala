@@ -63,7 +63,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors,
                     request: HttpServletRequest): ModelAndView = {
     if (add.getTopic == null)
-      throw new ServletParameterException("тема на задана")
+      throw new ServletParameterException("тема не задана")
 
     val tmpl = Template.getTemplate(request)
 
