@@ -25,7 +25,7 @@ public class DateFormats {
   public static final Locale RUSSIAN_LOCALE = new Locale("ru");
 
   private static final DateTimeFormatter DEFAULT =
-          DateTimeFormat.forStyle("MM").withLocale(RUSSIAN_LOCALE);
+          DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss").withLocale(RUSSIAN_LOCALE);
 
   private static final DateTimeFormatter ISO8601 =
           ISODateTimeFormat.dateTime();
