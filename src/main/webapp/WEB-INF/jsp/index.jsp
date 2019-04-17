@@ -82,8 +82,8 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/Linux_730x90.jpg',
-          img320: '/adv/Linux_320x100.jpg',
+          img730: '/adv/Linux_730x90-1.jpg',
+          img320: '/adv/Linux_320x100-1.jpg',
           href: 'https://otus.ru/lessons/linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
         }
       ];
