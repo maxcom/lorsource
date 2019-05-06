@@ -421,6 +421,24 @@ $(document).ready(function() {
     });
   }
 
+  function spoilerShow() {
+    var $this = $(this);
+    $this.parent().removeClass('spoiled');
+    $this.remove();
+    return false;
+  }
+
+  function initCodeSpoilers() {
+    $('.code').each(function() {
+      var $this = $(this);
+      if ($this.height() > 512) {
+        $this
+          .append($('<a href="#" class="spoiler-open">Развернуть</a>').on('click', spoilerShow))
+          .addClass('spoiled');
+      }
+    });
+  }
+
   initCtrlEnter();
   initUpdateEventsCount();
 
@@ -429,4 +447,6 @@ $(document).ready(function() {
   
   replace_state()
   $(window).bind('hashchange', replace_state);
+
+  initCodeSpoilers();
 });
