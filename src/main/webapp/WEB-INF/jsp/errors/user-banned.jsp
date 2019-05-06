@@ -28,7 +28,7 @@
         <p>К сожалению, пользователь <b><c:out value="${exception.user.nick}" escapeXml="true"/></b> не может более посещать LOR, </p>
         <c:choose>
             <c:when test="${not empty exception.banInfo.date}">
-                <p>начиная с <fmt:formatDate value="${exception.banInfo.date}" type="both" pattern="dd.MM.yyyy hh:mm:ss"/>.</p>
+                <p>начиная с <fmt:formatDate value="${exception.banInfo.date}" type="both" pattern="dd.MM.yyyy HH:mm:ss"/>.</p>
             </c:when>
             <c:otherwise>
                 <p>причём забанен он был настолько давно, что никто уже и не помнит, когда.</p>
