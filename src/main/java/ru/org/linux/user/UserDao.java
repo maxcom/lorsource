@@ -533,6 +533,8 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void moveMessages(int user, int targetUser) {
     jdbcTemplate.update("UPDATE comments SET userid=? WHERE userid=?", targetUser, user);
+    jdbcTemplate.update("UPDATE comments SET editor_id=? WHERE editor_id=?", targetUser, user);
+    jdbcTemplate.update("UPDATE edit_info SET editor=? WHERE editor=?", targetUser, user);
     jdbcTemplate.update("UPDATE topics SET userid=? WHERE userid=?", targetUser, user);
   }
 }
