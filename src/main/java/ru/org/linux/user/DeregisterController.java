@@ -32,6 +32,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.comment.CommentDao;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.search.ElasticsearchIndexService;
 
 import javax.servlet.ServletRequest;
@@ -46,6 +47,9 @@ public class DeregisterController {
 
   @Autowired
   private CommentDao commentDao;
+
+  @Autowired
+  private TopicDao topicDao;
 
   @Autowired
   private ElasticsearchIndexService indexService;
@@ -100,9 +104,13 @@ public class DeregisterController {
     }
 
     // Move messages
-    List<Integer> movedMessages = commentDao.getAllByUser(user);
+    List<Integer> movedComments = commentDao.getAllByUser(user);
+    List<Integer> movedTopics = topicDao.getAllByUser(user);
+
     userDao.moveMessages(user.getId(), userDao.findUserId("Deleted"));
-    indexService.reindexComments(movedMessages);
+
+    indexService.reindexComments(movedComments);
+    indexService.reindexTopics(movedTopics);
 
     // Remove user info
     userDao.resetUserpic(user, user);
