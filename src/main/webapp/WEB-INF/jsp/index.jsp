@@ -82,8 +82,8 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/SUBD_730x90_1.png',
-          img320: '/adv/SUBD_320x100_1.png',
+          img730: '/adv/SUBD_730x90_2.png',
+          img320: '/adv/SUBD_320x100_2.png',
           href: 'https://otus.ru/lessons/subd/?utm_source=partners&utm_medium=cpm&utm_campaign=subd&utm_content=banner&utm_term=linuxorg'
         }
       ];
