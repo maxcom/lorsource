@@ -64,6 +64,10 @@ public class DeregisterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
+    if (user.getScore() < 100) {
+      throw new AccessViolationException("Удаление аккаунта недоступно для пользователей со score < 100");
+    }
+
     if (user.isAdministrator() || user.isModerator()) {
       throw new AccessViolationException("Нельзя удалить модераторский аккаунт");
     }
@@ -86,6 +90,10 @@ public class DeregisterController {
 
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
+
+    if (user.getScore() < 100) {
+      throw new AccessViolationException("Удаление аккаунта недоступно для пользователей со score < 100");
+    }
 
     if (!user.matchPassword(form.getPassword())) {
       errors.rejectValue("password", null, "Неверный пароль");
