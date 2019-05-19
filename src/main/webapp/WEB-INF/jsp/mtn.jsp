@@ -31,8 +31,10 @@
     <c:if test="${group.id == message.groupId}">
       <option value="${group.id}" selected="selected">${group.title}</option>
     </c:if>
-    <c:if test="${group.id != message.groupId}">
-      <option value="${group.id}">${group.title}</option>
+    <c:if test="${group.urlName != \"club\"}">
+      <c:if test="${group.id != message.groupId}">
+        <option value="${group.id}">${group.title}</option>
+      </c:if>
     </c:if>
   </c:forEach>
 </select>
