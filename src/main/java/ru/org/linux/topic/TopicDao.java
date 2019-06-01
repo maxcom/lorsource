@@ -553,6 +553,10 @@ public class TopicDao {
     );
   }
 
+  public List<Integer> getAllByUser(User user) {
+    return jdbcTemplate.queryForList("SELECT id FROM topics WHERE userid=? AND not deleted", Integer.class, user.getId());
+  }
+
   public int getUncommitedCount() {
     return jdbcTemplate.queryForObject(
             "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
