@@ -160,7 +160,7 @@ class ElasticsearchIndexService
   }
 
   def reindexTopics(topics: java.util.List[java.lang.Integer]): Unit = {
-    for (topic <- topics.asScala.map(x ⇒ x.toInt)) yield {
+    for (topic <- topics.asScala.map(x ⇒ x.toInt)) {
       reindexMessage(topic, withComments = false)
     }
   }
