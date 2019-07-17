@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,6 +27,7 @@ public class TopicMenu {
   private final boolean commentsAllowed;
   private final boolean deletable;
 
+  private final boolean undeletable;
   @Nullable
   private final Userpic userpic;
 
@@ -36,12 +37,14 @@ public class TopicMenu {
           boolean resolvable,
           boolean commentsAllowed,
           boolean deletable,
+          boolean undeletable,
           @Nullable Userpic userpic) {
     this.topicEditable = topicEditable;
     this.tagsEditable = tagsEditable;
     this.resolvable = resolvable;
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
+    this.undeletable = undeletable;
     this.userpic = userpic;
   }
 
@@ -67,6 +70,10 @@ public class TopicMenu {
 
   public boolean isDeletable() {
     return deletable;
+  }
+
+  public boolean isUndeletable() {
+    return undeletable;
   }
 
   @Nullable

@@ -15,7 +15,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2019 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -44,7 +44,7 @@
                 по причине '${preparedMessage.deleteInfo.reason}'</strong>
         </c:if>
 
-        <c:if test="${template.moderatorSession and not message.expired}">
+        <c:if test="${messageMenu.undeletable}">
             [<a href="/undelete?msgid=${message.id}">восстановить</a>]
         </c:if>
     </div>

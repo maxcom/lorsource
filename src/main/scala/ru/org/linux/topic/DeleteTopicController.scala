@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.topic
 
 import javax.servlet.http.HttpServletRequest
-
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
@@ -26,7 +25,7 @@ import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
 import ru.org.linux.site.Template
-import ru.org.linux.user.{UserDao, UserErrorException}
+import ru.org.linux.user.{User, UserDao, UserErrorException}
 
 import scala.collection.JavaConverters._
 
@@ -36,13 +35,9 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
                                          prepareService: TopicPrepareService,
                                          permissionService: GroupPermissionService,
                                          userDao: UserDao) extends StrictLogging {
-  private def checkUndeletable(message: Topic): Unit = {
-    if (message.isExpired) {
-      throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения")
-    }
-
-    if (!message.isDeleted) {
-      throw new AccessViolationException("Сообщение уже восстановлено")
+  private def checkUndeletable(topic: Topic, currentUser: User): Unit = {
+    if (!permissionService.isUndeletable(topic, currentUser)) {
+      throw new AccessViolationException("это сообщение нельзя восстановить")
     }
   }
 
@@ -109,12 +104,12 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   def undeleteForm(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
     val tmpl = Template.getTemplate(request)
 
-    if (!tmpl.isModeratorSession) {
+    if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }
 
     val message = messageDao.getById(msgid)
-    checkUndeletable(message)
+    checkUndeletable(message, tmpl.getCurrentUser)
 
     new ModelAndView("undelete", Map(
       "message" -> message,
@@ -131,7 +126,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     }
 
     val message = messageDao.getById(msgid)
-    checkUndeletable(message)
+    checkUndeletable(message, tmpl.getCurrentUser)
 
     if (message.isDeleted) {
       messageDao.undelete(message)

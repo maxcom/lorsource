@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,12 +16,12 @@
 package ru.org.linux.spring.dao;
 
 import com.google.common.base.Preconditions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.user.User;
+import scala.Option;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,8 +45,7 @@ public class DeleteInfoDao {
   private static final String INSERT_DELETE_INFO =
           "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)";
 
-  @Autowired
-  public void setJdbcTemplate(DataSource dataSource) {
+  public DeleteInfoDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
@@ -79,7 +78,7 @@ public class DeleteInfoDao {
                       resultSet.getInt("userid"),
                       resultSet.getString("reason"),
                       resultSet.getTimestamp("deldate"),
-                      bonus
+                      Option.apply(bonus)
               );
             }, id);
 

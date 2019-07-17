@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -67,7 +67,7 @@ public class GroupPermissionServiceTest {
     assertEquals(user.getId(), resultSet.getInt("userid"));
     assertEquals(user.getId(), message.getUid());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null);
+    GroupPermissionService permissionService = new GroupPermissionService(null, null);
 
     assertTrue(permissionService.isDeletable(message, user));
   }
@@ -107,7 +107,7 @@ public class GroupPermissionServiceTest {
     assertEquals(user.getId(), resultSet.getInt("userid"));
     assertEquals(user.getId(), message.getUid());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null);
+    GroupPermissionService permissionService = new GroupPermissionService(null, null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
@@ -148,7 +148,7 @@ public class GroupPermissionServiceTest {
     assertFalse(user.getId() == resultSet.getInt("userid"));
     assertFalse(user.getId() == message.getUid());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null);
+    GroupPermissionService permissionService = new GroupPermissionService(null, null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
@@ -189,7 +189,7 @@ public class GroupPermissionServiceTest {
     assertFalse(user.getId() == resultSet.getInt("userid"));
     assertFalse(user.getId() == message.getUid());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null);
+    GroupPermissionService permissionService = new GroupPermissionService(null, null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
@@ -288,7 +288,7 @@ public class GroupPermissionServiceTest {
     when(sectionService.getSection(1)).thenReturn(sectionModerate);
     when(sectionService.getSection(2)).thenReturn(sectionNotModerate);
 
-    GroupPermissionService permissionService = new GroupPermissionService(sectionService);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
     // проверка, что данные в mock resultSet верные
     assertTrue(resultSetModerateNew.getBoolean("moderate"));

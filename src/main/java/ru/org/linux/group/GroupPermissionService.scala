@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,11 +14,15 @@
  */
 package ru.org.linux.group
 
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+
 import javax.annotation.Nullable
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.User
 
@@ -31,7 +35,7 @@ object GroupPermissionService {
 }
 
 @Service
-class GroupPermissionService(sectionService: SectionService) {
+class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao) {
   import GroupPermissionService._
   /**
     * Проверка может ли пользователь удалить топик
@@ -39,7 +43,7 @@ class GroupPermissionService(sectionService: SectionService) {
     * @param user пользователь удаляющий сообщение
     * @return признак возможности удаления
     */
-  private def isDeletableByUser(topic: Topic, user: User) = {
+  private def isDeletableByUser(topic: Topic, user: User): Boolean = {
     if (topic.getUid != user.getId) {
       false
     } else if (topic.isDraft) {
@@ -48,6 +52,22 @@ class GroupPermissionService(sectionService: SectionService) {
       val deleteDeadline = new DateTime(topic.getPostdate).plus(DeletePeriod)
 
       deleteDeadline.isAfterNow && topic.getCommentCount == 0
+    }
+  }
+
+  def isUndeletable(topic: Topic, user: User): Boolean = {
+    if (!topic.isDeleted || !user.isModerator) {
+      false
+    } else {
+      if (user.isAdministrator) {
+        true
+      } else if (!topic.isExpired) {
+        true
+      } else {
+        Option(deleteInfoDao.getDeleteInfo(topic.getId))
+          .map(_.getDelDate.toInstant)
+          .exists(_.isAfter(Instant.now.minus(2, ChronoUnit.WEEKS)))
+      }
     }
   }
 

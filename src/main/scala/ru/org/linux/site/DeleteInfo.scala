@@ -12,24 +12,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.site
 
-package ru.org.linux.comment;
+import java.sql.Timestamp
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import ru.org.linux.spring.dao.DeleteInfoDao;
+import scala.beans.BeanProperty
 
-import javax.sql.DataSource;
-
-@Configuration
-public class CommentDaoIntegrationTestConfiguration {
-  @Bean
-  public CommentDao commentDao() {
-    return new CommentDao();
+case class DeleteInfo(@BeanProperty userid: Int, reason: String, @BeanProperty delDate: Timestamp, bonus: Option[Int]) {
+  def getReason: String = {
+    reason + bonus.map(b ⇒ s" ($b)").getOrElse("")
   }
 
-  @Bean
-  public DeleteInfoDao deleteInfoDao(DataSource dataSource) {
-    return new DeleteInfoDao(dataSource);
-  }
+  def getBonus: Int = bonus.getOrElse(0)
 }

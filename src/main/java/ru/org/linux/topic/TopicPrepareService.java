@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -337,15 +337,18 @@ public class TopicPrepareService {
     boolean tagsEditable = groupPermissionService.isTagsEditable(message, currentUser);
     boolean resolvable;
     boolean deletable;
+    boolean undeletable;
 
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
       deletable = groupPermissionService.isDeletable(message.getMessage(), currentUser);
+      undeletable = groupPermissionService.isUndeletable(message.getMessage(), currentUser);
     } else {
       resolvable = false;
       deletable = false;
+      undeletable = false;
     }
 
     Userpic userpic = null;
@@ -364,6 +367,7 @@ public class TopicPrepareService {
             resolvable, 
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
+            undeletable,
             userpic
     );
   }
