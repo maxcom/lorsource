@@ -66,7 +66,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       } else {
         Option(deleteInfoDao.getDeleteInfo(topic.getId))
           .map(_.getDelDate.toInstant)
-          .exists(_.isAfter(Instant.now.minus(2, ChronoUnit.WEEKS)))
+          .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
       }
     }
   }
