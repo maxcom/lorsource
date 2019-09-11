@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -92,8 +92,8 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
     builder.build()
   }
 
-  def tagRefs(topics: Seq[Int]): Map[Int, Seq[TagInfo]] =
-    topicTagDao.getTags(topics).groupBy(_._1).mapValues(_.map(_._2))
+  def tagRefs(topics: scala.collection.Seq[Int]): Map[Int, scala.collection.Seq[TagInfo]] =
+    topicTagDao.getTags(topics).groupBy(_._1).mapValues(_.map(_._2)).toMap
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
@@ -104,7 +104,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    */
   def getTagsForTitle(msgId:Int): ImmutableList[String] = {
     val tags = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
-    ImmutableList.copyOf(tags.toIterable.asJava)
+    ImmutableList.copyOf(tags.asJava)
   }
 }
 

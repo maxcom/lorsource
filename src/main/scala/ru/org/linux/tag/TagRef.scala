@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,13 +17,14 @@ package ru.org.linux.tag
 
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters._
+import scala.collection.Seq
 
 case class TagRef(@BeanProperty name:String, @BeanProperty url:Option[String]) extends Ordered[TagRef] {
   def compare(that: TagRef): Int = name.compareTo(that.name)
 }
 
 object TagRef {
-  def names(list: Seq[TagRef]):String = list.map(_.name).mkString(",")
+  def names(list: Seq[TagRef]): String = list.map(_.name).mkString(",")
 
-  def names(list: java.util.List[TagRef]):String = names(list.asScala)
+  def names(list: java.util.List[TagRef]): String = names(list.asScala)
 }

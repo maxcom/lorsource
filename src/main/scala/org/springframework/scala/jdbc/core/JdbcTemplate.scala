@@ -17,9 +17,9 @@
 package org.springframework.scala.jdbc.core
 
 import java.sql._
-import javax.sql.DataSource
 
-import org.springframework.dao.DataAccessException
+import javax.sql.DataSource
+import org.springframework.dao.{DataAccessException, IncorrectResultSizeDataAccessException}
 import org.springframework.jdbc.core._
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
@@ -28,6 +28,7 @@ import org.springframework.scala.util.TypeTagUtils.typeToClass
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
+import scala.collection.Seq
 
 /**
  * Scala-based convenience wrapper for the Spring
@@ -264,7 +265,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def batchUpdate(sql: Seq[String]): Seq[Int] = {
-		javaTemplate.batchUpdate(sql: _*)
+		javaTemplate.batchUpdate(sql.toSeq: _*)
 	}
 
 	//-------------------------------------------------------------------------
@@ -939,11 +940,9 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 		javaTemplate.batchUpdate(sql,
 		                         batchArgs.asJavaCollection,
 		                         batchSize,
-		                         new ParameterizedPreparedStatementSetter[T] {
-			                         def setValues(ps: PreparedStatement, argument: T):Unit = {
-				                         setterCallback(ps, argument)
-			                         }
-		                         }).map(_.toSeq)
+			(ps: PreparedStatement, argument: T) => {
+				setterCallback(ps, argument)
+			}).map(_.toSeq)
 	}
 
 	//-------------------------------------------------------------------------
@@ -1011,11 +1010,11 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	// Private helpers
 	//-------------------------------------------------------------------------
 	private def asInstanceOfAny(map: java.util.Map[String, AnyRef]): Map[String, Any] = {
-		map.asScala.toMap.mapValues(_.asInstanceOf[Any])
+		map.asScala.toMap.mapValues(_.asInstanceOf[Any]).toMap
 	}
 
-	private def asInstanceOfAnyRef(seq: Seq[Any]): Seq[AnyRef] = {
-		seq.map(_.asInstanceOf[AnyRef])
+	private def asInstanceOfAnyRef(seq: Seq[Any]): scala.collection.immutable.Seq[AnyRef] = {
+		seq.map(_.asInstanceOf[AnyRef]).toSeq
 	}
 
 }

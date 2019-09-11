@@ -19,8 +19,8 @@
     <spring.security.version>4.2.13.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
     <elastic4s.version>6.7.3</elastic4s.version>
-    <scala.version>2.12.9</scala.version>
-    <scala.suffix>2.12</scala.suffix>
+    <scala.version>2.13.0</scala.version>
+    <scala.suffix>2.13</scala.suffix>
     <activemq.version>5.15.9</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
@@ -455,7 +455,6 @@
 -->
             <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
-            <arg>-Xfuture</arg>
             <arg>-target:jvm-1.8</arg>
           </args>
           <recompileMode>incremental</recompileMode>

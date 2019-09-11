@@ -27,6 +27,7 @@ import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.UserErrorException
 
 import scala.collection.JavaConverters._
+import scala.collection.Seq
 
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentService,

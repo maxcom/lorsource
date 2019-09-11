@@ -38,6 +38,7 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.collection.Seq
 
 object TagPageController {
   val TotalNewsCount = 21
@@ -53,7 +54,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
  sectionService: SectionService, groupDao: GroupDao, userTagService: UserTagService, imageService: ImageService,
  actorSystem: ActorSystem) extends StrictLogging {
 
-  private implicit val akka = actorSystem
+  private implicit val akka: ActorSystem = actorSystem
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def tagPage(request: HttpServletRequest, @PathVariable tag: String): CompletionStage[ModelAndView] = {

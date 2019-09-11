@@ -19,6 +19,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 import scala.collection.JavaConverters._
+import scala.collection.Seq
 
 object TopicListTools {
   private val OldYearFormat = DateTimeFormat.forPattern("YYYY")
@@ -48,7 +49,7 @@ object TopicListTools {
     }
   }
 
-  def monthName(date: DateTime) = Months(date.getMonthOfYear - date.getChronology.monthOfYear().getMinimumValue)
+  def monthName(date: DateTime): String = Months(date.getMonthOfYear - date.getChronology.monthOfYear().getMinimumValue)
 
   private def grouped[T](seq: Seq[(String, T)]):java.util.List[(String, java.util.List[T])] = {
     val start = (Vector.empty[(String, java.util.List[T])], "", Vector.empty[T])

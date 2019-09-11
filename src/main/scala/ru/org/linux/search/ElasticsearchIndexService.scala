@@ -35,6 +35,7 @@ import ru.org.linux.topic.{Topic, TopicDao, TopicTagService}
 import ru.org.linux.user.UserDao
 
 import scala.collection.JavaConverters._
+import scala.collection.{Seq => MSeq}
 
 object ElasticsearchIndexService {
   val MessageIndex = "messages"
@@ -90,7 +91,7 @@ class ElasticsearchIndexService
 
   private def isTopicSearchable(msg: Topic) = !msg.isDeleted && !msg.isDraft
 
-  private def reindexComments(topic: Topic, comments: CommentList): Seq[BulkCompatibleRequest] = {
+  private def reindexComments(topic: Topic, comments: CommentList): MSeq[BulkCompatibleRequest] = {
     for (comment <- comments.getList.asScala) yield {
       if (comment.isDeleted) {
         delete(comment.getId.toString) from MessageIndexType
@@ -135,7 +136,7 @@ class ElasticsearchIndexService
     }
   }
 
-  def reindexComments(comments: Seq[Int]): Unit = {
+  def reindexComments(comments: MSeq[Int]): Unit = {
     if (comments.contains(0)) {
       logger.warn("Skipping MSGID=0!!!")
     }

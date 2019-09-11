@@ -44,6 +44,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, TimeoutException}
 import scala.util.control.NonFatal
+import scala.collection.{Seq => MSeq}
 
 @Service
 class MoreLikeThisService(
@@ -97,7 +98,7 @@ class MoreLikeThisService(
     }
   }
 
-  private def makeQuery(topic: Topic, tags: Seq[TagRef]) = {
+  private def makeQuery(topic: Topic, tags: MSeq[TagRef]) = {
     val tagsQ = if (tags.nonEmpty) {
       Seq(tagsQuery(tags.map(_.name)))
     } else Seq.empty
@@ -166,7 +167,7 @@ class MoreLikeThisService(
       .maxDocFreq(100000)
   }
 
-  private def tagsQuery(tags: Seq[String]) = termsQuery("tag", tags)
+  private def tagsQuery(tags: MSeq[String]) = termsQuery("tag", tags)
 }
 
 object MoreLikeThisService {

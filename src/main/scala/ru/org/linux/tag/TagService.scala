@@ -28,6 +28,7 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.collection.Seq
 
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient) {
@@ -141,7 +142,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       info <- tagDao.getTagsByPrefix(prefix, threshold)
     ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
 
-    SortedMap(result: _*).asJava
+    SortedMap(result.toSeq: _*).asJava
   }
 }
 
