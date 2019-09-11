@@ -16,7 +16,7 @@
 package ru.org.linux.monitoring
 
 import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
 import akka.pattern.PipeToSupport
 import com.sksamuel.elastic4s.http.ElasticClient
 import com.sksamuel.elastic4s.http.ElasticDsl._
@@ -26,44 +26,43 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.springframework.context.annotation.{Bean, Configuration}
 
-import scala.collection.immutable
 import scala.concurrent.duration._
 
-class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLogging with PipeToSupport {
+class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLogging with PipeToSupport with Timers {
   import PerformanceLoggingActor._
   import context.dispatcher
 
-  private var queue: immutable.Seq[Metric] = Vector.empty[Metric]
+  private var queue: Seq[Metric] = Vector.empty[Metric]
 
   override def receive: Actor.Receive = initializing
 
-  private val createSchedule = context.system.scheduler.schedule(10 seconds, 2 minutes, self, Initialize)
+  timers.startPeriodicTimer(Initialize, Initialize, 2.minutes)
 
   private val initializing: Receive = {
-    case m:Metric ⇒
+    case m: Metric =>
       enqueue(m)
 
-    case Initialize ⇒
-      createIndex() pipeTo self
+    case Initialize =>
+      createIndex().map(_.result).pipeTo(self)
 
-    case _: CreateIndexTemplateResponse ⇒
+    case _: CreateIndexTemplateResponse =>
       log.info("Initialized performance logging")
-      createSchedule.cancel()
+      timers.cancel(Initialize)
       context.become(ready)
 
-    case Failure(ex) ⇒
+    case Failure(ex) =>
       log.error(ex, "Failed to put template")
   }
 
   private def indexOf(date: DateTime) = IndexPrefix + "-" + indexDateFormat.print(date)
 
   private val ready: Receive = {
-    case m: Metric ⇒
+    case m: Metric =>
       enqueue(m)
 
       elastic execute {
         bulk {
-          queue map { m ⇒
+          queue map { m =>
             indexInto(indexOf(m.start), PerfType) fields (
               "controller" -> m.name,
               "startdate"  -> m.start,
@@ -80,15 +79,15 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
   }
 
   private val waiting: Receive = {
-    case m: Metric ⇒
+    case m: Metric =>
       enqueue(m)
-    case r: BulkResponse ⇒
+    case r: BulkResponse =>
       if (r.hasFailures) {
         log.warning(s"Failed to write perf metrics: ${r.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
       }
       log.debug(s"Logged ${r.items.length} metrics")
       context.become(ready)
-    case Failure(ex) ⇒
+    case Failure(ex) =>
       log.error(ex, "Failed to write perf metrics")
       context.become(ready)
   }
@@ -106,7 +105,7 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
     log.info("Create performance index template")
 
     elastic.execute {
-      createTemplate(s"$IndexPrefix-template") pattern PerfPattern mappings (
+      createIndexTemplate(s"$IndexPrefix-template", PerfPattern) mappings (
         mapping(PerfType) fields(
           keywordField("controller"),
           dateField("startdate") format "dateTime",
