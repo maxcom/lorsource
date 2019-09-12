@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,15 +19,14 @@ import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -186,21 +185,34 @@ public class UserLogDao {
 
     return jdbcTemplate.query(
             sql,
-            new RowMapper<UserLogItem>() {
-              @Override
-              public UserLogItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new UserLogItem(
-                        rs.getInt("id"),
-                        rs.getInt("userid"),
-                        rs.getInt("action_userid"),
-                        new DateTime(rs.getTimestamp("action_date")),
-                        UserLogAction.valueOf(rs.getString("action").toUpperCase()),
-                        (Map<String, String>) rs.getObject("info")
-                );
-              }
-            },
+            (rs, rowNum) -> new UserLogItem(
+                    rs.getInt("id"),
+                    rs.getInt("userid"),
+                    rs.getInt("action_userid"),
+                    new DateTime(rs.getTimestamp("action_date")),
+                    UserLogAction.valueOf(rs.getString("action").toUpperCase()),
+                    (Map<String, String>) rs.getObject("info")
+            ),
             user.getId()
     );
+  }
+
+  public int getUserpicSetCount(User user, Duration duration) {
+    return jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>?",
+            Integer.class,
+            user.getId(),
+            UserLogAction.SET_USERPIC.toString(),
+            OffsetDateTime.now().minus(duration));
+  }
+
+  public boolean wasUserpicReset(User user, Duration duration) {
+    return jdbcTemplate.queryForObject(
+            "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid!=action_userid)",
+            Boolean.class,
+            user.getId(),
+            UserLogAction.RESET_USERPIC.toString(),
+            OffsetDateTime.now().minus(duration));
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)

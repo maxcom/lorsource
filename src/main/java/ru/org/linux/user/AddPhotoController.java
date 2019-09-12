@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Random;
 
 @Controller
@@ -57,6 +58,9 @@ public class AddPhotoController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private UserLogDao userLogDao;
+
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
   public ModelAndView showForm() throws AccessViolationException {
@@ -69,6 +73,18 @@ public class AddPhotoController {
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
+    }
+
+    int userpicSetCount = userLogDao.getUserpicSetCount(AuthUtil.getCurrentUser(), Duration.ofHours(1));
+
+    if (userpicSetCount >= 3) {
+      return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
+    }
+
+    boolean wasReset = userLogDao.wasUserpicReset(AuthUtil.getCurrentUser(), Duration.ofDays(3));
+
+    if (wasReset) {
+      return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
     }
 
     Path uploadedFile = Files.createTempFile("userpic-", "");
