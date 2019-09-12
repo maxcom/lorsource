@@ -15,4 +15,4 @@ before_script:
   - unset GEM_PATH
 before_install:
   - unset GEM_PATH
-install: mvn verify -DskipTests=true -Dmaven.javadoc.skip=true 
+install: mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn verify -DskipTests=true -Dmaven.javadoc.skip=true 
