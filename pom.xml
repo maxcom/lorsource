@@ -17,7 +17,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>4.3.24.RELEASE</dependency.spring.version>
     <spring.security.version>4.2.13.RELEASE</spring.security.version>
-    <jdbc.postgresql.version>42.2.7</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.2.6</jdbc.postgresql.version> <!-- fix sameip by msgid on update -->
     <elastic4s.version>6.7.3</elastic4s.version>
     <scala.version>2.13.0</scala.version>
     <scala.suffix>2.13</scala.suffix>
