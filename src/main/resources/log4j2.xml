@@ -28,11 +28,9 @@
   <Loggers>
     <Logger name="org.apache.commons" level="info"/>
     <Logger name="org.springframework" level="info"/>
-    <Logger name="org.springframework.jms" level="debug"/>
     <Logger name="httpclient.wire" level="info"/>
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
-    <Logger name="org.apache.activemq" level="debug"/>
     <Logger name="play" level="info"/>
     <Logger name="com.sksamuel.elastic4s" level="info"/>
 

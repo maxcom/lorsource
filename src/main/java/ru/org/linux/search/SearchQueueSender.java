@@ -16,6 +16,7 @@
 package ru.org.linux.search;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import javax.jms.Queue;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,11 +64,11 @@ public class SearchQueueSender {
   public void updateComment(final int msgid) {
     Preconditions.checkArgument(msgid!=0, "msgid==0!?");
 
-    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(Collections.singletonList(msgid))));
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(Lists.newArrayList(msgid))));
   }
 
   public void updateComment(final List<Integer> msgids) {
-    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(msgids)));
+    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateComments(new ArrayList<>(msgids))));
   }
 
   public static class UpdateMessage implements Serializable {
@@ -93,7 +95,8 @@ public class SearchQueueSender {
     private final List<Integer> msgids;
     private static final long serialVersionUID = 8277563519169476453L;
 
-    public UpdateComments(List<Integer> msgids) {
+    // force ArrayList to fix Scala serialization problems
+    public UpdateComments(ArrayList<Integer> msgids) {
       this.msgids = msgids;
     }
 
