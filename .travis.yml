@@ -1,5 +1,7 @@
 sudo: false
 language: java
+services:
+  - postgresql
 script: mvn -T 2C verify
 jdk:
 #  - oraclejdk8
