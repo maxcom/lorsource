@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import ru.org.linux.util.bbcode.LorCodeService
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter
 import ru.org.linux.util.markdown.MarkdownFormatter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable.ListMap
 
 @Service
@@ -41,13 +41,13 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
     */
   def renderCommentText(text: MessageText, nofollow: Boolean): String = {
     text.markup match {
-      case Lorcode ⇒
+      case Lorcode =>
         lorCodeService.parseComment(prepareLorcode(text.text), nofollow)
-      case LorcodeUlb ⇒
+      case LorcodeUlb =>
         lorCodeService.parseComment(prepareUlb(text.text), nofollow)
-      case Html ⇒
+      case Html =>
         "<p>" + text.text + "</p>"
-      case Markdown ⇒
+      case Markdown =>
         markdownFormatter.renderToHtml(text.text, nofollow)
     }
   }
@@ -60,13 +60,13 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
     */
   def renderTextRSS(text: MessageText): String = {
     text.markup match {
-      case Lorcode ⇒
+      case Lorcode =>
         lorCodeService.parseCommentRSS(prepareLorcode(text.text))
-      case LorcodeUlb ⇒
+      case LorcodeUlb =>
         lorCodeService.parseCommentRSS(prepareUlb(text.text))
-      case Html ⇒
+      case Html =>
         "<p>" + text.text + "</p>"
-      case Markdown ⇒
+      case Markdown =>
         // TODO check if rss needs special rendering
         markdownFormatter.renderToHtml(text.text, nofollow = false)
     }
@@ -74,21 +74,21 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 
   def renderTopic(text: MessageText, minimizeCut: Boolean, nofollow: Boolean, canonicalUrl: String): String = {
     text.markup match {
-      case Lorcode ⇒
+      case Lorcode =>
         if (minimizeCut) {
           lorCodeService.parseTopicWithMinimizedCut(prepareLorcode(text.text), canonicalUrl, nofollow)
         } else {
           lorCodeService.parseTopic(prepareLorcode(text.text), nofollow)
         }
-      case LorcodeUlb ⇒
+      case LorcodeUlb =>
         if (minimizeCut) {
           lorCodeService.parseTopicWithMinimizedCut(prepareUlb(text.text), canonicalUrl, nofollow)
         } else {
           lorCodeService.parseTopic(prepareUlb(text.text), nofollow)
         }
-      case Html ⇒
+      case Html =>
         "<p>" + text.text
-      case Markdown ⇒
+      case Markdown =>
         if (minimizeCut) {
           markdownFormatter.renderWithMinimizedCut(text.text, nofollow, canonicalUrl)
         } else {
@@ -99,26 +99,26 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 
   def extractPlainText(text: MessageText): String = {
     text.markup match {
-      case Lorcode ⇒
+      case Lorcode =>
         lorCodeService.extractPlainTextFromLorcode(prepareLorcode(text.text))
-      case LorcodeUlb ⇒
+      case LorcodeUlb =>
         lorCodeService.extractPlainTextFromLorcode(prepareUlb(text.text))
-      case Html ⇒
+      case Html =>
         Jsoup.parse(text.text).text
-      case Markdown ⇒
+      case Markdown =>
         Jsoup.parse(markdownFormatter.renderToHtml(text.text, nofollow = false)).text()
     }
   }
 
   def mentions(text: MessageText): java.util.Set[User] = {
     text.markup match {
-      case Lorcode ⇒
+      case Lorcode =>
         lorCodeService.getReplierFromMessage(prepareLorcode(text.text))
-      case LorcodeUlb ⇒
+      case LorcodeUlb =>
         lorCodeService.getReplierFromMessage(prepareUlb(text.text))
-      case Html ⇒
+      case Html =>
         Set.empty[User].asJava
-      case Markdown ⇒
+      case Markdown =>
         markdownFormatter.mentions(text.text).asJava
     }
   }
@@ -132,15 +132,15 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       // TODO escape linktext everywhere; encode url in html
 
       markup match {
-        case Html ⇒
+        case Html =>
           s"""<br><a href="$url">$linktext</a>
              |<br>
              |""".stripMargin
-        case Lorcode | LorcodeUlb ⇒
+        case Lorcode | LorcodeUlb =>
           s"""
              |[url=$url]$linktext[/url]
              |""".stripMargin
-        case Markdown ⇒
+        case Markdown =>
           s"""
              |[$linktext]($url)
              |""".stripMargin
@@ -148,17 +148,17 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
     } else ""
 
     markup match {
-      case Lorcode | LorcodeUlb ⇒
+      case Lorcode | LorcodeUlb =>
         s"""
            |$link
            |
            |[i]Перемещено ${moveBy.getNick} из $moveFrom[/i]
            |""".stripMargin
-      case Html ⇒
+      case Html =>
         s"""
            |$link<br><i>Перемещено ${moveBy.getNick} из $moveFrom</i>
            |""".stripMargin
-      case Markdown ⇒
+      case Markdown =>
         s"""
            |$link
            |
@@ -171,11 +171,11 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 object MessageTextService {
   def processPostingText(message: String, mode: String): MessageText = {
     mode match {
-      case LorcodeUlb.formId ⇒
+      case LorcodeUlb.formId =>
         MessageText.apply(message, MarkupType.LorcodeUlb)
-      case Lorcode.formId ⇒
+      case Lorcode.formId =>
         MessageText.apply(message, MarkupType.Lorcode)
-      case Markdown.formId ⇒
+      case Markdown.formId =>
         MessageText.apply(message, MarkupType.Markdown)
     }
   }
@@ -208,10 +208,10 @@ object MessageTextService {
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
 
   def postingModeSelector(user: User, defaultMarkup: String): java.util.Map[String, String] = {
-    val modes = MarkupPermissions.allowedFormats(user).filter(f ⇒ !f.deprecated || f.formId == defaultMarkup)
+    val modes = MarkupPermissions.allowedFormats(user).filter(f => !f.deprecated || f.formId == defaultMarkup)
 
     (if (modes.size > 1) {
-      ListMap(modes.toSeq.sortBy(_.order).map(m ⇒ m.formId -> m.title): _*)
+      ListMap(modes.toSeq.sortBy(_.order).map(m => m.formId -> m.title): _*)
     } else {
       Map.empty[String, String]
     }).asJava

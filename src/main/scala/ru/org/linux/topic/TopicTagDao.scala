@@ -26,7 +26,7 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.tag.TagInfo
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.Seq
 
 @Repository
@@ -44,7 +44,7 @@ class TopicTagDao(ds:DataSource) {
     try {
       jdbcTemplate.update("INSERT INTO tags VALUES(?,?)", msgId, tagId)
     } catch {
-      case _:DuplicateKeyException ⇒
+      case _:DuplicateKeyException =>
     }
   }
 
@@ -147,7 +147,7 @@ class TopicTagDao(ds:DataSource) {
     jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId)
   }
 
-  def processTopicsByTag(tagId: Int, f: Int ⇒ Unit): Unit = {
-    jdbcTemplate.queryAndProcess("SELECT msgid FROM tags WHERE tags.tagid=?", tagId) { rs ⇒ f(rs.getInt(1)) }
+  def processTopicsByTag(tagId: Int, f: Int => Unit): Unit = {
+    jdbcTemplate.queryAndProcess("SELECT msgid FROM tags WHERE tags.tagid=?", tagId) { rs => f(rs.getInt(1)) }
   }
 }

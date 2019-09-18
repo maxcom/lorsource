@@ -16,7 +16,7 @@
 package ru.org.linux.tag
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.Seq
 
 case class TagRef(@BeanProperty name:String, @BeanProperty url:Option[String]) extends Ordered[TagRef] {

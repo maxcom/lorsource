@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import ru.org.linux.topic._
 import ru.org.linux.user.UserTagService
 import ru.org.linux.util.RichFuture._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
@@ -69,7 +69,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val countF = tagService.countTagTopics(tag)
 
     val relatedF = {
-      tagService.getRelatedTags(tag) map { relatedTags ⇒
+      tagService.getRelatedTags(tag) map { relatedTags =>
         if (relatedTags.nonEmpty) {
           Some("relatedTags" -> relatedTags.asJava)
         } else {
@@ -102,19 +102,19 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ sections ++ favs
 
     val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
-      case ex: TimeoutException ⇒
+      case ex: TimeoutException =>
         logger.warn(s"Tag related search timed out (${ex.getMessage})")
         None
-      case ex ⇒
+      case ex =>
         logger.warn("Unable to find related tags", ex)
         None
     }
 
     val safeCountF = countF withTimeout deadline.timeLeft recover {
-      case ex: TimeoutException ⇒
+      case ex: TimeoutException =>
         logger.warn(s"Tag topics count timed out (${ex.getMessage})")
         tagInfo.topicCount.toLong
-      case ex ⇒
+      case ex =>
         logger.warn("Unable to count tag topics", ex)
         tagInfo.topicCount.toLong
     }
@@ -145,7 +145,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     Map(
       "fullNews" -> fullNews,
       "addNews" -> AddTopicController.getAddUrl(newsSection, tag),
-      "briefNews" -> TopicListTools.split(briefNewsByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopicNoGroup(p._2)))
+      "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2)))
     ) ++ more
   }
 
@@ -191,7 +191,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     Map(
       forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
       forumSection.getUrlName -> TopicListTools.split(
-        topicByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.getGroupId).getTitle)))
+        topicByDate.map(p => p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.getGroupId).getTitle)))
     ) ++ more
   }
 }

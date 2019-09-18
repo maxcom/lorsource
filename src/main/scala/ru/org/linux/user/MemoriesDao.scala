@@ -38,7 +38,7 @@ class MemoriesDao(ds: DataSource) {
   def addToMemories(user: User, topic: Topic, watch: Boolean): Int = try {
     doAddToMemories(user, topic, watch)
   } catch {
-    case _: DuplicateKeyException ⇒
+    case _: DuplicateKeyException =>
       getId(user, topic.getId, watch)
   }
 
@@ -68,13 +68,13 @@ class MemoriesDao(ds: DataSource) {
     * get number of memories/favs for topic
     */
   def getTopicInfo(topic: Int, currentUser: User): MemoriesInfo = {
-    val res: MemoriesInfo = jdbcTemplate.queryAndMap("SELECT watch, count(*) FROM memories WHERE topic=? GROUP BY watch", topic){ (rs, _) ⇒
+    val res: MemoriesInfo = jdbcTemplate.queryAndMap("SELECT watch, count(*) FROM memories WHERE topic=? GROUP BY watch", topic){ (rs, _) =>
       if (rs.getBoolean("watch")) {
         MemoriesInfo(watchCount = rs.getInt("count"), favsCount = 0, watchId = 0, favId = 0)
       } else {
         MemoriesInfo(watchCount = 0, favsCount = rs.getInt("count"), watchId = 0, favId = 0)
       }
-    }.fold(MemoriesInfo(0, 0, 0, 0)) { (acc, cur) ⇒
+    }.fold(MemoriesInfo(0, 0, 0, 0)) { (acc, cur) =>
       MemoriesInfo(
         watchCount = acc.watchCount + cur.watchCount,
         favsCount = acc.favsCount + cur.favsCount,

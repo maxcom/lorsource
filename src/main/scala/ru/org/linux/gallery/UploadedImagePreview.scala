@@ -27,7 +27,7 @@ case class UploadedImagePreview(mainFile: File, extension: String) {
   private val path = mainFile.getParent
   private val name = FilenameUtils.removeExtension(mainFile.getName)
 
-  private val allSizes = Image.Sizes.map(size ⇒ size -> new File(path, name + s"-${size}px.jpg"))
+  private val allSizes = Image.Sizes.map(size => size -> new File(path, name + s"-${size}px.jpg"))
   
   @throws[IOException]
   def moveTo(dir: File, name: String): Unit = {
@@ -35,7 +35,7 @@ case class UploadedImagePreview(mainFile: File, extension: String) {
 
     Files.move(mainFile.toPath, new File(target, "original." + extension).toPath)
 
-    allSizes foreach { case (size, file) ⇒
+    allSizes foreach { case (size, file) =>
       Files.move(file.toPath, new File(target, size.toString + "px.jpg").toPath)
     }
   }
@@ -48,14 +48,14 @@ case class UploadedImagePreview(mainFile: File, extension: String) {
     var error: Boolean = true
 
     try {
-      allSizes foreach { case (size, file) ⇒
+      allSizes foreach { case (size, file) =>
         ImageUtil.resizeImage(mainFile.getAbsolutePath, file.getAbsolutePath, size)
       }
 
       error = false
     } finally {
       if (error) {
-        allSizes foreach { case (_, file) ⇒ Files.deleteIfExists(file.toPath) }
+        allSizes foreach { case (_, file) => Files.deleteIfExists(file.toPath) }
         Files.deleteIfExists(mainFile.toPath)
       }
     }

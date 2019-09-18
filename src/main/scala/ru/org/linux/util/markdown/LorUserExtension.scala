@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence
 import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends Parser.ParserExtension with HtmlRenderer.HtmlRendererExtension {
   override def parserOptions(options: MutableDataHolder): Unit = {}
@@ -40,7 +40,7 @@ class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatte
 
   override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit = {
     if (rendererBuilder.isRendererType("HTML")) {
-      rendererBuilder.nodeRendererFactory(_ ⇒ new LorUserRenderer(userService, toHtmlFormatter))
+      rendererBuilder.nodeRendererFactory(_ => new LorUserRenderer(userService, toHtmlFormatter))
     }
   }
 }
@@ -116,7 +116,7 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
       val maybeUser = userService.findUserCached(nick)
 
       maybeUser match {
-        case Some(user) ⇒
+        case Some(user) =>
           val resolvedLink = ctx.resolveLink(LinkType.LINK, toHtmlFormatter.memberURL(user), null)
           val tuxLink = ctx.resolveLink(LinkType.LINK, "/img/tuxlor.png", null)
 
@@ -142,14 +142,14 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
             .attr("style", "text-decoration: none")
             .attr("href", resolvedLink.getUrl)
             .withAttr(resolvedLink)
-            .tag("a", false, false, () ⇒ html.text(nick))
+            .tag("a", false, false, () => html.text(nick))
 
           if (user.isBlocked) {
             html.closeTag("s")
           }
 
           html.closeTag("span")
-        case _ ⇒
+        case _ =>
           html.tag("s")
           html.text(node.getChars.toString)
           html.closeTag("s")

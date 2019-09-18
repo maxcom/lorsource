@@ -56,15 +56,15 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
   }
 
   def performSearch: SearchResponse = {
-    val typeFilter = Option(query.getRange.getValue) map { value ⇒
+    val typeFilter = Option(query.getRange.getValue) map { value =>
       termQuery(query.getRange.getColumn, value)
     }
 
-    val dateFilter = Option(query.getInterval.getRange) map { range ⇒
+    val dateFilter = Option(query.getInterval.getRange) map { range =>
       rangeQuery(query.getInterval.getColumn) gt range
     }
 
-    val userFilter = Option(query.getUser) map { user ⇒
+    val userFilter = Option(query.getUser) map { user =>
       if (query.isUsertopic) {
         termQuery("topic_author", user.getNick)
       } else {
@@ -76,11 +76,11 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
     val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
 
-    val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section ⇒
+    val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section =>
       termQuery("section", section)
     }
 
-    val groupFilter = Option(query.getGroup) filter (_.nonEmpty) map { group ⇒
+    val groupFilter = Option(query.getGroup) filter (_.nonEmpty) map { group =>
       termQuery("group", group)
     }
 
@@ -107,9 +107,9 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
   private def andFilters(filters: Seq[Query]) = {
     filters match {
-      case Seq()       ⇒ matchAllQuery
-      case Seq(single) ⇒ single
-      case other       ⇒ must(other)
+      case Seq()       => matchAllQuery
+      case Seq(single) => single
+      case other       => must(other)
     }
   }
 }

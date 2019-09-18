@@ -20,7 +20,7 @@ import java.util
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.searches.sort.{Sort, SortOrder}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 sealed trait SearchOrder {
   def name: String

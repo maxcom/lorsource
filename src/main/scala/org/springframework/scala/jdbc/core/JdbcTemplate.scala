@@ -26,7 +26,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet
 import org.springframework.scala.jdbc.core.JdbcCallbackConversions._
 import org.springframework.scala.util.TypeTagUtils.typeToClass
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.collection.Seq
 

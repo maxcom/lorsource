@@ -30,7 +30,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService._
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -115,7 +115,7 @@ class UserStatisticsService(
         statSearch query root aggs(
           statsAggregation("topic_stats") field "postdate",
           termsAggregation("sections") field "section")
-      } map(_.result) flatMap timeoutHandler map { response ⇒
+      } map(_.result) flatMap timeoutHandler map { response =>
         // workaround https://github.com/sksamuel/elastic4s/issues/1614
         val topicStatsResult = Try(response.aggregations.statsBucket("topic_stats")).toOption
         val sectionsResult = response.aggregations.terms("sections")

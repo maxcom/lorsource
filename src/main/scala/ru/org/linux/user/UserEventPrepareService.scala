@@ -22,7 +22,7 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Service
 class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: MessageTextService, userService: UserService,
@@ -37,13 +37,13 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
     val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0).distinct
 
-    val users = userService.getUsersCached(userIds.map(Integer.valueOf).asJavaCollection).asScala.map { user ⇒
+    val users = userService.getUsersCached(userIds.map(Integer.valueOf).asJavaCollection).asScala.map { user =>
       user.getId -> user
     }.toMap
 
     val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).mapValues(_.map(_.name))
 
-    val prepared = evts map { event ⇒
+    val prepared = evts map { event =>
       val msgid = if (event.isComment) event.getCid else event.getTopicId
 
       val text = if (readMessage) {

@@ -38,7 +38,7 @@ import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -87,7 +87,7 @@ class MoreLikeThisService(
           } else Seq().asJava)
 
           result.foreach {
-            v ⇒ cache.put(topic.getId, v)
+            v => cache.put(topic.getId, v)
           }
 
           result
@@ -117,13 +117,13 @@ class MoreLikeThisService(
       try {
         Await.result(featureResult, deadline.timeLeft)
       } catch {
-        case _: CircuitBreakerOpenException ⇒
+        case _: CircuitBreakerOpenException =>
           logger.debug(s"Similar topics circuit breaker is open")
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
-        case ex: TimeoutException ⇒
+        case ex: TimeoutException =>
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
-        case NonFatal(ex) ⇒
+        case NonFatal(ex) =>
           logger.warn("Unable to find similar topics", ex)
           Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
       }
@@ -174,7 +174,7 @@ object MoreLikeThisService {
   val CacheSize = 10000
 
   val StopWords: Seq[String] = {
-    val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr ⇒ new String(arr.asInstanceOf[Array[Char]]))
+    val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr => new String(arr.asInstanceOf[Array[Char]]))
     val analyzedStream = new RussianAnalyzer(CharArraySet.EMPTY_SET).tokenStream(null, stop.mkString(" "))
 
     analyzedStream.reset()

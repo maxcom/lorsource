@@ -34,7 +34,7 @@ class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogg
   private var currentTypes = Set.empty[String]
 
   override def receive: Receive = {
-    case Report(ex, msg) ⇒
+    case Report(ex, msg) =>
       count += 1
 
       if (count < MaxMessages || !currentTypes.contains(ex.toString)) {
@@ -44,7 +44,7 @@ class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogg
       }
 
       currentTypes = currentTypes + ex.toString
-    case Reset ⇒
+    case Reset =>
       if (count >= MaxMessages) {
         sendErrorMail(s"Linux.org.ru: high exception rate ($count in $ResetAt)", currentTypes.mkString("\n"))
       }

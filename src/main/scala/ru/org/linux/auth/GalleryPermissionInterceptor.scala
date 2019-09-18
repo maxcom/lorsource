@@ -40,15 +40,15 @@ class GalleryPermissionInterceptor (imageDao: ImageDao, topicDao: TopicDao, grou
       logger.debug(s"Checking ${request.getRequestURI}")
 
       uri match {
-        case ImagesPattern(id) ⇒
-          val topics = Option(imageDao.getImage(id.toInt)).map { image ⇒ topicDao.getById(image.getTopicId) }
+        case ImagesPattern(id) =>
+          val topics = Option(imageDao.getImage(id.toInt)).map { image => topicDao.getById(image.getTopicId) }
 
           if (topics.nonEmpty) {
             topics.exists(visible(AuthUtil.getCurrentUser))
           } else {
             true
           }
-        case other ⇒
+        case other =>
           logger.info(s"Strange URI in images: $other")
           true
       }
@@ -73,10 +73,10 @@ class GalleryPermissionInterceptor (imageDao: ImageDao, topicDao: TopicDao, grou
       )
       true
     } catch {
-      case ex: MessageNotFoundException ⇒
+      case ex: MessageNotFoundException =>
         logger.info(s"topic ${topic.getId} non-visible: ${ex.getMessage}")
         false
-      case ex: AccessViolationException ⇒
+      case ex: AccessViolationException =>
         logger.info(s"topic ${topic.getId} non-visible: ${ex.getMessage}")
         false
     }

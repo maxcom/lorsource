@@ -34,7 +34,7 @@ import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicTagService}
 import ru.org.linux.user.UserDao
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.{Seq => MSeq}
 
 object ElasticsearchIndexService {
@@ -120,7 +120,7 @@ class ElasticsearchIndexService
         val comments = commentService.getCommentList(topic, true).getList.asScala
 
         comments.map {
-          comment ⇒ delete(comment.getId.toString) from MessageIndexType
+          comment => delete(comment.getId.toString) from MessageIndexType
         }
       } else Seq.empty
 
@@ -157,11 +157,11 @@ class ElasticsearchIndexService
   }
 
   def reindexComments(comments: java.util.List[java.lang.Integer]): Unit = {
-    reindexComments(comments.asScala.map(x ⇒ x.toInt))
+    reindexComments(comments.asScala.map(x => x.toInt))
   }
 
   def reindexTopics(topics: java.util.List[java.lang.Integer]): Unit = {
-    for (topic <- topics.asScala.map(x ⇒ x.toInt)) {
+    for (topic <- topics.asScala.map(x => x.toInt)) {
       reindexMessage(topic, withComments = false)
     }
   }

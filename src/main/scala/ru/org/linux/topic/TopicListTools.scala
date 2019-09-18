@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package ru.org.linux.topic
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.Seq
 
 object TopicListTools {
@@ -37,12 +37,12 @@ object TopicListTools {
     val startOfYesterday = DateTime.now.minusDays(1).withTimeAtStartOfDay
     val yearAgo = DateTime.now.withDayOfMonth(1).minusMonths(12).withTimeAtStartOfDay
 
-    topics.map { topic ⇒
+    topics.map { topic =>
       val key = topic.getEffectiveDate match {
-                case date if date.isAfter(startOfToday)     ⇒ "Сегодня"
-                case date if date.isAfter(startOfYesterday) ⇒ "Вчера"
-                case date if date.isAfter(yearAgo)          ⇒ s"${monthName(date)} ${date.getYear}"
-                case date                                   ⇒ OldYearFormat.print(date)
+                case date if date.isAfter(startOfToday)     => "Сегодня"
+                case date if date.isAfter(startOfYesterday) => "Вчера"
+                case date if date.isAfter(yearAgo)          => s"${monthName(date)} ${date.getYear}"
+                case date                                   => OldYearFormat.print(date)
               }
 
       key -> topic
@@ -54,7 +54,7 @@ object TopicListTools {
   private def grouped[T](seq: Seq[(String, T)]):java.util.List[(String, java.util.List[T])] = {
     val start = (Vector.empty[(String, java.util.List[T])], "", Vector.empty[T])
 
-    val folded = seq.foldLeft(start) { (current, tuple) ⇒
+    val folded = seq.foldLeft(start) { (current, tuple) =>
       val (acc, currentKey, currentSeq) = current
       val (newKey, value) = tuple
 
@@ -71,7 +71,7 @@ object TopicListTools {
   }
 
   private def spacers[T](seq: Seq[(String, T)], count: Int):Seq[Option[(String, T)]] = {
-    seq.foldLeft((Vector.empty[Option[(String, T)]], "")) { (current, tuple) ⇒
+    seq.foldLeft((Vector.empty[Option[(String, T)]], "")) { (current, tuple) =>
       val (acc, currentKey) = current
       val (newKey, _) = tuple
 

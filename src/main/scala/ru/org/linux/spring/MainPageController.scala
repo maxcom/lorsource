@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import ru.org.linux.site.Template
 import ru.org.linux.topic._
 import ru.org.linux.user.MemoriesDao
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Controller
 class MainPageController(
@@ -46,7 +46,7 @@ class MainPageController(
     val allTopics = topicListService.getMainPageFeed(tmpl.getProf.isShowGalleryOnMain, 25,
       profile.isMiniNewsBoxletOnMainPage).asScala
 
-    val (messages, titles) = allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) ⇒
+    val (messages, titles) = allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>
       if (big.count(!_.isMinor)<5) {
         (big :+ topic, small)
       } else {
@@ -68,7 +68,7 @@ class MainPageController(
 
     mv.getModel.put(
       "briefNews",
-      TopicListTools.split(briefNewsByDate.map(p ⇒ p._1 -> BriefTopicRef.fromTopicNoGroup(p._2))))
+      TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2))))
 
     if (tmpl.isSessionAuthorized) {
       mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(tmpl.getCurrentUser)))

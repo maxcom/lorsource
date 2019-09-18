@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package ru.org.linux.search
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Component
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.Deadline
 
 @Component
@@ -44,7 +44,7 @@ class SearchQueueListener(
 
     logger.info(s"Indexing comments ${msgUpdate.getMsgids}")
 
-    indexService.reindexComments(msgUpdate.getMsgids.asScala.map(x ⇒ x.toInt))
+    indexService.reindexComments(msgUpdate.getMsgids.asScala.map(x => x.toInt))
   }
 
   def handleMessage(msgUpdate: SearchQueueSender.UpdateMonth):Unit = {

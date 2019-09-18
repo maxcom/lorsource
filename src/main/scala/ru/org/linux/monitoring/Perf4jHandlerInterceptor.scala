@@ -114,7 +114,7 @@ class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor: ActorRef
 
           loggingActor ! Metric(stopWatch.name, date, stopWatch.controllerTime, stopWatch.viewTime)
         } catch {
-          case NonFatal(failure) ⇒
+          case NonFatal(failure) =>
             logger.info("Unable to log performance metric", failure)
         }
       }

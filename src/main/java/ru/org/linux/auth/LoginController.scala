@@ -69,7 +69,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
         }
       }
     } catch {
-      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) ⇒
+      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) =>
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
 
         delayResponse {
@@ -101,7 +101,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
         }
       }
     } catch {
-      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) ⇒
+      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) =>
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
         delayResponse { LoginStatus(success = false, "Bad credentials") }
     }

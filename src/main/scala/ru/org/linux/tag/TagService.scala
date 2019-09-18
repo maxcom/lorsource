@@ -24,7 +24,7 @@ import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -72,7 +72,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   }
 
   def getNewTags(tags: util.List[String]): util.List[String] =
-    tags.asScala.filterNot(tag ⇒ tagDao.getTagId(tag, skipZero = true).isDefined).asJava
+    tags.asScala.filterNot(tag => tagDao.getTagId(tag, skipZero = true).isDefined).asJava
 
   def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic) flatMap {
     _ execute {
@@ -81,7 +81,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
         sigTermsAggregation("related") field "tag" backgroundFilter
           termQuery("is_comment", "false") /* broken in 6.x tcp client: includeExclude(Seq.empty, Seq(tag))*/)
     }
-  } map { r ⇒
+  } map { r =>
     (for {
       bucket <- r.result.aggregations.significantTerms("related").buckets
     } yield {
@@ -105,7 +105,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
                 rangeQuery("postdate").gte("now/d-2y"))
           }
       }
-    } map { r ⇒
+    } map { r =>
       (for {
         bucket <- r.result.aggregations.significantTerms("active").buckets
       } yield {

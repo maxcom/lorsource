@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Repository
 class RemarkDao(ds:DataSource) {
@@ -94,8 +94,8 @@ class RemarkDao(ds:DataSource) {
    */
   def setOrUpdateRemark(user: User, ref: User, text: String) = {
     getRemark(user, ref) match {
-      case Some(remark) ⇒ updateRemark(remark.getId, text)
-      case None         ⇒ setRemark(user, ref, text)
+      case Some(remark) => updateRemark(remark.getId, text)
+      case None         => setRemark(user, ref, text)
     }
   }
 
@@ -110,7 +110,7 @@ class RemarkDao(ds:DataSource) {
       "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?"
     }
 
-    jdbcTemplate.queryAndMap(qs, user.getId, limit, offset) { (rs, _) ⇒
+    jdbcTemplate.queryAndMap(qs, user.getId, limit, offset) { (rs, _) =>
       new Remark(rs)
     }.asJava
   }

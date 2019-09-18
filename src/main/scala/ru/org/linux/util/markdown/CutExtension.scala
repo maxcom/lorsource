@@ -23,7 +23,7 @@ import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.options.{DataHolder, DataKey, MutableDataHolder}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object CutExtension {
   val CutCollapsed = new DataKey[Boolean]("CutCollapsed", false)
@@ -40,7 +40,7 @@ class CutExtension extends Parser.ParserExtension with HtmlRenderer.HtmlRenderer
   override def rendererOptions(mutableDataHolder: MutableDataHolder): Unit = {}
 
   override def extend(builder: HtmlRenderer.Builder, renderType: String): Unit = {
-    builder.nodeRendererFactory(options ⇒ new CutRenderer(options))
+    builder.nodeRendererFactory(options => new CutRenderer(options))
   }
 }
 

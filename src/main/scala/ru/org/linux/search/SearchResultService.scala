@@ -28,7 +28,7 @@ import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class SearchItem (
   @BeanProperty title: String,
@@ -81,7 +81,7 @@ class SearchResultsService(
 
   private def getTitle(doc: SearchHit): String = {
     val itemTitle = doc.highlight.get("title").flatMap(_.headOption)
-      .orElse(doc.sourceAsMap.get("title") map { v ⇒ StringUtil.escapeHtml(v.asInstanceOf[String]) } )
+      .orElse(doc.sourceAsMap.get("title") map { v => StringUtil.escapeHtml(v.asInstanceOf[String]) } )
 
     itemTitle.filter(!_.trim.isEmpty).orElse(
       doc.highlight.get("topic_title").flatMap(_.headOption))
@@ -123,7 +123,7 @@ class SearchResultsService(
       mkItem(entry.key, entry.docCount)
     }
 
-    val missing = selected.filter(key ⇒ items.forall(_.key !=key)).map(mkItem(_, 0)).toSeq
+    val missing = selected.filter(key => items.forall(_.key !=key)).map(mkItem(_, 0)).toSeq
 
     val all = FacetItem("", s"все (${sectionFacet.docCount})")
 
@@ -146,7 +146,7 @@ class SearchResultsService(
       mkItem(section, entry.key, entry.docCount)
     }
 
-    val missing = selected.filter(key ⇒ facetItems.forall(_.key != key._2)).map(p ⇒
+    val missing = selected.filter(key => facetItems.forall(_.key != key._2)).map(p =>
       mkItem(sectionService.getSectionByName(p._1), p._2, 0)
     ).toSeq
 

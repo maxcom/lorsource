@@ -127,11 +127,11 @@ class UserTopicListController
 
     val rss = "rss" == output
     if (!rss) {
-      section.foreach { section ⇒ modelAndView.addObject("section", section)}
+      section.foreach { section => modelAndView.addObject("section", section)}
       modelAndView.addObject("sectionList", sectionService.getSectionList)
     }
 
-    modelAndView.addObject("params", section.map(s ⇒ s"section=${s.getId}").getOrElse(""))
+    modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
 
     prepareTopicsForPlainOrRss(request, modelAndView, rss, messages)
 

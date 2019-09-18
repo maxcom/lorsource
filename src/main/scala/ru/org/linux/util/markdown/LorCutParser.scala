@@ -23,7 +23,7 @@ import com.vladsch.flexmark.parser.block._
 import com.vladsch.flexmark.util.ast.{Block, BlockContent}
 import com.vladsch.flexmark.util.options.DataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object LorCutParser {
   private val CutStart = Pattern.compile(">>>(\\s*$)")
@@ -83,15 +83,15 @@ class LorCutParser private[markdown](val openMarker: BasedSequence, val openTrai
     else {
       val lastChild = block.getLastChild
       lastChild match {
-        case cutNode: CutNode ⇒
+        case cutNode: CutNode =>
           val parser = state.getActiveBlockParser(cutNode)
 
           parser match {
-            case cutParser: LorCutParser if !cutParser.hadClose ⇒
+            case cutParser: LorCutParser if !cutParser.hadClose =>
               return BlockContinue.atIndex(index)
-            case _ ⇒
+            case _ =>
           }
-        case _ ⇒
+        case _ =>
       }
       hadClose = true
       block.setClosingMarker(state.getLine.subSequence(index, index + 3))

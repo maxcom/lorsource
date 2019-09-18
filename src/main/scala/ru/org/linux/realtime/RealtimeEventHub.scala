@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import ru.org.linux.realtime.RealtimeEventHub.{NewComment, SessionTerminated, Su
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
@@ -51,9 +51,9 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
   override def receive: Receive = {
-    case Subscribe(session, _) if sessions.contains(session.getId) ⇒
+    case Subscribe(session, _) if sessions.contains(session.getId) =>
       log.warning(s"Session ${session.getId} already subscribed")
-    case Subscribe(session, topic) ⇒
+    case Subscribe(session, topic) =>
       val actor = context.actorOf(RealtimeSessionActor.props(session))
 
       context.watch(actor)
@@ -68,33 +68,33 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
       }
 
       sender() ! NotUsed
-    case Terminated(actorRef) ⇒
+    case Terminated(actorRef) =>
       log.debug(s"RealtimeSessionActor $actorRef terminated")
 
       data.find(_._2.contains(actorRef)) match {
-        case Some((msgid, _)) ⇒
+        case Some((msgid, _)) =>
           log.debug(s"Removed $actorRef")
           data.removeBinding(msgid, actorRef)
-        case None ⇒
+        case None =>
           log.warning(s"Unknown actor was terminated $actorRef")
       }
 
-      sessions.find(_._2 == actorRef).foreach { f ⇒
+      sessions.find(_._2 == actorRef).foreach { f =>
         sessions.remove(f._1)
       }
-    case SessionTerminated(id) ⇒
-      sessions.get(id) foreach { actor ⇒
+    case SessionTerminated(id) =>
+      sessions.get(id) foreach { actor =>
         log.debug("Session was terminated, stopping actor")
 
         actor ! PoisonPill
       }
-    case msg@NewComment(msgid, _) ⇒
+    case msg@NewComment(msgid, _) =>
       log.debug(s"New comment in topic $msgid")
 
       data.getOrElse(msgid, Set.empty).foreach {
         _ ! msg
       }
-    case Tick ⇒
+    case Tick =>
       log.info(s"Realtime hub: maximum number connections was $maxDataSize")
       maxDataSize = 0
   }
@@ -120,12 +120,12 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
   }
 
   override def receive: Receive = {
-    case NewComment(_, cid) ⇒
+    case NewComment(_, cid) =>
       try {
         notifyComment(cid)
       } catch handleExceptions
 
-    case Tick ⇒
+    case Tick =>
       log.debug("Sending keepalive")
       try {
         session.sendMessage(new PingMessage())
@@ -133,7 +133,7 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
   }
 
   private def handleExceptions: PartialFunction[Throwable, Unit] = {
-    case ex: IOException ⇒
+    case ex: IOException =>
       log.debug(s"Terminated by IOException ${ex.toString}")
       context.stop(self)
   }
@@ -167,9 +167,9 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
       logger.debug(s"Got request: $request")
 
       val (topicId, maybeComment) = request.split(" ", 2) match {
-        case Array(t) ⇒
+        case Array(t) =>
           t.toInt -> None
-        case Array(t, comment) ⇒
+        case Array(t, comment) =>
           t.toInt -> Some(comment.toInt)
       }
 
@@ -181,7 +181,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 
       val missed = comments.getList.asScala.map(_.getId).dropWhile(_ <= last).toVector
 
-      missed.foreach { cid ⇒
+      missed.foreach { cid =>
         logger.debug(s"Sending missed comment $cid")
         session.sendMessage(new TextMessage(cid.toString))
       }
@@ -190,7 +190,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 
       Await.result(result, 10.seconds)
     } catch {
-      case NonFatal(e) ⇒
+      case NonFatal(e) =>
         logger.warn("WS request failed", e)
         session.close(CloseStatus.SERVER_ERROR)
     }

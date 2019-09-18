@@ -107,15 +107,15 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     val postscore = effectivePostscore(group)
 
     postscore match {
-      case TopicPermissionService.POSTSCORE_UNRESTRICTED ⇒
+      case TopicPermissionService.POSTSCORE_UNRESTRICTED =>
         ""
-      case 100 | 200 | 300 | 400 | 500 ⇒
+      case 100 | 200 | 300 | 400 | 500 =>
         "<b>Ограничение на добавление сообщений</b>: " + User.getStars(postscore, postscore, true)
-      case TopicPermissionService.POSTSCORE_MODERATORS_ONLY ⇒
+      case TopicPermissionService.POSTSCORE_MODERATORS_ONLY =>
         "<b>Ограничение на добавление сообщений</b>: только для модераторов"
-      case TopicPermissionService.POSTSCORE_REGISTERED_ONLY ⇒
+      case TopicPermissionService.POSTSCORE_REGISTERED_ONLY =>
         "<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей"
-      case _ ⇒
+      case _ =>
         s"<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей, score>=$postscore"
     }
   }

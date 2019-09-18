@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.util.ServletParameterException
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.compat.java8.OptionConverters._
 
 @Controller
@@ -80,7 +80,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
 
       formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment))
 
-      topicPermissionService.getEditDeadline(comment).asScala.foreach(value ⇒ formParams.put("deadline", value.toDate))
+      topicPermissionService.getEditDeadline(comment).asScala.foreach(value => formParams.put("deadline", value.toDate))
 
       new ModelAndView("edit_comment", formParams)
     } else {
@@ -133,7 +133,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
       val modelAndView = new ModelAndView("edit_comment", formParams)
       modelAndView.addObject("ipBlockInfo", ipBlockInfo)
       val deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal).asScala
-      deadline.foreach(value ⇒ formParams.put("deadline", value.toDate))
+      deadline.foreach(value => formParams.put("deadline", value.toDate))
       modelAndView
     } else {
       commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr, request.getHeader("X-Forwarded-For"), user, originalMessageText)

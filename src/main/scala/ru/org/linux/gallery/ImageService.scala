@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,7 @@ import ru.org.linux.user.{User, UserDao}
 import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 @Service
@@ -45,7 +45,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   private val galleryPath = new File(siteConfig.getUploadPath + "/images")
 
   def deleteImage(editor: User, image: Image):Unit = {
-    transactional() { _ ⇒
+    transactional() { _ =>
       val info = new EditHistoryRecord
       info.setEditor(editor.getId)
       info.setMsgid(image.getTopicId)
@@ -59,10 +59,10 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
   private def prepareException(image: Image):PartialFunction[Throwable, None.type] = {
-    case e: FileNotFoundException ⇒
+    case e: FileNotFoundException =>
       logger.error(s"Image not found! id=${image.getId}: ${e.getMessage}")
       None
-    case NonFatal(e) ⇒
+    case NonFatal(e) =>
       logger.error(s"Bad image id=${image.getId}", e)
       None
   }
@@ -173,7 +173,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         }
         screenShot
       } catch {
-        case e: BadImageException ⇒
+        case e: BadImageException =>
           errors.reject(null, "Некорректное изображение: " + e.getMessage)
           null
       }
@@ -191,7 +191,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
 
   def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = {
-    transactional() { _ ⇒
+    transactional() { _ =>
       val id = imageDao.saveImage(msgid, imagePreview.extension)
 
       imagePreview.moveTo(galleryPath, id.toString)

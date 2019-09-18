@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 @Service
@@ -121,13 +121,13 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
         val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto)
         new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
       } match {
-        case Failure(e: FileNotFoundException) ⇒
+        case Failure(e: FileNotFoundException) =>
           logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
           None
-        case Failure(e) ⇒
+        case Failure(e) =>
           logger.warn(s"Bad userpic for ${user.getNick}", e)
           None
-        case Success(u) ⇒
+        case Success(u) =>
           Some(u)
       }
     } else {
@@ -149,7 +149,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def getUsersCached(ids: java.lang.Iterable[Integer]): java.util.List[User] =
-    ids.asScala.map(x ⇒ userDao.getUserCached(x)).toSeq.asJava
+    ids.asScala.map(x => userDao.getUserCached(x)).toSeq.asJava
 
   def getNewUsers = getUsersCached(userDao.getNewUserIds)
 
@@ -161,7 +161,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     try {
       nameToIdCache.get(nick)
     } catch {
-      case ex:UncheckedExecutionException ⇒ throw ex.getCause
+      case ex:UncheckedExecutionException => throw ex.getCause
     }
   }
 
@@ -170,7 +170,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def findUserCached(nick: String): Option[User] = try {
     Some(userDao.getUserCached(findUserIdCached(nick)))
   } catch {
-    case _: UserNotFoundException ⇒
+    case _: UserNotFoundException =>
       None
   }
 
@@ -182,7 +182,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     try {
       userDao.getUserCached(UserService.AnonymousUserId)
     } catch {
-      case e: UserNotFoundException ⇒
+      case e: UserNotFoundException =>
         throw new RuntimeException("Anonymous not found!?", e)
     }
   }

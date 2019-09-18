@@ -18,7 +18,7 @@ package ru.org.linux.tag
 import org.springframework.validation.Errors
 import ru.org.linux.user.UserErrorException
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object TagName {
   val MaxTagsPerTopic = 5

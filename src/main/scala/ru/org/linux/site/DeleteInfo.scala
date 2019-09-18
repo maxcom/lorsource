@@ -20,7 +20,7 @@ import scala.beans.BeanProperty
 
 case class DeleteInfo(@BeanProperty userid: Int, reason: String, @BeanProperty delDate: Timestamp, bonus: Option[Int]) {
   def getReason: String = {
-    reason + bonus.map(b ⇒ s" ($b)").getOrElse("")
+    reason + bonus.map(b => s" ($b)").getOrElse("")
   }
 
   def getBonus: Int = bonus.getOrElse(0)

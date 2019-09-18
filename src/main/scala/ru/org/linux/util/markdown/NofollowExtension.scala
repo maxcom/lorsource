@@ -36,11 +36,11 @@ class NofollowExtension extends HtmlRenderer.HtmlRendererExtension {
 class NofollowAttributeProvider extends AttributeProvider {
   override def setAttributes(node: Node, part: AttributablePart, attributes: Attributes): Unit = {
     node match {
-      case _: Link if part == AttributablePart.LINK ⇒
+      case _: Link if part == AttributablePart.LINK =>
         attributes.addValue("rel", "nofollow")
-      case _: AutoLink if part == AttributablePart.LINK ⇒
+      case _: AutoLink if part == AttributablePart.LINK =>
         attributes.addValue("rel", "nofollow")
-      case _ ⇒
+      case _ =>
     }
   }
 }

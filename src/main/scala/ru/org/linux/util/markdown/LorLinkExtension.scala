@@ -25,7 +25,7 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.LorURL
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.compat.java8.OptionConverters._
 
 class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends HtmlRenderer.HtmlRendererExtension {
@@ -34,7 +34,7 @@ class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: C
   // TODO поддержка Link, а не только AutoLink
   override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit = {
     if (rendererBuilder.isRendererType("HTML")) {
-      rendererBuilder.nodeRendererFactory(_ ⇒ new LorLinkRenderer(siteConfig, topicDao, commentDao))
+      rendererBuilder.nodeRendererFactory(_ => new LorLinkRenderer(siteConfig, topicDao, commentDao))
     }
   }
 }
@@ -51,7 +51,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
         ctx.delegateRender()
       }
     } catch {
-      case _: URIException ⇒
+      case _: URIException =>
         ctx.delegateRender()
     }
   })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
@@ -64,12 +64,12 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
       html.srcPos(node.getText)
         .attr("href", canonical)
         .withAttr(resolvedLink)
-        .tag("a", false, false, () ⇒ html.text(url.toString))
+        .tag("a", false, false, () => html.text(url.toString))
     }
 
     if (url.isMessageUrl) {
       topicDao.findById(url.getMessageId).asScala match {
-        case Some(message) ⇒
+        case Some(message) =>
           val deleted = if (url.isCommentUrl && !message.isDeleted) {
             val comment = commentDao.getById(url.getCommentId)
             comment.isDeleted
@@ -95,12 +95,12 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
 
           html.attr("href", canonical)
           html.withAttr(resolvedLink)
-          html.tag("a", false, false, () ⇒ html.text(text))
+          html.tag("a", false, false, () => html.text(text))
 
           if (deleted) {
             html.closeTag("s")
           }
-        case None ⇒
+        case None =>
           renderLink()
       }
     } else {

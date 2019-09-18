@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,14 +20,14 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{CoreNodeRenderer, NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.util.options.MutableDataHolder
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class FencedCodeExtension extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
 
   override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit = {
     if (rendererBuilder.isRendererType("HTML")) {
-      rendererBuilder.nodeRendererFactory(_ ⇒ new FencedCodeRenderer)
+      rendererBuilder.nodeRendererFactory(_ => new FencedCodeRenderer)
     }
   }
 }

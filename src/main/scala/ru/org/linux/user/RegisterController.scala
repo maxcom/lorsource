@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,7 +36,7 @@ import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Controller
 class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
@@ -142,10 +142,10 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
         new ModelAndView(new RedirectView("/"))
       }
     } catch {
-      case e: UsernameNotFoundException ⇒
+      case _: UsernameNotFoundException =>
         val params = formParams(nick, activation) + ("error" -> "Пользователь не найден")
         new ModelAndView("activate", params.asJava)
-      case e: BadCredentialsException ⇒
+      case _: BadCredentialsException =>
         val params = formParams(nick, activation) + ("error" -> "Неправильный логин или пароль")
         new ModelAndView("activate", params.asJava)
     }

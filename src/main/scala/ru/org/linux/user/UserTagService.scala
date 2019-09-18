@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Service
 class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
@@ -158,9 +158,9 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
           ignoreAdd(user, tag)
         }
       } catch {
-        case e: TagNotFoundException ⇒
+        case e: TagNotFoundException =>
           errors.reject(s"${e.getMessage}: '$tag'")
-        case _: DuplicateKeyException ⇒
+        case _: DuplicateKeyException =>
           errors.reject(s"Тег уже добавлен: '$tag")
       }
     }

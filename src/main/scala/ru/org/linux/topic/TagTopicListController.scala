@@ -65,8 +65,8 @@ class TagTopicListController (
 ) {
   private def getTitle(tag: String, section: Option[Section]) = {
     section match {
-      case None    ⇒ tag.capitalize
-      case Some(s) ⇒ s"${tag.capitalize} (${s.getName})"
+      case None    => tag.capitalize
+      case Some(s) => s"${tag.capitalize} (${s.getName})"
     }
   }
 
@@ -90,7 +90,7 @@ class TagTopicListController (
       None
     }
 
-    section.foreach(s ⇒ modelAndView.addObject("section", s))
+    section.foreach(s => modelAndView.addObject("section", s))
 
     TagName.checkTag(tag)
 

@@ -31,22 +31,22 @@ object Image {
 
   private def srcset(name: String, id: Int, maxWidth: Int = Int.MaxValue): String = {
     name match {
-      case GalleryName(base) ⇒
-        Sizes.filter(_ < maxWidth).map(size ⇒ s"$base-${size}px.jpg ${size}w").mkString(", ")
-      case ImagesName() ⇒
-        Sizes.filter(_ < maxWidth).map(size ⇒ s"images/$id/${size}px.jpg ${size}w").mkString(", ")
-      case _ ⇒
+      case GalleryName(base) =>
+        Sizes.filter(_ < maxWidth).map(size => s"$base-${size}px.jpg ${size}w").mkString(", ")
+      case ImagesName() =>
+        Sizes.filter(_ < maxWidth).map(size => s"images/$id/${size}px.jpg ${size}w").mkString(", ")
+      case _ =>
         throw new IllegalArgumentException(s"Not gallery path: $name")
     }
   }
 
   private def main(name: String, id: Int): String = {
     name match {
-      case GalleryName(base) ⇒
+      case GalleryName(base) =>
         s"$base-${Sizes.head}px.jpg"
-      case ImagesName() ⇒
+      case ImagesName() =>
         s"images/$id/${Sizes.head}px.jpg"
-      case _ ⇒
+      case _ =>
         throw new IllegalArgumentException(s"Not gallery path: $name")
     }
   }

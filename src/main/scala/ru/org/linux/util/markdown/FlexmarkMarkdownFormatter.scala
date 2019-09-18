@@ -31,7 +31,7 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 @Service
@@ -66,7 +66,7 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     options.set(CutExtension.CutCollapsed, minimizeCut)
 
-    cutUrl foreach { url ⇒
+    cutUrl foreach { url =>
       options.set(CutExtension.CutLink, url)
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -35,7 +35,7 @@ import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.RichFuture._
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
@@ -68,7 +68,7 @@ object TopicListController {
   private def calculateNavTitle(section: Section, group: Option[Group], topicListForm: TopicListRequest): String = {
     val navTitle = new StringBuilder(section.getName)
 
-    group foreach { group ⇒
+    group foreach { group =>
       navTitle.append(s" «${group.getTitle}»")
     }
 
@@ -96,7 +96,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val modelAndView = new ModelAndView("view-news")
 
-    group foreach { group ⇒
+    group foreach { group =>
       modelAndView.addObject("group", group)
     }
 
@@ -132,7 +132,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val section = sectionService.getSectionByName(sectionName)
 
     val activeTagsF = {
-      tagService.getActiveTopTags(section) map { activeTags ⇒
+      tagService.getActiveTopTags(section) map { activeTags =>
         if (activeTags.nonEmpty) {
           Some(activeTags)
         } else {
@@ -148,14 +148,14 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
 
     activeTagsF withTimeout deadline.timeLeft recover {
-      case ex: TimeoutException ⇒
+      case ex: TimeoutException =>
         logger.warn(s"Active top tags search timed out (${ex.getMessage})")
         None
-      case ex ⇒
+      case ex =>
         logger.warn("Unable to find active top tags", ex)
         None
-    } map { activeTags ⇒
-      activeTags foreach { tags ⇒
+    } map { activeTags =>
+      activeTags foreach { tags =>
         modelAndView.addObject("activeTags", tags.asJava)
       }
 
@@ -257,7 +257,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     checkRequestConditions(section, group, topicListForm)
     val modelAndView = new ModelAndView("section-rss")
 
-    group foreach { group ⇒
+    group foreach { group =>
       modelAndView.addObject("group", group)
     }
 
@@ -296,7 +296,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       throw new ServletParameterException("section or tag required")
     }
 
-    group foreach { group ⇒
+    group foreach { group =>
       if (group.getSectionId != section.getId) {
         throw new ScriptErrorException("группа #" + group.getId + " не принадлежит разделу #" + section.getId)
       }

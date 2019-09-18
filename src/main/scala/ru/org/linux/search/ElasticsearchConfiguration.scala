@@ -33,9 +33,9 @@ class ElasticsearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
   def elasticsearch: MaybeNode = {
     MaybeNode(config.getElasticsearch match {
-      case "embedded" ⇒
+      case "embedded" =>
         Some(ElasticsearchConfiguration.createEmbedded("elasticsearch", "target/elasticsearch-data"))
-      case _ ⇒
+      case _ =>
         None
     })
   }
@@ -43,9 +43,9 @@ class ElasticsearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
   def client(node: MaybeNode): ElasticClient = {
     node.node match {
-      case Some(node) ⇒
+      case Some(_) =>
         ElasticClient(ElasticsearchClientUri("localhost", 9200))
-      case None ⇒
+      case None =>
         ElasticClient(ElasticsearchClientUri(config.getElasticsearch, 9200))
     }
   }

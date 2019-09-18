@@ -54,19 +54,19 @@ object MarkupType {
   }
 
   def of(v: String): MarkupType = v match {
-    case Html.id       ⇒ Html
-    case Lorcode.id    ⇒ Lorcode
-    case LorcodeUlb.id ⇒ LorcodeUlb
-    case Markdown.id   ⇒ Markdown
-    case other         ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
+    case Html.id       => Html
+    case Lorcode.id    => Lorcode
+    case LorcodeUlb.id => LorcodeUlb
+    case Markdown.id   => Markdown
+    case other         => throw new IllegalArgumentException(s"Unsupported markup type $other")
   }
 
   def ofFormId(v: String): MarkupType = v match {
-    case Html.formId       ⇒ Html
-    case Lorcode.formId    ⇒ Lorcode
-    case LorcodeUlb.formId ⇒ LorcodeUlb
-    case Markdown.formId   ⇒ Markdown
-    case other             ⇒ throw new IllegalArgumentException(s"Unsupported markup type $other")
+    case Html.formId       => Html
+    case Lorcode.formId    => Lorcode
+    case LorcodeUlb.formId => LorcodeUlb
+    case Markdown.formId   => Markdown
+    case other             => throw new IllegalArgumentException(s"Unsupported markup type $other")
   }
 
   val All: Set[MarkupType] = Set(Lorcode, LorcodeUlb, Markdown, Html)
