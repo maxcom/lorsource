@@ -115,17 +115,17 @@ public class EditTopicController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    if (!tmpl.isModeratorSession()) {
+    Topic topic = messageDao.getById(msgid);
+
+    if (!permissionService.canCommit(tmpl.getCurrentUser(), topic)) {
       throw new AccessViolationException("Not authorized");
     }
 
-    Topic message = messageDao.getById(msgid);
-
-    if (message.isCommited()) {
+    if (topic.isCommited()) {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(message, tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(topic, tmpl.getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -270,8 +270,8 @@ public class EditTopicController {
 
     Map<String, Object> params = new HashMap<>();
 
-    final Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedTopic = prepareService.prepareTopic(message, tmpl.getCurrentUser());
+    final Topic topic = messageDao.getById(msgid);
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, tmpl.getCurrentUser());
     Group group = preparedTopic.getGroup();
 
     User user = tmpl.getCurrentUser();
@@ -285,7 +285,7 @@ public class EditTopicController {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    params.put("message", message);
+    params.put("message", topic);
     params.put("preparedMessage", preparedTopic);
     params.put("group", group);
     params.put("topicMenu", prepareService.getTopicMenu(
@@ -311,7 +311,7 @@ public class EditTopicController {
 
     boolean publish = request.getParameter("publish") != null;
 
-    List<EditHistoryRecord> editInfoList = editHistoryService.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoList = editHistoryService.getEditInfo(topic.getId(), EditHistoryObjectTypeEnum.TOPIC);
 
     if (!editInfoList.isEmpty()) {
       EditHistoryRecord editHistoryRecord = editInfoList.get(0);
@@ -325,23 +325,25 @@ public class EditTopicController {
     boolean commit = request.getParameter("commit") != null;
 
     if (commit) {
-      user.checkCommit();
-      if (message.isCommited()) {
+      if (!permissionService.canCommit(tmpl.getCurrentUser(), topic)) {
+        throw new AccessViolationException("Not authorized");
+      }
+      if (topic.isCommited()) {
         throw new BadInputException("сообщение уже подтверждено");
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedTopic.getSection().isPremoderated() && user.isModerator());
+    params.put("commit", !topic.isCommited() && preparedTopic.getSection().isPremoderated() && permissionService.canCommit(user, topic));
 
-    Topic newMsg = new Topic(group, message, form, publish);
+    Topic newMsg = new Topic(group, topic, form, publish);
 
     boolean modified = false;
 
-    if (!message.getTitle().equals(newMsg.getTitle())) {
+    if (!topic.getTitle().equals(newMsg.getTitle())) {
       modified = true;
     }
 
-    MessageText oldText = msgbaseDao.getMessageText(message.getId());
+    MessageText oldText = msgbaseDao.getMessageText(topic.getId());
 
     if (form.getMsg()!=null) {
       if (!oldText.text().equals(form.getMsg())) {
@@ -349,20 +351,20 @@ public class EditTopicController {
       }
     }
     
-    if (message.getLinktext() == null) {
+    if (topic.getLinktext() == null) {
       if (newMsg.getLinktext() != null) {
         modified = true;
       }
-    } else if (!message.getLinktext().equals(newMsg.getLinktext())) {
+    } else if (!topic.getLinktext().equals(newMsg.getLinktext())) {
       modified = true;
     }
 
     if (group.isLinksAllowed()) {
-      if (message.getUrl() == null) {
+      if (topic.getUrl() == null) {
         if (newMsg.getUrl() != null) {
           modified = true;
         }
-      } else if (!message.getUrl().equals(newMsg.getUrl())) {
+      } else if (!topic.getUrl().equals(newMsg.getUrl())) {
         modified = true;
       }
     }
@@ -396,10 +398,10 @@ public class EditTopicController {
     }
 
     if (changeGroupId != null) {
-      if (message.getGroupId() != changeGroupId) {
+      if (topic.getGroupId() != changeGroupId) {
         Group changeGroup = groupDao.getGroup(changeGroupId);
 
-        int section = message.getSectionId();
+        int section = topic.getSectionId();
 
         if (changeGroup.getSectionId() != section) {
           throw new AccessViolationException("Can't move topics between sections");
@@ -410,7 +412,7 @@ public class EditTopicController {
     Poll newPoll = null;
 
     if (preparedTopic.getSection().isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
-      newPoll = buildNewPoll(message, form);
+      newPoll = buildNewPoll(topic, form);
     }
 
     MessageText newText;
@@ -422,7 +424,7 @@ public class EditTopicController {
     }
 
     if (form.getEditorBonus() != null) {
-      ImmutableSet<Integer> editors = editHistoryService.getEditors(message, editInfoList);
+      ImmutableSet<Integer> editors = editHistoryService.getEditors(topic, editInfoList);
 
       form
               .getEditorBonus()
@@ -439,7 +441,7 @@ public class EditTopicController {
     if (!preview && !errors.hasErrors()) {
       boolean changed = topicService.updateAndCommit(
               newMsg,
-              message,
+              topic,
               user,
               newTags,
               newText,
@@ -458,10 +460,10 @@ public class EditTopicController {
         }
 
         if (!publish || !preparedTopic.getSection().isPremoderated()) {
-          return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build()));
+          return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod().build()));
         } else {
           params.put("moderated", true);
-          params.put("url", TopicLinkBuilder.baseLink(message).forceLastmod().build());
+          params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod().build());
 
           return new ModelAndView("add-done-moderated", params);
         }

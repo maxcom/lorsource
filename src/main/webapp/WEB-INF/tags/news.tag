@@ -187,7 +187,7 @@
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
   <c:if test="${moderateMode}">
-    <c:if test="${template.moderatorSession}">
+    <c:if test="${messageMenu.commitable}">
       [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
     </c:if>
   </c:if>

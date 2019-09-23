@@ -249,4 +249,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       user != null && user.getScore >= CreateTagScore
     }
   }
+
+  def canCommit(user: User, topic: Topic): Boolean =
+    user!=null && (user.isModerator || (user.isCorrector && topic.getUid != user.getId))
 }

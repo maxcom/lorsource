@@ -28,6 +28,7 @@ public class TopicMenu {
   private final boolean deletable;
 
   private final boolean undeletable;
+  private final boolean commitable;
   @Nullable
   private final Userpic userpic;
 
@@ -38,6 +39,7 @@ public class TopicMenu {
           boolean commentsAllowed,
           boolean deletable,
           boolean undeletable,
+          boolean commitable,
           @Nullable Userpic userpic) {
     this.topicEditable = topicEditable;
     this.tagsEditable = tagsEditable;
@@ -45,6 +47,7 @@ public class TopicMenu {
     this.commentsAllowed = commentsAllowed;
     this.deletable = deletable;
     this.undeletable = undeletable;
+    this.commitable = commitable;
     this.userpic = userpic;
   }
 
@@ -79,5 +82,9 @@ public class TopicMenu {
   @Nullable
   public Userpic getUserpic() {
     return userpic;
+  }
+
+  public boolean isCommitable() {
+    return commitable;
   }
 }

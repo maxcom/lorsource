@@ -368,6 +368,7 @@ public class TopicPrepareService {
             topicPermissionService.isCommentsAllowed(message.getGroup(), message.getMessage(), currentUser),
             deletable,
             undeletable,
+            groupPermissionService.canCommit(currentUser, message.getMessage()),
             userpic
     );
   }
