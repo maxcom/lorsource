@@ -387,7 +387,7 @@ public class EditTopicController {
       throw new AccessViolationException("нельзя править это сообщение, только теги");
     }
 
-    if (form.getMinor()!=null && !tmpl.isModeratorSession()) {
+    if (form.getMinor()!=null && !permissionService.canCommit(user, topic)) {
       throw new AccessViolationException("вы не можете менять статус новости");
     }
 
