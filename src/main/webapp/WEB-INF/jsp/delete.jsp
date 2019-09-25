@@ -37,7 +37,7 @@ function change(dest,source)
 </script>
 <h1>Удаление сообщения</h1>
 <c:if test="${not draft}">
-Вы можете удалить свое сообщение в течении 6 часов с момента
+Вы можете удалить своё сообщение в течении 6 часов с момента
 его помещения.
 </c:if>
 <form method=POST action="delete.jsp" class="form-horizontal">
@@ -79,7 +79,7 @@ function change(dest,source)
 
       <input id="reason-input" type=text name=reason><br>
       <c:if test="${uncommited and template.moderatorSession}">
-        Сообщения, удаленные с пустой причиной не буду показаны в списке удаленных внизу страницы неподтвержденных.
+        Сообщения, удалённые с пустой причиной, не будут показаны в списке удалённых внизу страницы неподтверждённых.
       </c:if>
     </div>
   </div>
