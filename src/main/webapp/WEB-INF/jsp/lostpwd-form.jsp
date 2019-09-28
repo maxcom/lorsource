@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2019 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -43,7 +43,7 @@
 
   <div class="control-group">
     <div class="controls">
-      <button type=submit>Сбросить</button>
+      <button type=submit class="btn btn-primary">Сбросить</button>
     </div>
   </div>
 </form>
