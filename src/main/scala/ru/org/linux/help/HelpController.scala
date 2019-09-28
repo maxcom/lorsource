@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, 
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.util.markdown.MarkdownFormatter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Controller
 class HelpController(renderService: MarkdownFormatter) extends StrictLogging {

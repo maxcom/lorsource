@@ -27,7 +27,7 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.site.Template
 import ru.org.linux.user.{User, UserDao, UserErrorException}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Controller
 class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService: SectionService,

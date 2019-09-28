@@ -23,7 +23,7 @@ import com.sksamuel.elastic4s.http.ElasticClient
 import com.sksamuel.elastic4s.indexes.IndexRequest
 import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
 import com.typesafe.scalalogging.StrictLogging
-import org.apache.commons.lang3.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentList, CommentService}
