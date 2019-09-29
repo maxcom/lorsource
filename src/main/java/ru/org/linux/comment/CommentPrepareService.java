@@ -163,7 +163,13 @@ public class CommentPrepareService {
 
     boolean undeletable = false;
     if (tmpl!=null) {
-      undeletable = topicPermissionService.isUndeletable(topic, comment, tmpl.getCurrentUser());
+      DeleteInfo info = null;
+
+      if (comment.isDeleted()) {
+        info = deleteInfoDao.getDeleteInfo(comment.getId());
+      }
+
+      undeletable = topicPermissionService.isUndeletable(topic, comment, tmpl.getCurrentUser(), info);
     }
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,

@@ -30,6 +30,7 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.markup.MarkupType;
 import ru.org.linux.section.Section;
+import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
@@ -382,12 +383,16 @@ public class TopicPermissionService {
     return !author.isAnonymousScore();
   }
 
-  public boolean isUndeletable(Topic topic, Comment comment, @Nullable User user) {
+  public boolean isUndeletable(Topic topic, Comment comment, @Nullable User user, DeleteInfo deleteInfo) {
     if (user==null) {
       return false;
     }
 
     if (topic.isDeleted() || !comment.isDeleted() || !user.isModerator() || topic.isExpired()) {
+      return false;
+    }
+
+    if (comment.getUserid() == deleteInfo.userid()) {
       return false;
     }
 

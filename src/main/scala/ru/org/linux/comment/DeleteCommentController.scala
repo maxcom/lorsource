@@ -23,6 +23,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
+import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.UserErrorException
 
@@ -33,7 +34,7 @@ import scala.collection.Seq
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentService,
                               topicDao: TopicDao, prepareService: CommentPrepareService,
                               permissionService: TopicPermissionService,
-                              commentDeleteService: CommentDeleteService) {
+                              commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
     val tmpl = Template.getTemplate(request)
@@ -172,7 +173,9 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val topic = topicDao.getById(comment.getTopicId)
 
-    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser)) {
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
+
+    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
@@ -190,10 +193,10 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     val comment = commentService.getById(msgid)
-
     val topic = topicDao.getById(comment.getTopicId)
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser)) {
+    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
