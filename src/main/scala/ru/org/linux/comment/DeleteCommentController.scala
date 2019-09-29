@@ -14,6 +14,7 @@
  */
 package ru.org.linux.comment
 
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -34,7 +35,7 @@ import scala.collection.Seq
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentService,
                               topicDao: TopicDao, prepareService: CommentPrepareService,
                               permissionService: TopicPermissionService,
-                              commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) {
+                              commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) extends StrictLogging {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
     val tmpl = Template.getTemplate(request)
@@ -203,6 +204,8 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     commentDeleteService.undeleteComment(comment)
 
     searchQueueSender.updateComment(msgid)
+
+    logger.info(s"Восстановлен комментарий пользователем ${tmpl.getCurrentUser}: ${topic.getLink + "?cid=" + msgid}")
 
     new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
   }
