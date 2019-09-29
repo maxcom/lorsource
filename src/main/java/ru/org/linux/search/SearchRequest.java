@@ -19,8 +19,8 @@ import ru.org.linux.search.SearchEnums.SearchInterval;
 import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.user.User;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -163,13 +163,9 @@ public class SearchRequest {
         str.append('&');
       }
 
-      try {
-        str.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-        str.append('=');
-        str.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      str.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+      str.append('=');
+      str.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
     }
 
     return str.toString();

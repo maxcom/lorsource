@@ -45,7 +45,7 @@ public class ProfileDaoIntegrationTest {
   }
 
   @Test
-  public void testReadEmpty() throws Exception {
+  public void testReadEmpty() {
     profileDao.deleteProfile(testUser);
 
     Profile profile = profileDao.readProfile(testUser);
@@ -54,7 +54,7 @@ public class ProfileDaoIntegrationTest {
   }
 
   @Test
-  public void testModification() throws Exception {
+  public void testModification() {
     Profile profile = Profile.createDefault();
 
     assertNotSame(125, profile.getMessages());

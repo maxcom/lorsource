@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -163,13 +163,10 @@ public final class StringUtil {
           if (m.find()) {
             String s = m.group();
 
-            switch (s) {
-              case "&nbsp;":
-                res.append("&#160;");
-                break;
-              default:
-                res.append(s);
-                break;
+            if ("&nbsp;".equals(s)) {
+              res.append("&#160;");
+            } else {
+              res.append(s);
             }
 
             i += s.length() - 1;

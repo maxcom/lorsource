@@ -34,8 +34,7 @@ public class GroupDaoIntegrationTest {
   GroupDao groupDao;
 
   @Test
-  public void groupsTest()
-      throws Exception {
+  public void groupsTest() {
     Section sectionDto = mock(Section.class);
     when(sectionDto.getId()).thenReturn(Section.SECTION_FORUM);
 

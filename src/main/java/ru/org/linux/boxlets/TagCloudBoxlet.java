@@ -34,7 +34,7 @@ public class TagCloudBoxlet extends AbstractBoxlet {
 
   @Override
   @RequestMapping("/tagcloud.boxlet")
-  protected ModelAndView getData(HttpServletRequest request) throws Exception {
+  protected ModelAndView getData(HttpServletRequest request) {
 
     List<TagDTO> list = tagDao.getTags(TAGS_IN_CLOUD);
     return new ModelAndView("boxlets/tagcloud", "tags", list);

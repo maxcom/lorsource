@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,7 +27,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.File;
-import java.io.IOException;
 
 /**
  */
@@ -52,7 +51,7 @@ public class WebHelper {
 
   }
 
-  public static String doLogin(WebResource resource, String user, String password) throws IOException {
+  public static String doLogin(WebResource resource, String user, String password) {
     MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
 
     formData.add("nick", user);
@@ -66,11 +65,7 @@ public class WebHelper {
 
 
     String auth = getAuthCookie(cr);
-    if(auth != null) {
-      return auth;
-    }
-
-    return null;
+    return auth;
   }
 
   public static String getAuthCookie(ClientResponse cr) {

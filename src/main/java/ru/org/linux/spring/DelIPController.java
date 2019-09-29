@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -51,14 +51,13 @@ public class DelIPController {
    * @param ip ip по которому удаляем
    * @param time время за которое удаляем (hour, day, 3day)
    * @return возвращаем страничку с результатом выполнения
-   * @throws Exception по дороге может что-то сучится
    */
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
   public ModelAndView delIp(HttpServletRequest request,
                             @RequestParam("reason") String reason,
                             @RequestParam("ip") String ip,
                             @RequestParam("time") String time
-                            ) throws Exception {
+                            ) {
     Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate(request);

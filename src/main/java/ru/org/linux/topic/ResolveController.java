@@ -58,7 +58,7 @@ public class ResolveController  {
     if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы");
     }
-    messageDao.resolveMessage(message.getId(), (resolved != null) && "yes".equals(resolved));
+    messageDao.resolveMessage(message.getId(), "yes".equals(resolved));
 
     return new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod().build());
   }

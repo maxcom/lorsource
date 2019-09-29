@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,34 +29,12 @@ import static org.mockito.Mockito.when;
 
 public class LorURITest {
   private TopicDao messageDao;
-  private Topic message1;
-  private Group group1;
-  private Topic message2;
-  private Group group2;
-  private Topic message3;
-  private Group group3;
-  private Topic message12;
-  private Group group12;
-  private Topic message15;
-  private Group group15;
 
 
   URI mainURI; // 127.0.0.1:8080
   URI mainLORURI; // linux.org.ru
-  private String url1 = "http://127.0.0.1:8080/news/debian/6753486#comment-6753612";
-  private String url1n = "http://127.0.0.1:8080/news/debian/6753486?cid=6753612";
-  private String url2 = "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738";
-  private String url3 = "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
 
-  private String url4 = "https://127.0.0.1:8080/news"; // not message url
-  private String url5 = "https://example.com"; // not lorsource url
-  private String url6 = "http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url
-  private String url7 = "http://127.0.0.1:8080/search.jsp?q=привет&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url unescaped
-  private String failurl8 = "some crap";
-  private String failurl9 = "";
   private String failurl10 = null;
-  private String failurl11 = "127.0.0.1:8080/news/debian/6753486#comment-6753612";
-  private String url12 = "http://127.0.0.1:8080/forum/security/1948661?lastmod=1319623223360#comment-1948668";
 
   private URI canon;
 
@@ -67,16 +45,16 @@ public class LorURITest {
     canon = new URI("https://127.0.0.1:8085/", true);
 
     messageDao = mock(TopicDao.class);
-    message1 = mock(Topic.class);
-    group1 = mock(Group.class);
-    message2 = mock(Topic.class);
-    group2 = mock(Group.class);
-    message3 = mock(Topic.class);
-    group3 = mock(Group.class);
-    message12 = mock(Topic.class);
-    group12 = mock(Group.class);
-    message15 = mock(Topic.class);
-    group15 = mock(Group.class);
+    Topic message1 = mock(Topic.class);
+    Group group1 = mock(Group.class);
+    Topic message2 = mock(Topic.class);
+    Group group2 = mock(Group.class);
+    Topic message3 = mock(Topic.class);
+    Group group3 = mock(Group.class);
+    Topic message12 = mock(Topic.class);
+    Group group12 = mock(Group.class);
+    Topic message15 = mock(Topic.class);
+    Group group15 = mock(Group.class);
 
     when(group1.getUrl()).thenReturn("/news/debian/");
     when(group2.getUrl()).thenReturn("/forum/talks/");
@@ -97,6 +75,7 @@ public class LorURITest {
 
   @Test
   public void test1() throws Exception {
+    String url1 = "http://127.0.0.1:8080/news/debian/6753486#comment-6753612";
     LorURL lorURI = new LorURL(mainURI, url1);
 
     assertTrue(lorURI.isTrueLorUrl());
@@ -111,6 +90,7 @@ public class LorURITest {
 
   @Test
   public void test1n() throws Exception {
+    String url1n = "http://127.0.0.1:8080/news/debian/6753486?cid=6753612";
     LorURL lorURI = new LorURL(mainURI, url1n);
 
     assertTrue(lorURI.isTrueLorUrl());
@@ -125,18 +105,20 @@ public class LorURITest {
 
   @Test
   public void test2() throws Exception {
+    String url2 = "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738";
     LorURL lorURI = new LorURL(mainURI, url2);
     assertEquals(6893165, lorURI.getMessageId());
     assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
+    assertFalse(lorURI.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/forum/talks/6893165?lastmod=1319027964738", lorURI.canonize(canon));
     assertEquals("https://127.0.0.1:8085/forum/talks/6893165", lorURI.formatJump(messageDao, canon));
   }
 
   @Test
   public void test3() throws Exception {
+    String url3 = "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
     LorURL lorURI = new LorURL(mainURI, url3);
     assertEquals(6890857, lorURI.getMessageId());
     assertEquals(6892917, lorURI.getCommentId());
@@ -149,54 +131,63 @@ public class LorURITest {
 
   @Test
   public void test4() throws Exception {
+    // not message url
+    String url4 = "https://127.0.0.1:8080/news";
     LorURL lorURI = new LorURL(mainURI, url4);
     assertEquals(-1, lorURI.getMessageId());
     assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
-    assertTrue(!lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
+    assertFalse(lorURI.isMessageUrl());
+    assertFalse(lorURI.isCommentUrl());
     assertEquals("", lorURI.formatJump(messageDao, canon));
   }
 
   @Test
   public void test5() throws Exception {
+    // not lorsource url
+    String url5 = "https://example.com";
     LorURL lorURI = new LorURL(mainURI, url5);
     assertEquals(-1, lorURI.getMessageId());
     assertEquals(-1, lorURI.getCommentId());
-    assertTrue(!lorURI.isTrueLorUrl());
-    assertTrue(!lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
+    assertFalse(lorURI.isTrueLorUrl());
+    assertFalse(lorURI.isMessageUrl());
+    assertFalse(lorURI.isCommentUrl());
     assertEquals("", lorURI.formatJump(messageDao, canon));
   }
 
   @Test
   public void test6() throws Exception {
+    // search url
+    String url6 = "http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on";
     LorURL lorURI = new LorURL(mainURI, url6);
     assertEquals(-1, lorURI.getMessageId());
     assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
-    assertTrue(!lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
+    assertFalse(lorURI.isMessageUrl());
+    assertFalse(lorURI.isCommentUrl());
     assertEquals("", lorURI.formatJump(messageDao, canon));
     assertEquals("https://127.0.0.1:8085/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.canonize(canon));
   }
 
   @Test
   public void test7() throws Exception {
+    // search url unescaped
+    String url7 = "http://127.0.0.1:8080/search.jsp?q=привет&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on";
     LorURL lorURI = new LorURL(mainURI, url7);
     assertEquals(-1, lorURI.getMessageId());
     assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
-    assertTrue(!lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
+    assertFalse(lorURI.isMessageUrl());
+    assertFalse(lorURI.isCommentUrl());
     assertEquals("", lorURI.formatJump(messageDao, canon));
     assertEquals("https://127.0.0.1:8085/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.canonize(canon));
   }
 
   @Test
-  public void test8() throws Exception {
+  public void test8() {
     boolean result = false;
     try {
+      String failurl8 = "some crap";
       LorURL lorURI = new LorURL(mainURI, failurl8);
     } catch (URIException e) {
       result = true;
@@ -205,9 +196,10 @@ public class LorURITest {
   }
 
   @Test
-  public void test9() throws Exception {
+  public void test9() {
     boolean result = false;
     try {
+      String failurl9 = "";
       LorURL lorURI = new LorURL(mainURI, failurl9);
     } catch (URIException e) {
       result = true;
@@ -216,7 +208,7 @@ public class LorURITest {
   }
 
   @Test
-  public void test10() throws Exception {
+  public void test10() {
     boolean result = false;
     try {
       LorURL lorURI = new LorURL(mainURI, failurl10);
@@ -227,9 +219,10 @@ public class LorURITest {
   }
 
   @Test
-  public void test11() throws Exception {
+  public void test11() {
     boolean result = false;
     try {
+      String failurl11 = "127.0.0.1:8080/news/debian/6753486#comment-6753612";
       LorURL lorURI = new LorURL(mainURI, failurl11);
     } catch (Exception e) {
       result=true;
@@ -239,6 +232,7 @@ public class LorURITest {
 
   @Test
   public void test12() throws Exception {
+    String url12 = "http://127.0.0.1:8080/forum/security/1948661?lastmod=1319623223360#comment-1948668";
     LorURL lorURI = new LorURL(mainURI, url12);
     assertEquals(1948661, lorURI.getMessageId());
     assertEquals(1948668, lorURI.getCommentId());

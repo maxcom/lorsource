@@ -47,13 +47,13 @@ public class AddPhotoWebTest {
   @Autowired
   private UserDao userDao;
 
-  private void rescueJB() throws Exception {
+  private void rescueJB() {
     final User user = userDao.getUser(userDao.findUserId("JB"));
     userDao.unblock(user, user);
   }
 
   @Before
-  public void initResource() throws Exception {
+  public void initResource() {
     Client client = new Client();
     client.setFollowRedirects(false);
     resource = client.resource(WebHelper.MAIN_URL);
@@ -61,15 +61,14 @@ public class AddPhotoWebTest {
   }
 
   @After
-  public void clean() throws Exception {
+  public void clean() {
     rescueJB();
   }
 
   /**
-   * @throws java.io.IOException
    */
   @Test
-  public void testPage() throws IOException {
+  public void testPage() {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
     ClientResponse cr = resource
         .path("addphoto.jsp")
@@ -130,7 +129,7 @@ public class AddPhotoWebTest {
   /**
    * Тест неправильной картинки
    */
-  public void testValidImage() throws IOException {
+  public void testValidImage() {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
     ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/tango/img/android.png", auth);
     assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());

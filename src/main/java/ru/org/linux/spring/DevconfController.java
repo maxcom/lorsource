@@ -42,7 +42,7 @@ public class DevconfController {
 
   @RequestMapping(value = "/devconf", method = RequestMethod.POST)
   @CSRFNoAuto
-  public ModelAndView add(HttpServletRequest request, @RequestParam("msg") String msg) throws Exception {
+  public ModelAndView add(HttpServletRequest request, @RequestParam("msg") String msg) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {

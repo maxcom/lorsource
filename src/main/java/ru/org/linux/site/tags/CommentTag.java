@@ -24,7 +24,6 @@ import ru.org.linux.comment.ApiCommentTopicInfo;
 import ru.org.linux.comment.PreparedComment;
 import ru.org.linux.topic.Topic;
 
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.util.Map;
 
@@ -57,7 +56,7 @@ public class CommentTag extends TagSupport {
   }
 
   @Override
-  public int doStartTag() throws JspException {
+  public int doStartTag() {
     WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext());
 
     JadeConfiguration jadeConfiguration = context.getBean(JadeConfiguration.class);

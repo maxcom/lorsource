@@ -26,8 +26,8 @@ import ru.org.linux.util.URLUtil;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -363,11 +363,7 @@ public class Topic implements Serializable {
   }
 
   public String getLink() {
-    try {
-      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + msgid;
   }
 
   public String getLinkPage(int page) {
@@ -375,11 +371,7 @@ public class Topic implements Serializable {
       return getLink();
     }
 
-    try {
-      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + msgid + "/page" + page;
   }
 
   public boolean isMinor() {

@@ -74,7 +74,7 @@ public class MemoriesController {
   public int remove(
           ServletRequest request,
           @RequestParam("id") int id
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {

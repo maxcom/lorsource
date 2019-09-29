@@ -35,7 +35,7 @@ public class GroupWebTest {
   private WebResource resource;
 
   @Before
-  public void initResource() throws Exception {
+  public void initResource() {
     Client client = new Client();
     client.setFollowRedirects(false);
     resource = client.resource(WebHelper.MAIN_URL);

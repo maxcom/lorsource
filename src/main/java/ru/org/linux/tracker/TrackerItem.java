@@ -68,7 +68,7 @@ public class TrackerItem {
 
   public String getUrl() {
     if (pages > 1) {
-      return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
+      return getGroupUrl() + msgid + "/page" + (pages - 1) + "?lastmod=" + lastmod.getTime();
     } else {
       return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
     }

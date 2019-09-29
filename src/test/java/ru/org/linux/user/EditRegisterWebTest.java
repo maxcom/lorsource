@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -65,7 +65,7 @@ public class EditRegisterWebTest {
   @Autowired
   private UserDao userDao;
 
-  private void rescueMaxcom() throws Exception {
+  private void rescueMaxcom() {
     final User user = userDao.getUser(userDao.findUserId("maxcom"));
     userDao.updateUser(
         user,
@@ -79,7 +79,7 @@ public class EditRegisterWebTest {
     userDao.acceptNewEmail(user, MAXCOM_EMAIL);
   }
 
-  private void rescueJB() throws Exception {
+  private void rescueJB() {
     final User user = userDao.getUser(userDao.findUserId("JB"));
     userDao.updateUser(
         user,
@@ -95,7 +95,7 @@ public class EditRegisterWebTest {
   }
 
   @Before
-  public void initResource() throws Exception {
+  public void initResource() {
     Client client = new Client();
     client.setFollowRedirects(false);
     resource = client.resource(WebHelper.MAIN_URL);
@@ -104,7 +104,7 @@ public class EditRegisterWebTest {
   }
 
   @After
-  public void clean() throws Exception {
+  public void clean() {
     rescueMaxcom();
     rescueJB();
   }

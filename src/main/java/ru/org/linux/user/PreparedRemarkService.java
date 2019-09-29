@@ -28,7 +28,7 @@ public class PreparedRemarkService {
   @Autowired
   private UserDao userDao;
 
-  public List<PreparedRemark> prepareRemarkList(List<Remark> list) throws Exception {
+  public List<PreparedRemark> prepareRemarkList(List<Remark> list) {
     if (list.isEmpty()) {
       return ImmutableList.of();
     }

@@ -181,7 +181,7 @@ public class SearchController {
         if (!Strings.isNullOrEmpty(query.getGroup())) {
           Optional<Group> group = groupDao.getGroupOpt(section.get(), query.getGroup(), true);
 
-          if (!group.isPresent()) {
+          if (group.isEmpty()) {
             query.setGroup("");
           } else {
             query.setGroup(group.get().getUrlName());

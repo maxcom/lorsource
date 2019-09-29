@@ -28,7 +28,7 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter {
   private static final Logger logger = LoggerFactory.getLogger(CSRFHandlerInterceptor.class);
 
   @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
     if (!request.getMethod().equalsIgnoreCase("POST")) {
       // Not a POST - allow the request
       return true;

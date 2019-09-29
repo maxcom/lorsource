@@ -84,11 +84,11 @@ public class CutTag extends HtmlEquivTag {
     if (rootNode.isComment()) { // коментарий, просто содержимое
       return node.renderChildrenXHtml();
     } else if (rootNode.isTopicMaximized()) { // топик не свернутым cut, содежимое в div
-      return "<div id=\"cut" + Integer.toString(rootNode.getCutCount()) + "\">" + node.renderChildrenXHtml() + "</div>";
+      return "<div id=\"cut" + rootNode.getCutCount() + "\">" + node.renderChildrenXHtml() + "</div>";
     } else if(rootNode.isTopicMinimized()) { // топик со свернутым cut, вместо содержимого ссылка
       URI uri = rootNode.getCutURI();
       try {
-        uri.setFragment("cut"+Integer.toString(rootNode.getCutCount()));
+        uri.setFragment("cut"+ rootNode.getCutCount());
         if (!node.getParameter().isEmpty()) {
           ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
           String parameter;

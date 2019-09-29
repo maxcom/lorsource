@@ -127,11 +127,10 @@ public class Section implements Serializable {
   }
 
   public String getNewsViewerLink() throws SectionNotFoundException {
-    switch (id) {
-      case SECTION_FORUM:
-        return "/forum/lenta/";
-      default:
-        return '/' + getUrlName(id) + '/';
+    if (id == SECTION_FORUM) {
+      return "/forum/lenta/";
+    } else {
+      return '/' + getUrlName(id) + '/';
     }
   }
 

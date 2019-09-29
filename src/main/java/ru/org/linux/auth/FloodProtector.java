@@ -37,7 +37,7 @@ public class FloodProtector {
     private final int threshold;
     private final int thresholdTrusted;
 
-    private Action(int threshold, int thresholdTrusted) {
+    Action(int threshold, int thresholdTrusted) {
       this.threshold = threshold;
       this.thresholdTrusted = thresholdTrusted;
     }

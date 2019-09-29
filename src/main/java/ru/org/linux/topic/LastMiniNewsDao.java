@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -55,14 +55,13 @@ public class LastMiniNewsDao {
         final int answers0 = (answers == 0) ? 1 : answers;
         final int tmp = answers0 / perPage;
         final int pages = (answers0 % perPage > 0) ? tmp + 1 : tmp;
-        LastMiniNews result = new LastMiniNews(
+        return new LastMiniNews(
             sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"),
             rs.getTimestamp("lastmod"),
             rs.getString("title"),
             answers,
             pages
         );
-        return result;
       }
     });
 

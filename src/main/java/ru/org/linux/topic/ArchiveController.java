@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -40,14 +40,14 @@ public class ArchiveController {
 
   public ModelAndView archiveList(
     int sectionid
-  ) throws Exception {
+  ) {
     return archiveList(sectionid, null);
   }
 
   public ModelAndView archiveList(
     int sectionid,
     String groupName
-  ) throws Exception {
+  ) {
     ModelAndView mv = new ModelAndView("view-news-archive");
 
     Section section = sectionService.getSection(sectionid);
@@ -87,7 +87,7 @@ public class ArchiveController {
   @RequestMapping("/forum/{group}/archive")
   public ModelAndView forumArchive(
     @PathVariable String group
-  ) throws Exception {
+  ) {
     return archiveList(Section.SECTION_FORUM, group);
   }
 }

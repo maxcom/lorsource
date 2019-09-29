@@ -39,7 +39,7 @@ public class EditRemarkController {
   private RemarkDao remarkDao;
 
   @RequestMapping(method=RequestMethod.GET)
-  public ModelAndView showForm(ServletRequest request, @PathVariable String nick) throws Exception {
+  public ModelAndView showForm(ServletRequest request, @PathVariable String nick) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -65,7 +65,7 @@ public class EditRemarkController {
           ServletRequest request,
           @RequestParam("text") String text,
           @PathVariable String nick
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {

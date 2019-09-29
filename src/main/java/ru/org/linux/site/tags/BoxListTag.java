@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import com.google.common.collect.Iterables;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
 
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class BoxListTag extends BodyTagSupport {
   }
 
   @Override
-  public int doStartTag() throws JspException {
+  public int doStartTag() {
     Template t = Template.getTemplate(pageContext.getRequest());
 
     List<String> boxnames = ImmutableList.copyOf(
@@ -48,7 +47,7 @@ public class BoxListTag extends BodyTagSupport {
   }
 
   @Override
-  public int doEndTag() throws JspException {
+  public int doEndTag() {
     pageContext.removeAttribute(var);
     return SKIP_BODY;
   }

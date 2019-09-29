@@ -23,7 +23,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.site.DateFormats;
 import ru.org.linux.user.ApiUserRef;
 
-import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.util.Date;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class SignTag extends TagSupport {
   }
 
   @Override
-  public int doStartTag() throws JspException {
+  public int doStartTag() {
     WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext());
 
     JadeConfiguration jadeConfiguration = context.getBean(JadeConfiguration.class);

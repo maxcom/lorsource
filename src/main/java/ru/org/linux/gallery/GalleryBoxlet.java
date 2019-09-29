@@ -33,7 +33,7 @@ public class GalleryBoxlet extends AbstractBoxlet {
 
   @Override
   @RequestMapping("/gallery.boxlet")
-  protected ModelAndView getData(HttpServletRequest request) throws Exception {
+  protected ModelAndView getData(HttpServletRequest request) {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
     List<PreparedGalleryItem> list = imageService.prepareGalleryItem(imageService.getGalleryItems(COUNT_ITEMS));

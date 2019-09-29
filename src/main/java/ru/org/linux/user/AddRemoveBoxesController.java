@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,6 @@ import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +61,7 @@ public class AddRemoveBoxesController {
 
   @RequestMapping(value = "/remove-box.jsp", method = RequestMethod.POST)
   public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
-                         SessionStatus status, HttpServletRequest request)
-    throws Exception {
+                         SessionStatus status, HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -101,8 +99,7 @@ public class AddRemoveBoxesController {
 
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
   public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
-                      SessionStatus status, HttpServletRequest request)
-    throws IOException {
+                      SessionStatus status, HttpServletRequest request) {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {

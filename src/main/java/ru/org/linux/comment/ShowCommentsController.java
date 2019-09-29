@@ -40,7 +40,7 @@ public class ShowCommentsController {
   @RequestMapping("/show-comments.jsp")
   public RedirectView showComments(
           @RequestParam String nick
-  ) throws Exception {
+  ) {
     User user = userService.getUserCached(nick);
 
     return new RedirectView("search.jsp?range=COMMENTS&user="+user.getNick()+"&sort=DATE");
@@ -50,7 +50,7 @@ public class ShowCommentsController {
   public ModelAndView showCommentsOld(
     @PathVariable String nick,
     HttpServletRequest request
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");

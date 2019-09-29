@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -75,12 +75,12 @@ public class ProfileDao {
   }
 
   public void writeProfile(@Nonnull final User user, @Nonnull final Profile profile) {
-    String boxlets[] = null;
+    String[] boxlets = null;
 
     List<String> customBoxlets = profile.getCustomBoxlets();
 
     if (customBoxlets !=null) {
-      boxlets = customBoxlets.toArray(new String[customBoxlets.size()]);
+      boxlets = customBoxlets.toArray(new String[0]);
     }
 
     final String[] finalBoxlets = boxlets;

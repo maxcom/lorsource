@@ -36,6 +36,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -144,9 +145,9 @@ public class UserModificationController {
     return new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)));
   }
 
-  private static String getNoCacheLinkToProfile(User user) throws UnsupportedEncodingException{
+  private static String getNoCacheLinkToProfile(User user) {
     Random random = new Random();
-    return "/people/" + URLEncoder.encode(user.getNick(), "UTF-8") + "/profile?nocache=" + random.nextInt();
+    return "/people/" + URLEncoder.encode(user.getNick(), StandardCharsets.UTF_8) + "/profile?nocache=" + random.nextInt();
   }
 
   /**
@@ -154,14 +155,13 @@ public class UserModificationController {
    * @param request http запрос
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя блокировать
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block-n-delete-comments")
   public ModelAndView blockAndMassiveDeleteCommentUser(
       HttpServletRequest request,
       @RequestParam("id") User user,
       @RequestParam(value = "reason", required = false) String reason
-  ) throws Exception {
+  ) {
     User moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");

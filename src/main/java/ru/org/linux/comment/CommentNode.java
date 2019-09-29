@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,6 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +41,7 @@ public class CommentNode implements Serializable {
     return !childs.isEmpty();
   }
 
-  public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
+  public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws UserNotFoundException {
     if (comment!=null) {
       User commentAuthor = userDao.getUserCached(comment.getUserid());
 

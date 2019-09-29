@@ -34,6 +34,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -159,7 +160,7 @@ public class WhoisController {
   }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
-  public ModelAndView wipe(@PathVariable String nick, ServletRequest request) throws Exception {
+  public ModelAndView wipe(@PathVariable String nick, ServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
@@ -184,8 +185,8 @@ public class WhoisController {
   }
 
   @RequestMapping("/whois.jsp")
-  public View getInfo(@RequestParam("nick") String nick) throws UnsupportedEncodingException{
-    return new RedirectView("/people/"+ URLEncoder.encode(nick, "UTF-8")+"/profile");
+  public View getInfo(@RequestParam("nick") String nick) {
+    return new RedirectView("/people/"+ URLEncoder.encode(nick, StandardCharsets.UTF_8)+"/profile");
   }
 
   /**

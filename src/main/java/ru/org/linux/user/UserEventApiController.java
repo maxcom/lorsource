@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,7 +36,7 @@ public class UserEventApiController {
 
   @ResponseBody
   @RequestMapping(value = "/notifications-count", method= RequestMethod.GET)
-  public int getEventsCount(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public int getEventsCount(HttpServletRequest request, HttpServletResponse response) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("not authorized");
@@ -52,7 +52,7 @@ public class UserEventApiController {
   public String resetNotifications(
     HttpServletRequest request,
     @RequestParam int topId
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("not authorized");
@@ -67,7 +67,7 @@ public class UserEventApiController {
 
   @ResponseBody
   @RequestMapping(value = "/yandex-tableau", method = RequestMethod.GET, produces={"application/json"})
-  public Map<String, Integer> getYandexWidget(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public Map<String, Integer> getYandexWidget(HttpServletRequest request, HttpServletResponse response) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
       return ImmutableMap.of();

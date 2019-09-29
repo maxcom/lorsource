@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -107,7 +107,7 @@ public class UserFilterController {
   public ModelAndView listAdd(
     HttpServletRequest request,
     @RequestParam String nick
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -143,7 +143,7 @@ public class UserFilterController {
   public ModelAndView listDel(
     ServletRequest request,
     @RequestParam int id
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {

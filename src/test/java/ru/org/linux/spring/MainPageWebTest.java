@@ -22,8 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.test.WebHelper;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -32,14 +30,14 @@ public class MainPageWebTest {
   private WebResource resource;
 
   @Before
-  public void initResource() throws Exception {
+  public void initResource() {
     Client client = new Client();
     client.setFollowRedirects(false);
     resource = client.resource(WebHelper.MAIN_URL);
   }
 
   @Test
-  public void testMain() throws IOException {
+  public void testMain() {
     ClientResponse cr = resource
         .path("/")
         .get(ClientResponse.class);

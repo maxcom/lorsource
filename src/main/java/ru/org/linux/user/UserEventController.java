@@ -57,7 +57,7 @@ public class UserEventController {
   public RedirectView resetNotifications(
     HttpServletRequest request,
     @RequestParam int topId
-  ) throws Exception {
+  ) {
     apiController.resetNotifications(request, topId);
 
     RedirectView view = new RedirectView("/notifications");
@@ -81,7 +81,7 @@ public class UserEventController {
     HttpServletResponse response,
     @RequestParam(value = "filter", defaultValue="all") String filter,
     @RequestParam(value = "offset", defaultValue = "0") int offset
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("not authorized");
@@ -146,7 +146,7 @@ public class UserEventController {
     HttpServletResponse response,
     @RequestParam(value = "nick", required = false) String nick,
     @RequestParam(value = "offset", defaultValue = "0") int offset
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
     boolean feedRequested = request.getParameterMap().containsKey("output");
 

@@ -29,6 +29,7 @@ import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -94,6 +95,6 @@ public class BanIPController {
 
     ipBlockDao.blockIP(ip, user, reason, ts, allowPosting, captchaRequired);
 
-    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, "UTF-8")));
+    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)));
   }
 }
