@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,18 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.site.Template;
 import ru.org.linux.util.StringUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 
 @Controller
-@RequestMapping("/reset-password")
 public class ResetPasswordController {
   private static final Logger logger = LoggerFactory.getLogger(ResetPasswordController.class);
 
@@ -41,16 +40,34 @@ public class ResetPasswordController {
   @Autowired
   private UserService userService;
 
-  @RequestMapping(method=RequestMethod.GET)
+  @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="reset-password")
+  public ModelAndView showModeratorForm(@PathVariable String nick, HttpServletRequest request) {
+    User user = userService.getUser(nick);
+
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not moderator");
+    }
+
+    ModelAndView modelAndView = new ModelAndView("confirm-password-reset");
+
+    modelAndView.addObject("user", user);
+    modelAndView.addObject("whoisLink",
+            UriComponentsBuilder.fromUriString("/people/{nick}/profile").buildAndExpand(nick).encode().toUriString());
+
+    return modelAndView;
+  }
+
+  @RequestMapping(value="/reset-password", method=RequestMethod.GET)
   public ModelAndView showCodeForm() {
     return new ModelAndView("reset-password-form");
   }
 
-  @RequestMapping(method=RequestMethod.POST)
+  @RequestMapping(value="/reset-password", method=RequestMethod.POST)
   public ModelAndView resetPassword(
     @RequestParam("nick") String nick,
     @RequestParam("code") String formCode
-  ) throws Exception {
+  ) {
     User user = userService.getUser(nick);
 
     user.checkBlocked();
