@@ -24,7 +24,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Удаление сообщения</title>
+<title>Удаление комментария</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <script language="Javascript" type="text/javascript">
   <!--

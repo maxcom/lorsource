@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,15 +28,16 @@ import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MarkupPermissions;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.User;
+import scala.Option;
+import scala.Some;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 @Service
 public class TopicPermissionService {
@@ -252,13 +253,13 @@ public class TopicPermissionService {
     checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup);
   }
 
-  public Optional<DateTime> getEditDeadline(Comment comment) {
+  public Option<DateTime> getEditDeadline(Comment comment) {
     if (siteConfig.getCommentExpireMinutesForEdit() != 0) {
       DateTime editDeadline = new DateTime(comment.getPostdate()).plusMinutes(siteConfig.getCommentExpireMinutesForEdit());
 
-      return Optional.of(editDeadline);
+      return Some.apply(editDeadline);
     } else {
-      return Optional.empty();
+      return Option.empty();
     }
   }
   /**
@@ -299,9 +300,9 @@ public class TopicPermissionService {
 
     if (editable || authored) {
       /* проверка на то, что время редактирования не вышло */
-      Optional<DateTime> maybeDeadline = getEditDeadline(comment);
+      Option<DateTime> maybeDeadline = getEditDeadline(comment);
 
-      if (maybeDeadline.isPresent() && maybeDeadline.get().isBeforeNow()) {
+      if (maybeDeadline.isDefined() && maybeDeadline.get().isBeforeNow()) {
         errors.reject(null, "Истек срок редактирования");
       }
 
@@ -379,5 +380,17 @@ public class TopicPermissionService {
 
   public boolean isUserCastAllowed(User author) {
     return !author.isAnonymousScore();
+  }
+
+  public boolean isUndeletable(Topic topic, Comment comment, @Nullable User user) {
+    if (user==null) {
+      return false;
+    }
+
+    if (topic.isDeleted() || !comment.isDeleted() || !user.isModerator() || topic.isExpired()) {
+      return false;
+    }
+
+    return true;
   }
 }

@@ -38,6 +38,7 @@ public class PreparedComment {
   private final ReplyInfo reply;
 
   private final boolean deletable;
+  private final boolean undeletable;
   private final boolean editable;
   private final String remark;
   private final boolean deleted;
@@ -72,7 +73,8 @@ public class PreparedComment {
                          @Nullable ApiDeleteInfo deleteInfo,
                          @Nullable EditSummary editSummary,
                          @Nullable String postIP,
-                         @Nullable String userAgent) {
+                         @Nullable String userAgent,
+                         boolean undeletable) {
     this.deleteInfo = deleteInfo;
     this.editSummary = editSummary;
     this.postIP = postIP;
@@ -82,6 +84,7 @@ public class PreparedComment {
     this.processedMessage = processedMessage;
     this.reply = reply;
     this.deletable = deletable;
+    this.undeletable = undeletable;
     this.editable = editable;
     this.remark = remark;
     this.userpic = userpic;
@@ -113,6 +116,10 @@ public class PreparedComment {
 
   public boolean isDeletable() {
     return deletable;
+  }
+
+  public boolean isUndeletable() {
+    return undeletable;
   }
 
   public boolean isEditable() {

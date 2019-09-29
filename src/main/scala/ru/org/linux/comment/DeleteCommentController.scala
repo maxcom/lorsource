@@ -15,11 +15,11 @@
 package ru.org.linux.comment
 
 import javax.servlet.http.HttpServletRequest
-
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
@@ -159,5 +159,48 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgHeader" -> ex.getMessage,
       "msgMessage" -> ""
     ).asJava)
+  }
+
+  @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.GET))
+  def showUndeleteForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
+    val tmpl = Template.getTemplate(request)
+    if (!tmpl.isSessionAuthorized) {
+      throw new AccessViolationException("нет авторизации")
+    }
+
+    val comment = commentService.getById(msgid)
+
+    val topic = topicDao.getById(comment.getTopicId)
+
+    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser)) {
+      throw new AccessViolationException("этот комментарий нельзя восстановить")
+    }
+
+    new ModelAndView("undelete_comment", Map[String, Any](
+      "comment" -> prepareService.prepareCommentForReplyto(comment),
+      "topic" -> topic
+    ).asJava)
+  }
+
+  @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.POST))
+  def undelete(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
+    val tmpl = Template.getTemplate(request)
+    if (!tmpl.isSessionAuthorized) {
+      throw new AccessViolationException("нет авторизации")
+    }
+
+    val comment = commentService.getById(msgid)
+
+    val topic = topicDao.getById(comment.getTopicId)
+
+    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser)) {
+      throw new AccessViolationException("этот комментарий нельзя восстановить")
+    }
+
+    commentDeleteService.undeleteComment(comment)
+
+    searchQueueSender.updateComment(msgid)
+
+    new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
   }
 }

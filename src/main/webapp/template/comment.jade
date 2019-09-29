@@ -19,12 +19,17 @@ mixin comment(comment, enableSchema, topic, showMenu)
                 if comment.deleteInfo==null
                     strong
                         | Сообщение удалено
-                    br
                 else
                     strong
                         | Сообщение удалено #{comment.deleteInfo.nick} по причине #{comment.deleteInfo.reason}
-                    br
-    
+
+                if comment.undeletable
+                    | &emsp;
+                    a(href='/undelete_comment?msgid=#{comment.id}')
+                        | [Восстановить]
+
+                br
+
             if comment.reply!=null
                 if comment.reply.deleted
                     | Ответ на: удаленный комментарий
@@ -113,5 +118,6 @@ mixin comment(comment, enableSchema, topic, showMenu)
                             li
                                 a(href='#{topic.link}?cid=#{comment.id}')
                                     | Ссылка
+
     
 mixin comment(comment, enableSchema, topic, showMenu)

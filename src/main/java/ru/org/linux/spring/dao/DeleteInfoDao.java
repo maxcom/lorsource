@@ -118,6 +118,10 @@ public class DeleteInfoDao {
     });
   }
 
+  public void delete(int msgid) {
+    jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", msgid);
+  }
+
   public static class InsertDeleteInfo {
     private final int msgid;
     private final String reason;

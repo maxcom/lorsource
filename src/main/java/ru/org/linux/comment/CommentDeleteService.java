@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.topic.Topic;
@@ -339,5 +340,17 @@ public class CommentDeleteService {
 
       return new DeleteInfoDao.InsertDeleteInfo(comment.getId(), reason, bonus, user.getId());
     }
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void undeleteComment(Comment comment) {
+    DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(comment.getId(), true);
+
+    if (deleteInfo!=null && deleteInfo.getBonus()!=0) {
+      userDao.changeScore(comment.getUserid(), -deleteInfo.getBonus());
+    }
+
+    commentDao.undeleteComment(comment);
+    deleteInfoDao.delete(comment.getId());
   }
 }

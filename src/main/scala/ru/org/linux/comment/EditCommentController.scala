@@ -34,7 +34,6 @@ import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.util.ServletParameterException
 
 import scala.jdk.CollectionConverters._
-import scala.compat.java8.OptionConverters._
 
 @Controller
 class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
@@ -80,7 +79,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
 
       formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment))
 
-      topicPermissionService.getEditDeadline(comment).asScala.foreach(value => formParams.put("deadline", value.toDate))
+      topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 
       new ModelAndView("edit_comment", formParams)
     } else {
@@ -132,7 +131,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)
       modelAndView.addObject("ipBlockInfo", ipBlockInfo)
-      val deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal).asScala
+      val deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal)
       deadline.foreach(value => formParams.put("deadline", value.toDate))
       modelAndView
     } else {
