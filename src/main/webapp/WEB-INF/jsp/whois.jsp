@@ -34,6 +34,11 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Информация о пользователе ${user.nick}</title>
+
+<script type="text/javascript">
+    $script('/js/d3.js', "d3");
+</script>
+
 <c:if test="${userInfo.url != null}">
     <c:if test="${user.score >= 100 && not user.blocked && user.activated}">
         <link rel="me" href="${fn:escapeXml(userInfo.url)}">

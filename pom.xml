@@ -29,6 +29,7 @@
     <akka.version>2.5.25</akka.version>
     <log4j.version>2.11.2</log4j.version>
     <play-ws.version>2.0.7</play-ws.version>
+    <d3js.version>5.9.7</d3js.version>
   </properties>
 
   <dependencies>
@@ -431,6 +432,19 @@
       <version>3.7.2</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>d3js</artifactId>
+      <version>${d3js.version}</version>
+    </dependency>
+
+    <dependency>
+      <!-- https://github.com/wa0x6e/cal-heatmap -->
+      <groupId>org.webjars.bowergithub.wa0x6e</groupId>
+      <artifactId>cal-heatmap</artifactId>
+      <version>3.6.2</version>
+    </dependency>
+
     <!-- MarkDown implementation -->
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
@@ -570,6 +584,17 @@
               <includes>
                 <include>
                   ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch_uncompressed.js
+                </include>
+              </includes>
+            </aggregation>
+
+            <aggregation>
+              <removeIncluded>false</removeIncluded>
+              <insertNewLine>true</insertNewLine>
+              <output>${project.build.directory}/${project.build.finalName}/js/d3.js</output>
+              <includes>
+                <include>
+                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/d3js/${d3js.version}/d3.min.js
                 </include>
               </includes>
             </aggregation>
@@ -798,6 +823,12 @@
                   <groupId>org.webjars</groupId>
                   <artifactId>google-diff-match-patch</artifactId>
                   <version>20121119-1</version>
+                  <includes>**/*.js</includes>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars</groupId>
+                  <artifactId>d3js</artifactId>
+                  <version>${d3js.version}</version>
                   <includes>**/*.js</includes>
                 </artifactItem>
               </artifactItems>

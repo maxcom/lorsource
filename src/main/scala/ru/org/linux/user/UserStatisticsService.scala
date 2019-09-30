@@ -17,10 +17,12 @@ package ru.org.linux.user
 
 import java.sql.Timestamp
 import java.util.Date
+import java.util.concurrent.CompletionStage
 
 import com.sksamuel.elastic4s.http.ElasticClient
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.http.search.SearchResponse
+import com.sksamuel.elastic4s.searches.DateHistogramInterval
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
 import org.joda.time.DateTime
@@ -30,10 +32,11 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService._
 
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
+import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 @Service
@@ -43,7 +46,7 @@ class UserStatisticsService(
   sectionService: SectionService,
   elastic: ElasticClient
 ) extends StrictLogging {
-  def getStats(user:User): UserStats = {
+  def getStats(user: User): UserStats = {
     val commentCountFuture = countComments(user)
     val topicsFuture = topicStats(user)
 
@@ -81,6 +84,21 @@ class UserStatisticsService(
     )
   }
 
+  def getYearStats(user: User): CompletionStage[java.util.Map[Long, Long]] = {
+    Future.successful(elastic).flatMap {
+      _ execute {
+        val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/d"))
+
+        search(MessageIndex) size 0 timeout 30.seconds query root aggs
+          dateHistogramAgg("days", "postdate").interval(DateHistogramInterval.days(1))
+      } map {
+        _.result.aggregations.dateHistogram("days").buckets.map { bucket =>
+          bucket.timestamp/1000 -> bucket.docCount
+        }.toMap.asJava
+      }
+    }.toJava
+  }
+
   private def timeoutHandler(response: SearchResponse): Future[SearchResponse] = {
     if (response.isTimedOut) {
       Future failed new RuntimeException("ES Request timed out")
@@ -108,7 +126,7 @@ class UserStatisticsService(
   private def topicStats(user: User): Future[TopicStats] = {
     try {
       elastic execute {
-        val root = filter (
+        val root = boolQuery().filter (
           termQuery("author", user.getNick),
           termQuery("is_comment", false))
 
@@ -139,7 +157,7 @@ class UserStatisticsService(
 }
 
 object UserStatisticsService {
-  val ElasticTimeout = 1.second
+  val ElasticTimeout: FiniteDuration = 5.seconds
 
   private def extractValue[T](value:Option[Try[T]])(f: Throwable => Unit): Option[T] = {
     value flatMap {
