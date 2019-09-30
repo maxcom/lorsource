@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2019 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -36,6 +36,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -73,7 +74,7 @@
   </script>
   </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -81,16 +82,15 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/CS_Linux_728x90.jpg',
-          img320: '/adv/CS_Linux_320x100.jpg',
-          href: 'https://otus.ru/lessons/bezopasnost-linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=cs_linux&utm_content=banner&utm_term=banner'
+          img730: '/adv/Linux_Forum_730x90.jpg',
+          img320: '/adv/Linux_Forum_320x100.jpg',
+          href: 'https://otus.ru/lessons/linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
         }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
