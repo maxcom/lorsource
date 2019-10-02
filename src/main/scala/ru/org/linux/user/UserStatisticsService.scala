@@ -90,7 +90,7 @@ class UserStatisticsService(
         val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/d"))
 
         search(MessageIndex) size 0 timeout 30.seconds query root aggs
-          dateHistogramAgg("days", "postdate").interval(DateHistogramInterval.days(1))
+          dateHistogramAgg("days", "postdate").interval(DateHistogramInterval.days(1)).minDocCount(1)
       } map {
         _.result.aggregations.dateHistogram("days").buckets.map { bucket =>
           bucket.timestamp/1000 -> bucket.docCount

@@ -35,7 +35,6 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Информация о пользователе ${user.nick}</title>
-<link rel="stylesheet" type="text/css" href="/webjars/cal-heatmap/cal-heatmap.css">
 <script type="text/javascript">
     $script(['/webjars/d3/d3.min.js','/webjars/cal-heatmap/cal-heatmap.js'], 'heatmap');
     $script.ready(['heatmap','jquery'], function() {
@@ -47,7 +46,9 @@
                 subDomain: "day",
                 range: 12,
                 domainDynamicDimension: false,
-                start: new Date("<%= DateTime.now().minusYears(1).toString() %>")
+                displayLegend: false,
+                legend: [8, 32, 64, 128],
+            start: new Date("<%= DateTime.now().minusYears(1).toString() %>")
             });
         });
     });
