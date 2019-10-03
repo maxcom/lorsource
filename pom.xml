@@ -30,6 +30,7 @@
     <log4j.version>2.11.2</log4j.version>
     <play-ws.version>2.0.7</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
+    <momentjs.version>2.24.0</momentjs.version>
   </properties>
 
   <dependencies>
@@ -451,6 +452,11 @@
       <version>0.37</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>momentjs</artifactId>
+      <version>${momentjs.version}</version>
+    </dependency>
     <!-- MarkDown implementation -->
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
@@ -609,6 +615,8 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/pattern.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -819,6 +827,11 @@
                   <artifactId>google-diff-match-patch</artifactId>
                   <version>20121119-1</version>
                   <includes>**/*.js</includes>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars</groupId>
+                  <artifactId>momentjs</artifactId>
+                  <version>${momentjs.version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>

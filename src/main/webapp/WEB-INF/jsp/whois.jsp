@@ -37,8 +37,10 @@
 <title>Информация о пользователе ${user.nick}</title>
 <script type="text/javascript">
     $script(['/webjars/d3/d3.min.js','/webjars/cal-heatmap/cal-heatmap.js'], 'heatmap');
-    $script.ready(['heatmap','jquery'], function() {
+    $script.ready(['heatmap','jquery', 'plugins'], function() {
         $(function() {
+            moment.locale("ru");
+
             var cal = new CalHeatMap();
             cal.init({
                 data: "/people/${user.nick}/profile?year-stats",
@@ -48,7 +50,18 @@
                 domainDynamicDimension: false,
                 displayLegend: false,
                 legend: [8, 32, 64, 128],
-            start: new Date("<%= DateTime.now().minusYears(1).toString() %>")
+                start: new Date("<%= DateTime.now().minusYears(1).toString() %>"),
+                tooltip: true,
+                domainLabelFormat: function(date) {
+                    return moment(date).format("MMMM");
+                },
+                subDomainDateFormat: function(date) {
+                    return moment(date).format("LL");
+                },
+                subDomainTitleFormat: {
+                    empty: "{date}",
+                    filled: "{date}<br>комментариев: {count}"
+                }
             });
         });
     });
