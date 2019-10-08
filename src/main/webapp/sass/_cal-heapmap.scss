@@ -22,7 +22,7 @@
 
 .cal-heatmap-container .graph-rect
 {
-  fill: grayscale(darken($heatmap_max, 20%));
+  fill: grayscale(adjust-color($heatmap_max, $lightness: -20%*$heatmap_scale));
 }
 
 .cal-heatmap-container .graph-subdomain-group rect:hover
@@ -57,26 +57,26 @@
 
 .cal-heatmap-container .q1
 {
-  background-color: darken($heatmap_max, 20%);
-  fill: darken($heatmap_max, 20%);
+  background-color: adjust-color($heatmap_max, $lightness: -20%*$heatmap_scale);
+  fill: adjust-color($heatmap_max, $lightness: -20%*$heatmap_scale);
 }
 
 .cal-heatmap-container .q2
 {
-  background-color: darken($heatmap_max, 15%);
-  fill: darken($heatmap_max, 15%);
+  background-color: adjust-color($heatmap_max, $lightness: -15%*$heatmap_scale);
+  fill: adjust-color($heatmap_max, $lightness: -15%*$heatmap_scale);
 }
 
 .cal-heatmap-container .q3
 {
-  background-color: darken($heatmap_max, 10%);
-  fill: darken($heatmap_max, 10%);
+  background-color: adjust-color($heatmap_max, $lightness: -10%*$heatmap_scale);
+  fill: adjust-color($heatmap_max, $lightness: -10%*$heatmap_scale);
 }
 
 .cal-heatmap-container .q4
 {
-  background-color: darken($heatmap_max, 5%);
-  fill: darken($heatmap_max, 5%);
+  background-color: adjust-color($heatmap_max, $lightness: -5%*$heatmap_scale);
+  fill: adjust-color($heatmap_max, $lightness: -5%*$heatmap_scale);
 }
 
 .cal-heatmap-container .q5
