@@ -44,6 +44,12 @@
             $(function () {
                 moment.locale("ru");
 
+                var size = 8;
+                
+                if (window.matchMedia("(min-width: 1024px)").matches) {
+                    size = 10;
+                }
+
                 var cal = new CalHeatMap();
                 cal.init({
                     data: "/people/${user.nick}/profile?year-stats",
@@ -53,7 +59,7 @@
                     domainDynamicDimension: false,
                     displayLegend: false,
                     legend: [8, 32, 64, 128],
-                    cellSize: 8,
+                    cellSize: size,
                     start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
                     tooltip: true,
                     domainLabelFormat: function (date) {
