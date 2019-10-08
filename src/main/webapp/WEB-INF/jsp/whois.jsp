@@ -39,7 +39,12 @@
 <c:if test="${user.id!=2}">
 <script type="text/javascript">
     if (window.matchMedia("(min-width: 768px)").matches) {
-        $script(['/webjars/d3/d3.min.js', '/webjars/cal-heatmap/cal-heatmap.js'], 'heatmap');
+        $script(['/webjars/d3/d3.min.js'], 'd3');
+
+        $script.ready('d3', function() {
+            $script('/webjars/cal-heatmap/cal-heatmap.js', 'heatmap');
+        });
+
         $script.ready(['heatmap', 'jquery', 'plugins'], function () {
             $(function () {
                 moment.locale("ru");
