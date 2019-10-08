@@ -37,51 +37,51 @@
 <title>Информация о пользователе ${user.nick}</title>
 
 <c:if test="${user.id!=2}">
-<script type="text/javascript">
-    if (window.matchMedia("(min-width: 768px)").matches) {
+    <script type="text/javascript">
         $script(['/webjars/d3/d3.min.js'], 'd3');
 
-        $script.ready('d3', function() {
+        $script.ready('d3', function () {
             $script('/webjars/cal-heatmap/cal-heatmap.js', 'heatmap');
         });
 
         $script.ready(['heatmap', 'jquery', 'plugins'], function () {
             $(function () {
-                moment.locale("ru");
+                if (window.matchMedia("(min-width: 768px)").matches) {
+                    moment.locale("ru");
 
-                var size = 8;
-                
-                if (window.matchMedia("(min-width: 1024px)").matches) {
-                    size = 10;
-                }
+                    var size = 8;
 
-                var cal = new CalHeatMap();
-                cal.init({
-                    data: "/people/${user.nick}/profile?year-stats",
-                    domain: "month",
-                    subDomain: "day",
-                    range: 12,
-                    domainDynamicDimension: false,
-                    displayLegend: false,
-                    legend: [8, 32, 64, 128],
-                    cellSize: size,
-                    start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
-                    tooltip: true,
-                    domainLabelFormat: function (date) {
-                        return moment(date).format("MMMM");
-                    },
-                    subDomainDateFormat: function (date) {
-                        return moment(date).format("LL");
-                    },
-                    subDomainTitleFormat: {
-                        empty: "{date}",
-                        filled: "{date}<br>сообщений: {count}"
+                    if (window.matchMedia("(min-width: 1024px)").matches) {
+                        size = 10;
                     }
-                });
+
+                    var cal = new CalHeatMap();
+                    cal.init({
+                        data: "/people/${user.nick}/profile?year-stats",
+                        domain: "month",
+                        subDomain: "day",
+                        range: 12,
+                        domainDynamicDimension: false,
+                        displayLegend: false,
+                        legend: [8, 32, 64, 128],
+                        cellSize: size,
+                        start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
+                        tooltip: true,
+                        domainLabelFormat: function (date) {
+                            return moment(date).format("MMMM");
+                        },
+                        subDomainDateFormat: function (date) {
+                            return moment(date).format("LL");
+                        },
+                        subDomainTitleFormat: {
+                            empty: "{date}",
+                            filled: "{date}<br>сообщений: {count}"
+                        }
+                    });
+                }
             });
         });
-    }
-</script>
+    </script>
 </c:if>
 
 <c:if test="${userInfo.url != null}">
