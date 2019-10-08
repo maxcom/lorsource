@@ -784,8 +784,14 @@ figure.medium-image {
   margin: 1em auto;
 }
 
+@media screen and (min-width: 768px) {
+  #cal-heatmap {
+    min-height: 100px;
+  }
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
 
-@import "spoilers"
+@import "spoilers";
