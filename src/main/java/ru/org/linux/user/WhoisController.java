@@ -36,7 +36,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 
 @Controller
 public class WhoisController {
@@ -206,5 +208,15 @@ public class WhoisController {
     mav.addObject("msgHeader", "Пользователя не существует");
     mav.addObject("msgMessage", "");
     return mav;
+  }
+
+  @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="year-stats")
+  @ResponseBody
+  public CompletionStage<Map<Object, Object>> yearStats(@PathVariable String nick) {
+    User user = userService.getUser(nick);
+
+    user.checkBlocked();
+
+    return userStatisticsService.getYearStats(user);
   }
 }

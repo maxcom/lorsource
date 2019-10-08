@@ -256,3 +256,8 @@ blockquote {
 }
 
 @import "../responsive";
+
+$heatmap_max: #8ae234;
+$heatmap_scale: 1.5;
+@import "../cal-heapmap";
+

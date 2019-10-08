@@ -1,3 +1,4 @@
+<%@ page import="org.joda.time.DateTime" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -34,6 +35,44 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Информация о пользователе ${user.nick}</title>
+
+<c:if test="${user.id!=2}">
+<script type="text/javascript">
+    if (window.matchMedia("(min-width: 768px)").matches) {
+        $script(['/webjars/d3/d3.min.js', '/webjars/cal-heatmap/cal-heatmap.js'], 'heatmap');
+        $script.ready(['heatmap', 'jquery', 'plugins'], function () {
+            $(function () {
+                moment.locale("ru");
+
+                var cal = new CalHeatMap();
+                cal.init({
+                    data: "/people/${user.nick}/profile?year-stats",
+                    domain: "month",
+                    subDomain: "day",
+                    range: 12,
+                    domainDynamicDimension: false,
+                    displayLegend: false,
+                    legend: [8, 32, 64, 128],
+                    cellSize: 8,
+                    start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
+                    tooltip: true,
+                    domainLabelFormat: function (date) {
+                        return moment(date).format("MMMM");
+                    },
+                    subDomainDateFormat: function (date) {
+                        return moment(date).format("LL");
+                    },
+                    subDomainTitleFormat: {
+                        empty: "{date}",
+                        filled: "{date}<br>сообщений: {count}"
+                    }
+                });
+            });
+        });
+    }
+</script>
+</c:if>
+
 <c:if test="${userInfo.url != null}">
     <c:if test="${user.score >= 100 && not user.blocked && user.activated}">
         <link rel="me" href="${fn:escapeXml(userInfo.url)}">
@@ -82,19 +121,18 @@
     </c:if>
 </div>
 <div>
-<h2>Регистрация</h2>
 
 <div class="vcard">
+    <b>Nick:</b> <span class="nickname">${user.nick}</span><br>
+    <c:if test="${not empty user.name}">
+        <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
+    </c:if>
     <b>ID:</b> ${user.id}<br>
-    <b>Nick:</b> <span class="nickname">${user.nick}</span>
     <c:if test="${template.sessionAuthorized and !currentUser}">
         <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/>
         [<a href="/people/${user.nick}/remark/">Изменить</a>]
     </c:if>
     <br>
-    <c:if test="${not empty user.name}">
-        <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
-    </c:if>
 
     <c:if test="${not empty userInfo.url and (template.sessionAuthorized or user.maxScore>=50)}">
         <b>URL:</b>
@@ -281,6 +319,9 @@
 </c:if>
 
 <h2>Статистика</h2>
+
+<div id="cal-heatmap"></div>
+
 <c:if test="${userStat.incomplete}">
   <div class="infoblock">
   Внимание! Статистику пользователя не удалось полностью загрузить. Попробуйте обновить страницу позже.

@@ -48,7 +48,8 @@ comment.scoreValueForEditing=45
 # "embedded" или host:port
 Elasticsearch=embedded
 
-jdbc.url=jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified
+#jdbc.url=jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified
+jdbc.url=jdbc:postgresql://127.0.0.1:5432/real-lor?stringtype=unspecified
 jdbc.user=linuxweb
 jdbc.password=linuxweb
 jdbc.poolSize=10
