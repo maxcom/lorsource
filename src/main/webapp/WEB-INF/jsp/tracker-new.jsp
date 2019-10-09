@@ -50,63 +50,47 @@
   </c:forEach>
 </nav>
 
-<div class=forum>
-  <table class="message-table">
-    <thead>
-    <tr>
-      <th class="hideon-tablet">Группа</th>
-      <th>Заголовок</th>
-      <th>Последнее сообщение</th>
-      <th><i class="icon-reply"></i></th>
-    </tr>
-    </thead>
-    <tbody>
+<div class=tracker>
     <c:forEach var="msg" items="${msgs}">
-      <c:set var="groupLink"><%--
-                         --%><a href="${msg.groupUrl}" class="secondary">${msg.groupTitle}</a><%--
+      <article class="tracker-item">
+        <div class="tracker-src">
+          <span class="group-label">${msg.groupTitle}</span>
+            <c:if test="${msg.uncommited}">(не подтверждено)</c:if>
+          <c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/></c:if>
+        </div>
 
-                         --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
-                        --%></c:set>
-      <tr>
-        <td class="hideon-tablet">${groupLink}</td>
-        <td>
+        <div class="tracker-count">
+          <c:choose>
+            <c:when test="${msg.stat1==0}">
+              -
+            </c:when>
+            <c:otherwise>
+              <i class="icon-reply"></i> ${msg.stat1}
+            </c:otherwise>
+          </c:choose>
+        </div>
+
+        <div class="tracker-title">
           <c:if test="${msg.resolved}">
-            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15/>
+            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
           </c:if>
-          <% if (tmpl.getProf().isShowNewFirst()) { %>
-          <a href="${msg.urlReverse}">
-                <% } else { %>
-            <a href="${msg.url}">
-              <% } %>
-              <c:forEach var="tag" items="${msg.tags}">
-                <span class="tag">${tag}</span>
-              </c:forEach>
 
-              <l:title>${msg.title}</l:title>
-            </a>
+          <a href="${msg.url}">
+            <l:title>${msg.title}</l:title>
+          </a>
+        </div>
 
-            (<%--
-            --%><c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/><%--
-            --%><span class="hideon-desktop"> в </span><%--
-            --%></c:if><span class="hideon-desktop">${groupLink}</span>)
-        </td>
-        <td class="dateinterval">
-          <lor:dateinterval date="${msg.postdate}"/>, <lor:user user="${msg.author}"/>
-        </td>
-        <td class='numbers'>
-            <c:choose>
-                <c:when test="${msg.stat1==0}">
-                    -
-                </c:when>
-                <c:otherwise>
-                    ${msg.stat1}
-                </c:otherwise>
-            </c:choose>
-      </tr>
+        <div class="tracker-footer">
+          <c:forEach var="tag" items="${msg.tags}">
+            <span class="tag">${tag}</span>
+          </c:forEach>
+        </div>
+
+        <div class="tracker-last">
+          <lor:user user="${msg.author}"/>, <lor:dateinterval date="${msg.postdate}"/>
+        </div>
+      </article>
     </c:forEach>
-    </tbody>
-
-  </table>
 </div>
 
 <div class="nav">
