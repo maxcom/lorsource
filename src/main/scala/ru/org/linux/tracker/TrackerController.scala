@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @Controller
 class TrackerController(trackerDao: TrackerDao, userService: UserService) {
@@ -97,6 +97,10 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
       params.put("newUsers", userService.getNewUsers)
     }
 
-    new ModelAndView("tracker", params)
+    if (user!=null && user.isAdministrator) {
+      new ModelAndView("tracker-new", params)
+    } else {
+      new ModelAndView("tracker", params)
+    }
   }
 }
