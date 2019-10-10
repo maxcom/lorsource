@@ -1,15 +1,19 @@
-.tracker {
-}
-
 .tracker-item {
   @include clearfix();
   @include container();
 
-  padding: 0.5em;
-
   border-top: 1px solid $table_border_color;
   border-right: 1px solid $table_border_color;
   border-left: 1px solid $table_border_color;
+
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+
+  p {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    margin: 0;
+  }
 
   .tracker-src {
     @include column(9);
@@ -22,6 +26,7 @@
 
   .tracker-count {
     @include column(3, 9);
+    text-align: right;
   }
 
   .tracker-title {
@@ -31,8 +36,8 @@
     @include clearfix();
   }
 
-  .tracker-footer {
-    @include column(9);
+  .tracker-tags {
+    @include column(6);
 
     .tag {
       border-radius: 3px;
@@ -46,6 +51,15 @@
   }
 
   .tracker-last {
-    @include column(3, 9);
+    @include column(6, 6);
+    text-align: right;
+  }
+
+  a {
+    text-decoration: none;
+    color: $table_link_color;
+    &:visited {
+      color: $text_color;
+    }
   }
 }

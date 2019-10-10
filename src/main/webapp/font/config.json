@@ -83,6 +83,12 @@
       "css": "rss",
       "code": 59392,
       "src": "entypo"
+    },
+    {
+      "uid": "16890362e811b4cb8de36282b071fe30",
+      "css": "comment",
+      "code": 59395,
+      "src": "entypo"
     }
   ]
 }

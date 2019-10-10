@@ -15,30 +15,52 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ attribute name="compact" required="false" type="java.lang.Boolean"%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>"><%
   long diff = System.currentTimeMillis() - date.getTime();
+  boolean comp = compact!=null && compact;
   DateTime c = new DateTime(date.getTime());
 
   DateTime today = DateTime.now().withTimeAtStartOfDay();
   DateTime yesterday = DateTime.now().minusDays(1).withTimeAtStartOfDay();
 
   if (diff<2*1000*60) {
-    out.print("минуту назад");
+    if (comp) {
+      out.print("1 мин");
+    } else {
+      out.print("минуту назад");
+    }
   } else if (diff<1000*60*60) {
     long min = diff / (1000 * 60);
 
-    if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +"&nbsp;минуты назад");
-    } else if (min%10==1 && min>20 ) {
-        out.print(min +"&nbsp;минута назад");
+    if (comp) {
+      out.print(min+"&nbsp;мин");
     } else {
-      out.print(min +"&nbsp;минут назад");
+      if (min % 10 < 5 && min % 10 > 1 && (min > 20 || min < 10)) {
+        out.print(min + "&nbsp;минуты назад");
+      } else if (min % 10 == 1 && min > 20) {
+        out.print(min + "&nbsp;минута назад");
+      } else {
+        out.print(min + "&nbsp;минут назад");
+      }
     }
   } else if (c.isAfter(today)) {
-    out.print("сегодня " + DateFormats.time().print(c));
+    if (comp) {
+      out.print(DateFormats.time().print(c));
+    } else {
+      out.print("сегодня " + DateFormats.time().print(c));
+    }
   } else if (c.isAfter(yesterday)) {
-    out.print("вчера " + DateFormats.time().print(c));
+    if (comp) {
+      out.print("вчера");
+    } else {
+      out.print("вчера " + DateFormats.time().print(c));
+    }
   } else {
-    out.print(DateFormats.getShort().print(c));
+    if (comp) {
+      out.print(DateFormats.date().print(c));
+    } else {
+      out.print(DateFormats.getShort().print(c));
+    }
   }
 %></time>

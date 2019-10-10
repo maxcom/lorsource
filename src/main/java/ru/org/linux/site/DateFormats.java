@@ -39,6 +39,9 @@ public class DateFormats {
   private static final DateTimeFormatter RFC822 =
           DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US);
 
+  private static final DateTimeFormatter DATE =
+          DateTimeFormat.forPattern("dd.MM.yy").withLocale(RUSSIAN_LOCALE);
+
   private DateFormats() {
   }
 
@@ -56,6 +59,10 @@ public class DateFormats {
 
   public static DateTimeFormatter time() {
     return TIME;
+  }
+
+  public static DateTimeFormatter date() {
+    return DATE;
   }
 
   public static DateTimeFormatter rfc822() {

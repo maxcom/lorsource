@@ -54,23 +54,28 @@
     <c:forEach var="msg" items="${msgs}">
       <article class="tracker-item">
         <div class="tracker-src">
+          <p>
           <span class="group-label">${msg.groupTitle}</span>
             <c:if test="${msg.uncommited}">(не подтверждено)</c:if>
           <c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/></c:if>
+          </p>
         </div>
 
         <div class="tracker-count">
+          <p>
           <c:choose>
             <c:when test="${msg.stat1==0}">
               -
             </c:when>
             <c:otherwise>
-              <i class="icon-reply"></i> ${msg.stat1}
+              <i class="icon-comment"></i> ${msg.stat1}
             </c:otherwise>
           </c:choose>
+          </p>
         </div>
 
         <div class="tracker-title">
+          <p>
           <c:if test="${msg.resolved}">
             <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
           </c:if>
@@ -78,16 +83,21 @@
           <a href="${msg.url}">
             <l:title>${msg.title}</l:title>
           </a>
+          </p>
         </div>
 
-        <div class="tracker-footer">
+        <div class="tracker-tags">
+          <p>
           <c:forEach var="tag" items="${msg.tags}">
             <span class="tag">${tag}</span>
           </c:forEach>
+          </p>
         </div>
 
         <div class="tracker-last">
-          <lor:user user="${msg.author}"/>, <lor:dateinterval date="${msg.postdate}"/>
+          <p>
+          <lor:user user="${msg.author}"/>, <lor:dateinterval date="${msg.postdate}" compact="true"/>
+          </p>
         </div>
       </article>
     </c:forEach>
