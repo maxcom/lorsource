@@ -99,7 +99,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
     }
 
 
-    val enableBeta = user.isModerator
+    val enableBeta = user!=null && user.isModerator
 
     params.put("enableBeta", java.lang.Boolean.valueOf(enableBeta))
 
