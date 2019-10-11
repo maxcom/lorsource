@@ -58,7 +58,7 @@
         <div class="tracker-src">
           <p>
           <span class="group-label">${msg.groupTitle}</span>
-            <c:if test="${msg.uncommited}">(не подтверждено)</c:if><br class="hideon-phone">
+            <c:if test="${msg.uncommited}">(не подтверждено)</c:if><br class="hideon-phone hideon-tablet">
           <c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/></c:if>
           </p>
         </div>
