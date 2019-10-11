@@ -22,7 +22,8 @@ $link_color: #fefefe;
 $tracker_tag_color: grey;
 $table_border_color: white;
 $table_link_color: $link_color;
-$table_hover_background: #5c3566;
+$table_hover_background:  #000060;
+$table_background_color: #000080;
 
 BODY { 
     font-family: sans-serif;
@@ -127,7 +128,7 @@ TR.color2 { background: #000080; }
     background: #000080;
 
     tr:hover {
-      background: #000060;
+      background: $table_hover_background;
     }
   }
 }
