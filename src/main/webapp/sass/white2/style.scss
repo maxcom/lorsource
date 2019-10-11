@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,6 +26,11 @@ $code_color: #DADADA;
 $group_label_color: $code_color;
 $site_title_color: #786AF2;
 $message_tr_color: #d8d8d8;
+$table_border_color: $header_color;
+$tracker_tag_color: $table_border_color;
+$table_link_color: $a_color;
+$text_color: $a_visit_color; // hack for new tracker
+$table_hover_background: #FFDDFF;
 
 body {
     font-family: sans-serif;
@@ -281,4 +286,5 @@ textarea {
 $heatmap_max: darken(#8ae234, 15%);
 $heatmap_scale: -1.5;
 @import "../cal-heapmap";
+@import "../tracker";
 

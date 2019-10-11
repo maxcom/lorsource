@@ -39,6 +39,7 @@
       <c:url var="fUrl" value="/tracker/">
         <c:if test="${f != defaultFilter}">
           <c:param name="filter">${f.value}</c:param>
+          <c:param name="beta">true</c:param>
         </c:if>
       </c:url>
       <c:if test="${filter != f.value}">
@@ -48,6 +49,7 @@
         <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
       </c:if>
   </c:forEach>
+  <a href="/tracker/" class="btn btn-default">Обычный вид</a>
 </nav>
 
 <div class=tracker>
