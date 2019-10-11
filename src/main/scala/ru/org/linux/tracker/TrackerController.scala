@@ -97,7 +97,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
       params.put("newUsers", userService.getNewUsers)
     }
 
-    if (user!=null && user.isAdministrator) {
+    if (user!=null && user.isAdministrator && trackerFilter==TrackerFilterEnum.ALL) {
       new ModelAndView("tracker-new", params)
     } else {
       new ModelAndView("tracker", params)
