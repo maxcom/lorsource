@@ -59,7 +59,7 @@
                 autofocus="autofocus" maxlength="<%= Integer.toString(User.MAX_NICK_LENGTH) %>"/>
     <form:errors path="nick" element="span" cssClass="error help-inline" for="nick"/>
     <div class="help-block">
-      мы сохраняем регистр, в котором введен логин
+      мы сохраняем регистр, в котором введён логин
     </div>
   </div>
 
@@ -69,7 +69,7 @@
     <form:errors path="email" element="span" cssClass="error help-inline" for="email"/>
     <div class="help-block">
       позже этот e-mail пригодится для восстановления<br>
-      учетной записи если вы потеряете к ней доступ
+      учётной записи, если вы потеряете к ней доступ
     </div>
   </div>
 
