@@ -115,5 +115,13 @@
       grid-column-end: 9;
       grid-row-start: 2;
     }
+
+    .group-label {
+      font-size: 1em;
+      border-radius: 0;
+      padding: 0;
+      background-color: inherit;
+      color: inherit;
+    }
   }
 }
