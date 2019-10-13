@@ -72,6 +72,36 @@
     }
   }
 
+  @include respond-to(tablet-and-desktops) {
+    &:hover {
+      background-color: $table_hover_background;
+    }
+
+    .tracker-count {
+      text-align: right;
+
+      grid-column-start: 12;
+      grid-row-start: 1;
+      grid-row-end: 4;
+
+      align-self: center;
+    }
+
+    .tracker-last {
+      grid-column-start: 9;
+      grid-column-end: 12;
+      grid-row-start: 1;
+      grid-row-end: 4;
+
+      text-align: right;
+      align-self: center;
+    }
+
+    .tracker-title {
+      grid-column-end: 9;
+    }
+  }
+
   @include respond-to(desktops) {
     &:hover {
       background-color: $table_hover_background;
