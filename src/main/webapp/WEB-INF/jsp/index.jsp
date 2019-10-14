@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/Linux_Forum_730x90.jpg',
-          img320: '/adv/Linux_Forum_320x100.jpg',
-          href: 'https://otus.ru/lessons/linux/?utm_source=linuxorg&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=banner'
+          img730: '/adv/SUBD_Forum_730x90.jpg',
+          img320: '/adv/SUBD_Forum_320x100.jpg',
+          href: 'https://otus.ru/lessons/subd/?utm_source=partners&utm_medium=cpm&utm_campaign=subd&utm_content=linuxorg&utm_term=banners'
         }
       ];
 
