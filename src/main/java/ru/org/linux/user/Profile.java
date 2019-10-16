@@ -41,6 +41,7 @@ public class Profile {
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
   public static final String TRACKER_MODE = "trackerMode";
+  public static final String OLD_TRACKER = "oldTracker";
 
   private String style;
   private String formatMode;
@@ -53,6 +54,7 @@ public class Profile {
   private String avatarMode;
   private boolean showAnonymous;
   private boolean showSocial;
+  private boolean oldTracker;
   private TrackerFilterEnum trackerMode;
 
   private List<String> boxes;
@@ -70,6 +72,7 @@ public class Profile {
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
     trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE)).or(DefaultProfile.DEFAULT_TRACKER_MODE);
+    oldTracker = p.getBoolean(OLD_TRACKER);
 
     this.boxes = boxes;
   }
@@ -89,6 +92,7 @@ public class Profile {
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
     p.setString(TRACKER_MODE, trackerMode.getValue());
+    p.setBoolean(OLD_TRACKER, oldTracker);
 
     return p.getSettings();
   }
@@ -175,6 +179,14 @@ public class Profile {
 
   public boolean isMiniNewsBoxletOnMainPage() {
     return getBoxlets().contains("lastMiniNews");
+  }
+
+  public boolean isOldTracker() {
+    return oldTracker;
+  }
+
+  public void setOldTracker(boolean oldTracker) {
+    this.oldTracker = oldTracker;
   }
 
   private static String fixFormat(String mode) {

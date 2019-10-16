@@ -60,6 +60,11 @@ $script.ready('plugins', function() {
 <td><input type="checkbox" <c:if test="${template.currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
 <td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
+  <tr>
+    <td>Старый вид трекера</td>
+    <td><input type="checkbox" name="oldTracker"
+               <c:if test="${template.prof.oldTracker}">checked</c:if> ></td>
+  </tr>
   <tr><td colspan=2><hr></td></tr>
 <tr>
   <td valign=top>Тема</td>
