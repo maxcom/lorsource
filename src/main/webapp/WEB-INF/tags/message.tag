@@ -62,12 +62,12 @@
         <span>(не подтверждено)</span>
       </c:if>
     </span>
-      <c:if test="${template.moderatorSession and not message.deleted}">
-        &emsp;
+      <c:if test="${messageMenu.commitable}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
           [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
         </c:if>
-
+      </c:if>
+      <c:if test="${template.moderatorSession and not message.deleted}">
         [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
         <c:if test="${preparedMessage.section.premoderated}">
           [<a href="mt.jsp?msgid=${message.id}">В&nbsp;форум</a>]
