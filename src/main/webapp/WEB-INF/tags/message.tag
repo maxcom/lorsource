@@ -62,6 +62,7 @@
         <span>(не подтверждено)</span>
       </c:if>
     </span>
+      &emsp;
       <c:if test="${messageMenu.commitable}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
           [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
