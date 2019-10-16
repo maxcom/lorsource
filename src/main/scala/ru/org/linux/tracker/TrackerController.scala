@@ -60,7 +60,6 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
               @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int,
-              @RequestParam(value = "beta", required = false, defaultValue = "false") beta: Boolean,
               request: HttpServletRequest): ModelAndView = {
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
@@ -98,12 +97,13 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
       params.put("newUsers", userService.getNewUsers)
     }
 
+    val userAgent = Option(request.getHeader("user-agent"))
 
-    val enableBeta = user!=null && !user.isAnonymousScore
+    val useNew = user!=null && !tmpl.getProf.isOldTracker &&
+      userAgent.forall(agent => !agent.contains("Opera Mini") && !agent.contains("MSIE")) &&
+      (user.getId % 20 < 1)
 
-    params.put("enableBeta", java.lang.Boolean.valueOf(enableBeta))
-
-    if (user!=null && enableBeta && beta) {
+    if (user!=null && useNew) {
       new ModelAndView("tracker-new", params)
     } else {
       new ModelAndView("tracker", params)

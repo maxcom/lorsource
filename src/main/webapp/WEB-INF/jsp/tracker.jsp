@@ -48,9 +48,6 @@
         <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
       </c:if>
   </c:forEach>
-  <c:if test="${enableBeta}">
-    <a href="/tracker/?beta=true" class="btn btn-default">новый вид (beta)</a>
-  </c:if>
 </nav>
 
 <div class=forum>

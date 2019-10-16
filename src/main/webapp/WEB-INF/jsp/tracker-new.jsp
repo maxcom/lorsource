@@ -49,7 +49,6 @@
         <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
       </c:if>
   </c:forEach>
-  <a href="/tracker/" class="btn btn-default">обычный вид</a>
 </nav>
 
 <div class=tracker>
