@@ -10,6 +10,10 @@
   padding-bottom: 0.5em;
   background: $table_background_color;
 
+  &:hover {
+    background-color: $table_hover_background;
+  }
+
   p {
     padding-left: 0.5em;
     padding-right: 0.5em;
@@ -73,10 +77,6 @@
   }
 
   @include respond-to(tablet-and-desktops) {
-    &:hover {
-      background-color: $table_hover_background;
-    }
-
     .tracker-count {
       text-align: right;
 
@@ -103,10 +103,6 @@
   }
 
   @include respond-to(desktops) {
-    &:hover {
-      background-color: $table_hover_background;
-    }
-
     .tracker-src {
       grid-column-start: 1;
       grid-column-end: 3;
