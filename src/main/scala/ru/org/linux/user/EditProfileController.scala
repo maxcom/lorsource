@@ -104,7 +104,6 @@ class EditProfileController(
     tmpl.getProf.setFormatMode(formatMode)
     tmpl.getProf.setStyle(request.getParameter("style"))
     userDao.setStyle(tmpl.getCurrentUser, request.getParameter("style"))
-    tmpl.getProf.setShowSocial("on" == request.getParameter("showSocial"))
     tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
     tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).or(DefaultProfile.DEFAULT_TRACKER_MODE))
 

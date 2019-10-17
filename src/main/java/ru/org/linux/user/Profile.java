@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,7 +39,6 @@ public class Profile {
   public static final String AVATAR_PROPERTY = "avatar";
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
-  public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
   public static final String TRACKER_MODE = "trackerMode";
   public static final String OLD_TRACKER = "oldTracker";
 
@@ -53,7 +52,6 @@ public class Profile {
   private boolean showGalleryOnMain;
   private String avatarMode;
   private boolean showAnonymous;
-  private boolean showSocial;
   private boolean oldTracker;
   private TrackerFilterEnum trackerMode;
 
@@ -70,7 +68,6 @@ public class Profile {
     showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY);
     avatarMode = p.getString(AVATAR_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
-    showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
     trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE)).or(DefaultProfile.DEFAULT_TRACKER_MODE);
     oldTracker = p.getBoolean(OLD_TRACKER);
 
@@ -90,7 +87,6 @@ public class Profile {
     p.setBoolean(MAIN_GALLERY_PROPERTY, showGalleryOnMain);
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
-    p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
     p.setString(TRACKER_MODE, trackerMode.getValue());
     p.setBoolean(OLD_TRACKER, oldTracker);
 
@@ -231,14 +227,6 @@ public class Profile {
 
   public void setBoxlets(List<String> list) {
     boxes = new ArrayList<>(list);
-  }
-
-  public boolean isShowSocial() {
-    return showSocial;
-  }
-
-  public void setShowSocial(boolean showSocial) {
-    this.showSocial = showSocial;
   }
 
   public static Profile createDefault() {

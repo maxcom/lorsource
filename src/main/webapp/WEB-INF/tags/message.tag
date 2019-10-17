@@ -29,9 +29,6 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%
-  Template tmpl = Template.getTemplate(request);
-%>
 <article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <c:if test="${message.deleted}">
@@ -195,14 +192,6 @@
 
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
-          <c:if test="${template.prof.showSocial}">
-          <div class="social-buttons">
-            <a target="_blank" style="text-decoration: none"
-               href="https://twitter.com/intent/tweet?text=<%= URLEncoder.encode(message.getTitle()) %>&amp;url=<%= URLEncoder.encode(tmpl.getSecureMainUrlNoSlash()+message.getLink()) %>&amp;hashtags=<%= URLEncoder.encode("лор") %>">
-              <img src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
-            </a>
-          </div>
-          </c:if>
           <ul id="topicMenu">
           <c:if test="${not message.expired}">
             <c:if test="${messageMenu.commentsAllowed}">
