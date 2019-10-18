@@ -39,7 +39,6 @@
       <c:url var="fUrl" value="/tracker/">
         <c:if test="${f != defaultFilter}">
           <c:param name="filter">${f.value}</c:param>
-          <c:param name="beta">true</c:param>
         </c:if>
       </c:url>
       <c:if test="${filter != f.value}">
@@ -53,7 +52,7 @@
 
 <div class=tracker>
     <c:forEach var="msg" items="${msgs}">
-      <article class="tracker-item">
+      <a href="${msg.url}" class="tracker-item">
         <div class="tracker-src">
           <p>
           <span class="group-label">${msg.groupTitle}</span>
@@ -77,13 +76,11 @@
 
         <div class="tracker-title">
           <p>
-          <c:if test="${msg.resolved}">
-            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
-          </c:if>
+            <c:if test="${msg.resolved}">
+              <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
+            </c:if>
 
-          <a href="${msg.url}">
             <l:title>${msg.title}</l:title>
-          </a>
           </p>
         </div>
 
@@ -100,7 +97,7 @@
           <lor:user user="${msg.author}"/>, <lor:dateinterval date="${msg.postdate}" compact="true"/>
           </p>
         </div>
-      </article>
+      </a>
     </c:forEach>
 </div>
 
