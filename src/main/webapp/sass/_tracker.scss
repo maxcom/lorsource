@@ -55,6 +55,7 @@
     grid-column-start: 1;
     grid-column-end: 10;
     grid-row-start: 1;
+    color: $text_color;
   }
 
   .tracker-count {
@@ -63,6 +64,7 @@
     grid-column-start: 10;
     grid-column-end: 13;
     grid-row-start: 1;
+    color: $text_color;
   }
 
   .tracker-title {
@@ -81,6 +83,7 @@
       font-size: 0.8em;
       padding: 2px 4px;
       background-color: $tracker_tag_color;
+      color: $text_color;
     }
   }
 
@@ -91,6 +94,7 @@
 
     text-align: right;
     align-self: end;
+    color: $text_color;
   }
 
   @include respond-to(tablet-and-desktops) {
