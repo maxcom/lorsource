@@ -80,7 +80,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
 
     params.put("defaultFilter", defaultFilter)
 
-    val startDate = DateTime.now.minusDays(1).toDate
+    val startDate = DateTime.now.minusDays(4).toDate
     val messages = tmpl.getProf.getMessages
     val topics = tmpl.getProf.getTopics
 
