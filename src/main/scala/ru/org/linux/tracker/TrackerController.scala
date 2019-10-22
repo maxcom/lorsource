@@ -100,8 +100,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
     val userAgent = Option(request.getHeader("user-agent"))
 
     val useNew = user!=null && !tmpl.getProf.isOldTracker &&
-      userAgent.forall(agent => !agent.contains("Opera Mini") && !agent.contains("MSIE")) &&
-      ((user.getId % 20 < 5) || user.isAdministrator)
+      userAgent.forall(agent => !agent.contains("Opera Mini") && !agent.contains("MSIE"))
 
     if (user!=null && useNew) {
       new ModelAndView("tracker-new", params)
