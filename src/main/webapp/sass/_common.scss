@@ -41,8 +41,7 @@ $container_margin: 0;
 /* document wide styles */
 
 html {
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
+  text-size-adjust: none;
 
   @include respond-to(widedesktop) {
     font-size: 1.125em;
