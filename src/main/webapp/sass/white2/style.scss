@@ -100,12 +100,8 @@ DIV.columnimg {
     padding: 0;
 }
 
-#mainpage .nav {
-    background-color: $main_color;
-}
-
 .entry-body .nav {
-    background-color: $main_color;
+    background-color: inherit;
 }
 
 table.nav>tbody>tr>td {
