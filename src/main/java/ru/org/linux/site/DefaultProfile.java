@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.tracker.TrackerFilterEnum;
 
 import javax.annotation.Nonnull;
@@ -66,7 +67,7 @@ public final class DefaultProfile {
 
     builder.put(NEWFIRST_PROPERTY, Boolean.FALSE);
     builder.put(STYLE_PROPERTY, "tango");
-    builder.put(FORMAT_MODE_PROPERTY, "lorcode");
+    builder.put(FORMAT_MODE_PROPERTY, MarkupType.Markdown$.MODULE$.formId());
     builder.put(TOPICS_PROPERTY, 30);
     builder.put(MESSAGES_PROPERTY, 50);
     builder.put(PHOTOS_PROPERTY, Boolean.TRUE);
