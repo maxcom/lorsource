@@ -58,6 +58,9 @@ class EditProfileController(
 
     params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
+    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + tmpl.getProf.getTopics).toSeq.sorted.asJava)
+    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + tmpl.getProf.getMessages).toSeq.sorted.asJava)
+
     params.put("format_mode", tmpl.getFormatMode)
 
     params.put("formatModes",
@@ -81,11 +84,11 @@ class EditProfileController(
     if (!(tmpl.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
-    if (topics < 10 || topics > 500) {
+    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == tmpl.getProf.getTopics)) {
       throw new BadInputException("некорректное число тем")
     }
-    if (messages < 10 || messages > 500) {
-      throw new BadInputException("некорректное число сообщений")
+    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == tmpl.getProf.getMessages)) {
+      throw new BadInputException("некорректное число комментариев")
     }
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы")

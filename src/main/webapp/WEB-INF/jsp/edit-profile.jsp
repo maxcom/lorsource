@@ -48,10 +48,6 @@ $script.ready('plugins', function() {
 </c:if>
 <tr><td>Показывать фотографии</td>
 <td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
-<tr><td><label for="topics">Число тем форума на странице</label> </td>
-<td><input type=number min=10 max=500 size="5" id="topics" name="topics" value="${template.prof.topics}" required></td></tr>
-<tr><td><label for="messages">Число комментариев на странице</label></td>
-<td><input type=number min=10 max=500 size="5" id="messages" name="messages" value="${template.prof.messages}" required></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <tr><td>Показывать меньше рекламы (доступна пользователям начиная с одной зеленой звезды)</td>
@@ -64,6 +60,8 @@ $script.ready('plugins', function() {
                <c:if test="${template.prof.oldTracker}">checked</c:if> ></td>
   </tr>
   <tr><td colspan=2><hr></td></tr>
+
+
 <tr>
   <td valign=top>Тема</td>
   <td>
@@ -79,6 +77,40 @@ $script.ready('plugins', function() {
     </c:forEach>
   </td>
 </tr>
+
+  <tr><td colspan=2><hr></td></tr>
+  <tr>
+    <td valign=top>Число тем форума на странице</td>
+    <td>
+      <c:set value="${template.prof.topics}" var="topics"/>
+
+      <c:forEach var="s" items="${topicsValues}">
+        <c:if test="${s == topics}">
+          <label><input type=radio name=topics value="${s}" checked>${s}</label>
+        </c:if>
+        <c:if test="${s != topics}">
+          <label><input type=radio name=topics value="${s}">${s}</label>
+        </c:if>
+      </c:forEach>
+    </td>
+  </tr>
+
+  <tr><td colspan=2><hr></td></tr>
+  <tr>
+    <td valign=top>Число комментариев на странице</td>
+    <td>
+      <c:set value="${template.prof.messages}" var="messages"/>
+
+      <c:forEach var="s" items="${messagesValues}">
+        <c:if test="${s == messages}">
+          <label><input type=radio name=messages value="${s}" checked>${s}</label>
+        </c:if>
+        <c:if test="${s != messages}">
+          <label><input type=radio name=messages value="${s}">${s}</label>
+        </c:if>
+      </c:forEach>
+    </td>
+  </tr>
 
   <tr><td colspan=2><hr></td></tr>
   <tr>
