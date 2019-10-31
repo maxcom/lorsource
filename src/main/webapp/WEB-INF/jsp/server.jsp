@@ -84,7 +84,7 @@
       <li>CentOS 7.x;</li>
       <li>СУБД PostgreSQL 10;</li>
       <li>OpenJDK 11;</li>
-      <li>Scala 2.12;</li>
+      <li>Scala 2.13;</li>
       <li>Apache Tomcat 7;</li>
       <li>ActiveMQ 5.11;</li>
       <li>Spring 4.3;</li>

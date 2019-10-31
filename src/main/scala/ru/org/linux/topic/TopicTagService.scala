@@ -24,7 +24,7 @@ import ru.org.linux.tag.TagService._
 import ru.org.linux.tag.{TagRef, _}
 import ru.org.linux.topic.TopicTagService._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.Map
 
 @Service
@@ -93,7 +93,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
   }
 
   def tagRefs(topics: scala.collection.Seq[Int]): Map[Int, scala.collection.Seq[TagInfo]] =
-    topicTagDao.getTags(topics).groupBy(_._1).mapValues(_.map(_._2)).toMap
+    topicTagDao.getTags(topics).groupBy(_._1).view.mapValues(_.map(_._2)).toMap
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.
