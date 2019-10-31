@@ -70,7 +70,7 @@
     <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
     <div class="help-block">Пустая строка (два раза Enter) начинает новый абзац.
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования.<br>
-      <b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
+      <b>Внимание:</b> прочитайте описание разметки <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
 
 [b]жирный текст[/b]
 
@@ -101,7 +101,7 @@
 Ссылка:
 [url]http://www.linux.org.ru/[/url] 
 можно с параметром, например: 
-[url=http://www.example.com/]Сюда![/url]">LORCODE</a> или <a target="_blank" href="/help/markdown.md">Markdown</a>.</div>
+[url=http://www.example.com/]Сюда![/url]">LORCODE</a>.</div>
 
   </div>
 
