@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,21 +14,24 @@
  */
 package ru.org.linux.tracker;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Optional;
+
 public enum TrackerFilterEnum {
-  ALL("all", "все"),
-  MAIN("main", "основные"),
-  NOTALKS("notalks", "без talks"),
-  TECH("tech", "тех. разделы форума");
+  ALL("all", "все", true),
+  MAIN("main", "основные", true),
+  NOTALKS("notalks", "без talks", false),
+  TECH("tech", "тех. разделы форума", false);
 
   private final String value;
   private final String label;
+  private final boolean canBeDefault;
 
-  TrackerFilterEnum(String value, String label) {
+  TrackerFilterEnum(String value, String label, boolean canBeDefault) {
     this.value = value;
     this.label = label;
+    this.canBeDefault = canBeDefault;
   }
 
   public String getValue() {
@@ -37,6 +40,10 @@ public enum TrackerFilterEnum {
 
   public String getLabel() {
     return label;
+  }
+
+  public boolean isCanBeDefault() {
+    return canBeDefault;
   }
 
   private static final ImmutableSet<String> valuesSet;
@@ -53,7 +60,7 @@ public enum TrackerFilterEnum {
     if (valuesSet.contains(filterAction)) {
       return Optional.of(TrackerFilterEnum.valueOf(filterAction.toUpperCase()));
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 }

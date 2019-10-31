@@ -68,7 +68,11 @@ public class Profile {
     showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY);
     avatarMode = p.getString(AVATAR_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
-    trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE)).or(DefaultProfile.DEFAULT_TRACKER_MODE);
+
+    trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE))
+            .filter(TrackerFilterEnum::isCanBeDefault)
+            .orElse(DefaultProfile.DEFAULT_TRACKER_MODE);
+
     oldTracker = p.getBoolean(OLD_TRACKER);
 
     this.boxes = boxes;

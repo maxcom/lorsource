@@ -65,7 +65,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
 
     val tmpl = Template.getTemplate(request)
     val defaultFilter = tmpl.getProf.getTrackerMode
-    val trackerFilter = TrackerFilterEnum.getByValue(filterAction).or(defaultFilter)
+    val trackerFilter = TrackerFilterEnum.getByValue(filterAction).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
 

@@ -56,7 +56,7 @@ class EditProfileController(
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
 
-    params.put("trackerModes", TrackerFilterEnum.values)
+    params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
     params.put("format_mode", tmpl.getFormatMode)
 
@@ -105,7 +105,7 @@ class EditProfileController(
     tmpl.getProf.setStyle(request.getParameter("style"))
     userDao.setStyle(tmpl.getCurrentUser, request.getParameter("style"))
     tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
-    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).or(DefaultProfile.DEFAULT_TRACKER_MODE))
+    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {
