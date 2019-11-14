@@ -36,7 +36,7 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
 
   override def receive: Actor.Receive = initializing
 
-  timers.startPeriodicTimer(Initialize, Initialize, 2.minutes)
+  timers.startTimerWithFixedDelay(Initialize, Initialize, 2.minutes)
 
   private val initializing: Receive = {
     case m: Metric =>

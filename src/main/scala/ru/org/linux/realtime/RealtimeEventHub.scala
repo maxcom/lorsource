@@ -46,7 +46,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
   private val sessions = new mutable.HashMap[String, ActorRef]
   private var maxDataSize: Int = 0
 
-  timers.startPeriodicTimer(Tick, Tick, 5.minutes)
+  timers.startTimerWithFixedDelay(Tick, Tick, 5.minutes)
 
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
 

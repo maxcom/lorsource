@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogging with Timers {
-  timers.startPeriodicTimer(Reset, Reset, ResetAt)
+  timers.startTimerAtFixedRate(Reset, Reset, ResetAt)
 
   private var count = 0
   private var currentTypes = Set.empty[String]
