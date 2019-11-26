@@ -82,8 +82,8 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/Kuber_730x90.jpg',
-          img320: '/adv/Kuber_320x100.jpg',
+          img730: '/adv/Kuber_730x90.png',
+          img320: '/adv/Kuber_320x100.png',
           href: 'https://otus.ru/lessons/infrastrukturnaya-platforma-na-osnove-kubernetes/?utm_source=partners&utm_medium=cpm&utm_campaign=kuber&utm_term=linuxorg&utm_content=banner'
         }
       ];
