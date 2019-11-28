@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ package ru.org.linux.group;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,18 +33,22 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.ArchiveDao;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
+import ru.org.linux.tracker.TrackerDao;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ServletParameterBadValueException;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.image.ImageInfo;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Controller
@@ -76,6 +81,9 @@ public class GroupController {
 
   @Autowired
   private SiteConfig siteConfig;
+
+  @Autowired
+  private TrackerDao trackerDao;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -140,19 +148,18 @@ public class GroupController {
           int messagesInPage
   ) {
     String q =
-            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.sticky, topics.resolved " +
+            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.sticky, topics.resolved " +
             "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY postdate DESC";
 
     SqlRowSet rs = jdbcTemplate.queryForRowSet(q, group.getId());
 
-    return prepareTopic(rs, messagesInPage);
+    return prepareTopic(rs, messagesInPage, group);
   }
 
   // TODO: move to dao/service
   private List<TopicsListItem> getTopics(
           Group group,
           int messagesInPage,
-          boolean lastmod,
           Integer year,
           Integer month,
           int topics,
@@ -171,7 +178,7 @@ public class GroupController {
 
    String delq = showDeleted ? "" : " AND NOT deleted ";
 
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.sticky, topics.resolved " +
+    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.sticky, topics.resolved " +
             "FROM topics WHERE NOT draft AND NOT sticky AND topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
@@ -194,27 +201,21 @@ public class GroupController {
 
     SqlRowSet rs;
 
-    if (!lastmod) {
-      if (year==null) {
-        if (offset==0) {
-          q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
-        }
-
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset);
-      } else {
-        rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset);
+    if (year==null) {
+      if (offset==0) {
+        q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
       }
-    } else {
-      rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
     }
 
-    return prepareTopic(rs, messagesInPage);
+    rs = jdbcTemplate.queryForRowSet(q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset);
+
+    return prepareTopic(rs, messagesInPage, group);
   }
 
   private List<TopicsListItem> prepareTopic(
           SqlRowSet rs,
-          int messagesInPage
-  ) {
+          int messagesInPage,
+          Group group) {
     List<TopicsListItem> topicsList = new ArrayList<>();
 
     while (rs.next()) {
@@ -224,7 +225,27 @@ public class GroupController {
 
       ImmutableList<String> tags = topicTagService.getTagsForTitle(rs.getInt("msgid"));
 
-      TopicsListItem topic = new TopicsListItem(author, rs, messagesInPage, tags);
+      Timestamp lastmod = rs.getTimestamp("lastmod");
+
+      TopicsListItem topic = new TopicsListItem(
+              author,
+              rs.getInt("msgid"),
+              lastmod,
+              rs.getInt("stat1"),
+              group.getId(),
+              group.getTitle(),
+              StringUtil.makeTitle(rs.getString("subj")),
+              0,
+              null,
+              rs.getBoolean("resolved"),
+              group.getSectionId(),
+              group.getUrlName(),
+              lastmod,
+              false,
+              Topic.getPageCount(rs.getInt("stat1"), messagesInPage),
+              tags,
+              rs.getBoolean("deleted"),
+              rs.getBoolean("sticky"));
 
       topicsList.add(topic);
     }
@@ -325,18 +346,29 @@ public class GroupController {
       params.put("url", group.getUrl());
     }
 
-    List<TopicsListItem> mainTopics = getTopics(
-            group,
-            tmpl.getProf().getMessages(),
-            lastmod,
-            year,
-            month,
-            tmpl.getProf().getTopics(),
-            offset,
-            showDeleted,
-            showIgnored,
-            tmpl.getCurrentUser()
-    );
+    List<TopicsListItem> mainTopics;
+
+    if (!lastmod) {
+      mainTopics = getTopics(
+              group,
+              tmpl.getProf().getMessages(),
+              year,
+              month,
+              tmpl.getProf().getTopics(),
+              offset,
+              showDeleted,
+              showIgnored,
+              tmpl.getCurrentUser()
+      );
+    } else {
+      mainTopics = trackerDao.getForGroup(
+              group.getId(),
+              tmpl.getCurrentUser(),
+              DateTime.now().minusMonths(3).toDate(),
+              tmpl.getProf().getTopics(),
+              offset,
+              tmpl.getProf().getMessages());
+    }
 
     if (year==null && offset==0 && !lastmod) {
       List<TopicsListItem> stickyTopics = getStickyTopics(group, tmpl.getProf().getMessages());

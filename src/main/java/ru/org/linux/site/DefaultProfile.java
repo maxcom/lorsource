@@ -15,7 +15,6 @@
 
 package ru.org.linux.site;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -25,6 +24,7 @@ import ru.org.linux.tracker.TrackerFilterEnum;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static ru.org.linux.user.Profile.*;
 
@@ -65,7 +65,6 @@ public final class DefaultProfile {
   private static ImmutableMap<String, Object> createDefaultProfile() {
     ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
 
-    builder.put(NEWFIRST_PROPERTY, Boolean.FALSE);
     builder.put(STYLE_PROPERTY, "tango");
     builder.put(FORMAT_MODE_PROPERTY, MarkupType.Markdown$.MODULE$.formId());
     builder.put(TOPICS_PROPERTY, 30);
@@ -88,8 +87,8 @@ public final class DefaultProfile {
     return builder.build();
   }
 
-  public static ImmutableSet<Integer> TOPICS_VALUES = ImmutableSet.of(30, 50, 100, 200, 300, 500);
-  public static ImmutableSet<Integer> COMMENTS_VALUES = ImmutableSet.of(50, 100, 200, 300, 500);
+  public static final ImmutableSet<Integer> TOPICS_VALUES = ImmutableSet.of(30, 50, 100, 200, 300, 500);
+  public static final ImmutableSet<Integer> COMMENTS_VALUES = ImmutableSet.of(50, 100, 200, 300, 500);
 
   public static Predicate<String> boxPredicate() {
     return DefaultProfile::isBox;

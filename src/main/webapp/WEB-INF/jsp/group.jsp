@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2019 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -157,15 +157,15 @@
       </c:forEach>
     </c:set>
 
-    <c:if test="${firstPage and topic.pages<=1}">
-        <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}">
-          ${topic_tags}<c:out value=" "/><l:title>${topic.subj}</l:title>
+    <c:if test="${firstPage}">
+        <a href="${topic.firstPageUrl}">
+          ${topic_tags}<c:out value=" "/><l:title>${topic.title}</l:title>
         </a>
     </c:if>
 
-    <c:if test="${not firstPage or topic.pages>1}">
-      <a href="${group.url}${topic.msgid}">
-          ${topic_tags}<c:out value=" "/><l:title>${topic.subj}</l:title>
+    <c:if test="${not firstPage}">
+      <a href="${topic.canonicalUrl}">
+          ${topic_tags}<c:out value=" "/><l:title>${topic.title}</l:title>
       </a>
     </c:if>
 
@@ -190,14 +190,15 @@
   <tr>
     <td colspan="3">
       <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
-        фильтр:
         <c:if test="${lastmod}">
           <input type="hidden" name="lastmod" value="true">
         </c:if>
+        <label>фильтр:
           <select name="showignored" onchange="submit();">
             <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
             <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
             </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
+        </label>
       </form>
     </td>
   </tr>

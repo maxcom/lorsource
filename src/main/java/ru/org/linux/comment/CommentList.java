@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -91,21 +91,16 @@ public class CommentList implements Serializable {
     return nodeIndex.get(msgid);
   }
 
-  private int getCommentPage(@Nonnull Comment comment, int messages, boolean reverse) {
+  private int getCommentPage(@Nonnull Comment comment, int messages) {
     int index = comments.indexOf(comment);
 
-    if (reverse) {
-      return (comments.size()-index)/messages;
-    } else {
-      return index/messages;
-    }
+    return index / messages;
   }
 
   public int getCommentPage(@Nonnull Comment comment, @Nonnull Profile profile) {
     int messages = profile.getMessages();
-    boolean reverse = profile.isShowNewFirst();
 
-    return getCommentPage(comment, messages, reverse);
+    return getCommentPage(comment, messages);
   }
 
   public long getLastmod() {

@@ -100,7 +100,6 @@ class EditProfileController(
 
     tmpl.getProf.setTopics(topics)
     tmpl.getProf.setMessages(messages)
-    tmpl.getProf.setShowNewFirst("on" == request.getParameter("newfirst"))
     tmpl.getProf.setShowPhotos("on" == request.getParameter("photos"))
     tmpl.getProf.setHideAdsense("on" == request.getParameter("hideAdsense"))
     tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))

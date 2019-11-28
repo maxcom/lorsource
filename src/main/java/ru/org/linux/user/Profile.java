@@ -31,7 +31,6 @@ public class Profile {
   public static final String STYLE_PROPERTY = "style";
   public static final String FORMAT_MODE_PROPERTY = "format.mode";
   public static final String MESSAGES_PROPERTY = "messages";
-  public static final String NEWFIRST_PROPERTY = "newfirst";
   public static final String TOPICS_PROPERTY = "topics";
   public static final String HIDE_ADSENSE_PROPERTY = "hideAdsense";
   public static final String PHOTOS_PROPERTY = "photos";
@@ -45,7 +44,6 @@ public class Profile {
   private String style;
   private String formatMode;
   private int messages;
-  private boolean showNewFirst;
   private int topics;
   private boolean showPhotos;
   private boolean hideAdsense;
@@ -61,7 +59,6 @@ public class Profile {
     style = fixStyle(p.getString(STYLE_PROPERTY));
     formatMode = fixFormat(p.getString(FORMAT_MODE_PROPERTY));
     messages = p.getInt(MESSAGES_PROPERTY);
-    showNewFirst = p.getBoolean(NEWFIRST_PROPERTY);
     topics = p.getInt(TOPICS_PROPERTY);
     showPhotos = p.getBoolean(PHOTOS_PROPERTY);
     hideAdsense = p.getBoolean(HIDE_ADSENSE_PROPERTY);
@@ -84,7 +81,6 @@ public class Profile {
     p.setString(STYLE_PROPERTY, style);
     p.setString(FORMAT_MODE_PROPERTY, formatMode);
     p.setInt(MESSAGES_PROPERTY, messages);
-    p.setBoolean(NEWFIRST_PROPERTY, showNewFirst);
     p.setInt(TOPICS_PROPERTY, topics);
     p.setBoolean(PHOTOS_PROPERTY, showPhotos);
     p.setBoolean(HIDE_ADSENSE_PROPERTY, hideAdsense);
@@ -119,14 +115,6 @@ public class Profile {
 
   public void setMessages(int messages) {
     this.messages = messages;
-  }
-
-  public boolean isShowNewFirst() {
-    return showNewFirst;
-  }
-
-  public void setShowNewFirst(boolean newFirst) {
-    showNewFirst = newFirst;
   }
 
   public int getTopics() {

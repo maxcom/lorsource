@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
-<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.tracker.TrackerItem>"--%>
+<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
@@ -71,13 +71,9 @@
         <td class="hideon-tablet">${groupLink}</td>
         <td>
           <c:if test="${msg.resolved}">
-            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15/>
+            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
           </c:if>
-          <% if (tmpl.getProf().isShowNewFirst()) { %>
-          <a href="${msg.urlReverse}">
-                <% } else { %>
-            <a href="${msg.url}">
-              <% } %>
+            <a href="${msg.lastPageUrl}">
               <c:forEach var="tag" items="${msg.tags}">
                 <span class="tag">${tag}</span>
               </c:forEach>

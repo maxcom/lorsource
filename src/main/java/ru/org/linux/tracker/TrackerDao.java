@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.group.TopicsListItem;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
@@ -64,7 +65,8 @@ public class TrackerDao {
         "urlname," +
         "comments.postdate, " +
         "sections.moderate as smod, " +
-        "t.moderate " +
+        "t.moderate, " +
+        "t.sticky " +
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
@@ -89,7 +91,8 @@ public class TrackerDao {
           "urlname," +
           "postdate, " +
           "sections.moderate as smod, " +
-          "t.moderate " +
+          "t.moderate, " +
+          "t.sticky " +
       "FROM topics AS t, groups AS g, sections " +
       "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postdate > :interval " +
           "%s" + /* noUncommited */
@@ -111,8 +114,37 @@ public class TrackerDao {
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
-  public List<TrackerItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Date startDate,
-                                       int topics, int offset, final int messagesInPage) {
+  public List<TopicsListItem> getForGroup(int groupid, User currentUser, Date startDate,
+                                          int topics, int offset, final int messagesInPage) {
+
+    return load(" AND t.groupid = " + groupid + " ", currentUser, startDate, topics, offset, messagesInPage);
+  }
+
+  public List<TopicsListItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Date startDate,
+                                          int topics, int offset, final int messagesInPage) {
+    String partFilter;
+    switch (filter) {
+      case ALL:
+        partFilter = "";
+        break;
+      case NOTALKS:
+        partFilter = queryPartNoTalks;
+        break;
+      case MAIN:
+        partFilter = queryPartMain;
+        break;
+      case TECH:
+        partFilter = queryPartTech;
+        break;
+      default:
+        partFilter = "";
+    }
+
+    return load(partFilter, currentUser, startDate, topics, offset, messagesInPage);
+  }
+
+  private List<TopicsListItem> load(String partFilter, User currentUser, Date startDate,
+                                          int topics, int offset, final int messagesInPage) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
     parameter.addValue("interval", startDate);
@@ -134,24 +166,6 @@ public class TrackerDao {
       tagIgnored = "";
     }
 
-    String partFilter;
-    switch (filter) {
-      case ALL:
-        partFilter = "";
-        break;
-      case NOTALKS:
-        partFilter = queryPartNoTalks;
-        break;
-      case MAIN:
-        partFilter = queryPartMain;
-        break;
-      case TECH:
-        partFilter = queryPartTech;
-        break;
-      default:
-        partFilter = "";
-    }
-
     boolean showUncommited = currentUser!=null && (currentUser.isModerator() || currentUser.isCorrector());
 
     String partUncommited = showUncommited ? "" : noUncommited;
@@ -163,7 +177,7 @@ public class TrackerDao {
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
-    List<TrackerItem> res = new ArrayList<>(topics);
+    List<TopicsListItem> res = new ArrayList<>(topics);
     
     while (resultSet.next()) {
       User author = userDao.getUserCached(resultSet.getInt("author"));
@@ -190,6 +204,7 @@ public class TrackerDao {
       int section = resultSet.getInt("section");
       String groupUrlName = resultSet.getString("urlname");
       Timestamp postdate = resultSet.getTimestamp("postdate");
+      boolean sticky = resultSet.getBoolean("sticky");
       boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
       int pages = Topic.getPageCount(stat1, messagesInPage);
 
@@ -197,9 +212,9 @@ public class TrackerDao {
 
       tags = topicTagService.getTagsForTitle(msgid);
 
-      res.add(new TrackerItem(author, msgid, lastmod, stat1,
+      res.add(new TopicsListItem(author, msgid, lastmod, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,
-              section, groupUrlName, postdate, uncommited, pages, tags));
+              section, groupUrlName, postdate, uncommited, pages, tags, false, sticky));
     }
     
     return res;

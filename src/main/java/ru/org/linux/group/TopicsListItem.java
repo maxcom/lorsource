@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2019 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,93 +16,158 @@
 package ru.org.linux.group;
 
 import com.google.common.collect.ImmutableList;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-import ru.org.linux.topic.Topic;
+import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
-import ru.org.linux.util.StringUtil;
 
-import java.io.Serializable;
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
 
-public class TopicsListItem implements Serializable {
-  private final String subj;
-  private final Timestamp lastmod;
-  private final int msgid;
-  private final boolean deleted;
-  private final int stat1;
-  private final int stat3;
-  private final boolean sticky;
-  private final int pages;
-  private final User author;
-  private final ImmutableList<String> tags;
+/**
+ *
+ */
+public class TopicsListItem {
+  private final User author; // topic author
+  private final int msgid; // topic id
+  private final Timestamp lastmod; // topic lastmod
+  private final int stat1; // comment count
+  private final int groupId;
+  private final String groupTitle;
+  private final String title;
+  private final int cid; // tracker only!
+
+  @Nullable
+  private final User lastCommentBy; // tracker only!
+
   private final boolean resolved;
-  
-  private static final long serialVersionUID = 5344250574674257995L;
+  private final int section;
+  private final String groupUrlName;
+  private final Timestamp postdate; // date of last comment or topic postdate if none ( = lastmod for group)
+  private final boolean uncommited; // awaits for approve
+  private final int pages; // number of pages
+  private final ImmutableList<String> tags;
+  private final boolean deleted;
+  private final boolean sticky;
 
-  // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.sticky, userid
-  public TopicsListItem(User author, SqlRowSet rs, int messagesInPage, ImmutableList<String> tags) {
+  public TopicsListItem(User author, int msgid, Timestamp lastmod,
+                        int stat1,
+                        int groupId, String groupTitle, String title,
+                        int cid, User lastCommentBy, boolean resolved,
+                        int section, String groupUrlName,
+                        Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags, boolean deleted,
+                        boolean sticky) {
     this.author = author;
+    this.msgid = msgid;
+    this.lastmod = lastmod;
+    this.stat1 = stat1;
+    this.groupId = groupId;
+    this.groupTitle = groupTitle;
+    this.title = title;
+    this.cid = cid;
+    this.lastCommentBy = lastCommentBy;
+    this.resolved = resolved;
+    this.section = section;
+    this.groupUrlName = groupUrlName;
+    this.postdate = postdate;
+    this.uncommited = uncommited;
+    this.pages = pages;
     this.tags = tags;
-    subj = StringUtil.makeTitle(rs.getString("subj"));
+    this.deleted = deleted;
+    this.sticky = sticky;
+  }
 
-    Timestamp lastmod = rs.getTimestamp("lastmod");
-    if (lastmod==null) {
-      this.lastmod = new Timestamp(0);
+  public String getLastPageUrl() {
+    if (pages > 1) {
+      return getGroupUrl() + msgid + "/page" + (pages - 1) + "?lastmod=" + lastmod.getTime();
     } else {
-      this.lastmod = lastmod;
+      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
     }
-
-    msgid = rs.getInt("msgid");
-    deleted = rs.getBoolean("deleted");
-    stat1 = rs.getInt("stat1");
-    stat3 = rs.getInt("stat3");
-    sticky = rs.getBoolean("sticky");
-    resolved = rs.getBoolean("resolved");
-
-    pages = Topic.getPageCount(stat1, messagesInPage);
   }
 
-  public String getSubj() {
-    return subj;
+  public String getFirstPageUrl() {
+    if (pages<=1) {
+      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
+    } else {
+      return getCanonicalUrl();
+    }
   }
 
-  public Timestamp getLastmod() {
-    return lastmod;
+  public String getCanonicalUrl() {
+    return getGroupUrl() + msgid;
   }
 
-  public User getAuthor() {
-    return author;
+  public String getGroupUrl() {
+    return Section.getSectionLink(section) + groupUrlName + '/';
   }
 
   public int getMsgid() {
     return msgid;
   }
 
-  public boolean isDeleted() {
-    return deleted;
+  public Timestamp getLastmod() {
+    return lastmod;
   }
 
   public int getStat1() {
     return stat1;
   }
 
-  public int getStat3() {
-    return stat3;
+  public int getGroupId() {
+    return groupId;
   }
 
-  public boolean isSticky() {
-    return sticky;
+  public String getGroupTitle() {
+    return groupTitle;
+  }
+
+  public String getTitle() {
+    return title;
   }
 
   public int getPages() {
     return pages;
   }
 
-  public boolean isResolved(){
+  public User getAuthor() {
+    if (lastCommentBy!=null) {
+      return lastCommentBy;
+    } else {
+      return author;
+    }
+  }
+
+  public User getTopicAuthor() {
+    return author;
+  }
+
+  public boolean isResolved() {
     return resolved;
+  }
+
+  public int getSection() {
+    return section;
+  }
+
+  public Timestamp getPostdate() {
+    return postdate;
+  }
+
+  public boolean isUncommited() {
+    return uncommited;
+  }
+
+  public int getCid() {
+    return cid;
   }
 
   public ImmutableList<String> getTags() {
     return tags;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public boolean isSticky() {
+    return sticky;
   }
 }

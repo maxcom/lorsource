@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
-<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.tracker.TrackerItem>"--%>
+<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
@@ -52,7 +52,7 @@
 
 <div class=tracker>
     <c:forEach var="msg" items="${msgs}">
-      <a href="${msg.url}" class="tracker-item">
+      <a href="${msg.lastPageUrl}" class="tracker-item">
         <div class="tracker-src">
           <p>
           <span class="group-label">${msg.groupTitle}</span>

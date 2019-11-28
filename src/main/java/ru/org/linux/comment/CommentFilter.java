@@ -24,8 +24,6 @@ import java.util.ListIterator;
 import java.util.Set;
 
 public class CommentFilter {
-  public static final int COMMENTS_INITIAL_BUFSIZE = 50;
-
   public static final int FILTER_NONE = 0;
   public static final int FILTER_ANONYMOUS = 1;
   public static final int FILTER_IGNORED = 2;

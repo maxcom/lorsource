@@ -119,7 +119,7 @@ public class AddRemoveBoxesController {
     }
 
     List<String> boxlets = Lists.newArrayList(
-            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate())
+            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate()::test)
     );
 
     if (boxlets.size() > form.position) {

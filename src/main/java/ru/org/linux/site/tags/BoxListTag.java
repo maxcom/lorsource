@@ -39,7 +39,7 @@ public class BoxListTag extends BodyTagSupport {
     Template t = Template.getTemplate(pageContext.getRequest());
 
     List<String> boxnames = ImmutableList.copyOf(
-            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate())
+            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate()::test)
     );
 
     pageContext.setAttribute(var, boxnames);
