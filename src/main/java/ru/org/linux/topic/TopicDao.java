@@ -216,7 +216,7 @@ public class TopicDao {
     final String finalUrl = url;
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
-            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?)",
+            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?, CURRENT_TIMESTAMP)",
             (PreparedStatementCallback<String>) pst -> {
               pst.setInt(1, group.getId());
               pst.setInt(2, user.getId());
