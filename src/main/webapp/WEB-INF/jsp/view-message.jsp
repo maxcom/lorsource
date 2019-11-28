@@ -299,13 +299,7 @@
       });
   </script>
 --%>
-
-<c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
-  <div class=nav>
-    сообщения отсортированы в порядке убывания даты их написания
-  </div>
-</c:if>
-
+  
 <c:if test="${filterMode!=defaultFilterMode}">
   <div class=nav>
     Показаны все комментарии. <a href="${message.getLinkPage(page)}">Скрыть</a> игнорируемые.
