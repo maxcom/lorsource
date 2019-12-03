@@ -13,30 +13,34 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.tracker;
+package ru.org.linux.group;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.group.Group;
 import ru.org.linux.group.TopicsListItem;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
+import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Repository
-public class TrackerDao {
+public class GroupListDao {
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -114,14 +118,14 @@ public class TrackerDao {
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
-  public List<TopicsListItem> getForGroup(int groupid, User currentUser, Date startDate,
-                                          int topics, int offset, final int messagesInPage) {
+  public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, Date startDate,
+                                                    int topics, int offset, final int messagesInPage) {
 
     return load(" AND t.groupid = " + groupid + " ", currentUser, startDate, topics, offset, messagesInPage);
   }
 
-  public List<TopicsListItem> getTrackAll(TrackerFilterEnum filter, User currentUser, Date startDate,
-                                          int topics, int offset, final int messagesInPage) {
+  public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, User currentUser, Date startDate,
+                                               int topics, int offset, final int messagesInPage) {
     String partFilter;
     switch (filter) {
       case ALL:
@@ -218,5 +222,99 @@ public class TrackerDao {
     }
     
     return res;
+  }
+
+  public List<TopicsListItem> getGroupTopics(
+          Group group,
+          int messagesInPage,
+          Integer year,
+          Integer month,
+          int topics,
+          int offset,
+          boolean showDeleted,
+          boolean showIgnored,
+          @Nullable User currentUser
+  ) {
+    String delq = showDeleted ? "" : " AND NOT deleted ";
+
+    String ignq = "";
+    String commentIgnq = "";
+
+    if (!showIgnored && currentUser != null) {
+      int currentUserId = currentUser.getId();
+      ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
+      ignq += " AND topics.id NOT IN (select distinct tags.msgid from tags, user_tags "
+              + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=" + currentUserId + ") ";
+      commentIgnq = " AND comments.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
+    }
+
+    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.sticky, topics.resolved, " +
+            "(SELECT max(postdate) FROM comments WHERE topic=topics.id AND NOT comments.deleted "+commentIgnq+") as commentdate " +
+            "FROM topics WHERE NOT draft AND NOT sticky AND topics.groupid=" + group.getId() + delq;
+
+    if (year!=null) {
+      q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+    }
+
+
+    if (year==null) {
+      if (offset==0) {
+        q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
+      }
+    }
+
+    return jdbcTemplate.getJdbcOperations().query(
+            q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset,
+            groupListMapper(group, messagesInPage)
+    );
+  }
+
+  public List<TopicsListItem> getGroupStickyTopics(
+          Group group,
+          int messagesInPage
+  ) {
+    String q =
+            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.sticky, topics.resolved, " +
+                    "(SELECT max(postdate) FROM comments WHERE topic=topics.id AND NOT comments.deleted) as commentdate " +
+                    "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY postdate DESC";
+
+    return jdbcTemplate.getJdbcOperations().query(q, groupListMapper(group, messagesInPage), group.getId());
+  }
+
+  private RowMapper<TopicsListItem> groupListMapper(Group group, int messagesInPage) {
+    return (rs, rowNum) -> {
+      User author;
+
+      author = userDao.getUserCached(rs.getInt("userid"));
+
+      ImmutableList<String> tags = topicTagService.getTagsForTitle(rs.getInt("msgid"));
+
+      Timestamp lastmod = rs.getTimestamp("lastmod");
+      Timestamp postdate = rs.getTimestamp("commentdate");
+
+      if (postdate==null) {
+        postdate = lastmod;
+      }
+
+      return new TopicsListItem(
+              author,
+              rs.getInt("msgid"),
+              lastmod,
+              rs.getInt("stat1"),
+              group.getId(),
+              group.getTitle(),
+              StringUtil.makeTitle(rs.getString("subj")),
+              0,
+              null,
+              rs.getBoolean("resolved"),
+              group.getSectionId(),
+              group.getUrlName(),
+              postdate,
+              false,
+              Topic.getPageCount(rs.getInt("stat1"), messagesInPage),
+              tags,
+              rs.getBoolean("deleted"),
+              rs.getBoolean("sticky"));
+    };
   }
 }

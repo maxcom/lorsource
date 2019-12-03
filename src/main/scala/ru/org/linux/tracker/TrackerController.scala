@@ -15,20 +15,21 @@
 package ru.org.linux.tracker
 
 import java.net.URLEncoder
-import javax.servlet.http.HttpServletRequest
 
+import javax.servlet.http.HttpServletRequest
 import org.joda.time.DateTime
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
+import ru.org.linux.group.GroupListDao
 import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import scala.jdk.CollectionConverters._
 
 @Controller
-class TrackerController(trackerDao: TrackerDao, userService: UserService) {
+class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @ModelAttribute("filters")
   def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava
 
@@ -89,7 +90,7 @@ class TrackerController(trackerDao: TrackerDao, userService: UserService) {
     val user = tmpl.getCurrentUser
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
-    val trackerTopics = trackerDao.getTrackAll(trackerFilter, user, startDate, topics, offset, messages).asScala
+    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user, startDate, topics, offset, messages).asScala
 
     params.put("msgs", trackerTopics.asJava)
 

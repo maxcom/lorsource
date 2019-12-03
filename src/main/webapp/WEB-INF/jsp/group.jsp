@@ -177,7 +177,7 @@
   </td>
 
   <td class="dateinterval">
-    <lor:dateinterval date="${topic.lastmod}"/>
+    <lor:dateinterval date="${topic.postdate}"/>
   </td>
 
   <td class=numbers>
