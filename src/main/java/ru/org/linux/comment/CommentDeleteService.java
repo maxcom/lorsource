@@ -25,6 +25,7 @@ import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -52,6 +53,9 @@ public class CommentDeleteService {
 
   @Autowired
   private CommentService commentService;
+
+  @Autowired
+  private TopicDao topicDao;
 
   /**
    * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение
@@ -352,5 +356,6 @@ public class CommentDeleteService {
 
     commentDao.undeleteComment(comment);
     deleteInfoDao.delete(comment.getId());
+    topicDao.updateLastmod(comment.getTopicId(), false);
   }
 }
