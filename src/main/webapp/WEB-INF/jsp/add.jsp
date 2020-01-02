@@ -3,7 +3,7 @@
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%@ page import="ru.org.linux.gallery.Image" %>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2020 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -176,7 +176,6 @@
 </div>
 </c:if>
 
-
 <div class="control-group">
   <label for="tags">
     <c:if test="${not section.premoderated}">
@@ -190,6 +189,13 @@
   <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
 </div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
+
+<c:if test="${showAllowAnonymous}">
+  <div class="control-group">
+    <label><form:checkbox path="allowAnonymous"/> разрешить анонимные комментарии </label>
+  </div>
+</c:if>
+
 <div class="form-actions">
   <button type=submit class="btn-primary btn">Поместить</button>
   <button type=submit name=preview class="btn btn-default">Предпросмотр</button>

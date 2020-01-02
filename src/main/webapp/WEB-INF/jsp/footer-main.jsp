@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2019 Linux.org.ru
+  ~ Copyright 1998-2020 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,7 +22,7 @@
     <a href="/about">О Сервере</a> -
     <a href="/help/rules.md">Правила форума</a><br>
 
-  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2019  <br>
+  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2020  <br>
   Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/" target="_blank">ITTelo</a>&raquo;<br>
   Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
     &laquo;<a href="https://www.selectel.ru" target="_blank">Selectel</a>&raquo;.

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,6 +39,10 @@ import scala.Some;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 public class TopicPermissionService {
@@ -176,14 +180,18 @@ public class TopicPermissionService {
     return commentCountPS;
   }
 
+  private int getAllowAnonymousPostscore(Topic topic) {
+    if (topic.isAllowAnonymous()) {
+      return POSTSCORE_UNRESTRICTED;
+    } else {
+      return POSTSCORE_REGISTERED_ONLY;
+    }
+  }
+
   public int getPostscore(Group group, Topic topic) {
-    int effective = Math.max(topic.getPostscore(), group.getCommentsRestriction());
-
-    effective = Math.max(effective, Section.getCommentPostscore(topic.getSectionId()));
-
-    effective = Math.max(effective, getCommentCountRestriction(topic));
-
-    return effective;
+    return IntStream.of(topic.getPostscore(), group.getCommentsRestriction(),
+            Section.getCommentPostscore(topic.getSectionId()),
+            getCommentCountRestriction(topic), getAllowAnonymousPostscore(topic)).max().getAsInt();
   }
 
   public int getPostscore(Topic topic) {

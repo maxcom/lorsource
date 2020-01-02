@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -92,7 +92,7 @@ public class TopicDao {
         "urlname, section, topics.sticky, topics.postip, " +
         "COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
-        "topics.resolved, minor, draft " +
+        "topics.resolved, minor, draft, allow_anonymous " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
@@ -216,7 +216,7 @@ public class TopicDao {
     final String finalUrl = url;
     final String finalLinktext = linktext;
     jdbcTemplate.execute(
-            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?, CURRENT_TIMESTAMP)",
+            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?, CURRENT_TIMESTAMP, ?)",
             (PreparedStatementCallback<String>) pst -> {
               pst.setInt(1, group.getId());
               pst.setInt(2, user.getId());
@@ -227,6 +227,7 @@ public class TopicDao {
               pst.setString(7, userAgent);
               pst.setString(8, msg.getPostIP());
               pst.setBoolean(9, msg.isDraft());
+              pst.setBoolean(10, msg.isAllowAnonymous());
               pst.executeUpdate();
 
               return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -76,6 +76,12 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     val section = sectionService.getSection(group.getSectionId)
 
     Math.max(group.getTopicRestriction, section.getTopicsRestriction)
+  }
+
+  def enableAllowAnonymousCheckbox(group: Group, @Nullable currentUser: User): Boolean = {
+    currentUser!=null && !group.isPremoderated &&
+      Math.max(group.getCommentsRestriction,
+        Section.getCommentPostscore(group.getSectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY;
   }
 
   def isTopicPostingAllowed(group: Group, @Nullable currentUser: User): Boolean = {

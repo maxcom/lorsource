@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -161,6 +161,7 @@ public class AddTopicController {
     if (group!=null) {
       params.put("group", group);
       params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+      params.put("showAllowAnonymous", groupPermissionService.enableAllowAnonymousCheckbox(group, currentUser));
       Section section = sectionService.getSection(group.getSectionId());
 
       params.put("section", section);
@@ -226,6 +227,10 @@ public class AddTopicController {
 
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
+    }
+
+    if (!groupPermissionService.enableAllowAnonymousCheckbox(group, user)) {
+      form.setAllowAnonymous(true);
     }
 
     if (MarkupPermissions.allowedFormatsJava(tmpl.getCurrentUser()).stream().map(MarkupType::formId).noneMatch(s -> s.equals(form.getMode()))) {

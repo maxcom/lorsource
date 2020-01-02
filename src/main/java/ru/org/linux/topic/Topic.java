@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -57,9 +57,9 @@ public class Topic implements Serializable {
   private final boolean resolved;
   private final boolean minor;
   private final boolean draft;
+  private final boolean allowAnonymous;
 
   private static final long serialVersionUID = 807240555706110851L;
-  private static final String UTF8 = "UTF-8";
 
   private Topic(int msgId,
                 int postScore,
@@ -84,7 +84,8 @@ public class Topic implements Serializable {
                 String postIP,
                 boolean resolved,
                 boolean minor,
-                boolean draft
+                boolean draft,
+                boolean allowAnonymous
   ) {
     msgid = msgId;
     postscore = postScore;
@@ -111,6 +112,7 @@ public class Topic implements Serializable {
     this.resolved = resolved;
     this.minor = minor;
     this.draft = draft;
+    this.allowAnonymous = allowAnonymous;
   }
 
   public Topic(ResultSet rs) throws SQLException {
@@ -140,7 +142,8 @@ public class Topic implements Serializable {
       rs.getString("postip"),
       rs.getBoolean("resolved"),
       rs.getBoolean("minor"),
-      rs.getBoolean("draft")
+      rs.getBoolean("draft"),
+      rs.getBoolean("allow_anonymous")
     );
   }
 
@@ -191,6 +194,7 @@ public class Topic implements Serializable {
     resolved = false;
     minor = false;
     draft = form.isDraftMode();
+    allowAnonymous = form.isAllowAnonymous();
   }
 
   public Topic(Group group, Topic original, EditTopicRequest form, boolean publish) {
@@ -246,6 +250,8 @@ public class Topic implements Serializable {
     } else {
       minor = original.minor;
     }
+
+    allowAnonymous = original.allowAnonymous;
   }
 
   public boolean isExpired() {
@@ -384,5 +390,9 @@ public class Topic implements Serializable {
 
   public boolean isDraft() {
     return draft;
+  }
+
+  public boolean isAllowAnonymous() {
+    return allowAnonymous;
   }
 }

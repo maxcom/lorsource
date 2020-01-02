@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,6 +36,7 @@ public class AddTopicRequest {
 
   private String preview;
   private String draft;
+  private boolean allowAnonymous = true;
 
   public String getTitle() {
     return title;
@@ -159,5 +160,13 @@ public class AddTopicRequest {
 
   public void setMultiSelect(boolean multiSelect) {
     this.multiSelect = multiSelect;
+  }
+
+  public boolean isAllowAnonymous() {
+    return allowAnonymous;
+  }
+
+  public void setAllowAnonymous(boolean allowAnonymous) {
+    this.allowAnonymous = allowAnonymous;
   }
 }
