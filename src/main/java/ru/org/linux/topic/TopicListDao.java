@@ -54,7 +54,7 @@ public class TopicListDao {
       .append("urlname, section, topics.sticky, topics.postip, ")
       .append("COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
       .append("commitdate, topics.stat1, postscore, topics.moderate, notop, ")
-      .append("topics.resolved, minor, draft ")
+      .append("topics.resolved, minor, draft, allow_anonymous ")
       .append("FROM topics ")
       .append("INNER JOIN groups ON (groups.id=topics.groupid) ")
       .append("INNER JOIN sections ON (sections.id=groups.section) ");
