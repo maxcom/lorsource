@@ -98,7 +98,7 @@ $script.ready("plugins", function() {
 
         <dt><label for="oldpass">Пароль</label></dt>
         <dd>
-            <form:password path="oldpass" size="40" cssErrorClass="error" />
+            <form:password path="oldpass" size="40" cssErrorClass="error" required="required"/>
             <form:errors path="oldpass" element="label" cssClass="error" for="oldpass"/>
             <span class="help-block">&nbsp;</span>
         </dd>
