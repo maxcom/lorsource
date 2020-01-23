@@ -229,7 +229,7 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    if (!groupPermissionService.enableAllowAnonymousCheckbox(group, user)) {
+    if (group!=null && !groupPermissionService.enableAllowAnonymousCheckbox(group, user)) {
       form.setAllowAnonymous(true);
     }
 
