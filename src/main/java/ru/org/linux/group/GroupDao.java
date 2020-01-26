@@ -107,25 +107,27 @@ public class GroupDao {
    */
   public Optional<Group> getGroupOpt(Section section, String name, Boolean allowNumber) {
     try {
-      int id;
-
       if (allowNumber && StringUtils.isNumeric(name)) {
-        id = jdbcTemplate.queryForObject(
+        int id = jdbcTemplate.queryForObject(
                 "SELECT id FROM groups WHERE section=? AND id=?",
                 Integer.class,
                 section.getId(),
                 Integer.parseInt(name)
         );
-      } else {
-        id = jdbcTemplate.queryForObject(
+
+        return Optional.of(getGroup(id));
+      } else if (StringUtils.isAsciiPrintable(name)) {
+        int id = jdbcTemplate.queryForObject(
                 "SELECT id FROM groups WHERE section=? AND urlname=?",
                 Integer.class,
                 section.getId(),
                 name
         );
+        return Optional.of(getGroup(id));
+      } else {
+        return Optional.empty();
       }
 
-      return Optional.of(getGroup(id));
     } catch (EmptyResultDataAccessException ex) {
       logger.debug("Group '{}' not found in section {}", name, section.getUrlName());
       return Optional.empty();
