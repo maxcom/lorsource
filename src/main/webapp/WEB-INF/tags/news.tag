@@ -136,6 +136,8 @@
       } else {
         out.append(" (Invalid URL, no host part!)");
       }
+    } catch (IllegalStateException ex) {
+      out.append(" (" + ex.getMessage() + ")");
     } catch (IllegalArgumentException ex) {
       out.append(" (" + ex.getMessage() + ")");
     }
