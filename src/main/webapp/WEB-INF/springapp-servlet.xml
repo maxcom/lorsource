@@ -64,6 +64,7 @@
                 <prop key="ru.org.linux.tag.TagNotFoundException">errors/code404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">errors/bad-parameter</prop>
                 <prop key="org.springframework.beans.TypeMismatchException">errors/bad-parameter</prop>
+                <prop key="org.springframework.beans.InvalidPropertyException">errors/bad-parameter</prop>
                 <prop key="org.springframework.web.bind.MissingServletRequestParameterException">errors/bad-parameter</prop>
                 <prop key="org.springframework.validation.BindException">errors/bad-parameter</prop>
                 <prop key="ru.org.linux.user.UserBanedException">errors/user-banned</prop>
