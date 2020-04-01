@@ -450,3 +450,100 @@ $(document).ready(function() {
 
   initCodeSpoilers();
 });
+
+window.addEventListener('load', function() {
+        var KOI_MAP = {
+                '_': 'ъ',
+                'a': 'А',
+                'b': 'Б',
+                'c': 'Ц',
+                'd': 'Д',
+                'e': 'Е',
+                'f': 'Ф',
+                'g': 'Г',
+                'h': 'Х',
+                'i': 'И',
+                'j': 'Й',
+                'k': 'К',
+                'l': 'Л',
+                'm': 'М',
+                'n': 'Н',
+                'o': 'О',
+                'p': 'П',
+                'q': 'Я',
+                'r': 'Р',
+                's': 'С',
+                't': 'Т',
+                'u': 'У',
+                'v': 'Ж',
+                'w': 'В',
+                'x': 'Ь',
+                'y': 'Ы',
+                'z': 'З',
+                'A': 'а',
+                'B': 'б',
+                'C': 'ц',
+                'D': 'д',
+                'E': 'е',
+                'F': 'ф',
+                'G': 'г',
+                'H': 'х',
+                'I': 'и',
+                'J': 'й',
+                'K': 'к',
+                'L': 'л',
+                'M': 'м',
+                'N': 'н',
+                'O': 'о',
+                'P': 'п',
+                'Q': 'я',
+                'R': 'р',
+                'S': 'с',
+                'T': 'т',
+                'U': 'у',
+                'V': 'ж',
+                'W': 'в',
+                'X': 'ь',
+                'Y': 'ы',
+                'Z': 'з',
+        };
+
+        var authors = {};
+
+        var authorNodes = [];
+
+        document.querySelectorAll('a[itemprop="creator"], .sign_more a, #loginGreating a, table.head a, .nickname, .message-table s').forEach(function(a) {
+                authorNodes.push(a);
+        });
+        document.querySelectorAll('.sign, .sign_more, article .title, .message-table td, .tracker-last p, .tracker-src p').forEach(function(sign) {
+                for (var i = 0; i < sign.childNodes.length; i ++) {
+                        var node = sign.childNodes[i];
+                        if (node.nodeType === 3) {
+                                authorNodes.push(node);
+                        }
+                }
+        });
+
+        authorNodes.forEach(function(author) {
+                var source = author.textContent;
+                var dest = '';
+
+                if (authors[source] != undefined) {
+                        author.textContent = authors[source];
+                        return;
+                }
+
+                for (var i = 0; i < source.length; i ++) {
+                        var old_letter = source[i];
+                        var new_letter = KOI_MAP[old_letter];
+                        if (new_letter === undefined) {
+                                dest += old_letter;
+                        } else {
+                                dest += new_letter;
+                        }
+                }
+
+                author.textContent = dest;
+                authors[source] = dest;
+        });
+});
