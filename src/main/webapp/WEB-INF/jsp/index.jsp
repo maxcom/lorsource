@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2019 Linux.org.ru
+  ~ Copyright 1998-2020 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/Linux_Forum_730x90.jpg',
-          img320: '/adv/Linux_Forum_320x100.jpg',
-          href: 'https://otus.ru/lessons/linux/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=linuxorg&utm_term=linuxorg_banner'
+          img730: '/adv/otus-730.jpg',
+          img320: '/adv/otus-320.jpg',
+          href: 'https://otus.ru/assessment/7/?utm_source=partners&utm_medium=cpc&utm_campaign=devops&utm_term=linuxorg&utm_content=test'
         }
       ];
 
