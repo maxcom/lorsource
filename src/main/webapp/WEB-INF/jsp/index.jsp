@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/otus-730.jpg',
-          img320: '/adv/otus-320.jpg',
-          href: 'https://otus.ru/assessment/7/?utm_source=partners&utm_medium=cpc&utm_campaign=devops&utm_term=linuxorg&utm_content=test'
+          img730: '/adv/Zabbix_730x90.png',
+          img320: '/adv/Zabbix_320x100.png',
+          href: 'https://otus.ru/lessons/zabbix-i-prometeus/?utm_source=partners&utm_campaign=monitoring&utm_medium=cpm&utm_term=linuxorg'
         }
       ];
 
