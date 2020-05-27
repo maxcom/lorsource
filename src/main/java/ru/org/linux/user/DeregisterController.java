@@ -108,6 +108,7 @@ public class DeregisterController {
     }
 
     // Move messages
+/*
     List<Integer> movedComments = commentDao.getAllByUser(user);
     List<Integer> movedTopics = topicDao.getAllByUser(user);
 
@@ -115,14 +116,14 @@ public class DeregisterController {
 
     indexService.reindexComments(movedComments);
     indexService.reindexTopics(movedTopics);
+*/
 
     // Remove user info
     userDao.resetUserpic(user, user);
     userDao.updateUser(user, "", "", null, "", null, "");
 
     // Block account
-    User anonymous = userDao.getUser(userDao.findUserId("anonymous"));
-    userDao.block(user, anonymous, "удаление аккаунта");
+    userDao.block(user, user, "самостоятельная блокировка аккаунта");
 
     return new ModelAndView(
       "action-done",
