@@ -36,6 +36,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -73,7 +74,7 @@
   </script>
   </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -81,16 +82,15 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/Zabbix_730x90.png',
-          img320: '/adv/Zabbix_320x100.png',
-          href: 'https://otus.ru/lessons/zabbix-i-prometeus/?utm_source=partners&utm_campaign=monitoring&utm_medium=cpm&utm_term=linuxorg'
+          img730: '/adv/Linux_Forum_730x90.jpg',
+          img320: '/adv/Linux_Forum_320x100.jpg',
+          href: 'https://otus.ru/lessons/linux/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_term=linuxorg_banner'
         }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
