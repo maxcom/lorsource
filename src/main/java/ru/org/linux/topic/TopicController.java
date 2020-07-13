@@ -17,6 +17,8 @@ package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -67,6 +69,8 @@ import static ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC;
 public class TopicController {
   private static final int RSS_DEFAULT = 20;
   private static final FiniteDuration MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS);
+
+  private final static Logger logger = LoggerFactory.getLogger(TopicController.class);
 
   @Autowired
   private SectionService sectionService;
@@ -621,6 +625,8 @@ public class TopicController {
   @ExceptionHandler(MessageNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex) {
+    logger.debug("Not found", ex);
+
     if(ex.getTopic() != null) {
       ModelAndView mav = new ModelAndView("errors/good-penguin");
       Topic topic = ex.getTopic();
