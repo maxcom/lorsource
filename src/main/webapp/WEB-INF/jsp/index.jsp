@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/kuber_730x90.png',
-          img320: '/adv/kuber_320x100.png',
-          href: 'https://otus.ru/assessment/85/?utm_source=partners&utm_medium=cpm&utm_campaign=kuber&utm_term=linuxorg&utm_content=test'
+          img730: '/adv/admin_730x90.png',
+          img320: '/adv/admin_320x100.png',
+          href: 'https://otus.ru/assessment/15/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_term=linuxorg_banner'
         }
       ];
 
