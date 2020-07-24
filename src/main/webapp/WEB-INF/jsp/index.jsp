@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/admin_730x90.jpg',
-          img320: '/adv/admin_320x100.jpg',
-          href: 'https://otus.ru/assessment/15/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_term=linuxorg_banner'
+          img730: '/adv/HL_Linux_730x90.png',
+          img320: '/adv/HL_Linux_320x100.png',
+          href: 'https://otus.ru/lessons/linux-hl/?utm_source=partners&utm_medium=cpm&utm_campaign=linux-virt&utm_term=banner_linuxorg'
         }
       ];
 
