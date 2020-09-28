@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/CS_Linux_Welcome_OL_730x90_.png',
-          img320: '/adv/CS_Linux_Welcome_OL_320x100_.png',
-          href: 'https://otus.ru/lessons/bezopasnost-linux/?utm_source=partners&utm_medium=cpm&utm_campaign=cs_linux&utm_term=linuxorg&utm_content=ol#event-741'
+          img730: '/adv/security_730x90.jpg',
+          img320: '/adv/security_320x100.jpg',
+          href: 'https://otus.ru/lessons/bezopasnost-linux/?utm_source=partners&utm_medium=cpc&utm_campaign=cs_linux&utm_term=linuxorg&utm_content=lc'
         }
       ];
 
