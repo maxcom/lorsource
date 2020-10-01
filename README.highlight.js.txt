@@ -1,8 +1,6 @@
-Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
-
-Версия 7.5
-
-Собрано с поддержкой следующих языков:
+hack programing language
+best language
+Programming Languages
 
 * Bash
 * C#
