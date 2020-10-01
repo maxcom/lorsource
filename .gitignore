@@ -5,5 +5,7 @@ target
 *.ipr
 *.ids
 *.iws
+*.aws
+*.avs
 .idea
 .DS_Store
