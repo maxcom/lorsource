@@ -25,7 +25,7 @@
 * Javascript
 * Lisp
 * Lua
-* Objective C
+*  C
 * Perl
 * PHP
 * Python
@@ -35,4 +35,4 @@
 * Smalltalk
 * SQL
 * TeX
-* Vala
+
