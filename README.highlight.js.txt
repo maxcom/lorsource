@@ -1,8 +1,8 @@
-Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
+Подсветка кода(Code highlighting) от http://softwaremaniacs.org/soft/highlight/.
 
-Версия 7.5
+Версия(Version) 7.5
 
-Собрано с поддержкой следующих языков:
+Собрано с поддержкой следующих языков(Build with support for the following languages):
 
 * Bash
 * C#
