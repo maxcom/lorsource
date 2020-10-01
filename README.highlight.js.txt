@@ -1,5 +1,5 @@
 Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
-
+This is an amazing project uses many languages and will be helpful to all who are starting new projects.
 Версия 7.5
 
 Собрано с поддержкой следующих языков:
