@@ -28,6 +28,8 @@
 * Objective C
 * Perl
 * PHP
+*java
+*c++
 * Python
 * Ruby
 * Rust
