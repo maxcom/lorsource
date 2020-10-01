@@ -36,3 +36,4 @@
 * SQL
 * TeX
 * Vala
+*MySql
