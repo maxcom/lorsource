@@ -6,6 +6,7 @@
 
 * Bash
 * C#
+* C
 * C++
 * Clojure
 * CMake
