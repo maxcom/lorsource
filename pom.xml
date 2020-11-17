@@ -649,10 +649,10 @@
               <removeIncluded>false</removeIncluded>
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
-              <includes>
+              <include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
-              </includes>
+              </include>
             </aggregation>
             <aggregation>
               <removeIncluded>false</removeIncluded>
