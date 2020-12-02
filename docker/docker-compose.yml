@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - ./server.xml:/usr/local/tomcat/conf/server.xml:z
+    depends_on:
+      - db
+
+  db:
+    image: postgres:11-alpine
+    restart: always
+    volumes:
+      - ./db:/var/lib/postgresql/data:z
+      - ./setup_db.sh:/opt/setup_db.sh:z
+      - ../sql/demo.db:/opt/demo.db:z
+    environment:
+      - POSTGRES_DB=lor
+      - POSTGRES_USER=maxcom
+      - POSTGRES_PASSWORD=maxcom

@@ -1,0 +1,8 @@
+.git*
+.idea
+.dockerignore
+target
+docker/Dockerfile
+docker/docker-compose*
+docker/setup-db.sh
+docker/db/
