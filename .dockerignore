@@ -1,5 +1,13 @@
 .git*
+*~
+*.swp
+target
+*.iml
+*.ipr
+*.ids
+*.iws
 .idea
+.DS_Store
 .dockerignore
 target
 docker/Dockerfile
