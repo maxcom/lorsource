@@ -14,6 +14,11 @@
  */
 package ru.org.linux.util.image;
 
+import com.drew.imaging.riff.RiffProcessingException;
+import com.drew.imaging.webp.WebpMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.webp.WebpDirectory;
 import org.imgscalr.Scalr;
 import org.w3c.dom.Node;
 import ru.org.linux.util.BadImageException;
@@ -70,7 +75,7 @@ public class ImageUtil {
     return new ImageParam(formatName, animated, height, width, size);
 }
 
-  public static ImageParam imageCheck(File file) throws BadImageException, IOException {
+  public static ImageParam imageCheck(File file) throws BadImageException, IOException, MetadataException, RiffProcessingException {
     long size = file.length();
     ImageInputStream iis = ImageIO.createImageInputStream(file);
     if(iis == null) {
@@ -86,7 +91,7 @@ public class ImageUtil {
     if(!Arrays.asList(supportedFormat).contains(formatName)) {
       throw new BadImageException("Does unsupported format "+formatName);
     }
-    boolean animated = hasAnimatedPng(reader) || reader.getNumImages(true) > 1;
+    boolean animated = hasAnimatedPng(reader) || hasAnimatedWebp(file, reader) || reader.getNumImages(true) > 1;
     int height = reader.getHeight(0);
     int width = reader.getWidth(0);
     iis.close();
@@ -111,6 +116,21 @@ public class ImageUtil {
       throw new IOException(e.getMessage());
     }
     return false;
+  }
+
+  private static boolean hasAnimatedWebp(File file, ImageReader reader) throws IOException, MetadataException, RiffProcessingException {
+    if(! "WebP".equals(reader.getFormatName())) {
+      return false;
+    }
+
+    Metadata metadata = WebpMetadataReader.readMetadata(file);
+    WebpDirectory directory = metadata.getFirstDirectoryOfType(WebpDirectory.class);
+
+    if(directory.containsTag(WebpDirectory.TAG_IS_ANIMATION)) {
+      return directory.getBoolean(WebpDirectory.TAG_IS_ANIMATION);
+    } else {
+      return false;
+    }
   }
 
   private static BufferedImage removeTransparency(BufferedImage image) {
