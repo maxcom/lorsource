@@ -138,11 +138,11 @@ public class ImageInfo{
     }
   }
 
-  private void getGifInfo(BufferedInputStream filteredFileStream) throws IOException, BadImageException, MetadataException {
-    FileType fileType = FileTypeDetector.detectFileType(filteredFileStream);
+  private void getGifInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, MetadataException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
 
     if(fileType == FileType.Gif) {
-      Metadata metadata = GifMetadataReader.readMetadata(filteredFileStream);
+      Metadata metadata = GifMetadataReader.readMetadata(bufferedFileStream);
       GifHeaderDirectory directory = metadata.getFirstDirectoryOfType(GifHeaderDirectory.class);
 
       width = directory.getInt(GifHeaderDirectory.TAG_IMAGE_WIDTH);
@@ -152,11 +152,11 @@ public class ImageInfo{
     }
   }
 
-  private void getPngInfo(BufferedInputStream filteredFileStream) throws IOException, BadImageException, MetadataException, PngProcessingException {
-    FileType fileType = FileTypeDetector.detectFileType(filteredFileStream);
+  private void getPngInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, MetadataException, PngProcessingException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
 
     if(fileType == FileType.Png) {
-      Metadata metadata = PngMetadataReader.readMetadata(filteredFileStream);
+      Metadata metadata = PngMetadataReader.readMetadata(bufferedFileStream);
       PngDirectory directory = metadata.getFirstDirectoryOfType(PngDirectory.class);
 
       width = directory.getInt(PngDirectory.TAG_IMAGE_WIDTH);
@@ -166,11 +166,11 @@ public class ImageInfo{
     }
   }
 
-  private void getJpgInfo(BufferedInputStream filteredFileStream) throws IOException, BadImageException, JpegProcessingException, MetadataException {
-    FileType fileType = FileTypeDetector.detectFileType(filteredFileStream);
+  private void getJpgInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, JpegProcessingException, MetadataException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
 
     if(fileType == FileType.Jpeg) {
-      Metadata metadata = JpegMetadataReader.readMetadata(filteredFileStream);
+      Metadata metadata = JpegMetadataReader.readMetadata(bufferedFileStream);
       JpegDirectory directory = metadata.getFirstDirectoryOfType(JpegDirectory.class);
 
       width = directory.getInt(JpegDirectory.TAG_IMAGE_WIDTH);
@@ -180,11 +180,11 @@ public class ImageInfo{
     }
   }
 
-  private void getWebpInfo(BufferedInputStream filteredFileStream) throws IOException, BadImageException, RiffProcessingException, MetadataException {
-    FileType fileType = FileTypeDetector.detectFileType(filteredFileStream);
+  private void getWebpInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, RiffProcessingException, MetadataException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
 
     if(fileType == FileType.WebP) {
-      Metadata metadata = WebpMetadataReader.readMetadata(filteredFileStream);
+      Metadata metadata = WebpMetadataReader.readMetadata(bufferedFileStream);
       WebpDirectory directory = metadata.getFirstDirectoryOfType(WebpDirectory.class);
 
       width = directory.getInt(WebpDirectory.TAG_IMAGE_WIDTH);
