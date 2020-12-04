@@ -17,6 +17,23 @@ package ru.org.linux.util.image;
 
 import ru.org.linux.util.BadImageException;
 
+import com.drew.imaging.FileType;
+import com.drew.imaging.FileTypeDetector;
+import com.drew.imaging.gif.GifMetadataReader;
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.imaging.png.PngMetadataReader;
+import com.drew.imaging.png.PngProcessingException;
+import com.drew.imaging.riff.RiffProcessingException;
+import com.drew.imaging.webp.WebpMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.gif.GifHeaderDirectory;
+import com.drew.metadata.jpeg.JpegDirectory;
+import com.drew.metadata.png.PngDirectory;
+import com.drew.metadata.webp.WebpDirectory;
+
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,7 +41,7 @@ import java.io.IOException;
 /**
  * Gets image dimensions by parsing file headers.
  * <p/>
- * currently supported file types: Jpeg Gif Png
+ * currently supported file types: Jpeg Gif Png WebP
  */
 public class ImageInfo{
   private int height = -1;
@@ -51,23 +68,28 @@ public class ImageInfo{
    * <p/>
    * file type is determined from file's extension
    */
-  public ImageInfo(String filename) throws BadImageException, IOException {
+  public ImageInfo(String filename) throws BadImageException, IOException, RiffProcessingException, MetadataException, PngProcessingException, JpegProcessingException {
     this.filename = filename;
 
     FileInputStream fileStream = null;
+    // Требуется для работы metadata-extractor.
+    BufferedInputStream bufferedFileStream = null;
 
     try {
       fileStream = new FileInputStream(filename);
+      bufferedFileStream = new BufferedInputStream(fileStream);
       size = (int) new File(filename).length();
 
       String lowname = filename.toLowerCase();
 
       if (lowname.endsWith("gif")) {
-        getGifInfo(fileStream);
+        getGifInfo(bufferedFileStream);
       } else if (lowname.endsWith("jpg") || lowname.endsWith("jpeg")) {
-        getJpgInfo(fileStream);
+        getJpgInfo(bufferedFileStream);
       } else if (lowname.endsWith("png")) {
-        getPngInfo(fileStream);
+        getPngInfo(bufferedFileStream);
+      } else if (lowname.endsWith("webp")) {
+        getWebpInfo(bufferedFileStream);
       } else {
         throw new BadImageException("Invalid image extension");        
       }
@@ -82,21 +104,26 @@ public class ImageInfo{
     }
   }
 
-  public ImageInfo(File file, String extension) throws BadImageException, IOException {
+  public ImageInfo(File file, String extension) throws BadImageException, IOException, RiffProcessingException, MetadataException, JpegProcessingException, PngProcessingException {
     filename = file.getName();
 
     FileInputStream fileStream = null;
+    // Требуется для работы metadata-extractor.
+    BufferedInputStream bufferedFileStream = null;
 
     try {
       fileStream = new FileInputStream(file);
+      bufferedFileStream = new BufferedInputStream(fileStream);
       size = fileStream.available();
 
       if ("gif".equals(extension)) {
-        getGifInfo(fileStream);
+        getGifInfo(bufferedFileStream);
       } else if ("jpg".equals(extension) || "jpeg".equals(extension)) {
-        getJpgInfo(fileStream);
+        getJpgInfo(bufferedFileStream);
       } else if ("png".equals(extension)) {
-        getPngInfo(fileStream);
+        getPngInfo(bufferedFileStream);
+      } else if ("webp".equals(extension)) {
+        getWebpInfo(bufferedFileStream);
       } else {
         throw new BadImageException("Invalid image extension");
       }
@@ -111,78 +138,60 @@ public class ImageInfo{
     }
   }
 
-  private void getGifInfo(FileInputStream fileStream) throws IOException, BadImageException {
-    byte[] bytes = new byte[13];
-    int bytesread = fileStream.read(bytes);
-    if (bytesread == 13) {
-      String header = new String(bytes);
-      if ("GIF".equals(header.substring(0, 3))) //It's a gif, continue processing
-      {
-        width = shortLittleEndian(bytes[6], bytes[7]);
-        height = shortLittleEndian(bytes[8], bytes[9]);
-      } else {
-        throw new BadImageException("Bad GIF image: "+filename);
-      }
+  private void getGifInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, MetadataException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
+
+    if(fileType == FileType.Gif) {
+      Metadata metadata = GifMetadataReader.readMetadata(bufferedFileStream);
+      GifHeaderDirectory directory = metadata.getFirstDirectoryOfType(GifHeaderDirectory.class);
+
+      width = directory.getInt(GifHeaderDirectory.TAG_IMAGE_WIDTH);
+      height = directory.getInt(GifHeaderDirectory.TAG_IMAGE_HEIGHT);
+    } else {
+      throw new BadImageException("Bad GIF image: "+filename);
     }
   }
 
-  private void getPngInfo(FileInputStream fileStream) throws IOException, BadImageException {
-    byte[] bytes = new byte[24];
-    int bytesread = fileStream.read(bytes);
-    if (bytesread == 24) {
-      String header = new String(bytes);
-      if ("PNG".equals(header.substring(1, 4))) {
-        width = intBigEndian(bytes[16], bytes[17], bytes[18], bytes[19]);
-        height = intBigEndian(bytes[20], bytes[21], bytes[22], bytes[23]);
-      } else {
-        throw new BadImageException("Bad PNG image: "+filename);
-      }
+  private void getPngInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, MetadataException, PngProcessingException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
+
+    if(fileType == FileType.Png) {
+      Metadata metadata = PngMetadataReader.readMetadata(bufferedFileStream);
+      PngDirectory directory = metadata.getFirstDirectoryOfType(PngDirectory.class);
+
+      width = directory.getInt(PngDirectory.TAG_IMAGE_WIDTH);
+      height = directory.getInt(PngDirectory.TAG_IMAGE_HEIGHT);
+    } else {
+      throw new BadImageException("Bad PNG image: "+filename);
     }
   }
 
+  private void getJpgInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, JpegProcessingException, MetadataException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
 
-  private void getJpgInfo(FileInputStream fileStream) throws IOException, BadImageException {
-    if (fileStream.read() == 0xFF && fileStream.read() == 0xD8) {
-      while (true) {
-        int marker;
-        do {
-          marker = fileStream.read();
-        } while (marker != 0xFF);
-        do {
-          marker = fileStream.read();
-        } while (marker == 0xFF);
+    if(fileType == FileType.Jpeg) {
+      Metadata metadata = JpegMetadataReader.readMetadata(bufferedFileStream);
+      JpegDirectory directory = metadata.getFirstDirectoryOfType(JpegDirectory.class);
 
-        if (((marker >= 0xC0) && (marker <= 0xC3)) || ((marker >= 0xC5) && (marker <= 0xCB)) || ((marker >= 0xCD) && (marker <= 0xCF)))
-        {
-          fileStream.skip(3);
-          height = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read());
-          width = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read());
-          break;
-        } else {
-          int skip = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read()) - 2;
-
-          if (skip<0) {
-            throw new BadImageException("Bad JPG image: "+filename);
-          }
-
-          fileStream.skip(skip);
-        }
-      }
+      width = directory.getInt(JpegDirectory.TAG_IMAGE_WIDTH);
+      height = directory.getInt(JpegDirectory.TAG_IMAGE_HEIGHT);
     } else {
       throw new BadImageException("Bad JPG image: "+filename);
     }
   }
 
-  private static short shortBigEndian(byte firstRead, byte lastRead) {
-    return (short) (((firstRead & 0xFF) << 8) | lastRead & 0xFF);
-  }
+  private void getWebpInfo(BufferedInputStream bufferedFileStream) throws IOException, BadImageException, RiffProcessingException, MetadataException {
+    FileType fileType = FileTypeDetector.detectFileType(bufferedFileStream);
 
-  private static short shortLittleEndian(byte firstRead, byte lastRead) {
-    return shortBigEndian(lastRead, firstRead);
-  }
+    if(fileType == FileType.WebP) {
+      Metadata metadata = WebpMetadataReader.readMetadata(bufferedFileStream);
+      WebpDirectory directory = metadata.getFirstDirectoryOfType(WebpDirectory.class);
 
-  private static int intBigEndian(byte a1, byte a2, byte a3, byte a4) {
-    return ((a1 & 0xFF) << 24) | ((a2 & 0xFF) << 16) | ((a3 & 0xFF) << 8) | a4 & 0xFF;
+      width = directory.getInt(WebpDirectory.TAG_IMAGE_WIDTH);
+      height = directory.getInt(WebpDirectory.TAG_IMAGE_HEIGHT);
+    } else {
+      throw new BadImageException("Bad WebP image: "+filename);
+    }
   }
 
   public int getHeight() {

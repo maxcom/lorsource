@@ -118,7 +118,7 @@
   </rule>
 
   <rule>
-    <from>\.(gif)|(jpg)|(png)$</from>
+    <from>\.(gif)|(jpg)|(png)|(webp)$</from>
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
   </rule>
 

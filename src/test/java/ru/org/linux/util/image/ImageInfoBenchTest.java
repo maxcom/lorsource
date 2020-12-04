@@ -28,6 +28,9 @@ public class ImageInfoBenchTest {
   private ImageInfo imageInfoTestPass2() throws Exception {
     return new ImageInfo("src/main/webapp/img/pcard.jpg");
   }
+  private ImageInfo imageInfoTestPass3() throws Exception {
+    return new ImageInfo("src/test/resources/images/200173.webp");
+  }
 
   @Before
   public void coldStart() throws Exception {
@@ -37,6 +40,10 @@ public class ImageInfoBenchTest {
     }
     ImageInfo ii2 = imageInfoTestPass2();
     if(ii2.getWidth() != 1241) {
+      System.out.println("masaka!");
+    }
+    ImageInfo ii3 = imageInfoTestPass3();
+    if(ii3.getWidth() != 150) {
       System.out.println("masaka!");
     }
   }
@@ -56,6 +63,15 @@ public class ImageInfoBenchTest {
       ImageInfo info = imageInfoTestPass2();
       assertEquals(info.getHeight(), 870);
       assertEquals(info.getWidth(), 1241);
+    }
+  }
+
+  @Test
+  public void imageInfoTest3() throws Exception {
+    for(int i=0; i< 10000; i++) {
+      ImageInfo info = imageInfoTestPass3();
+      assertEquals(info.getHeight(), 115);
+      assertEquals(info.getWidth(), 150);
     }
   }
 

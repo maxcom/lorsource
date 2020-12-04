@@ -14,6 +14,11 @@
  */
 package ru.org.linux.util.image;
 
+import com.drew.imaging.riff.RiffProcessingException;
+import com.drew.imaging.webp.WebpMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.webp.WebpDirectory;
 import org.imgscalr.Scalr;
 import org.w3c.dom.Node;
 import ru.org.linux.util.BadImageException;
@@ -38,7 +43,7 @@ import java.util.Iterator;
 /**
  */
 public class ImageUtil {
-  public static String[] supportedFormat = {"JPEG", "gif", "png"};
+  public static String[] supportedFormat = {"JPEG", "gif", "png", "WebP"};
 
   /**
    * Get image info without animation
@@ -70,7 +75,7 @@ public class ImageUtil {
     return new ImageParam(formatName, animated, height, width, size);
 }
 
-  public static ImageParam imageCheck(File file) throws BadImageException, IOException {
+  public static ImageParam imageCheck(File file) throws BadImageException, IOException, MetadataException, RiffProcessingException {
     long size = file.length();
     ImageInputStream iis = ImageIO.createImageInputStream(file);
     if(iis == null) {
@@ -86,7 +91,7 @@ public class ImageUtil {
     if(!Arrays.asList(supportedFormat).contains(formatName)) {
       throw new BadImageException("Does unsupported format "+formatName);
     }
-    boolean animated = hasAnimatedPng(reader) || reader.getNumImages(true) > 1;
+    boolean animated = hasAnimatedPng(reader) || hasAnimatedWebp(file, reader) || reader.getNumImages(true) > 1;
     int height = reader.getHeight(0);
     int width = reader.getWidth(0);
     iis.close();
@@ -113,6 +118,21 @@ public class ImageUtil {
     return false;
   }
 
+  private static boolean hasAnimatedWebp(File file, ImageReader reader) throws IOException, MetadataException, RiffProcessingException {
+    if(! "WebP".equals(reader.getFormatName())) {
+      return false;
+    }
+
+    Metadata metadata = WebpMetadataReader.readMetadata(file);
+    WebpDirectory directory = metadata.getFirstDirectoryOfType(WebpDirectory.class);
+
+    if(directory.containsTag(WebpDirectory.TAG_IS_ANIMATION)) {
+      return directory.getBoolean(WebpDirectory.TAG_IS_ANIMATION);
+    } else {
+      return false;
+    }
+  }
+
   private static BufferedImage removeTransparency(BufferedImage image) {
     BufferedImage outImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
     Graphics2D g = outImage.createGraphics();
@@ -124,7 +144,7 @@ public class ImageUtil {
     try {
       BufferedImage source = ImageIO.read(new File(filename));
       BufferedImage destination = Scalr.resize(source, Scalr.Mode.FIT_TO_WIDTH, size);
-      // openjdk cannot write JPEG file if image have transparency
+      // openjdk cannot write JPEG file if image has transparency
       ImageIO.write(removeTransparency(destination), "JPEG", new File(iconname));
     } catch (IIOException ex) {
       throw new BadImageException("Can't resize image", ex);

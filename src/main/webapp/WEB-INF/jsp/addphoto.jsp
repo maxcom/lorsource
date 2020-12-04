@@ -36,7 +36,7 @@
   Технические требования к изображению:
   <ul>
     <li>Ширина x Высота: от <%= UserService.MinImageSize() %>x<%= UserService.MinImageSize() %> до <%= UserService.MaxImageSize() %>x<%= UserService.MaxImageSize() %> пикселей</li>
-    <li>Тип: jpeg, gif, png</li>
+    <li>Тип: jpeg, gif, png, webp</li>
     <li>Размер не более <%= UserService.MaxFileSize() / 1024 %> Kb</li>
   </ul>
 </p>

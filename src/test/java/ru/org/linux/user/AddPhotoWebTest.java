@@ -154,4 +154,16 @@ public class AddPhotoWebTest {
     assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке
   }
 
+    @Test
+    /**
+     * Тест с WebP-анимацией и понёй.
+     * Источник: https://derpibooru.org/200173
+     */
+    public void testWebPImage() throws IOException {
+        String auth = WebHelper.doLogin(resource, "JB", "passwd");
+        ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/images/200173.webp", auth);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
+        Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
+        assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке
+    }
 }

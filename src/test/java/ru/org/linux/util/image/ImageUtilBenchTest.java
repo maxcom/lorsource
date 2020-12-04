@@ -37,7 +37,9 @@ public class ImageUtilBenchTest {
     return ImageUtil.imageInfo(new File("src/main/webapp/img/nonexistent"));
   }
 
-
+  private ImageParam imageCheckTestPass4() throws Exception {
+    return ImageUtil.imageInfo(new File("src/test/resources/images/200173.webp"));
+  }
 
   @Before
   public void coldStart() throws Exception {
@@ -47,6 +49,10 @@ public class ImageUtilBenchTest {
     }
     ImageParam param2 = imageCheckTestPass2();
     if(param2.getWidth() != 1241) {
+      System.out.println("masaka!");
+    }
+    ImageParam param3 = imageCheckTestPass4();
+    if(param3.getWidth() != 150) {
       System.out.println("masaka!");
     }
   }
@@ -69,7 +75,14 @@ public class ImageUtilBenchTest {
     }
   }
 
-
+  @Test
+  public void imageInfoTest3() throws Exception {
+    for(int i=0; i< 10000; i++) {
+      ImageParam param = imageCheckTestPass4();
+      assertEquals(param.getHeight(), 115);
+      assertEquals(param.getWidth(), 150);
+    }
+  }
 
 }
 
