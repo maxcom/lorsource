@@ -38,7 +38,7 @@ import java.util.Iterator;
 /**
  */
 public class ImageUtil {
-  public static String[] supportedFormat = {"JPEG", "gif", "png"};
+  public static String[] supportedFormat = {"JPEG", "gif", "png", "WebP"};
 
   /**
    * Get image info without animation
@@ -124,7 +124,7 @@ public class ImageUtil {
     try {
       BufferedImage source = ImageIO.read(new File(filename));
       BufferedImage destination = Scalr.resize(source, Scalr.Mode.FIT_TO_WIDTH, size);
-      // openjdk cannot write JPEG file if image have transparency
+      // openjdk cannot write JPEG file if image has transparency
       ImageIO.write(removeTransparency(destination), "JPEG", new File(iconname));
     } catch (IIOException ex) {
       throw new BadImageException("Can't resize image", ex);

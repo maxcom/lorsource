@@ -37,11 +37,11 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
     logger.info(s"Base data path for uploads: $base")
 
     registry
-      .addResourceHandler("/images/*/*.jpg", "/images/*/*.png", "/images/*/*.gif")
+      .addResourceHandler("/images/*/*.jpg", "/images/*/*.png", "/images/*/*.gif", "/images/*/*.webp")
       .addResourceLocations(s"$base/images/").setCachePeriod(CachePeriod)
 
     registry
-      .addResourceHandler("/gallery/preview/*.jpg", "/gallery/preview/*.png", "/gallery/preview/*.gif")
+      .addResourceHandler("/gallery/preview/*.jpg", "/gallery/preview/*.png", "/gallery/preview/*.gif", "/gallery/preview/*.webp")
       .addResourceLocations(s"$base/gallery/preview/").setCachePeriod(CachePeriod)
 
     registry.addResourceHandler("/photos/*").addResourceLocations(s"$base/photos/").setCachePeriod(CachePeriod)

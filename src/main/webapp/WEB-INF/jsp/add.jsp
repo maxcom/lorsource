@@ -89,7 +89,7 @@
     <li>Ширина x Высота:
       от <%= Image.MinDimension() %>x<%= Image.MinDimension() %>
       до <%= Image.MaxDimension() %>x<%= Image.MaxDimension() %> пикселей</li>
-    <li>Тип: jpeg, gif, png</li>
+    <li>Тип: jpeg, gif, png, webp</li>
     <li>Размер не более <%= (Image.MaxFileSize() / 1024) - 50 %> Kb</li>
     <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
   </ul>

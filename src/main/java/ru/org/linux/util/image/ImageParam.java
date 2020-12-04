@@ -66,6 +66,8 @@ public class ImageParam {
   public String getExtension() {
     if("JPEG".equals(formatName)) {
       return "jpg";
+    } else if("WebP".equals(formatName)) {
+      return "webp";
     } else {
       return formatName;
     }
