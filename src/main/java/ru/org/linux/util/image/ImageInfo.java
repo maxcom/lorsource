@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,6 +46,13 @@ public class ImageInfo{
     System.out.println(info.width + " " + info.height);
   }
 
+  private ImageInfo(int width, int height, int size, String filename) {
+    this.height = height;
+    this.width = width;
+    this.size = size;
+    this.filename = filename;
+  }
+
   /**
    * constructs image from filename
    * <p/>
@@ -82,32 +89,13 @@ public class ImageInfo{
     }
   }
 
-  public ImageInfo(File file, String extension) throws BadImageException, IOException {
-    filename = file.getName();
-
-    FileInputStream fileStream = null;
-
-    try {
-      fileStream = new FileInputStream(file);
-      size = fileStream.available();
-
-      if ("gif".equals(extension)) {
-        getGifInfo(fileStream);
-      } else if ("jpg".equals(extension) || "jpeg".equals(extension)) {
-        getJpgInfo(fileStream);
-      } else if ("png".equals(extension)) {
-        getPngInfo(fileStream);
-      } else {
-        throw new BadImageException("Invalid image extension");
-      }
-
-      if (height == -1 || width == -1) {
-        throw new BadImageException();
-      }
-    } finally {
-      if (fileStream != null) {
-        fileStream.close();
-      }
+  public ImageInfo scale(int maxDimension) {
+    if (width<=maxDimension && height<=maxDimension) {
+      return this;
+    } else if (width>height) {
+      return new ImageInfo(maxDimension, height * maxDimension / width, size, filename);
+    } else {
+      return new ImageInfo(width * maxDimension / height, maxDimension, size, filename);
     }
   }
 

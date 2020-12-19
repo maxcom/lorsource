@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,9 +31,9 @@ import scala.util.{Failure, Success, Try}
 
 @Service
 object UserService {
-  val MaxFileSize = 35000
+  val MaxFileSize: Int = 55 * 1024
   val MinImageSize = 50
-  val MaxImageSize = 150
+  val MaxImageSize = 300
 
   val DisabledUserpic = new Userpic("/img/p.gif", 1, 1)
 
@@ -118,7 +118,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
     } else if (user.getPhoto != null && !user.getPhoto.isEmpty) {
       Try {
-        val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto)
+        val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto).scale(150)
+
         new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
       } match {
         case Failure(e: FileNotFoundException) =>
