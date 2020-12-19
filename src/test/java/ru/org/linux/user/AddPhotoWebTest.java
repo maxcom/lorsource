@@ -95,7 +95,7 @@ public class AddPhotoWebTest {
    */
   public void testInvalid2Image() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/tux.png", auth);
+    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/pcard.jpg", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Сбой загрузки изображения: слишком большой файл", doc.select(".error").text()); // сообщение об ошипке
