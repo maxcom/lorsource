@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2020 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,11 +32,10 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
       matchAllQuery
     } else {
       boolQuery.
-        must(
-          should(
-            commonTermsQuery("title") query queryText lowFreqMinimumShouldMatch 2,
-            commonTermsQuery("message") query queryText lowFreqMinimumShouldMatch 2)
-        ).should(matchPhraseQuery("message", queryText))
+        should(
+          commonTermsQuery("title") query queryText lowFreqMinimumShouldMatch 2,
+          commonTermsQuery("message") query queryText lowFreqMinimumShouldMatch 2,
+          matchPhraseQuery("message", queryText)).minimumShouldMatch(1)
     }
   }
 
