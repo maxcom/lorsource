@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/LinuxBasic_After_OL_730x90.jpg',
-          img320: '/adv/LinuxBasic_After_OL_320x100_fin.jpg',
-          href: 'https://otus.ru/lessons/linux-basic/?utm_source=partners&utm_medium=cpm&utm_campaign=linux_basic&utm_term=linuxorg_banner#event-956'
+          img730: '/adv/LinuxAdv_730x90.png',
+          img320: '/adv/LinuxAdv_320x100.png',
+          href: 'https://otus.ru/assessment/151/?utm_source=partners&utm_medium=cpm&utm_campaign=linux-virt&utm_term=linuxorg_banner'
         }
       ];
 
