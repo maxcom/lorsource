@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,10 @@
 
 package ru.org.linux.poll;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -25,7 +27,8 @@ public class PollVariant implements Serializable {
   private final String label;
   private static final long serialVersionUID = -293722815777946212L;
 
-  public PollVariant(int id, String label) {
+  @JsonCreator
+  public PollVariant(@JsonProperty("id") int id, @JsonProperty("label") String label) {
     this.id = id;
     this.label = label;
   }
@@ -38,7 +41,7 @@ public class PollVariant implements Serializable {
     return label;
   }
 
-  public static SortedMap<Integer, String> toMap(List<PollVariant> list) {
+  public static SortedMap<Integer, String> toMap(Iterable<PollVariant> list) {
     SortedMap<Integer, String> map = new TreeMap<>();
 
     for (PollVariant v : list) {

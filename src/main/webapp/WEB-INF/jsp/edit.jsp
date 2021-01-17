@@ -102,7 +102,7 @@
   </c:if>
 
 
-    <c:if test="${group.pollPostAllowed and template.moderatorSession}">
+    <c:if test="${group.pollPostAllowed}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
                 <form:input path="poll[${v.key}]" size="40"/></label><br>

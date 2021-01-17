@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,8 +23,11 @@ import ru.org.linux.comment.Comment;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.ImageService;
-import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.markup.MarkupType;
+import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
@@ -69,25 +72,35 @@ public class EditHistoryService {
   @Autowired
   private ImageService imageService;
 
+  @Autowired
+  private PollDao pollDao;
+
   /**
    * Получить историю изменений топика
    */
   public List<PreparedEditHistory> prepareEditInfo(
-    Topic message
+    Topic topic
   ) throws UserNotFoundException {
-    List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(message.getId(), EditHistoryObjectTypeEnum.TOPIC);
+    List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(topic.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
 
-    MessageText messageText = msgbaseDao.getMessageText(message.getId());
+    MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String currentMessage = messageText.text();
     MarkupType markup = messageText.markup();
-    String currentTitle = message.getTitle();
-    String currentUrl = message.getUrl();
-    String currentLinktext = message.getLinktext();
-    List<TagRef> currentTags = topicTagService.getTagRefs(message);
-    boolean currentMinor = message.isMinor();
-    Image maybeImage = imageDao.imageForTopic(message);
+    String currentTitle = topic.getTitle();
+    String currentUrl = topic.getUrl();
+    String currentLinktext = topic.getLinktext();
+    List<TagRef> currentTags = topicTagService.getTagRefs(topic);
+    boolean currentMinor = topic.isMinor();
+    Image maybeImage = imageDao.imageForTopic(topic);
     PreparedImage currentImage = maybeImage !=null ? imageService.prepareImageOrNull(maybeImage) : null;
+    Poll maybePoll;
+
+    try {
+      maybePoll = pollDao.getPollByTopicId(topic.getId());
+    } catch (PollNotFoundException ex) {
+      maybePoll = null;
+    }
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
       EditHistoryRecord dto = editInfoDTOs.get(i);
@@ -107,7 +120,8 @@ public class EditHistoryService {
           dto.getOldminor() != null ? currentMinor : null,
           dto.getOldimage() != null && currentImage !=null ? currentImage : null,
           currentImage == null && dto.getOldimage()!=null,
-          markup
+          markup,
+          dto.getOldPoll() !=null ? maybePoll : null
         )
       );
 
@@ -143,6 +157,9 @@ public class EditHistoryService {
         currentMinor = dto.getOldminor();
       }
 
+      if (dto.getOldPoll() != null) {
+        maybePoll = dto.getOldPoll();
+      }
     }
 
     if (!editInfoDTOs.isEmpty()) {
@@ -152,8 +169,8 @@ public class EditHistoryService {
 
       editHistories.add(new PreparedEditHistory(
               textService,
-              userDao.getUserCached(message.getUid()),
-              message.getPostdate(),
+              userDao.getUserCached(topic.getUid()),
+              topic.getPostdate(),
               currentMessage,
               currentTitle,
               currentUrl,
@@ -164,7 +181,8 @@ public class EditHistoryService {
               null,
               currentImage,
               false,
-              markup));
+              markup,
+              maybePoll));
     }
 
     return editHistories;
@@ -195,7 +213,7 @@ public class EditHistoryService {
           i == 0,
           false,
           null,
-                null, false, markup)
+                null, false, markup, null)
       );
 
       if (dto.getOldmessage() != null) {
@@ -221,7 +239,7 @@ public class EditHistoryService {
           false,
           true,
           null,
-                null, false, markup)
+                null, false, markup, null)
       );
     }
 

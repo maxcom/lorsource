@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -61,6 +61,10 @@
         </c:if>
 
       ${editHistory.message}
+
+      <c:if test="${editHistory.poll != null}">
+        <lor:poll-form poll="${editHistory.poll}" enabled="false"/>
+      </c:if>
       </div>
       <div class="msg_footer">
         <c:if test="${(editHistory.linktext != null) || (editHistory.url != null)}">

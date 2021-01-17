@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,7 @@
 
 package ru.org.linux.poll;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,7 @@ import ru.org.linux.user.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PollPrepareService {
@@ -55,32 +54,21 @@ public class PollPrepareService {
     if (newPoll.getId()>0) {
       currentMap = Maps.uniqueIndex(
               pollDao.getPollVariants(newPoll),
-              new Function<PollVariantResult, Integer>() {
-                @Override
-                public Integer apply(PollVariantResult input) {
-                  return input.getId();
-                }
-              }
+              input -> input.getId()
       );
     } else {
       currentMap = ImmutableSortedMap.of();
     }
 
-    List<PollVariantResult> variants = Lists.transform(
-            newPoll.getVariants(),
-            new Function<PollVariant, PollVariantResult>() {
-              @Override
-              public PollVariantResult apply(PollVariant input) {
-                PollVariantResult pollVariant = currentMap.get(input.getId());
+    List<PollVariantResult> variants = newPoll.getVariants().stream().map(input -> {
+      PollVariantResult pollVariant = currentMap.get(input.getId());
 
-                if (pollVariant != null) {
-                  return new PollVariantResult(input.getId(), input.getLabel(), pollVariant.getVotes(), pollVariant.getUserVoted());
-                } else {
-                  return new PollVariantResult(input.getId(), input.getLabel(), 0, false);
-                }
-              }
-            }
-    );
+      if (pollVariant != null) {
+        return new PollVariantResult(input.getId(), input.getLabel(), pollVariant.getVotes(), pollVariant.getUserVoted());
+      } else {
+        return new PollVariantResult(input.getId(), input.getLabel(), 0, false);
+      }
+    }).collect(Collectors.toList());
 
     return new PreparedPoll(newPoll, 0, variants);
   }

@@ -308,10 +308,8 @@ public class PollDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updatePoll(Topic message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
+  public boolean updatePoll(Poll poll, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
     boolean modified = false;
-
-    final Poll poll = getPollByTopicId(message.getId());
 
     ImmutableList<PollVariant> oldVariants = poll.getVariants();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,6 +33,10 @@ import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
@@ -79,6 +83,9 @@ public class TopicDao {
 
   @Autowired
   private ImageDao imageDao; // TODO move to TopicService
+
+  @Autowired
+  private PollDao pollDao; // TODO move to TopicService
 
   @Autowired
   private SiteConfig siteConfig;
@@ -241,7 +248,8 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText,
-                               UploadedImagePreview imagePreview) throws IOException {
+                               UploadedImagePreview imagePreview, List<PollVariant> newPollVariants,
+                               boolean multiselect) throws IOException {
     EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
 
     editHistoryRecord.setMsgid(msg.getId());
@@ -329,6 +337,19 @@ public class TopicDao {
       }
 
       modified = true;
+    }
+
+    try {
+      if (newPollVariants!=null) {
+        Poll oldPoll = pollDao.getPollByTopicId(oldMsg.getId());
+
+        if (pollDao.updatePoll(oldPoll, newPollVariants, multiselect)) {
+          editHistoryRecord.setOldPoll(oldPoll);
+          modified = true;
+        }
+      }
+    } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
     }
 
     if (modified) {

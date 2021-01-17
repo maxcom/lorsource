@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,6 @@ import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.poll.PollDao;
-import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -263,7 +262,8 @@ public class TopicService {
           Map<Integer, Integer> editorBonus,
           UploadedImagePreview imagePreview
   ) throws IOException {
-    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText.text(), imagePreview);
+    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText.text(), imagePreview,
+            pollVariants, multiselect);
 
     if (!newMsg.isDraft() && !newMsg.isExpired()) {
       Section section = sectionService.getSection(oldMsg.getSectionId());
@@ -273,14 +273,6 @@ public class TopicService {
       } else {
         sendEvents(newText, oldMsg.getId(), ImmutableList.of(), oldMsg.getUid());
       }
-    }
-
-    try {
-      if (pollVariants!=null && pollDao.updatePoll(oldMsg, pollVariants, multiselect)) {
-        modified = true;
-      }
-    } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
     }
 
     if (oldMsg.isDraft() && !newMsg.isDraft()) {

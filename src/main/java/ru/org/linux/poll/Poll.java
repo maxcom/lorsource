@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 package ru.org.linux.poll;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
 import java.io.Serializable;
@@ -33,7 +35,11 @@ public class Poll implements Serializable {
 
   private static final long serialVersionUID = 6505234874388572682L;
 
-  public Poll(int id, int topic, boolean multiSelect, List<PollVariant> variants) {
+  @JsonCreator
+  public Poll(@JsonProperty("id ") int id,
+              @JsonProperty("topic") int topic,
+              @JsonProperty("multiSelect") boolean multiSelect,
+              @JsonProperty("variants") List<PollVariant> variants) {
     this.id = id;
     this.topic = topic;
     this.multiSelect = multiSelect;
@@ -44,7 +50,7 @@ public class Poll implements Serializable {
     return id;
   }
 
-  public int getTopicId() {
+  public int getTopic() {
     return topic;
   }
 

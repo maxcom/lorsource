@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package ru.org.linux.edithistory;
 
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.markup.MarkupType;
+import ru.org.linux.poll.Poll;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.topic.PreparedImage;
@@ -26,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
+import java.util.SortedMap;
 
 public class PreparedEditHistory {
   private final boolean original;
@@ -40,6 +42,7 @@ public class PreparedEditHistory {
   private final Boolean minor;
   private final Date editdate;
   private final boolean imageDeleted;
+  private final Poll poll;
 
   public PreparedEditHistory(
           MessageTextService lorCodeService,
@@ -55,12 +58,14 @@ public class PreparedEditHistory {
           @Nullable Boolean minor,
           PreparedImage image,
           Boolean imageDeleted,
-          MarkupType markup) {
+          MarkupType markup,
+          Poll poll) {
     this.original = original;
 
     this.editor = editor;
     this.image = image;
     this.imageDeleted = imageDeleted;
+    this.poll = poll;
 
     if (message!=null) {
       this.message = lorCodeService.renderCommentText(MessageText.apply(message, markup), false);
@@ -124,5 +129,9 @@ public class PreparedEditHistory {
 
   public boolean isImageDeleted() {
     return imageDeleted;
+  }
+
+  public Poll getPoll() {
+    return poll;
   }
 }

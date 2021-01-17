@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -44,7 +44,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     val user = tmpl.getCurrentUser
     val poll = pollDao.getPoll(voteid)
 
-    val msg = topicDao.getById(poll.getTopicId)
+    val msg = topicDao.getById(poll.getTopic)
 
     if (!msg.isCommited) {
       throw new BadVoteException("Опрос еще не подтвержден")
@@ -98,6 +98,6 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
   @throws[Exception]
   def viewVote(@RequestParam("vote") voteid: Int): ModelAndView = {
     val poll = pollDao.getPoll(voteid)
-    new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopicId))
+    new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopic))
   }
 }
