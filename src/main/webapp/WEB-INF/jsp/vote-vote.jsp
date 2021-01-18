@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -25,7 +25,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Голосование</H1>
-<h2><a href="view-message.jsp?msgid=${poll.topicId}">Опрос</a></h2>
+<h2><a href="view-message.jsp?msgid=${poll.topic}">Опрос</a></h2>
 <h3><l:title><c:out value="${message.title}" escapeXml="true"/></l:title></h3>
 
 <lor:poll-form poll="${poll}" enabled="true"/>
