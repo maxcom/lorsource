@@ -532,7 +532,7 @@ table.poll td {
     width: 100px;
 }
 
-.poll-result {
+#bd .poll-result {
   @include clearfix;
 
   ol {
