@@ -1,0 +1,15 @@
+.git*
+*~
+*.swp
+target
+*.iml
+*.ipr
+*.ids
+*.iws
+.idea
+.DS_Store
+.dockerignore
+docker/Dockerfile
+docker/docker-compose*
+docker/setup-db.sh
+docker/db/

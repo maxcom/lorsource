@@ -7,3 +7,4 @@ target
 *.iws
 .idea
 .DS_Store
+docker/db/
