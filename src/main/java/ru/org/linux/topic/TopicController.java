@@ -349,7 +349,8 @@ public class TopicController {
             comments,
             commentsFiltred,
             tmpl,
-            topic
+            topic,
+            hideSet
     );
 
     params.put("commentsPrepared", commentsPrepared);

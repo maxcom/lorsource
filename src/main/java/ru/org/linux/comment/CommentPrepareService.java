@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,7 +71,7 @@ public class CommentPrepareService {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
     User author = userDao.getUserCached(comment.getUserid());
 
-    return prepareComment(messageText, author, null, comment, null, null, null);
+    return prepareComment(messageText, author, null, comment, null, null, null, ImmutableSet.of());
   }
 
   private PreparedComment prepareComment(
@@ -80,8 +81,8 @@ public class CommentPrepareService {
           @Nonnull Comment comment,
           CommentList comments,
           Template tmpl,
-          Topic topic
-  ) throws UserNotFoundException {
+          Topic topic,
+          Set<Integer> hideSet) throws UserNotFoundException {
     String processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
@@ -122,10 +123,14 @@ public class CommentPrepareService {
       }
 
       CommentNode node = comments.getNode(comment.getId());
-      answerCount = node.childs().size();
+      List<CommentNode> replysFiltered = node.childs().stream().filter(commentNode ->
+              !hideSet.contains(commentNode.getComment().getId())
+      ).collect(Collectors.toList());
+
+      answerCount = replysFiltered.size();
 
       if (answerCount > 0) {
-        firstReply = node.childs().get(0).getComment().getId();
+        firstReply = replysFiltered.get(0).getComment().getId();
       } else {
         firstReply = 0;
       }
@@ -286,8 +291,8 @@ public class CommentPrepareService {
           @Nonnull CommentList comments,
           @Nonnull List<Comment> list,
           @Nonnull Template tmpl,
-          @Nonnull Topic topic
-  ) throws UserNotFoundException {
+          @Nonnull Topic topic,
+          Set<Integer> hideSet) throws UserNotFoundException {
     if (list.isEmpty()) {
       return ImmutableList.of();
     }
@@ -318,7 +323,7 @@ public class CommentPrepareService {
         remarkText = remark.getText();
       }
 
-      return prepareComment(text, author, remarkText, comment, comments, tmpl, topic);
+      return prepareComment(text, author, remarkText, comment, comments, tmpl, topic, hideSet);
     }).collect(Collectors.toList());
 
     return commentsPrepared;

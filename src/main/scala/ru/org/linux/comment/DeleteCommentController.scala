@@ -14,7 +14,9 @@
  */
 package ru.org.linux.comment
 
+import com.google.common.collect.ImmutableSet
 import com.typesafe.scalalogging.StrictLogging
+
 import javax.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -61,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, tmpl, topic)
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, tmpl, topic, ImmutableSet.of())
     ).asJava)
   }
 
