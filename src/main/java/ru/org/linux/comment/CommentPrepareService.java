@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentPrepareService {
@@ -86,6 +87,8 @@ public class CommentPrepareService {
     ReplyInfo replyInfo = null;
     boolean deletable = false;
     boolean editable = false;
+    int answerCount;
+    int firstReply;
 
     if (comments != null) {
       if (comment.getReplyTo() != 0) {
@@ -118,23 +121,28 @@ public class CommentPrepareService {
         }
       }
 
-      boolean haveAnswers = comments.getNode(comment.getId()).isHaveAnswers();
+      CommentNode node = comments.getNode(comment.getId());
+      answerCount = node.childs().size();
+
+      if (answerCount > 0) {
+        firstReply = node.childs().get(0).getComment().getId();
+      } else {
+        firstReply = 0;
+      }
 
       if (tmpl != null && topic != null) {
         final User currentUser = tmpl.getCurrentUser();
 
-        deletable = topicPermissionService.isCommentDeletableNow(
-            comment,
-            currentUser,
-            topic,
-            haveAnswers
-        );
+        deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser, topic, node.hasAnswers());
 
         if (currentUser != null) {
-          editable = topicPermissionService.isCommentEditableNow(comment, currentUser, haveAnswers, topic,
+          editable = topicPermissionService.isCommentEditableNow(comment, currentUser, node.hasAnswers(), topic,
                   messageText.markup());
         }
       }
+    } else {
+      answerCount = 0;
+      firstReply = 0;
     }
 
     Userpic userpic = null;
@@ -174,7 +182,7 @@ public class CommentPrepareService {
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
             deletable, editable, remark, userpic, deleteInfo, editSummary,
-            postIP, userAgent, undeletable);
+            postIP, userAgent, undeletable, answerCount, firstReply);
   }
 
   private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
@@ -249,7 +257,7 @@ public class CommentPrepareService {
         null,
         null,
         null,
-            false);
+            false, 0, 0);
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(
@@ -277,7 +285,6 @@ public class CommentPrepareService {
   public List<PreparedComment> prepareCommentList(
           @Nonnull CommentList comments,
           @Nonnull List<Comment> list,
-          boolean secure,
           @Nonnull Template tmpl,
           @Nonnull Topic topic
   ) throws UserNotFoundException {
@@ -298,8 +305,7 @@ public class CommentPrepareService {
       remarks = ImmutableMap.of();
     }
 
-    List<PreparedComment> commentsPrepared = new ArrayList<>(list.size());
-    for (Comment comment : list) {
+    List<PreparedComment> commentsPrepared = list.stream().map(comment -> {
       MessageText text = texts.get(comment.getId());
 
       User author = users.get(comment.getUserid());
@@ -312,8 +318,8 @@ public class CommentPrepareService {
         remarkText = remark.getText();
       }
 
-      commentsPrepared.add(prepareComment(text, author, remarkText, comment, comments, tmpl, topic));
-    }
+      return prepareComment(text, author, remarkText, comment, comments, tmpl, topic);
+    }).collect(Collectors.toList());
 
     return commentsPrepared;
   }

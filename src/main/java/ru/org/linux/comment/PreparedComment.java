@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -62,6 +62,9 @@ public class PreparedComment {
   @Nullable
   private final String userAgent;
 
+  private final int answerCount;
+  private final int firstReply;
+
   public PreparedComment(Comment comment,
                          ApiUserRef author,
                          String processedMessage,
@@ -74,7 +77,8 @@ public class PreparedComment {
                          @Nullable EditSummary editSummary,
                          @Nullable String postIP,
                          @Nullable String userAgent,
-                         boolean undeletable) {
+                         boolean undeletable,
+                         int answerCount, int firstReply) {
     this.deleteInfo = deleteInfo;
     this.editSummary = editSummary;
     this.postIP = postIP;
@@ -88,6 +92,8 @@ public class PreparedComment {
     this.editable = editable;
     this.remark = remark;
     this.userpic = userpic;
+    this.answerCount = answerCount;
+    this.firstReply = firstReply;
 
     String encodedTitle = Strings.emptyToNull(comment.getTitle().trim());
 
@@ -170,5 +176,13 @@ public class PreparedComment {
   @Nullable
   public String getUserAgent() {
     return userAgent;
+  }
+
+  public int getAnswerCount() {
+    return answerCount;
+  }
+
+  public int getFirstReply() {
+    return firstReply;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -279,8 +279,6 @@ public class TopicController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = commentService.getCommentList(topic, showDeleted);
-
     params.put("ogDescription", MessageTextService.trimPlainText(plainText, 250, true));
 
     params.put("page", page);
@@ -336,6 +334,8 @@ public class TopicController {
 
     loadTopicScroller(params, topic, currentUser, !ignoreList.isEmpty());
 
+    CommentList comments = commentService.getCommentList(topic, showDeleted);
+
     Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
 
     CommentFilter cv = new CommentFilter(comments);
@@ -348,7 +348,6 @@ public class TopicController {
     List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
             comments,
             commentsFiltred,
-            request.isSecure(),
             tmpl,
             topic
     );

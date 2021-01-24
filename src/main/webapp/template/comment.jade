@@ -114,7 +114,13 @@ mixin comment(comment, enableSchema, topic, showMenu)
                                         | Удалить
         
                             | #{' '}
-        
+
+                            if comment.answerCount > 0
+                                li
+                                    a(href='#{topic.link}?cid=#{comment.firstReply}')
+                                        | Ответов: #{comment.answerCount}
+                                | #{' '}
+
                             li
                                 a(href='#{topic.link}?cid=#{comment.id}')
                                     | Ссылка
