@@ -101,7 +101,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
                              request: HttpServletRequest,
                              @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
     val user = commentService.getCommentUser(commentRequest, request, errors)
-    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors)
+    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
 
     val comment = commentService.getComment(commentRequest, user, request)
 

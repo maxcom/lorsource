@@ -153,7 +153,8 @@ public class CommentService {
     User user,
     IPBlockInfo ipBlockInfo,
     HttpServletRequest request,
-    Errors errors
+    Errors errors,
+    boolean editMode
   )  {
     if (commentRequest.getMsg() == null) {
       errors.rejectValue("msg", null, "комментарий не задан");
@@ -180,7 +181,7 @@ public class CommentService {
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
     if (!commentRequest.isPreviewMode() && !errors.hasErrors()) {
-      floodProtector.checkDuplication(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr(), user.getScore() >= 100, errors);
+      floodProtector.checkDuplication(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr(), editMode || user.getScore() >= 100, errors);
     }
   }
 

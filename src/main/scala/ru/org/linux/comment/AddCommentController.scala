@@ -111,7 +111,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
     val user = commentService.getCommentUser(add, request, errors)
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors)
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 
     val comment = commentService.getComment(add, user, request)
 
@@ -163,7 +163,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
                      @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): util.Map[String, AnyRef] = {
     val user = commentService.getCommentUser(add, request, errors)
 
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors)
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 
     val msg = commentService.getCommentBody(add, user, errors)
     val comment = commentService.getComment(add, user, request)
