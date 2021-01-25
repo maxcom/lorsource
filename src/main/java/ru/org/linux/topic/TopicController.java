@@ -119,17 +119,17 @@ public class TopicController {
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value = "filter", required = false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @RequestParam(value = "skipdeleted" , required = false, defaultValue = "false") boolean skipDeleted,
-    @PathVariable("section") String sectionName,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+          WebRequest webRequest,
+          HttpServletRequest request,
+          HttpServletResponse response,
+          @RequestParam(value = "filter", required = false) String filter,
+          @RequestParam(value = "cid", required = false) Integer cid,
+          @RequestParam(value = "skipdeleted", required = false, defaultValue = "false") boolean skipDeleted,
+          @PathVariable("section") String sectionName,
+          @PathVariable("group") String groupName,
+          @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
+    if (cid != null) {
       return jumpMessage(request, msgid, cid, skipDeleted);
     }
 
@@ -140,24 +140,41 @@ public class TopicController {
     if (rss) {
       return getMessageRss(section, request, response, groupName, msgid);
     } else {
-      return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid);
+      return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid, 0);
     }
   }
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}/page{page}")
   public ModelAndView getMessageNewPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("section") String sectionName,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+          WebRequest webRequest,
+          HttpServletRequest request,
+          HttpServletResponse response,
+          @RequestParam(value = "filter", required = false) String filter,
+          @PathVariable("section") String sectionName,
+          @PathVariable("group") String groupName,
+          @PathVariable("id") int msgid,
+          @PathVariable("page") int page
   ) throws Exception {
     Section section = sectionService.getSectionByName(sectionName);
 
-    return getMessageNew(section, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(section, webRequest, request, response, page, filter, groupName, msgid, 0);
+  }
+
+  @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}/thread/{threadRoot}")
+  public ModelAndView getMessageThread(
+          WebRequest webRequest,
+          HttpServletRequest request,
+          HttpServletResponse response,
+          @RequestParam(value = "filter", required = false) String filter,
+          @RequestParam(value = "skipdeleted", required = false, defaultValue = "false") boolean skipDeleted,
+          @PathVariable("section") String sectionName,
+          @PathVariable("group") String groupName,
+          @PathVariable("id") int msgid,
+          @PathVariable("threadRoot") int threadRoot
+  ) throws Exception {
+    Section section = sectionService.getSectionByName(sectionName);
+
+    return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot);
   }
 
   private static int getDefaultFilter(Profile prof, boolean emptyIgnoreList) {
@@ -177,13 +194,13 @@ public class TopicController {
   private static PagesInfo buildPages(Topic topic, int messagesPerPage, int filterMode, int defaultFilterMode, int currentPage) {
     TopicLinkBuilder base = TopicLinkBuilder.baseLink(topic).lastmod(messagesPerPage);
 
-    if (filterMode!=defaultFilterMode) {
+    if (filterMode != defaultFilterMode) {
       base = base.filter(filterMode);
     }
 
     List<String> out = new ArrayList<>();
 
-    for (int i=0; i<topic.getPageCount(messagesPerPage); i++) {
+    for (int i = 0; i < topic.getPageCount(messagesPerPage); i++) {
       out.add(base.page(i).build());
     }
 
@@ -191,16 +208,18 @@ public class TopicController {
   }
 
   private ModelAndView getMessageNew(
-    Section section,
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    int page,
-    String filter,
-    String groupName,
-    int msgid) throws Exception {
+          Section section,
+          WebRequest webRequest,
+          HttpServletRequest request,
+          HttpServletResponse response,
+          int page,
+          String filter,
+          String groupName,
+          int msgid,
+          int threadRoot) throws Exception {
 
     Deadline deadline = MoreLikeThisTimeout.fromNow();
+
 
     Topic topic = messageDao.getById(msgid);
     List<TagRef> tags = topicTagService.getTagRefs(topic);
@@ -240,6 +259,10 @@ public class TopicController {
       page = -1;
     }
 
+    User currentUser = AuthUtil.getCurrentUser();
+
+    permissionService.checkView(group, topic, currentUser, showDeleted);
+
     if (!tmpl.isModeratorSession()) {
       if (showDeleted && !"POST".equals(request.getMethod())) {
         return new ModelAndView(new RedirectView(topic.getLink()));
@@ -253,7 +276,7 @@ public class TopicController {
     int pages = topic.getPageCount(tmpl.getProf().getMessages());
 
     if (page >= pages && page > 0) {
-      if (pages==0) {
+      if (pages == 0) {
         return new ModelAndView(new RedirectView(topic.getLink()));
       } else {
         return new ModelAndView(new RedirectView(topic.getLinkPage(pages - 1)));
@@ -267,10 +290,6 @@ public class TopicController {
     }
 
     params.put("showDeleted", showDeleted);
-
-    User currentUser = AuthUtil.getCurrentUser();
-
-    permissionService.checkView(group, topic, currentUser, showDeleted);
 
     params.put("message", topic);
     params.put("preparedMessage", preparedMessage);
@@ -340,10 +359,20 @@ public class TopicController {
 
     CommentFilter cv = new CommentFilter(comments);
 
-    List<Comment> commentsFiltred = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), hideSet);
-    List<Comment> commentsFull = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), ImmutableSet.of());
+    List<Comment> commentsFiltred;
+    int unfilteredCount;
 
-    params.put("unfilteredCount", commentsFull.size());
+    if (threadRoot!=0) {
+      commentsFiltred = cv.getCommentsSubtree(threadRoot, hideSet);
+      unfilteredCount = cv.getCommentsSubtree(threadRoot, ImmutableSet.of()).size();
+      params.put("threadMode", true);
+      params.put("threadRoot", threadRoot);
+    } else {
+      commentsFiltred = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), hideSet);
+      unfilteredCount = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), ImmutableSet.of()).size();
+    }
+
+    params.put("unfilteredCount", unfilteredCount);
 
     List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
             comments,
@@ -358,7 +387,7 @@ public class TopicController {
     if (comments.getList().isEmpty()) {
       params.put("lastCommentId", 0);
     } else {
-      params.put("lastCommentId", comments.getList().get(comments.getList().size()-1).getId());
+      params.put("lastCommentId", comments.getList().get(comments.getList().size() - 1).getId());
     }
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
@@ -370,7 +399,7 @@ public class TopicController {
     add.setMode(tmpl.getFormatMode());
     params.put("add", add);
 
-    if (pages>1 && !showDeleted) {
+    if (pages > 1 && !showDeleted && threadRoot == 0) {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 
@@ -406,7 +435,7 @@ public class TopicController {
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section.getId()) {
-      return new ModelAndView(new RedirectView(topic.getLink()+"?output=rss"));
+      return new ModelAndView(new RedirectView(topic.getLink() + "?output=rss"));
     }
 
     if (topic.isExpired()) {
@@ -469,22 +498,23 @@ public class TopicController {
 
   /**
    * Оставлено для старых ссылок /view-message.jsp
-   * @param msgid id топика
-   * @param page страница топика
+   *
+   * @param msgid   id топика
+   * @param page    страница топика
    * @param lastmod параметр для кэширования
-   * @param filter фильтр
-   * @param output ?
+   * @param filter  фильтр
+   * @param output  ?
    * @return вовзращает редирект на новый код
    * @throws Exception если получится
    */
 
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessageOld(
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page,
-    @RequestParam(value="lastmod", required=false) Long lastmod,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(required=false) String output
+          @RequestParam("msgid") int msgid,
+          @RequestParam(value = "page", required = false) Integer page,
+          @RequestParam(value = "lastmod", required = false) Long lastmod,
+          @RequestParam(value = "filter", required = false) String filter,
+          @RequestParam(required = false) String output
   ) throws Exception {
     Topic topic = messageDao.getById(msgid);
 
@@ -492,16 +522,16 @@ public class TopicController {
 
     StringBuilder params = new StringBuilder();
 
-    if (page!=null) {
+    if (page != null) {
       link.append("/page").append(page);
     }
 
-    if (lastmod!=null && !topic.isExpired()) {
+    if (lastmod != null && !topic.isExpired()) {
       params.append("?lastmod=").append(topic.getLastModified().getTime());
     }
 
-    if (filter!=null) {
-      if (params.length()==0) {
+    if (filter != null) {
+      if (params.length() == 0) {
         params.append('?');
       } else {
         params.append('&');
@@ -509,8 +539,8 @@ public class TopicController {
       params.append("filter=").append(filter);
     }
 
-    if (output!=null) {
-      if (params.length()==0) {
+    if (output != null) {
+      if (params.length() == 0) {
         params.append('?');
       } else {
         params.append('&');
@@ -532,7 +562,7 @@ public class TopicController {
   }
 
   private static String getEtag(Topic message) {
-    return "msg-"+message.getId()+ '-' +message.getLastModified().getTime();
+    return "msg-" + message.getId() + '-' + message.getLastModified().getTime();
   }
 
   private ModelAndView jumpMessage(
@@ -552,14 +582,14 @@ public class TopicController {
         return new ModelAndView(new RedirectView(topic.getLink()));
       }
 
-      Comment c = list.stream().filter(v -> v.getId() > cid).findFirst().orElse(list.get(list.size()-1));
+      Comment c = list.stream().filter(v -> v.getId() > cid).findFirst().orElse(list.get(list.size() - 1));
 
       node = comments.getNode(c.getId());
     }
 
     boolean deleted = false;
 
-    if (node==null && tmpl.isModeratorSession()) {
+    if (node == null && tmpl.isModeratorSession()) {
       comments = commentService.getCommentList(topic, true);
       node = comments.getNode(cid);
       deleted = true;
@@ -569,7 +599,7 @@ public class TopicController {
       throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
     }
 
-    int pagenum = deleted?0:comments.getCommentPage(node.getComment(), tmpl.getProf());
+    int pagenum = deleted ? 0 : comments.getCommentPage(node.getComment(), tmpl.getProf());
 
     TopicLinkBuilder redirectUrl =
             TopicLinkBuilder
@@ -605,7 +635,7 @@ public class TopicController {
           @RequestParam(required = false) Integer page,
           @RequestParam(required = false) Integer cid
   ) throws Exception {
-    if (cid!=null) {
+    if (cid != null) {
       return jumpMessage(request, msgid, cid, false);
     }
 
@@ -627,15 +657,15 @@ public class TopicController {
   public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex) {
     logger.debug("Not found", ex);
 
-    if(ex.getTopic() != null) {
+    if (ex.getTopic() != null) {
       ModelAndView mav = new ModelAndView("errors/good-penguin");
       Topic topic = ex.getTopic();
       mav.addObject("msgTitle", "Ошибка: сообщения не существует");
       mav.addObject("msgHeader", "Сообщение удалено или не существует");
-      
+
       mav.addObject("msgMessage",
-          String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует",
-          ex.getId(), topic.getLink(), topic.getTitle()));
+              String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует",
+                      ex.getId(), topic.getLink(), topic.getTitle()));
       return mav;
     } else {
       return new ModelAndView("errors/code404");

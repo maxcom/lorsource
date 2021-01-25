@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -59,7 +59,7 @@ public class CommentFilter {
     return out;
   }
 
-  public List<Comment> getCommentsForPage(boolean reverse, int page, int messagesPerPage, @Nonnull Set<Integer> hideSet) {
+  public List<Comment> getCommentsForPage(boolean reverse, int page, int messagesPerPage, Set<Integer> hideSet) {
     int offset = 0;
     int limit = 0;
 
@@ -71,17 +71,21 @@ public class CommentFilter {
     return getCommentList(comments.getList(), reverse, offset, limit, hideSet);
   }
 
-  public List<Comment> getCommentsSubtree(int parentId) throws MessageNotFoundException {
+  public List<Comment> getCommentsSubtree(int parentId, Set<Integer> hideSet) throws MessageNotFoundException {
     CommentNode parentNode = comments.getNode(parentId);
 
     if (parentNode==null) {
       throw new MessageNotFoundException(parentId);
     }
 
-    List<Comment> parentList = new ArrayList<>();
-    parentNode.buildList(parentList);
+    List<Comment> childList = new ArrayList<>();
+    parentNode.foreach(comment -> {
+      if (!hideSet.contains(comment.getId())) {
+        childList.add(comment);
+      }
+    });
 
-    return parentList;
+    return childList;
   }
 
   public static int parseFilterChain(String filter) {

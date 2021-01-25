@@ -78,7 +78,7 @@ public class CommentPrepareService {
           MessageText messageText,
           User author,
           @Nullable String remark,
-          @Nonnull Comment comment,
+          Comment comment,
           CommentList comments,
           Template tmpl,
           Topic topic,
@@ -89,7 +89,7 @@ public class CommentPrepareService {
     boolean deletable = false;
     boolean editable = false;
     int answerCount;
-    int firstReply;
+    String answerLink;
 
     if (comments != null) {
       if (comment.getReplyTo() != 0) {
@@ -98,7 +98,7 @@ public class CommentPrepareService {
         boolean replyDeleted = replyNode == null;
         if (replyDeleted) {
           // ответ на удаленный комментарий
-          replyInfo = new ReplyInfo(comment.getReplyTo(), replyDeleted);
+          replyInfo = new ReplyInfo(comment.getReplyTo(), true);
         } else {
           Comment reply = replyNode.getComment();
 
@@ -117,7 +117,7 @@ public class CommentPrepareService {
                   Strings.emptyToNull(reply.getTitle().trim()),
                   reply.getPostdate(),
                   samePage,
-                  replyDeleted
+                  false
           );
         }
       }
@@ -129,10 +129,12 @@ public class CommentPrepareService {
 
       answerCount = replysFiltered.size();
 
-      if (answerCount > 0) {
-        firstReply = replysFiltered.get(0).getComment().getId();
+      if (answerCount > 1 && tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isModerator()) {
+        answerLink = topic.getLink()+"/thread/" + comment.getId()+"#comments";
+      } else if (answerCount > 0) {
+        answerLink = topic.getLink()+"?cid=" + replysFiltered.get(0).getComment().getId();
       } else {
-        firstReply = 0;
+        answerLink = null;
       }
 
       if (tmpl != null && topic != null) {
@@ -147,7 +149,7 @@ public class CommentPrepareService {
       }
     } else {
       answerCount = 0;
-      firstReply = 0;
+      answerLink = null;
     }
 
     Userpic userpic = null;
@@ -187,7 +189,7 @@ public class CommentPrepareService {
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
             deletable, editable, remark, userpic, deleteInfo, editSummary,
-            postIP, userAgent, undeletable, answerCount, firstReply);
+            postIP, userAgent, undeletable, answerCount, answerLink);
   }
 
   private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
@@ -262,7 +264,7 @@ public class CommentPrepareService {
         null,
         null,
         null,
-            false, 0, 0);
+            false, 0, null);
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(
@@ -310,22 +312,22 @@ public class CommentPrepareService {
       remarks = ImmutableMap.of();
     }
 
-    List<PreparedComment> commentsPrepared = list.stream().map(comment -> {
+    return list.stream().map(comment -> {
       MessageText text = texts.get(comment.getId());
 
       User author = users.get(comment.getUserid());
 
       Remark remark = remarks.get(author.getId());
 
-      String remarkText = null;
+      String remarkText;
 
       if (remark!=null) {
         remarkText = remark.getText();
+      } else {
+        remarkText = null;
       }
 
       return prepareComment(text, author, remarkText, comment, comments, tmpl, topic, hideSet);
     }).collect(Collectors.toList());
-
-    return commentsPrepared;
   }
 }

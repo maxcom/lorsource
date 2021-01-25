@@ -21,8 +21,8 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class CommentNode implements Serializable {
   private final ImmutableList<CommentNode> childs;
@@ -71,24 +71,18 @@ public class CommentNode implements Serializable {
     }
   }
 
-  public void buildList(List<Comment> list) {
+  public void foreach(Consumer<Comment> consumer) {
     if (comment!=null) {
-      list.add(comment);
+      consumer.accept(comment);
     }
 
     for (CommentNode child : childs) {
-      child.buildList(list);
+      child.foreach(consumer);
     }
   }
 
-  public void hideNode(Set<Integer> hideSet) {
-    if (comment!=null) {
-      hideSet.add(comment.getId());
-    }
-
-    for (CommentNode child : childs) {
-      child.hideNode(hideSet);
-    }
+  private void hideNode(Set<Integer> hideSet) {
+    foreach(c -> hideSet.add(c.getId()));
   }
 
   public Comment getComment() {

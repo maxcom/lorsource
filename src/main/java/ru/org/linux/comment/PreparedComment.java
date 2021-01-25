@@ -63,7 +63,7 @@ public class PreparedComment {
   private final String userAgent;
 
   private final int answerCount;
-  private final int firstReply;
+  private final String answerLink;
 
   public PreparedComment(Comment comment,
                          ApiUserRef author,
@@ -78,7 +78,7 @@ public class PreparedComment {
                          @Nullable String postIP,
                          @Nullable String userAgent,
                          boolean undeletable,
-                         int answerCount, int firstReply) {
+                         int answerCount, @Nullable String answerLink) {
     this.deleteInfo = deleteInfo;
     this.editSummary = editSummary;
     this.postIP = postIP;
@@ -93,7 +93,7 @@ public class PreparedComment {
     this.remark = remark;
     this.userpic = userpic;
     this.answerCount = answerCount;
-    this.firstReply = firstReply;
+    this.answerLink = answerLink;
 
     String encodedTitle = Strings.emptyToNull(comment.getTitle().trim());
 
@@ -182,7 +182,7 @@ public class PreparedComment {
     return answerCount;
   }
 
-  public int getFirstReply() {
-    return firstReply;
+  public String getAnswerLink() {
+    return answerLink;
   }
 }

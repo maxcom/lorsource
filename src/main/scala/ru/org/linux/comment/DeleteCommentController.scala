@@ -57,7 +57,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val comments = commentService.getCommentList(topic, tmpl.isModeratorSession)
     val cv = new CommentFilter(comments)
-    val list = cv.getCommentsSubtree(msgid)
+    val list = cv.getCommentsSubtree(msgid, ImmutableSet.of())
 
     new ModelAndView("delete_comment", Map[String, Any](
       "msgid" -> msgid,

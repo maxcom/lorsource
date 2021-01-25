@@ -117,7 +117,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
 
                             if comment.answerCount > 0
                                 li
-                                    a(href='#{topic.link}?cid=#{comment.firstReply}')
+                                    a(href='#{comment.answerLink}')
                                         | Ответов: #{comment.answerCount}
                                 | #{' '}
 
