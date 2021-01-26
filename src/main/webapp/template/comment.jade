@@ -115,10 +115,15 @@ mixin comment(comment, enableSchema, topic, showMenu)
         
                             | #{' '}
 
-                            if comment.answerCount > 0
+                            if comment.answerCount > 1
                                 li
                                     a(href='#{comment.answerLink}')
-                                        | Ответов: #{comment.answerCount}
+                                        | Показать ответы
+                                | #{' '}
+                            if comment.answerCount = 1
+                                li
+                                    a(href='#{comment.answerLink}')
+                                        | Показать ответ
                                 | #{' '}
 
                             li

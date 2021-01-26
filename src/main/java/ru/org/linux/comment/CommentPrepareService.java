@@ -129,7 +129,7 @@ public class CommentPrepareService {
 
       answerCount = replysFiltered.size();
 
-      if (answerCount > 1 && tmpl.getCurrentUser()!=null && tmpl.getCurrentUser().isModerator()) {
+      if (answerCount > 1) {
         answerLink = topic.getLink()+"/thread/" + comment.getId()+"#comments";
       } else if (answerCount > 0) {
         answerLink = topic.getLink()+"?cid=" + replysFiltered.get(0).getComment().getId();
