@@ -71,7 +71,7 @@ public class CommentPrepareService {
     MessageText messageText = msgbaseDao.getMessageText(comment.getId());
     User author = userDao.getUserCached(comment.getUserid());
 
-    return prepareComment(messageText, author, null, comment, null, null, null, ImmutableSet.of());
+    return prepareComment(messageText, author, null, comment, null, null, null, ImmutableSet.of(), null);
   }
 
   private PreparedComment prepareComment(
@@ -82,7 +82,8 @@ public class CommentPrepareService {
           CommentList comments,
           Template tmpl,
           Topic topic,
-          Set<Integer> hideSet) throws UserNotFoundException {
+          Set<Integer> hideSet,
+          @Nullable Set<Integer> samePageComments) throws UserNotFoundException {
     String processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
@@ -102,12 +103,7 @@ public class CommentPrepareService {
         } else {
           Comment reply = replyNode.getComment();
 
-          boolean samePage = false;
-
-          if (tmpl != null) {
-            int replyPage = comments.getCommentPage(reply, tmpl.getProf());
-            samePage = comments.getCommentPage(comment, tmpl.getProf()) == replyPage;
-          }
+          boolean samePage = samePageComments!=null && samePageComments.contains(reply.getId());
 
           String replyAuthor = userDao.getUserCached(reply.getUserid()).getNick();
 
@@ -312,6 +308,8 @@ public class CommentPrepareService {
       remarks = ImmutableMap.of();
     }
 
+    Set<Integer> samePageComments = list.stream().map(Comment::getId).collect(Collectors.toSet());
+
     return list.stream().map(comment -> {
       MessageText text = texts.get(comment.getId());
 
@@ -327,7 +325,7 @@ public class CommentPrepareService {
         remarkText = null;
       }
 
-      return prepareComment(text, author, remarkText, comment, comments, tmpl, topic, hideSet);
+      return prepareComment(text, author, remarkText, comment, comments, tmpl, topic, hideSet, samePageComments);
     }).collect(Collectors.toList());
   }
 }
