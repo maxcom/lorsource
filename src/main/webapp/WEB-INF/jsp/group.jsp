@@ -125,7 +125,7 @@
     </c:if>
     </c:if>
   </th>
-  <th><i class="icon-reply"></i></th>
+  <th><i class="icon-comment"></i></th>
 </tr>
 </thead>
 <tbody>
