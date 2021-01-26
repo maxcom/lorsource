@@ -91,6 +91,7 @@ public class CommentPrepareService {
     boolean editable = false;
     int answerCount;
     String answerLink;
+    boolean answerSamepage = false;
 
     if (comments != null) {
       if (comment.getReplyTo() != 0) {
@@ -127,8 +128,9 @@ public class CommentPrepareService {
 
       if (answerCount > 1) {
         answerLink = topic.getLink()+"/thread/" + comment.getId()+"#comments";
-      } else if (answerCount > 0) {
+      } else if (answerCount == 1) {
         answerLink = topic.getLink()+"?cid=" + replysFiltered.get(0).getComment().getId();
+        answerSamepage = samePageComments.contains(replysFiltered.get(0).getComment().getId());
       } else {
         answerLink = null;
       }
@@ -185,7 +187,7 @@ public class CommentPrepareService {
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
             deletable, editable, remark, userpic, deleteInfo, editSummary,
-            postIP, userAgent, undeletable, answerCount, answerLink);
+            postIP, userAgent, undeletable, answerCount, answerLink, answerSamepage);
   }
 
   private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
@@ -260,7 +262,7 @@ public class CommentPrepareService {
         null,
         null,
         null,
-            false, 0, null);
+            false, 0, null, false);
   }
 
   public List<PreparedRSSComment> prepareCommentListRSS(

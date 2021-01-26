@@ -122,8 +122,13 @@ mixin comment(comment, enableSchema, topic, showMenu)
                                 | #{' '}
 
                             if comment.answerCount == 1
+                                if comment.reply.samePage
+                                    samePage = "samePage"
+                                else
+                                    samePage = false
+
                                 li
-                                    a(href='#{comment.answerLink}')
+                                    a(href='#{comment.answerLink}', data-samepage=samePage)
                                         | Показать ответ
                                 | #{' '}
 

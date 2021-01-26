@@ -64,6 +64,7 @@ public class PreparedComment {
 
   private final int answerCount;
   private final String answerLink;
+  private final boolean answerSamepage;
 
   public PreparedComment(Comment comment,
                          ApiUserRef author,
@@ -78,7 +79,9 @@ public class PreparedComment {
                          @Nullable String postIP,
                          @Nullable String userAgent,
                          boolean undeletable,
-                         int answerCount, @Nullable String answerLink) {
+                         int answerCount,
+                         @Nullable String answerLink,
+                         boolean answerSamepage) {
     this.deleteInfo = deleteInfo;
     this.editSummary = editSummary;
     this.postIP = postIP;
@@ -94,6 +97,7 @@ public class PreparedComment {
     this.userpic = userpic;
     this.answerCount = answerCount;
     this.answerLink = answerLink;
+    this.answerSamepage = answerSamepage;
 
     String encodedTitle = Strings.emptyToNull(comment.getTitle().trim());
 
@@ -184,5 +188,9 @@ public class PreparedComment {
 
   public String getAnswerLink() {
     return answerLink;
+  }
+
+  public boolean isAnswerSamepage() {
+    return answerSamepage;
   }
 }
