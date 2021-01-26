@@ -384,7 +384,7 @@ $(document).ready(function() {
   }
 
   function initSamepageCommentNavigation() {
-    $("article.msg .title a[data-samepage]").click(function(event) {
+    $("article.msg a[data-samepage]").click(function(event) {
       event.preventDefault();
       location.hash = "comment-" + this.search.substr(5);
     })

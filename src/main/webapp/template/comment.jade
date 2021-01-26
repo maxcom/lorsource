@@ -122,7 +122,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                                 | #{' '}
 
                             if comment.answerCount == 1
-                                if comment.reply.samePage
+                                if comment.answerSamepage
                                     samePage = "samePage"
                                 else
                                     samePage = false
