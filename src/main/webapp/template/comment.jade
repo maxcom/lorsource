@@ -120,7 +120,8 @@ mixin comment(comment, enableSchema, topic, showMenu)
                                     a(href='#{comment.answerLink}')
                                         | Показать ответы
                                 | #{' '}
-                            if comment.answerCount = 1
+
+                            if comment.answerCount == 1
                                 li
                                     a(href='#{comment.answerLink}')
                                         | Показать ответ
