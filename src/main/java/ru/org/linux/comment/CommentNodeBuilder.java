@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.comment;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import java.util.LinkedList;
@@ -37,12 +36,6 @@ public class CommentNodeBuilder {
   }
 
   public CommentNode build() {
-    return new CommentNode(comment,
-            Lists.transform(childs, new Function<CommentNodeBuilder, CommentNode>() {
-              @Override
-              public CommentNode apply(CommentNodeBuilder input) {
-                return input.build();
-              }
-            }));
+    return new CommentNode(comment, Lists.transform(childs, CommentNodeBuilder::build));
   }
 }
