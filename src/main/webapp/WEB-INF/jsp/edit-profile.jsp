@@ -163,13 +163,15 @@ $script.ready('plugins', function() {
 </form>
 
 <h2>Другие настройки</h2>
+<c:set var="fullDelete" value="${template.getConfig().isUserFullDelete()}" />
+<c:set var="msgDereg1" value="${fullDelete ? 'Удаление' : 'Блокировка'}" />
 <ul>
 <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
 <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
-<li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
-<li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
+<li><a href="/edit-boxes.jsp">Настройка главной страницы</a></li>
+<li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>
 <c:if test="${template.currentUser.score >= 100 && !template.moderatorSession && !template.currentUser.administrator}">
-  <li><a href="/deregister.jsp">Удаление аккаунта</a>
+  <li><a href="/deregister.jsp">${msgDereg1} аккаунта</a></li>
 </c:if>
 </ul>
 

@@ -18,12 +18,19 @@
   --%>
 <jsp:include page="head.jsp"/>
 
-<title>Удаление пользователя</title>
+<c:set var="fullDelete" value="${template.getConfig().isUserFullDelete()}" />
+<c:set var="msgDereg1" value="${fullDelete ? 'Удалить' : 'Заблокировать'}" />
+<c:set var="msgDereg2" value="${fullDelete ? 'Удаление' : 'Блокировка'}" />
+
+<title>${msgDereg2} пользователя</title>
 
 <jsp:include page="header.jsp"/>
-<H1>Удаление пользователя</H1>
+<H1>${msgDereg2} пользователя</H1>
 <p>
-Аккаунт становится недоступен для входа<%--, все сообщения переходят к специальному пользователю--%>.
+Аккаунт становится недоступен для входа
+    <c:if test="${fullDelete}">
+        , все сообщения переходят к специальному пользователю.
+    </c:if>
 </p>
 
 <form:form modelAttribute="form" method="POST" action="deregister.jsp" id="registerForm">
@@ -39,23 +46,22 @@
   <div class="control-group">
     <lor:captcha/>
   </div>
-
   <div class="control-group">
-    <label>Заблокировать мой аккаунт
+    <label>${msgDereg1} мой аккаунт
       <form:checkbox path="acceptBlock" value="true" required="required" cssErrorClass="error"/>
     </label>
-<%--
+    <c:if test="${fullDelete}">
     <label>Передать все сообщения специальному пользователю
       <form:checkbox path="acceptMoveToDeleted" value="true" required="required" cssErrorClass="error"/>
     </label>
---%>
+    </c:if>
     <label>Согласен с невозможностью восстановления
       <form:checkbox path="acceptOneway" value="true" required="required" cssErrorClass="error"/>
     </label>
   </div>
 
   <div class="form-actions">
-    <button type=submit class="btn btn-primary">Удалить аккаунт</button>
+    <button type=submit class="btn btn-primary">${msgDereg1} аккаунт</button>
   </div>
 </form:form>
 <jsp:include page="footer.jsp"/>

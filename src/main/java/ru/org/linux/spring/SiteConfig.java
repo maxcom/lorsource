@@ -182,4 +182,17 @@ public class SiteConfig {
     }
     return Integer.valueOf(property);
   }
+  
+  /**
+   * Полное удаление аккаунта, с переносом сообщений к Delete.
+   *
+   * @return true если разрешено, иначе false
+   */
+  public Boolean isUserFullDelete() {
+    String property = properties.getProperty("user.FullDelete");
+    if (property == null) {
+      return false;
+    }
+    return Boolean.valueOf(property);
+  }
 }

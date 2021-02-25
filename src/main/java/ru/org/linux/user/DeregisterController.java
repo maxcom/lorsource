@@ -49,14 +49,18 @@ public class DeregisterController {
 
   @Autowired
   private ElasticsearchIndexService indexService;
+  
+  private boolean isFullDelete;
 
   @RequestMapping(value = "/deregister.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView show(
     HttpServletRequest request,
     @ModelAttribute("form") DeregisterRequest form
   ) {
-
+    
     Template tmpl = Template.getTemplate(request);
+    isFullDelete = tmpl.getConfig().isUserFullDelete();
+
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
@@ -64,12 +68,19 @@ public class DeregisterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
+    String msgDereg1, msgDereg2;
+    if(isFullDelete) {
+        msgDereg1 = "Удаление"; msgDereg2 = "удалить";
+    }else{
+        msgDereg1 = "Блокировка"; msgDereg2 = "заблокировать";
+    }
+
     if (user.getScore() < 100) {
-      throw new AccessViolationException("Удаление аккаунта недоступно для пользователей со score < 100");
+      throw new AccessViolationException(msgDereg1 + " аккаунта недоступно для пользователей со score < 100");
     }
 
     if (user.isAdministrator() || user.isModerator()) {
-      throw new AccessViolationException("Нельзя удалить модераторский аккаунт");
+      throw new AccessViolationException("Нельзя " + msgDereg2 + " модераторский аккаунт");
     }
 
     return new ModelAndView("deregister");
@@ -83,6 +94,7 @@ public class DeregisterController {
   ) {
 
     Template tmpl = Template.getTemplate(request);
+    isFullDelete = tmpl.getConfig().isUserFullDelete();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -91,8 +103,15 @@ public class DeregisterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
+    String msgDereg1, msgDereg2, msgDereg3;
+    if(isFullDelete) {
+        msgDereg1 = "Удаление"; msgDereg2 = "удалить"; msgDereg3 = "самостоятельное удаление";
+    }else{
+        msgDereg1 = "Блокировка"; msgDereg2 = "заблокировать"; msgDereg3 = "самостоятельная блокировка";
+    }
+
     if (user.getScore() < 100) {
-      throw new AccessViolationException("Удаление аккаунта недоступно для пользователей со score < 100");
+      throw new AccessViolationException(msgDereg1 + " аккаунта недоступно для пользователей со score < 100");
     }
 
     if (!user.matchPassword(form.getPassword())) {
@@ -100,7 +119,7 @@ public class DeregisterController {
     }
 
     if (user.isAdministrator() || user.isModerator()) {
-      throw new AccessViolationException("Нельзя удалить модераторский аккаунт");
+      throw new AccessViolationException("Нельзя " + msgDereg2 + " модераторский аккаунт");
     }
 
     if (errors.hasErrors()) {
@@ -108,33 +127,33 @@ public class DeregisterController {
     }
 
     // Move messages
-/*
-    List<Integer> movedComments = commentDao.getAllByUser(user);
-    List<Integer> movedTopics = topicDao.getAllByUser(user);
+    if (isFullDelete) {
+        List<Integer> movedComments = commentDao.getAllByUser(user);
+        List<Integer> movedTopics = topicDao.getAllByUser(user);
 
-    userDao.moveMessages(user.getId(), userDao.findUserId("Deleted"));
+        userDao.moveMessages(user.getId(), userDao.findUserId("Deleted"));
 
-    indexService.reindexComments(movedComments);
-    indexService.reindexTopics(movedTopics);
-*/
+        indexService.reindexComments(movedComments);
+        indexService.reindexTopics(movedTopics);
+    }
 
     // Remove user info
     userDao.resetUserpic(user, user);
     userDao.updateUser(user, "", "", null, "", null, "");
 
     // Block account
-    userDao.block(user, user, "самостоятельная блокировка аккаунта");
+    userDao.block(user, user, msgDereg3 + " аккаунта");
 
     return new ModelAndView(
       "action-done",
       "message",
-      "Удаление пользователя прошло успешно."
+      msgDereg1 + " пользователя прошло успешно."
     );
   }
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new DeregisterRequestValidator());
+    binder.setValidator(new DeregisterRequestValidator(isFullDelete));
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }
