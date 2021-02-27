@@ -19,6 +19,10 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 public class DeregisterRequestValidator implements Validator {
+  public DeregisterRequestValidator(boolean isFullDelete) {
+    this.isFullDelete = isFullDelete;
+  }
+  private boolean isFullDelete;
   @Override
   public boolean supports(Class aClass) {
     return DeregisterRequest.class.equals(aClass);
@@ -28,16 +32,17 @@ public class DeregisterRequestValidator implements Validator {
   public void validate(Object o, Errors errors) {
     DeregisterRequest form = (DeregisterRequest) o;
 
+    String msgDereg;
+    if(isFullDelete)  msgDereg = "с удалением"; else msgDereg = "с блокировкой";
+    
     if (!form.getAcceptBlock()) {
-      errors.reject("acceptBlock", null, "Вы не согласились с блокировкой аккаунта");
+      errors.reject("acceptBlock", null, "Вы не согласились " + msgDereg + " аккаунта");
     }
 
-/*
-    if (!form.getAcceptMoveToDeleted()) {
+    if(isFullDelete && !form.getAcceptMoveToDeleted()) {
       errors.reject("acceptMoveToDeleted", null, "Вы не согласились с передачей всех сообщений специальному пользователю");
     }
-*/
-
+    
     if (!form.getAcceptOneway()) {
       errors.reject("acceptOneway", null, "Вы не согласились с невозможностью восстановления аккаунта");
     }
