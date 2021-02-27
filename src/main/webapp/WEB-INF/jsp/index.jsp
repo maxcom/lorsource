@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/de_728x90.png',
-          img320: '/adv/de_320x100.png',
-          href: 'https://otus.ru/lessons/data-engineer/?utm_source=partners&utm_medium=cpm&utm_term=linuxorg&utm_content=welcome&utm_campaign=data-engineer'
+          img730: '/adv/LinuxPro_730x90.png',
+          img320: '/adv/LinuxPro_320x100.png',
+          href: 'https://otus.ru/assessment/15/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_term=linuxorg_banner'
         }
       ];
 
