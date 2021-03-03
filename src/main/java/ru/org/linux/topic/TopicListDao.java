@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.user.User;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.*;
 
@@ -39,9 +41,14 @@ public class TopicListDao {
     namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
   }
 
-  public List<Topic> getTopics(TopicListDto topicListDto) {
+  public List<Topic> getTopics(TopicListDto topicListDto, @Nullable User currentUser) {
     logger.debug("TopicListDao.getTopics(); topicListDto = " + topicListDto.toString());
     Map<String, Object> params = new HashMap<>();
+
+    if (currentUser!=null) {
+      params.put("userid", currentUser.getId());
+    }
+
     String sort = makeSortOrder(topicListDto);
     String limit = makeLimitAndOffset(topicListDto);
 
@@ -125,6 +132,10 @@ public class TopicListDao {
    */
   private static CharSequence makeConditions(TopicListDto request, Map<String, Object> paramsBuilder) {
     StringBuilder where = new StringBuilder("NOT deleted");
+
+    if (paramsBuilder.containsKey("userid")) {
+      where.append(" AND ((sections.moderate AND commitdate is not null) OR userid NOT IN (select ignored from ignore_list where userid=:userid))");
+    }
 
     where.append(request.getCommitMode().getQueryPiece());
 

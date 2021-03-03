@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -101,10 +101,10 @@ class TagTopicListController (
     modelAndView.addObject("navtitle", title)
     modelAndView.addObject("ptitle", title)
 
-    val offset = topicListService.fixOffset(rawOffset)
-    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20)
-
     val tmpl = Template.getTemplate(request)
+
+    val offset = topicListService.fixOffset(rawOffset)
+    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, tmpl.getCurrentUser)
 
     val preparedTopics =
       prepareService.prepareMessagesForUser(topics, tmpl.getCurrentUser, tmpl.getProf, false)

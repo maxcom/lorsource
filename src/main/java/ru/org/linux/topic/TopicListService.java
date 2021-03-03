@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,6 +26,7 @@ import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
+import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +61,8 @@ public class TopicListService {
     Integer offset,
     Integer year,
     Integer month,
-    int count
+    int count,
+    @Nullable User currentUser
   ) throws TagNotFoundException {
     logger.debug(
             "TopicListService.getTopicsFeed()" +
@@ -111,7 +113,7 @@ public class TopicListService {
         topicListDto.setFromDate(calendar.getTime());
       }
     }
-    return topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto, currentUser);
   }
 
   /**
@@ -158,7 +160,7 @@ public class TopicListService {
       topicListDto.setGroup(group.getId());
     }
 
-    return topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto, null);
   }
 
   /**
@@ -176,7 +178,7 @@ public class TopicListService {
     topicListDto.setUserId(user.getId());
     topicListDto.setShowDraft(true);
 
-    return topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto, null);
   }
 
 
@@ -228,7 +230,7 @@ public class TopicListService {
     } else {
       topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
     }
-    return topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto, null);
   }
 
   public List<Topic> getAllTopicsFeed(
@@ -250,7 +252,7 @@ public class TopicListService {
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(fromDate);
 
-    return topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto, null);
   }
 
   public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
@@ -277,7 +279,7 @@ public class TopicListService {
       topicListDto.setSection(Section.SECTION_NEWS);
     }
 
-    return topicListDao.getTopics(topicListDto);
+    return topicListDao.getTopics(topicListDto, null);
   }
 
 
@@ -303,7 +305,7 @@ public class TopicListService {
     }
   }
 
-  public List<Topic> getTopics(TopicListDto topicListDto) {
-    return topicListDao.getTopics(topicListDto);
+  public List<Topic> getTopics(TopicListDto topicListDto, @Nullable User currentUser) {
+    return topicListDao.getTopics(topicListDto, currentUser);
   }
 }

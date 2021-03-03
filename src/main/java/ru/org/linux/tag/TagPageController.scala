@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,7 @@
 package ru.org.linux.tag
 
 import java.util.concurrent.CompletionStage
-import javax.annotation.Nonnull
 import javax.servlet.http.HttpServletRequest
-
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.text.WordUtils
@@ -30,7 +28,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.topic.TopicListDao.CommitMode
 import ru.org.linux.topic._
-import ru.org.linux.user.UserTagService
+import ru.org.linux.user.{User, UserTagService}
 import ru.org.linux.util.RichFuture._
 
 import scala.jdk.CollectionConverters._
@@ -90,8 +88,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val tagInfo = tagService.getTagInfo(tag, skipZero = true)
 
     val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY)
+      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, tmpl.getCurrentUser) ++
+      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, tmpl.getCurrentUser)
 
     val model = Map(
       "tag" -> tag,
@@ -130,7 +128,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private def getNewsSection(request: HttpServletRequest, tag: String) = {
     val tmpl = Template.getTemplate(request)
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
-    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount)
+    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, tmpl.getCurrentUser)
     val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)
     val fullNews = prepareService.prepareMessagesForUser(fullNewsTopics.asJava, tmpl.getCurrentUser, tmpl.getProf, false)
 
@@ -170,7 +168,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ add ++ more
   }
 
-  private def getForumSection(@Nonnull tag: String, tagId: Int, section: Int, mode: CommitMode) = {
+  private def getForumSection(tag: String, tagId: Int, section: Int, mode: CommitMode, currentUser: User) = {
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
@@ -179,7 +177,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto)
+    val forumTopics = topicListService.getTopics(topicListDto, currentUser)
     val topicByDate = TopicListTools.datePartition(forumTopics.asScala)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
