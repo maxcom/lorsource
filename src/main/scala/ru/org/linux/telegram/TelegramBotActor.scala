@@ -32,8 +32,6 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
 
   timers.startTimerAtFixedRate(Check, Check, 10.minutes)
 
-  self ! Check
-
   import context.dispatcher
 
   override def receive: Receive = {
@@ -48,7 +46,7 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
             wsClient
               .url(s"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage")
               .addQueryStringParameters("chat_id" -> "@best_of_lor")
-              .addQueryStringParameters("text" -> URLEncoder.encode(config.getSecureUrlWithoutSlash + topic.getLink, StandardCharsets.UTF_8))
+              .addQueryStringParameters("text" -> (config.getSecureUrlWithoutSlash + topic.getLink))
               .get()
               .pipeTo(self)
 
@@ -62,7 +60,7 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
   private def posting(topic: Topic): Receive = {
     case r: StandaloneWSResponse =>
       if (r.status>=200 && r.status < 300) {
-        val telegramId = (Json.parse(r.body) \ "id").as[Int]
+        val telegramId = (Json.parse(r.body) \ "result" \ "message_id").as[Int]
 
         log.info(s"Post success! telegramId = $telegramId")
         dao.storePost(topic, telegramId)
