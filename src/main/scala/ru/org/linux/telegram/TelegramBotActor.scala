@@ -48,7 +48,7 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
             wsClient
               .url(s"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage")
               .addQueryStringParameters("chat_id" -> "@best_of_lor")
-              .addQueryStringParameters("text" -> URLEncoder.encode(topic.getLink, StandardCharsets.UTF_8))
+              .addQueryStringParameters("text" -> URLEncoder.encode(config.getSecureUrlWithoutSlash + topic.getLink, StandardCharsets.UTF_8))
               .get()
               .pipeTo(self)
 
