@@ -53,3 +53,5 @@ jdbc.url=jdbc:postgresql://127.0.0.1:5432/lor?stringtype=unspecified
 jdbc.user=linuxweb
 jdbc.password=linuxweb
 jdbc.poolSize=10
+
+telegram.token=false
