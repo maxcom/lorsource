@@ -19,12 +19,13 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import org.springframework.context.annotation.{Bean, Configuration}
 import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.topic.TopicTagDao
 
 @Configuration
 class TelegramBotConfiguration {
   @Bean(name=Array("telegramBot"))
   def telegramBotActor(actorSystem: ActorSystem, dao: TelegramPostsDao, wsClient: StandaloneWSClient,
-                       config: SiteConfig): ActorRef = {
-    actorSystem.actorOf(Props(new TelegramBotActor(dao, wsClient, config)))
+                       config: SiteConfig, topicTagDao: TopicTagDao): ActorRef = {
+    actorSystem.actorOf(Props(new TelegramBotActor(dao, wsClient, config, topicTagDao)))
   }
 }

@@ -21,13 +21,11 @@ import play.api.libs.json.Json
 import play.api.libs.ws.{StandaloneWSClient, StandaloneWSResponse}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.telegram.TelegramBotActor.Check
-import ru.org.linux.topic.Topic
+import ru.org.linux.topic.{Topic, TopicTagDao}
 
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import scala.concurrent.duration.DurationInt
 
-class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, config: SiteConfig)
+class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, config: SiteConfig, topicTagDao: TopicTagDao)
   extends Actor with Timers with ActorLogging with PipeToSupport {
 
   timers.startTimerAtFixedRate(Check, Check, 10.minutes)
@@ -38,15 +36,19 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
     case Check =>
       dao.hotTopic match {
         case Some(topic) =>
+          val tags = topicTagDao.getTags(topic.getId)
+
           log.info(s"Posting topic ${topic.getLink}")
 
           if (config.getTelegramToken.equals("false")) {
             log.info("Posting disabled")
           } else {
+            val text = s"${topic.getTitle} ${tags.map("#" + _.name).mkString(" ")}\n\n${config.getSecureUrlWithoutSlash + topic.getLink}"
+
             wsClient
               .url(s"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage")
               .addQueryStringParameters("chat_id" -> "@best_of_lor")
-              .addQueryStringParameters("text" -> (config.getSecureUrlWithoutSlash + topic.getLink))
+              .addQueryStringParameters("text" -> text)
               .get()
               .pipeTo(self)
 
