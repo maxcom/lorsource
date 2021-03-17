@@ -43,7 +43,7 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
           if (config.getTelegramToken.equals("false")) {
             log.info("Posting disabled")
           } else {
-            val text = s"${topic.getTitle} ${tags.map("#" + _.name).mkString(" ")}\n\n${config.getSecureUrlWithoutSlash + topic.getLink}"
+            val text = s"${topic.getTitleUnescaped} ${tags.map("#" + _.name).mkString(" ")}\n\n${config.getSecureUrlWithoutSlash + topic.getLink}"
 
             wsClient
               .url(s"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage")
