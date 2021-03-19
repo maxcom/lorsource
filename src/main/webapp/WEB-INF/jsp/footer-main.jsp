@@ -25,7 +25,7 @@
   Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2021  <br>
   Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/" target="_blank">ITTelo</a>&raquo;<br>
   Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
-    &laquo;<a href="https://www.selectel.ru" target="_blank">Selectel</a>&raquo;.
+    &laquo;<a href="https://selectel.ru/?ref_code=3dce4333ba" target="_blank">Selectel</a>&raquo;.
   </p>
 
 <script type="text/javascript">
