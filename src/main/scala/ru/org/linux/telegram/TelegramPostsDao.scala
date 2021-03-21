@@ -61,7 +61,7 @@ class TelegramPostsDao(ds: DataSource) {
 
   def topicToDelete: Option[Int] = {
     jdbcTemplate.queryAndMap("select telegram_id from telegram_posts join topics on topic_id = topics.id where " +
-      "telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and topics.deleted") { (rs, _) =>
+      "telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and (topics.deleted or topics.notop)") { (rs, _) =>
       rs.getInt("telegram_id")
     }.headOption
   }
