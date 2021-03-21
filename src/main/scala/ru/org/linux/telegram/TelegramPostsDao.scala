@@ -14,6 +14,9 @@
  */
 package ru.org.linux.telegram
 
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
+import org.springframework.jdbc.core.namedparam.SqlParameterSource
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
@@ -23,7 +26,7 @@ import javax.sql.DataSource
 import scala.jdk.CollectionConverters._
 
 @Repository
-class TelegramPostsDao(ds:DataSource) {
+class TelegramPostsDao(ds: DataSource) {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val simpleJdbcInsert =
     new SimpleJdbcInsert(ds)
@@ -54,5 +57,16 @@ class TelegramPostsDao(ds:DataSource) {
         |    order by count(distinct comments.userid) desc
         |    limit 1)
         |""".stripMargin) { (resultSet, _) => new Topic(resultSet) }.headOption
+  }
+
+  def topicToDelete: Option[Int] = {
+    jdbcTemplate.queryAndMap("select telegram_id from telegram_posts join topics on topic_id = topics.id where " +
+      "telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and topics.deleted") { (rs, _) =>
+      rs.getInt("telegram_id")
+    }.headOption
+  }
+
+  def storeDeletion(post: Int) = {
+    jdbcTemplate.update("delete from telegram_posts where telegram_id=?", post)
   }
 }

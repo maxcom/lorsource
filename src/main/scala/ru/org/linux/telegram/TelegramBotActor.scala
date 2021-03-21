@@ -56,6 +56,21 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
           }
         case None =>
           log.info("No hot topics :-(")
+
+          dao.topicToDelete match {
+            case Some(toDelete) =>
+              log.info("Deleting " + toDelete)
+
+              wsClient
+                .url(s"https://api.telegram.org/bot${config.getTelegramToken}/deleteMessage")
+                .addQueryStringParameters("chat_id" -> "@best_of_lor")
+                .addQueryStringParameters("message_id" -> toDelete.toString)
+                .get()
+                .pipeTo(self)
+
+              context.become(deleting(toDelete))
+            case None =>
+          }
       }
   }
 
@@ -73,6 +88,21 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
       }
     case Status.Failure(ex) =>
       log.error(ex, "Posting failed")
+      context.become(receive)
+  }
+
+  private def deleting(telegramId: Int): Receive = {
+    case r: StandaloneWSResponse =>
+      if (r.status>=200 && r.status < 300) {
+        log.info(s"Delete success! telegramId = $telegramId")
+        dao.storeDeletion(telegramId)
+        context.become(receive)
+      } else {
+        log.error(s"Failed to delete: status=${r.status} body=${r.body}")
+        context.become(receive)
+      }
+    case Status.Failure(ex) =>
+      log.error(ex, "Deleting failed")
       context.become(receive)
   }
 }
