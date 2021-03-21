@@ -40,4 +40,10 @@
             grant select, insert on telegram_posts to linuxweb
         </sql>
     </changeSet>
+
+    <changeSet id="2021032101" author="Maxim Valyanskiy">
+        <sql>
+            grant delete on telegram_posts to linuxweb
+        </sql>
+    </changeSet>
 </databaseChangeLog>
