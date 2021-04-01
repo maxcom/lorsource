@@ -156,6 +156,13 @@
       RSS-подписка на новости
     </a>
   </p>
+
+  <p>
+    <i class="icon-telegram"></i>
+    <a href="https://t.me/best_of_lor">
+      Канал в Telegram
+    </a>
+  </p>
 </div>
 
 <aside id=boxlets>

@@ -57,7 +57,7 @@
     {
       "uid": "25b34dea4784f72c710454f32ff8fa2b",
       "css": "star",
-      "code": 9733,
+      "code": 59395,
       "src": "entypo"
     },
     {
@@ -87,8 +87,14 @@
     {
       "uid": "16890362e811b4cb8de36282b071fe30",
       "css": "comment",
-      "code": 59395,
+      "code": 59396,
       "src": "entypo"
+    },
+    {
+      "uid": "531359183f9fedb14b23666f1308591f",
+      "css": "telegram",
+      "code": 62150,
+      "src": "fontawesome"
     }
   ]
 }
