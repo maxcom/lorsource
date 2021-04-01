@@ -265,9 +265,9 @@ public class User implements Serializable {
       out.append("<span class=\"stars\">");
     }
 
-    out.append("★".repeat(Math.max(0, stars)));
+    out.append("\uD83D\uDE02\uD83E\uDD29\uD83E\uDD73\uD83E\uDD17\uD83D\uDC4D", 0, stars*2);
 
-    out.append("☆".repeat(Math.max(0, greyStars)));
+    out.append("\uD83D\uDC0F\uD83D\uDC11\uD83D\uDC01\uD83D\uDC07\uD83D\uDC13", 0, greyStars*2);
 
     if (html) {
       out.append("</span>");
