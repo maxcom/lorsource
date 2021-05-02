@@ -13,3 +13,4 @@ python3 "$highlight_js_path/tools/build.py" \
     perl php python ruby rust sql scala smalltalk tex vala xml \
   && cp "$highlight_js_path/build/highlight.pack.js" \
         ./src/main/webapp/js/highlight.pack.js
+    ??Thanks
