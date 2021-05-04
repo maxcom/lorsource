@@ -1,5 +1,7 @@
 Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
 
+Really Helpful and Amazing
+
 Версия 7.5
 
 Собрано с поддержкой следующих языков:
