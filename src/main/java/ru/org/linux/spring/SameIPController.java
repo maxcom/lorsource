@@ -119,8 +119,6 @@ public class SameIPController {
 
       if (blockInfo.getModerator()!=0) {
         mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
-      } else {
-        mv.getModel().put("blockModerator", "<not set>");
       }
     }
     mv.addObject("allowPosting", allowPosting);

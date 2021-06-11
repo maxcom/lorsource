@@ -76,7 +76,14 @@
   </c:if>
   <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
   <strong>Дата блокировки: </strong><lor:date date="${blockInfo.originalDate}"/><br>
-  <strong>Адрес блокирован: </strong>${blockModerator.nick}
+
+  <strong>Адрес блокирован: </strong>
+  <c:if test="${blockModerator}">
+    ${blockModerator.nick}
+  </c:if>
+  <c:if test="${not blockModerator}">
+    автоматически
+  </c:if>
 </c:if>
 
 <p>

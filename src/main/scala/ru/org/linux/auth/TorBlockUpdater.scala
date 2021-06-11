@@ -26,7 +26,7 @@ import scala.util.{Failure, Success}
 
 @Component
 class TorBlockUpdater(wsClient: StandaloneWSClient, dao: IPBlockDao) extends StrictLogging {
-  @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 60 * 1000)
+  @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 30 * 60 * 1000)
   def updateTor(): Unit = {
     wsClient
       .url("https://www.dan.me.uk/torlist/?exit")
