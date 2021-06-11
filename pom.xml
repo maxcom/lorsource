@@ -19,14 +19,14 @@
     <spring.security.version>4.2.17.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.2.8</jdbc.postgresql.version>
     <elastic4s.version>6.7.3</elastic4s.version>
-    <scala.version>2.13.4</scala.version>
+    <scala.version>2.13.6</scala.version>
     <scala.suffix>2.13</scala.suffix>
     <activemq.version>5.15.9</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
     <jquery.form.version>4.2.1</jquery.form.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
-    <akka.version>2.6.10</akka.version>
+    <akka.version>2.6.15</akka.version>
     <log4j.version>2.13.3</log4j.version>
     <play-ws.version>2.0.7</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
