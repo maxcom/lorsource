@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -61,7 +61,7 @@ public class IPBlockDao {
     }
   }
 
-  public void blockIP(String ip, User moderator, String reason, Timestamp ts,
+  public void blockIP(String ip, int moderatorId, String reason, Timestamp banUntil,
                       boolean allow_posting, boolean captcha_required) {
     IPBlockInfo blockInfo = getBlockInfo(ip);
 
@@ -70,9 +70,9 @@ public class IPBlockDao {
               "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)"+
                 " VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)",
               ip,
-              moderator.getId(),
+              moderatorId,
               reason,
-              ts,
+              banUntil,
               allow_posting,
               captcha_required
       );
@@ -80,9 +80,9 @@ public class IPBlockDao {
       jdbcTemplate.update(
               "UPDATE b_ips SET mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=?, allow_posting=?, captcha_required=?"+
                 " WHERE ip=?::inet",
-              moderator.getId(),
+              moderatorId,
               reason,
-              ts,
+              banUntil,
               allow_posting,
               captcha_required,
               ip

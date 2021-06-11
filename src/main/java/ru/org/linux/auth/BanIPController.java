@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -93,7 +93,7 @@ public class BanIPController {
 
     user.checkCommit();
 
-    ipBlockDao.blockIP(ip, user, reason, ts, allowPosting, captchaRequired);
+    ipBlockDao.blockIP(ip, user.getId(), reason, ts, allowPosting, captchaRequired);
 
     return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)));
   }
