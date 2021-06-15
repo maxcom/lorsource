@@ -78,10 +78,10 @@
   <strong>Дата блокировки: </strong><lor:date date="${blockInfo.originalDate}"/><br>
 
   <strong>Адрес блокирован: </strong>
-  <c:if test="${blockModerator}">
+  <c:if test="${blockModerator != null}">
     ${blockModerator.nick}
   </c:if>
-  <c:if test="${not blockModerator}">
+  <c:if test="${blockModerator == null}">
     автоматически
   </c:if>
 </c:if>
