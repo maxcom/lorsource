@@ -36,6 +36,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -73,7 +74,7 @@
   </script>
   </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -81,16 +82,15 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/LinuxPro_730x90.png',
-          img320: '/adv/LinuxPro_320x100.png',
-          href: 'https://otus.ru/assessment/15/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_term=linuxorg_banner'
+          img730: '/adv/LinuxPro_730x90-1.png',
+          img320: '/adv/LinuxPro_320x100-1.png',
+          href: 'https://otus.ru/assessment/15/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=linuxorg'
         }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
