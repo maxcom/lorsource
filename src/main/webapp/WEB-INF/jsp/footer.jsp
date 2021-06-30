@@ -23,6 +23,7 @@
   <a href="/help/rules.md">Правила форума</a> -
   <a href="/help/lorcode.md">Правила разметки (LORCODE)</a> -
   <a href="/help/markdown.md">Правила разметки (Markdown)</a><br>
+  <a href="https://github.com/maxcom/lorsource/issues">Сообщить о баге</a><br>
   <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
 </p>
 
