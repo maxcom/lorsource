@@ -223,7 +223,7 @@ public class TopicListService {
 
     topicListDto.setNotalks(noTalks);
     topicListDto.setTech(tech);
-    topicListDto.setLimit(20);
+    topicListDto.setLimit(100);
 
     if (section.isPremoderated()) {
       topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
