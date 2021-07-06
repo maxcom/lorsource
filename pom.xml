@@ -15,9 +15,9 @@
     <java.version>11</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>4.3.25.RELEASE</dependency.spring.version>
+    <dependency.spring.version>4.3.30.RELEASE</dependency.spring.version>
     <spring.security.version>4.2.17.RELEASE</spring.security.version>
-    <jdbc.postgresql.version>42.2.8</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.2.23</jdbc.postgresql.version>
     <elastic4s.version>6.7.3</elastic4s.version>
     <scala.version>2.13.6</scala.version>
     <scala.suffix>2.13</scala.suffix>
@@ -112,7 +112,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.6</version>
+      <version>1.9</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
