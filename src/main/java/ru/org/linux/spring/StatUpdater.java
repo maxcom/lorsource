@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 @Component
 public class StatUpdater {
   private static final Logger logger = LoggerFactory.getLogger(StatUpdater.class);
-  private static final int MAX_EVENTS = 1000;
+  private static final int MAX_EVENTS = 2000;
 
   private static final int FIVE_MINS = 5 * 60 * 1000;
   private static final int TEN_MINS = 10 * 60 * 1000;
