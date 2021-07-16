@@ -57,17 +57,30 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Узел дерева разбора LORCODE с текстом из тэга code
  */
 public class TextCodeNode extends TextNode {
 
+  private static final Pattern INLINE_REGEXP = Pattern.compile("\\[\\[(/?[iI][nN][lL][iI][nN][eE])\\]\\]");
+
   public TextCodeNode(Node parent, ParserParameters parserParameters, String text, Parser.ParserAutomatonState state1) {
     super(parent, parserParameters, text, state1);
   }
 
+  private static String replaceAllInline(String s) {
+    Matcher m = INLINE_REGEXP.matcher(s);
+    return (m.find()) ? m.replaceAll("[$1]") : s;
+  }
+
   @Override
   public String renderXHtml() {
-    return StringUtil.escapeForceHtml(text);
+    // If current tag is inline, then [[inline]] -> [inline]
+    String txt = (TagNode.class.isInstance(parent) && "inline".equals(((TagNode)parent).bbtag.getName())) ?
+            replaceAllInline(text) : text;
+    return StringUtil.escapeForceHtml(txt);
   }
 }
