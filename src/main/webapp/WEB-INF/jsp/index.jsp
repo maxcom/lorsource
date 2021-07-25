@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/LinuxAdv_730x90.png',
-          img320: '/adv/LinuxAdv_320x100.png',
-          href: 'https://otus.ru/assessment/151/?utm_source=partners&utm_medium=cpm&utm_campaign=linux-virt&utm_content=banner&utm_term=linuxorg'
+          img730: '/adv/DevOps_welcom_resize_730x90.jpg',
+          img320: '/adv/DevOps_welcom_resize_320x100.jpg',
+          href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=partners&utm_medium=cpm&utm_campaign=devops&utm_content=welcome&utm_term=linux.org.ru'
         }
       ];
 
