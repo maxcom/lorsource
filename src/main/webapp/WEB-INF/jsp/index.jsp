@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/DevOps_welcom_resize_730x90.jpg',
-          img320: '/adv/DevOps_welcom_resize_320x100.jpg',
-          href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=partners&utm_medium=cpm&utm_campaign=devops&utm_content=welcome&utm_term=linux.org.ru'
+          img730: '/adv/IaC-welcome_resize_730x90.jpg',
+          img320: '/adv/IaC-welcome_resize_320x100.jpg',
+          href: 'https://otus.ru/lessons/infrastructure-as-a-code/?utm_source=partners&utm_medium=cpm&utm_campaign=iac&utm_content=welcome&utm_term=linuxorg'
         }
       ];
 
