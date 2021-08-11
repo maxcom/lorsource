@@ -193,6 +193,14 @@ public class User implements Serializable {
     return frozenBy;
   }
 
+  public Timestamp getFrozenUntil() {
+    return frozenUntil;
+  }
+
+  public String getFreezingReason() {
+    return freezingReason;
+  }
+
   /**
    * Check if use is super-moderator
    *

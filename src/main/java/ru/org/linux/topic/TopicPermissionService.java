@@ -201,7 +201,7 @@ public class TopicPermissionService {
   }
 
   public boolean isCommentsAllowed(Group group, Topic topic, User user) {
-    if (user != null && user.isBlocked()) {
+    if (user != null && (user.isBlocked() || user.isFrozen())) {
       return false;
     }
 

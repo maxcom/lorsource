@@ -34,10 +34,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>
-    Информация о пользователе ${user.nick}
-    <c:if test="${user.isFrozen}">❄</c:if>
-</title>
+<title>Информация о пользователе ${user.nick}</title>
 
 <c:if test="${user.id!=2}">
     <script type="text/javascript">
@@ -84,6 +81,10 @@
                 }
             });
         });
+
+        function change (dest, source) {
+            dest.value = source.options[source.selectedIndex].value;
+        }
     </script>
 </c:if>
 
@@ -114,10 +115,7 @@
 </c:if>
 
 <c:if test="${not currentUser}">
-<h1>
-    Информация о пользователе ${user.nick}
-    <c:if test="${user.isFrozen}">❄</c:if>
-</h1>
+<h1>Информация о пользователе ${user.nick}</h1>
 </c:if>
 
 <div id="whois_userpic">
@@ -142,7 +140,10 @@
 <div>
 
 <div class="vcard">
-    <b>Nick:</b> <span class="nickname">${user.nick}</span><br>
+    <b>Nick:</b> <span class="nickname">
+        ${user.nick}
+        <c:if test="${isFrozen}"> ❄</c:if>
+    </span><br>
     <c:if test="${not empty user.name}">
         <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
     </c:if>
@@ -182,7 +183,7 @@
     <c:if test="${user.corrector}"> (корректор)</c:if>
     <c:if test="${user.blocked}"> (заблокирован)</c:if>
 
-    <c:if test="${user.isFrozen}">
+    <c:if test="${isFrozen}">
         <br>
         <b>Заморожен</b>
             до <lor:date date="${user.frozenUntil}"/>
@@ -275,6 +276,128 @@
             <button type='submit' class="btn btn-small btn-default" name='add'>игнорировать</button>
         </form>
     </c:if>
+</c:if>
+
+<!-- ability to freeze a user temporary -->
+<c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
+    <br />
+    <div style="border: 1px dotted; padding: 1em;">
+        <span>Заморозить, разморозить, изменить время заморозки.</span>
+        <form method='post' action='usermod.jsp'>
+            <lor:csrf/>
+            <input type='hidden' name='id' value='${user.id}'>
+
+            <!-- reason -->
+            <div class="control-group">
+
+                <label class="control-label" for="reason-input">Причина</label>
+                <div class="controls">
+                    <select name=reason_select
+                        onChange="change(reason,reason_select);">
+
+                        <option value=""></option>
+                        <option value="3.1 Дубль">3.1 Дубль</option>
+                        <option value="3.2 Неверная кодировка">
+                            3.2 Неверная кодировка
+                        </option>
+                        <option value="3.3 Некорректное форматирование">
+                            3.3 Некорректное форматирование
+                        </option>
+                        <option value="3.4 Пустое сообщение">
+                            3.4 Пустое сообщение
+                        </option>
+                        <option value="4.1 Offtopic">
+                            4.1 Offtopic
+                        </option>
+                        <option value="4.2 Вызывающе неверная информация">
+                            4.2 Вызывающе неверная информация
+                        </option>
+                        <option value="4.3 Провокация flame">
+                            4.3 Провокация flame
+                        </option>
+                        <option value="4.4 Обсуждение действий модераторов">
+                            4.4 Обсуждение действий модераторов
+                        </option>
+                        <option value="4.5 Тестовые сообщения">
+                            4.5 Тестовые сообщения
+                        </option>
+                        <option value="4.6 Спам">4.6 Спам</option>
+                        <option value="4.7 Флуд">4.7 Флуд</option>
+                        <option value="4.8 Дискуссия не на русском языке">
+                            4.8 Дискуссия не на русском языке
+                        </option>
+                        <option value="5.1 Нецензурные выражения">
+                            5.1 Нецензурные выражения
+                        </option>
+                        <option value="5.2 Оскорбление участников дискуссии">
+                            5.2 Оскорбление участников дискуссии
+                        </option>
+                        <option value="5.3 Национальные/политические/религиозные споры">
+                            5.3 Национальные/политические/религиозные споры
+                        </option>
+                        <option value="5.4 Личная переписка">
+                            5.4 Личная переписка
+                        </option>
+                        <option value="5.5 Преднамеренное нарушение правил русского языка">
+                            5.5 Преднамеренное нарушение правил русского языка
+                        </option>
+                        <option value="6 Нарушение copyright">
+                            6 Нарушение copyright
+                        </option>
+                        <option value="6.2 Warez">
+                            6.2 Warez
+                        </option>
+                        <option value="7.1 Ответ на некорректное сообщение">
+                            7.1 Ответ на некорректное сообщение
+                        </option>
+                    </select>
+                    <input id="reason-input" type="text" name="reason" required
+                        placeholder="Остудись" value="" />
+                </div>
+            </div>
+
+            <!-- until (duration) -->
+            <div class="control-group">
+                <label class="control-label" for="shift">
+                    Период
+                </label>
+
+                <div class="controls">
+                    <select name="shift">
+                        <option value="-P1D">Разморозить</option>
+                        <option value="PT5M">5 минут</option>
+                        <option value="PT10M">10 минту</option>
+                        <option value="PT15M">15 минту</option>
+                        <option value="PT20M">20 минту</option>
+                        <option value="PT30M">30 минту</option>
+                        <option value="PT1H">час</option>
+                        <option value="PT2H">2 часа</option>
+                        <option value="PT3H">3 часа</option>
+                        <option value="PT6H">6 часов</option>
+                        <option value="PT9H">9 часов</option>
+                        <option value="PT12H">12 часов</option>
+                        <option value="P1D">сутки</option>
+                        <option value="P2D">двое суток</option>
+                        <option value="P3D">3 дня</option>
+                        <option value="P5D">5 дней</option>
+                        <option value="P7D">неделя</option>
+                        <option value="P14D">две недели</option>
+                        <option value="P30D">месяц</option>
+                        <option value="P60D">2 месяца</option>
+                        <option value="P90D">3 месяца</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+              <div class="controls">
+                <button type="submit" name="action" value="freeze">
+                     Отправить
+                </button>
+              </div>
+            </div>
+        </form>
+    </div>
 </c:if>
 
 <c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">

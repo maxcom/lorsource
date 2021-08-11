@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.sql.Timestamp;
+import java.time.Duration;
 
 @Controller
 public class UserModificationController {
@@ -297,7 +298,9 @@ public class UserModificationController {
    * @param request http запрос
    * @param user блокируемый пользователь
    * @param reason причина заморозки, общедоступна в дальнейшем
-   * @param until до каких пор заморожен, используется прошлое, чтобы разморозить
+   * @param shift отсчёт времени от текущей точки, может быть отрицательным, в
+   *              в результате даёт until, отрицательное значение используется
+   *              для разморозки
    * @return возвращаемся в профиль
    * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
    */
@@ -306,8 +309,7 @@ public class UserModificationController {
       HttpServletRequest request,
       @RequestParam(name = "id", required = true) User user,
       @RequestParam(name = "reason", required = true) String reason,
-      @RequestParam(name = "until", required = true)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Timestamp until
+      @RequestParam(name = "shift", required = true) String shift
   ) throws Exception {
 
     if (reason.length() > 255) {
@@ -315,6 +317,8 @@ public class UserModificationController {
     }
 
     User moderator = getModerator(request);
+    Timestamp until = getUntil(shift);
+
 
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заморозить");
@@ -328,6 +332,15 @@ public class UserModificationController {
     logger.info("Freeze " + user.getNick() + " by " + moderator.getNick() + " until " + until);
 
     return redirectToProfile(user);
+  }
+
+  // get 'now', add the duration and returns result;
+  // the duration can be negative
+  private static Timestamp getUntil(String shift) {
+    Duration  d   = Duration.parse(shift);
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+    now.setTime(now.getTime() + d.toMillis());
+    return now;
   }
 
 
