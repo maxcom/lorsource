@@ -102,6 +102,15 @@ public class WhoisController {
       mv.getModel().put("banInfo", userDao.getBanInfoClass(user));
     }
 
+    // add the isFrozen to simplify controller,
+    // and put information about moderator who
+    // freezes the user, if frozen
+    if user.isFrozen() {
+      mv.getModel().put("isFrozen", true);
+      User freezer = userService.getUser(user.frozenBy);
+      mv.getModel().put("freezer", freezer);
+    }
+
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     if (!user.isAnonymous()) {

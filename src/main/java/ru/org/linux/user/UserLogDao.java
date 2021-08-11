@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.sql.Timestamp;
 
 @Repository
 public class UserLogDao {
@@ -95,6 +96,29 @@ public class UserLogDao {
             user.getId(),
             moderator.getId(),
             UserLogAction.BLOCK_USER.toString(),
+            ImmutableMap.of(OPTION_REASON, reason)
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logFreezeUser(@Nonnull User user, @Nonnull User moderator,  
+    @Nonnull String reason, @Nonnull Timestamp until) {
+
+    Timestamp     now = new Timestamp(System.currentTimeMillis());
+    UserLogAction action = UserLogAction.FROZEN;
+
+    // the action may be not consistent with database (e.g. with real action)
+    // if the 'until' is close to the now, but we don't have to worry about it,
+    // since, it's not about real use cases
+    if (until.before(now)) {
+        action = UserLogAction.DEFROSTED;
+    }
+
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            action.toString(),
             ImmutableMap.of(OPTION_REASON, reason)
     );
   }

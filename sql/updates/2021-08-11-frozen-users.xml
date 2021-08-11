@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright 1998-2021 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="2021081101" author="Konstantin Ivanov">
+        <addColumn tableName="users">
+            <!-- the user frozen if the frozen_until > now () -->
+            <column name="frozen_until" type="timestamptz" />
+            <!-- moderator id, who freeze him -->
+            <column name="frozen_by" type="integer">
+                <constraints references="users(id)" />
+            </column>
+            <!-- reason of the freezing, provided by the moderator -->
+            <column name="freezing_reason" type="varcha(255)" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2021081102" author="Konstantin Ivanov" runInTransaction="false">
+        <!-- user logs when frozen and when defrosted -->
+        <sql>
+            ALTER TYPE user_log_action ADD VALUE 'frozen';
+            ALTER TYPE user_log_action ADD VALUE 'defrosted';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

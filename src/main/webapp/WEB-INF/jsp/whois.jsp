@@ -34,7 +34,10 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Информация о пользователе ${user.nick}</title>
+<title>
+    Информация о пользователе ${user.nick}
+    <c:if test="${user.isFrozen}">❄</c:if>
+</title>
 
 <c:if test="${user.id!=2}">
     <script type="text/javascript">
@@ -111,7 +114,10 @@
 </c:if>
 
 <c:if test="${not currentUser}">
-<h1>Информация о пользователе ${user.nick}</h1>
+<h1>
+    Информация о пользователе ${user.nick}
+    <c:if test="${user.isFrozen}">❄</c:if>
+</h1>
 </c:if>
 
 <div id="whois_userpic">
@@ -176,11 +182,20 @@
     <c:if test="${user.corrector}"> (корректор)</c:if>
     <c:if test="${user.blocked}"> (заблокирован)</c:if>
 
+    <c:if test="${user.isFrozen}">
+        <br>
+        <b>Заморожен</b>
+            до <lor:date date="${user.frozenUntil}"/>
+            модератором <lor:user link="true" user="${freezer}"/>
+            по причине <c:out escapeXml="true" value="${user.freezingReason}"/>
+        <br>
+    </c:if>
+
     <br>
     <c:if test="${banInfo != null}">
-        Блокирован <lor:date date="${banInfo.date}"/>, модератором <lor:user link="true"
-                                                                             user="${banInfo.moderator}"/> по причине:
-        <c:out escapeXml="true" value="${banInfo.reason}"/>
+        Блокирован <lor:date date="${banInfo.date}"/>,
+            модератором <lor:user link="true" user="${banInfo.moderator}"/>
+            по причине: <c:out escapeXml="true" value="${banInfo.reason}"/>
     </c:if>
 </div>
 <c:if test="${moderatorOrCurrentUser}">

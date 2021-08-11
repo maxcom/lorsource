@@ -40,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.sql.Timestamp;
 
 @Controller
 public class UserModificationController {
@@ -289,6 +290,45 @@ public class UserModificationController {
 
     return redirectToProfile(user);
   }
+
+  /**
+   * Контроллер заморозки и разморозки пользователя
+   * @param request http запрос
+   * @param user блокируемый пользователь
+   * @param reason причина заморозки, общедоступна в дальнейшем
+   * @param until до каких пор заморожен, используется прошлое, чтобы разморозить
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=freeze")
+  public ModelAndView freezeUser(
+      HttpServletRequest request,
+      @RequestParam(name = "id", required = true) User user,
+      @RequestParam(name = "reason", required = true) String reason,
+      @RequestParam(name = "until", required = true)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Timestamp until
+  ) throws Exception {
+
+    if (reason.length() > 255) {
+      UserErrorException("Причина слишком длиная, максимум 255 байт");
+    }
+
+    User moderator = getModerator(request);
+
+    if (!user.isBlockable() && !moderator.isAdministrator()) {
+      throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заморозить");
+    }
+
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь блокирован, его нельзя заморозить");
+    }
+
+    userDao.freezeUser(user, moderator, reason, until);
+    logger.info("Freeze " + user.getNick() + " by " + moderator.getNick() + " until " + until);
+
+    return redirectToProfile(user);
+  }
+
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
