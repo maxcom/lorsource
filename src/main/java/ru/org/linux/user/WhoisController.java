@@ -105,9 +105,9 @@ public class WhoisController {
     // add the isFrozen to simplify controller,
     // and put information about moderator who
     // freezes the user, if frozen
-    if user.isFrozen() {
+    if (user.isFrozen()) {
       mv.getModel().put("isFrozen", true);
-      User freezer = userService.getUser(user.frozenBy);
+      User freezer = userService.getUserCached(user.getFrozenBy());
       mv.getModel().put("freezer", freezer);
     }
 

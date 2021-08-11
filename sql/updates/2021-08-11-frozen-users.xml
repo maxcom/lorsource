@@ -24,10 +24,13 @@
             <column name="frozen_until" type="timestamptz" />
             <!-- moderator id, who freeze him -->
             <column name="frozen_by" type="integer">
-                <constraints references="users(id)" />
+                <constraints
+                    nullable="true"
+                    foreignKeyName="users_frozen_by_fkey"
+                    references="users(id)" />
             </column>
             <!-- reason of the freezing, provided by the moderator -->
-            <column name="freezing_reason" type="varcha(255)" />
+            <column name="freezing_reason" type="varchar(255)" />
         </addColumn>
     </changeSet>
 

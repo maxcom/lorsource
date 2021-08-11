@@ -179,7 +179,7 @@ public class User implements Serializable {
   }
 
   public boolean isFrozen() {
-    if frozenUntil == null {
+    if (frozenUntil == null) {
       return false;
     }
     return frozenUntil.after(new Timestamp(System.currentTimeMillis()));
@@ -187,6 +187,10 @@ public class User implements Serializable {
 
   public boolean isBlocked() {
     return blocked;
+  }
+
+  public int getFrozenBy() {
+    return frozenBy;
   }
 
   /**

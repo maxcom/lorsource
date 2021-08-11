@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -310,7 +311,7 @@ public class UserModificationController {
   ) throws Exception {
 
     if (reason.length() > 255) {
-      UserErrorException("Причина слишком длиная, максимум 255 байт");
+      throw new UserErrorException("Причина слишком длиная, максимум 255 байт");
     }
 
     User moderator = getModerator(request);
