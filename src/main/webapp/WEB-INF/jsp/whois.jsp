@@ -366,10 +366,10 @@
                     <select name="shift">
                         <option value="-P1D">Разморозить</option>
                         <option value="PT5M">5 минут</option>
-                        <option value="PT10M">10 минту</option>
-                        <option value="PT15M">15 минту</option>
-                        <option value="PT20M">20 минту</option>
-                        <option value="PT30M">30 минту</option>
+                        <option value="PT10M">10 минут</option>
+                        <option value="PT15M">15 минут</option>
+                        <option value="PT20M">20 минут</option>
+                        <option value="PT30M">30 минут</option>
                         <option value="PT1H">час</option>
                         <option value="PT2H">2 часа</option>
                         <option value="PT3H">3 часа</option>
