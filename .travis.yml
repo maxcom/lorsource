@@ -11,7 +11,7 @@ before_script:
   - createuser -U postgres -D -S -R linuxweb
   - createuser -U postgres -D -S -R jamwiki
   - createdb -U maxcom lor
-  - travis_wait psql -f sql/demo.db -U maxcom lor
+  - psql -f sql/demo.db -U maxcom lor
   - psql -c 'create extension hstore;' -U postgres lor
   - psql -c 'create extension fuzzystrmatch;' -U postgres lor
   - unset GEM_PATH
@@ -21,3 +21,6 @@ install: mvn -B verify -DskipTests=true -Dmaven.javadoc.skip=true
 
 git:
   depth: 1
+cache:
+  directories:
+  - $HOME/.m2
