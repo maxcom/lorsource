@@ -31,7 +31,7 @@ import scala.util.{Failure, Success, Try}
 
 @Service
 object UserService {
-  val MaxFileSize: Int = 55 * 1024
+  val MaxFileSize: Int = 100 * 1024
   val MinImageSize = 50
   val MaxImageSize = 300
 
