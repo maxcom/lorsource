@@ -16,6 +16,7 @@
 package ru.org.linux.test;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn("1:403073453.png");
     when(resultSet.getString("email")).thenReturn("max@linux.org.ru");
     when(resultSet.getInt("unread_events")).thenReturn(0);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
 
@@ -61,6 +65,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn("");
     when(resultSet.getString("email")).thenReturn("hz@vyborg.ru");
     when(resultSet.getInt("unread_events")).thenReturn(0);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
 
@@ -82,6 +89,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn(null);
     when(resultSet.getString("email")).thenReturn(null);
     when(resultSet.getInt("unread_events")).thenReturn(161);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
   public static ResultSet getModerator() throws Exception {
@@ -101,6 +111,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn("5280.png");
     when(resultSet.getString("email")).thenReturn(null);
     when(resultSet.getInt("unread_events")).thenReturn(2);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
   public static ResultSet getUser5star() throws  Exception {
@@ -120,6 +133,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn(null);
     when(resultSet.getString("email")).thenReturn(null);
     when(resultSet.getInt("unread_events")).thenReturn(13);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
   public static ResultSet getUser1star() throws  Exception {
@@ -139,6 +155,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn(null);
     when(resultSet.getString("email")).thenReturn(null);
     when(resultSet.getInt("unread_events")).thenReturn(13);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
   public static ResultSet getUser45Score() throws Exception {
@@ -158,6 +177,9 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn(null);
     when(resultSet.getString("email")).thenReturn(null);
     when(resultSet.getInt("unread_events")).thenReturn(13);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
     return resultSet;
   }
   public static ResultSet getUser45ScoreBlocked() throws Exception {
@@ -177,6 +199,55 @@ public class Users {
     when(resultSet.getString("photo")).thenReturn(null);
     when(resultSet.getString("email")).thenReturn(null);
     when(resultSet.getInt("unread_events")).thenReturn(13);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
+    return resultSet;
+  }
+  public static ResultSet getUserDefrosted() throws  Exception {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(1488);
+    when(resultSet.getString("nick")).thenReturn("defrosted");
+    when(resultSet.getString("style")).thenReturn("tango");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(110);
+    when(resultSet.getInt("max_score")).thenReturn(110);
+    when(resultSet.getString("name")).thenReturn("Defrosted");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(15);
+    Timestamp past = new Timestamp(System.currentTimeMillis() - 1000);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(past);
+    when(resultSet.getInt("frozen_by")).thenReturn(1);
+    when(resultSet.getString("freezing_reason")).thenReturn("just because");
+    return resultSet;
+  }
+  public static ResultSet getUserFrozen() throws  Exception {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(1599);
+    when(resultSet.getString("nick")).thenReturn("frozen");
+    when(resultSet.getString("style")).thenReturn("tango");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(110);
+    when(resultSet.getInt("max_score")).thenReturn(110);
+    when(resultSet.getString("name")).thenReturn("Frozen");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(15);
+    Timestamp future = new Timestamp(System.currentTimeMillis() + 1000);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(future);
+    when(resultSet.getInt("frozen_by")).thenReturn(1);
+    when(resultSet.getString("freezing_reason")).thenReturn("just because");
     return resultSet;
   }
 

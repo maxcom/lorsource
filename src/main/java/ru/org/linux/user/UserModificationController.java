@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -40,6 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.sql.Timestamp;
+import java.time.Duration;
 
 @Controller
 public class UserModificationController {
@@ -289,6 +292,57 @@ public class UserModificationController {
 
     return redirectToProfile(user);
   }
+
+  /**
+   * Контроллер заморозки и разморозки пользователя
+   * @param request http запрос
+   * @param user блокируемый пользователь
+   * @param reason причина заморозки, общедоступна в дальнейшем
+   * @param shift отсчёт времени от текущей точки, может быть отрицательным, в
+   *              в результате даёт until, отрицательное значение используется
+   *              для разморозки
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=freeze")
+  public ModelAndView freezeUser(
+      HttpServletRequest request,
+      @RequestParam(name = "id", required = true) User user,
+      @RequestParam(name = "reason", required = true) String reason,
+      @RequestParam(name = "shift", required = true) String shift
+  ) throws Exception {
+
+    if (reason.length() > 255) {
+      throw new UserErrorException("Причина слишком длиная, максимум 255 байт");
+    }
+
+    User moderator = getModerator(request);
+    Timestamp until = getUntil(shift);
+
+
+    if (!user.isBlockable() && !moderator.isAdministrator()) {
+      throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заморозить");
+    }
+
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь блокирован, его нельзя заморозить");
+    }
+
+    userDao.freezeUser(user, moderator, reason, until);
+    logger.info("Freeze " + user.getNick() + " by " + moderator.getNick() + " until " + until);
+
+    return redirectToProfile(user);
+  }
+
+  // get 'now', add the duration and returns result;
+  // the duration can be negative
+  private static Timestamp getUntil(String shift) {
+    Duration  d   = Duration.parse(shift);
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+    now.setTime(now.getTime() + d.toMillis());
+    return now;
+  }
+
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {

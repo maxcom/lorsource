@@ -53,7 +53,7 @@ public class UserDao {
    * изменение score пользователю
    */
   private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
-  private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style FROM users where id=?";
+  private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until,frozen_by,freezing_reason FROM users where id=?";
   private static final String queryUserIdByNick = "SELECT id FROM users where nick=?";
   private static final String updateUserStyle = "UPDATE users SET style=? WHERE id=?";
 
@@ -347,6 +347,25 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)", user.getId(), reason, moderator.getId());
     userLogDao.logBlockUser(user, moderator, reason);
+  }
+
+  /**
+   * Заморозка и разморозка пользователя.
+   * @param user пользователь для совершения над ним действия
+   * @param moderator модератор который это делает
+   * @param reason причина заморозки
+   * @param until до каких пор ему быть замороженным, если указано прошлое,
+   *              то пользователь будет разморожен
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
+  public void freezeUser(@Nonnull User user, @Nonnull User moderator, 
+    @Nonnull String reason, @Nonnull Timestamp until) {
+
+    jdbcTemplate.update(
+      "UPDATE users SET frozen_until=?,frozen_by=?,freezing_reason=? WHERE id=?",
+       until, moderator.getId(), reason, user.getId());
+    userLogDao.logFreezeUser(user, moderator, reason, until);
   }
 
   /**

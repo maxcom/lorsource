@@ -27,6 +27,7 @@ import ru.org.linux.util.StringUtil;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
@@ -47,6 +48,9 @@ public class User implements Serializable {
   private final String fullName;
   private final int unreadEvents;
   private final String style;
+  private final Timestamp frozenUntil;
+  private final int frozenBy;
+  private final String freezingReason;
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 200;
@@ -76,6 +80,10 @@ public class User implements Serializable {
     email = rs.getString("email");
     unreadEvents = rs.getInt("unread_events");
     style = rs.getString("style");
+    // freezing
+    frozenUntil = rs.getTimestamp("frozen_until");
+    frozenBy = rs.getInt("frozen_by");
+    freezingReason = rs.getString("freezing_reason");
   }
 
   public int getId() {
@@ -149,6 +157,18 @@ public class User implements Serializable {
     }
   }
 
+  public void checkFrozen() throws AccessViolationException {
+    if (isFrozen()) {
+      throw new AccessViolationException("Пользователь временно заморожен");
+    }
+  }
+
+  public void checkFrozen(Errors errors) {
+    if (isFrozen()) {
+      errors.reject(null, "Пользователь временно заморожен");
+    }
+  }
+
   public void checkCommit() throws AccessViolationException {
     if (anonymous || blocked) {
       throw new AccessViolationException("Commit access denied for anonymous user");
@@ -158,8 +178,27 @@ public class User implements Serializable {
     }
   }
 
+  public boolean isFrozen() {
+    if (frozenUntil == null) {
+      return false;
+    }
+    return frozenUntil.after(new Timestamp(System.currentTimeMillis()));
+  }
+
   public boolean isBlocked() {
     return blocked;
+  }
+
+  public int getFrozenBy() {
+    return frozenBy;
+  }
+
+  public Timestamp getFrozenUntil() {
+    return frozenUntil;
+  }
+
+  public String getFreezingReason() {
+    return freezingReason;
   }
 
   /**

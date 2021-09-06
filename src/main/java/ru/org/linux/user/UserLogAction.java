@@ -27,7 +27,9 @@ public enum UserLogAction {
   SET_PASSWORD("set_password", "Установлен новый пароль"),
   SET_CORRECTOR("set_corrector", "Добавлены права корректора"),
   UNSET_CORRECTOR("unset_corrector", "Убраны права корректора"),
-  REGISTER("register", "Зарегистрирован");
+  REGISTER("register", "Зарегистрирован"),
+  FROZEN("frozen", "Заморожен"),
+  DEFROSTED("defrosted", "Разморожен");
 
   private final String name;
   private final String description;

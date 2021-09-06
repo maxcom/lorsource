@@ -51,6 +51,11 @@ public class UserTest {
       Assert.fail();
     }
     try {
+      user.checkFrozen();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
       user.checkCommit();
     } catch (AccessViolationException e) {
       Assert.fail();
@@ -74,6 +79,7 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertTrue(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
 
   /**
@@ -97,6 +103,11 @@ public class UserTest {
     }
     try {
       user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -126,6 +137,7 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertFalse(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
 
   /**
@@ -148,6 +160,11 @@ public class UserTest {
     }
     try {
       user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -178,6 +195,7 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertFalse(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
 
   /**
@@ -200,6 +218,11 @@ public class UserTest {
     }
     try {
       user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -233,6 +256,7 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertFalse(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
 
   /**
@@ -255,6 +279,11 @@ public class UserTest {
     }
     try {
       user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -288,6 +317,7 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertFalse(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
 
   /**
@@ -310,6 +340,11 @@ public class UserTest {
     }
     try {
       user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -343,6 +378,7 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertFalse(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
 
   /**
@@ -371,6 +407,11 @@ public class UserTest {
       Assert.assertEquals("Пользователь заблокирован", e.getMessage());
     }
     try {
+      user.checkFrozen();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
       user.checkCommit();
       Assert.fail();
     } catch (AccessViolationException e) {
@@ -396,7 +437,137 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
     Assert.assertFalse(user.hasGravatar());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
   }
+
+  /**
+   * проверка размороженного пользователя, или оттаевшего
+   * @throws Exception хм
+   */
+  @Test
+  public void userDefrosedTest() throws Exception {
+    ResultSet resultSet = Users.getUserDefrosted();
+    User user = new User(resultSet);
+
+    Assert.assertEquals(resultSet.getInt("id"), user.getId());
+    Assert.assertEquals(resultSet.getString("nick"), user.getNick());
+    Assert.assertEquals("tango", resultSet.getString("style"));
+    Assert.assertTrue(user.matchPassword("passwd"));
+    try {
+      user.checkAnonymous();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkCommit();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Commit access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.isBlocked());
+    try {
+      user.checkDelete();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Delete access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.isModerator());
+    Assert.assertFalse(user.isAdministrator());
+    Assert.assertFalse(user.canCorrect());
+    Assert.assertFalse(user.isAnonymous());
+    Assert.assertEquals(resultSet.getInt("score"), user.getScore());
+    Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
+    Assert.assertTrue(user.isBlockable());
+    Assert.assertTrue(user.isActivated());
+    Assert.assertFalse(user.isAnonymousScore());
+    Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
+    Assert.assertEquals(resultSet.getString("email"), user.getEmail());
+    Assert.assertFalse(user.hasGravatar());
+    Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertFalse(user.isFrozen());
+  }
+
+  /**
+   * проверка замороженного пользователя
+   * @throws Exception хм
+   */
+  @Test
+  public void userFrozenTest() throws Exception {
+    ResultSet resultSet = Users.getUserFrozen();
+    User user = new User(resultSet);
+
+    Assert.assertEquals(resultSet.getInt("id"), user.getId());
+    Assert.assertEquals(resultSet.getString("nick"), user.getNick());
+    Assert.assertEquals("tango", resultSet.getString("style"));
+    Assert.assertTrue(user.matchPassword("passwd"));
+    try {
+      user.checkAnonymous();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkFrozen();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Пользователь временно заморожен", e.getMessage());
+    }
+    try {
+      user.checkCommit();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Commit access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.isBlocked());
+    try {
+      user.checkDelete();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Delete access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.isModerator());
+    Assert.assertFalse(user.isAdministrator());
+    Assert.assertFalse(user.canCorrect());
+    Assert.assertFalse(user.isAnonymous());
+    Assert.assertEquals(resultSet.getInt("score"), user.getScore());
+    Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
+    Assert.assertTrue(user.isBlockable());
+    Assert.assertTrue(user.isActivated());
+    Assert.assertFalse(user.isAnonymousScore());
+    Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
+    Assert.assertEquals(resultSet.getString("email"), user.getEmail());
+    Assert.assertFalse(user.hasGravatar());
+    Assert.assertEquals(resultSet.getString("name"), user.getName());
+    Assert.assertTrue(user.isFrozen());
+    Assert.assertEquals(resultSet.getTimestamp("frozen_until"), 
+      user.getFrozenUntil());
+    Assert.assertEquals(resultSet.getInt("frozen_by"), user.getFrozenBy());
+    Assert.assertEquals(resultSet.getString("freezing_reason"), 
+      user.getFreezingReason());
+  }
+
 
   /**
    * проверка активации

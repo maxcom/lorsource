@@ -177,6 +177,7 @@ public class CommentService {
     }
 
     user.checkBlocked(errors);
+    user.checkFrozen(errors);
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
