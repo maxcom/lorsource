@@ -82,9 +82,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/hr730x90.jpg',
-          img320: '/adv/hr320x100.jpg',
-          href: 'https://otus.ru/lessons/linux-specialization/?utm_source=partners&utm_medium=cpm&utm_campaign=spec-linux&utm_term=linuxorg'
+          img730: '/adv/pro_desktop.jpg',
+          img320: '/adv/pro_mobile.jpg',
+          href: 'https://otus.ru/assessment/15/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=banner&utm_term=linuxorg'
         }
       ];
 
