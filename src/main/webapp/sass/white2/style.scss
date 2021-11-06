@@ -280,8 +280,14 @@ textarea {
 
 @import "../responsive";
 
-$heatmap_max: darken(#8ae234, 15%);
+$heatmap_max: #8ae234;
 $heatmap_scale: -1.5;
 @import "../cal-heapmap";
+
+.cal-heatmap-container .graph-label
+{
+  fill: black;
+}
+
 @import "../tracker";
 
