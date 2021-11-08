@@ -147,11 +147,4 @@
     </c:forEach>
   </ul>
 
-<h1>Связанные проекты</h1>
-<ul>
-<li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты.</li>
-<li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a>.</li>
-<li><a href="http://lor.click/">Статистика LOR</a>. </li>
-</ul>
-
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
