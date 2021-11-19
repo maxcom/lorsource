@@ -221,8 +221,14 @@ public class EditTopicController {
     }
 
     form.setTitle(StringEscapeUtils.unescapeHtml4(message.getTitle()));
+
     MessageText messageText = msgbaseDao.getMessageText(message.getId());
-    form.setMsg(messageText.text());
+
+    if (form.getFromHistory()!=null) {
+      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.getFromHistory()).getOldmessage());
+    } else {
+      form.setMsg(messageText.text());
+    }
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
       form.setMinor(message.isMinor());

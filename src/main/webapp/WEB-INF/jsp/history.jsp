@@ -42,6 +42,11 @@
 
       <lor:user link="true" user="${editHistory.editor}"/>,
       <lor:dateinterval date="${editHistory.editDate}"/>
+
+      <c:if test="${editHistory.restoreFrom!=null && canRestore}">
+        [<a href="/edit.jsp?msgid=${message.id}&fromHistory=${editHistory.restoreFrom}">Восстановить текст</a>]
+      </c:if>
+
       <c:if test="${editHistory.current}">
         (текущая версия)
       </c:if>:

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,10 +24,9 @@ import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.topic.TopicDao;
-import ru.org.linux.topic.TopicPermissionService;
+import ru.org.linux.topic.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -47,7 +46,13 @@ public class EditHistoryController {
   private TopicPermissionService topicPermissionService;
 
   @Autowired
+  private GroupPermissionService groupPermissionService;
+
+  @Autowired
   private GroupDao groupDao;
+
+  @Autowired
+  private TopicPrepareService topicPrepareService;
 
   @RequestMapping({
     "/news/{group}/{id}/history",
@@ -65,12 +70,15 @@ public class EditHistoryController {
 
     topicPermissionService.checkView(group, message, tmpl.getCurrentUser(), false);
 
+    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, tmpl.getCurrentUser());
+
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message);
 
     ModelAndView modelAndView = new ModelAndView("history");
 
     modelAndView.getModel().put("message", message);
     modelAndView.getModel().put("editHistories", editHistories);
+    modelAndView.getModel().put("canRestore", groupPermissionService.isEditable(preparedMessage, tmpl.getCurrentUser()));
 
     return modelAndView;
   }
@@ -95,6 +103,7 @@ public class EditHistoryController {
 
     modelAndView.getModel().put("message", message);
     modelAndView.getModel().put("editHistories", editHistories);
+    modelAndView.getModel().put("canRestore", false);
 
     return modelAndView;
   }

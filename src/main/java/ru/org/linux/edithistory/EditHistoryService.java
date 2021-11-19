@@ -95,6 +95,7 @@ public class EditHistoryService {
     Image maybeImage = imageDao.imageForTopic(topic);
     PreparedImage currentImage = maybeImage !=null ? imageService.prepareImageOrNull(maybeImage) : null;
     Poll maybePoll;
+    Integer lastId = null;
 
     try {
       maybePoll = pollDao.getPollByTopicId(topic.getId());
@@ -121,9 +122,12 @@ public class EditHistoryService {
           dto.getOldimage() != null && currentImage !=null ? currentImage : null,
           currentImage == null && dto.getOldimage()!=null,
           markup,
-          dto.getOldPoll() !=null ? maybePoll : null
+          dto.getOldPoll() !=null ? maybePoll : null,
+          lastId
         )
       );
+
+      lastId = dto.getId();
 
       if (dto.getOldimage() != null) {
         if (dto.getOldimage() == 0) {
@@ -182,7 +186,8 @@ public class EditHistoryService {
               currentImage,
               false,
               markup,
-              maybePoll));
+              maybePoll,
+              lastId));
     }
 
     return editHistories;
@@ -213,7 +218,7 @@ public class EditHistoryService {
           i == 0,
           false,
           null,
-                null, false, markup, null)
+                null, false, markup, null, null)
       );
 
       if (dto.getOldmessage() != null) {
@@ -239,7 +244,7 @@ public class EditHistoryService {
           false,
           true,
           null,
-                null, false, markup, null)
+                null, false, markup, null, null)
       );
     }
 
@@ -281,5 +286,9 @@ public class EditHistoryService {
     } else {
       return Option.apply(EditInfoSummary.apply(history.size(), history.get(0)));
     }
+  }
+
+  public EditHistoryRecord getEditHistoryRecord(Topic topic, int recordId) {
+    return editHistoryDao.getEditRecord(topic.getId(), recordId, EditHistoryObjectTypeEnum.TOPIC);
   }
 }

@@ -33,6 +33,32 @@ class EditHistoryDao(dataSource: DataSource) {
       .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl",
         "object_type", "oldminor", "oldimage", "oldpoll")
 
+  private def parseEditHistoryRecord(resultSet: ResultSet) = {
+    val editHistoryRecord = new EditHistoryRecord
+    editHistoryRecord.setId(resultSet.getInt("id"))
+    editHistoryRecord.setMsgid(resultSet.getInt("msgid"))
+    editHistoryRecord.setEditor(resultSet.getInt("editor"))
+    editHistoryRecord.setOldmessage(resultSet.getString("oldmessage"))
+    editHistoryRecord.setEditdate(resultSet.getTimestamp("editdate"))
+    editHistoryRecord.setOldtitle(resultSet.getString("oldtitle"))
+    editHistoryRecord.setOldtags(resultSet.getString("oldtags"))
+    editHistoryRecord.setObjectType(resultSet.getString("object_type"))
+
+    editHistoryRecord.setOldimage(resultSet.getInt("oldimage"))
+    if (resultSet.wasNull) editHistoryRecord.setOldimage(null)
+
+    editHistoryRecord.setOldminor(resultSet.getBoolean("oldminor"))
+    if (resultSet.wasNull) editHistoryRecord.setOldminor(null)
+
+    Option(resultSet.getString("oldpoll")).map { json =>
+      val mapper = new ObjectMapper()
+
+      mapper.readerFor(classOf[Poll]).readValue(json).asInstanceOf[Poll]
+    }.foreach(editHistoryRecord.setOldPoll)
+
+    editHistoryRecord
+  }
+
   /**
    * Получить информации о редактировании топика/комментария.
    *
@@ -42,34 +68,14 @@ class EditHistoryDao(dataSource: DataSource) {
    */
   def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum) = {
     jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC", (resultSet: ResultSet, i: Int) => {
-      def foo(resultSet: ResultSet, i: Int) = {
-        val editHistoryRecord = new EditHistoryRecord
-        editHistoryRecord.setId(resultSet.getInt("id"))
-        editHistoryRecord.setMsgid(resultSet.getInt("msgid"))
-        editHistoryRecord.setEditor(resultSet.getInt("editor"))
-        editHistoryRecord.setOldmessage(resultSet.getString("oldmessage"))
-        editHistoryRecord.setEditdate(resultSet.getTimestamp("editdate"))
-        editHistoryRecord.setOldtitle(resultSet.getString("oldtitle"))
-        editHistoryRecord.setOldtags(resultSet.getString("oldtags"))
-        editHistoryRecord.setObjectType(resultSet.getString("object_type"))
-
-        editHistoryRecord.setOldimage(resultSet.getInt("oldimage"))
-        if (resultSet.wasNull) editHistoryRecord.setOldimage(null)
-
-        editHistoryRecord.setOldminor(resultSet.getBoolean("oldminor"))
-        if (resultSet.wasNull) editHistoryRecord.setOldminor(null)
-
-        Option(resultSet.getString("oldpoll")).map { json =>
-          val mapper = new ObjectMapper()
-
-          mapper.readerFor(classOf[Poll]).readValue(json).asInstanceOf[Poll]
-        }.foreach(editHistoryRecord.setOldPoll)
-
-        editHistoryRecord
-      }
-
-      foo(resultSet, i)
+      parseEditHistoryRecord(resultSet)
     }, id, objectTypeEnum.toString)
+  }
+
+  def getEditRecord(msgid: Int, recordId: Int, objectTypeEnum: EditHistoryObjectTypeEnum): EditHistoryRecord = {
+    jdbcTemplate.queryForObject("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type AND id=?", (resultSet: ResultSet, i: Int) => {
+      parseEditHistoryRecord(resultSet)
+    }, msgid, objectTypeEnum.toString, recordId)
   }
 
   def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum) = {

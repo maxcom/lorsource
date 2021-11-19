@@ -43,6 +43,7 @@ public class PreparedEditHistory {
   private final Date editdate;
   private final boolean imageDeleted;
   private final Poll poll;
+  private final Integer restoreFrom;
 
   public PreparedEditHistory(
           MessageTextService lorCodeService,
@@ -59,7 +60,8 @@ public class PreparedEditHistory {
           PreparedImage image,
           Boolean imageDeleted,
           MarkupType markup,
-          Poll poll) {
+          Poll poll,
+          Integer restoreFrom) {
     this.original = original;
 
     this.editor = editor;
@@ -68,9 +70,11 @@ public class PreparedEditHistory {
     this.poll = poll;
 
     if (message!=null) {
+      this.restoreFrom = restoreFrom;
       this.message = lorCodeService.renderCommentText(MessageText.apply(message, markup), false);
     } else {
       this.message = null;
+      this.restoreFrom = null;
     }
 
     this.title = title;
@@ -133,5 +137,9 @@ public class PreparedEditHistory {
 
   public Poll getPoll() {
     return poll;
+  }
+
+  public Integer getRestoreFrom() {
+    return restoreFrom;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,6 +30,8 @@ public class EditTopicRequest {
   private Map<Integer, Integer> editorBonus;
   private String[] newPoll = new String[3];
   private boolean multiselect;
+
+  private Integer fromHistory;
 
   public String getUrl() {
     return url;
@@ -117,5 +119,13 @@ public class EditTopicRequest {
 
   public void setEditorBonus(Map<Integer, Integer> editorBonus) {
     this.editorBonus = editorBonus;
+  }
+
+  public Integer getFromHistory() {
+    return fromHistory;
+  }
+
+  public void setFromHistory(Integer fromHistory) {
+    this.fromHistory = fromHistory;
   }
 }
