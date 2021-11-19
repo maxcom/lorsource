@@ -127,8 +127,6 @@ public class EditHistoryService {
         )
       );
 
-      lastId = dto.getId();
-
       if (dto.getOldimage() != null) {
         if (dto.getOldimage() == 0) {
           currentImage = null;
@@ -139,6 +137,7 @@ public class EditHistoryService {
 
       if (dto.getOldmessage() != null) {
         currentMessage = dto.getOldmessage();
+        lastId = dto.getId();
       }
 
       if (dto.getOldtitle() != null) {
