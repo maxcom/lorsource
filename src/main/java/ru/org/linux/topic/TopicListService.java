@@ -265,7 +265,8 @@ public class TopicListService {
     topicListDto.setLimit(count);
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
-    topicListDto.setFromDate(DateTime.now().minusMonths(1).toDate());
+    // лучше бы этот лимит был по commit_date на главной
+    topicListDto.setFromDate(DateTime.now().minusMonths(3).toDate());
 
     if (hideMinor) {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR);
