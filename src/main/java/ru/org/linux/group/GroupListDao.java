@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -74,7 +74,8 @@ public class GroupListDao {
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
-              "%s" + /* user!=null ? queryCommentIgnored*/
+              "%s" + /* user!=null ? queryCommentIgnored */
+              "%s" + // queryAuthorFilter
               "ORDER BY postdate DESC LIMIT 1) " +
         "AND t.lastmod > :interval AND comments.postdate > :interval " +
         "%s" + /* noUncommited */
@@ -102,7 +103,8 @@ public class GroupListDao {
           "%s" + /* noUncommited */
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
-          " AND g.id=t.groupid) as tracker ORDER BY id, postdate desc) tracker " +
+          "%s" + // queryAuthorFilter
+          " AND g.id=t.groupid) as tracker ORDER BY id, postdate desc) tracker " + // userFilter
               "WHERE true %s" + // queryPartTagIgnored
      "ORDER BY postdate DESC LIMIT :topics OFFSET :offset";
 
@@ -121,7 +123,7 @@ public class GroupListDao {
   public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, Date startDate,
                                                     int topics, int offset, final int messagesInPage) {
 
-    return load(" AND t.groupid = " + groupid + " ", currentUser, startDate, topics, offset, messagesInPage);
+    return load(" AND t.groupid = " + groupid + " ", "", currentUser, startDate, topics, offset, messagesInPage);
   }
 
   public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, User currentUser, Date startDate,
@@ -144,10 +146,24 @@ public class GroupListDao {
         partFilter = "";
     }
 
-    return load(partFilter, currentUser, startDate, topics, offset, messagesInPage);
+    String userFilter;
+
+    switch (filter) {
+      case SCORE50:
+        userFilter = " AND userid IN (SELECT id FROM users WHERE score<50) ";
+        break;
+      case SCORE100:
+        userFilter = " AND userid IN (SELECT id FROM users WHERE score<100) ";
+        break;
+      default:
+        userFilter = "";
+    }
+
+
+    return load(partFilter, userFilter, currentUser, startDate, topics, offset, messagesInPage);
   }
 
-  private List<TopicsListItem> load(String partFilter, User currentUser, Date startDate,
+  private List<TopicsListItem> load(String partFilter, String authorFilter, User currentUser, Date startDate,
                                           int topics, int offset, final int messagesInPage) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
@@ -176,8 +192,8 @@ public class GroupListDao {
 
     String query;
 
-    query = String.format(queryTrackerMain, commentIgnored, partUncommited, partIgnored, partFilter,
-            partUncommited, partIgnored, partFilter, tagIgnored);
+    query = String.format(queryTrackerMain, commentIgnored, authorFilter, partUncommited, partIgnored, partFilter,
+            partUncommited, partIgnored, partFilter, authorFilter, tagIgnored);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 

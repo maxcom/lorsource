@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%--
-  ~ Copyright 1998-2019 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -52,7 +52,7 @@
 
 <div class=tracker>
     <c:forEach var="msg" items="${msgs}">
-      <a href="${msg.lastPageUrl}" class="tracker-item">
+      <a href="${msg.commentUrl}" class="tracker-item">
         <div class="tracker-src">
           <p>
           <span class="group-label">${msg.groupTitle}</span>

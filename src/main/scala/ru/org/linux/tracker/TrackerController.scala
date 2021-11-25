@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,7 +31,15 @@ import scala.jdk.CollectionConverters._
 @Controller
 class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @ModelAttribute("filters")
-  def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava
+  def getFilter(request: HttpServletRequest): java.util.List[TrackerFilterEnum] = {
+    val tmpl = Template.getTemplate(request)
+
+    if (tmpl.isModeratorSession) {
+      TrackerFilterEnum.values.toSeq.asJava
+    } else {
+      TrackerFilterEnum.values.toSeq.filterNot(_.isModeratorOnly).asJava
+    }
+  }
 
   @RequestMapping(Array("/tracker.jsp"))
   @throws[Exception]
@@ -42,7 +50,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     val redirectView = new RedirectView("/tracker/")
 
     redirectView.setExposeModelAttributes(false)
-    val filter = TrackerFilterEnum.getByValue(filterAction)
+    val filter = TrackerFilterEnum.getByValue(filterAction, tmpl.isModeratorSession)
 
     if (filter.isPresent && (filter.get ne defaultFilter)) {
       redirectView.setUrl("/tracker/?filter=" + URLEncoder.encode(filterAction, "UTF-8"))
@@ -66,7 +74,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     val tmpl = Template.getTemplate(request)
     val defaultFilter = tmpl.getProf.getTrackerMode
-    val trackerFilter = TrackerFilterEnum.getByValue(filterAction).orElse(defaultFilter)
+    val trackerFilter = TrackerFilterEnum.getByValue(filterAction, tmpl.isModeratorSession).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
 
