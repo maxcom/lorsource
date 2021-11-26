@@ -52,7 +52,7 @@
 
 <div class=tracker>
     <c:forEach var="msg" items="${msgs}">
-      <a href="${msg.commentUrl}" class="tracker-item">
+      <a href="${msg.lastPageUrl}" class="tracker-item">
         <div class="tracker-src">
           <p>
           <span class="group-label">${msg.groupTitle}</span>
