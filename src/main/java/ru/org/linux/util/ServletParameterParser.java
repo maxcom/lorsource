@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2065 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,10 +15,9 @@
 
 package ru.org.linux.util;
 
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
+import ru.org.linux.site.BadInputException;
 
-import javax.servlet.ServletRequest;
+import javax.annotation.Nullable;
 import java.util.regex.Pattern;
 
 public class ServletParameterParser {
@@ -27,11 +26,12 @@ public class ServletParameterParser {
   private ServletParameterParser() {
   }
 
-  public static String getIP(ServletRequest rq, String name) throws ServletParameterException, ServletRequestBindingException {
-    String ip = ServletRequestUtils.getRequiredStringParameter(rq, name);
-
-    if (!ipRE.matcher(ip).matches()) {
-      throw new ServletParameterBadValueException(name, "not ip");
+  @Nullable
+  public static String cleanupIp(@Nullable String ip) {
+    if (ip!=null) {
+      if (!ipRE.matcher(ip).matches()) {
+        throw new BadInputException("not ip");
+      }
     }
 
     return ip;

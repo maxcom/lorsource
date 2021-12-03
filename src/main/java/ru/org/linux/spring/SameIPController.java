@@ -17,7 +17,7 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,45 +26,51 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class SameIPController {
+  @Autowired
   private IPBlockDao ipBlockDao;
+
+  @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private UserAgentDao userAgentDao;
+
   private JdbcTemplate jdbcTemplate;
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  private NamedParameterJdbcTemplate namedJdbcTemplate;
 
   @Autowired
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
     HttpServletRequest request,
-    @RequestParam(required = false) Integer msgid
+    @RequestParam(required = false) Integer msgid,
+    @RequestParam(required = false) String ip,
+    @RequestParam(required = false, name="ua") Integer userAgent
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -72,11 +78,11 @@ public class SameIPController {
       throw new AccessViolationException("Not moderator");
     }
 
-    String ip;
+    String actualIp;
 
     ModelAndView mv = new ModelAndView("sameip");
 
-    int userAgentId = 0;
+    int mainMessageUseragent = 0;
 
     if (msgid != null) {
       SqlRowSet rs = jdbcTemplate.queryForRowSet(
@@ -91,78 +97,96 @@ public class SameIPController {
         }
       }
 
-      ip = rs.getString("postip");
-      userAgentId = rs.getInt("ua_id");
+      actualIp = rs.getString("postip");
+      mainMessageUseragent = rs.getInt("ua_id");
 
-      if (ip == null) {
+      if (actualIp == null) {
         throw new ScriptErrorException("No IP data for #" + msgid);
       }
     } else {
-      ip = ServletParameterParser.getIP(request, "ip");
+      actualIp = ServletParameterParser.cleanupIp(ip);
     }
 
-    mv.getModel().put("ip", ip);
-    mv.getModel().put("uaId", userAgentId);
+    if (actualIp == null && userAgent == null) {
+      throw new BadInputException("one of msgid/ip/useragent required");
+    }
 
-    mv.getModel().put("topics", getTopics(ip));
-    mv.getModel().put("comments", getComments(ip));
-    mv.getModel().put("users", getUsers(ip, userAgentId));
+    mv.getModel().put("topics", getTopics(actualIp, userAgent));
+    mv.getModel().put("comments", getComments(actualIp, userAgent));
 
-    IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
+    if (actualIp != null) {
+      mv.getModel().put("ip", actualIp);
+      mv.getModel().put("users", getUsers(actualIp, mainMessageUseragent));
 
-    Boolean allowPosting = false;
-    Boolean captchaRequired = true;
-    if (blockInfo.isInitialized()) {
-      mv.getModel().put("blockInfo", blockInfo);
-      allowPosting = blockInfo.isAllowRegistredPosting();
-      captchaRequired = blockInfo.isCaptchaRequired();
+      IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(actualIp);
 
-      if (blockInfo.getModerator()!=0) {
-        mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+      boolean allowPosting = false;
+      boolean captchaRequired = true;
+
+      if (blockInfo.isInitialized()) {
+        mv.getModel().put("blockInfo", blockInfo);
+        allowPosting = blockInfo.isAllowRegistredPosting();
+        captchaRequired = blockInfo.isCaptchaRequired();
+
+        if (blockInfo.getModerator()!=0) {
+          mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+        }
       }
+      mv.addObject("allowPosting", allowPosting);
+      mv.addObject("captchaRequired", captchaRequired);
     }
-    mv.addObject("allowPosting", allowPosting);
-    mv.addObject("captchaRequired", captchaRequired);
+
+    if (userAgent!=null) {
+      mv.getModel().put("userAgent", userAgentDao.getUserAgentById(userAgent));
+    }
 
     return mv;
   }
 
-  private List<TopicItem> getTopics(String ip) {
-    return jdbcTemplate.query(
+  private List<TopicItem> getTopics(@Nullable String ip, @Nullable Integer userAgent) {
+    String ipQuery = ip!=null?"AND topics.postip=:ip::inet ":"";
+    String userAgentQuery = userAgent!=null?"AND topics.ua_id=:userAgent ":"";
+
+    Map<String, Object> params = new HashMap<>();
+
+    params.put("ip", ip);
+    params.put("userAgent", userAgent);
+
+    return namedJdbcTemplate.query(
             "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
                     "FROM topics, groups, sections, users " +
                     "WHERE topics.groupid=groups.id " +
                     "AND sections.id=groups.section " +
                     "AND users.id=topics.userid " +
-                    "AND topics.postip=?::inet " +
+                    ipQuery +
+                    userAgentQuery +
                     "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
-            new RowMapper<TopicItem>() {
-              @Override
-              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new TopicItem(rs, false);
-              }
-            },
-            ip
+            params,
+            (rs, rowNum) -> new TopicItem(rs, false)
     );
   }
 
-  private List<TopicItem> getComments(String ip) {
-    return jdbcTemplate.query(
+  private List<TopicItem> getComments(@Nullable String ip, @Nullable Integer userAgent) {
+    String ipQuery = ip!=null?"AND comments.postip=:ip::inet ":"";
+    String userAgentQuery = userAgent!=null?"AND comments.ua_id=:userAgent ":"";
+
+    Map<String, Object> params = new HashMap<>();
+
+    params.put("ip", ip);
+    params.put("userAgent", userAgent);
+
+    return namedJdbcTemplate.query(
             "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
                     "FROM sections, groups, topics, comments " +
                     "WHERE sections.id=groups.section " +
                     "AND groups.id=topics.groupid " +
                     "AND comments.topic=topics.id " +
-                    "AND comments.postip=?::inet " +
+                    ipQuery +
+                    userAgentQuery +
                     "AND comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
                     "ORDER BY postdate DESC",
-            new RowMapper<TopicItem>() {
-              @Override
-              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new TopicItem(rs, true);
-              }
-            },
-            ip
+            params,
+            (rs, rowNum) -> new TopicItem(rs, true)
     );
   }
 
@@ -174,12 +198,7 @@ public class SameIPController {
                     "WHERE c.postip=?::inet " +
                     "GROUP BY u.nick, c.ua_id, ua.name " +
                     "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
-            new RowMapper<UserItem>() {
-              @Override
-              public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new UserItem(rs, uaId);
-              }
-            },
+            (rs, rowNum) -> new UserItem(rs, uaId),
             ip
     );
   }

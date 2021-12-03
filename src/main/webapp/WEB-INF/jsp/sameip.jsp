@@ -22,31 +22,40 @@
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
+<%--@elvariable id="userAgent" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Поиск писем с IP-адреса</title>
+<title>Поиск сообщений по метаданным</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=nav>
     <div id="navPath">
-      Поиск писем с IP-адреса
+      Поиск сообщений по метаданным
     </div>
 
-    <div class="nav-buttons">
-      [WHOIS
-      <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
-      <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a> /
-      <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
-      ]
-      [<a href='http://bgp.he.net/ip/${ip}'>BGP</a>]
+    <c:if test="${ip != null}">
+      <div class="nav-buttons">
+        [WHOIS
+        <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
+        <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a> /
+        <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
+        ]
+        [<a href='http://bgp.he.net/ip/${ip}'>BGP</a>]
     </div>
+    </c:if>
 </div>
 
-<form action="sameip.jsp">
-  <div class="control-group">
-    Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}">&nbsp;
-    <button type="submit" class="btn btn-default">Изменить</button><BR>
-  </div>
-</form>
+<c:if test="${userAgent != null}">
+  Показаны сообщения с User-Agent:<br>
+  <c:out value="${userAgent}" escapeXml="true"/>
+</c:if>
+
+<c:if test="${ip != null}">
+  <form action="sameip.jsp">
+    <div class="control-group">
+      Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}">&nbsp;
+      <button type="submit" class="btn btn-default">Изменить</button><BR>
+    </div>
+  </form>
 
 <strong>Текущий статус: </strong>
 
@@ -167,6 +176,7 @@ function checkCustomBan(idx) {
 <button type="submit" name="del" class="btn btn-danger">del from ip</button>
 </form>
 </fieldset>
+</c:if>
 
 <h2>Темы за 3 дня</h2>
 
@@ -228,6 +238,7 @@ function checkCustomBan(idx) {
 </table>
 </div>
 
+<c:if test="${ip != null}">
 <h2>Все пользователи, использовавшие данный IP</h2>
 <div class=forum>
 <table width="100%" class="message-table">
@@ -254,4 +265,5 @@ function checkCustomBan(idx) {
 </c:forEach>
 </table>
 </div>
+</c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

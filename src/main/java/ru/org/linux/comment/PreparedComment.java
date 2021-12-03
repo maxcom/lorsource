@@ -62,6 +62,8 @@ public class PreparedComment {
   @Nullable
   private final String userAgent;
 
+  private final int userAgentId;
+
   private final int answerCount;
   private final String answerLink;
   private final boolean answerSamepage;
@@ -78,6 +80,7 @@ public class PreparedComment {
                          @Nullable EditSummary editSummary,
                          @Nullable String postIP,
                          @Nullable String userAgent,
+                         int userAgentId,
                          boolean undeletable,
                          int answerCount,
                          @Nullable String answerLink,
@@ -86,6 +89,7 @@ public class PreparedComment {
     this.editSummary = editSummary;
     this.postIP = postIP;
     this.userAgent = userAgent;
+    this.userAgentId = userAgentId;
     this.id = comment.getId();
     this.author = author;
     this.processedMessage = processedMessage;
@@ -192,5 +196,9 @@ public class PreparedComment {
 
   public boolean isAnswerSamepage() {
     return answerSamepage;
+  }
+
+  public int getUserAgentId() {
+    return userAgentId;
   }
 }

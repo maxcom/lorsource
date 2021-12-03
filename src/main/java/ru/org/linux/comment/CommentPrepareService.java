@@ -187,7 +187,7 @@ public class CommentPrepareService {
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
             deletable, editable, remark, userpic, deleteInfo, editSummary,
-            postIP, userAgent, undeletable, answerCount, answerLink, answerSamepage);
+            postIP, userAgent, comment.getUserAgentId(), undeletable, answerCount, answerLink, answerSamepage);
   }
 
   private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
@@ -262,6 +262,7 @@ public class CommentPrepareService {
         null,
         null,
         null,
+            0,
             false, 0, null, false);
   }
 
