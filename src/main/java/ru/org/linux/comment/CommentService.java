@@ -232,12 +232,6 @@ public class CommentService {
 
     if (commentRequest.getTopic() != null) {
 
-      String title = commentRequest.getTitle();
-
-      if (title == null) {
-        title = "";
-      }
-
       Integer replyto = commentRequest.getReplyto() != null ? commentRequest.getReplyto().getId() : null;
 
       int commentId = commentRequest.getOriginal() == null
@@ -246,7 +240,7 @@ public class CommentService {
 
       comment = new Comment(
         replyto,
-        StringUtil.escapeHtml(title),
+        "",
         commentRequest.getTopic().getId(),
         commentId,
         user.getId(),

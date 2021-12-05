@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -49,20 +49,12 @@
 
 <p>
   <%
-      String title = "";
-      Integer replyto = null; 
+      Integer replyto = null;
   %><c:if test="${onComment != null}">
     <%
         PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
 
         replyto = onComment.getId();
-
-        if (onComment.getTitle()!=null) {
-            title = onComment.getTitle();
-            if (!title.startsWith("Re:")) {
-                title = "Re: " + title;
-            }
-        }
     %>
 
     <div class=messages>
@@ -75,11 +67,6 @@
     </div>
 </c:if>
 
-<%
-      if (request.getParameter("title") != null) {
-        title = request.getParameter("title");
-      }
-%>
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
@@ -101,7 +88,6 @@
 
 <lor:commentForm
         topic="${add.topic}"
-        title="<%= title %>"
         replyto="<%= replyto %>"
         msg="${add.msg}"
         mode="${add.mode}"

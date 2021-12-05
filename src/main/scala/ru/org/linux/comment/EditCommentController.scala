@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,10 +14,6 @@
  */
 package ru.org.linux.comment
 
-import java.util
-
-import javax.servlet.http.HttpServletRequest
-import javax.validation.Valid
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
@@ -33,6 +29,9 @@ import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.util.ServletParameterException
 
+import java.util
+import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
 import scala.jdk.CollectionConverters._
 
 @Controller
@@ -73,7 +72,6 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
 
     if (commentEditable) {
       commentRequest.setMsg(messageText.text)
-      commentRequest.setTitle(original.getTitle)
 
       val formParams = new util.HashMap[String, AnyRef]
 

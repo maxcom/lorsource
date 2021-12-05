@@ -398,7 +398,6 @@
     <c:url var="form_action_url" value="/add_comment.jsp" />
     <lor:commentForm
             topic="${message}"
-            title=""
             replyto="0"
             cancel="true"
             mode="${template.formatMode}"

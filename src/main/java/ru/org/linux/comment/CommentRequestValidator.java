@@ -32,14 +32,6 @@ public class CommentRequestValidator implements Validator {
   public void validate(Object target, Errors errors) {
     CommentRequest add = (CommentRequest) target;
 
-    if (add.getTitle() != null) {
-      String title = StringUtil.escapeHtml(add.getTitle());
-
-      if (title.length() > Comment.TITLE_LENGTH) {
-        errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
-      }
-    }
-
     if (add.getMsg() != null) {
       String error = Verifier.checkCharacterData(add.getMsg());
       if (error != null) {
