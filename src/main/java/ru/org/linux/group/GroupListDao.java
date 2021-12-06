@@ -122,10 +122,12 @@ public class GroupListDao {
   public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, int topics, int offset,
                                                     int messagesInPage) {
 
+    String dateFilter = ">CURRENT_TIMESTAMP-'3 month'::interval ";
+
     return load(" AND t.groupid = " + groupid + " ", "", currentUser,
             topics, offset, messagesInPage, "comment_postdate",
-            "AND comments.postdate>CURRENT_TIMESTAMP-'3 month'::interval ",
-            "AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ", false, false);
+            "AND comments.postdate"+dateFilter+" AND t.lastmod"+dateFilter,
+            "AND t.postdate"+dateFilter, false, false);
   }
 
   public List<TopicsListItem> getGroupListTopics(int groupid, User currentUser, int topics, int offset,
@@ -188,10 +190,11 @@ public class GroupListDao {
         userFilter = "";
     }
 
+    String dateFilter = ">CURRENT_TIMESTAMP-'4 days'::interval ";
 
     return load(partFilter, userFilter, currentUser, topics, offset,
-            messagesInPage, "comment_postdate", "AND comments.postdate > CURRENT_TIMESTAMP-'4 days'::interval ",
-            "AND t.postdate > CURRENT_TIMESTAMP-'4 days'::interval", false, false);
+            messagesInPage, "comment_postdate", "AND comments.postdate"+dateFilter +" AND t.lastmod"+dateFilter,
+            "AND t.postdate"+dateFilter, false, false);
   }
 
   private List<TopicsListItem> load(String partFilter, String authorFilter, User currentUser,
@@ -226,6 +229,8 @@ public class GroupListDao {
 
     query = String.format(queryTrackerMain, commentIgnored, authorFilter, commentInterval, partDeleted, partUncommited, partIgnored, partFilter,
             topicInterval, partDeleted, partUncommited, partIgnored, partFilter, authorFilter, tagIgnored, orderColumn);
+
+    System.out.println(query);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
