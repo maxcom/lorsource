@@ -137,10 +137,8 @@ public class GroupListDao {
 
     if (year!=null) {
       commentInterval=" AND t.postdate>='" + year + '-' + month + "-01'::timestamp AND (t.postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
-    } else if (offset==0 && !showDeleted) {
+    } else  {
       commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
-    } else {
-      commentInterval = "";
     }
 
     return load(" AND t.groupid = " + groupid + " AND NOT t.sticky ", "", currentUser,
