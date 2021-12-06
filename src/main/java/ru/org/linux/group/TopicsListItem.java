@@ -22,9 +22,6 @@ import ru.org.linux.user.User;
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
 
-/**
- *
- */
 public class TopicsListItem {
   private final User author; // topic author
   private final int msgid; // topic id
@@ -36,12 +33,12 @@ public class TopicsListItem {
   private final int cid; // tracker only!
 
   @Nullable
-  private final User lastCommentBy; // tracker only!
+  private final User lastCommentBy;
 
   private final boolean resolved;
   private final int section;
   private final String groupUrlName;
-  private final Timestamp postdate; // date of last comment or topic postdate if none ( = lastmod for group)
+  private final Timestamp postdate; // date of last comment or topic postdate if none
   private final boolean uncommited; // awaits for approve
   private final int pages; // number of pages
   private final ImmutableList<String> tags;

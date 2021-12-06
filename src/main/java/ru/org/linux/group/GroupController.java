@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.org.linux.group;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -36,7 +35,9 @@ import ru.org.linux.util.image.ImageInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class GroupController {
@@ -210,22 +211,20 @@ public class GroupController {
     List<TopicsListItem> mainTopics;
 
     if (!lastmod) {
-      mainTopics = groupListDao.getGroupTopics(
-              group,
-              tmpl.getProf().getMessages(),
-              year,
-              month,
+      mainTopics = groupListDao.getGroupListTopics(
+              group.getId(),
+              tmpl.getCurrentUser(),
               tmpl.getProf().getTopics(),
               offset,
-              showDeleted,
+              tmpl.getProf().getMessages(),
               showIgnored,
-              tmpl.getCurrentUser()
-      );
+              showDeleted,
+              year,
+              month);
     } else {
       mainTopics = groupListDao.getGroupTrackerTopics(
               group.getId(),
               tmpl.getCurrentUser(),
-              DateTime.now().minusMonths(3).toDate(),
               tmpl.getProf().getTopics(),
               offset,
               tmpl.getProf().getMessages());

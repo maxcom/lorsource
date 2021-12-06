@@ -16,14 +16,10 @@
 package ru.org.linux.group;
 
 import com.google.common.collect.ImmutableList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.group.Group;
-import ru.org.linux.group.TopicsListItem;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.tracker.TrackerFilterEnum;
@@ -32,27 +28,24 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class GroupListDao {
-  private NamedParameterJdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate jdbcTemplate;
 
-  @Autowired
-  public void setDataSource(DataSource ds) {
+  public GroupListDao(UserDao userDao, TopicTagService topicTagService, DataSource ds) {
+    this.userDao = userDao;
+    this.topicTagService = topicTagService;
     jdbcTemplate = new NamedParameterJdbcTemplate(ds);
   }
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private TopicTagService topicTagService;
+  private final TopicTagService topicTagService;
 
   private static final String queryTrackerMain =
       "SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT " +
@@ -67,17 +60,20 @@ public class GroupListDao {
         "t.resolved as resolved," +
         "section," +
         "urlname," +
-        "comments.postdate, " +
+        "comments.postdate as comment_postdate, " +
         "sections.moderate as smod, " +
         "t.moderate, " +
-        "t.sticky " +
+        "t.sticky, " +
+        "t.postdate as topic_postdate, " +
+        "t.deleted " +
       "FROM topics AS t, groups AS g, comments, sections " +
-      "WHERE g.section=sections.id AND not t.deleted AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
+      "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
               "%s" + /* user!=null ? queryCommentIgnored */
               "%s" + // queryAuthorFilter
               "ORDER BY postdate DESC LIMIT 1) " +
-        "AND t.lastmod > :interval AND comments.postdate > :interval " +
+        "%s" + // commentInterval
+        "%s" + // deleted
         "%s" + /* noUncommited */
         "%s" + /* user!=null ? queryPartIgnored*/
         "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
@@ -94,19 +90,22 @@ public class GroupListDao {
           "t.resolved as resolved," +
           "section," +
           "urlname," +
-          "postdate, " +
+          "postdate as comment_postdate, " +
           "sections.moderate as smod, " +
           "t.moderate, " +
-          "t.sticky " +
+          "t.sticky, " +
+          "t.postdate as topic_postdate, " +
+          "t.deleted " +
       "FROM topics AS t, groups AS g, sections " +
-      "WHERE sections.id=g.section AND not t.deleted AND not t.draft AND t.postdate > :interval " +
+      "WHERE sections.id=g.section AND not t.draft %s " + // topicInterval
           "%s" + /* noUncommited */
+          "%s" + // deleted
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           "%s" + // queryAuthorFilter
-          " AND g.id=t.groupid) as tracker ORDER BY id, postdate desc) tracker " + // userFilter
+          " AND g.id=t.groupid) as tracker ORDER BY id, comment_postdate desc) tracker " +
               "WHERE true %s" + // queryPartTagIgnored
-     "ORDER BY postdate DESC LIMIT :topics OFFSET :offset";
+     "ORDER BY %s DESC LIMIT :topics OFFSET :offset"; // orderColumn
 
   private static final String queryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
@@ -120,14 +119,44 @@ public class GroupListDao {
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
-  public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, Date startDate,
-                                                    int topics, int offset, final int messagesInPage) {
+  public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, int topics, int offset,
+                                                    int messagesInPage) {
 
-    return load(" AND t.groupid = " + groupid + " ", "", currentUser, startDate, topics, offset, messagesInPage);
+    return load(" AND t.groupid = " + groupid + " ", "", currentUser,
+            topics, offset, messagesInPage, "comment_postdate",
+            "AND comments.postdate>CURRENT_TIMESTAMP-'3 month'::interval ",
+            "AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ", false, false);
   }
 
-  public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, User currentUser, Date startDate,
-                                               int topics, int offset, final int messagesInPage) {
+  public List<TopicsListItem> getGroupListTopics(int groupid, User currentUser, int topics, int offset,
+                                                 int messagesInPage, boolean showIgnored, boolean showDeleted,
+                                                 Integer year, Integer month) {
+    String commentInterval;
+
+    if (year!=null) {
+      commentInterval=" AND t.postdate>='" + year + '-' + month + "-01'::timestamp AND (t.postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+    } else if (offset==0 && !showDeleted) {
+      commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
+    } else {
+      commentInterval = "";
+    }
+
+    return load(" AND t.groupid = " + groupid + " AND NOT t.sticky ", "", currentUser,
+            topics, offset, messagesInPage,
+            "topic_postdate", commentInterval, commentInterval, showIgnored, showDeleted);
+  }
+
+  public List<TopicsListItem> getGroupStickyTopics(
+          Group group,
+          int messagesInPage
+  ) {
+    return load(" AND t.groupid = " + group.getId() + " AND t.sticky ", "", null,
+            100, 0, messagesInPage,
+            "topic_postdate", "", "", true, false);
+  }
+
+  public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, User currentUser,
+                                               int topics, int offset, int messagesInPage) {
     String partFilter;
     switch (filter) {
       case ALL:
@@ -160,14 +189,16 @@ public class GroupListDao {
     }
 
 
-    return load(partFilter, userFilter, currentUser, startDate, topics, offset, messagesInPage);
+    return load(partFilter, userFilter, currentUser, topics, offset,
+            messagesInPage, "comment_postdate", "AND comments.postdate > CURRENT_TIMESTAMP-'4 days'::interval ",
+            "AND t.postdate > CURRENT_TIMESTAMP-'4 days'::interval", false, false);
   }
 
-  private List<TopicsListItem> load(String partFilter, String authorFilter, User currentUser, Date startDate,
-                                          int topics, int offset, final int messagesInPage) {
+  private List<TopicsListItem> load(String partFilter, String authorFilter, User currentUser,
+                                    int topics, int offset, final int messagesInPage, String orderColumn,
+                                    String commentInterval, String topicInterval, boolean showIgnored, boolean showDeleted) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
-    parameter.addValue("interval", startDate);
     parameter.addValue("topics", topics);
     parameter.addValue("offset", offset);
 
@@ -175,7 +206,7 @@ public class GroupListDao {
     String commentIgnored;
     String tagIgnored;
 
-    if (currentUser != null) {
+    if (currentUser != null && !showIgnored) {
       commentIgnored = queryPartCommentIgnored;
       partIgnored = queryPartIgnored;
       tagIgnored = queryPartTagIgnored;
@@ -189,11 +220,12 @@ public class GroupListDao {
     boolean showUncommited = currentUser!=null && (currentUser.isModerator() || currentUser.isCorrector());
 
     String partUncommited = showUncommited ? "" : noUncommited;
+    String partDeleted = showDeleted?"":" AND NOT t.deleted ";
 
     String query;
 
-    query = String.format(queryTrackerMain, commentIgnored, authorFilter, partUncommited, partIgnored, partFilter,
-            partUncommited, partIgnored, partFilter, authorFilter, tagIgnored);
+    query = String.format(queryTrackerMain, commentIgnored, authorFilter, commentInterval, partDeleted, partUncommited, partIgnored, partFilter,
+            topicInterval, partDeleted, partUncommited, partIgnored, partFilter, authorFilter, tagIgnored, orderColumn);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
@@ -223,7 +255,7 @@ public class GroupListDao {
       boolean resolved = resultSet.getBoolean("resolved");
       int section = resultSet.getInt("section");
       String groupUrlName = resultSet.getString("urlname");
-      Timestamp postdate = resultSet.getTimestamp("postdate");
+      Timestamp postdate = resultSet.getTimestamp("comment_postdate");
       boolean sticky = resultSet.getBoolean("sticky");
       boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
       int pages = Topic.getPageCount(stat1, messagesInPage);
@@ -234,103 +266,9 @@ public class GroupListDao {
 
       res.add(new TopicsListItem(author, msgid, lastmod, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,
-              section, groupUrlName, postdate, uncommited, pages, tags, false, sticky));
+              section, groupUrlName, postdate, uncommited, pages, tags, resultSet.getBoolean("deleted"), sticky));
     }
     
     return res;
-  }
-
-  public List<TopicsListItem> getGroupTopics(
-          Group group,
-          int messagesInPage,
-          Integer year,
-          Integer month,
-          int topics,
-          int offset,
-          boolean showDeleted,
-          boolean showIgnored,
-          @Nullable User currentUser
-  ) {
-    String delq = showDeleted ? "" : " AND NOT deleted ";
-
-    String ignq = "";
-    String commentIgnq = "";
-
-    if (!showIgnored && currentUser != null) {
-      int currentUserId = currentUser.getId();
-      ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
-      ignq += " AND topics.id NOT IN (select distinct tags.msgid from tags, user_tags "
-              + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=" + currentUserId + ") ";
-      commentIgnq = " AND comments.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
-    }
-
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.sticky, topics.resolved, " +
-            "(SELECT max(postdate) FROM comments WHERE topic=topics.id AND NOT comments.deleted "+commentIgnq+") as commentdate " +
-            "FROM topics WHERE NOT draft AND NOT sticky AND topics.groupid=" + group.getId() + delq;
-
-    if (year!=null) {
-      q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
-    }
-
-
-    if (year==null) {
-      if (offset==0) {
-        q += " AND postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
-      }
-    }
-
-    return jdbcTemplate.getJdbcOperations().query(
-            q + ignq + " ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset,
-            groupListMapper(group, messagesInPage)
-    );
-  }
-
-  public List<TopicsListItem> getGroupStickyTopics(
-          Group group,
-          int messagesInPage
-  ) {
-    String q =
-            "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.sticky, topics.resolved, " +
-                    "(SELECT max(postdate) FROM comments WHERE topic=topics.id AND NOT comments.deleted) as commentdate " +
-                    "FROM topics WHERE sticky AND NOT deleted AND topics.groupid=? ORDER BY postdate DESC";
-
-    return jdbcTemplate.getJdbcOperations().query(q, groupListMapper(group, messagesInPage), group.getId());
-  }
-
-  private RowMapper<TopicsListItem> groupListMapper(Group group, int messagesInPage) {
-    return (rs, rowNum) -> {
-      User author;
-
-      author = userDao.getUserCached(rs.getInt("userid"));
-
-      ImmutableList<String> tags = topicTagService.getTagsForTitle(rs.getInt("msgid"));
-
-      Timestamp lastmod = rs.getTimestamp("lastmod");
-      Timestamp postdate = rs.getTimestamp("commentdate");
-
-      if (postdate==null) {
-        postdate = lastmod;
-      }
-
-      return new TopicsListItem(
-              author,
-              rs.getInt("msgid"),
-              lastmod,
-              rs.getInt("stat1"),
-              group.getId(),
-              group.getTitle(),
-              StringUtil.makeTitle(rs.getString("subj")),
-              0,
-              null,
-              rs.getBoolean("resolved"),
-              group.getSectionId(),
-              group.getUrlName(),
-              postdate,
-              false,
-              Topic.getPageCount(rs.getInt("stat1"), messagesInPage),
-              tags,
-              rs.getBoolean("deleted"),
-              rs.getBoolean("sticky"));
-    };
   }
 }
