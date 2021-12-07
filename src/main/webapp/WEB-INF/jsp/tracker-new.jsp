@@ -1,6 +1,5 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page import="ru.org.linux.site.Template" %>
 <%--
   ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,6 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

@@ -248,7 +248,11 @@ public class GroupController {
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
-    return new ModelAndView("group", params);
+    if (tmpl.isModeratorSession() && !tmpl.getProf().isOldTracker()) {
+      return new ModelAndView("group-new", params);
+    } else {
+      return new ModelAndView("group", params);
+    }
   }
 
   @ExceptionHandler(GroupNotFoundException.class)

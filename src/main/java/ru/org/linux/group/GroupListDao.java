@@ -228,8 +228,6 @@ public class GroupListDao {
     query = String.format(queryTrackerMain, commentIgnored, authorFilter, commentInterval, partDeleted, partUncommited, partIgnored, partFilter,
             topicInterval, partDeleted, partUncommited, partIgnored, partFilter, authorFilter, tagIgnored, orderColumn);
 
-    System.out.println(query);
-
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
     List<TopicsListItem> res = new ArrayList<>(topics);
