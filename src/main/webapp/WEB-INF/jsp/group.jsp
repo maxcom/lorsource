@@ -177,7 +177,7 @@
   </td>
 
   <td class="dateinterval">
-    <lor:dateinterval date="${topic.postdate}"/>
+    <lor:dateinterval date="${topic.postdate}"/>, <lor:user user="${topic.author}"/>
   </td>
 
   <td class=numbers>
