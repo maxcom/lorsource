@@ -217,6 +217,10 @@
     grid-row-start: 1;
   }
 
+  .group-author {
+    color: $text_color;
+  }
+
   .tracker-tags {
     grid-column-start: 1;
     grid-column-end: 7;

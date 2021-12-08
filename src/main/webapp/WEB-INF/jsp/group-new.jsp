@@ -146,7 +146,7 @@
             </c:if>
 
             <l:title>${msg.title}</l:title>
-            (<c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/></c:if>)
+            <span class="group-author"> (<lor:user user="${msg.topicAuthor}"/>)</span>
           </p>
         </div>
 
