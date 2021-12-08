@@ -83,16 +83,18 @@ public class RegisterRequestValidator implements Validator {
           "lackmail.ru",
           "extemail.ru",
           "kismail.ru",
-	  "divismail.ru",
-	  "wimsg.com",
-	  "mvrht.com",
-	  "vmani.com",
-	  "abyssmail.com",
-	  "a.asu.mx",
-	  "10mail.org",
-	  "zasod.com",
-	  "msgos.com",
-          "trbvn.com"
+          "divismail.ru",
+          "wimsg.com",
+          "mvrht.com",
+          "vmani.com",
+          "abyssmail.com",
+          "a.asu.mx",
+          "10mail.org",
+          "zasod.com",
+          "msgos.com",
+          "trbvn.com",
+          "thefmail.com",
+          "thefmails.com"
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
