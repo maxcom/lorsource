@@ -64,7 +64,15 @@ public class ScoreUpdater {
   }
 
   @Scheduled(cron="0 1 2 * * *")
+  @Transactional
   public void deleteInactivated() {
+    jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval)");
+    jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval)");
     jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval");
+
+    jdbcTemplate.update("delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval)");
+    jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval)");
+    jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval)");
+    jdbcTemplate.update("delete from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval");
   }
 }
