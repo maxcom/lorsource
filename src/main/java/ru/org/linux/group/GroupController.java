@@ -248,7 +248,7 @@ public class GroupController {
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 
-    if (tmpl.isSessionAuthorized() && tmpl.getCurrentUser().getScore()>=400 && !tmpl.getProf().isOldTracker()) {
+    if (tmpl.isSessionAuthorized() && tmpl.getCurrentUser().getScore()>=300 && !tmpl.getProf().isOldTracker()) {
       return new ModelAndView("group-new", params);
     } else {
       return new ModelAndView("group", params);
