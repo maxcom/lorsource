@@ -57,6 +57,28 @@
     </div>
   </form>
 
+  <div class="infoblock">
+    Местоположение (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>): <span id="geolookup">...</span>
+  </div>
+
+  <script>
+      $script.ready("jquery", function () {
+          $.ajax({
+              method: 'GET',
+              contentType: 'application/json',
+              url: 'https://ipwhois.app/json/${ip}?lang=ru',
+              dataType: 'json',
+              success: function (json) {
+                  if (json.success) {
+                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city)
+                  } else {
+                      $('#geolookup').text("rejected - " + json.message)
+                  }
+              }
+          });
+      })
+  </script>
+
 <strong>Текущий статус: </strong>
 
 <c:if test="${blockInfo == null}">
