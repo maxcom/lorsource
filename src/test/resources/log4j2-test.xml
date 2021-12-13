@@ -9,10 +9,11 @@
   <Loggers>
     <Logger name="org.apache.commons" level="info"/>
     <Logger name="org.springframework" level="info"/>
-    <Logger name="httpclient.wire" level="info"/>
+    <Logger name="org.apache.http" level="info"/>
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
     <Logger name="org.apache.activemq" level="info"/>
+    <Logger name="com.sksamuel.elastic4s" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="CONSOLE"/>
