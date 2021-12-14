@@ -88,6 +88,10 @@ public class WhoisController {
       throw new UserBanedException(user, userDao.getBanInfoClass(user));
     }
 
+    if (!user.isActivated() && !tmpl.isModeratorSession()) {
+      throw new UserNotFoundException(user.getName());
+    }
+
     ModelAndView mv = new ModelAndView("whois");
     mv.getModel().put("user", user);
     mv.getModel().put("userInfo", userDao.getUserInfoClass(user));
