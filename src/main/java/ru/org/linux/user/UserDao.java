@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,6 +39,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserDao {
@@ -408,13 +409,13 @@ public class UserDao {
 
       if (searchBlocked) {
         id = jdbcTemplate.queryForObject(
-                "SELECT id FROM users WHERE email=? ORDER BY blocked ASC, id DESC LIMIT 1",
+                "SELECT id FROM users WHERE normalize_email(email)=? ORDER BY blocked ASC, id DESC LIMIT 1",
                 Integer.class,
                 email.toLowerCase()
         );
       } else {
         id = jdbcTemplate.queryForObject(
-                "SELECT id FROM users WHERE email=? AND NOT blocked ORDER BY id DESC LIMIT 1",
+                "SELECT id FROM users WHERE normalize_email(email)=? AND NOT blocked ORDER BY id DESC LIMIT 1",
                 Integer.class,
                 email.toLowerCase()
         );
@@ -423,6 +424,21 @@ public class UserDao {
       return getUser(id);
     } catch (EmptyResultDataAccessException ex) {
       return null;
+    }
+  }
+
+  public List<User> getAllByEmail(String email) {
+    if (email.isEmpty()) {
+      return List.of();
+    } else {
+      List<Integer> userIds;
+
+      userIds = jdbcTemplate.queryForList(
+              "SELECT id FROM users WHERE normalize_email(email)=? ORDER BY id DESC",
+              Integer.class,
+              email.toLowerCase());
+
+      return userIds.stream().map(this::getUser).collect(Collectors.toList());
     }
   }
 

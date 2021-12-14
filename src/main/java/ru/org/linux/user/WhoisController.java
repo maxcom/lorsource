@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,13 +32,13 @@ import scala.Option;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Controller
 public class WhoisController {
@@ -116,6 +116,12 @@ public class WhoisController {
     }
 
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
+
+    if (tmpl.isModeratorSession()) {
+      mv.getModel().put(
+              "otherUsers",
+              userDao.getAllByEmail(user.getEmail()).stream().filter(u -> u.getId() != user.getId()).collect(Collectors.toList()));
+    }
 
     if (!user.isAnonymous()) {
       UserStats userStat = userStatisticsService.getStats(user);

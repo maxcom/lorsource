@@ -6,7 +6,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2019 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -31,6 +31,7 @@
 <%--@elvariable id="remark" type="ru.org.linux.user.Remark"--%>
 <%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
 <%--@elvariable id="userlog" type="java.util.List<ru.org.linux.user.PreparedUserLogItem>"--%>
+<%--@elvariable id="otherUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -204,6 +205,15 @@
     <c:if test="${not empty user.email}">
       <b>Email:</b> <a
             href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
+
+        <c:if test="${template.moderatorSession and not empty otherUsers}">
+            <br>Другие пользователи с этим email адресом:
+            <c:forEach items="${otherUsers}" var="u">
+                <lor:user user="${u}" link="true"/>
+            </c:forEach>
+            <br>
+        </c:if>
+
       <form action="/lostpwd.jsp" method="POST" style="display: inline">
         <lor:csrf/>
         <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
