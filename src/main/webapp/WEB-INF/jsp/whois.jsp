@@ -206,14 +206,6 @@
       <b>Email:</b> <a
             href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
 
-        <c:if test="${template.moderatorSession and not empty otherUsers}">
-            <br>Другие пользователи с этим email адресом:
-            <c:forEach items="${otherUsers}" var="u">
-                <lor:user user="${u}" link="true"/><c:out value=" "/>
-            </c:forEach>
-            <p>
-        </c:if>
-
       <form action="/lostpwd.jsp" method="POST" style="display: inline">
         <lor:csrf/>
         <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
@@ -224,6 +216,14 @@
     <c:if test="${template.moderatorSession}">
         <a href="/people/${user.nick}/profile?reset-password" class="btn btn-small btn-danger">Сбросить пароль</a>
     </c:if>
+
+    <c:if test="${template.moderatorSession and not empty otherUsers}">
+      <br>Другие пользователи с этим email адресом:
+      <c:forEach items="${otherUsers}" var="u">
+          <lor:user user="${u}" link="true"/><c:out value=" "/>
+      </c:forEach>
+    </c:if>
+
     <br>
 
     <b>Score:</b> ${user.score}
