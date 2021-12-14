@@ -41,9 +41,9 @@ $function$
         </sql>
     </changeSet>
 
-    <changeSet id="2021121450" author="maxcom">
+    <changeSet id="2021121451" author="maxcom">
         <sql>
-            create index users_email_normalized_idx on users(normalize_email(email));
+            create index concurrently users_email_normalized_idx on users(normalize_email(email));
         </sql>
     </changeSet>
 </databaseChangeLog>
