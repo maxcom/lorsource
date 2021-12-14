@@ -409,13 +409,13 @@ public class UserDao {
 
       if (searchBlocked) {
         id = jdbcTemplate.queryForObject(
-                "SELECT id FROM users WHERE normalize_email(email)=? ORDER BY blocked ASC, id DESC LIMIT 1",
+                "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) ORDER BY blocked ASC, id DESC LIMIT 1",
                 Integer.class,
                 email.toLowerCase()
         );
       } else {
         id = jdbcTemplate.queryForObject(
-                "SELECT id FROM users WHERE normalize_email(email)=? AND NOT blocked ORDER BY id DESC LIMIT 1",
+                "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) AND NOT blocked ORDER BY id DESC LIMIT 1",
                 Integer.class,
                 email.toLowerCase()
         );
@@ -434,7 +434,7 @@ public class UserDao {
       List<Integer> userIds;
 
       userIds = jdbcTemplate.queryForList(
-              "SELECT id FROM users WHERE normalize_email(email)=? ORDER BY id DESC",
+              "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) ORDER BY id DESC",
               Integer.class,
               email.toLowerCase());
 
