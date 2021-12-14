@@ -209,9 +209,9 @@
         <c:if test="${template.moderatorSession and not empty otherUsers}">
             <br>Другие пользователи с этим email адресом:
             <c:forEach items="${otherUsers}" var="u">
-                <lor:user user="${u}" link="true"/>
+                <lor:user user="${u}" link="true"/><c:out value=" "/>
             </c:forEach>
-            <br>
+            <p>
         </c:if>
 
       <form action="/lostpwd.jsp" method="POST" style="display: inline">
