@@ -676,17 +676,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.tomcat.maven</groupId>
-        <artifactId>tomcat7-maven-plugin</artifactId>
-        <version>2.2</version>
-
-        <configuration>
-          <path>/</path>
-          <warSourceDirectory>${project.build.directory}/${project.build.finalName}</warSourceDirectory>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
@@ -880,6 +869,22 @@
                 <version>${jetty.version}</version>
               </dependency>
             </dependencies>
+            <executions>
+              <execution>
+                <id>start-jetty</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-jetty</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
             <configuration>
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
@@ -907,30 +912,6 @@
                 </connector>
               </connectors>
             </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.tomcat.maven</groupId>
-            <artifactId>tomcat7-maven-plugin</artifactId>
-
-            <executions>
-              <execution>
-                <id>start-tomcat</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <fork>true</fork>
-                </configuration>
-              </execution>
-              <execution>
-                <id>stop-tomcat</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>shutdown</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
