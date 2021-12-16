@@ -572,4 +572,11 @@ public class UserDao {
     jdbcTemplate.update("UPDATE edit_info SET editor=? WHERE editor=?", targetUser, user);
     jdbcTemplate.update("UPDATE topics SET userid=? WHERE userid=?", targetUser, user);
   }
+
+  public int countUnactivated(String ip) {
+    return jdbcTemplate.queryForObject(
+            "select count(*) from users join user_log on users.id = user_log.userid " +
+                    "where not activated and not blocked and regdate>CURRENT_TIMESTAMP-'1 day'::interval " +
+                      "and action='register' and info->'ip'=?", Integer.class, ip);
+  }
 }

@@ -14,10 +14,6 @@
  */
 package ru.org.linux.user
 
-import javax.mail.internet.InternetAddress
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.validation.Valid
-
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
@@ -36,6 +32,9 @@ import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
+import javax.mail.internet.InternetAddress
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.validation.Valid
 import scala.jdk.CollectionConverters._
 
 @Controller
@@ -59,10 +58,6 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
     if (!errors.hasErrors) {
       captcha.checkCaptcha(request, errors)
 
-      val tmpl = Template.getTemplate(request)
-
-      ipBlockDao.checkBlockIP(request.getRemoteAddr, errors, tmpl.getCurrentUser)
-
       if (userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick)) {
         errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
       }
@@ -70,6 +65,17 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
       if (userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, false) != null) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
           "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
+      }
+    }
+
+    if (!errors.hasErrors) {
+      ipBlockDao.checkBlockIP(request.getRemoteAddr, errors, null)
+
+      val unactivatedCount = userDao.countUnactivated(request.getRemoteAddr)
+
+      if (unactivatedCount>=3) {
+        logger.warn(s"To many registrations for ${request.getRemoteAddr} (count=$unactivatedCount), rejecting new registration")
+        errors.reject(null, "Превышен лимит регистраций для IP адреса")
       }
     }
 
