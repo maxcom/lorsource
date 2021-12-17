@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -63,16 +63,20 @@ public class ScoreUpdater {
     jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and blocked is null)");
   }
 
-  @Scheduled(cron="0 1 2 * * *")
+  @Scheduled(cron="0 30 * * * *")
   @Transactional
   public void deleteInactivated() {
+    logger.info("Deleting non-activated accounts");
+
     jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval)");
     jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval)");
-    jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval");
+    int deleted = jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'3 days'::interval");
 
     jdbcTemplate.update("delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval)");
     jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval)");
     jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval)");
-    jdbcTemplate.update("delete from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval");
+    int deletedBlocked = jdbcTemplate.update("delete from users where not activated and regdate<CURRENT_TIMESTAMP-'90 days'::interval");
+
+    logger.info("Deleted {} non-activated; {} blocked accounts", deleted, deletedBlocked);
   }
 }
