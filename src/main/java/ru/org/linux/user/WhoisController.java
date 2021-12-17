@@ -16,6 +16,8 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -42,6 +44,8 @@ import java.util.stream.Collectors;
 
 @Controller
 public class WhoisController {
+  private static final Logger logger = LoggerFactory.getLogger(WhoisController.class);
+
   @Autowired
   private UserDao userDao;
 
@@ -221,7 +225,9 @@ public class WhoisController {
 
   @ExceptionHandler(UserNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleUserNotFound() {
+  public ModelAndView handleUserNotFound(UserNotFoundException ex) {
+    logger.debug("User not found", ex);
+
     ModelAndView mav = new ModelAndView("errors/good-penguin");
     mav.addObject("msgTitle", "Ошибка: пользователя не существует");
     mav.addObject("msgHeader", "Пользователя не существует");
