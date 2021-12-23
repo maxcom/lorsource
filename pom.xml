@@ -848,6 +848,7 @@
             <configuration>
               <propertyFile>sql/liquibase.config</propertyFile>
               <verbose>true</verbose>
+              <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
             </configuration>
             <executions>
               <execution>
