@@ -5,7 +5,7 @@ on: [push]
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: centos:centos7
+    container: maven:3.8.4-openjdk-11
     services:
       postgres:
         image: postgres:10
