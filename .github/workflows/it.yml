@@ -3,8 +3,12 @@ name: Integration Tests
 on: [push]
 
 jobs:
-  build:
+  container-job:
     runs-on: ubuntu-latest
+    container: maven:3.8.4-openjdk-11
+    services:
+      postgres:
+        image: postgres
 
     steps:
       - uses: actions/checkout@v2
@@ -13,5 +17,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+          cache: maven
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: mvn --batch-mode --update-snapshots test
