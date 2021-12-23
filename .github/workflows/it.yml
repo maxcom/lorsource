@@ -32,8 +32,8 @@ jobs:
           createuser -d -S -R maxcom
           createuser -D -S -R linuxweb
           createuser -D -S -R jamwiki
-          psql -c "ALTER USER maxcom WITH PASSWORD 'maxcom'" -U postgres lor
-          psql -c "ALTER USER linuxweb WITH PASSWORD 'linuxweb'" -U postgres lor
+          psql -c "ALTER USER maxcom WITH PASSWORD 'maxcom'" -U postgres template1
+          psql -c "ALTER USER linuxweb WITH PASSWORD 'linuxweb'" -U postgres template1
           createdb -U maxcom lor
           psql -c 'create extension hstore;' -U postgres lor
           psql -c 'create extension fuzzystrmatch;' -U postgres lor
