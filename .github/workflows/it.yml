@@ -17,9 +17,7 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: lor
           POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
 
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +25,7 @@ jobs:
         run: |
           apt-get update
           apt-get install --yes --no-install-recommends postgresql-client
-          createuser -h localhost -U postgres -d -S -R maxcom
+          createuser -h postgres -U postgres -d -S -R maxcom
           createuser -h localhost -U postgres -D -S -R linuxweb
           createuser -h localhost -U postgres -D -S -R jamwiki
           createdb -h localhost -U maxcom lor
