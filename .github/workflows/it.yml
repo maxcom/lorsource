@@ -34,7 +34,7 @@ jobs:
           createuser -D -S -R jamwiki
           psql -c "ALTER USER maxcom WITH PASSWORD 'maxcom'" -U postgres template1
           psql -c "ALTER USER linuxweb WITH PASSWORD 'linuxweb'" -U postgres template1
-          createdb -U maxcom lor
+          PGPASSWORD=maxcom createdb -U maxcom lor
           psql -c 'create extension hstore;' -U postgres lor
           psql -c 'create extension fuzzystrmatch;' -U postgres lor
       - name: Set up JDK 11
