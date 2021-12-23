@@ -31,7 +31,7 @@ jobs:
           cache: maven
       - name: Initialize database	
         run: |
-	  apt-get install --yes --no-install-recommends postgresql-client
+          apt-get install --yes --no-install-recommends postgresql-client
           createuser -U postgres -d -S -R maxcom
           createuser -U postgres -D -S -R linuxweb
           createuser -U postgres -D -S -R jamwiki
