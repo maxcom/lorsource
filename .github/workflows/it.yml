@@ -5,10 +5,20 @@ on: [push]
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: maven:3.8.4-openjdk-11
+    container: centos:centos7
     services:
       postgres:
-        image: postgres
+        image: postgres:10
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_DB: lor
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+
 
     steps:
       - uses: actions/checkout@v2
@@ -18,5 +28,12 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           cache: maven
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots test
+      - name: Build 
+        run: mvn --batch-mode -DskipTests=true -Dmaven.javadoc.skip=true package
+      - name: Initialize database	
+        run: |
+	  createuser -h postgres -U postgres -d -S -R maxcom
+	  createuser -h postgres -U postgres -D -S -R linuxweb
+	  createuser -h postgres -U postgres -D -S -R jamwiki
+      - name: Test
+        run: mvn --batch-mode test
