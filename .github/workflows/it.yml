@@ -32,8 +32,8 @@ jobs:
         run: mvn --batch-mode -DskipTests=true -Dmaven.javadoc.skip=true package
       - name: Initialize database	
         run: |
-	  createuser -h postgres -U postgres -d -S -R maxcom
-	  createuser -h postgres -U postgres -D -S -R linuxweb
-	  createuser -h postgres -U postgres -D -S -R jamwiki
+          createuser -h postgres -U postgres -d -S -R maxcom
+          createuser -h postgres -U postgres -D -S -R linuxweb
+          createuser -h postgres -U postgres -D -S -R jamwiki
       - name: Test
         run: mvn --batch-mode test
