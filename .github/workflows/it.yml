@@ -27,9 +27,12 @@ jobs:
         run: |
           apt-get update
           apt-get install --yes --no-install-recommends postgresql-client
-          createuser -U postgres -d -S -R maxcom
-          createuser -U postgres -D -S -R linuxweb
-          createuser -U postgres -D -S -R jamwiki
+          createuser -h localhost -U postgres -d -S -R maxcom
+          createuser -h localhost -U postgres -D -S -R linuxweb
+          createuser -h localhost -U postgres -D -S -R jamwiki
+          createdb -h localhost -U maxcom lor
+          psql -h localhost -c 'create extension hstore;' -U postgres lor
+          psql -h localhost -c 'create extension fuzzystrmatch;' -U postgres lor
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
