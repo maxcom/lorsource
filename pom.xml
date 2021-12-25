@@ -21,12 +21,12 @@
     <elastic4s.version>6.7.8</elastic4s.version>
     <scala.version>2.13.7</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.15.9</activemq.version>
+    <activemq.version>5.15.15</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
     <jquery.form.version>4.2.1</jquery.form.version>
     <jetty.version>9.4.44.v20210927</jetty.version>
-    <akka.version>2.6.17</akka.version>
+    <akka.version>2.6.18</akka.version>
     <log4j.version>2.17.0</log4j.version>
     <play-ws.version>2.1.6</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
@@ -98,14 +98,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.5.1</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.5.1</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -133,7 +133,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>30.0-jre</version>
+      <version>30.0.1-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
