@@ -15,7 +15,6 @@
 
 package ru.org.linux.spring;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -47,20 +46,19 @@ import java.util.Map;
 
 @Controller
 public class SameIPController {
-  @Autowired
-  private IPBlockDao ipBlockDao;
+  private final IPBlockDao ipBlockDao;
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private UserAgentDao userAgentDao;
+  private final UserAgentDao userAgentDao;
 
-  private JdbcTemplate jdbcTemplate;
-  private NamedParameterJdbcTemplate namedJdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-  @Autowired
-  public void setDataSource(DataSource ds) {
+  public SameIPController(IPBlockDao ipBlockDao, UserDao userDao, UserAgentDao userAgentDao, DataSource ds) {
+    this.ipBlockDao = ipBlockDao;
+    this.userDao = userDao;
+    this.userAgentDao = userAgentDao;
     jdbcTemplate = new JdbcTemplate(ds);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
