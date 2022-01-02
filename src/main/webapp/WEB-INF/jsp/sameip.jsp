@@ -20,7 +20,7 @@
 <%--@elvariable id="blockModerator" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
-<%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
+<%--@elvariable id="users" type="java.util.List<ru.org.linux.comment.CommentsListItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
 <%--@elvariable id="userAgent" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -239,21 +239,20 @@ function checkCustomBan(idx) {
 <thead>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
-<c:forEach items="${comments}" var="topic">
+<c:forEach items="${comments}" var="comment">
 <tr>
-  <td>${topic.ptitle}</td>
-  <td>${topic.gtitle}</td>
+  <td>${comment.ptitle}</td>
+  <td>${comment.gtitle}</td>
   <td>
-    <c:if test="${topic.deleted}">
-      <s>
-    </c:if>
-    <a href="jump-message.jsp?msgid=${topic.topicId}&amp;cid=${topic.id}" rev=contents><l:title>${topic.title}</l:title></a>
-    <c:if test="${topic.deleted}">
-      </s>
+    <a href="jump-message.jsp?msgid=${comment.msgid}&amp;cid=${comment.commentId}" rev=contents><l:title>${comment.title}</l:title></a>
+    <c:if test="${comment.deleted}">
+      <br>
+      <img src="/img/del.png" alt="[X]" width="15" height="15">
+      Удалено по причине: <c:out escapeXml="true" value="${comment.reason}"/>
     </c:if>
   </td>
   <td>
-    <lor:date date="${topic.postdate}"/>
+    <lor:date date="${comment.postdate}"/>
   </td>
 </tr>
 </c:forEach>

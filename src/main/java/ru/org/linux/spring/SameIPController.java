@@ -25,6 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.comment.CommentDao;
+import ru.org.linux.comment.CommentsListItem;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
@@ -51,14 +53,17 @@ public class SameIPController {
   private final UserDao userDao;
 
   private final UserAgentDao userAgentDao;
+  private final CommentDao commentDao;
 
   private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-  public SameIPController(IPBlockDao ipBlockDao, UserDao userDao, UserAgentDao userAgentDao, DataSource ds) {
+  public SameIPController(IPBlockDao ipBlockDao, UserDao userDao, UserAgentDao userAgentDao, CommentDao commentDao,
+                          DataSource ds) {
     this.ipBlockDao = ipBlockDao;
     this.userDao = userDao;
     this.userAgentDao = userAgentDao;
+    this.commentDao = commentDao;
     jdbcTemplate = new JdbcTemplate(ds);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
@@ -110,7 +115,7 @@ public class SameIPController {
     }
 
     mv.getModel().put("topics", getTopics(actualIp, userAgent));
-    mv.getModel().put("comments", getComments(actualIp, userAgent));
+    mv.getModel().put("comments", commentDao.getCommentsByUAIP(actualIp, userAgent));
 
     if (actualIp != null) {
       mv.getModel().put("ip", actualIp);
@@ -161,30 +166,6 @@ public class SameIPController {
                     "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
             params,
             (rs, rowNum) -> new TopicItem(rs, false)
-    );
-  }
-
-  private List<TopicItem> getComments(@Nullable String ip, @Nullable Integer userAgent) {
-    String ipQuery = ip!=null?"AND comments.postip=:ip::inet ":"";
-    String userAgentQuery = userAgent!=null?"AND comments.ua_id=:userAgent ":"";
-
-    Map<String, Object> params = new HashMap<>();
-
-    params.put("ip", ip);
-    params.put("userAgent", userAgent);
-
-    return namedJdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
-                    "FROM sections, groups, topics, comments " +
-                    "WHERE sections.id=groups.section " +
-                    "AND groups.id=topics.groupid " +
-                    "AND comments.topic=topics.id " +
-                    ipQuery +
-                    userAgentQuery +
-                    "AND comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
-                    "ORDER BY postdate DESC",
-            params,
-            (rs, rowNum) -> new TopicItem(rs, true)
     );
   }
 

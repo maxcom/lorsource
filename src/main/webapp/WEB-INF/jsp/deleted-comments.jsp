@@ -4,7 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -31,7 +31,7 @@
     <tr>
       <th>Раздел</th>
       <th>Группа</th>
-      <th>Комментарий</th>
+      <th>Заглавие темы</th>
       <th>Причина удаления</th>
       <th>Бонус</th>
       <th>Дата</th>

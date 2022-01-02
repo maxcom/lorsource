@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,7 +46,6 @@ import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
@@ -501,7 +500,7 @@ public class CommentService {
    * @param user  объект пользователя
    * @return список удалённых комментариев пользователя
    */
-  public List<CommentDao.DeletedListItem> getDeletedComments(User user) {
+  public List<CommentsListItem> getDeletedComments(User user) {
     return commentDao.getDeletedComments(user.getId());
   }
 
