@@ -428,7 +428,7 @@ public class UserDao {
   }
 
   public List<User> getAllByEmail(String email) {
-    if (email.isEmpty()) {
+    if (email==null || email.isEmpty()) {
       return List.of();
     } else {
       List<Integer> userIds;
