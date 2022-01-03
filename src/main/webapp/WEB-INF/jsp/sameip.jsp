@@ -237,7 +237,7 @@ function checkCustomBan(idx) {
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tr><th>Группа</th><th>Заглавие темы (автор комментария)</th><th>Дата</th></tr>
 <tbody>
 <c:forEach items="${comments}" var="comment">
 <tr>
