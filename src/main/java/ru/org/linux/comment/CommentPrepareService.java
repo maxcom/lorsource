@@ -331,4 +331,14 @@ public class CommentPrepareService {
       return prepareComment(text, author, remarkText, comment, comments, tmpl, topic, hideSet, samePageComments);
     }).collect(Collectors.toList());
   }
+
+  public List<PreparedCommentsListItem> prepareCommentsList(List<CommentsListItem> comments) {
+    Map<Integer, User> users = loadUsers(Iterables.transform(comments, CommentsListItem::getAuthorId));
+
+    return comments.stream().map(comment -> {
+      User author = users.get(comment.authorId());
+
+      return new PreparedCommentsListItem(comment, author);
+    }).collect(Collectors.toList());
+  }
 }

@@ -29,7 +29,6 @@
   <table width="100%" class="message-table">
     <thead>
     <tr>
-      <th>Раздел</th>
       <th>Группа</th>
       <th>Заглавие темы</th>
       <th>Причина удаления</th>
@@ -40,7 +39,6 @@
     <c:forEach items="${deletedList}" var="item">
 
     <tr>
-      <td>${item.ptitle}</td>
       <td>${item.gtitle}</td>
       <td>
         <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title>${item.title}</l:title></a>

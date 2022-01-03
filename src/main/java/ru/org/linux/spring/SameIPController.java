@@ -26,7 +26,7 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.CommentDao;
-import ru.org.linux.comment.CommentsListItem;
+import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
@@ -54,16 +54,18 @@ public class SameIPController {
 
   private final UserAgentDao userAgentDao;
   private final CommentDao commentDao;
+  private final CommentPrepareService commentPrepareService;
 
   private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
   public SameIPController(IPBlockDao ipBlockDao, UserDao userDao, UserAgentDao userAgentDao, CommentDao commentDao,
-                          DataSource ds) {
+                          CommentPrepareService commentPrepareService, DataSource ds) {
     this.ipBlockDao = ipBlockDao;
     this.userDao = userDao;
     this.userAgentDao = userAgentDao;
     this.commentDao = commentDao;
+    this.commentPrepareService = commentPrepareService;
     jdbcTemplate = new JdbcTemplate(ds);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
@@ -115,7 +117,7 @@ public class SameIPController {
     }
 
     mv.getModel().put("topics", getTopics(actualIp, userAgent));
-    mv.getModel().put("comments", commentDao.getCommentsByUAIP(actualIp, userAgent));
+    mv.getModel().put("comments", commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(actualIp, userAgent)));
 
     if (actualIp != null) {
       mv.getModel().put("ip", actualIp);
@@ -165,7 +167,7 @@ public class SameIPController {
                     userAgentQuery +
                     "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
             params,
-            (rs, rowNum) -> new TopicItem(rs, false)
+            (rs, rowNum) -> new TopicItem(rs)
     );
   }
 
@@ -188,21 +190,14 @@ public class SameIPController {
     private final int id;
     private final String title;
     private final Timestamp postdate;
-    private final int topicId;
     private final boolean deleted;
 
-    private TopicItem(ResultSet rs, boolean isComment) throws SQLException {
+    private TopicItem(ResultSet rs) throws SQLException {
       ptitle = rs.getString("ptitle");
       gtitle = rs.getString("gtitle");
       id = rs.getInt("msgid");
       title = StringUtil.makeTitle(rs.getString("title"));
       postdate = rs.getTimestamp("postdate");
-
-      if (isComment) {
-        topicId = rs.getInt("topicid");
-      } else {
-        topicId = 0;
-      }
 
       deleted = rs.getBoolean("deleted");
     }
@@ -225,10 +220,6 @@ public class SameIPController {
 
     public Timestamp getPostdate() {
       return postdate;
-    }
-
-    public int getTopicId() {
-      return topicId;
     }
 
     public boolean isDeleted() {

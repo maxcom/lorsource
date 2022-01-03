@@ -66,7 +66,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       } else {
         Option(deleteInfoDao.getDeleteInfo(topic.getId))
           .filter(_.delDate != null)
-          .map(_.getDelDate.toInstant)
+          .map(_.delDate.toInstant)
           .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
       }
     }
@@ -81,7 +81,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def enableAllowAnonymousCheckbox(group: Group, @Nullable currentUser: User): Boolean = {
     currentUser!=null && !group.isPremoderated &&
       Math.max(group.getCommentsRestriction,
-        Section.getCommentPostscore(group.getSectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY;
+        Section.getCommentPostscore(group.getSectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
   def isTopicPostingAllowed(group: Group, @Nullable currentUser: User): Boolean = {

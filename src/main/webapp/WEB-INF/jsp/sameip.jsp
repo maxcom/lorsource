@@ -19,8 +19,8 @@
 <%--@elvariable id="blockInfo" type="ru.org.linux.auth.IPBlockInfo"--%>
 <%--@elvariable id="blockModerator" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
-<%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
-<%--@elvariable id="users" type="java.util.List<ru.org.linux.comment.CommentsListItem>"--%>
+<%--@elvariable id="comments" type="java.util.List<ru.org.linux.comment.PreparedCommentsListItem>"--%>
+<%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
 <%--@elvariable id="userAgent" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -52,7 +52,7 @@
 <c:if test="${ip != null}">
   <form action="sameip.jsp">
     <div class="control-group">
-      Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}">&nbsp;
+      <label>Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}"></label>&nbsp;
       <button type="submit" class="btn btn-default">Изменить</button><BR>
     </div>
   </form>
@@ -237,22 +237,22 @@ function checkCustomBan(idx) {
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tr><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
 <c:forEach items="${comments}" var="comment">
 <tr>
-  <td>${comment.ptitle}</td>
-  <td>${comment.gtitle}</td>
+  <td>${comment.comment.gtitle}</td>
   <td>
-    <a href="jump-message.jsp?msgid=${comment.msgid}&amp;cid=${comment.commentId}" rev=contents><l:title>${comment.title}</l:title></a>
-    <c:if test="${comment.deleted}">
+    <a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" rev=contents><l:title>${comment.comment.title}</l:title></a>
+    (<lor:user user="${comment.author}"/>)
+    <c:if test="${comment.comment.deleted}">
       <br>
       <img src="/img/del.png" alt="[X]" width="15" height="15">
-      Удалено по причине: <c:out escapeXml="true" value="${comment.reason}"/>
+      Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
     </c:if>
   </td>
   <td>
-    <lor:date date="${comment.postdate}"/>
+    <lor:date date="${comment.comment.postdate}"/>
   </td>
 </tr>
 </c:forEach>

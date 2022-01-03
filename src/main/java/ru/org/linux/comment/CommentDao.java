@@ -17,7 +17,6 @@ package ru.org.linux.comment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -262,11 +261,10 @@ public class CommentDao {
   public List<CommentsListItem> getDeletedComments(int userId) {
     return jdbcTemplate.query(
             "SELECT " +
-                    "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, " +
+                    "groups.title as gtitle, topics.title, topics.id as msgid, " +
                     "del_info.reason, deldate, bonus, comments.id as cid, comments.postdate " +
-                    "FROM sections, groups, topics, comments, del_info " +
-                    "WHERE sections.id=groups.section " +
-                    "AND groups.id=topics.groupid " +
+                    "FROM groups, topics, comments, del_info " +
+                    "WHERE groups.id=topics.groupid " +
                     "AND comments.topic=topics.id " +
                     "AND del_info.msgid=comments.id " +
                     "AND comments.userid=? " +
@@ -274,7 +272,6 @@ public class CommentDao {
                     "ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20",
             (rs, rowNum) ->
                     new CommentsListItem(
-                            rs.getString("ptitle"),
                             rs.getString("gtitle"),
                             rs.getInt("msgid"),
                             StringUtil.makeTitle(rs.getString("title")),
@@ -283,7 +280,8 @@ public class CommentDao {
                             rs.getInt("bonus"),
                             rs.getInt("cid"),
                             true,
-                            rs.getTimestamp("postdate")),
+                            rs.getTimestamp("postdate"),
+                            userId),
             userId
     );
   }
@@ -298,11 +296,10 @@ public class CommentDao {
     params.put("userAgent", userAgent);
 
     return namedJdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, " +
+            "SELECT groups.title as gtitle, topics.title, topics.id as msgid, " +
                   "comments.id as cid, comments.postdate, comments.deleted, del_info.deldate, del_info.reason, " +
-                  "del_info.bonus " +
-                "FROM sections JOIN groups ON sections.id=groups.section " +
-                  "JOIN topics ON groups.id=topics.groupid " +
+                  "del_info.bonus, comments.userid " +
+                "FROM groups JOIN topics ON groups.id=topics.groupid " +
                   "JOIN comments ON comments.topic=topics.id " +
                   "LEFT JOIN del_info ON del_info.msgid=comments.id " +
                 "WHERE comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
@@ -312,7 +309,6 @@ public class CommentDao {
             params,
             (rs, rowNum) ->
                     new CommentsListItem(
-                            rs.getString("ptitle"),
                             rs.getString("gtitle"),
                             rs.getInt("msgid"),
                             StringUtil.makeTitle(rs.getString("title")),
@@ -321,7 +317,8 @@ public class CommentDao {
                             rs.getInt("bonus"),
                             rs.getInt("cid"),
                             rs.getBoolean("deleted"),
-                            rs.getTimestamp("postdate"))
+                            rs.getTimestamp("postdate"),
+                            rs.getInt("userid"))
     );
   }
 }
