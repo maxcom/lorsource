@@ -334,11 +334,15 @@ public class CommentPrepareService {
 
   public List<PreparedCommentsListItem> prepareCommentsList(List<CommentsListItem> comments) {
     Map<Integer, User> users = loadUsers(Iterables.transform(comments, CommentsListItem::getAuthorId));
+    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(Lists.transform(comments, CommentsListItem::getCommentId));
 
     return comments.stream().map(comment -> {
       User author = users.get(comment.authorId());
 
-      return new PreparedCommentsListItem(comment, author);
+      String plainText = textService.extractPlainText(texts.get(comment.getCommentId()));
+      String textPreview = MessageTextService.trimPlainText(plainText, 150, false);
+
+      return new PreparedCommentsListItem(comment, author, textPreview);
     }).collect(Collectors.toList());
   }
 }

@@ -315,3 +315,28 @@
     }
   }
 }
+
+.text-preview-box {
+  overflow: hidden;
+  width: 100%;
+
+  .text-preview {
+    position: relative;
+    white-space: nowrap;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 30%;
+      height: 100%;
+      background-image: linear-gradient(to right, rgba($table_background_color,0) 30%,rgba($table_background_color,1) 100%);
+      pointer-events: none;
+    }
+  }
+}
+
+tr:hover .text-preview:after {
+  background-image: linear-gradient(to right, rgba($table_hover_background,0) 30%,rgba($table_hover_background,1) 100%);
+}

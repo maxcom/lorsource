@@ -26,4 +26,5 @@ case class CommentsListItem(@BeanProperty gtitle: String, @BeanProperty msgid: I
                             @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp,
                             @BeanProperty authorId: Int)
 
-case class PreparedCommentsListItem(@BeanProperty comment: CommentsListItem, @BeanProperty author: User)
+case class PreparedCommentsListItem(@BeanProperty comment: CommentsListItem, @BeanProperty author: User,
+                                    @BeanProperty textPreview: String)

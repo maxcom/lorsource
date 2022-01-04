@@ -235,24 +235,34 @@ function checkCustomBan(idx) {
 <h2>Комментарии за 3 дня</h2>
 
 <div class=forum>
-<table width="100%" class="message-table">
+<table width="100%" class="message-table" style="table-layout: fixed">
 <thead>
-<tr><th>Группа</th><th>Заглавие темы (автор комментария)</th><th>Дата</th></tr>
+<tr><th style="width: 15%">Группа</th><th style="width: 70%">Тема и комментарий</th><th style="width: 15%">Дата</th></tr>
 <tbody>
 <c:forEach items="${comments}" var="comment">
 <tr>
   <td>${comment.comment.gtitle}</td>
   <td>
-    <a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" rev=contents><l:title>${comment.comment.title}</l:title></a>
-    (<lor:user user="${comment.author}"/>)
+    <a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" rev=contents><l:title>${comment.comment.title}</l:title></a><br>
+    <div class="text-preview-box">
+      <div class="text-preview">
+        <lor:user user="${comment.author}"/>:
+        <c:if test="${comment.comment.deleted}">
+          <s>
+        </c:if>
+        <c:out value="${comment.textPreview}"/>
+        <c:if test="${comment.comment.deleted}">
+          </s>
+        </c:if>
+      </div>
+    </div>
     <c:if test="${comment.comment.deleted}">
-      <br>
       <img src="/img/del.png" alt="[X]" width="15" height="15">
       Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
     </c:if>
   </td>
   <td>
-    <lor:date date="${comment.comment.postdate}"/>
+    <lor:dateinterval date="${comment.comment.postdate}"/>
   </td>
 </tr>
 </c:forEach>
