@@ -237,7 +237,11 @@ function checkCustomBan(idx) {
 <div class=comments>
 <c:forEach items="${comments}" var="comment">
 <a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" class="comments-item">
-  <div class="comments-group"><p><span class="group-label">${comment.comment.gtitle}</span> </p></div>
+  <div class="comments-group"><p>
+    <span class="group-label">${comment.comment.gtitle}</span><br class="hideon-phone hideon-tablet">
+    <lor:user user="${comment.author}"/>
+  </p>
+  </div>
   <div class="comments-title">
     <div class="text-preview-box">
       <div class="text-preview">
@@ -248,7 +252,6 @@ function checkCustomBan(idx) {
   <div class="comments-text">
     <div class="text-preview-box">
       <div class="text-preview">
-        <lor:user user="${comment.author}"/>:
         <c:if test="${comment.comment.deleted}">
         <s>
           </c:if>
@@ -265,7 +268,7 @@ function checkCustomBan(idx) {
   </div>
   <div class="comments-date">
     <p>
-      <lor:dateinterval date="${comment.comment.postdate}"/>
+      <lor:dateinterval date="${comment.comment.postdate}" compact="true"/>
     </p>
   </div>
 </a>
