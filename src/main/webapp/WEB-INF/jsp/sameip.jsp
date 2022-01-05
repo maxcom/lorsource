@@ -234,25 +234,27 @@ function checkCustomBan(idx) {
 
 <h2>Комментарии за 3 дня</h2>
 
-<div class=forum>
-<table width="100%" class="message-table" style="table-layout: fixed">
-<thead>
-<tr><th style="width: 15%">Группа</th><th style="width: 70%">Тема и комментарий</th><th style="width: 15%">Дата</th></tr>
-<tbody>
+<div class=comments>
 <c:forEach items="${comments}" var="comment">
-<tr>
-  <td>${comment.comment.gtitle}</td>
-  <td>
-    <a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" rev=contents><l:title>${comment.comment.title}</l:title></a><br>
+<a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" class="comments-item">
+  <div class="comments-group"><p><span class="group-label">${comment.comment.gtitle}</span> </p></div>
+  <div class="comments-title">
+    <div class="text-preview-box">
+      <div class="text-preview">
+        <l:title>${comment.comment.title}</l:title>
+      </div>
+    </div>
+  </div>
+  <div class="comments-text">
     <div class="text-preview-box">
       <div class="text-preview">
         <lor:user user="${comment.author}"/>:
         <c:if test="${comment.comment.deleted}">
-          <s>
-        </c:if>
-        <c:out value="${comment.textPreview}"/>
-        <c:if test="${comment.comment.deleted}">
-          </s>
+        <s>
+          </c:if>
+          <c:out value="${comment.textPreview}"/>
+          <c:if test="${comment.comment.deleted}">
+        </s>
         </c:if>
       </div>
     </div>
@@ -260,13 +262,14 @@ function checkCustomBan(idx) {
       <img src="/img/del.png" alt="[X]" width="15" height="15">
       Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
     </c:if>
-  </td>
-  <td>
-    <lor:dateinterval date="${comment.comment.postdate}"/>
-  </td>
-</tr>
+  </div>
+  <div class="comments-date">
+    <p>
+      <lor:dateinterval date="${comment.comment.postdate}"/>
+    </p>
+  </div>
+</a>
 </c:forEach>
-</table>
 </div>
 
 <c:if test="${ip != null}">

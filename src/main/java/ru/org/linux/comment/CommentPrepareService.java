@@ -340,7 +340,7 @@ public class CommentPrepareService {
       User author = users.get(comment.authorId());
 
       String plainText = textService.extractPlainText(texts.get(comment.getCommentId()));
-      String textPreview = MessageTextService.trimPlainText(plainText, 150, false);
+      String textPreview = MessageTextService.trimPlainText(plainText, 250, false);
 
       return new PreparedCommentsListItem(comment, author, textPreview);
     }).collect(Collectors.toList());
