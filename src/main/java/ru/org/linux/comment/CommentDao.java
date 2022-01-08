@@ -287,7 +287,7 @@ public class CommentDao {
   }
 
   public List<CommentsListItem> getCommentsByUAIP(@Nullable String ip, @Nullable Integer userAgent) {
-    String ipQuery = ip!=null?"AND comments.postip=:ip::inet ":"";
+    String ipQuery = ip!=null?"AND comments.postip <<= :ip::inet ":"";
     String userAgentQuery = userAgent!=null?"AND comments.ua_id=:userAgent ":"";
 
     Map<String, Object> params = new HashMap<>();

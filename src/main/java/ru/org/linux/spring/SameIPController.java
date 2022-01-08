@@ -33,7 +33,6 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
@@ -45,9 +44,13 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class SameIPController {
+  private static final Pattern ipRE = Pattern.compile("^([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(/\\d{1,2})?$");
+
   private final IPBlockDao ipBlockDao;
 
   private final UserDao userDao;
@@ -109,36 +112,54 @@ public class SameIPController {
         throw new ScriptErrorException("No IP data for #" + msgid);
       }
     } else {
-      actualIp = ServletParameterParser.cleanupIp(ip);
+      if (ip!=null) {
+        Matcher matcher = ipRE.matcher(ip);
+
+        if (!matcher.matches()) {
+          throw new BadInputException("not ip");
+        }
+
+        actualIp = matcher.group(1);
+      } else {
+        actualIp = null;
+      }
     }
 
     if (actualIp == null && userAgent == null) {
       throw new BadInputException("one of msgid/ip/useragent required");
     }
 
-    mv.getModel().put("topics", getTopics(actualIp, userAgent));
-    mv.getModel().put("comments", commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(actualIp, userAgent)));
+    mv.getModel().put("topics", getTopics(ip, userAgent));
+    mv.getModel().put("comments", commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ip, userAgent)));
 
     if (actualIp != null) {
       mv.getModel().put("ip", actualIp);
+      mv.getModel().put("ipMask", ip);
+      boolean hasMask = hasMask(ip);
+      if (!hasMask) {
+        mv.getModel().put("ipMore", actualIp + "/24");
+      }
+      mv.getModel().put("hasMask", hasMask);
       mv.getModel().put("users", getUsers(actualIp, mainMessageUseragent));
 
-      IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(actualIp);
+      if (!hasMask) {
+        IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(actualIp);
 
-      boolean allowPosting = false;
-      boolean captchaRequired = true;
+        boolean allowPosting = false;
+        boolean captchaRequired = true;
 
-      if (blockInfo.isInitialized()) {
-        mv.getModel().put("blockInfo", blockInfo);
-        allowPosting = blockInfo.isAllowRegistredPosting();
-        captchaRequired = blockInfo.isCaptchaRequired();
+        if (blockInfo.isInitialized()) {
+          mv.getModel().put("blockInfo", blockInfo);
+          allowPosting = blockInfo.isAllowRegistredPosting();
+          captchaRequired = blockInfo.isCaptchaRequired();
 
-        if (blockInfo.getModerator()!=0) {
-          mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+          if (blockInfo.getModerator() != 0) {
+            mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+          }
         }
+        mv.addObject("allowPosting", allowPosting);
+        mv.addObject("captchaRequired", captchaRequired);
       }
-      mv.addObject("allowPosting", allowPosting);
-      mv.addObject("captchaRequired", captchaRequired);
     }
 
     if (userAgent!=null) {
@@ -148,8 +169,12 @@ public class SameIPController {
     return mv;
   }
 
+  private boolean hasMask(String ip) {
+    return ip.contains("/");
+  }
+
   private List<TopicItem> getTopics(@Nullable String ip, @Nullable Integer userAgent) {
-    String ipQuery = ip!=null?"AND topics.postip=:ip::inet ":"";
+    String ipQuery = ip!=null?"AND topics.postip <<= :ip::inet ":"";
     String userAgentQuery = userAgent!=null?"AND topics.ua_id=:userAgent ":"";
 
     Map<String, Object> params = new HashMap<>();

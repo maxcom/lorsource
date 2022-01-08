@@ -27,22 +27,8 @@
 
 <title>Поиск сообщений по метаданным</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<div class=nav>
-    <div id="navPath">
-      Поиск сообщений по метаданным
-    </div>
 
-    <c:if test="${ip != null}">
-      <div class="nav-buttons">
-        [WHOIS
-        <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
-        <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a> /
-        <a href='https://apps.db.ripe.net/search/query.html?searchtext=${ip}'>RIPE</a>
-        ]
-        [<a href='http://bgp.he.net/ip/${ip}'>BGP</a>]
-    </div>
-    </c:if>
-</div>
+<h1>Поиск сообщений по метаданным</h1>
 
 <c:if test="${userAgent != null}">
   Показаны сообщения с User-Agent:<br>
@@ -52,13 +38,19 @@
 <c:if test="${ip != null}">
   <form action="sameip.jsp">
     <div class="control-group">
-      <label>Показаны сообщений с адреса <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ip}"></label>&nbsp;
-      <button type="submit" class="btn btn-default">Изменить</button><BR>
+      <label class="control-label" for="ip-field">Показаны сообщений с адреса</label>
+      <div class="controls">
+        <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ipMask}" id="ip-field">
+        <button type="submit" class="btn btn-primary">Изменить</button>
+        <c:if test="${ipMore!=null}">
+          <a class="btn btn-default" href="sameip.jsp?ip=${ipMore}">${ipMore}</a>
+        </c:if>
+      </div>
     </div>
   </form>
 
   <div class="infoblock">
-    Местоположение (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>): <span id="geolookup">...</span>
+    Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>): <span id="geolookup">...</span>
   </div>
 
   <script>
@@ -79,6 +71,7 @@
       })
   </script>
 
+<c:if test="${!hasMask}">
 <strong>Текущий статус: </strong>
 
 <c:if test="${blockInfo == null}">
@@ -115,6 +108,7 @@
   <c:if test="${blockModerator == null}">
     автоматически
   </c:if>
+</c:if>
 </c:if>
 
 <p>
