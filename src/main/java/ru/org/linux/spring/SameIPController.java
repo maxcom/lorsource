@@ -27,6 +27,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentPrepareService;
+import ru.org.linux.comment.PreparedCommentsListItem;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
@@ -129,8 +130,15 @@ public class SameIPController {
       throw new BadInputException("one of msgid/ip/useragent required");
     }
 
-    mv.getModel().put("topics", getTopics(ip, userAgent));
-    mv.getModel().put("comments", commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ip, userAgent)));
+    int topicsLimit = tmpl.getProf().getTopics();
+    List<TopicItem> topics = getTopics(ip, userAgent, topicsLimit);
+    List<PreparedCommentsListItem> comments = commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ip, userAgent, topicsLimit));
+
+    mv.getModel().put("topics", topics);
+    mv.getModel().put("hasMoreTopics", topics.size() == topicsLimit);
+    mv.getModel().put("comments", comments);
+    mv.getModel().put("hasMoreComments", comments.size() == topicsLimit);
+    mv.getModel().put("topicsLimit", topicsLimit);
 
     if (actualIp != null) {
       mv.getModel().put("ip", actualIp);
@@ -173,7 +181,7 @@ public class SameIPController {
     return ip.contains("/");
   }
 
-  private List<TopicItem> getTopics(@Nullable String ip, @Nullable Integer userAgent) {
+  private List<TopicItem> getTopics(@Nullable String ip, @Nullable Integer userAgent, int limit) {
     String ipQuery = ip!=null?"AND topics.postip <<= :ip::inet ":"";
     String userAgentQuery = userAgent!=null?"AND topics.ua_id=:userAgent ":"";
 
@@ -181,6 +189,7 @@ public class SameIPController {
 
     params.put("ip", ip);
     params.put("userAgent", userAgent);
+    params.put("limit", limit);
 
     return namedJdbcTemplate.query(
             "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
@@ -190,7 +199,7 @@ public class SameIPController {
                     "AND users.id=topics.userid " +
                     ipQuery +
                     userAgentQuery +
-                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
+                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC LIMIT :limit",
             params,
             (rs, rowNum) -> new TopicItem(rs)
     );

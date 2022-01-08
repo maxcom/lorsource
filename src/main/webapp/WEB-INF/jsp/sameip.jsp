@@ -109,7 +109,6 @@
     автоматически
   </c:if>
 </c:if>
-</c:if>
 
 <p>
 
@@ -193,8 +192,11 @@ function checkCustomBan(idx) {
 </form>
 </fieldset>
 </c:if>
+</c:if>
 
-<h2>Темы за 3 дня</h2>
+<h2>Темы за 3 дня
+  <c:if test="${hasMoreTopics}">(показаны первые ${topicsLimit})</c:if>
+</h2>
 
 <div class=forum>
 <table width="100%" class="message-table">
@@ -226,7 +228,9 @@ function checkCustomBan(idx) {
 </table>
 </div>
 
-<h2>Комментарии за 3 дня</h2>
+<h2>Комментарии за 3 дня
+  <c:if test="${hasMoreComments}">(показаны первые ${topicsLimit})</c:if>
+</h2>
 
 <div class=comments>
 <c:forEach items="${comments}" var="comment">

@@ -286,7 +286,7 @@ public class CommentDao {
     );
   }
 
-  public List<CommentsListItem> getCommentsByUAIP(@Nullable String ip, @Nullable Integer userAgent) {
+  public List<CommentsListItem> getCommentsByUAIP(@Nullable String ip, @Nullable Integer userAgent, int limit) {
     String ipQuery = ip!=null?"AND comments.postip <<= :ip::inet ":"";
     String userAgentQuery = userAgent!=null?"AND comments.ua_id=:userAgent ":"";
 
@@ -294,6 +294,7 @@ public class CommentDao {
 
     params.put("ip", ip);
     params.put("userAgent", userAgent);
+    params.put("limit", limit);
 
     return namedJdbcTemplate.query(
             "SELECT groups.title as gtitle, topics.title, topics.id as msgid, " +
@@ -305,7 +306,7 @@ public class CommentDao {
                 "WHERE comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
                   ipQuery +
                   userAgentQuery +
-                "ORDER BY postdate DESC",
+                "ORDER BY postdate DESC LIMIT :limit",
             params,
             (rs, rowNum) ->
                     new CommentsListItem(
