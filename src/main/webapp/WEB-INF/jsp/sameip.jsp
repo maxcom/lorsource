@@ -195,7 +195,7 @@ function checkCustomBan(idx) {
 </c:if>
 
 <h2>Темы за 3 дня
-  <c:if test="${hasMoreTopics}">(показаны первые ${topicsLimit})</c:if>
+  <c:if test="${hasMoreTopics}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 
 <div class=forum>
@@ -229,7 +229,7 @@ function checkCustomBan(idx) {
 </div>
 
 <h2>Комментарии за 3 дня
-  <c:if test="${hasMoreComments}">(показаны первые ${topicsLimit})</c:if>
+  <c:if test="${hasMoreComments}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 
 <div class=comments>
@@ -274,11 +274,13 @@ function checkCustomBan(idx) {
 </div>
 
 <c:if test="${ip != null}">
-<h2>Все пользователи, использовавшие данный IP</h2>
+<h2>Все пользователи, использовавшие данный IP (по комментариям)
+  <c:if test="${hasMoreUsers}">(показаны первые ${rowsLimit})</c:if>
+</h2>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Последний визит</th><th>Пользователь</th><th>User Agent</th></tr>
+<tr><th>Последний комментарий</th><th>Пользователь</th><th>User Agent</th></tr>
 <tbody>
 <c:forEach items="${users}" var="item">
 <tr>

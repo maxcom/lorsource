@@ -131,15 +131,16 @@ public class SameIPController {
       throw new BadInputException("one of msgid/ip/useragent required");
     }
 
-    int topicsLimit = tmpl.getProf().getTopics();
-    List<TopicItem> topics = getTopics(ip, userAgent, topicsLimit);
-    List<PreparedCommentsListItem> comments = commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ip, userAgent, topicsLimit));
+    int rowsLimit = 50;
+
+    List<TopicItem> topics = getTopics(ip, userAgent, rowsLimit);
+    List<PreparedCommentsListItem> comments = commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ip, userAgent, rowsLimit));
 
     mv.getModel().put("topics", topics);
-    mv.getModel().put("hasMoreTopics", topics.size() == topicsLimit);
+    mv.getModel().put("hasMoreTopics", topics.size() == rowsLimit);
     mv.getModel().put("comments", comments);
-    mv.getModel().put("hasMoreComments", comments.size() == topicsLimit);
-    mv.getModel().put("topicsLimit", topicsLimit);
+    mv.getModel().put("hasMoreComments", comments.size() == rowsLimit);
+    mv.getModel().put("rowsLimit", rowsLimit);
 
     if (actualIp != null) {
       mv.getModel().put("ip", actualIp);
@@ -149,7 +150,10 @@ public class SameIPController {
         mv.getModel().put("ipMore", actualIp + "/24");
       }
       mv.getModel().put("hasMask", hasMask);
-      mv.getModel().put("users", getUsers(actualIp, mainMessageUseragent));
+
+      List<UserItem> users = getUsers(ip, mainMessageUseragent, rowsLimit);
+      mv.getModel().put("users", users);
+      mv.getModel().put("hasMoreUsers", users.size() == rowsLimit);
 
       if (!hasMask) {
         IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(actualIp);
@@ -206,16 +210,18 @@ public class SameIPController {
     );
   }
 
-  private List<UserItem> getUsers(String ip, final int uaId) {
+  private List<UserItem> getUsers(String ip, int uaId, int limit) {
     return jdbcTemplate.query(
             "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
                     "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
                     "JOIN users u ON c.userid = u.id " +
-                    "WHERE c.postip=?::inet " +
+                    "WHERE c.postip <<= ?::inet " +
                     "GROUP BY u.nick, c.ua_id, ua.name " +
-                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
+                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
+                    "LIMIT ?",
             (rs, rowNum) -> new UserItem(rs, uaId),
-            ip
+            ip,
+            limit
     );
   }
 
