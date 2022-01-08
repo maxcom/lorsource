@@ -234,45 +234,50 @@ function checkCustomBan(idx) {
 </h2>
 
 <div class=comments>
-<c:forEach items="${comments}" var="comment">
-<a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" class="comments-item">
-  <div class="comments-group"><p>
-    <span class="group-label">${comment.comment.gtitle}</span><br class="hideon-phone hideon-tablet">
-    <lor:user user="${comment.author}"/>
-  </p>
-  </div>
-  <div class="comments-title">
-    <div class="text-preview-box">
-      <div class="text-preview">
-        <l:title>${comment.comment.title}</l:title>
-      </div>
-    </div>
-  </div>
-  <div class="comments-text">
-    <div class="text-preview-box">
-      <div class="text-preview">
-        <c:if test="${comment.comment.deleted}">
-        <s>
-          </c:if>
-          <c:out value="${comment.textPreview}"/>
-          <c:if test="${comment.comment.deleted}">
-        </s>
-        </c:if>
-      </div>
-    </div>
-    <c:if test="${comment.comment.deleted}">
-      <img src="/img/del.png" alt="[X]" width="15" height="15">
-      Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
-    </c:if>
-  </div>
-  <div class="comments-date">
-    <p>
-      <lor:dateinterval date="${comment.comment.postdate}" compact="true"/>
+  <c:forEach items="${comments}" var="comment">
+  <div class="comments-item">
+    <div class="comments-group"><p>
+      <span class="group-label">${comment.comment.gtitle}</span><br class="hideon-phone hideon-tablet">
+      <lor:user user="${comment.author}"/>
     </p>
+    </div>
+    <div class="comments-title">
+      <a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}">
+        <div class="text-preview-box">
+          <div class="text-preview">
+            <l:title>${comment.comment.title}</l:title>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="comments-text">
+      <div class="text-preview-box">
+        <div class="text-preview">
+          <c:if test="${comment.comment.deleted}">
+          <s>
+            </c:if>
+            <c:out value="${comment.textPreview}"/>
+            <c:if test="${comment.comment.deleted}">
+          </s>
+          </c:if>
+        </div>
+      </div>
+      <c:if test="${comment.comment.deleted}">
+        <img src="/img/del.png" alt="[X]" width="15" height="15">
+        Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
+      </c:if>
+    </div>
+    <div class="comments-text-del">
+      <a href="delete_comment.jsp?msgid=${comment.comment.commentId}">[Удалить]</a>  
+    </div>
+    <div class="comments-date">
+      <p>
+        <lor:dateinterval date="${comment.comment.postdate}" compact="true"/>
+      </p>
+    </div>
   </div>
-</a>
-</c:forEach>
-</div>
+  </c:forEach>
+  </div>
 
 <c:if test="${ip != null}">
 <h2>Все пользователи, использовавшие данный IP за год (по комментариям)

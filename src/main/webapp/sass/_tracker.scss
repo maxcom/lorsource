@@ -398,6 +398,15 @@
     color: $text_color;
   }
 
+  .comments-text-del {
+    grid-column-start: 3;
+    grid-column-end: 13;
+    grid-row-start: 3;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    font-size: smaller;
+  }
+
   @include respond-to(desktops) {
     .comments-group {
       grid-column-start: 1;
@@ -426,6 +435,15 @@
       grid-column-start: 3;
       grid-column-end: 13;
       grid-row-start: 2;
+    }
+
+    .comments-text-del {
+      grid-column-start: 3;
+      grid-column-end: 13;
+      grid-row-start: 3;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+      font-size: smaller;
     }
   }
 
