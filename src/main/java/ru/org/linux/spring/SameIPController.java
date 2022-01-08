@@ -215,7 +215,7 @@ public class SameIPController {
             "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
                     "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
                     "JOIN users u ON c.userid = u.id " +
-                    "WHERE c.postip <<= ?::inet " +
+                    "WHERE c.postip <<= ?::inet AND c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
                     "GROUP BY u.nick, c.ua_id, ua.name " +
                     "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
                     "LIMIT ?",

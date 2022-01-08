@@ -274,7 +274,7 @@ function checkCustomBan(idx) {
 </div>
 
 <c:if test="${ip != null}">
-<h2>Все пользователи, использовавшие данный IP (по комментариям)
+<h2>Все пользователи, использовавшие данный IP за год (по комментариям)
   <c:if test="${hasMoreUsers}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 <div class=forum>
