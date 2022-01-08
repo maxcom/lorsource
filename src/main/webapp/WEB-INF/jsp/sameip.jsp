@@ -42,8 +42,9 @@
       <div class="controls">
         <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ipMask}" id="ip-field">
         <button type="submit" class="btn btn-primary">Изменить</button>
-        <c:if test="${ipMore!=null}">
-          <a class="btn btn-default" href="sameip.jsp?ip=${ipMore}">${ipMore}</a>
+        <c:if test="${!hasMask}">
+          <a class="btn btn-default" href="sameip.jsp?ip=${ip}/24">${ip}/24</a>
+          <a class="btn btn-default" href="sameip.jsp?ip=${ip}/16">${ip}/16</a>
         </c:if>
       </div>
     </div>

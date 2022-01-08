@@ -146,9 +146,6 @@ public class SameIPController {
       mv.getModel().put("ip", actualIp);
       mv.getModel().put("ipMask", ip);
       boolean hasMask = hasMask(ip);
-      if (!hasMask) {
-        mv.getModel().put("ipMore", actualIp + "/24");
-      }
       mv.getModel().put("hasMask", hasMask);
 
       List<UserItem> users = getUsers(ip, mainMessageUseragent, rowsLimit);
