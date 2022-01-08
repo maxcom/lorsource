@@ -107,6 +107,7 @@ public class SameIPController {
       }
 
       actualIp = rs.getString("postip");
+      ip = actualIp;
       mainMessageUseragent = rs.getInt("ua_id");
 
       if (actualIp == null) {
