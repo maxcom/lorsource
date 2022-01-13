@@ -50,9 +50,54 @@
     </div>
   </form>
 
-  <div class="infoblock">
-    Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>): <span id="geolookup">...</span>
-  </div>
+  <c:if test="${!hasMask}">
+    <div>
+      <strong>Текущий статус: </strong>
+
+      <c:if test="${blockInfo == null}">
+        адрес не заблокирован
+      </c:if>
+
+      <c:if test="${blockInfo != null}">
+        адрес заблокирован
+
+        <c:if test="${blockModerator == null}">
+          автоматически
+        </c:if>
+
+        <c:if test="${blockModerator != null}">
+          модератором <lor:user user="${blockModerator}"/>
+        </c:if>
+
+        <c:out value=" "/> <lor:date date="${blockInfo.originalDate}"/>
+
+        <c:if test="${blockInfo.banDate != null}">
+          до <lor:date date="${blockInfo.banDate}"/>
+          <c:if test="${not blockInfo.blocked}">
+            (блокировка истекла)
+          </c:if>
+        </c:if>
+
+        <c:if test="${blockInfo.banDate == null}">
+          постоянно
+        </c:if>
+
+        <br>
+        <c:if test="${allowPosting}">
+          Зарегистрированным можно постить
+            <c:if test="${captchaRequired}">
+              с вводом каптчи
+            </c:if>
+          <br>
+        </c:if>
+        <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
+      </c:if>
+    </div>
+
+    <div>
+      <strong>Местоположение:</strong> ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>): <span id="geolookup">...</span>
+    </div>
+  </c:if>
 
   <script>
       $script.ready("jquery", function () {
@@ -72,127 +117,6 @@
       })
   </script>
 
-<c:if test="${!hasMask}">
-<strong>Текущий статус: </strong>
-
-<c:if test="${blockInfo == null}">
-  адрес не заблокирован
-</c:if>
-
-<c:if test="${blockInfo != null}">
-  <c:if test="${blockInfo.banDate == null}">
-    адрес заблокирован постоянно
-  </c:if>
-  <c:if test="${blockInfo.banDate != null}">
-    адрес заблокирован до <lor:date date="${blockInfo.banDate}"/>
-
-    <c:if test="${not blockInfo.blocked}">
-      (блокировка истекла)
-    </c:if>
-  </c:if>
-  <br>
-  <c:if test="${allowPosting}">
-  <em>Зарегистрированным можно постить
-  <c:if test="${captchaRequired}">
-   с вводом каптчи
-  </c:if>
-  </em>
-  <br />
-  </c:if>
-  <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
-  <strong>Дата блокировки: </strong><lor:date date="${blockInfo.originalDate}"/><br>
-
-  <strong>Адрес блокирован: </strong>
-  <c:if test="${blockModerator != null}">
-    ${blockModerator.nick}
-  </c:if>
-  <c:if test="${blockModerator == null}">
-    автоматически
-  </c:if>
-</c:if>
-
-<p>
-
-<fieldset>
-<legend>забанить/разбанить IP</legend>
-<form method="post" action="banip.jsp">
-<lor:csrf/>
-<input type="hidden" name="ip" value="${ip}">
- по причине: <br>
-<input type="text" name="reason" maxlength="254" size="40" value=""><br>
-<select name="time" onchange="checkCustomBan(this.selectedIndex);">
-<option value="hour">1 час</option>
-<option value="day">1 день</option>
-<option value="month">1 месяц</option>
-<option value="3month">3 месяца</option>
-<option value="6month">6 месяцев</option>
-<option value="unlim">постоянно</option>
-<option value="remove">не блокировать</option>
-<option value="custom">указать (дней)</option>
-</select>
-<div id="custom_ban" style="display:none;">
-<br><input type="text" name="ban_days" value="">
-</div><br />
-
-<c:choose>
- <c:when test="${allowPosting}">
-  <c:set var="checked" value="checked=\"true\"" />
- </c:when>
- <c:otherwise>
-  <c:set var="disabled" value="disabled=\"disabled\"" />
- </c:otherwise>
-</c:choose>
-<label><input id="allowPosting" type="checkbox" name="allow_posting" value="true" ${checked} onchange="allowPostingOnChange(this);">разрешить постить ранее зарегистрированным</label>
-<c:if test="${captchaRequired}">
-  <c:set var="checked2" value="checked=\"true\"" />
-</c:if>
-<label><input id="captchaRequired" type="checkbox" name="captcha_required" value="true" ${checked2} ${disabled}>требовать ввод каптчи</label>
-
-<p>
-<button type="submit" name="ban" class="btn btn-default">ban ip</button>
-<script type="text/javascript">
-function allowPostingOnChange(object) {
-
-  var captchaRequired = $('#captchaRequired');
-  if ($(object).is(':checked')) {
-    captchaRequired.removeAttr("disabled");
-  } else {
-    captchaRequired.attr("disabled","disabled");
-  }
-}
-
-function checkCustomBan(idx) {
-  var custom_ban_div = document.getElementById('custom_ban');
-  if (custom_ban_div==null || typeof(custom_ban_div)!="object") {
-    return;
-  }
-  if (idx!=7) {
-    custom_ban_div.style.display='none';
-  } else {
-    custom_ban_div.style.display='block';
-  }
-}
-</script>
-</form>
-</fieldset>
-
-<fieldset>
-<legend>Удалить темы и сообщения с IP</legend>
-<form method="post" action="delip.jsp">
-<lor:csrf/>
-<input type="hidden" name="ip" value="${ip}">
-по причине: <br>
-<input type="text" name="reason" maxlength="254" size="40" value=""><br>
-за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
-<option value="hour">1 час</option>
-<option value="day">1 день</option>
-<option value="3day">3 дня</option>
-</select>
-<p>
-<button type="submit" name="del" class="btn btn-danger">del from ip</button>
-</form>
-</fieldset>
-</c:if>
 </c:if>
 
 <h2>Темы за 3 дня
@@ -303,5 +227,89 @@ function checkCustomBan(idx) {
 </c:forEach>
 </table>
 </div>
+
+<c:if test="${!hasMask}">
+  <h2>Управление</h2>
+
+  <fieldset>
+    <legend>забанить/разбанить IP</legend>
+    <form method="post" action="banip.jsp">
+      <lor:csrf/>
+      <input type="hidden" name="ip" value="${ip}">
+      по причине: <br>
+      <input type="text" name="reason" maxlength="254" size="40" value=""><br>
+      <select name="time" onchange="checkCustomBan(this.selectedIndex);">
+        <option value="hour">1 час</option>
+        <option value="day">1 день</option>
+        <option value="month">1 месяц</option>
+        <option value="3month">3 месяца</option>
+        <option value="6month">6 месяцев</option>
+        <option value="unlim">постоянно</option>
+        <option value="remove">не блокировать</option>
+        <option value="custom">указать (дней)</option>
+      </select>
+      <div id="custom_ban" style="display:none;">
+        <br><input type="text" name="ban_days" value="">
+      </div><br />
+
+      <c:choose>
+        <c:when test="${allowPosting}">
+          <c:set var="checked" value="checked=\"true\"" />
+        </c:when>
+        <c:otherwise>
+          <c:set var="disabled" value="disabled=\"disabled\"" />
+        </c:otherwise>
+      </c:choose>
+      <label><input id="allowPosting" type="checkbox" name="allow_posting" value="true" ${checked} onchange="allowPostingOnChange(this);">разрешить постить ранее зарегистрированным</label>
+      <c:if test="${captchaRequired}">
+        <c:set var="checked2" value="checked=\"true\"" />
+      </c:if>
+      <label><input id="captchaRequired" type="checkbox" name="captcha_required" value="true" ${checked2} ${disabled}>требовать ввод каптчи</label>
+
+      <p>
+        <button type="submit" name="ban" class="btn btn-default">ban ip</button>
+        <script type="text/javascript">
+            function allowPostingOnChange(object) {
+
+                var captchaRequired = $('#captchaRequired');
+                if ($(object).is(':checked')) {
+                    captchaRequired.removeAttr("disabled");
+                } else {
+                    captchaRequired.attr("disabled","disabled");
+                }
+            }
+
+            function checkCustomBan(idx) {
+                var custom_ban_div = document.getElementById('custom_ban');
+                if (custom_ban_div==null || typeof(custom_ban_div)!="object") {
+                    return;
+                }
+                if (idx!=7) {
+                    custom_ban_div.style.display='none';
+                } else {
+                    custom_ban_div.style.display='block';
+                }
+            }
+        </script>
+    </form>
+  </fieldset>
+
+  <fieldset>
+    <legend>Удалить темы и сообщения с IP</legend>
+    <form method="post" action="delip.jsp">
+      <lor:csrf/>
+      <input type="hidden" name="ip" value="${ip}">
+      по причине: <br>
+      <input type="text" name="reason" maxlength="254" size="40" value=""><br>
+      за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
+      <option value="hour">1 час</option>
+      <option value="day">1 день</option>
+      <option value="3day">3 дня</option>
+    </select>
+      <p>
+        <button type="submit" name="del" class="btn btn-danger">del from ip</button>
+    </form>
+  </fieldset>
+</c:if>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
