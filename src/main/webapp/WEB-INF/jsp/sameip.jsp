@@ -95,7 +95,7 @@
     </div>
 
     <div>
-      <strong>Местоположение:</strong> ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>): <span id="geolookup">...</span>
+      <strong>Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>)</strong>: <span id="geolookup">...</span>
     </div>
   </c:if>
 
