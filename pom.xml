@@ -19,9 +19,9 @@
     <spring.security.version>5.2.15.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.3.1</jdbc.postgresql.version>
     <elastic4s.version>6.7.8</elastic4s.version>
-    <scala.version>2.13.7</scala.version>
+    <scala.version>2.13.8</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.15.15</activemq.version>
+    <activemq.version>5.16.3</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
     <jquery.form.version>4.2.1</jquery.form.version>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
 
