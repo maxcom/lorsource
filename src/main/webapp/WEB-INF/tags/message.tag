@@ -15,7 +15,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2019 Linux.org.ru
+  ~ Copyright 1998-2021 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -167,7 +167,7 @@
   <lor:date date="${message.postdate}" itemprop="dateCreated"/>
 
   <c:if test="${template.moderatorSession and not empty message.postIP}">
-    (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+    (<a href="sameip.jsp?ip=${message.postIP}">${message.postIP}</a>)
   </c:if>
 
   <span class="sign_more">

@@ -70,7 +70,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
         
                     if comment.postIP
                         |  (
-                        a(href='sameip.jsp?msgid=#{comment.id}')
+                        a(href='sameip.jsp?ip=#{comment.postIP}')
                             | #{comment.postIP}
                         )
         
