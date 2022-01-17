@@ -47,13 +47,6 @@
   Защиту сайта от DDoS-атак осуществляет <a href="http://qrator.net/">QRATOR</a>.
 </p>
 <p>
-  Размещение старого (резервного) сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
-  ООО &laquo;<a href="http://www.ratel.ru" target="_blank">НИИР-РадиоНет</a>&raquo;.
-</p>
-<p>
-<%--
-Статистику сервера можно посмотреть <a href="http://linuxhacker.ru/stats">тут</a>.
---%>
   <a href="http://www.pingdom.com">
     <img src="https://share.pingdom.com/banners/94fe3af1"
          alt="Uptime Report for LOR Main Page: Last 30 days"
