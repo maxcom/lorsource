@@ -77,10 +77,9 @@ public class SameIPController {
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
     HttpServletRequest request,
-    @RequestParam(required = false) Integer msgid,
     @RequestParam(required = false) String ip,
     @RequestParam(required = false, name="ua") Integer userAgent
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
@@ -93,38 +92,16 @@ public class SameIPController {
 
     int mainMessageUseragent = 0;
 
-    if (msgid != null) {
-      SqlRowSet rs = jdbcTemplate.queryForRowSet(
-              "SELECT postip, ua_id FROM topics WHERE id=?",
-              msgid
-      );
+    if (ip!=null) {
+      Matcher matcher = ipRE.matcher(ip);
 
-      if (!rs.next()) {
-        rs = jdbcTemplate.queryForRowSet("SELECT postip, ua_id FROM comments WHERE id=?", msgid);
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
+      if (!matcher.matches()) {
+        throw new BadInputException("not ip");
       }
 
-      actualIp = rs.getString("postip");
-      ip = actualIp;
-      mainMessageUseragent = rs.getInt("ua_id");
-
-      if (actualIp == null) {
-        throw new ScriptErrorException("No IP data for #" + msgid);
-      }
+      actualIp = matcher.group(1);
     } else {
-      if (ip!=null) {
-        Matcher matcher = ipRE.matcher(ip);
-
-        if (!matcher.matches()) {
-          throw new BadInputException("not ip");
-        }
-
-        actualIp = matcher.group(1);
-      } else {
-        actualIp = null;
-      }
+      actualIp = null;
     }
 
     if (actualIp == null && userAgent == null) {
