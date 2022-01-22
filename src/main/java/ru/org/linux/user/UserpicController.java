@@ -17,8 +17,6 @@ package ru.org.linux.user;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,10 +29,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
+import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.image.ImageParam;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -49,36 +49,51 @@ public class UserpicController {
 
   public static final UriTemplate PROFILE_URI_TEMPLATE = new UriTemplate("/people/{nick}/profile");
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private SiteConfig siteConfig;
+  private final SiteConfig siteConfig;
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private UserLogDao userLogDao;
+  private final UserLogDao userLogDao;
+
+  public UserpicController(UserDao userDao, SiteConfig siteConfig, UserService userService, UserLogDao userLogDao) {
+    this.userDao = userDao;
+    this.siteConfig = siteConfig;
+    this.userService = userService;
+    this.userLogDao = userLogDao;
+  }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView showForm() throws AccessViolationException {
-    AuthUtil.getCurrentUser().checkFrozen();
+  public ModelAndView showForm(ServletRequest request) throws AccessViolationException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    tmpl.getCurrentUser().checkFrozen();
 
     return new ModelAndView("addphoto");
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
-  @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
-  public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
-    AuthUtil.getCurrentUser().checkFrozen();
+  public ModelAndView addPhoto(ServletRequest request, @RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User currentUser = tmpl.getCurrentUser();
+    currentUser.checkFrozen();
+
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
     }
 
-    int userpicSetCount = userLogDao.getUserpicSetCount(AuthUtil.getCurrentUser(), Duration.ofHours(1));
+    int userpicSetCount = userLogDao.getUserpicSetCount(currentUser, Duration.ofHours(1));
 
     if (userpicSetCount >= 3) {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
