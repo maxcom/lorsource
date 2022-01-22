@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2021 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -64,12 +64,15 @@ public class UserpicController {
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
   public ModelAndView showForm() throws AccessViolationException {
+    AuthUtil.getCurrentUser().checkFrozen();
+
     return new ModelAndView("addphoto");
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
   @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
   public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
+    AuthUtil.getCurrentUser().checkFrozen();
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
