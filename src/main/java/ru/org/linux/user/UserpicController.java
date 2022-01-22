@@ -28,7 +28,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
@@ -88,7 +87,6 @@ public class UserpicController {
     User currentUser = tmpl.getCurrentUser();
     currentUser.checkFrozen();
 
-
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
     }
@@ -99,7 +97,7 @@ public class UserpicController {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
     }
 
-    boolean wasReset = userLogDao.wasUserpicReset(AuthUtil.getCurrentUser(), Duration.ofDays(10));
+    boolean wasReset = userLogDao.wasUserpicReset(currentUser, Duration.ofDays(10));
 
     if (wasReset) {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
@@ -119,18 +117,18 @@ public class UserpicController {
       File photofile;
 
       do {
-        photoname = Integer.toString(AuthUtil.getCurrentUser().getId()) + ':' + random.nextInt() + '.' + extension;
+        photoname = Integer.toString(currentUser.getId()) + ':' + random.nextInt() + '.' + extension;
         photofile = new File(siteConfig.getUploadPath() + "/photos", photoname);
       } while (photofile.exists());
 
       Files.move(uploadedFile, photofile.toPath());
 
-      userDao.setPhoto(AuthUtil.getCurrentUser(), photoname);
+      userDao.setPhoto(currentUser, photoname);
 
-      logger.info("Установлена фотография пользователем " + AuthUtil.getCurrentUser().getNick());
+      logger.info("Установлена фотография пользователем " + currentUser.getNick());
 
       UriComponents profileUri = UriComponentsBuilder
-              .fromUri(PROFILE_URI_TEMPLATE.expand(AuthUtil.getCurrentUser().getNick()))
+              .fromUri(PROFILE_URI_TEMPLATE.expand(currentUser.getNick()))
               .queryParam("nocache", Integer.toString(random.nextInt())).build().encode();
 
       return new ModelAndView(new RedirectView(profileUri.toString()));
