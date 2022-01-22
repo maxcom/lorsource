@@ -81,7 +81,7 @@ public class UserpicController {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
     }
 
-    boolean wasReset = userLogDao.wasUserpicReset(AuthUtil.getCurrentUser(), Duration.ofDays(3));
+    boolean wasReset = userLogDao.wasUserpicReset(AuthUtil.getCurrentUser(), Duration.ofDays(10));
 
     if (wasReset) {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
