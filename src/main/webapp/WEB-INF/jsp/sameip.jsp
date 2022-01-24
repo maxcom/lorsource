@@ -40,7 +40,7 @@
     <div class="control-group">
       <label class="control-label" for="ip-field">Адрес: </label>
       <div class="controls">
-        <input class="input-lg" name="ip" type="search" size="15" maxlength="15" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/\d{1,2})?">
+        <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/\d{1,2})?">
 
         <c:forEach items="${masks}" var="v">
           <c:if test="${v == 32}">
