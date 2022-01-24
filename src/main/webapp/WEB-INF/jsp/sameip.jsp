@@ -38,14 +38,28 @@
 <c:if test="${ip != null}">
   <form action="sameip.jsp">
     <div class="control-group">
-      <label class="control-label" for="ip-field">Показаны сообщений с адреса</label>
+      <label class="control-label" for="ip-field">Адрес: </label>
       <div class="controls">
-        <input class="input-lg" name="ip" type="search" size="20" maxlength="20" value="${ipMask}" id="ip-field">
-        <button type="submit" class="btn btn-primary">Изменить</button>
-        <c:if test="${!hasMask}">
-          <a class="btn btn-default" href="sameip.jsp?ip=${ip}/24">${ip}/24</a>
-          <a class="btn btn-default" href="sameip.jsp?ip=${ip}/16">${ip}/16</a>
-        </c:if>
+        <input class="input-lg" name="ip" type="search" size="15" maxlength="15" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/\d{1,2})?">
+
+        <c:forEach items="${masks}" var="v">
+          <c:if test="${v == 32}">
+            <c:if test="${v == mask}">
+              <button name="mask" value="${v}" type="submit" class="btn btn-selected">IP</button>
+            </c:if>
+            <c:if test="${v != mask}">
+              <button name="mask" value="${v}" type="submit" class="btn btn-default">IP</button>
+            </c:if>
+          </c:if>
+          <c:if test="${v != 32}">
+            <c:if test="${v == mask}">
+              <button name="mask" value="${v}" type="submit" class="btn btn-selected">Сеть /${v}</button>
+            </c:if>
+            <c:if test="${v != mask}">
+              <button name="mask" value="${v}" type="submit" class="btn btn-default">Сеть /${v}</button>
+            </c:if>
+          </c:if>
+        </c:forEach>
       </div>
     </div>
   </form>
@@ -93,11 +107,11 @@
         <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
       </c:if>
     </div>
-
-    <div>
-      <strong>Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>)</strong>: <span id="geolookup">...</span>
-    </div>
   </c:if>
+
+  <div>
+    <strong>Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>)</strong>: <span id="geolookup">...</span>
+  </div>
 
   <script>
       $script.ready("jquery", function () {

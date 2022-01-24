@@ -15,10 +15,11 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -29,8 +30,6 @@ import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.comment.PreparedCommentsListItem;
 import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.UserDao;
@@ -50,7 +49,7 @@ import java.util.regex.Pattern;
 
 @Controller
 public class SameIPController {
-  private static final Pattern ipRE = Pattern.compile("^([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(/\\d{1,2})?$");
+  private static final Pattern ipRE = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
 
   private final IPBlockDao ipBlockDao;
 
@@ -74,10 +73,16 @@ public class SameIPController {
     namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
+  @ModelAttribute("masks")
+  public List<Integer> getMasks() {
+    return ImmutableList.of(32, 24, 16);
+  }
+
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
     HttpServletRequest request,
     @RequestParam(required = false) String ip,
+    @RequestParam(required = false, defaultValue = "32") int mask,
     @RequestParam(required = false, name="ua") Integer userAgent
   ) {
     Template tmpl = Template.getTemplate(request);
@@ -85,8 +90,6 @@ public class SameIPController {
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
-
-    String actualIp;
 
     ModelAndView mv = new ModelAndView("sameip");
 
@@ -98,14 +101,10 @@ public class SameIPController {
       if (!matcher.matches()) {
         throw new BadInputException("not ip");
       }
-
-      actualIp = matcher.group(1);
-    } else {
-      actualIp = null;
     }
 
-    if (actualIp == null && userAgent == null) {
-      throw new BadInputException("one of msgid/ip/useragent required");
+    if (mask<0 || mask>32) {
+      throw new BadInputException("bad mask");
     }
 
     int rowsLimit = 50;
@@ -119,10 +118,10 @@ public class SameIPController {
     mv.getModel().put("hasMoreComments", comments.size() == rowsLimit);
     mv.getModel().put("rowsLimit", rowsLimit);
 
-    if (actualIp != null) {
-      mv.getModel().put("ip", actualIp);
-      mv.getModel().put("ipMask", ip);
-      boolean hasMask = hasMask(ip);
+    if (ip != null) {
+      mv.getModel().put("ip", ip);
+      mv.getModel().put("mask", mask);
+      boolean hasMask = mask<32;
       mv.getModel().put("hasMask", hasMask);
 
       List<UserItem> users = getUsers(ip, mainMessageUseragent, rowsLimit);
@@ -130,7 +129,7 @@ public class SameIPController {
       mv.getModel().put("hasMoreUsers", users.size() == rowsLimit);
 
       if (!hasMask) {
-        IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(actualIp);
+        IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
 
         boolean allowPosting = false;
         boolean captchaRequired = true;
@@ -154,10 +153,6 @@ public class SameIPController {
     }
 
     return mv;
-  }
-
-  private boolean hasMask(String ip) {
-    return ip.contains("/");
   }
 
   private List<TopicItem> getTopics(@Nullable String ip, @Nullable Integer userAgent, int limit) {
