@@ -212,8 +212,7 @@
 </c:forEach>
 </div>
 
-<c:if test="${ip != null}">
-<h2>Все пользователи, использовавшие данный IP за год (по комментариям)
+<h2>Пользователи за год (по комментариям)
   <c:if test="${hasMoreUsers}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 <div class=forum>
@@ -230,17 +229,14 @@
     <a href="/people/${item.nick}/profile">${item.nick}</a>
   </td>
   <td>
-    <c:if test="${item.sameUa}">
-      <b><c:out escapeXml="true" value="${item.userAgent}"/></b>
-    </c:if>
-    <c:if test="${not item.sameUa}">
-      <c:out escapeXml="true" value="${item.userAgent}"/>
-    </c:if>
+    <c:out escapeXml="true" value="${item.userAgent}"/>
   </td>
 </tr>
 </c:forEach>
 </table>
 </div>
+
+<c:if test="${ip != null}">
 
 <c:if test="${!hasMask}">
   <h2>Управление</h2>

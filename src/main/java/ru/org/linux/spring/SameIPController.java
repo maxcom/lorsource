@@ -16,7 +16,6 @@
 package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -59,7 +58,6 @@ public class SameIPController {
   private final CommentDao commentDao;
   private final CommentPrepareService commentPrepareService;
 
-  private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
   public SameIPController(IPBlockDao ipBlockDao, UserDao userDao, UserAgentDao userAgentDao, CommentDao commentDao,
@@ -69,8 +67,7 @@ public class SameIPController {
     this.userAgentDao = userAgentDao;
     this.commentDao = commentDao;
     this.commentPrepareService = commentPrepareService;
-    jdbcTemplate = new JdbcTemplate(ds);
-    namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
   }
 
   @ModelAttribute("masks")
@@ -92,8 +89,6 @@ public class SameIPController {
     }
 
     ModelAndView mv = new ModelAndView("sameip");
-
-    int mainMessageUseragent = 0;
 
     if (mask<0 || mask>32) {
       throw new BadInputException("bad mask");
@@ -130,15 +125,15 @@ public class SameIPController {
     mv.getModel().put("hasMoreComments", comments.size() == rowsLimit);
     mv.getModel().put("rowsLimit", rowsLimit);
 
+    List<UserItem> users = getUsers(ipMask, userAgent, rowsLimit);
+    mv.getModel().put("users", users);
+    mv.getModel().put("hasMoreUsers", users.size() == rowsLimit);
+
     if (ip != null) {
       mv.getModel().put("ip", ip);
       mv.getModel().put("mask", mask);
       boolean hasMask = mask<32;
       mv.getModel().put("hasMask", hasMask);
-
-      List<UserItem> users = getUsers(ipMask, mainMessageUseragent, rowsLimit);
-      mv.getModel().put("users", users);
-      mv.getModel().put("hasMoreUsers", users.size() == rowsLimit);
 
       if (!hasMask) {
         IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
@@ -191,18 +186,28 @@ public class SameIPController {
     );
   }
 
-  private List<UserItem> getUsers(String ip, int uaId, int limit) {
-    return jdbcTemplate.query(
+  private List<UserItem> getUsers(@Nullable String ip, @Nullable Integer userAgent, int limit) {
+    String ipQuery = ip!=null?"AND c.postip <<= :ip::inet ":"";
+    String userAgentQuery = userAgent!=null?"AND c.ua_id=:userAgent ":"";
+
+    Map<String, Object> params = new HashMap<>();
+
+    params.put("ip", ip);
+    params.put("userAgent", userAgent);
+    params.put("limit", limit);
+
+    return namedJdbcTemplate.query(
             "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
                     "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
                     "JOIN users u ON c.userid = u.id " +
-                    "WHERE c.postip <<= ?::inet AND c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
+                    "WHERE c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
+                    ipQuery +
+                    userAgentQuery +
                     "GROUP BY u.nick, c.ua_id, ua.name " +
                     "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
-                    "LIMIT ?",
-            (rs, rowNum) -> new UserItem(rs, uaId),
-            ip,
-            limit
+                    "LIMIT :limit",
+            params,
+            (rs, rowNum) -> new UserItem(rs)
     );
   }
 
@@ -252,13 +257,11 @@ public class SameIPController {
   public static class UserItem {
     private final Timestamp lastdate;
     private final String nick;
-    private final boolean sameUa;
     private final String userAgent;
 
-    private UserItem(ResultSet rs, int uaId) throws SQLException {
+    private UserItem(ResultSet rs) throws SQLException {
       lastdate = rs.getTimestamp("lastdate");
       nick = rs.getString("nick");
-      sameUa = uaId == rs.getInt("ua_id");
       userAgent = rs.getString("user_agent");
     }
 
@@ -268,10 +271,6 @@ public class SameIPController {
 
     public String getNick() {
       return nick;
-    }
-
-    public boolean isSameUa() {
-      return sameUa;
     }
 
     public String getUserAgent() {
