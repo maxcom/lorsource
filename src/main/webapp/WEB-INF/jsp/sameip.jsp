@@ -37,6 +37,9 @@
 
 <c:if test="${ip != null}">
   <form action="sameip.jsp">
+    <c:if test="${ua != null}">
+      <input type="hidden" name="ua" value="${ua}">
+    </c:if>
     <div class="control-group">
       <label class="control-label" for="ip-field">Адрес: </label>
       <div class="controls">

@@ -88,7 +88,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                         br
                         span.sign_more
                             | #{comment.userAgent} #{' '}
-                            a(href='sameip.jsp?ua=#{comment.userAgentId}')
+                            a(href='sameip.jsp?ua=#{comment.userAgentId}&ip=#{comment.postIP}&mask=0')
                                 | &#x1f50d;
 
 

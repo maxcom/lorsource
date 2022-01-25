@@ -162,6 +162,7 @@ public class SameIPController {
 
     if (userAgent!=null) {
       mv.getModel().put("userAgent", userAgentDao.getUserAgentById(userAgent));
+      mv.getModel().put("ua", userAgent);
     }
 
     return mv;
