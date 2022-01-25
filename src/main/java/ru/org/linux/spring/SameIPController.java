@@ -95,22 +95,34 @@ public class SameIPController {
 
     int mainMessageUseragent = 0;
 
+    if (mask<0 || mask>32) {
+      throw new BadInputException("bad mask");
+    }
+
+    String ipMask;
+
     if (ip!=null) {
       Matcher matcher = ipRE.matcher(ip);
 
       if (!matcher.matches()) {
         throw new BadInputException("not ip");
       }
-    }
 
-    if (mask<0 || mask>32) {
-      throw new BadInputException("bad mask");
+      if (mask==0) {
+        ipMask = null;
+      } else if (mask!=32) {
+        ipMask = ip + "/" + mask;
+      } else {
+        ipMask = ip;
+      }
+    } else {
+      ipMask = null;
     }
 
     int rowsLimit = 50;
 
-    List<TopicItem> topics = getTopics(ip, userAgent, rowsLimit);
-    List<PreparedCommentsListItem> comments = commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ip, userAgent, rowsLimit));
+    List<TopicItem> topics = getTopics(ipMask, userAgent, rowsLimit);
+    List<PreparedCommentsListItem> comments = commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ipMask, userAgent, rowsLimit));
 
     mv.getModel().put("topics", topics);
     mv.getModel().put("hasMoreTopics", topics.size() == rowsLimit);
@@ -124,7 +136,7 @@ public class SameIPController {
       boolean hasMask = mask<32;
       mv.getModel().put("hasMask", hasMask);
 
-      List<UserItem> users = getUsers(ip, mainMessageUseragent, rowsLimit);
+      List<UserItem> users = getUsers(ipMask, mainMessageUseragent, rowsLimit);
       mv.getModel().put("users", users);
       mv.getModel().put("hasMoreUsers", users.size() == rowsLimit);
 
