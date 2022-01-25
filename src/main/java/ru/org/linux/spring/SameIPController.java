@@ -33,6 +33,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.StringUtil;
+import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -71,8 +72,12 @@ public class SameIPController {
   }
 
   @ModelAttribute("masks")
-  public List<Integer> getMasks() {
-    return ImmutableList.of(32, 24, 16);
+  public List<Tuple2<Integer, String>> getMasks() {
+    return ImmutableList.of(
+            Tuple2.apply(32, "IP"),
+            Tuple2.apply(24, "Сеть /24"),
+            Tuple2.apply(16, "Сеть /16"),
+            Tuple2.apply(0, "Не фильтровать"));
   }
 
   @RequestMapping("/sameip.jsp")

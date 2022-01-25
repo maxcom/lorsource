@@ -43,21 +43,11 @@
         <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
 
         <c:forEach items="${masks}" var="v">
-          <c:if test="${v == 32}">
-            <c:if test="${v == mask}">
-              <button name="mask" value="${v}" type="submit" class="btn btn-selected">IP</button>
-            </c:if>
-            <c:if test="${v != mask}">
-              <button name="mask" value="${v}" type="submit" class="btn btn-default">IP</button>
-            </c:if>
+          <c:if test="${v._1() == mask}">
+            <button name="mask" value="${v._1()}" type="submit" class="btn btn-selected">${v._2()}</button>
           </c:if>
-          <c:if test="${v != 32}">
-            <c:if test="${v == mask}">
-              <button name="mask" value="${v}" type="submit" class="btn btn-selected">Сеть /${v}</button>
-            </c:if>
-            <c:if test="${v != mask}">
-              <button name="mask" value="${v}" type="submit" class="btn btn-default">Сеть /${v}</button>
-            </c:if>
+          <c:if test="${v._1() != mask}">
+            <button name="mask" value="${v._1()}" type="submit" class="btn btn-default">${v._2()}</button>
           </c:if>
         </c:forEach>
       </div>
