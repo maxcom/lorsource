@@ -195,8 +195,10 @@
 
     <br>
     <c:if test="${banInfo != null}">
-        Блокирован <lor:date date="${banInfo.date}"/>,
-            модератором <lor:user link="true" user="${banInfo.moderator}"/>
+        Блокирован <lor:date date="${banInfo.date}"/>
+            <c:if test="${banInfo.moderator.id != user.id}">
+                модератором <lor:user link="true" user="${banInfo.moderator}"/>
+            </c:if>
             по причине: <c:out escapeXml="true" value="${banInfo.reason}"/>
     </c:if>
 </div>
