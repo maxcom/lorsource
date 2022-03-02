@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -49,10 +49,11 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse): ModelAndView = {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
-    new ModelAndView("register")
+//    new ModelAndView("register")
+    new ModelAndView("no-register")
   }
 
-  @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
+//  @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
   def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
                  errors: Errors): ModelAndView = {
     if (!errors.hasErrors) {
