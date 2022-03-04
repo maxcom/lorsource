@@ -95,7 +95,8 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       false
     } else if (restriction == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
       currentUser.isModerator
-    } else if (restriction == TopicPermissionService.POSTSCORE_NO_COMMENTS) {
+    } else if (restriction == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
+        restriction == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
       false
     } else {
       currentUser.getScore >= restriction

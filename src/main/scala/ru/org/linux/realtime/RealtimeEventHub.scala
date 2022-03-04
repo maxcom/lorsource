@@ -16,11 +16,11 @@
 package ru.org.linux.realtime
 
 import java.io.IOException
-
 import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated, Timers}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.common.collect.ImmutableList
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -28,10 +28,10 @@ import org.springframework.stereotype.Service
 import org.springframework.web.socket.config.annotation.{EnableWebSocket, WebSocketConfigurer, WebSocketHandlerRegistry}
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
-import ru.org.linux.comment.CommentService
+import ru.org.linux.comment.{CommentList, CommentService}
 import ru.org.linux.realtime.RealtimeEventHub.{NewComment, SessionTerminated, Subscribe, Tick}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.topic.TopicDao
+import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -177,7 +177,11 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 
       val last = maybeComment.getOrElse(0)
 
-      val comments = commentService.getCommentList(topic, false)
+      val comments = if (topic.getPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+        commentService.getCommentList(topic, false)
+      } else {
+        new CommentList(ImmutableList.of(), 0)
+      }
 
       val missed = comments.getList.asScala.map(_.getId).dropWhile(_ <= last).toVector
 

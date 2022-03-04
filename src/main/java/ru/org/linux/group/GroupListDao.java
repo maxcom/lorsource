@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.user.User;
@@ -67,7 +68,7 @@ public class GroupListDao {
         "t.postdate as topic_postdate, " +
         "t.deleted " +
       "FROM topics AS t, groups AS g, comments, sections " +
-      "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id " +
+      "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id AND t.postscore!=" + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
               "%s" + /* user!=null ? queryCommentIgnored */
               "%s" + // queryAuthorFilter

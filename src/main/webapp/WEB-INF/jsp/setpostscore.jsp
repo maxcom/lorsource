@@ -53,6 +53,7 @@
     <option <%= postscore== TopicPermissionService.POSTSCORE_MOD_AUTHOR?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MOD_AUTHOR%>">только для модераторов и автора</option>
     <option <%= postscore== TopicPermissionService.POSTSCORE_MODERATORS_ONLY?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MODERATORS_ONLY%>">только для модераторов</option>
     <option <%= postscore== TopicPermissionService.POSTSCORE_NO_COMMENTS?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_NO_COMMENTS%>">комментарии запрещены</option>
+    <option <%= postscore== TopicPermissionService.POSTSCORE_HIDE_COMMENTS?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_HIDE_COMMENTS%>">комментарии скрыты</option>
   </select>
     </label>
 
@@ -61,7 +62,7 @@
   </c:if>
   <label>Удалить из top10 и Telegram <input type=checkbox name="notop" <%= notop?"checked":"" %>></label>
   <div class="form-actions">
-    <button type=submit>Изменить</button>
+    <button type=submit class="btn btn-primary">Изменить</button>
   </div>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

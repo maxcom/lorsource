@@ -50,6 +50,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_NO_COMMENTS = 10001;
+  public static final int POSTSCORE_HIDE_COMMENTS = 10002;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final int LINK_FOLLOW_MIN_SCORE = 100;
   private static final int VIEW_DELETED_SCORE = 100;
@@ -83,6 +84,8 @@ public class TopicPermissionService {
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
       case POSTSCORE_NO_COMMENTS:
         return "<b>Ограничение на отправку комментариев</b>: комментарии запрещены";
+      case POSTSCORE_HIDE_COMMENTS:
+        return "<b>Ограничение на отправку комментариев</b>: комментарии скрыты";
       case POSTSCORE_REGISTERED_ONLY:
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       default:
@@ -214,7 +217,7 @@ public class TopicPermissionService {
 
     int score = getPostscore(group, topic);
 
-    if (score == POSTSCORE_NO_COMMENTS) {
+    if (score == POSTSCORE_NO_COMMENTS || score == POSTSCORE_HIDE_COMMENTS) {
       return false;
     }
 

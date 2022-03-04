@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,7 +31,7 @@ import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.topic.{Topic, TopicDao, TopicTagService}
+import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
 import ru.org.linux.user.UserDao
 
 import scala.jdk.CollectionConverters._
@@ -89,7 +89,8 @@ class ElasticsearchIndexService
 ) extends StrictLogging {
   import ElasticsearchIndexService._
 
-  private def isTopicSearchable(msg: Topic) = !msg.isDeleted && !msg.isDraft
+  private def isTopicSearchable(msg: Topic) =
+    !msg.isDeleted && !msg.isDraft && (msg.getPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
 
   private def reindexComments(topic: Topic, comments: CommentList): MSeq[BulkCompatibleRequest] = {
     for (comment <- comments.getList.asScala) yield {

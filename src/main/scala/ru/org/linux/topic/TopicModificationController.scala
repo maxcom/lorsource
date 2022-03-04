@@ -77,7 +77,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       throw new UserErrorException(s"invalid postscore $postscore")
     }
 
-    if (postscore > TopicPermissionService.POSTSCORE_NO_COMMENTS) {
+    if (postscore > TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
       throw new UserErrorException(s"invalid postscore $postscore")
     }
 
@@ -85,22 +85,24 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     user.checkCommit()
 
-    val msg = messageDao.getById(msgid)
+    val topic = messageDao.getById(msgid)
 
-    messageDao.setTopicOptions(msg, postscore, sticky, notop)
+    messageDao.setTopicOptions(topic, postscore, sticky, notop)
 
     val out = new StringBuilder
-    if (msg.getPostscore != postscore) {
+    if (topic.getPostscore != postscore) {
       out.append("Установлен новый уровень записи: ").append(postScoreInfoFull(postscore)).append("<br>")
       logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${user.getNick}")
+
+      searchQueueSender.updateMessage(topic.getId, true)
     }
 
-    if (msg.isSticky != sticky) {
+    if (topic.isSticky != sticky) {
       out.append("Новое значение sticky: ").append(sticky).append("<br>")
       logger.info(s"Новое значение sticky: $sticky")
     }
 
-    if (msg.isNotop != notop) {
+    if (topic.isNotop != notop) {
       out.append("Новое значение notop: ").append(notop).append("<br>")
       logger.info(s"Новое значение notop: $notop")
     }
@@ -108,7 +110,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     new ModelAndView("action-done", Map (
       "message" -> "Данные изменены",
       "bigMessage" -> out.toString,
-      "link" -> msg.getLink
+      "link" -> topic.getLink
     ).asJava)
   }
 
