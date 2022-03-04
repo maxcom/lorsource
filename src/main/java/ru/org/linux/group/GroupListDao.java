@@ -69,7 +69,7 @@ public class GroupListDao {
         "t.deleted, " +
         "t.postscore>=" + TopicPermissionService.POSTSCORE_MODERATORS_ONLY + " as comments_closed " +
       "FROM topics AS t, groups AS g, comments, sections " +
-      "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id AND t.postscore!=" + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
+      "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id AND t.postscore IS DISTINCT FROM " + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
               "%s" + /* user!=null ? queryCommentIgnored */
               "%s" + // queryAuthorFilter
