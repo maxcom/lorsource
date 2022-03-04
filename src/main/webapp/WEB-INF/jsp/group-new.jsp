@@ -141,8 +141,8 @@
             <c:if test="${msg.deleted}">
               <img src="/img/del.png" alt="[X]" width="15" height="15">
             </c:if>
-            <c:if test="${msg.sticky and not msg.deleted}">
-              <i class="icon-pin icon-pin-color" title="Прикрепленная тема"></i>
+            <c:if test="${msg.commentsClosed and not msg.deleted}">
+              &#128274;
             </c:if>
             <c:if test="${msg.resolved}">
               <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>

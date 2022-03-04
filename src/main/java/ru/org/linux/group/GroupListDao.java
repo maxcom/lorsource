@@ -66,7 +66,8 @@ public class GroupListDao {
         "t.moderate, " +
         "t.sticky, " +
         "t.postdate as topic_postdate, " +
-        "t.deleted " +
+        "t.deleted, " +
+        "t.postscore>=" + TopicPermissionService.POSTSCORE_MODERATORS_ONLY + " as comments_closed " +
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id AND t.postscore!=" + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
@@ -96,7 +97,8 @@ public class GroupListDao {
           "t.moderate, " +
           "t.sticky, " +
           "t.postdate as topic_postdate, " +
-          "t.deleted " +
+          "t.deleted, " +
+          "t.postscore>=" + TopicPermissionService.POSTSCORE_MODERATORS_ONLY + " as comments_closed " +
       "FROM topics AS t, groups AS g, sections " +
       "WHERE sections.id=g.section AND not t.draft %s " + // topicInterval
           "%s" + /* noUncommited */
@@ -198,7 +200,8 @@ public class GroupListDao {
 
   private List<TopicsListItem> load(String partFilter, String authorFilter, User currentUser,
                                     int topics, int offset, final int messagesInPage, String orderColumn,
-                                    String commentInterval, String topicInterval, boolean showIgnored, boolean showDeleted) {
+                                    String commentInterval, String topicInterval, boolean showIgnored,
+                                    boolean showDeleted) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
     parameter.addValue("topics", topics);
@@ -268,7 +271,8 @@ public class GroupListDao {
 
       res.add(new TopicsListItem(author, msgid, lastmod, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,
-              section, groupUrlName, postdate, uncommited, pages, tags, resultSet.getBoolean("deleted"), sticky));
+              section, groupUrlName, postdate, uncommited, pages, tags, resultSet.getBoolean("deleted"),
+              sticky, resultSet.getBoolean("comments_closed")));
     }
     
     return res;

@@ -48,7 +48,7 @@ import java.util.stream.IntStream;
 public class TopicPermissionService {
   public static final int POSTSCORE_MOD_AUTHOR = 9999;
   public static final int POSTSCORE_UNRESTRICTED = -9999;
-  public static final int POSTSCORE_MODERATORS_ONLY = 10000;
+  public static final int POSTSCORE_MODERATORS_ONLY = 10000; // при смене номера поправить GroupListDao
   public static final int POSTSCORE_NO_COMMENTS = 10001;
   public static final int POSTSCORE_HIDE_COMMENTS = 10002;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;

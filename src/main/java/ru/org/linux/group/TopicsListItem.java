@@ -44,6 +44,7 @@ public class TopicsListItem {
   private final ImmutableList<String> tags;
   private final boolean deleted;
   private final boolean sticky;
+  private final boolean commentsClosed;
 
   public TopicsListItem(User author, int msgid, Timestamp lastmod,
                         int stat1,
@@ -51,7 +52,7 @@ public class TopicsListItem {
                         int cid, User lastCommentBy, boolean resolved,
                         int section, String groupUrlName,
                         Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags, boolean deleted,
-                        boolean sticky) {
+                        boolean sticky, boolean commentsClosed) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -70,6 +71,7 @@ public class TopicsListItem {
     this.tags = tags;
     this.deleted = deleted;
     this.sticky = sticky;
+    this.commentsClosed = commentsClosed;
   }
 
   public String getLastPageUrl() {
@@ -174,5 +176,9 @@ public class TopicsListItem {
 
   public boolean isSticky() {
     return sticky;
+  }
+
+  public boolean isCommentsClosed() {
+    return commentsClosed;
   }
 }

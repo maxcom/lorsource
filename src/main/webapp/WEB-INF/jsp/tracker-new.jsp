@@ -74,6 +74,9 @@
 
         <div class="tracker-title">
           <p>
+            <c:if test="${msg.commentsClosed and not msg.deleted}">
+              &#128274;
+            </c:if>
             <c:if test="${msg.resolved}">
               <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
             </c:if>
