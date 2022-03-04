@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -49,6 +49,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_MOD_AUTHOR = 9999;
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
+  public static final int POSTSCORE_NO_COMMENTS = 10001;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final int LINK_FOLLOW_MIN_SCORE = 100;
   private static final int VIEW_DELETED_SCORE = 100;
@@ -80,6 +81,8 @@ public class TopicPermissionService {
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
       case POSTSCORE_MODERATORS_ONLY:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
+      case POSTSCORE_NO_COMMENTS:
+        return "<b>Ограничение на отправку комментариев</b>: комментарии запрещены";
       case POSTSCORE_REGISTERED_ONLY:
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       default:
@@ -210,6 +213,10 @@ public class TopicPermissionService {
     }
 
     int score = getPostscore(group, topic);
+
+    if (score == POSTSCORE_NO_COMMENTS) {
+      return false;
+    }
 
     if (score == POSTSCORE_UNRESTRICTED) {
       return true;
