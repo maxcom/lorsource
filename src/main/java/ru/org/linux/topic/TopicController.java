@@ -224,7 +224,6 @@ public class TopicController {
 
     Deadline deadline = MoreLikeThisTimeout.fromNow();
 
-
     Topic topic = messageDao.getById(msgid);
     List<TagRef> tags = topicTagService.getTagRefs(topic);
 
@@ -357,9 +356,7 @@ public class TopicController {
 
     loadTopicScroller(params, topic, currentUser, !ignoreList.isEmpty());
 
-    CommentList comments;
-
-    comments = getCommentList(topic, group, showDeleted);
+    CommentList comments = getCommentList(topic, group, showDeleted);
 
     Set<Integer> hideSet = commentService.makeHideSet(comments, filterMode, ignoreList);
 
@@ -405,7 +402,7 @@ public class TopicController {
     add.setMode(tmpl.getFormatMode());
     params.put("add", add);
 
-    if (pages > 1 && !showDeleted && threadRoot == 0) {
+    if (pages > 1 && !showDeleted && threadRoot == 0 && !comments.getList().isEmpty()) {
       params.put("pages", buildPages(topic, tmpl.getProf().getMessages(), filterMode, defaultFilterMode, page));
     }
 

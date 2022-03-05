@@ -53,7 +53,7 @@
     <option <%= postscore== TopicPermissionService.POSTSCORE_MOD_AUTHOR?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MOD_AUTHOR%>">только для модераторов и автора</option>
     <option <%= postscore== TopicPermissionService.POSTSCORE_MODERATORS_ONLY?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MODERATORS_ONLY%>">только для модераторов</option>
     <option <%= postscore== TopicPermissionService.POSTSCORE_NO_COMMENTS?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_NO_COMMENTS%>">комментарии запрещены</option>
-    <option <%= postscore== TopicPermissionService.POSTSCORE_HIDE_COMMENTS?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_HIDE_COMMENTS%>">комментарии скрыты</option>
+    <option <%= postscore== TopicPermissionService.POSTSCORE_HIDE_COMMENTS?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_HIDE_COMMENTS%>">без комментариев</option>
   </select>
     </label>
 
