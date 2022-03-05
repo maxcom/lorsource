@@ -85,7 +85,7 @@ public class TopicPermissionService {
       case POSTSCORE_NO_COMMENTS:
         return "<b>Ограничение на отправку комментариев</b>: комментарии запрещены";
       case POSTSCORE_HIDE_COMMENTS:
-        return "<b>Ограничение на отправку комментариев</b>: комментарии без комментариев";
+        return "<b>Ограничение на отправку комментариев</b>: без комментариев";
       case POSTSCORE_REGISTERED_ONLY:
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       default:
