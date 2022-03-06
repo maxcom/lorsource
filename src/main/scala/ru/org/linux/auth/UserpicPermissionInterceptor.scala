@@ -36,7 +36,7 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
           val user = userDao.getUserCached(userid.toInt)
           val image = s"$userid$suffix"
 
-          logger.info(s"Checking ${user.getNick} image $image; current ${user.getPhoto}")
+          logger.debug(s"Checking ${user.getNick} image $image; current ${user.getPhoto}")
 
           if (image == user.getPhoto) {
             true
