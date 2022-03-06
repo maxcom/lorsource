@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,21 +14,22 @@
  */
 package ru.org.linux
 
-import java.io.File
-
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.context.annotation.{Bean, Configuration}
-import org.springframework.web.servlet.config.annotation.{EnableWebMvc, ResourceHandlerRegistry, WebMvcConfigurerAdapter}
+import org.springframework.web.servlet.config.annotation.{EnableWebMvc, ResourceHandlerRegistry, WebMvcConfigurer}
 import org.springframework.web.servlet.handler.MappedInterceptor
-import ru.org.linux.auth.GalleryPermissionInterceptor
+import ru.org.linux.auth.{GalleryPermissionInterceptor, UserpicPermissionInterceptor}
 import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
+import ru.org.linux.user.UserDao
+
+import java.io.File
 
 @Configuration
 @EnableWebMvc
-class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigurerAdapter with StrictLogging {
+class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigurer with StrictLogging {
   private val CachePeriod = 31556926
 
   override def addResourceHandlers(registry: ResourceHandlerRegistry): Unit = {
@@ -50,11 +51,15 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
   @Bean
   def galleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
                                    topicPermissionService: TopicPermissionService) = {
-    new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService)
+    val interceptor = new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService)
+
+    new MappedInterceptor(Array("/images/**", "/gallery/**"), interceptor)
   }
 
   @Bean
-  def permissionInterceptor(i: GalleryPermissionInterceptor): MappedInterceptor = {
-    new MappedInterceptor(Array("/images/**", "/gallery/**"), i)
+  def userpicPermissionInterceptor(userDao: UserDao) = {
+    val interceptor = new UserpicPermissionInterceptor(userDao)
+
+    new MappedInterceptor(Array("/photos/**"), interceptor)
   }
 }

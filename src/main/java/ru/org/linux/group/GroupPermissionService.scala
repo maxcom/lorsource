@@ -123,8 +123,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
         "<b>Ограничение на добавление сообщений</b>: " + User.getStars(postscore, postscore, true)
       case TopicPermissionService.POSTSCORE_MODERATORS_ONLY =>
         "<b>Ограничение на добавление сообщений</b>: только для модераторов"
-      case TopicPermissionService.POSTSCORE_MODERATORS_ONLY =>
-        "<b>Ограничение на добавление сообщений</b>: комментарии запрещены"
       case TopicPermissionService.POSTSCORE_REGISTERED_ONLY =>
         "<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей"
       case _ =>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,19 +15,19 @@
 
 package ru.org.linux.auth
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
+import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.User
 
-class GalleryPermissionInterceptor (imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
-                                                 topicPermissionService: TopicPermissionService)
-  extends HandlerInterceptorAdapter with StrictLogging {
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
+class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
+                                   topicPermissionService: TopicPermissionService)
+  extends HandlerInterceptor with StrictLogging {
 
   private val ImagesPattern = "^images/(\\d+)/.*".r
 
