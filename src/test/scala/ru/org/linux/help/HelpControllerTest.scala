@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package ru.org.linux.help
 
 import org.junit.runner.RunWith
 import org.junit.{Before, Test}
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders._
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers._
 import org.springframework.test.web.servlet.setup.MockMvcBuilders._
 import org.springframework.web.context.WebApplicationContext
-import org.springframework.web.servlet.config.annotation.{EnableWebMvc, PathMatchConfigurer, WebMvcConfigurerAdapter}
+import org.springframework.web.servlet.config.annotation.{EnableWebMvc, PathMatchConfigurer, WebMvcConfigurer}
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
@@ -49,7 +49,7 @@ class HelpControllerTest extends MVCTest {
 
 @Configuration
 @EnableWebMvc
-class HelpControllerTestConfig extends WebMvcConfigurerAdapter {
+class HelpControllerTestConfig extends WebMvcConfigurer {
   override def configurePathMatch(configurer: PathMatchConfigurer): Unit = {
     configurer.setUseSuffixPatternMatch(false)
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.httpclient.URI;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserService;
@@ -29,16 +28,11 @@ import static ru.org.linux.util.bbcode.Parser.DEFAULT_PARSER;
 
 @Service
 public class LorCodeService {
-  private UserService userService;
-  private ToHtmlFormatter toHtmlFormatter;
+  private final UserService userService;
+  private final ToHtmlFormatter toHtmlFormatter;
 
-  @Autowired
-  public void setUserService(UserService userService) {
+  public LorCodeService(UserService userService, ToHtmlFormatter toHtmlFormatter) {
     this.userService = userService;
-  }
-
-  @Autowired
-  public void setToHtmlFormatter(ToHtmlFormatter toHtmlFormatter) {
     this.toHtmlFormatter = toHtmlFormatter;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,17 +31,12 @@ import java.util.List;
 
 @Component
 public class SearchQueueSender {
-  private JmsTemplate jmsTemplate;
-  private Queue queue;
+  private final JmsTemplate jmsTemplate;
+  private final Queue queue;
   private static final Logger logger = LoggerFactory.getLogger(SearchQueueSender.class);
 
-  @Autowired
-  public void setJmsTemplate(JmsTemplate jmsTemplate) {
+  public SearchQueueSender(JmsTemplate jmsTemplate, Queue queue) {
     this.jmsTemplate = jmsTemplate;
-  }
-
-  @Autowired
-  public void setQueue(Queue queue) {
     this.queue = queue;
   }
 

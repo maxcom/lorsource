@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,16 +15,10 @@
 
 package ru.org.linux.util.formatter;
 
-import org.junit.Before;
 import org.junit.Test;
-import ru.org.linux.comment.CommentDao;
 import ru.org.linux.markup.MessageTextService;
-import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.topic.TopicDao;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 public class ToLorCodeFormatterTest {
   private static final String QUOTING1 = "> 1";
@@ -35,22 +29,6 @@ public class ToLorCodeFormatterTest {
 
   private static final String QUOTING3 = "> 1\n2\n\n3";
   private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3";
-
-  @Before
-  public void init() {
-    TopicDao messageDao = mock(TopicDao.class);
-    CommentDao commentDao = mock(CommentDao.class);
-
-    SiteConfig siteConfig = mock(SiteConfig.class);
-
-    ToHtmlFormatter toHtmlFormatter = new ToHtmlFormatter();
-    toHtmlFormatter.setSiteConfig(siteConfig);
-    toHtmlFormatter.setTopicDao(messageDao);
-    toHtmlFormatter.setCommentDao(commentDao);
-
-    LorCodeService lorCodeService = new LorCodeService();
-    lorCodeService.setToHtmlFormatter(toHtmlFormatter);
-  }
 
   private String formatNtobr(String str) {
     return MessageTextService.prepareUlb(str);
