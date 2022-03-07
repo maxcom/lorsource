@@ -25,9 +25,9 @@
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
     <jquery.form.version>4.2.1</jquery.form.version>
-    <jetty.version>9.4.44.v20210927</jetty.version>
+    <jetty.version>9.4.45.v20220203</jetty.version>
     <akka.version>2.6.18</akka.version>
-    <log4j.version>2.17.1</log4j.version>
+    <log4j.version>2.17.2</log4j.version>
     <play-ws.version>2.1.6</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.24.0</momentjs.version>
@@ -133,7 +133,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>31.0.1-jre</version>
+      <version>31.1-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
