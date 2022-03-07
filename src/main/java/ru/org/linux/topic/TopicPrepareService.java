@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -361,6 +361,9 @@ public class TopicPrepareService {
       );
     }
 
+    int postscore = topicPermissionService.getPostscore(message.getGroup(), message.getMessage());
+    boolean showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS;
+
     return new TopicMenu(
             topicEditable,
             tagsEditable,
@@ -369,7 +372,8 @@ public class TopicPrepareService {
             deletable,
             undeletable,
             groupPermissionService.canCommit(currentUser, message.getMessage()),
-            userpic
+            userpic,
+            showComments
     );
   }
 }
