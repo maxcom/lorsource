@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package ru.org.linux.group;
 
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nullable;
@@ -44,7 +45,7 @@ public class TopicsListItem {
   private final ImmutableList<String> tags;
   private final boolean deleted;
   private final boolean sticky;
-  private final boolean commentsClosed;
+  private final int topicPostscore;
 
   public TopicsListItem(User author, int msgid, Timestamp lastmod,
                         int stat1,
@@ -52,7 +53,7 @@ public class TopicsListItem {
                         int cid, User lastCommentBy, boolean resolved,
                         int section, String groupUrlName,
                         Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags, boolean deleted,
-                        boolean sticky, boolean commentsClosed) {
+                        boolean sticky, int topicPostscore) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -71,7 +72,7 @@ public class TopicsListItem {
     this.tags = tags;
     this.deleted = deleted;
     this.sticky = sticky;
-    this.commentsClosed = commentsClosed;
+    this.topicPostscore = topicPostscore;
   }
 
   public String getLastPageUrl() {
@@ -114,8 +115,12 @@ public class TopicsListItem {
     return lastmod;
   }
 
-  public int getStat1() {
-    return stat1;
+  public int getCommentCount() {
+    if (topicPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+      return stat1;
+    } else {
+      return 0;
+    }
   }
 
   public int getGroupId() {
@@ -179,6 +184,6 @@ public class TopicsListItem {
   }
 
   public boolean isCommentsClosed() {
-    return commentsClosed;
+    return topicPostscore >= TopicPermissionService.POSTSCORE_MODERATORS_ONLY;
   }
 }

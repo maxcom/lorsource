@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -67,7 +67,7 @@ public class GroupListDao {
         "t.sticky, " +
         "t.postdate as topic_postdate, " +
         "t.deleted, " +
-        "t.postscore>=" + TopicPermissionService.POSTSCORE_MODERATORS_ONLY + " as comments_closed " +
+        "t.postscore as topic_postscore " +
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.draft AND t.id=comments.topic AND t.groupid=g.id AND t.postscore IS DISTINCT FROM " + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
@@ -98,7 +98,7 @@ public class GroupListDao {
           "t.sticky, " +
           "t.postdate as topic_postdate, " +
           "t.deleted, " +
-          "t.postscore>=" + TopicPermissionService.POSTSCORE_MODERATORS_ONLY + " as comments_closed " +
+          "t.postscore as topic_postscore " +
       "FROM topics AS t, groups AS g, sections " +
       "WHERE sections.id=g.section AND not t.draft %s " + // topicInterval
           "%s" + /* noUncommited */
@@ -269,10 +269,14 @@ public class GroupListDao {
 
       tags = topicTagService.getTagsForTitle(msgid);
 
+      int topicPostscore = (resultSet.getObject("topic_postscore") == null)
+              ? TopicPermissionService.POSTSCORE_UNRESTRICTED
+              : resultSet.getInt("topic_postscore");
+
       res.add(new TopicsListItem(author, msgid, lastmod, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,
               section, groupUrlName, postdate, uncommited, pages, tags, resultSet.getBoolean("deleted"),
-              sticky, resultSet.getBoolean("comments_closed")));
+              sticky, topicPostscore));
     }
     
     return res;

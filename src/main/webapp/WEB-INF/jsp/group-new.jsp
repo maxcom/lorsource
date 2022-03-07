@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -126,11 +126,11 @@
         <div class="tracker-count">
           <p>
           <c:choose>
-            <c:when test="${msg.stat1==0}">
+            <c:when test="${msg.commentCount==0}">
               -
             </c:when>
             <c:otherwise>
-              <i class="icon-comment"></i> ${msg.stat1}
+              <i class="icon-comment"></i> ${msg.commentCount}
             </c:otherwise>
           </c:choose>
           </p>

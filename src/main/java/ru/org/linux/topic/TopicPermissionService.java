@@ -49,8 +49,8 @@ public class TopicPermissionService {
   public static final int POSTSCORE_MOD_AUTHOR = 9999;
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000; // при смене номера поправить GroupListDao
-  public static final int POSTSCORE_NO_COMMENTS = 10001;
-  public static final int POSTSCORE_HIDE_COMMENTS = 10002;
+  public static final int POSTSCORE_NO_COMMENTS = 10001; // запрещает новые, но оставляет старые
+  public static final int POSTSCORE_HIDE_COMMENTS = 10002; // запрещает новые, скрывает старые
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final int LINK_FOLLOW_MIN_SCORE = 100;
   private static final int VIEW_DELETED_SCORE = 100;
