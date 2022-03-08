@@ -144,7 +144,7 @@ public class TopicController {
     if (rss) {
       return getMessageRss(section, request, response, groupName, msgid);
     } else {
-      return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid, 0);
+      return getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0);
     }
   }
 
@@ -161,7 +161,7 @@ public class TopicController {
   ) throws Exception {
     Section section = sectionService.getSectionByName(sectionName);
 
-    return getMessageNew(section, webRequest, request, response, page, filter, groupName, msgid, 0);
+    return getMessage(section, webRequest, request, response, page, filter, groupName, msgid, 0);
   }
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}/thread/{threadRoot}")
@@ -178,7 +178,7 @@ public class TopicController {
   ) throws Exception {
     Section section = sectionService.getSectionByName(sectionName);
 
-    return getMessageNew(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot);
+    return getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot);
   }
 
   private static int getDefaultFilter(Profile prof, boolean emptyIgnoreList) {
@@ -211,7 +211,7 @@ public class TopicController {
     return new PagesInfo(out, currentPage);
   }
 
-  private ModelAndView getMessageNew(
+  private ModelAndView getMessage(
           Section section,
           WebRequest webRequest,
           HttpServletRequest request,
