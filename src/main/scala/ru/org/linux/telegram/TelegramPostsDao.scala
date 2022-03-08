@@ -20,7 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.topic.Topic
+import ru.org.linux.topic.{Topic, TopicPermissionService}
 
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters._
@@ -39,7 +39,7 @@ class TelegramPostsDao(ds: DataSource) {
 
   def hotTopic: Option[Topic] = {
     jdbcTemplate.queryAndMap(
-      """
+      s"""
         |select topics.postdate, topics.id as msgid, topics.userid, topics.title,
         |  topics.groupid as guid, topics.url, topics.linktext, topics.ua_id,
         |  urlname, section, topics.sticky, topics.postip,
@@ -51,7 +51,7 @@ class TelegramPostsDao(ds: DataSource) {
         |  select topic from comments join users on comments.userid=users.id join topics on (comments.topic=topics.id)
         |    where comments.postdate>CURRENT_TIMESTAMP-'5 hour'::interval and score>=100
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
-        |      and not notop and not draft
+        |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
         |    having count (distinct comments.userid)>=15
         |    order by count(distinct comments.userid) desc
@@ -61,7 +61,8 @@ class TelegramPostsDao(ds: DataSource) {
 
   def topicToDelete: Option[Int] = {
     jdbcTemplate.queryAndMap("select telegram_id from telegram_posts join topics on topic_id = topics.id where " +
-      "telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and (topics.deleted or topics.notop)") { (rs, _) =>
+      s"telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and " +
+      s"(topics.deleted or topics.notop or topics.postscore is not distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS})") { (rs, _) =>
       rs.getInt("telegram_id")
     }.headOption
   }
