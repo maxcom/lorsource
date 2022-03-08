@@ -105,9 +105,18 @@ public class TopicPermissionService {
       return;
     }
 
-    if (message.isExpired() && showDeleted) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+    if (showDeleted) {
+      if (message.isExpired()) {
+        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+      }
+
+      if (message.getPostscore() == POSTSCORE_MODERATORS_ONLY ||
+              message.getPostscore() == POSTSCORE_NO_COMMENTS ||
+              message.getPostscore() == POSTSCORE_HIDE_COMMENTS) {
+        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в закрытых темах");
+      }
     }
+
 
     boolean unauthorized = currentUser == null || currentUser.isAnonymous();
     boolean topicAuthor = currentUser!=null && currentUser.getId() == message.getUid();
