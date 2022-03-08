@@ -36,8 +36,6 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
           val user = userDao.getUserCached(userid.toInt)
           val image = s"$userid$suffix"
 
-//          logger.debug(s"Checking ${user.getNick} image $image; current ${user.getPhoto}")
-
           if (image == user.getPhoto) {
             true
           } else {
@@ -46,7 +44,13 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
             val check = currentUser.exists(u => u.getId == user.getId || u.isModerator)
 
             if (!check) {
-              logger.warn(s"Forbidden access to $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")}")
+              if (user.getPhoto!=null) {
+                logger.warn(s"Redirect $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")} to ${user.getPhoto}")
+                response.sendRedirect(s"/photos/${user.getPhoto}")
+              } else {
+                logger.warn(s"Forbidden access $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")}")
+                response.sendError(404)
+              }
             }
 
             check
@@ -54,18 +58,17 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
         } catch {
           case _: UserNotFoundException =>
             logger.warn(s"Invalid image path $uri: user not found")
+            response.sendError(404)
 
             false
         }
       case other =>
         logger.warn(s"Invalid images path $other forbidden")
+        response.sendError(404)
+
         false
     }
 
-
-    if (!continue) {
-      response.sendError(404)
-    }
 
     continue
   }
