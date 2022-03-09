@@ -218,7 +218,7 @@
     </c:if>
 </c:if>
 
-  <c:if test="${message.commentCount>0}">
+  <c:if test="${messageMenu.showComments && message.commentCount>0}">
     (<lor:comment-count count="${message.commentCount}"/>)
   </c:if>
 </article>
