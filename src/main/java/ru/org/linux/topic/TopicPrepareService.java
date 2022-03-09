@@ -160,7 +160,7 @@ public class TopicPrepareService {
           @Nullable Image image) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
-      User author = userDao.getUserCached(message.getUid());
+      User author = userDao.getUserCached(message.getAuthorUserId());
       Section section = sectionService.getSection(message.getSectionId());
 
       DeleteInfo deleteInfo;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -68,9 +68,9 @@ public class EditHistoryController {
     Template tmpl = Template.getTemplate(request);
     Group group = groupDao.getGroup(message.getGroupId());
 
-    topicPermissionService.checkView(group, message, tmpl.getCurrentUser(), false);
-
     PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, tmpl.getCurrentUser());
+
+    topicPermissionService.checkView(group, message, tmpl.getCurrentUser(), preparedMessage.getAuthor(), false);
 
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message);
 

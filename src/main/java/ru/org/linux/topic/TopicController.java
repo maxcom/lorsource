@@ -264,7 +264,7 @@ public class TopicController {
 
     User currentUser = AuthUtil.getCurrentUser();
 
-    permissionService.checkView(group, topic, currentUser, showDeleted);
+    permissionService.checkView(group, topic, currentUser, preparedMessage.getAuthor(), showDeleted);
 
     if (!tmpl.isModeratorSession()) {
       if (showDeleted && !"POST".equals(request.getMethod())) {
@@ -457,7 +457,7 @@ public class TopicController {
 
     User currentUser = AuthUtil.getCurrentUser();
 
-    permissionService.checkView(group, topic, currentUser, false);
+    permissionService.checkView(group, topic, currentUser, preparedMessage.getAuthor(),false);
 
     params.put("message", topic);
     params.put("preparedMessage", preparedMessage);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -191,7 +191,7 @@ public class TopicDao {
     DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(message.getId(), true);
 
     if (deleteInfo!=null && deleteInfo.getBonus()!=0) {
-      userDao.changeScore(message.getUid(), -deleteInfo.getBonus());
+      userDao.changeScore(message.getAuthorUserId(), -deleteInfo.getBonus());
     }
 
     jdbcTemplate.update("UPDATE topics SET deleted='f' WHERE id=?", message.getId());

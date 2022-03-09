@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -48,32 +48,37 @@ import java.util.stream.Collectors;
 
 @Service
 public class EditHistoryService {
-  @Autowired
-  TopicTagService topicTagService;
+  private final TopicTagService topicTagService;
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private MessageTextService textService;
+  private final MessageTextService textService;
   
-  @Autowired
-  private MsgbaseDao msgbaseDao;
+  private final MsgbaseDao msgbaseDao;
 
-  @Autowired
-  private EditHistoryDao editHistoryDao;
+  private final EditHistoryDao editHistoryDao;
 
-  @Autowired
-  private ImageDao imageDao;
+  private final ImageDao imageDao;
 
-  @Autowired
-  private ImageService imageService;
+  private final ImageService imageService;
 
-  @Autowired
-  private PollDao pollDao;
+  private final PollDao pollDao;
+
+  public EditHistoryService(TopicTagService topicTagService, UserDao userDao, UserService userService,
+                            MessageTextService textService, MsgbaseDao msgbaseDao, EditHistoryDao editHistoryDao,
+                            ImageDao imageDao, ImageService imageService, PollDao pollDao) {
+    this.topicTagService = topicTagService;
+    this.userDao = userDao;
+    this.userService = userService;
+    this.textService = textService;
+    this.msgbaseDao = msgbaseDao;
+    this.editHistoryDao = editHistoryDao;
+    this.imageDao = imageDao;
+    this.imageService = imageService;
+    this.pollDao = pollDao;
+  }
 
   /**
    * Получить историю изменений топика
@@ -172,7 +177,7 @@ public class EditHistoryService {
 
       editHistories.add(new PreparedEditHistory(
               textService,
-              userDao.getUserCached(topic.getUid()),
+              userDao.getUserCached(topic.getAuthorUserId()),
               topic.getPostdate(),
               currentMessage,
               currentTitle,
@@ -272,7 +277,7 @@ public class EditHistoryService {
   public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryRecord> editInfoList) {
     return ImmutableSet.copyOf(
             Iterables.transform(
-                    editInfoList.stream().filter(input -> input.getEditor() != message.getUid()).collect(Collectors.toList()),
+                    editInfoList.stream().filter(input -> input.getEditor() != message.getAuthorUserId()).collect(Collectors.toList()),
                     EditHistoryRecord::getEditor)
     );
   }

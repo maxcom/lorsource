@@ -41,7 +41,7 @@ object ElasticsearchIndexService {
   val MessageIndex = "messages"
   val MessageType = "message"
 
-  val MessageIndexType = IndexAndType(MessageIndex, MessageType)
+  val MessageIndexType: IndexAndType = IndexAndType(MessageIndex, MessageType)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
 
@@ -194,7 +194,7 @@ class ElasticsearchIndexService
     val section = sectionService.getSection(topic.getSectionId)
     val group = groupDao.getGroup(topic.getGroupId)
     val author = userDao.getUserCached(comment.getUserid)
-    val topicAuthor = userDao.getUserCached(topic.getUid)
+    val topicAuthor = userDao.getUserCached(topic.getAuthorUserId)
 
     val topicTitle = topic.getTitleUnescaped
 
@@ -231,7 +231,7 @@ class ElasticsearchIndexService
   private def indexOfTopic(topic: Topic): IndexRequest = {
     val section = sectionService.getSection(topic.getSectionId)
     val group = groupDao.getGroup(topic.getGroupId)
-    val author = userDao.getUserCached(topic.getUid)
+    val author = userDao.getUserCached(topic.getAuthorUserId)
 
     indexInto(MessageIndexType) id topic.getId.toString fields(
       "section" -> section.getUrlName,

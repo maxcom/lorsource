@@ -50,8 +50,8 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
 
   @Bean
   def galleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
-                                   topicPermissionService: TopicPermissionService) = {
-    val interceptor = new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService)
+                                   topicPermissionService: TopicPermissionService, userDao: UserDao) = {
+    val interceptor = new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService, userDao)
 
     new MappedInterceptor(Array("/images/**", "/gallery/**"), interceptor)
   }

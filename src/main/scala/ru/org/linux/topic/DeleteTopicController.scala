@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -63,7 +63,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
     new ModelAndView("delete", Map[String, Any](
       "bonus" -> (!section.isPremoderated && !msg.isDraft && !msg.isExpired),
-      "author" -> userDao.getUser(msg.getUid),
+      "author" -> userDao.getUser(msg.getAuthorUserId),
       "msgid" -> msgid,
       "draft" -> msg.isDraft,
       "uncommited" -> (section.isPremoderated && !msg.isCommited)

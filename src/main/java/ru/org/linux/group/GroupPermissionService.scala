@@ -44,7 +44,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return признак возможности удаления
     */
   private def isDeletableByUser(topic: Topic, user: User): Boolean = {
-    if (topic.getUid != user.getId) {
+    if (topic.getAuthorUserId != user.getId) {
       false
     } else if (topic.isDraft) {
       true
@@ -261,5 +261,5 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def canCommit(user: User, topic: Topic): Boolean =
-    user!=null && (user.isModerator || (user.isCorrector && topic.getUid != user.getId))
+    user!=null && (user.isModerator || (user.isCorrector && topic.getAuthorUserId != user.getId))
 }

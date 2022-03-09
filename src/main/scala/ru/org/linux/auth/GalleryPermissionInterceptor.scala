@@ -21,12 +21,12 @@ import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.user.User
+import ru.org.linux.user.{User, UserDao}
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
-                                   topicPermissionService: TopicPermissionService)
+                                   topicPermissionService: TopicPermissionService, userDao: UserDao)
   extends HandlerInterceptor with StrictLogging {
 
   private val ImagesPattern = "^images/(\\d+)/.*".r
@@ -41,13 +41,9 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
 
       uri match {
         case ImagesPattern(id) =>
-          val topics = Option(imageDao.getImage(id.toInt)).map { image => topicDao.getById(image.getTopicId) }
+          val topic = topicDao.getById(imageDao.getImage(id.toInt).topicId)
 
-          if (topics.nonEmpty) {
-            topics.exists(visible(AuthUtil.getCurrentUser))
-          } else {
-            true
-          }
+          visible(AuthUtil.getCurrentUser, topic)
         case other =>
           logger.info(s"Strange URI in images: $other")
           true
@@ -63,14 +59,11 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
     continue
   }
 
-  private def visible(currentUser:User)(topic:Topic):Boolean = {
+  private def visible(currentUser: User, topic: Topic): Boolean = {
     try {
-      topicPermissionService.checkView(
-        groupDao.getGroup(topic.getGroupId),
-        topic,
-        currentUser,
-        false
-      )
+      topicPermissionService.checkView(groupDao.getGroup(topic.getGroupId), topic, currentUser,
+        userDao.getUserCached(topic.getAuthorUserId), false)
+
       true
     } catch {
       case ex: MessageNotFoundException =>

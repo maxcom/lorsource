@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -179,11 +179,11 @@ public class TopicService {
       throw new IllegalArgumentException("Некорректное значение bonus");
     }
 
-    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid() && !message.isDraft()) {
+    if (user.isModerator() && bonus!=0 && user.getId()!=message.getAuthorUserId() && !message.isDraft()) {
       boolean deleted = deleteTopic(message.getId(), user, reason, -bonus);
 
       if (deleted) {
-        userDao.changeScore(message.getUid(), -bonus);
+        userDao.changeScore(message.getAuthorUserId(), -bonus);
       }
     } else {
       deleteTopic(message.getId(), user, reason, 0);
@@ -269,9 +269,9 @@ public class TopicService {
       Section section = sectionService.getSection(oldMsg.getSectionId());
 
       if (newTags!=null && sendTagEventsNeeded(section, oldMsg, commit)) {
-        sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getUid());
+        sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getAuthorUserId());
       } else {
-        sendEvents(newText, oldMsg.getId(), ImmutableList.of(), oldMsg.getUid());
+        sendEvents(newText, oldMsg.getId(), ImmutableList.of(), oldMsg.getAuthorUserId());
       }
     }
 
@@ -307,7 +307,7 @@ public class TopicService {
 
     topicDao.commit(msg, commiter);
 
-    userDao.changeScore(msg.getUid(), bonus);
+    userDao.changeScore(msg.getAuthorUserId(), bonus);
 
     if (editorBonus!=null) {
       for (Map.Entry<Integer, Integer> entry : editorBonus.entrySet()) {

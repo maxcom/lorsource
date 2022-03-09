@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,11 +30,14 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class ResolveController  {
-  @Autowired
-  private TopicDao messageDao;
+  private final TopicDao messageDao;
 
-  @Autowired
-  private GroupDao groupDao;
+  private final GroupDao groupDao;
+
+  public ResolveController(TopicDao messageDao, GroupDao groupDao) {
+    this.messageDao = messageDao;
+    this.groupDao = groupDao;
+  }
 
   @RequestMapping("/resolve.jsp")
   public RedirectView resolve(
@@ -55,7 +58,7 @@ public class ResolveController  {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
+    if (!tmpl.isModeratorSession() && currentUser.getId() != message.getAuthorUserId()) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы");
     }
     messageDao.resolveMessage(message.getId(), "yes".equals(resolved));

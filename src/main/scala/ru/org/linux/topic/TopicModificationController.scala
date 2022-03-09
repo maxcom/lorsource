@@ -165,7 +165,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     new ModelAndView("mtn", Map (
       "message" -> topic,
       "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.getUid)
+      "author" -> userDao.getUserCached(topic.getAuthorUserId)
     ).asJava)
   }
 
@@ -184,7 +184,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     new ModelAndView("mtn", Map(
       "message" -> topic,
       "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.getUid)
+      "author" -> userDao.getUserCached(topic.getAuthorUserId)
     ).asJava)
   }
 

@@ -39,9 +39,6 @@ import scala.Some;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
@@ -94,12 +91,14 @@ public class TopicPermissionService {
   }
 
   public void checkView(
-          @Nonnull Group group,
-          @Nonnull Topic message,
+          Group group,
+          Topic message,
           @Nullable User currentUser,
+          User topicAuthor,
           boolean showDeleted
   ) throws MessageNotFoundException, AccessViolationException {
     Preconditions.checkArgument(message.getGroupId()==group.getId());
+    Preconditions.checkArgument(message.getAuthorUserId()==topicAuthor.getId());
 
     if (currentUser!=null && currentUser.isModerator()) {
       return;
@@ -117,9 +116,9 @@ public class TopicPermissionService {
       }
     }
 
-
     boolean unauthorized = currentUser == null || currentUser.isAnonymous();
-    boolean topicAuthor = currentUser!=null && currentUser.getId() == message.getUid();
+    boolean viewByAuthor = currentUser!=null && currentUser.getId() == message.getAuthorUserId();
+    boolean viewByCorrector = currentUser !=null && currentUser.isCorrector();
 
     if (message.isDeleted()) {
       if (message.isExpired()) {
@@ -130,7 +129,7 @@ public class TopicPermissionService {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
 
-      if (topicAuthor) {
+      if (viewByAuthor) {
         return;
       }
 
@@ -144,12 +143,16 @@ public class TopicPermissionService {
         throw new MessageNotFoundException(message.getId(), "Черновик устарел");
       }
 
-      if (!topicAuthor) {
+      if (!viewByAuthor) {
         throw new MessageNotFoundException(message.getId(), "Нельзя посмотреть чужой черновик");
       }
     }
 
     if (group.getCommentsRestriction() == -1 && unauthorized) {
+      throw new AccessViolationException("Это сообщение нельзя посмотреть");
+    }
+
+    if (group.isPremoderated() && !message.isCommited() && topicAuthor.isAnonymous() && !viewByCorrector) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
   }
@@ -250,7 +253,7 @@ public class TopicPermissionService {
       return false;
     }
 
-    boolean isAuthor = user.getId() == topic.getUid();
+    boolean isAuthor = user.getId() == topic.getAuthorUserId();
 
     if (score == POSTSCORE_MOD_AUTHOR) {
       return isAuthor;
