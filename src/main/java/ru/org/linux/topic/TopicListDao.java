@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -92,7 +92,7 @@ public class TopicListDao {
    * @param skipEmptyReason Пропускать темы, удаленные с пустым комментарием
    * @return список удаленных тем
    */
-  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
+  public List<DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
     StringBuilder query = new StringBuilder();
     List <Object> queryParameters = new ArrayList<>();
 
@@ -117,11 +117,7 @@ public class TopicListDao {
 
     query.append(" ORDER BY del_info.delDate DESC LIMIT 20");
 
-    return jdbcTemplate.query(
-      query.toString(),
-      queryParameters.toArray(),
-      (rs, rowNum) -> new TopicListDto.DeletedTopic(rs)
-    );
+    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> new DeletedTopic(rs), queryParameters.toArray());
   }
 
   /**
@@ -149,6 +145,10 @@ public class TopicListDao {
     if (request.getGroup() != 0) {
       where.append(" AND groupid=:groupId");
       paramsBuilder.put("groupId", request.getGroup());
+    }
+
+    if (!request.isIncludeAnonymous()) {
+      where.append(" AND topics.userid != " + User.ANONYMOUS_ID);
     }
 
     switch (request.getDateLimitType()) {
@@ -219,10 +219,6 @@ public class TopicListDao {
    * @return строка, содержащая условия сортировки
    */
   private static String makeSortOrder(TopicListDto topicListDto) {
-    if (topicListDto.isLastmodSort()) {
-      return "ORDER BY lastmod DESC";
-    }
-
     if (topicListDto.isUserFavs()) {
       return "ORDER BY memories.id DESC";
     }

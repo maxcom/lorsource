@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,9 +17,6 @@ package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableSet;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class TopicListDto {
@@ -52,7 +49,7 @@ public class TopicListDto {
   private boolean tech = false;
 
   private boolean showDraft = false;
-  private boolean lastmodSort = false;
+  private boolean includeAnonymous = true;
 
   private MiniNewsMode miniNewsMode = MiniNewsMode.ALL;
 
@@ -176,14 +173,6 @@ public class TopicListDto {
     this.showDraft = showDraft;
   }
 
-  public boolean isLastmodSort() {
-    return lastmodSort;
-  }
-
-  public void setLastmodSort(boolean lastmodSort) {
-    this.lastmodSort = lastmodSort;
-  }
-
   public MiniNewsMode getMiniNewsMode() {
     return miniNewsMode;
   }
@@ -192,67 +181,11 @@ public class TopicListDto {
     this.miniNewsMode = miniNewsMode;
   }
 
-  public String toString() {
-    return new StringBuilder()
-      .append(TopicListDto.class.toString())
-      .append('[')
-      .append("commitMode=").append(commitMode)
-      .append("; userId=").append(userId)
-      .append("; sections=").append(sections.toString())
-      .append("; userFavs=").append(userFavs)
-      .append("; group=").append(group)
-      .append("; tag=").append(tag)
-      .append("; limit=").append(limit)
-      .append("; offset=").append(offset)
-      .append("; dateLimitType=").append(dateLimitType)
-      .append("; fromDate=").append((fromDate != null) ? fromDate.toString() : "")
-      .append("; toDate=").append((toDate != null) ? toDate.toString() : "")
-      .append("; notalks=").append(notalks)
-      .append("; tech=").append(tech)
-      .append("; mini=").append(miniNewsMode)
-      .append(']')
-      .toString();
+  public boolean isIncludeAnonymous() {
+    return includeAnonymous;
   }
 
-  public static class DeletedTopic {
-    private final String nick;
-    private final int id;
-    private final String title;
-    private final String reason;
-    private final Timestamp postdate;
-    private final Timestamp delDate;
-
-    public DeletedTopic(ResultSet rs) throws SQLException {
-      nick = rs.getString("nick");
-      id = rs.getInt("msgid");
-      title = rs.getString("subj");
-      reason = rs.getString("reason");
-      postdate = rs.getTimestamp("postdate");
-      delDate = rs.getTimestamp("delDate");
-    }
-
-    public String getNick() {
-      return nick;
-    }
-
-    public int getId() {
-      return id;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public String getReason() {
-      return reason;
-    }
-
-    public Timestamp getPostdate() {
-      return postdate;
-    }
-
-    public Timestamp getDelDate() {
-      return delDate;
-    }
+  public void setIncludeAnonymous(boolean includeAnonymous) {
+    this.includeAnonymous = includeAnonymous;
   }
 }

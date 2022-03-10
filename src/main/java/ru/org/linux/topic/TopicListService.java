@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -35,11 +35,14 @@ import java.util.List;
 public class TopicListService {
   private static final Logger logger = LoggerFactory.getLogger(TopicListService.class);
 
-  @Autowired
-  private TagService tagService;
+  private final TagService tagService;
 
-  @Autowired
-  private TopicListDao topicListDao;
+  private final TopicListDao topicListDao;
+
+  public TopicListService(TagService tagService, TopicListDao topicListDao) {
+    this.tagService = tagService;
+    this.topicListDao = topicListDao;
+  }
 
   /**
    * Получение списка топиков.
@@ -233,16 +236,7 @@ public class TopicListService {
     return topicListDao.getTopics(topicListDto, null);
   }
 
-  public List<Topic> getAllTopicsFeed(
-    Section section,
-    Date fromDate
-  ) {
-    logger.debug(
-            "TopicListService.getAllTopicsFeed()" +
-                    "; section=" + ((section != null) ? section.toString() : "(null)") +
-                    "; fromDate=" + fromDate
-    );
-
+  public List<Topic> getUncommitedTopic(Section section, Date fromDate, boolean includeAnonymous) {
     TopicListDto topicListDto = new TopicListDto();
     topicListDto.setCommitMode(TopicListDao.CommitMode.UNCOMMITED_ONLY);
     if (section != null) {
@@ -251,11 +245,12 @@ public class TopicListService {
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE);
     topicListDto.setFromDate(fromDate);
+    topicListDto.setIncludeAnonymous(includeAnonymous);
 
     return topicListDao.getTopics(topicListDto, null);
   }
 
-  public List<TopicListDto.DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
+  public List<DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
     return topicListDao.getDeletedTopics(sectionId, skipEmptyReason);
   }
 

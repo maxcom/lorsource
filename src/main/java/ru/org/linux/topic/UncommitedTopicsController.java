@@ -34,14 +34,17 @@ import java.util.List;
 @Controller
 @RequestMapping(value = "/view-all.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
 public class UncommitedTopicsController {
-  @Autowired
-  private SectionService sectionService;
+  private final SectionService sectionService;
 
-  @Autowired
-  private TopicListService topicListService;
+  private final TopicListService topicListService;
 
-  @Autowired
-  private TopicPrepareService prepareService;
+  private final TopicPrepareService prepareService;
+
+  public UncommitedTopicsController(SectionService sectionService, TopicListService topicListService, TopicPrepareService prepareService) {
+    this.sectionService = sectionService;
+    this.topicListService = topicListService;
+    this.prepareService = prepareService;
+  }
 
   @RequestMapping
   public ModelAndView viewAll(
@@ -89,7 +92,9 @@ public class UncommitedTopicsController {
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -3);
 
-    List<Topic> messages = topicListService.getAllTopicsFeed(section, calendar.getTime());
+    List<Topic> messages = topicListService.getUncommitedTopic(section, calendar.getTime(),
+            tmpl.isModeratorSession() || tmpl.isCorrectorSession());
+
     modelAndView.addObject(
             "messages",
             prepareService.prepareMessagesForUser(
@@ -100,7 +105,7 @@ public class UncommitedTopicsController {
             )
     );
 
-    List<TopicListDto.DeletedTopic> deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession());
+    List<DeletedTopic> deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession());
 
     modelAndView.addObject("deletedTopics", deleted);
     modelAndView.addObject("sections", sectionService.getSectionList());
