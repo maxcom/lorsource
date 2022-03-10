@@ -105,7 +105,8 @@ public class UncommitedTopicsController {
             )
     );
 
-    List<DeletedTopic> deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession());
+    List<DeletedTopic> deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession(),
+            tmpl.isModeratorSession() || tmpl.isCorrectorSession());
 
     modelAndView.addObject("deletedTopics", deleted);
     modelAndView.addObject("sections", sectionService.getSectionList());

@@ -90,9 +90,10 @@ public class TopicListDao {
    *
    * @param sectionId номер раздела или 0 для всех премодерируемых
    * @param skipEmptyReason Пропускать темы, удаленные с пустым комментарием
+   * @param includeAnonymous
    * @return список удаленных тем
    */
-  public List<DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason) {
+  public List<DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason, boolean includeAnonymous) {
     StringBuilder query = new StringBuilder();
     List <Object> queryParameters = new ArrayList<>();
 
@@ -108,6 +109,10 @@ public class TopicListDao {
 
     if (skipEmptyReason) {
       query.append("AND reason!='' ");
+    }
+
+    if (!includeAnonymous) {
+      query.append("AND topics.userid != " + User.ANONYMOUS_ID + " ");
     }
 
     if (sectionId != 0) {
