@@ -428,4 +428,14 @@ public class TopicPermissionService {
 
     return true;
   }
+
+  public boolean isTopicSearchable(Topic msg, Group group) {
+    Preconditions.checkArgument(msg.getGroupId()==group.getId());
+
+    return !msg.isDeleted()
+            && !msg.isDraft()
+            && (msg.getPostscore() != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
+            && (!group.isPremoderated() || msg.isCommited() || msg.getAuthorUserId() != User.ANONYMOUS_ID);
+  }
+
 }

@@ -27,7 +27,7 @@ import org.apache.commons.text.StringEscapeUtils
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentList, CommentService}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.MsgbaseDao
@@ -75,22 +75,11 @@ object ElasticsearchIndexService {
 }
 
 @Service
-class ElasticsearchIndexService
-(
-  sectionService: SectionService,
-  groupDao: GroupDao,
-  userDao: UserDao,
-  topicTagService: TopicTagService,
-  messageTextService: MessageTextService,
-  msgbaseDao: MsgbaseDao,
-  topicDao: TopicDao,
-  commentService: CommentService,
-  elastic: ElasticClient
-) extends StrictLogging {
+class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userDao: UserDao,
+                                topicTagService: TopicTagService, messageTextService: MessageTextService,
+                                msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentService,
+                                elastic: ElasticClient, topicPermissionService: TopicPermissionService) extends StrictLogging {
   import ElasticsearchIndexService._
-
-  private def isTopicSearchable(msg: Topic) =
-    !msg.isDeleted && !msg.isDraft && (msg.getPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
 
   private def reindexComments(topic: Topic, comments: CommentList): MSeq[BulkCompatibleRequest] = {
     for (comment <- comments.getList.asScala) yield {
@@ -98,16 +87,18 @@ class ElasticsearchIndexService
         delete(comment.getId.toString) from MessageIndexType
       } else {
         val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
-        indexOfComment(topic, comment, message)
+        val group = groupDao.getGroup(topic.getGroupId)
+        indexOfComment(topic, comment, message, group)
       }
     }
   }
 
   def reindexMessage(msgid: Int, withComments: Boolean):Unit = {
     val topic = topicDao.getById(msgid)
+    val group = groupDao.getGroup(topic.getGroupId)
 
-    if (isTopicSearchable(topic)) {
-      val topicIndex = indexOfTopic(topic)
+    if (topicPermissionService.isTopicSearchable(topic, group)) {
+      val topicIndex = indexOfTopic(topic, group)
 
       val commentsIndex = if (withComments) {
         reindexComments(topic, commentService.getCommentList(topic, true))
@@ -145,12 +136,13 @@ class ElasticsearchIndexService
     val requests = for (msgid <- comments if msgid != 0) yield {
       val comment = commentService.getById(msgid)
       val topic = topicDao.getById(comment.getTopicId)
+      val group = groupDao.getGroup(topic.getGroupId)
 
-      if (!isTopicSearchable(topic) || comment.isDeleted) {
+      if (!topicPermissionService.isTopicSearchable(topic, group) || comment.isDeleted) {
         delete(comment.getId.toString) from MessageIndexType
       } else {
         val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.getId))
-        indexOfComment(topic, comment, message)
+        indexOfComment(topic, comment, message, group)
       }
     }
 
@@ -190,9 +182,8 @@ class ElasticsearchIndexService
     }
   }
 
-  private def indexOfComment(topic: Topic, comment: Comment, message: String): IndexRequest = {
+  private def indexOfComment(topic: Topic, comment: Comment, message: String, group: Group): IndexRequest = {
     val section = sectionService.getSection(topic.getSectionId)
-    val group = groupDao.getGroup(topic.getGroupId)
     val author = userDao.getUserCached(comment.getUserid)
     val topicAuthor = userDao.getUserCached(topic.getAuthorUserId)
 
@@ -228,9 +219,8 @@ class ElasticsearchIndexService
     section.isPremoderated && !msg.isCommited
   }
 
-  private def indexOfTopic(topic: Topic): IndexRequest = {
+  private def indexOfTopic(topic: Topic, group: Group): IndexRequest = {
     val section = sectionService.getSection(topic.getSectionId)
-    val group = groupDao.getGroup(topic.getGroupId)
     val author = userDao.getUserCached(topic.getAuthorUserId)
 
     indexInto(MessageIndexType) id topic.getId.toString fields(
