@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,19 +18,15 @@ package ru.org.linux.topic;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.text.StringEscapeUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.CaptchaService;
-import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.edithistory.EditHistoryRecord;
+import ru.org.linux.auth.*;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
+import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageService;
@@ -68,44 +64,39 @@ import java.util.stream.Collectors;
 
 @Controller
 public class EditTopicController {
-  @Autowired
-  private SearchQueueSender searchQueueSender;
+  private final SearchQueueSender searchQueueSender;
+  private final TopicDao messageDao;
+  private final TopicService topicService;
+  private final TopicPrepareService prepareService;
+  private final GroupDao groupDao;
+  private final PollDao pollDao;
+  private final GroupPermissionService permissionService;
+  private final MsgbaseDao msgbaseDao;
+  private final EditHistoryService editHistoryService;
+  private final EditTopicRequestValidator editTopicRequestValidator;
+  private final IPBlockDao ipBlockDao;
+  private final CaptchaService captcha;
+  private final ImageService imageService;
 
-  @Autowired
-  private TopicDao messageDao;
-
-  @Autowired
-  private TopicService topicService;
-
-  @Autowired
-  private TopicPrepareService prepareService;
-
-  @Autowired
-  private GroupDao groupDao;
-
-  @Autowired
-  private PollDao pollDao;
-
-  @Autowired
-  private GroupPermissionService permissionService;
-  
-  @Autowired
-  private MsgbaseDao msgbaseDao;
-  
-  @Autowired
-  private EditHistoryService editHistoryService;
-
-  @Autowired
-  private EditTopicRequestValidator editTopicRequestValidator;
-
-  @Autowired
-  private IPBlockDao ipBlockDao;
-
-  @Autowired
-  private CaptchaService captcha;
-
-  @Autowired
-  private ImageService imageService;
+  public EditTopicController(TopicDao messageDao, SearchQueueSender searchQueueSender, TopicService topicService,
+                             TopicPrepareService prepareService, GroupDao groupDao, PollDao pollDao,
+                             GroupPermissionService permissionService, CaptchaService captcha, MsgbaseDao msgbaseDao,
+                             EditHistoryService editHistoryService, ImageService imageService,
+                             EditTopicRequestValidator editTopicRequestValidator, IPBlockDao ipBlockDao) {
+    this.messageDao = messageDao;
+    this.searchQueueSender = searchQueueSender;
+    this.topicService = topicService;
+    this.prepareService = prepareService;
+    this.groupDao = groupDao;
+    this.pollDao = pollDao;
+    this.permissionService = permissionService;
+    this.captcha = captcha;
+    this.msgbaseDao = msgbaseDao;
+    this.editHistoryService = editHistoryService;
+    this.imageService = imageService;
+    this.editTopicRequestValidator = editTopicRequestValidator;
+    this.ipBlockDao = ipBlockDao;
+  }
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -468,8 +459,8 @@ public class EditTopicController {
         if (!publish || !preparedTopic.getSection().isPremoderated()) {
           return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod().build()));
         } else {
-          params.put("moderated", true);
           params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod().build());
+          params.put("authorized", AuthUtil.isSessionAuthorized());
 
           return new ModelAndView("add-done-moderated", params);
         }

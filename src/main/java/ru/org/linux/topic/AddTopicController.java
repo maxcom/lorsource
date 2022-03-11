@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.org.linux.auth.CaptchaService;
-import ru.org.linux.auth.FloodProtector;
-import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.auth.*;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.gallery.Image;
@@ -67,6 +64,7 @@ import java.util.Map;
 
 @Controller
 public class AddTopicController {
+  @Autowired
   private SearchQueueSender searchQueueSender;
 
   @Autowired
@@ -101,11 +99,6 @@ public class AddTopicController {
 
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
   private static final int MAX_MESSAGE_LENGTH = 32768;
-
-  @Autowired
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
 
   @Autowired
   public void setDupeProtector(FloodProtector dupeProtector) {
@@ -355,12 +348,12 @@ public class AddTopicController {
 
     if (!section.isPremoderated() || previewMsg.isDraft()) {
       return new ModelAndView(new RedirectView(messageUrl));
+    } else {
+      params.put("url", messageUrl);
+      params.put("authorized", AuthUtil.isSessionAuthorized());
+
+      return new ModelAndView("add-done-moderated", params);
     }
-
-    params.put("moderated", section.isPremoderated());
-    params.put("url", messageUrl);
-
-    return new ModelAndView("add-done-moderated", params);
   }
 
   private static Poll preparePollPreview(AddTopicRequest form) {
