@@ -253,7 +253,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def canCreateTag(section: Section, user: User): Boolean = {
-    if (section.isPremoderated) {
+    if (section.isPremoderated && user!=null && !user.isAnonymous) {
       true
     } else {
       user != null && user.getScore >= CreateTagScore
