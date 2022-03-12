@@ -181,21 +181,21 @@ public class TopicPermissionService {
   }
 
   private static int getCommentCountRestriction(Topic topic) {
-    int commentCountPS = POSTSCORE_UNRESTRICTED;
+    int postscore = POSTSCORE_UNRESTRICTED;
 
     if (!topic.isSticky()) {
       int commentCount = topic.getCommentCount();
 
       if (commentCount > 3000) {
-        commentCountPS = 200;
+        postscore = 200;
       } else if (commentCount > 2000) {
-        commentCountPS = 100;
-      } else if (commentCount > 1000) {
-        commentCountPS = 50;
+        postscore = 100;
+      } else if (commentCount > 25) {
+        postscore = 50;
       }
     }
 
-    return commentCountPS;
+    return postscore;
   }
 
   private int getAllowAnonymousPostscore(Topic topic) {
