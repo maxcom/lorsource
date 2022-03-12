@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -57,7 +57,7 @@ public class UserTagServiceTest {
   public void resetMockObjects() throws Exception {
     reset(userTagDao);
     reset(tagService);
-    when(tagService.getTagId("tag1")).thenReturn(2);
+    when(tagService.getTagId(eq("tag1"), anyBoolean())).thenReturn(2);
     user = getUser(1);
   }
 

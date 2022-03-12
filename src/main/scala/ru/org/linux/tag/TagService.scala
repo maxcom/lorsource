@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -41,7 +41,8 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
    * @return идентификационный номер
    */
   @throws(classOf[TagNotFoundException])
-  def getTagId(tag: String): Int = tagDao.getTagId(tag).getOrElse(throw new TagNotFoundException)
+  def getTagId(tag: String, skipZero: Boolean = false): Int =
+    tagDao.getTagId(tag, skipZero).getOrElse(throw new TagNotFoundException)
 
   def getTagIdOpt(tag: String): Option[Int] = tagDao.getTagId(tag)
 

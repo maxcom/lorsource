@@ -17,7 +17,6 @@ package ru.org.linux.topic;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
@@ -93,7 +92,7 @@ public class TopicListService {
     }
 
     if (tag != null) {
-      topicListDto.setTag(tagService.getTagId(tag));
+      topicListDto.setTag(tagService.getTagId(tag, false));
     }
 
     if (month != null && year != null) {
@@ -193,7 +192,6 @@ public class TopicListService {
    * @param fromDate   от какой даты получить список
    * @param noTalks    без Talks
    * @param tech       только технические
-   * @param feedBurner
    * @return список топиков для RSS-ленты
    */
   public List<Topic> getRssTopicsFeed(
