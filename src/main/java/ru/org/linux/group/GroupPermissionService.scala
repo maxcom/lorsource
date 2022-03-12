@@ -28,7 +28,6 @@ import ru.org.linux.user.User
 
 @Service
 object GroupPermissionService {
-  private val EditSelfAlwaysScore = 200
   private val DeletePeriod = Duration.standardDays(3)
   private val EditPeriod = Duration.standardDays(14)
   private val CreateTagScore = 400
@@ -199,8 +198,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
         true
       } else if (message.isDraft) {
         true
-      } else if (author.getScore >= EditSelfAlwaysScore) {
-        true
       } else {
         val editDeadline = new DateTime(message.getPostdate).plus(EditPeriod)
 
@@ -240,8 +237,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
         true
       } else if (section.isPremoderated) {
         true
-      } else if (author.getScore >= EditSelfAlwaysScore) {
-        !message.isExpired
       } else {
         val editDeadline = new DateTime(message.getPostdate).plus(EditPeriod)
 
