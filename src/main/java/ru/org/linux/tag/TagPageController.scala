@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ import java.util.concurrent.CompletionStage
 import javax.servlet.http.HttpServletRequest
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import org.apache.commons.lang3.text.WordUtils
+import org.apache.commons.text.WordUtils
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
@@ -36,7 +36,6 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.collection.Seq
 
 object TagPageController {
   val TotalNewsCount = 21
@@ -85,7 +84,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       Seq.empty
     }
 
-    val tagInfo = tagService.getTagInfo(tag, skipZero = true)
+    val tagInfo = tagService.getTagInfo(tag, skipZero = !tmpl.isModeratorSession)
 
     val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
       getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, tmpl.getCurrentUser) ++
