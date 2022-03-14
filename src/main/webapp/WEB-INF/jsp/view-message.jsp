@@ -212,6 +212,7 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
+<%--
 <c:if test="${showAdsense}">
 <style>
 @media screen and (max-width: 480px) {
@@ -272,8 +273,8 @@
 </script>
   <p>
 </c:if>
+--%>
 
-<%--
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -281,24 +282,21 @@
           var ads = [
               {
                   type: 'rimg',
-                  img728: '/linuxpiter/728x90 Linux.jpg',
-                  img468: '/linuxpiter/468x60 Linux.jpg',
-                  img320: '/linuxpiter/320x100 Linux.jpg',
-                  href: 'https://linuxpiter.com/speakers'
+                  img730: '/adv/linux-banner-730-90.png',
+                  img320: '/adv/linux-banner-320-100.png',
+                  href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test&utm_term=linux-org-ru'
               },
               {
                   type: 'rimg',
-                  img728: '/linuxpiter/728x90 PiterPy.jpg',
-                  img468: '/linuxpiter/468x60 PiterPy.jpg',
-                  img320: '/linuxpiter/320x100 PiterPy.jpg',
-                  href: 'https://piterpy.com/speakers'
+                  img730: '/adv/spec-730x90.png',
+                  img320: '/adv/spec-320x100.png',
+                  href: 'https://otus.ru/lessons/linux-specialization/?utm_source=partners&utm_medium=cpm&utm_campaign=spec-linux&utm_content=all-lesson&utm_term=linux-org-ru#broadcast'
               }
           ];
 
           init_interpage_adv(ads);
       });
   </script>
---%>
 
 <c:if test="${threadMode}">
   <div class=nav>
