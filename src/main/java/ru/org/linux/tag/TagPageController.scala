@@ -95,7 +95,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       "title" -> WordUtils.capitalize(tag),
       "favsCount" -> userTagService.countFavs(tagInfo.id),
       "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-      "showAdsense" -> Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense)
+      "showAdsense" -> Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense),
+      "showDelete" -> Boolean.box(tmpl.isModeratorSession)
     ) ++ sections ++ favs
 
     val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {

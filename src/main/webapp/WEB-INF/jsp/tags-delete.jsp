@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -61,10 +61,9 @@
 
 <h1>Удаление метки «${tagRequestDelete.oldTagName}»</h1>
 
-<c:url var="delete_url" value="/tags/delete">
-  <c:param name="firstLetter" value="${firstLetter}"/>
-</c:url>
- <form:form modelAttribute="tagRequestDelete" method="POST" action="${delete_url}" enctype="multipart/form-data" >
+<p><strong>Внимание!</strong> Удаление метки нельзя отменить. Изменение не отражается в истории правок топика.</p>
+
+ <form:form modelAttribute="tagRequestDelete" method="POST" action="/tags/delete" enctype="multipart/form-data" >
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />

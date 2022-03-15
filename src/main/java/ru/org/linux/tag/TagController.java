@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -42,14 +41,17 @@ public class TagController {
 
   private static final String REJECT_REASON = "недостаточно прав доступа";
 
-  @Autowired
-  private TagModificationService tagModificationService;
+  private final TagModificationService tagModificationService;
 
-  @Autowired
-  private TagService tagService;
+  private final TagService tagService;
 
-  @Autowired
-  private TagCloudDao tagDao;
+  private final TagCloudDao tagDao;
+
+  public TagController(TagModificationService tagModificationService, TagService tagService, TagCloudDao tagDao) {
+    this.tagModificationService = tagModificationService;
+    this.tagService = tagService;
+    this.tagDao = tagDao;
+  }
 
   /**
    * Обработчик по умолчанию. Показ тегов по самой первой букве.
@@ -233,7 +235,6 @@ public class TagController {
   @RequestMapping(value = "/tags/delete", method = RequestMethod.POST)
   public ModelAndView deleteTagSubmitHandler(
     HttpServletRequest request,
-    @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @ModelAttribute("tagRequestDelete") TagRequest.Delete tagRequestDelete,
     Errors errors
   ) throws AccessViolationException {
@@ -257,16 +258,22 @@ public class TagController {
     }
 
     if (!errors.hasErrors()) {
+      String firstLetter;
+
       if (Strings.isNullOrEmpty(tagRequestDelete.getTagName())) {
         tagModificationService.delete(tagRequestDelete.getOldTagName());
+        firstLetter = tagRequestDelete.getOldTagName().substring(0, 1);
       } else {
         tagModificationService.merge(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName());
+        firstLetter = tagRequestDelete.getTagName().substring(0, 1);
       }
 
       logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName(), template.getNick());
 
       return redirectToListPage(firstLetter);
     } else {
+      String firstLetter = tagRequestDelete.getOldTagName().substring(0, 1);
+
       ModelAndView modelAndView = new ModelAndView("tags-delete");
       modelAndView.addObject("firstLetter", firstLetter);
 
