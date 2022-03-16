@@ -184,4 +184,9 @@ public class UserTagDao {
             Integer.class
     );
   }
+
+  public int deleteUnusedTags() {
+    return jdbcTemplate.getJdbcTemplate().update("delete from user_tags where not exists " +
+            "(select * from tags join topics on topics.id=tags.msgid where tagid=user_tags.tag_id and not deleted)");
+  }
 }

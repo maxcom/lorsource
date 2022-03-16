@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,17 +21,15 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.tag.TagService._
-import ru.org.linux.tag.{TagRef, _}
+import ru.org.linux.tag._
 import ru.org.linux.topic.TopicTagService._
 
-import scala.jdk.CollectionConverters._
 import scala.collection.Map
+import scala.jdk.CollectionConverters._
 
 @Service
 class TopicTagService(val transactionManager: PlatformTransactionManager, tagService: TagService,
                       topicTagDao: TopicTagDao) extends StrictLogging with TransactionManagement {
-
-  def reCalculateAllCounters(): Unit = topicTagDao.reCalculateAllCounters()
 
   /**
    * Обновить список тегов сообщения по идентификационному номеру сообщения.
