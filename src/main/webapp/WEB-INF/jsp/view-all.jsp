@@ -1,10 +1,5 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.section.Section"%>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,6 +12,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page import="ru.org.linux.section.Section"%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.topic.TopicListDto.DeletedTopic>"--%>
@@ -78,31 +78,7 @@
 <%
 %>
 <h2>Последние удаленные неподтвержденные</h2>
-<div class=forum>
-<table class="message-table" width="100%">
-<thead>
-<tr>
-  <th>Заголовок</th>
-  <th>Причина удаления</th>
-  <c:if test="${template.moderatorSession}">
-    <th>Дата</th>
-  </c:if>
-</tr>
-<tbody>
 
-<c:forEach items="${deletedTopics}" var="topic">
+<lor:deleted-topics topics="${deletedTopics}" showDates="${template.moderatorSession}"/>
 
-<tr>
-  <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
-  <td>${topic.reason}</td>
-  <c:if test="${template.moderatorSession}">
-    <td>
-      написано <lor:dateinterval date="${topic.postdate}"/><br>
-      удалено <lor:dateinterval date="${topic.delDate}"/>
-    </td>
-  </c:if>
-</tr>
-</c:forEach>
-</table>
-</div>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

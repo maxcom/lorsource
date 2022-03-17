@@ -1,12 +1,5 @@
-<%@ page import="org.joda.time.DateTime" %>
-<%@ page contentType="text/html; charset=utf-8" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -19,6 +12,13 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page import="org.joda.time.DateTime" %>
+<%@ page contentType="text/html; charset=utf-8" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="userpic" type="ru.org.linux.user.Userpic"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
@@ -527,9 +527,12 @@
 
 <h2>Сообщения пользователя</h2>
 <ul>
-    <c:if test="${not empty userStat.topicsBySection}">
+    <c:if test="${not empty userStat.topicsBySection || moderatorOrCurrentUser}">
         <li>
             <a href="/people/${user.nick}/">Темы</a>
+            <c:if test="${moderatorOrCurrentUser}">
+                (<a href="/people/${user.nick}/deleted-topics">удаленные</a>)
+            </c:if>
         </li>
     </c:if>
 

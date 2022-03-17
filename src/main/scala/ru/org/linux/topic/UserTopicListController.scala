@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.topic
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
@@ -27,17 +26,13 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.site.Template
 import ru.org.linux.user._
 
+import scala.jdk.CollectionConverters._
+
 @Controller
 @RequestMapping(Array("/people/{nick}"))
-class UserTopicListController
-(
-  topicListService: TopicListService,
-  userDao: UserDao,
-  userService: UserService,
-  sectionService: SectionService,
-  prepareService: TopicPrepareService,
-  topicPermissionService: TopicPermissionService
-) {
+class UserTopicListController(topicListService: TopicListService, userDao: UserDao, userService: UserService,
+                              sectionService: SectionService, prepareService: TopicPrepareService,
+                              topicPermissionService: TopicPermissionService) {
   @RequestMapping(value = Array("favs"), params = Array("!output"))
   def showUserFavs(
     request: HttpServletRequest,
@@ -142,6 +137,26 @@ class UserTopicListController
     modelAndView.addObject("showSearch", true)
 
     modelAndView
+  }
+
+  @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
+  def showDeletedTopics(request: HttpServletRequest, @PathVariable nick: String): ModelAndView = {
+    val tmpl = Template.getTemplate(request)
+
+    val user = userService.getUserCached(nick)
+
+    if (!tmpl.isModeratorSession && !(user == tmpl.getCurrentUser)) {
+      throw new AccessViolationException("Вы не можете смотреть удаленные темы другого пользователя")
+    }
+
+    val topics = topicListService.getDeletedUserTopics(user, tmpl.getProf.getTopics)
+
+    val params = Map(
+      "topics" -> topics,
+      "user" -> user
+    )
+
+    new ModelAndView("deleted-topics", params.asJava);
   }
 
   @RequestMapping(value = Array("tracked"), params = Array("!output"))

@@ -57,14 +57,14 @@ public class TopicListService {
    * @throws TagNotFoundException
    */
   public List<Topic> getTopicsFeed(
-    Section section,
-    Group group,
-    String tag,
-    Integer offset,
-    Integer year,
-    Integer month,
-    int count,
-    @Nullable User currentUser
+          Section section,
+          Group group,
+          String tag,
+          Integer offset,
+          Integer year,
+          Integer month,
+          int count,
+          @Nullable User currentUser
   ) throws TagNotFoundException {
     logger.debug(
             "TopicListService.getTopicsFeed()" +
@@ -133,9 +133,9 @@ public class TopicListService {
   /**
    * Получение списка топиков пользователя.
    *
-   * @param user       объект пользователя
-   * @param section    секция, из которой выбрать сообщения
-   * @param offset     смещение в результатах выборки
+   * @param user      объект пользователя
+   * @param section   секция, из которой выбрать сообщения
+   * @param offset    смещение в результатах выборки
    * @param favorites true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
@@ -168,8 +168,8 @@ public class TopicListService {
   /**
    * Получение списка черновиков пользователя.
    *
-   * @param user       объект пользователя
-   * @param offset     смещение в результатах выборки
+   * @param user   объект пользователя
+   * @param offset смещение в результатах выборки
    * @return список топиков пользователя
    */
   public List<Topic> getDrafts(User user, Integer offset) {
@@ -187,19 +187,19 @@ public class TopicListService {
   /**
    * Получение списка топиков для RSS-ленты.
    *
-   * @param section    секция
-   * @param group      группа
-   * @param fromDate   от какой даты получить список
-   * @param noTalks    без Talks
-   * @param tech       только технические
+   * @param section  секция
+   * @param group    группа
+   * @param fromDate от какой даты получить список
+   * @param noTalks  без Talks
+   * @param tech     только технические
    * @return список топиков для RSS-ленты
    */
   public List<Topic> getRssTopicsFeed(
-    Section section,
-    Group group,
-    Date fromDate,
-    boolean noTalks,
-    boolean tech
+          Section section,
+          Group group,
+          Date fromDate,
+          boolean noTalks,
+          boolean tech
   ) {
     logger.debug(
             "TopicListService.getRssTopicsFeed()" +
@@ -264,7 +264,7 @@ public class TopicListService {
     if (hideMinor) {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR);
     }
-    
+
     topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
 
     if (showGalleryOnMain) {
@@ -301,5 +301,9 @@ public class TopicListService {
 
   public List<Topic> getTopics(TopicListDto topicListDto, @Nullable User currentUser) {
     return topicListDao.getTopics(topicListDto, currentUser);
+  }
+
+  public List<DeletedTopic> getDeletedUserTopics(User user, int topics) {
+    return topicListDao.getDeletedUserTopics(user, topics);
   }
 }

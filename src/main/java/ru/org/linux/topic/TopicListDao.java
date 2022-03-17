@@ -125,6 +125,27 @@ public class TopicListDao {
     return jdbcTemplate.query(query.toString(), (rs, rowNum) -> new DeletedTopic(rs), queryParameters.toArray());
   }
 
+  public List<DeletedTopic> getDeletedUserTopics(User user, int topics) {
+    StringBuilder query = new StringBuilder();
+    List <Object> queryParameters = new ArrayList<>();
+
+    query
+            .append("SELECT ")
+            .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
+            .append("reason, topics.postdate, del_info.delDate ")
+            .append("FROM topics,groups,users,del_info ")
+            .append("WHERE topics.userid=users.id ")
+            .append("AND topics.groupid=groups.id AND deleted ")
+            .append("AND del_info.msgid=topics.id ")
+            .append("AND delDate is not null ");
+
+    query.append("AND topics.userid = " + user.getId() + " ");
+
+    query.append(" ORDER BY del_info.delDate DESC LIMIT " + topics);
+
+    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> new DeletedTopic(rs), queryParameters.toArray());
+  }
+
   /**
    * Создание условий выборки SQL-запроса.
    *
