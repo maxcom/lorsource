@@ -1,10 +1,5 @@
-<%@ page contentType="text/html; charset=utf-8" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,6 +12,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page contentType="text/html; charset=utf-8" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="deletedList" type="java.util.List<ru.org.linux.comment.CommentDao.DeletedListItem>"--%>
 
@@ -32,7 +32,7 @@
       <th>Группа</th>
       <th>Заглавие темы</th>
       <th>Причина удаления</th>
-      <th>Бонус</th>
+      <th>Штраф</th>
       <th>Дата</th>
     </tr>
     <tbody>

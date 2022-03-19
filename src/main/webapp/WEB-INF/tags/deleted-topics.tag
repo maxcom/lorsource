@@ -25,6 +25,7 @@
       <th>Заголовок</th>
       <th>Причина удаления</th>
       <c:if test="${showDates}">
+        <th>Штраф</th>
         <th>Дата</th>
       </c:if>
     </tr>
@@ -36,6 +37,7 @@
       <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
       <td>${topic.reason}</td>
       <c:if test="${showDates}">
+        <td>${topic.bonus}</td>
         <td>
           написано <lor:dateinterval date="${topic.postdate}"/><br>
           удалено <lor:dateinterval date="${topic.delDate}"/>

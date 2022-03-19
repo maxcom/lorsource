@@ -100,7 +100,7 @@ public class TopicListDao {
     query
       .append("SELECT ")
       .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
-      .append("reason, topics.postdate, del_info.delDate ")
+      .append("reason, topics.postdate, del_info.delDate, bonus ")
       .append("FROM topics,groups,users,sections,del_info ")
       .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
@@ -122,7 +122,7 @@ public class TopicListDao {
 
     query.append(" ORDER BY del_info.delDate DESC LIMIT 20");
 
-    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> new DeletedTopic(rs), queryParameters.toArray());
+    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> DeletedTopic.apply(rs), queryParameters.toArray());
   }
 
   public List<DeletedTopic> getDeletedUserTopics(User user, int topics) {
@@ -132,7 +132,7 @@ public class TopicListDao {
     query
             .append("SELECT ")
             .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
-            .append("reason, topics.postdate, del_info.delDate ")
+            .append("reason, topics.postdate, del_info.delDate, bonus ")
             .append("FROM topics,groups,users,del_info ")
             .append("WHERE topics.userid=users.id ")
             .append("AND topics.groupid=groups.id AND deleted ")
@@ -143,7 +143,7 @@ public class TopicListDao {
 
     query.append(" ORDER BY del_info.delDate DESC LIMIT " + topics);
 
-    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> new DeletedTopic(rs), queryParameters.toArray());
+    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> DeletedTopic.apply(rs), queryParameters.toArray());
   }
 
   /**
