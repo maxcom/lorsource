@@ -91,7 +91,7 @@ function change(dest,source)
       score автора: ${author.score}
     </label>
     <div class="controls">
-      <input id="bonus-input" type=number name=bonus value="0" min="0" max="20">
+      <input id="bonus-input" type=number name=bonus value="7" min="0" max="20">
       <span class="help-inline">(от 0 до 20)</span>
     </div>
   </div>
