@@ -301,40 +301,53 @@ public class CommentCreateService {
     int commentId = commentDao.saveNewMessage(comment, userAgent);
     msgbaseDao.saveNewMessage(commentBody, commentId);
 
-    /* кастование пользователей */
     if (permissionService.isUserCastAllowed(author)) {
-      Set<User> userRefs = textService.mentions(commentBody);
-      userRefs = userRefs.stream()
-              .filter(p -> !userService.isIgnoring(p.getId(), author.getId()))
-              .collect(Collectors.toSet());
-      userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
+      notifyMentions(author, comment, commentBody, commentId);
     }
 
-    /* оповещение об ответе на коммент */
+    Optional<Comment> parentCommentOpt;
+
     if (comment.getReplyTo() != 0) {
       Comment parentComment = commentDao.getById(comment.getReplyTo());
 
-      if (parentComment.getUserid() != comment.getUserid()) {
-        User parentAuthor = userDao.getUserCached(parentComment.getUserid());
+      notifyReply(comment, commentId, parentComment);
 
-        if (!parentAuthor.isAnonymous()) {
-          Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
-
-          if (!ignoreList.contains(comment.getUserid())) {
-            userEventService.addReplyEvent(
-                    parentAuthor,
-                    comment.getTopicId(),
-                    commentId
-            );
-          }
-        }
-      }
+      parentCommentOpt = Optional.of(parentComment);
+    } else {
+      parentCommentOpt = Optional.empty();
     }
+
+    userEventService.insertCommentWatchNotification(comment, parentCommentOpt, commentId);
 
     String logMessage = makeLogString("Написан комментарий " + commentId, remoteAddress, xForwardedFor);
     logger.info(logMessage);
 
     return commentId;
+  }
+
+  /* оповещение об ответе на коммент */
+  private void notifyReply(Comment comment, int commentId, Comment parentComment) {
+    if (parentComment.getUserid() != comment.getUserid()) {
+      User parentAuthor = userDao.getUserCached(parentComment.getUserid());
+
+      if (!parentAuthor.isAnonymous()) {
+        Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
+
+        if (!ignoreList.contains(comment.getUserid())) {
+          userEventService.addReplyEvent(parentAuthor, comment.getTopicId(), commentId);
+        }
+      }
+    }
+  }
+
+  /* кастование пользователей */
+  private void notifyMentions(User author, Comment comment, MessageText commentBody, int commentId) {
+    Set<User> userRefs = textService.mentions(commentBody);
+    userRefs = userRefs.stream()
+            .filter(p -> !userService.isIgnoring(p.getId(), author.getId()))
+            .collect(Collectors.toSet());
+
+    userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
   }
 
   /**

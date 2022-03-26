@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,13 +18,14 @@ package ru.org.linux.user;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.comment.Comment;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static ru.org.linux.user.UserEventFilterEnum.*;
@@ -33,8 +34,11 @@ import static ru.org.linux.user.UserEventFilterEnum.*;
 public class UserEventService {
   private static final Logger logger = LoggerFactory.getLogger(UserEventService.class);
 
-  @Autowired
-  private UserEventDao userEventDao;
+  private final UserEventDao userEventDao;
+
+  public UserEventService(UserEventDao userEventDao) {
+    this.userEventDao = userEventDao;
+  }
 
   /**
    * Добавление уведомления об упоминании пользователей в комментарии.
@@ -46,12 +50,12 @@ public class UserEventService {
   public void addUserRefEvent(Iterable<User> users, int topicId, int commentId) {
     for (User user : users) {
       userEventDao.addEvent(
-        REFERENCE.getType(),
-        user.getId(),
-        false,
-        topicId,
-        commentId,
-        null
+              REFERENCE.getType(),
+              user.getId(),
+              false,
+              topicId,
+              commentId,
+              null
       );
     }
   }
@@ -68,12 +72,12 @@ public class UserEventService {
 
     for (int user : users) {
       userEventDao.addEvent(
-        REFERENCE.getType(),
-        user,
-        false,
-        topicId,
-        null,
-        null
+              REFERENCE.getType(),
+              user,
+              false,
+              topicId,
+              null,
+              null
       );
     }
   }
@@ -89,22 +93,23 @@ public class UserEventService {
    * @param topicId
    * @param commentId
    */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
     userEventDao.addEvent(
-      ANSWERS.getType(),
-      parentAuthor.getId(),
-      false,
-      topicId,
-      commentId,
-      null
+            ANSWERS.getType(),
+            parentAuthor.getId(),
+            false,
+            topicId,
+            commentId,
+            null
     );
   }
 
   /**
    * Добавление уведомления о назначении тега сообщению.
    *
-   * @param userIdList  список ID пользователей, которых надо оповестить
-   * @param topicId     идентификационный номер топика
+   * @param userIdList список ID пользователей, которых надо оповестить
+   * @param topicId    идентификационный номер топика
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void addUserTagEvent(Iterable<Integer> userIdList, int topicId) {
@@ -112,12 +117,12 @@ public class UserEventService {
 
     for (int userId : userIdList) {
       userEventDao.addEvent(
-        TAG.getType(),
-        userId,
-        false,
-        topicId,
-        null,
-        null
+              TAG.getType(),
+              userId,
+              false,
+              topicId,
+              null,
+              null
       );
     }
   }
@@ -158,7 +163,7 @@ public class UserEventService {
   /**
    * Сброс уведомлений.
    *
-   * @param user пользователь которому сбрасываем
+   * @param user  пользователь которому сбрасываем
    * @param topId
    */
   public void resetUnreadReplies(User user, int topId) {
@@ -183,5 +188,10 @@ public class UserEventService {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void processCommentsDeleted(List<Integer> msgids) {
     userEventDao.recalcEventCount(userEventDao.deleteCommentEvents(msgids));
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void insertCommentWatchNotification(Comment comment, Optional<Comment> parentComment, int commentId) {
+    userEventDao.insertCommentWatchNotification(comment, parentComment, commentId);
   }
 }

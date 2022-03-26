@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,22 +19,19 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.comment.Comment;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class UserEventDao {
@@ -73,14 +70,13 @@ public class UserEventDao {
       " ORDER BY id DESC LIMIT ?" +
       " OFFSET ?";
 
-  private SimpleJdbcInsert insert;
-  private SimpleJdbcInsert insertTopicUsersNotified;
+  private final SimpleJdbcInsert insert;
+  private final SimpleJdbcInsert insertTopicUsersNotified;
 
-  private JdbcTemplate jdbcTemplate;
-  private NamedParameterJdbcTemplate namedJdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-  @Autowired
-  public void setDataSource(DataSource ds) {
+  public UserEventDao(DataSource ds) {
     insert = new SimpleJdbcInsert(ds);
 
     insert.setTableName("user_events");
@@ -281,5 +277,31 @@ public class UserEventDao {
     );
 
     return affectedUsers;
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void insertCommentWatchNotification(Comment comment, Optional<Comment> parentComment, int commentId) {
+    Map<String, Integer> params = new HashMap<>();
+
+    params.put("topic", comment.getTopicId());
+    params.put("id", commentId);
+    params.put("userid", comment.getUserid());
+
+    if (parentComment.isPresent()) {
+      params.put("parent_author", parentComment.get().getUserid());
+
+      namedJdbcTemplate.update("INSERT INTO user_events (userid, type, private, message_id, comment_id) " +
+              "SELECT memories.userid, 'WATCH', 'f', :topic, :id " +
+              "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " +
+              "AND memories.userid != :parent_author " +
+              "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch",
+              params);
+    } else {
+      namedJdbcTemplate.update("INSERT INTO user_events (userid, type, private, message_id, comment_id) " +
+              "SELECT memories.userid, 'WATCH', 'f', :topic, :id " +
+              "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " +
+              "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=:userid) AND watch",
+              params);
+    }
   }
 }
