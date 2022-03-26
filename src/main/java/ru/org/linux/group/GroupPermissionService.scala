@@ -179,7 +179,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
     if (message.isDeleted) {
       false
-    } else if (by == null || by.isAnonymous || by.isBlocked) {
+    } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
       false
     } else if (message.isExpired) {
       false
