@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.realtime
 
-import java.io.IOException
 import akka.NotUsed
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated, Timers}
 import akka.pattern.ask
@@ -28,15 +27,16 @@ import org.springframework.stereotype.Service
 import org.springframework.web.socket.config.annotation.{EnableWebSocket, WebSocketConfigurer, WebSocketHandlerRegistry}
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
-import ru.org.linux.comment.{CommentList, CommentService}
+import ru.org.linux.comment.{CommentList, CommentReadService}
 import ru.org.linux.realtime.RealtimeEventHub.{NewComment, SessionTerminated, Subscribe, Tick}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
-import scala.jdk.CollectionConverters._
+import java.io.IOException
 import scala.collection.mutable
-import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext}
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 // TODO ignore list support
@@ -151,7 +151,7 @@ object RealtimeSessionActor {
 
 @Service
 class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
-                               topicDao: TopicDao, commentService: CommentService) extends TextWebSocketHandler
+                               topicDao: TopicDao, commentService: CommentReadService) extends TextWebSocketHandler
   with StrictLogging {
 
   private implicit val Timeout: Timeout = 30.seconds

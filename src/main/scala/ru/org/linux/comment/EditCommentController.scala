@@ -35,9 +35,10 @@ import javax.validation.Valid
 import scala.jdk.CollectionConverters._
 
 @Controller
-class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
+class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
-                            searchQueueSender: SearchQueueSender, textService: MessageTextService) {
+                            searchQueueSender: SearchQueueSender, textService: MessageTextService,
+                            commentReadService: CommentReadService) {
   @InitBinder(Array("edit"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)
 
@@ -68,7 +69,7 @@ class EditCommentController(commentService: CommentService, msgbaseDao: MsgbaseD
     val messageText = msgbaseDao.getMessageText(original.getId)
 
     val commentEditable = topicPermissionService.isCommentEditableNow(comment, tmpl.getCurrentUser,
-      commentService.isHaveAnswers(comment), topic, messageText.markup)
+      commentReadService.isHaveAnswers(comment), topic, messageText.markup)
 
     if (commentEditable) {
       commentRequest.setMsg(messageText.text)

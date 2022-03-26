@@ -86,7 +86,7 @@ public class TopicController {
   private TopicPrepareService topicPrepareService;
 
   @Autowired
-  private CommentService commentService;
+  private CommentReadService commentService;
 
   @Autowired
   private IgnoreListDao ignoreListDao;

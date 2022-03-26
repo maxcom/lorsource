@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -42,7 +42,7 @@ import scala.jdk.CollectionConverters._
 
 @Controller
 class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: CommentPrepareService,
-                           commentService: CommentService, topicPermissionService: TopicPermissionService,
+                           commentService: CommentCreateService, topicPermissionService: TopicPermissionService,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
                            @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef, textService: MessageTextService) {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.org.linux.comment;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,26 +35,31 @@ import java.util.*;
 
 @Service
 public class CommentDeleteService {
-  @Autowired
-  private CommentDao commentDao;
+  private final CommentDao commentDao;
 
-  @Autowired
-  private TopicService topicService;
+  private final TopicService topicService;
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private UserEventService userEventService;
+  private final UserEventService userEventService;
 
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
+  private final DeleteInfoDao deleteInfoDao;
 
-  @Autowired
-  private CommentService commentService;
+  private final CommentReadService commentService;
 
-  @Autowired
-  private TopicDao topicDao;
+  private final TopicDao topicDao;
+
+  public CommentDeleteService(CommentDao commentDao, TopicService topicService, UserDao userDao,
+                              UserEventService userEventService, DeleteInfoDao deleteInfoDao,
+                              CommentReadService commentService, TopicDao topicDao) {
+    this.commentDao = commentDao;
+    this.topicService = topicService;
+    this.userDao = userDao;
+    this.userEventService = userEventService;
+    this.deleteInfoDao = deleteInfoDao;
+    this.commentService = commentService;
+    this.topicDao = topicDao;
+  }
 
   /**
    * Удаляем коментарий, если на комментарий есть ответы - генерируем исключение

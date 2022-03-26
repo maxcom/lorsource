@@ -15,13 +15,12 @@
 
 package ru.org.linux.edithistory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.comment.CommentService;
+import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
@@ -33,26 +32,32 @@ import java.util.List;
 
 @Controller
 public class EditHistoryController {
-  @Autowired
-  private TopicDao messageDao;
+  private final TopicDao messageDao;
 
-  @Autowired
-  private EditHistoryService editHistoryService;
+  private final EditHistoryService editHistoryService;
 
-  @Autowired
-  private CommentService commentService;
+  private final CommentReadService commentService;
 
-  @Autowired
-  private TopicPermissionService topicPermissionService;
+  private final TopicPermissionService topicPermissionService;
 
-  @Autowired
-  private GroupPermissionService groupPermissionService;
+  private final GroupPermissionService groupPermissionService;
 
-  @Autowired
-  private GroupDao groupDao;
+  private final GroupDao groupDao;
 
-  @Autowired
-  private TopicPrepareService topicPrepareService;
+  private final TopicPrepareService topicPrepareService;
+
+  public EditHistoryController(TopicDao messageDao, EditHistoryService editHistoryService,
+                               CommentReadService commentService, TopicPermissionService topicPermissionService,
+                               GroupPermissionService groupPermissionService, GroupDao groupDao,
+                               TopicPrepareService topicPrepareService) {
+    this.messageDao = messageDao;
+    this.editHistoryService = editHistoryService;
+    this.commentService = commentService;
+    this.topicPermissionService = topicPermissionService;
+    this.groupPermissionService = groupPermissionService;
+    this.groupDao = groupDao;
+    this.topicPrepareService = topicPrepareService;
+  }
 
   @RequestMapping({
     "/news/{group}/{id}/history",

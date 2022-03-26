@@ -24,7 +24,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.comment.Comment;
-import ru.org.linux.comment.CommentService;
+import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MarkupPermissions;
@@ -53,11 +53,11 @@ public class TopicPermissionService {
   private static final int VIEW_DELETED_SCORE = 100;
   private static final Duration DELETE_PERIOD = Duration.standardHours(3);
 
-  private final CommentService commentService;
+  private final CommentReadService commentService;
   private final SiteConfig siteConfig;
   private final GroupDao groupDao;
 
-  public TopicPermissionService(CommentService commentService, SiteConfig siteConfig, GroupDao groupDao) {
+  public TopicPermissionService(CommentReadService commentService, SiteConfig siteConfig, GroupDao groupDao) {
     this.commentService = commentService;
     this.siteConfig = siteConfig;
     this.groupDao = groupDao;

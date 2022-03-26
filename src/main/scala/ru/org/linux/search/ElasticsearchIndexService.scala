@@ -16,17 +16,17 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.IndexAndType
-import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.bulk.{BulkCompatibleRequest, BulkRequest}
 import com.sksamuel.elastic4s.http.ElasticClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.indexes.IndexRequest
 import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.StringEscapeUtils
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
-import ru.org.linux.comment.{Comment, CommentList, CommentService}
+import ru.org.linux.comment.{Comment, CommentList, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
@@ -34,8 +34,8 @@ import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
 import ru.org.linux.user.UserDao
 
-import scala.jdk.CollectionConverters._
 import scala.collection.{Seq => MSeq}
+import scala.jdk.CollectionConverters._
 
 object ElasticsearchIndexService {
   val MessageIndex = "messages"
@@ -77,7 +77,7 @@ object ElasticsearchIndexService {
 @Service
 class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userDao: UserDao,
                                 topicTagService: TopicTagService, messageTextService: MessageTextService,
-                                msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentService,
+                                msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
                                 elastic: ElasticClient, topicPermissionService: TopicPermissionService) extends StrictLogging {
   import ElasticsearchIndexService._
 
