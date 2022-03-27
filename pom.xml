@@ -90,6 +90,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.scala-lang.modules</groupId>
+      <artifactId>scala-collection-contrib_${scala.suffix}</artifactId>
+      <version>0.2.2</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.typesafe.scala-logging</groupId>
       <artifactId>scala-logging_${scala.suffix}</artifactId>
       <version>3.9.4</version>

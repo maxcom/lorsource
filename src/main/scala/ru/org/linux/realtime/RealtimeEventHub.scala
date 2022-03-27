@@ -23,10 +23,12 @@ import com.google.common.collect.ImmutableList
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.config.annotation.{EnableWebSocket, WebSocketConfigurer, WebSocketHandlerRegistry}
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
+import ru.org.linux.auth.UserDetailsImpl
 import ru.org.linux.comment.{CommentList, CommentReadService}
 import ru.org.linux.realtime.RealtimeEventHub.{NewComment, SessionTerminated, Subscribe, Tick}
 import ru.org.linux.spring.SiteConfig
@@ -42,7 +44,7 @@ import scala.util.control.NonFatal
 // TODO ignore list support
 // TODO fix face conditions on simultaneous posting comment, subscription and missing processing
 class RealtimeEventHub extends Actor with ActorLogging with Timers {
-  private val data = new mutable.HashMap[Int, mutable.Set[ActorRef]] with mutable.MultiMap[Int, ActorRef]
+  private val data: mutable.MultiDict[Int, ActorRef] = mutable.MultiDict[Int, ActorRef]()
   private val sessions = new mutable.HashMap[String, ActorRef]
   private var maxDataSize: Int = 0
 
@@ -58,7 +60,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
 
       context.watch(actor)
 
-      data.addBinding(topic, actor)
+      data += (topic -> actor)
       sessions += (session.getId -> actor)
 
       val dataSize = context.children.size
@@ -71,10 +73,10 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
     case Terminated(actorRef) =>
       log.debug(s"RealtimeSessionActor $actorRef terminated")
 
-      data.find(_._2.contains(actorRef)) match {
+      data.sets.find(_._2.contains(actorRef)) match {
         case Some((msgid, _)) =>
           log.debug(s"Removed $actorRef")
-          data.removeBinding(msgid, actorRef)
+          data -= (msgid -> actorRef)
         case None =>
           log.warning(s"Unknown actor was terminated $actorRef")
       }
@@ -91,7 +93,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
     case msg@NewComment(msgid, _) =>
       log.debug(s"New comment in topic $msgid")
 
-      data.getOrElse(msgid, Set.empty).foreach {
+      data.sets.getOrElse(msgid, Set.empty).foreach {
         _ ! msg
       }
     case Tick =>
@@ -111,9 +113,9 @@ object RealtimeEventHub {
   def props = Props(new RealtimeEventHub())
 }
 
-class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLogging {
+class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLogging with Timers {
   private implicit val ec: ExecutionContext = context.dispatcher
-  private val schedule = context.system.scheduler.schedule(5.seconds, 1.minute, self, Tick)
+  timers.startTimerWithFixedDelay(Tick, Tick, initialDelay = 5.seconds, delay = 1.minute)
 
   private def notifyComment(comment: Int): Unit = {
     session.sendMessage(new TextMessage(comment.toString))
@@ -140,7 +142,6 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
 
   @scala.throws[Exception](classOf[Exception])
   override def postStop(): Unit = {
-    schedule.cancel()
     session.close()
   }
 }
@@ -164,7 +165,12 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
     try {
       val request = message.getPayload
 
-      logger.debug(s"Got request: $request")
+      val currentUser =
+        Option(session.getPrincipal)
+          .collect { case token: RememberMeAuthenticationToken if token.isAuthenticated => token.getPrincipal }
+          .collect { case user: UserDetailsImpl => user.getUser }
+
+      logger.debug(s"Got request: $request currentUser=${currentUser.map(_.getNick)}")
 
       val (topicId, maybeComment) = request.split(" ", 2) match {
         case Array(t) =>
