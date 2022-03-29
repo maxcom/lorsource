@@ -74,12 +74,9 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
     case Terminated(actorRef) =>
       log.debug(s"RealtimeSessionActor $actorRef terminated")
 
-      data.sets.find(_._2.contains(actorRef)) match {
-        case Some((msgid, _)) =>
-          log.debug(s"Removed $actorRef")
-          data -= (msgid -> actorRef)
-        case None =>
-          log.warning(s"Unknown actor was terminated $actorRef")
+      data.sets.find(_._2.contains(actorRef)).foreach { case (msgid, _) =>
+        log.debug(s"Removed $actorRef")
+        data -= (msgid -> actorRef)
       }
 
       sessions.find(_._2 == actorRef).foreach { f =>
