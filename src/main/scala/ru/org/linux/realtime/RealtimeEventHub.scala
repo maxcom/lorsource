@@ -15,7 +15,7 @@
 
 package ru.org.linux.realtime
 
-import akka.NotUsed
+import akka.Done
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated, Timers}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -30,7 +30,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
 import ru.org.linux.auth.UserDetailsImpl
 import ru.org.linux.comment.{CommentList, CommentReadService}
-import ru.org.linux.realtime.RealtimeEventHub.{NewComment, SessionTerminated, Subscribe, Tick}
+import ru.org.linux.realtime.RealtimeEventHub._
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
@@ -53,14 +53,9 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
   override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
 
   override def receive: Receive = {
-    case Subscribe(session, _) if sessions.contains(session.getId) =>
-      log.warning(s"Session ${session.getId} already subscribed")
-    case Subscribe(session, topic) =>
+    case SessionStarted(session) if !sessions.contains(session.getId) =>
       val actor = context.actorOf(RealtimeSessionActor.props(session))
-
       context.watch(actor)
-
-      data += (topic -> actor)
       sessions += (session.getId -> actor)
 
       val dataSize = context.children.size
@@ -69,7 +64,13 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
         maxDataSize = dataSize
       }
 
-      sender() ! NotUsed
+      sender() ! Done
+    case SubscribeTopic(session, topic) if sessions.contains(session.getId) =>
+      val actor = sessions(session.getId)
+
+      data += (topic -> actor)
+
+      sender() ! Done
     case Terminated(actorRef) =>
       log.debug(s"RealtimeSessionActor $actorRef terminated")
 
@@ -107,10 +108,11 @@ object RealtimeEventHub {
   case class NewComment(msgid: Int, cid: Int)
   case object Tick
 
-  case class Subscribe(session: WebSocketSession, topic: Int)
+  case class SessionStarted(session: WebSocketSession)
+  case class SubscribeTopic(session: WebSocketSession, topic: Int)
   case class SessionTerminated(session: String)
 
-  def props = Props(new RealtimeEventHub())
+  def props: Props = Props(new RealtimeEventHub())
 }
 
 class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLogging with Timers {
@@ -158,7 +160,17 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
   private implicit val Timeout: Timeout = 30.seconds
 
   override def afterConnectionEstablished(session: WebSocketSession): Unit = {
-    logger.debug(s"Connected!")
+    try {
+      logger.debug(s"Connected!")
+
+      val result = hub ? SessionStarted(session)
+
+      Await.result(result, 10.seconds)
+    } catch {
+      case NonFatal(e) =>
+        logger.warn("WS request failed", e)
+        session.close(CloseStatus.SERVER_ERROR)
+    }
   }
 
   override def handleTextMessage(session: WebSocketSession, message: TextMessage): Unit = {
@@ -196,7 +208,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
         session.sendMessage(new TextMessage(cid.toString))
       }
 
-      val result = hub ? Subscribe(session, topic.getId)
+      val result = hub ? SubscribeTopic(session, topic.getId)
 
       Await.result(result, 10.seconds)
     } catch {
