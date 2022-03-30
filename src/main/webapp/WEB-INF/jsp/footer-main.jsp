@@ -44,6 +44,14 @@
   })();
 </script>
 
+<script type="text/javascript">
+  <c:if test="${template.sessionAuthorized}">
+    $script.ready('realtime', function() {
+      RealtimeContext.start("${template.WSUrl}");
+    });
+  </c:if>
+</script>
+
 </div>
 </body>
 </html>
