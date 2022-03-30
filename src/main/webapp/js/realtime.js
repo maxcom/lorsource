@@ -13,46 +13,60 @@
  *    limitations under the License.
  */
 
-function startRealtimeWS(topic, link, cid, wsUrl) {
-  $script.ready('jquery', function () {
-    $(function () {
-      var supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
+var RealtimeContext = {
+  started: false,
+  setupTopic: function(topic, link, cid) {
+    this.topic = topic
+    this.link = link
+    this.cid = cid
+  },
+  start: function(wsUrl) {
+    if (!RealtimeContext.started) {
+      RealtimeContext.started = true;
 
-      if (supportsWebSockets) {
-        var canceled = false;
-        var ws = new WebSocket(wsUrl + "ws");
+      $script.ready('jquery', function () {
+        $(function () {
+          var supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
 
-        ws.onmessage = function (event) {
-          if (!$('#commentForm').find(".spinner").length) {
-            $("#realtime")
-                .text("Был добавлен новый комментарий. ")
-                .append($("<a>").attr("href", link + "?cid=" + event.data+"&skipdeleted=true").text("Обновить."))
-                .show();
+          if (supportsWebSockets) {
+            var canceled = false;
+            var ws = new WebSocket(wsUrl + "ws");
 
-            canceled = true;
-            ws.close()
-          } else {
-            // retry in 5 seconds
-            ws.close()
+            ws.onmessage = function (event) {
+              if (!$('#commentForm').find(".spinner").length) {
+                $("#realtime")
+                    .text("Был добавлен новый комментарий. ")
+                    .append($("<a>").attr("href", RealtimeContext.link + "?cid=" + event.data + "&skipdeleted=true").text("Обновить."))
+                    .show();
+
+                canceled = true;
+                ws.close()
+              } else {
+                // retry in 5 seconds
+                ws.close()
+              }
+            };
+
+            if (RealtimeContext.topic) {
+              ws.onopen = function () {
+                if (RealtimeContext.cid == 0) {
+                  ws.send(RealtimeContext.topic)
+                } else {
+                  ws.send(RealtimeContext.topic + ' ' + RealtimeContext.cid)
+                }
+              };
+            }
+
+            ws.onclose = function () {
+              if (!canceled) {
+                setTimeout(function () {
+                  RealtimeContext.start(wsUrl)
+                }, 5000);
+              }
+            };
           }
-        };
-
-        ws.onopen = function() {
-          if (cid==0) {
-            ws.send(topic)
-          } else {
-            ws.send(topic + ' ' + cid)
-          }
-        };
-
-        ws.onclose = function(){
-          if (!canceled) {
-            setTimeout(function () {
-              startRealtimeWS(topic, link, cid, wsUrl)
-            }, 5000);
-          }
-        };
-      }
-    });
-  })
+        });
+      })
+    }
+  }
 }

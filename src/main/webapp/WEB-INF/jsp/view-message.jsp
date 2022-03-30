@@ -76,12 +76,17 @@
   </c:if>
 
   <c:if test="${not message.expired and not pages.hasNext}">
-    $script('/js/realtime.js', "realtime");
     $script.ready('realtime', function() {
-        startRealtimeWS(${message.id}, "${message.link}", ${lastCommentId}, "${template.WSUrl}");
+        RealtimeContext.setupTopic(${message.id}, "${message.link}", ${lastCommentId})
+        RealtimeContext.start("${template.WSUrl}");
     });
   </c:if>
 
+  <c:if test="${template.sessionAuthorized}">
+    $script.ready('realtime', function() {
+      RealtimeContext.start("${template.WSUrl}");
+    });
+  </c:if>
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
