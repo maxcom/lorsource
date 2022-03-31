@@ -29,21 +29,23 @@ var RealtimeContext = {
           var supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
 
           if (supportsWebSockets) {
-            var canceled = false;
             var ws = new WebSocket(wsUrl + "ws");
 
             ws.onmessage = function (event) {
-              if (!$('#commentForm').find(".spinner").length) {
-                $("#realtime")
-                    .text("Был добавлен новый комментарий. ")
-                    .append($("<a>").attr("href", RealtimeContext.link + "?cid=" + event.data + "&skipdeleted=true").text("Обновить."))
-                    .show();
+              if (event.data.startsWith("comment ")) {
+                var comment = event.data.substring("comment ".length)
 
-                canceled = true;
-                ws.close()
-              } else {
-                // retry in 5 seconds
-                ws.close()
+                if (!$('#commentForm').find(".spinner").length) {
+                  if ($("#realtime").is(":hidden")) {
+                    $("#realtime")
+                        .text("Был добавлен новый комментарий. ")
+                        .append($("<a>").attr("href", RealtimeContext.link + "?cid=" + comment + "&skipdeleted=true").text("Обновить."))
+                        .show();
+                  }
+                } else {
+                  // retry in 5 seconds
+                  ws.close()
+                }
               }
             };
 
@@ -58,11 +60,9 @@ var RealtimeContext = {
             }
 
             ws.onclose = function () {
-              if (!canceled) {
-                setTimeout(function () {
-                  RealtimeContext.start(wsUrl)
-                }, 5000);
-              }
+              setTimeout(function () {
+                RealtimeContext.start(wsUrl)
+              }, 5000);
             };
           }
         });
