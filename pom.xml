@@ -15,7 +15,7 @@
     <java.version>11</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.16</dependency.spring.version>
+    <dependency.spring.version>5.3.17</dependency.spring.version>
     <spring.security.version>5.2.15.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.3.3</jdbc.postgresql.version>
     <elastic4s.version>6.7.8</elastic4s.version>
