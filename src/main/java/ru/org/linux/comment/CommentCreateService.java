@@ -16,6 +16,7 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +43,13 @@ import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import scala.Tuple2;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -277,7 +280,7 @@ public class CommentCreateService {
     }
   }
 
-  /**
+   /**
    * Создание нового комментария.
    *
    *
@@ -286,10 +289,10 @@ public class CommentCreateService {
    * @param remoteAddress  IP-адрес, с которого был добавлен комментарий
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
    * @param userAgent      заголовок User-Agent запроса
-   * @return идентификационный номер нового комментария
+   * @return идентификационный номер нового комментария + список пользователей у которых появились события
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int create(
+  public Tuple2<Integer, List<Integer>> create(
           @Nonnull User author,
           @Nonnull Comment comment,
           MessageText commentBody,
@@ -298,11 +301,15 @@ public class CommentCreateService {
           Optional<String> userAgent) throws MessageNotFoundException {
     Preconditions.checkArgument(comment.getUserid() == author.getId());
 
+    ImmutableList.Builder<Integer> notifyUsers = ImmutableList.builder();
+
     int commentId = commentDao.saveNewMessage(comment, userAgent);
     msgbaseDao.saveNewMessage(commentBody, commentId);
 
     if (permissionService.isUserCastAllowed(author)) {
-      notifyMentions(author, comment, commentBody, commentId);
+      Set<User> mentions = notifyMentions(author, comment, commentBody, commentId);
+
+      notifyUsers.addAll(mentions.stream().map(User::getId).iterator());
     }
 
     Optional<Comment> parentCommentOpt;
@@ -322,7 +329,7 @@ public class CommentCreateService {
     String logMessage = makeLogString("Написан комментарий " + commentId, remoteAddress, xForwardedFor);
     logger.info(logMessage);
 
-    return commentId;
+    return Tuple2.apply(commentId, notifyUsers.build());
   }
 
   /* оповещение об ответе на коммент */
@@ -341,13 +348,15 @@ public class CommentCreateService {
   }
 
   /* кастование пользователей */
-  private void notifyMentions(User author, Comment comment, MessageText commentBody, int commentId) {
+  private Set<User> notifyMentions(User author, Comment comment, MessageText commentBody, int commentId) {
     Set<User> userRefs = textService.mentions(commentBody);
     userRefs = userRefs.stream()
             .filter(p -> !userService.isIgnoring(p.getId(), author.getId()))
             .collect(Collectors.toSet());
 
     userEventService.addUserRefEvent(userRefs, comment.getTopicId(), commentId);
+
+    return userRefs;
   }
 
   /**

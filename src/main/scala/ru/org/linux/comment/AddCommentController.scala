@@ -146,11 +146,12 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       new ModelAndView("add_comment", (commentService.prepareReplyto(add).asScala ++ info).asJava)
     } else {
-      val msgid = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
+      val (msgid, mentions) = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
         Optional.ofNullable(request.getHeader("user-agent")))
 
       searchQueueSender.updateComment(msgid)
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
+      realtimeHubWS ! RealtimeEventHub.MentionUsers(mentions.asScala.map(_.toInt).toVector)
 
       new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid))
     }
@@ -182,12 +183,13 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         Map("errors" -> errorsList.asJava)
       }
     } else {
-      val msgid = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
+      val (msgid, mentions) = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
         Optional.ofNullable(request.getHeader("user-agent")))
 
       searchQueueSender.updateComment(msgid)
 
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
+      realtimeHubWS ! RealtimeEventHub.MentionUsers(mentions.asScala.map(_.toInt).toVector)
 
       Map("url" -> (add.getTopic.getLink + "?cid=" + msgid))
     }).asJava

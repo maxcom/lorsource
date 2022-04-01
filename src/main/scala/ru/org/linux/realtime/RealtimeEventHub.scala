@@ -104,6 +104,12 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
       topicSubscriptions.sets.getOrElse(msgid, Set.empty).foreach {
         _ ! msg
       }
+    case msg@MentionUsers(users) =>
+      users.foreach { user =>
+        userSubscriptions.sets.getOrElse(user, Set.empty).foreach {
+          _ ! msg
+        }
+      }
     case Tick =>
       log.info(s"Realtime hub: maximum number connections was $maxDataSize")
       maxDataSize = 0
@@ -112,6 +118,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
 
 object RealtimeEventHub {
   case class NewComment(msgid: Int, cid: Int)
+  case class MentionUsers(users: Seq[Int])
   case object Tick
 
   case class SessionStarted(session: WebSocketSession, user: Option[Int])
@@ -122,6 +129,10 @@ object RealtimeEventHub {
 
   def notifyComment(session: WebSocketSession, comment: Int): Unit = {
     session.sendMessage(new TextMessage(s"comment $comment"))
+  }
+
+  def notifyEvent(session: WebSocketSession): Unit = {
+    session.sendMessage(new TextMessage(s"events-refresh"))
   }
 }
 
@@ -135,6 +146,10 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
         notifyComment(session, cid)
       } catch handleExceptions
 
+    case MentionUsers(_) =>
+      try {
+        notifyEvent(session)
+      } catch handleExceptions
     case Tick =>
       log.debug("Sending keepalive")
       try {
