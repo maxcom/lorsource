@@ -13,6 +13,29 @@
  *    limitations under the License.
  */
 
+function initUpdateEventsCount() {
+  function update_count() {
+    $.ajax({
+      url: "/notifications-count",
+      cache: false
+    }).success(function(data) {
+      var value = data==0 ? "" : ("("+data+")" );
+
+      $('#main_events_count').text(value);
+    });
+  }
+
+  $(function() {
+    if ($('#main_events_count').length>0) {
+      update_count();
+    }
+  });
+}
+
+$script.ready('jquery', function () {
+  initUpdateEventsCount();
+});
+
 var RealtimeContext = {
   started: false,
   setupTopic: function(topic, link, cid) {
@@ -32,6 +55,8 @@ var RealtimeContext = {
             var ws = new WebSocket(wsUrl + "ws");
 
             ws.onmessage = function (event) {
+              initUpdateEventsCount(); // temporary solution
+
               if (event.data.startsWith("comment ")) {
                 var comment = event.data.substring("comment ".length)
 

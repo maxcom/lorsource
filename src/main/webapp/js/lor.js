@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -402,25 +402,6 @@ $(document).ready(function() {
     $('#ft').prepend(backButton);
   }
 
-  function initUpdateEventsCount() {
-    function update_count() {
-      $.ajax({
-        url: "/notifications-count",
-        cache: false
-      }).success(function(data) {
-        var value = data==0 ? "" : ("("+data+")" );
-
-        $('#main_events_count').text(value);
-      });
-    }
-
-    $(function() {
-      if ($('#main_events_count').length>0) {
-        update_count();
-      }
-    });
-  }
-
   function spoilerShow() {
     var $this = $(this);
     $this.parent().removeClass('spoiled');
@@ -440,7 +421,6 @@ $(document).ready(function() {
   }
 
   initCtrlEnter();
-  initUpdateEventsCount();
 
   initSamepageCommentNavigation();
   initScollupButton();
