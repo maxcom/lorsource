@@ -151,7 +151,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       searchQueueSender.updateComment(msgid)
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
-      realtimeHubWS ! RealtimeEventHub.MentionUsers(mentions.asScala.map(_.toInt).toVector)
+      realtimeHubWS ! RealtimeEventHub.MentionUsers(mentions.asScala.map(_.toInt).toSet)
 
       new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid))
     }
@@ -189,7 +189,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       searchQueueSender.updateComment(msgid)
 
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
-      realtimeHubWS ! RealtimeEventHub.MentionUsers(mentions.asScala.map(_.toInt).toVector)
+      realtimeHubWS ! RealtimeEventHub.MentionUsers(mentions.asScala.map(_.toInt).toSet)
 
       Map("url" -> (add.getTopic.getLink + "?cid=" + msgid))
     }).asJava

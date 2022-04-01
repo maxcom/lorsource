@@ -317,7 +317,9 @@ public class CommentCreateService {
     if (comment.getReplyTo() != 0) {
       Comment parentComment = commentDao.getById(comment.getReplyTo());
 
-      notifyReply(comment, commentId, parentComment);
+      Optional<User> mention = notifyReply(comment, commentId, parentComment);
+
+      mention.ifPresent(user -> notifyUsers.add(user.getId()));
 
       parentCommentOpt = Optional.of(parentComment);
     } else {
@@ -333,7 +335,7 @@ public class CommentCreateService {
   }
 
   /* оповещение об ответе на коммент */
-  private void notifyReply(Comment comment, int commentId, Comment parentComment) {
+  private Optional<User> notifyReply(Comment comment, int commentId, Comment parentComment) {
     if (parentComment.getUserid() != comment.getUserid()) {
       User parentAuthor = userDao.getUserCached(parentComment.getUserid());
 
@@ -342,9 +344,12 @@ public class CommentCreateService {
 
         if (!ignoreList.contains(comment.getUserid())) {
           userEventService.addReplyEvent(parentAuthor, comment.getTopicId(), commentId);
+          return Optional.of(parentAuthor);
         }
       }
     }
+
+    return Optional.empty();
   }
 
   /* кастование пользователей */

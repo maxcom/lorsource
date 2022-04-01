@@ -118,7 +118,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
 
 object RealtimeEventHub {
   case class NewComment(msgid: Int, cid: Int)
-  case class MentionUsers(users: Seq[Int])
+  case class MentionUsers(users: Set[Int])
   case object Tick
 
   case class SessionStarted(session: WebSocketSession, user: Option[Int])
