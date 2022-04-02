@@ -191,7 +191,7 @@ public class UserEventService {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void insertCommentWatchNotification(Comment comment, Optional<Comment> parentComment, int commentId) {
-    userEventDao.insertCommentWatchNotification(comment, parentComment, commentId);
+  public List<Integer> insertCommentWatchNotification(Comment comment, Optional<Comment> parentComment, int commentId) {
+    return userEventDao.insertCommentWatchNotification(comment, parentComment, commentId);
   }
 }

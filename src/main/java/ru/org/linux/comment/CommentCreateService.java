@@ -326,7 +326,8 @@ public class CommentCreateService {
       parentCommentOpt = Optional.empty();
     }
 
-    userEventService.insertCommentWatchNotification(comment, parentCommentOpt, commentId);
+    List<Integer> commentNotified = userEventService.insertCommentWatchNotification(comment, parentCommentOpt, commentId);
+    notifyUsers.addAll(commentNotified);
 
     String logMessage = makeLogString("Написан комментарий " + commentId, remoteAddress, xForwardedFor);
     logger.info(logMessage);
