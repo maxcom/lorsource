@@ -15,9 +15,11 @@
 
 package ru.org.linux.topic;
 
+import akka.actor.ActorRef;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -38,6 +40,7 @@ import ru.org.linux.markup.MarkupPermissions;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollVariant;
+import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -51,16 +54,14 @@ import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.UserService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import scala.Tuple2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class AddTopicController {
@@ -96,6 +97,10 @@ public class AddTopicController {
 
   @Autowired
   private TopicService topicService;
+
+  @Autowired
+  @Qualifier("realtimeHubWS")
+  private ActorRef realtimeHubWS;
 
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
   private static final int MAX_MESSAGE_LENGTH = 32768;
@@ -330,7 +335,7 @@ public class AddTopicController {
                                       MessageText message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
     session.removeAttribute("image");
 
-    int msgid = topicService.addMessage(
+    Tuple2<Integer, Set<Integer>> result = topicService.addMessage(
             request,
             form,
             message,
@@ -340,8 +345,11 @@ public class AddTopicController {
             previewMsg
     );
 
+    int msgid = result._1;
+
     if (!previewMsg.isDraft())  {
       searchQueueSender.updateMessageOnly(msgid);
+      RealtimeEventHub.notifyEvents(realtimeHubWS, result._2);
     }
 
     String messageUrl = "view-message.jsp?msgid=" + msgid;

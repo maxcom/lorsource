@@ -15,9 +15,11 @@
 
 package ru.org.linux.topic;
 
+import akka.actor.ActorRef;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -38,6 +40,7 @@ import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
+import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
@@ -51,15 +54,13 @@ import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import scala.Tuple2;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -75,6 +76,7 @@ public class EditTopicController {
   private final EditHistoryService editHistoryService;
   private final EditTopicRequestValidator editTopicRequestValidator;
   private final IPBlockDao ipBlockDao;
+  private final ActorRef realtimeHubWS;
   private final CaptchaService captcha;
   private final ImageService imageService;
 
@@ -82,7 +84,8 @@ public class EditTopicController {
                              TopicPrepareService prepareService, GroupDao groupDao, PollDao pollDao,
                              GroupPermissionService permissionService, CaptchaService captcha, MsgbaseDao msgbaseDao,
                              EditHistoryService editHistoryService, ImageService imageService,
-                             EditTopicRequestValidator editTopicRequestValidator, IPBlockDao ipBlockDao) {
+                             EditTopicRequestValidator editTopicRequestValidator, IPBlockDao ipBlockDao,
+                             @Qualifier("realtimeHubWS") ActorRef realtimeHubWS) {
     this.messageDao = messageDao;
     this.searchQueueSender = searchQueueSender;
     this.topicService = topicService;
@@ -96,6 +99,7 @@ public class EditTopicController {
     this.imageService = imageService;
     this.editTopicRequestValidator = editTopicRequestValidator;
     this.ipBlockDao = ipBlockDao;
+    this.realtimeHubWS = realtimeHubWS;
   }
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
@@ -436,7 +440,7 @@ public class EditTopicController {
     }
 
     if (!preview && !errors.hasErrors()) {
-      boolean changed = topicService.updateAndCommit(
+      Tuple2<Boolean, Set<Integer>> result = topicService.updateAndCommit(
               newMsg,
               topic,
               user,
@@ -445,15 +449,19 @@ public class EditTopicController {
               commit,
               changeGroupId,
               form.getBonus(),
-              newPoll!=null?newPoll.getVariants():null,
+              newPoll != null ? newPoll.getVariants() : null,
               form.isMultiselect(),
               form.getEditorBonus(),
               imagePreview
       );
 
+      boolean changed = result._1;
+
       if (changed || commit || publish) {
         if (!newMsg.isDraft()) {
           searchQueueSender.updateMessage(newMsg.getId(), true);
+
+          RealtimeEventHub.notifyEvents(realtimeHubWS, result._2);
         }
 
         if (!publish || !preparedTopic.getSection().isPremoderated()) {

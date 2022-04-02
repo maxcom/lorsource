@@ -104,7 +104,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
       topicSubscriptions.sets.getOrElse(msgid, Set.empty).foreach {
         _ ! msg
       }
-    case msg@MentionUsers(users) =>
+    case msg@RefreshEvents(users) =>
       users.foreach { user =>
         userSubscriptions.sets.getOrElse(user, Set.empty).foreach {
           _ ! msg
@@ -118,7 +118,7 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
 
 object RealtimeEventHub {
   case class NewComment(msgid: Int, cid: Int)
-  case class MentionUsers(users: Set[Int])
+  case class RefreshEvents(users: Set[Int])
   case object Tick
 
   case class SessionStarted(session: WebSocketSession, user: Option[Int])
@@ -127,12 +127,16 @@ object RealtimeEventHub {
 
   def props: Props = Props(new RealtimeEventHub())
 
-  def notifyComment(session: WebSocketSession, comment: Int): Unit = {
+  private[realtime] def notifyComment(session: WebSocketSession, comment: Int): Unit = {
     session.sendMessage(new TextMessage(s"comment $comment"))
   }
 
-  def notifyEvent(session: WebSocketSession): Unit = {
+  private[realtime] def notifyEvent(session: WebSocketSession): Unit = {
     session.sendMessage(new TextMessage(s"events-refresh"))
+  }
+
+  def notifyEvents(realtimeEventHub: ActorRef, users: java.lang.Iterable[Integer]): Unit = {
+    realtimeEventHub ! RefreshEvents(users.asScala.map(_.toInt).toSet)
   }
 }
 
@@ -146,7 +150,7 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
         notifyComment(session, cid)
       } catch handleExceptions
 
-    case MentionUsers(_) =>
+    case RefreshEvents(_) =>
       try {
         notifyEvent(session)
       } catch handleExceptions
