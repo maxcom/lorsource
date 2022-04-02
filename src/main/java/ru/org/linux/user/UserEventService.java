@@ -186,8 +186,12 @@ public class UserEventService {
    * @param msgids идентификаторы комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void processCommentsDeleted(List<Integer> msgids) {
-    userEventDao.recalcEventCount(userEventDao.deleteCommentEvents(msgids));
+  public List<Integer> processCommentsDeleted(List<Integer> msgids) {
+    List<Integer> users = userEventDao.deleteCommentEvents(msgids);
+
+    userEventDao.recalcEventCount(users);
+
+    return users;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)

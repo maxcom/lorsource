@@ -36,17 +36,11 @@ import java.util.*;
 @Service
 public class CommentDeleteService {
   private final CommentDao commentDao;
-
   private final TopicService topicService;
-
   private final UserDao userDao;
-
   private final UserEventService userEventService;
-
   private final DeleteInfoDao deleteInfoDao;
-
   private final CommentReadService commentService;
-
   private final TopicDao topicDao;
 
   public CommentDeleteService(CommentDao commentDao, TopicService topicService, UserDao userDao,

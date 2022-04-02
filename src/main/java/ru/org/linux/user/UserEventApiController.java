@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,14 +15,17 @@
 
 package ru.org.linux.user;
 
+import akka.actor.ActorRef;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +34,13 @@ import java.util.Map;
 
 @Controller
 public class UserEventApiController {
-  @Autowired
-  private UserEventService userEventService;
+  private final UserEventService userEventService;
+  private final ActorRef realtimeHubWS;
+
+  public UserEventApiController(UserEventService userEventService, @Qualifier("realtimeHubWS") ActorRef realtimeHubWS) {
+    this.userEventService = userEventService;
+    this.realtimeHubWS = realtimeHubWS;
+  }
 
   @ResponseBody
   @RequestMapping(value = "/notifications-count", method= RequestMethod.GET)
@@ -61,6 +69,8 @@ public class UserEventApiController {
     User currentUser = tmpl.getCurrentUser();
 
     userEventService.resetUnreadReplies(currentUser, topId);
+
+    RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.getId()));
 
     return "ok";
   }
