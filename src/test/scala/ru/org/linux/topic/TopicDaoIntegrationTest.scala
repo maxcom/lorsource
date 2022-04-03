@@ -35,6 +35,8 @@ import ru.org.linux.topic.TopicDaoIntegrationTest._
 import ru.org.linux.user.{IgnoreListDao, UserDao, UserInvitesDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
 
+import javax.sql.DataSource
+
 @RunWith (classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
 class TopicDaoIntegrationTest {
@@ -72,7 +74,7 @@ class TopicDaoIntegrationTestConfiguration {
   def groupDao = new GroupDao()
 
   @Bean
-  def sectionService(sectionDao:SectionDao) = new SectionService(sectionDao)
+  def sectionService(sectionDao: SectionDao) = new SectionService(sectionDao)
 
   @Bean
   def sectionDao = new SectionDaoImpl()
@@ -82,6 +84,9 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def userDao = new UserDao()
+
+  @Bean
+  def userInvitesDao(ds: DataSource) = new UserInvitesDao(ds)
 
   @Bean
   def imageDao = new ImageDao()
