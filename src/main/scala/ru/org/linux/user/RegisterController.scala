@@ -234,6 +234,10 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 
+    if (userDao.getByEmail(email, false) != null) {
+      throw new AccessViolationException("Пользователь с этим адресом уже зарегистрирован")
+    }
+
     val (token, validUntil) = invitesDao.createInvite(currentUser, email)
 
     emailService.sendInviteEmail(currentUser, email, token, validUntil)
