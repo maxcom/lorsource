@@ -17,15 +17,20 @@ package ru.org.linux.user
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
 import javax.annotation.Nullable
-
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
+import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.annotation.{Propagation, Transactional}
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
 
+import javax.mail.internet.InternetAddress
+import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
@@ -43,7 +48,9 @@ object UserService {
 }
 
 @Service
-class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao) extends StrictLogging {
+class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
+                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao,
+                  val transactionManager: PlatformTransactionManager) extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
       new CacheLoader[String, Integer] {
@@ -109,7 +116,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getUserpic(user: User, avatarStyle: String, misteryMan: Boolean): Userpic = {
     val avatarMode = if (misteryMan && ("empty" == avatarStyle)) {
-       "mm"
+      "mm"
     } else {
       avatarStyle
     }
@@ -136,7 +143,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     userpic.getOrElse {
-      if (user.hasGravatar && user.getPhoto!="") {
+      if (user.hasGravatar && user.getPhoto != "") {
         new Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
       } else {
         UserService.DisabledUserpic
@@ -158,11 +165,11 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getCorrectors = getUsersCached(userDao.getCorrectorIds)
 
-  private def findUserIdCached(nick: String):Int = {
+  private def findUserIdCached(nick: String): Int = {
     try {
       nameToIdCache.get(nick)
     } catch {
-      case ex:UncheckedExecutionException => throw ex.getCause
+      case ex: UncheckedExecutionException => throw ex.getCause
     }
   }
 
@@ -189,4 +196,25 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def canInvite(user: User): Boolean = user.isAdministrator
+
+  def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String,
+                 ip: String, invite: Option[String]): Int = {
+    transactional() { _ =>
+      val newUserId = userDao.createUser(name, nick, password, url, mail, town, ip)
+
+      invite.foreach { token =>
+        val marked = userInvitesDao.markUsed(token, newUserId)
+
+        if (!marked) {
+          throw new AccessViolationException("Инвайт уже использован")
+        }
+      }
+
+      val inviteOwner = invite.flatMap(userInvitesDao.ownerOfInvite)
+
+      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).asJava)
+
+      newUserId
+    }
+  }
 }

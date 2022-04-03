@@ -51,4 +51,10 @@
             grant insert, update on user_invites to linuxweb;
         </sql>
     </changeSet>
+
+    <changeSet id="2022040305" author="Maxim Valyanskiy">
+        <sql>
+            grant select on user_invites to linuxweb;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

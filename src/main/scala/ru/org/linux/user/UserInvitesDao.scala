@@ -15,7 +15,9 @@
 package ru.org.linux.user
 
 import org.joda.time.DateTime
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.user.UserInvitesDao.ValidDays
 
@@ -33,6 +35,8 @@ class UserInvitesDao(ds: DataSource) {
     i.setColumnNames(Seq("invite_code", "owner", "valid_until", "email").asJava)
     i
   }
+
+  private val jdbcTemplate = new JdbcTemplate(ds)
 
   def createInvite(owner: User, email: String): (String, DateTime) = {
     val random = new SecureRandom
@@ -53,6 +57,26 @@ class UserInvitesDao(ds: DataSource) {
 
     (inviteCode, validUntil)
   }
+
+  def emailFromValidInvite(inviteCode: String): Option[String] = {
+    try {
+      jdbcTemplate.queryForObject[String](
+        "select email from user_invites where invite_code=? and invited_user is null and valid_until>CURRENT_TIMESTAMP",
+        inviteCode)
+    } catch {
+      case _: EmptyResultDataAccessException =>
+        None
+    }
+  }
+
+  def ownerOfInvite(inviteCode: String): Option[Int] =
+    jdbcTemplate.queryForObject[Int]("select owner from user_invites where invite_code=?", inviteCode)
+
+  def markUsed(token: String, newUserId: Int): Boolean = {
+    jdbcTemplate.update("update user_invites set invited_user=? where invite_code=? and invited_user is null and valid_until>CURRENT_TIMESTAMP",
+      newUserId, token) > 0;
+  }
+
 }
 
 object UserInvitesDao {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 @Repository
 public class UserLogDao {
@@ -41,6 +42,7 @@ public class UserLogDao {
   public static final String OPTION_NEW_EMAIL = "new_email";
   public static final String OPTION_OLD_INFO = "old_info";
   public static final String OPTION_IP = "ip";
+  public static final String OPTION_INVITED_BY = "invited_by";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -240,13 +242,22 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void logRegister(int userid, @Nonnull String ip) {
+  public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy) {
+    ImmutableMap<String, String> params;
+
+    if (invitedBy.isPresent()) {
+      params = ImmutableMap.of(OPTION_IP, ip, OPTION_INVITED_BY, invitedBy.get().toString());
+
+    } else {
+      params = ImmutableMap.of(OPTION_IP, ip);
+    }
+
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             userid,
             userid,
             UserLogAction.REGISTER.toString(),
-            ImmutableMap.of(OPTION_IP, ip)
+            params
     );
   }
 

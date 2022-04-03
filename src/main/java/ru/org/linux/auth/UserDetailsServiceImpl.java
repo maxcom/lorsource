@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,14 +33,15 @@ import java.util.Collection;
 public class UserDetailsServiceImpl implements UserDetailsService {
   private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
+  private final UserService userService;
+  private final ProfileDao profileDao;
 
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private ProfileDao profileDao;
+  public UserDetailsServiceImpl(UserDao userDao, UserService userService, ProfileDao profileDao) {
+    this.userDao = userDao;
+    this.userService = userService;
+    this.profileDao = profileDao;
+  }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {

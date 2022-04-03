@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,9 @@
 
 package ru.org.linux.user;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -31,8 +29,7 @@ import static ru.org.linux.util.StringUtil.escapeHtml;
 
 @Service
 public class UserLogPrepareService {
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
   private final static ImmutableMap<String, String> OPTION_DESCRIPTION;
 
@@ -50,40 +47,47 @@ public class UserLogPrepareService {
     OPTION_DESCRIPTION = builder.build();
   }
 
+  public UserLogPrepareService(UserDao userDao) {
+    this.userDao = userDao;
+  }
+
   @Nonnull
   public List<PreparedUserLogItem> prepare(@Nonnull List<UserLogItem> items) {
     return ImmutableList.copyOf(Lists.transform(
-            items, new Function<UserLogItem, PreparedUserLogItem>() {
-      @Override
-      public PreparedUserLogItem apply(UserLogItem item) {
-        Map<String, String> options = new HashMap<>();
+            items, item -> {
+              Map<String, String> options = new HashMap<>();
 
-        for (Map.Entry<String, String> option : item.getOptions().entrySet()) {
-          String key = OPTION_DESCRIPTION.get(option.getKey());
-          if (key==null) {
-            key = escapeHtml(option.getKey());
-          }
+              for (Map.Entry<String, String> option : item.getOptions().entrySet()) {
+                String key = OPTION_DESCRIPTION.get(option.getKey());
+                if (key==null) {
+                  key = escapeHtml(option.getKey());
+                }
 
-          String value;
+                String value;
 
-          switch (option.getKey()) {
-            case UserLogDao.OPTION_OLD_USERPIC:
-            case UserLogDao.OPTION_NEW_USERPIC:
-              value = "<a href=\"/photos/" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
-              break;
-            case UserLogDao.OPTION_IP:
-              value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
-              break;
-            default:
-              value = escapeHtml(option.getValue());
-              break;
-          }
+                switch (option.getKey()) {
+                  case UserLogDao.OPTION_OLD_USERPIC:
+                  case UserLogDao.OPTION_NEW_USERPIC:
+                    value = "<a href=\"/photos/" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
+                    break;
+                  case UserLogDao.OPTION_IP:
+                    value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
+                    break;
+                  case UserLogDao.OPTION_INVITED_BY:
+                    User user = userDao.getUserCached(Integer.parseInt(option.getValue()));
 
-          options.put(key, value);
-        }
+                    value = "<a href=\"/people/" +user.getNick() + "/profile\">" + user.getNick() + "</a>";
 
-        return new PreparedUserLogItem(item, userDao.getUserCached(item.getActionUser()), options);
-      }
-    }));
+                    break;
+                  default:
+                    value = escapeHtml(option.getValue());
+                    break;
+                }
+
+                options.put(key, value);
+              }
+
+              return new PreparedUserLogItem(item, userDao.getUserCached(item.getActionUser()), options);
+            }));
   }
 }

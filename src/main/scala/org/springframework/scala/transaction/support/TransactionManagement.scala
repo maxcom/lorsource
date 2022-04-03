@@ -57,7 +57,9 @@ trait TransactionManagement {
 	                     qualifier: String = "",
 	                     timeout: Int = TransactionDefinition.TIMEOUT_DEFAULT)(function: TransactionStatus => T): T = {
 
-		val transactionAttribute = new DefaultTransactionAttribute()
+		val transactionAttribute = new DefaultTransactionAttribute() {
+			override def rollbackOn(ex: Throwable): Boolean = true
+		}
 		transactionAttribute.setPropagationBehavior(propagation.value())
 		transactionAttribute.setIsolationLevel(isolation.value())
 		transactionAttribute.setTimeout(timeout)

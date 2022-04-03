@@ -43,17 +43,45 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
                          siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao) extends StrictLogging {
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
-  def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse): ModelAndView = {
+  def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
+              @RequestParam(required = false) invite: String): ModelAndView = {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
-//    new ModelAndView("register")
-    new ModelAndView("no-register")
+
+    if (invite!=null) {
+      val emailOpt = invitesDao.emailFromValidInvite(invite)
+
+      emailOpt match {
+        case None =>
+          throw new AccessViolationException("Код приглашения не действителен")
+        case Some(email) =>
+          form.setEmail(email)
+      }
+      new ModelAndView("register", "invite", invite)
+    } else {
+      new ModelAndView("no-register")
+    }
   }
 
-//  @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
+  @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
   def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
-                 errors: Errors): ModelAndView = {
+                 errors: Errors, @RequestParam(required = false) invite: String): ModelAndView = {
+    if (invite==null) {
+      throw new AccessViolationException("Отсутствует код приглашения")
+    } else {
+      val emailOpt = invitesDao.emailFromValidInvite(invite)
+
+      emailOpt match {
+        case None =>
+          throw new AccessViolationException("Код приглашения не действителен")
+        case Some(email) =>
+          form.setEmail(email)
+      }
+    }
+
     if (!errors.hasErrors) {
-      captcha.checkCaptcha(request, errors)
+      if (invite==null) {
+        captcha.checkCaptcha(request, errors)
+      }
 
       if (userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick)) {
         errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
@@ -78,7 +106,8 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
 
     if (!errors.hasErrors) {
       val mail = new InternetAddress(form.getEmail.toLowerCase)
-      val userid = userDao.createUser("", form.getNick, form.getPassword, "", mail, "", request.getRemoteAddr)
+      val userid = userService.createUser("", form.getNick, form.getPassword, "", mail, "",
+        request.getRemoteAddr, Option(invite))
 
       logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 
@@ -89,7 +118,7 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
         "message",
         "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.")
     } else {
-      new ModelAndView("register")
+      new ModelAndView("register", "invite", invite)
     }
   }
 
