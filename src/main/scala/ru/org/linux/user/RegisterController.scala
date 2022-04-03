@@ -24,7 +24,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation._
-import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth._
 import ru.org.linux.email.EmailService
@@ -38,14 +38,10 @@ import javax.validation.Valid
 import scala.jdk.CollectionConverters._
 
 @Controller
-class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
-                                       rememberMeServices: RememberMeServices,
-                                       @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
-                                       userDetailsService: UserDetailsServiceImpl,
-                                       userDao: UserDao,
-                                       emailService: EmailService,
-                                       siteConfig: SiteConfig
-                                      ) extends StrictLogging {
+class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememberMeServices: RememberMeServices,
+                         @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
+                         userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
+                         siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao) extends StrictLogging {
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse): ModelAndView = {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
@@ -86,7 +82,7 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
 
       logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 
-      emailService.sendEmail(form.getNick, mail.getAddress, isNew = true)
+      emailService.sendRegistrationEmail(form.getNick, mail.getAddress, isNew = true)
 
       new ModelAndView(
         "action-done",
@@ -205,5 +201,43 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao,
   def requestValidator(binder: WebDataBinder):Unit = {
     binder.setValidator(new RegisterRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
+  }
+
+  @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.GET))
+  def createInviteForm(request: HttpServletRequest): ModelAndView = {
+    val tmpl = Template.getTemplate(request)
+
+    if (!tmpl.isSessionAuthorized) {
+      throw new AccessViolationException("Not authorized")
+    }
+
+    val currentUser = tmpl.getCurrentUser
+
+    if (!userService.canInvite(currentUser)) {
+      throw new AccessViolationException("Вы не можете пригласить нового пользователя")
+    }
+
+    new ModelAndView("create-invite")
+  }
+
+  @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.POST))
+  def createInvite(request: HttpServletRequest, @RequestParam email: String): ModelAndView = {
+    val tmpl = Template.getTemplate(request)
+
+    if (!tmpl.isSessionAuthorized) {
+      throw new AccessViolationException("Not authorized")
+    }
+
+    val currentUser = tmpl.getCurrentUser
+
+    if (!userService.canInvite(currentUser)) {
+      throw new AccessViolationException("Вы не можете пригласить нового пользователя")
+    }
+
+    val (token, validUntil) = invitesDao.createInvite(currentUser, email)
+
+    emailService.sendInviteEmail(currentUser, email, token, validUntil)
+
+    new ModelAndView("action-done", "message", s"Приглашение отправлено по адресу $email")
   }
 }

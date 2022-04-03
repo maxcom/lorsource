@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,29 +15,30 @@
 
 package ru.org.linux.email
 
+import akka.actor.ActorRef
+import com.google.common.net.HttpHeaders
+import com.typesafe.scalalogging.StrictLogging
+import org.joda.time.DateTime
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Service
+import ru.org.linux.auth.AuthUtil
+import ru.org.linux.exception.ExceptionMailingActor
+import ru.org.linux.site.DateFormats
+import ru.org.linux.spring.SiteConfig
+import ru.org.linux.user.User
+
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
 import java.util.{Date, Properties}
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, Session, Transport}
 import javax.servlet.http.HttpServletRequest
-
-import akka.actor.ActorRef
-import com.google.common.net.HttpHeaders
-import com.typesafe.scalalogging.StrictLogging
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthUtil
-import ru.org.linux.exception.ExceptionMailingActor
-import ru.org.linux.spring.SiteConfig
-import ru.org.linux.user.User
-
 import scala.jdk.CollectionConverters._
 
 @Service
 class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") exceptionMailingActor: ActorRef)
-  extends StrictLogging {
-  def sendEmail(nick: String, email: String, isNew: Boolean): Unit = {
+    extends StrictLogging {
+  def sendRegistrationEmail(nick: String, email: String, isNew: Boolean): Unit = {
     val regcode = User.getActivationCode(siteConfig.getSecret, nick, email)
 
     val text = new StringBuilder
@@ -48,9 +49,9 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
       """.stripMargin)
 
     if (isNew) {
-      text.append("На форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n")
+      text.append("На форуме по адресу https://www.linux.org.ru/ появилась регистрационная запись,\n")
     } else {
-      text.append("На форуме по адресу http://www.linux.org.ru/ была изменена регистрационная запись,\n")
+      text.append("На форуме по адресу https://www.linux.org.ru/ была изменена регистрационная запись,\n")
     }
 
     text.append(
@@ -66,14 +67,14 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     if (isNew) {
       text.append(
         """
-          |Если же именно вы решили зарегистрироваться на форуме по адресу http://www.linux.org.ru/,
+          |Если же именно вы решили зарегистрироваться на форуме по адресу https://www.linux.org.ru/,
           |то вам следует подтвердить свою регистрацию и тем самым активировать вашу учетную запись.
           |
         """.stripMargin)
     } else {
       text.append(
         """
-          |Если же именно вы решили изменить свою регистрационную запись http://www.linux.org.ru/,
+          |Если же именно вы решили изменить свою регистрационную запись https://www.linux.org.ru/,
           |то вам следует подтвердить свое изменение.
           |
         """.stripMargin)
@@ -94,11 +95,35 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     sendRegistrationMail(email, text.toString())
   }
 
-  private def sendRegistrationMail(email: String, text: String):Unit = {
+  def sendInviteEmail(inviteUser: User, email: String, inviteCode: String, validUntil: DateTime): Unit = {
+    val text =
+      s"""
+         |Здравствуйте!
+         |
+         |Участник https://www.linux.org.ru/, ${inviteUser.getNick} (https://www.linux.org.ru/people/${inviteUser.getNick}/profile),
+         |пригласил вас зарегистрироваться на форуме.\n
+         |
+         |Если вы не понимаете, о чем идет речь - просто проигнорируйте это сообщение!
+         |
+         |Для регистрации перейдите по ссылке:
+         |
+         |https://www.linux.org.ru/register.jsp?invite=${URLEncoder.encode(inviteCode, "utf-8")}
+         |
+         |Эта ссылка позволяет зарегистрировать только одну учетную запись. Ссылка действует
+         |до ${DateFormats.getDefault.print(validUntil)}.
+         |
+         |До встречи!
+         |
+       """.stripMargin
+
+    sendRegistrationMail(email, text)
+  }
+
+  private def sendRegistrationMail(email: String, text: String): Unit = {
     val emailMessage = EmailService.createMessage
     emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"))
     emailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(email))
-    emailMessage.setSubject("Linux.org.ru registration")
+    emailMessage.setSubject("Регистрация на Linux.org.ru")
     emailMessage.setSentDate(new Date)
     emailMessage.setText(text, "UTF-8")
     Transport.send(emailMessage)

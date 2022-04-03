@@ -21,9 +21,9 @@
 <title>${message}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<p>${message}</p>
+<p><c:out value="${message}" escapeXml="true"/></p>
 
-<p>${bigMessage}</p>
+<p><c:out value="${bigMessage}" escapeXml="true"/></p>
 
 <c:if test="${link!=null}">
   <p>

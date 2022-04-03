@@ -1,0 +1,54 @@
+<!--
+  ~ Copyright 1998-2022 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="2022040301" author="Maxim Valyanskiy">
+        <createTable tableName="user_invites">
+            <column name="invite_code" type="text">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="owner" type="int">
+                <constraints references="users(id)" nullable="false" foreignKeyName="user_invites_owner_fkey"/>
+            </column>
+            <column name="issue_date" type="timestamp with timezone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invited_user" type="int">
+                <constraints references="users(id)" nullable="true" foreignKeyName="user_invites_invited_fkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2022040303" author="Maxim Valyanskiy">
+        <addColumn tableName="user_invites">
+            <column name="email" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valid_until" type="timestamp with timezone">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2022040304" author="Maxim Valyanskiy">
+        <sql>
+            grant insert, update on user_invites to linuxweb;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

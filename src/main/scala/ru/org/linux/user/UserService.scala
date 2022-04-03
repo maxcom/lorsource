@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -158,7 +158,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getCorrectors = getUsersCached(userDao.getCorrectorIds)
 
-  private def findUserIdCached(nick:String):Int = {
+  private def findUserIdCached(nick: String):Int = {
     try {
       nameToIdCache.get(nick)
     } catch {
@@ -175,9 +175,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       None
   }
 
-  def getUserCached(id: Int) = userDao.getUserCached(id)
+  def getUserCached(id: Int): User = userDao.getUserCached(id)
 
-  def getUser(nick: String) = userDao.getUser(findUserIdCached(nick))
+  def getUser(nick: String): User = userDao.getUser(findUserIdCached(nick))
 
   def getAnonymous: User = {
     try {
@@ -187,4 +187,6 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
         throw new RuntimeException("Anonymous not found!?", e)
     }
   }
+
+  def canInvite(user: User): Boolean = user.isAdministrator
 }

@@ -103,6 +103,10 @@
         <a href="/people/${user.nick}/edit" class="btn btn-default">Редактировать профиль</a>
         <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
+        <c:if test="${canInvite}">
+            <a href="/create-invite" class="btn btn-default">Пригласить нового участника</a>
+        </c:if>
+
         <form action="logout" method="POST" style="display: inline-block">
             <lor:csrf/>
             <button type="submit" class="btn btn-danger">Выйти</button>
