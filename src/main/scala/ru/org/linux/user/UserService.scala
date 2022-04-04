@@ -195,7 +195,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def canInvite(user: User): Boolean = user.isAdministrator
+  def canInvite(user: User): Boolean = user.isModerator
 
   def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String,
                  ip: String, invite: Option[String]): Int = {
