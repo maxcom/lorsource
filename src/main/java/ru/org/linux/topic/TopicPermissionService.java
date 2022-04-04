@@ -190,7 +190,7 @@ public class TopicPermissionService {
         postscore = 200;
       } else if (commentCount > 2000) {
         postscore = 100;
-      } else if (commentCount > 25) {
+      } else if (commentCount > 100) {
         postscore = 50;
       }
     }
