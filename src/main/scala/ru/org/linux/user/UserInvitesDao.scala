@@ -77,8 +77,16 @@ class UserInvitesDao(ds: DataSource) {
       newUserId, token) > 0;
   }
 
+  // returns total and user's counts
+  def countValidInvites(user: User): (Int, Int) = {
+    jdbcTemplate.queryForObjectAndMap(
+      "select count(*), count(*) filter (where owner=?) from user_invites where valid_until > CURRENT_TIMESTAMP", user.getId) { (row, _) =>
+      (row.getInt(1), row.getInt(2))
+    }.get
+  }
+
 }
 
 object UserInvitesDao {
-  val ValidDays = 3;
+  val ValidDays = 3
 }

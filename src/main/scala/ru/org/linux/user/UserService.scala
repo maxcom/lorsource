@@ -14,21 +14,22 @@
  */
 package ru.org.linux.user
 
-import java.io.{File, FileNotFoundException, IOException}
-import java.sql.Timestamp
-import javax.annotation.Nullable
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.{Propagation, Transactional}
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.spring.dao.DeleteInfoDao
+import ru.org.linux.user.UserService.{InviteScore, MaxInviteScoreLoss, MaxTotalInvites, MaxUserInvites}
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
 
+import java.io.{File, FileNotFoundException, IOException}
+import java.sql.Timestamp
+import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.jdk.CollectionConverters._
@@ -45,11 +46,16 @@ object UserService {
   val AnonymousUserId = 2
 
   private val NameCacheSize = 10000
+
+  val MaxTotalInvites = 5
+  val MaxUserInvites = 1
+  val MaxInviteScoreLoss = 10
+  val InviteScore = 500
 }
 
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao,
+                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
                   val transactionManager: PlatformTransactionManager) extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
@@ -195,7 +201,15 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def canInvite(user: User): Boolean = user.isModerator
+  def canInvite(user: User): Boolean = user.isModerator || {
+    lazy val (totalInvites, userInvites) = userInvitesDao.countValidInvites(user)
+    lazy val userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
+
+    !user.isFrozen && user.getScore > InviteScore &&
+      totalInvites < MaxTotalInvites &&
+      userInvites < MaxUserInvites &&
+      userScoreLoss < MaxInviteScoreLoss
+  }
 
   def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String,
                  ip: String, invite: Option[String]): Int = {

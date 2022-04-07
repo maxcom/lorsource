@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -93,6 +93,13 @@ public class DeleteInfoDao {
     Preconditions.checkArgument(scoreBonus <= 0, "Score bonus on delete must be non-positive");
 
     jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
+  }
+
+  public int getRecentScoreLoss(User user) {
+    return Math.abs(jdbcTemplate.queryForObject(
+            "select COALESCE(sum(bonus), 0) from del_info where deldate>CURRENT_TIMESTAMP-'2 week'::interval and " +
+                    "msgid in (select id from comments where comments.userid = ? union all select id from topics where topics.userid = ?)",
+            Integer.class, user.getId(), user.getId()));
   }
 
   public void insert(final List<InsertDeleteInfo> deleteInfos) {
