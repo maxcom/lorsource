@@ -61,7 +61,8 @@ class UserInvitesDao(ds: DataSource) {
   def emailFromValidInvite(inviteCode: String): Option[String] = {
     try {
       jdbcTemplate.queryForObject[String](
-        "select email from user_invites where invite_code=? and invited_user is null and valid_until>CURRENT_TIMESTAMP",
+        "select email from user_invites where invite_code=? and " +
+          "invited_user is null and valid_until>CURRENT_TIMESTAMP and owner not in (select id from users where blocked)",
         inviteCode)
     } catch {
       case _: EmptyResultDataAccessException =>
