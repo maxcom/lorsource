@@ -86,6 +86,8 @@ class UserInvitesDao(ds: DataSource) {
     }.get
   }
 
+  def getAllInvitedUsers(user: User): Seq[Int] =
+    jdbcTemplate.queryForSeq[Int]("select invited_user from user_invites where owner = ? order by issue_date", user.getId).toSeq
 }
 
 object UserInvitesDao {

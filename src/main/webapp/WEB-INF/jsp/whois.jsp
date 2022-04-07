@@ -232,6 +232,14 @@
 
     <br>
 
+    <c:if test="${not empty invitedUsers}">
+      <b>Приглашенные пользователи: </b>
+        <c:forEach items="${invitedUsers}" var="u">
+          <lor:user user="${u}" link="true"/><c:out value=" "/>
+        </c:forEach>
+      <br>
+    </c:if>
+
     <b>Score:</b> ${user.score}
     <c:if test="${template.moderatorSession and user.score<50}">
       <form action="/usermod.jsp" method="POST" style="display: inline">

@@ -231,4 +231,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       newUserId
     }
   }
+
+  def getAllInvitedUsers(user: User) =
+    userInvitesDao.getAllInvitedUsers(user).map(userDao.getUserCached).asJava
 }

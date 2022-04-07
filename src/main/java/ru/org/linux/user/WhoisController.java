@@ -135,6 +135,7 @@ public class WhoisController {
 
       if (currentUser || tmpl.isModeratorSession()) {
         mv.getModel().put("hasDrafts", topicDao.hasDrafts(user));
+        mv.getModel().put("invitedUsers", userService.getAllInvitedUsers(user));
       }
     }
 
