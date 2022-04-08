@@ -47,7 +47,7 @@ object UserService {
 
   private val NameCacheSize = 10000
 
-  val MaxTotalInvites = 0 // 5
+  val MaxTotalInvites = 5
   val MaxUserInvites = 1
   val MaxInviteScoreLoss = 10
   val InviteScore = 500
