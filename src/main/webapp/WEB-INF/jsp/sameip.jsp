@@ -115,7 +115,7 @@
               dataType: 'json',
               success: function (json) {
                   if (json.success) {
-                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city)
+                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.org + ")")
                   } else {
                       $('#geolookup').text("rejected - " + json.message)
                   }
