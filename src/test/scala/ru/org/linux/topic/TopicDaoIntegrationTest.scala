@@ -23,6 +23,7 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.GroupDao
@@ -100,8 +101,9 @@ class TopicDaoIntegrationTestConfiguration {
   @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  transactionManager: PlatformTransactionManager) =
-    new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, deleteInfoDao, transactionManager)
+                  IPBlockDao: IPBlockDao, transactionManager: PlatformTransactionManager) =
+    new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, deleteInfoDao, IPBlockDao, null,
+      transactionManager)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

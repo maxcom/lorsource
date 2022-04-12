@@ -15,6 +15,8 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
+import org.jasypt.util.text.AES256TextEncryptor
+import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
@@ -24,7 +26,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation._
-import org.springframework.web.servlet.{ModelAndView, View}
+import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth._
 import ru.org.linux.email.EmailService
@@ -38,13 +40,13 @@ import javax.validation.Valid
 import scala.jdk.CollectionConverters._
 
 @Controller
-class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememberMeServices: RememberMeServices,
+class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMeServices,
                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
                          siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao) extends StrictLogging {
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
-              @RequestParam(required = false) invite: String): ModelAndView = {
+               request: HttpServletRequest, @RequestParam(required = false) invite: String): ModelAndView = {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
     if (invite!=null) {
@@ -58,23 +60,57 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
       }
       new ModelAndView("register", "invite", invite)
     } else {
-      new ModelAndView("no-register")
+      if (userService.canRegister(request.getRemoteAddr)) {
+        new ModelAndView("register", "permit", makePermit)
+      } else {
+        new ModelAndView("no-register")
+      }
+    }
+  }
+
+  private def makePermit: String = {
+    val key = siteConfig.getSecret
+    val message = s"permit:${DateTime.now().plusHours(1).getMillis}"
+
+    val textEncryptor = new AES256TextEncryptor
+    textEncryptor.setPassword(key)
+    textEncryptor.encrypt(message)
+  }
+
+  private def checkPermit(permit: String): Boolean = {
+    val key = siteConfig.getSecret
+    val textEncryptor = new AES256TextEncryptor
+    textEncryptor.setPassword(key)
+
+    textEncryptor.decrypt(permit).split(":", 2) match {
+      case Array("permit", date) =>
+        val decodedDate = new DateTime(date.toLong)
+        logger.debug(s"Decoded permit date: ${decodedDate}")
+        decodedDate.isAfterNow
+      case other =>
+        logger.warn(s"Invalid permit - decrypted: $other")
+        false
     }
   }
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
   def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
-                 errors: Errors, @RequestParam(required = false) invite: String): ModelAndView = {
-    if (invite==null) {
-      throw new AccessViolationException("Отсутствует код приглашения")
+                 errors: Errors, @RequestParam(required = false) invite: String,
+                 @RequestParam(required = false) permit: String): ModelAndView = {
+    if (invite==null && permit == null) {
+      return new ModelAndView("no-register")
     } else {
-      val emailOpt = invitesDao.emailFromValidInvite(invite)
+      if (invite!=null) {
+        val emailOpt = invitesDao.emailFromValidInvite(invite)
 
-      emailOpt match {
-        case None =>
-          throw new AccessViolationException("Код приглашения не действителен")
-        case Some(email) =>
-          form.setEmail(email)
+        emailOpt match {
+          case None =>
+            throw new AccessViolationException("Код приглашения не действителен")
+          case Some(email) =>
+            form.setEmail(email)
+        }
+      } else if (!checkPermit(permit)) {
+        return new ModelAndView("no-register")
       }
     }
 
@@ -94,17 +130,6 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
     }
 
     if (!errors.hasErrors) {
-      ipBlockDao.checkBlockIP(request.getRemoteAddr, errors, null)
-
-      val unactivatedCount = userDao.countUnactivated(request.getRemoteAddr)
-
-      if (unactivatedCount>=3) {
-        logger.warn(s"To many registrations for ${request.getRemoteAddr} (count=$unactivatedCount), rejecting new registration")
-        errors.reject(null, "Превышен лимит регистраций для IP адреса")
-      }
-    }
-
-    if (!errors.hasErrors) {
       val mail = new InternetAddress(form.getEmail.toLowerCase)
       val userid = userService.createUser("", form.getNick, form.getPassword, "", mail, "",
         request.getRemoteAddr, Option(invite))
@@ -118,11 +143,12 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
         "message",
         "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.")
     } else {
-      new ModelAndView("register", "invite", invite)
+      val params = Map("invite" -> invite, "permit" -> permit)
+      new ModelAndView("register", params.asJava)
     }
   }
 
-  private def formParams(nick: String, activation: String) = {
+  private def activationFormParams(nick: String, activation: String) = {
     val nickSanitized = Option(nick).filter(StringUtil.checkLoginName).orNull
     val activationSanitized = Option(activation).filter(_.forall(_.isLetterOrDigit)).orNull
 
@@ -135,7 +161,7 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
   @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.GET))
   def activateForm(@RequestParam(required = false) nick: String,
                    @RequestParam(required = false) activation: String): ModelAndView = {
-    new ModelAndView("activate", formParams(nick, activation).asJava)
+    new ModelAndView("activate", activationFormParams(nick, activation).asJava)
   }
 
   @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("action"))
@@ -167,7 +193,7 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
 
           new ModelAndView(new RedirectView("/"))
         } else {
-          val params = formParams(nick, activation) + ("error" -> "Неправильный код активации")
+          val params = activationFormParams(nick, activation) + ("error" -> "Неправильный код активации")
           new ModelAndView("activate", params.asJava)
         }
       } else {
@@ -175,10 +201,10 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
       }
     } catch {
       case _: UsernameNotFoundException =>
-        val params = formParams(nick, activation) + ("error" -> "Пользователь не найден")
+        val params = activationFormParams(nick, activation) + ("error" -> "Пользователь не найден")
         new ModelAndView("activate", params.asJava)
       case _: BadCredentialsException =>
-        val params = formParams(nick, activation) + ("error" -> "Неправильный логин или пароль")
+        val params = activationFormParams(nick, activation) + ("error" -> "Неправильный логин или пароль")
         new ModelAndView("activate", params.asJava)
     }
   }
@@ -200,7 +226,7 @@ class RegisterController(captcha: CaptchaService, ipBlockDao: IPBlockDao, rememb
     val regcode = user.getActivationCode(siteConfig.getSecret, newEmail)
 
     if (!regcode.equalsIgnoreCase(activation)) {
-      val params = formParams(user.getNick, activation) + ("error" -> "Неправильный код активации")
+      val params = activationFormParams(user.getNick, activation) + ("error" -> "Неправильный код активации")
 
       new ModelAndView("activate", params.asJava)
     } else {

@@ -1,9 +1,3 @@
-<%@ page import="ru.org.linux.user.User" %>
-<%@ page contentType="text/html; charset=utf-8"%>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%--
   ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +12,12 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page import="ru.org.linux.user.User" %>
+<%@ page contentType="text/html; charset=utf-8"%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <jsp:include page="head.jsp"/>
 
 <title>Регистрация пользователя</title>
@@ -94,6 +94,10 @@
 
   <c:if test="${invite!=null}">
     <input type="hidden" name="invite" value="${fn:escapeXml(invite)}">
+  </c:if>
+
+  <c:if test="${permit!=null}">
+    <input type="hidden" name="permit" value="${fn:escapeXml(permit)}">
   </c:if>
 
   <div class="control-group">

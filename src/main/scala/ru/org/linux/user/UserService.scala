@@ -17,21 +17,28 @@ package ru.org.linux.user
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
+import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.AccessViolationException
+import play.api.libs.json.Json
+import play.api.libs.ws.StandaloneWSClient
+import ru.org.linux.auth.{AccessViolationException, IPBlockDao}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.user.UserService.{InviteScore, MaxInviteScoreLoss, MaxTotalInvites, MaxUserInvites}
+import ru.org.linux.user.UserService._
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
+import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.compat.java8.OptionConverters.RichOptionForJava8
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
@@ -51,12 +58,17 @@ object UserService {
   val MaxUserInvites = 1
   val MaxInviteScoreLoss = 10
   val InviteScore = 300
+
+  val MaxUnactivatedPerIp = 3
+  val MaxNewUsers = 3 // 3 day window
 }
 
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  val transactionManager: PlatformTransactionManager) extends StrictLogging with TransactionManagement {
+                  ipBlockDao: IPBlockDao, wsClient: StandaloneWSClient,
+                  val transactionManager: PlatformTransactionManager)
+    extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
       new CacheLoader[String, Integer] {
@@ -232,6 +244,38 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def getAllInvitedUsers(user: User) =
+  def getAllInvitedUsers(user: User): util.List[User] =
     userInvitesDao.getAllInvitedUsers(user).map(userDao.getUserCached).asJava
+
+  def canRegister(remoteAddr: String): Boolean = {
+    val currentHour = DateTime.now().hourOfDay().get
+
+    //currentHour >= 10 && currentHour <= 18 &&
+      !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
+      userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp &&
+      userDao.getNewUserIds.size() < MaxNewUsers &&
+      getCountry(remoteAddr).contains("RU")
+  }
+
+  def getCountry(remoteAddr: String): Option[String] = {
+    val result = wsClient.url(s"https://ipwhois.app/json/$remoteAddr?lang=ru").get().map { response =>
+      val data = Json.parse(response.body)
+
+      if ((data \ "success").as[Boolean]) {
+        val country = (data \ "country_code").asOpt[String]
+
+        logger.debug(s"Country for ${remoteAddr}: $country")
+
+        country // "RU"
+      } else {
+        logger.warn(s"Can't get country for $remoteAddr: ${data \ "message"}")
+        None
+      }
+    }.recover { ex =>
+      logger.warn(s"Can't get country for $remoteAddr", ex)
+      None
+    }
+
+    Await.result(result, 10.seconds)
+  }
 }

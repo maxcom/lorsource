@@ -55,7 +55,6 @@ public class IPBlockDao {
   }
 
   public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user) {
-
     if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
       errors.reject(null, "Постинг заблокирован: " + block.getReason());
     }
