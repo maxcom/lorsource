@@ -15,18 +15,18 @@
     <java.version>11</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.18</dependency.spring.version>
+    <dependency.spring.version>5.3.19</dependency.spring.version>
     <spring.security.version>5.2.15.RELEASE</spring.security.version>
     <jdbc.postgresql.version>42.3.3</jdbc.postgresql.version>
     <elastic4s.version>6.7.8</elastic4s.version>
     <scala.version>2.13.8</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.16.4</activemq.version>
+    <activemq.version>5.17.0</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.17.0</jquery.validation.version>
     <jquery.form.version>4.2.1</jquery.form.version>
     <jetty.version>9.4.45.v20220203</jetty.version>
-    <akka.version>2.6.18</akka.version>
+    <akka.version>2.6.19</akka.version>
     <log4j.version>2.17.2</log4j.version>
     <play-ws.version>2.1.6</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
