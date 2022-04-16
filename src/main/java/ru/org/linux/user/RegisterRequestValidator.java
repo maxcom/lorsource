@@ -17,85 +17,116 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.util.StringUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RegisterRequestValidator implements Validator {
   protected static final int TOWN_LENGTH = 100;
   protected static final int MIN_PASSWORD_LEN = 4;
 
-  protected static final ImmutableSet<String> BAD_DOMAINS = ImmutableSet.of(
-          "asdasd.ru",
-          "nepwk.com",
-          "klzlk.com",
-          "nwldx.com",
-          "mailinator.com",
-          "mytrashmail.com",
-          "temporaryinbox.com",
-          "10minutemail.com",
-          "pookmail.com",
-          "dodgeit.com",
-          "mailexpire.com",
-          "spambox.us",
-          "jetable.org",
-          "maileater.com",
-          "gapmail.ru",
-          "mintemail.com",
-          "mailinator2.com",
-          "rppkn.com",
-          "sharklasers.com",
-          "spam4.me",
-          "guerrillamail.info",
-          "grr.la",
-          "pokemail.net",
-          "guerrillamailblock.com",
-          "guerrillamail.org",
-          "guerrillamail.net",
-          "guerrillamail.de",
-          "guerrillamail.biz",
-          "rtrtr.com",
-          "mailmetrash.com",
-          "getairmail.com",
-          "mailseal.de",
-          "fakeinbox.com",
-          "drdrb.com",
-          "yopmail.com",
-          "yopmail.net",
-          "cool.fr.nf",
-          "jetable.fr.nf",
-          "nospam.ze.tc",
-          "nomail.xl.cx",
-          "mega.zik.dj",
-          "speed.1s.fr",
-          "courriel.fr.nf",
-          "moncourrier.fr.nf",
-          "monemail.fr.nf",
-          "monmail.fr.nf",
-          "solvemail.info",
-          "burstmail.info",
-          "coldemail.info",
-          "mailtemp.info",
-          "one-time.email",
-          "lackmail.ru",
-          "extemail.ru",
-          "kismail.ru",
-          "divismail.ru",
-          "wimsg.com",
-          "mvrht.com",
-          "vmani.com",
-          "abyssmail.com",
-          "a.asu.mx",
-          "10mail.org",
-          "zasod.com",
-          "msgos.com",
-          "trbvn.com",
-          "thefmail.com",
-          "thefmails.com"
-  );
+  protected final ImmutableSet<String> BAD_DOMAINS;
+
+  public RegisterRequestValidator(ResourceLoader resourceLoader) {
+    ImmutableSet<String> old = ImmutableSet.of(
+            "asdasd.ru",
+            "nepwk.com",
+            "klzlk.com",
+            "nwldx.com",
+            "mailinator.com",
+            "mytrashmail.com",
+            "temporaryinbox.com",
+            "10minutemail.com",
+            "pookmail.com",
+            "dodgeit.com",
+            "mailexpire.com",
+            "spambox.us",
+            "jetable.org",
+            "maileater.com",
+            "gapmail.ru",
+            "mintemail.com",
+            "mailinator2.com",
+            "rppkn.com",
+            "sharklasers.com",
+            "spam4.me",
+            "guerrillamail.info",
+            "grr.la",
+            "pokemail.net",
+            "guerrillamailblock.com",
+            "guerrillamail.org",
+            "guerrillamail.net",
+            "guerrillamail.de",
+            "guerrillamail.biz",
+            "rtrtr.com",
+            "mailmetrash.com",
+            "getairmail.com",
+            "mailseal.de",
+            "fakeinbox.com",
+            "drdrb.com",
+            "yopmail.com",
+            "yopmail.net",
+            "cool.fr.nf",
+            "jetable.fr.nf",
+            "nospam.ze.tc",
+            "nomail.xl.cx",
+            "mega.zik.dj",
+            "speed.1s.fr",
+            "courriel.fr.nf",
+            "moncourrier.fr.nf",
+            "monemail.fr.nf",
+            "monmail.fr.nf",
+            "solvemail.info",
+            "burstmail.info",
+            "coldemail.info",
+            "mailtemp.info",
+            "one-time.email",
+            "lackmail.ru",
+            "extemail.ru",
+            "kismail.ru",
+            "divismail.ru",
+            "wimsg.com",
+            "mvrht.com",
+            "vmani.com",
+            "abyssmail.com",
+            "a.asu.mx",
+            "10mail.org",
+            "zasod.com",
+            "msgos.com",
+            "trbvn.com",
+            "thefmail.com",
+            "thefmails.com"
+    );
+
+    // https://github.com/disposable-email-domains/disposable-email-domains/blob/master/disposable_email_blocklist.conf
+    Resource resource = resourceLoader.getResource("classpath:disposable_email_blocklist.conf.txt");
+
+    try (InputStream is = resource.getInputStream()) {
+      List<String> doc =
+              new BufferedReader(new InputStreamReader(is,
+                      StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+
+      ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+
+      builder.addAll(doc);
+      builder.addAll(old);
+
+      BAD_DOMAINS = builder.build();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   protected void checkEmail(InternetAddress email, Errors errors) {
     if (!isGoodDomainEmail(email)) {

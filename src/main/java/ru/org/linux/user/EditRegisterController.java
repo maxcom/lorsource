@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,8 +19,8 @@ import com.google.common.base.Strings;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -53,27 +53,31 @@ import javax.validation.Valid;
 public class EditRegisterController {
   private static final Logger logger = LoggerFactory.getLogger(EditRegisterController.class);
 
-  @Autowired
-  RememberMeServices rememberMeServices;
+  private final RememberMeServices rememberMeServices;
+  private final AuthenticationManager authenticationManager;
+  private final UserDetailsServiceImpl userDetailsService;
+  private final IPBlockDao ipBlockDao;
+  private final UserDao userDao;
+  private final UserService userService;
+  private final EmailService emailService;
+  private final ResourceLoader resourceLoader;
+  private final EditRegisterRequestValidator validator;
 
-  @Autowired
-  @Qualifier("authenticationManager")
-  private AuthenticationManager authenticationManager;
+  public EditRegisterController(RememberMeServices rememberMeServices,
+                                @Qualifier("authenticationManager") AuthenticationManager authenticationManager,
+                                UserDetailsServiceImpl userDetailsService, IPBlockDao ipBlockDao, UserDao userDao,
+                                UserService userService, EmailService emailService, ResourceLoader resourceLoader) {
+    this.rememberMeServices = rememberMeServices;
+    this.authenticationManager = authenticationManager;
+    this.userDetailsService = userDetailsService;
+    this.ipBlockDao = ipBlockDao;
+    this.userDao = userDao;
+    this.userService = userService;
+    this.emailService = emailService;
+    this.resourceLoader = resourceLoader;
 
-  @Autowired
-  private UserDetailsServiceImpl userDetailsService;
-
-  @Autowired
-  private IPBlockDao ipBlockDao;
-
-  @Autowired
-  private UserDao userDao;
-
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private EmailService emailService;
+    validator = new EditRegisterRequestValidator(resourceLoader);
+  }
 
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
@@ -232,7 +236,7 @@ public class EditRegisterController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new EditRegisterRequestValidator());
+    binder.setValidator(validator);
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }

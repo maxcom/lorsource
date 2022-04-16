@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.jasypt.util.text.AES256TextEncryptor
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.io.ResourceLoader
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -43,8 +44,9 @@ import scala.jdk.CollectionConverters._
 class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMeServices,
                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
-                         siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao) extends StrictLogging {
-  private val registerRequestValidator = new RegisterRequestValidator
+                         siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao,
+                         resourceLoader: ResourceLoader) extends StrictLogging {
+  private val registerRequestValidator = new RegisterRequestValidator(resourceLoader)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
