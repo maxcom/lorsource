@@ -47,12 +47,9 @@
   Защиту сайта от DDoS-атак осуществляет <a href="http://qrator.net/">QRATOR</a>.
 </p>
 <p>
-  <a href="http://www.pingdom.com">
-    <img src="https://share.pingdom.com/banners/94fe3af1"
-         alt="Uptime Report for LOR Main Page: Last 30 days"
-         title="Uptime Report for LOR Main Page: Last 30 days" width="300" height="165">
+  <a href="https://ping-admin.com/uptime/a0005fd81d119564b8eab22d30a83c521169395.html" target="_blank">
+    <img src="//images.ping-admin.ru/i/uptime/f56ef6b27e20049339fbfae23ef4e82a1169395_103.gif" width="88" height="31" border="0" alt="Uptime по данным Ping-Admin.Com - сервиса мониторинга доступности сайтов">
   </a>
-
 <h1>Сервер</h1>
 <p>
 Сервер для сайта предоставлен &laquo;<a href="http://www.ittelo.ru/"target="_blank">ITTelo</a>&raquo;.
