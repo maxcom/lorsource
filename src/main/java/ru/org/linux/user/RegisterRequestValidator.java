@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -98,9 +98,13 @@ public class RegisterRequestValidator implements Validator {
   );
 
   protected void checkEmail(InternetAddress email, Errors errors) {
-    if (BAD_DOMAINS.contains(email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase())) {
+    if (!isGoodDomainEmail(email)) {
       errors.reject("email", "некорректный email домен");
     }
+  }
+
+  public boolean isGoodDomainEmail(InternetAddress email) {
+    return !BAD_DOMAINS.contains(email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase());
   }
 
   @Override

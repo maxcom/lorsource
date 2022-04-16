@@ -44,6 +44,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
                          siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao) extends StrictLogging {
+  private val registerRequestValidator = new RegisterRequestValidator
+
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
                request: HttpServletRequest, @RequestParam(required = false) invite: String): ModelAndView = {
@@ -254,7 +256,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @InitBinder(Array("form"))
   def requestValidator(binder: WebDataBinder):Unit = {
-    binder.setValidator(new RegisterRequestValidator)
+    binder.setValidator(registerRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
   }
 
@@ -291,6 +293,12 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
     if (userDao.getByEmail(email, false) != null) {
       throw new AccessViolationException("Пользователь с этим адресом уже зарегистрирован")
+    }
+
+    val parsedEmail = new InternetAddress(email)
+
+    if (!registerRequestValidator.isGoodDomainEmail(parsedEmail)) {
+      throw new AccessViolationException("Некорректный email домен")
     }
 
     val (token, validUntil) = invitesDao.createInvite(currentUser, email)
