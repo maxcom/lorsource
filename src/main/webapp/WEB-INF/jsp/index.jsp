@@ -36,6 +36,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -73,7 +74,7 @@
   </script>
   </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -81,8 +82,8 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/devops-banner-730-90.png',
-          img320: '/adv/devops-banner-320-100.png',
+          img730: '/adv/devops-banner-730x90.png',
+          img320: '/adv/devops-banner-320x100.png',
           href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=partners&utm_medium=cpm&utm_campaign=devops&utm_content=mops-test&utm_term=linux-org-ru'
         }
       ];
@@ -90,7 +91,6 @@
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
