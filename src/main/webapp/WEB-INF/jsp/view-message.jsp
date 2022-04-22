@@ -211,7 +211,6 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
-<%--
 <c:if test="${showAdsense}">
 <style>
 @media screen and (max-width: 480px) {
@@ -272,8 +271,8 @@
 </script>
   <p>
 </c:if>
---%>
 
+<%--
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -296,6 +295,7 @@
           init_interpage_adv(ads);
       });
   </script>
+--%>
 
 <c:if test="${threadMode}">
   <div class=nav>
