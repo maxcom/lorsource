@@ -152,7 +152,7 @@
       %>
         <c:choose>
             <c:when test="${not message.commited || not preparedMessage.message.expired}">
-                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.message.expired}"/>
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.message.expired && message.commited}"/>
             </c:when>
             <c:otherwise>
                 <lor:poll poll="${preparedMessage.poll}"/>
