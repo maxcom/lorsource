@@ -59,7 +59,7 @@ object UserService {
   val MaxInviteScoreLoss = 10
   val InviteScore = 200
 
-  val MaxUnactivatedPerIp = 3
+  val MaxUnactivatedPerIp = 2
   val MaxNewUsers = 10 // 3 day window
 }
 
