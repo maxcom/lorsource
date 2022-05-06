@@ -104,6 +104,8 @@ public class TopicPermissionService {
       return;
     }
 
+    boolean unauthorized = currentUser == null || currentUser.isAnonymous();
+
     if (showDeleted) {
       if (message.isExpired()) {
         throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
@@ -114,9 +116,12 @@ public class TopicPermissionService {
               message.getPostscore() == POSTSCORE_HIDE_COMMENTS) {
         throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в закрытых темах");
       }
+
+      if (unauthorized || currentUser.isFrozen()) {
+        throw new MessageNotFoundException(message.getId(), "вы не можете смотреть удаленные комментарии");
+      }
     }
 
-    boolean unauthorized = currentUser == null || currentUser.isAnonymous();
     boolean viewByAuthor = currentUser!=null && currentUser.getId() == message.getAuthorUserId();
     boolean viewByCorrector = currentUser !=null && currentUser.isCorrector();
 
@@ -131,6 +136,10 @@ public class TopicPermissionService {
 
       if (viewByAuthor) {
         return;
+      }
+
+      if (currentUser.isFrozen()) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
 
       if (currentUser.getScore() < VIEW_DELETED_SCORE) {
