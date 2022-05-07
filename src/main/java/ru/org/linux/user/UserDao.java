@@ -193,7 +193,7 @@ public class UserDao {
 
   public List<Integer> getFrozenUserIds() {
     return jdbcTemplate.queryForList("SELECT id FROM users where " +
-            "frozen_until > CURRENT_TIMESTAMP " +
+            "frozen_until > CURRENT_TIMESTAMP and not blocked " +
             "ORDER BY frozen_until", Integer.class);
   }
 
