@@ -100,69 +100,70 @@ public class TopicPermissionService {
     Preconditions.checkArgument(message.getGroupId()==group.getId());
     Preconditions.checkArgument(message.getAuthorUserId()==topicAuthor.getId());
 
-    if (currentUser!=null && currentUser.isModerator()) {
-      return;
-    }
+    if (currentUser == null || !currentUser.isModerator()) {
+      boolean unauthorized = currentUser == null || currentUser.isAnonymous();
 
-    boolean unauthorized = currentUser == null || currentUser.isAnonymous();
+      if (showDeleted) {
+        if (message.isExpired()) {
+          throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+        }
 
-    if (showDeleted) {
-      if (message.isExpired()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+        if (message.getPostscore() == POSTSCORE_MODERATORS_ONLY ||
+                message.getPostscore() == POSTSCORE_NO_COMMENTS ||
+                message.getPostscore() == POSTSCORE_HIDE_COMMENTS) {
+          throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в закрытых темах");
+        }
+
+        if (unauthorized || currentUser.isFrozen()) {
+          throw new MessageNotFoundException(message.getId(), "вы не можете смотреть удаленные комментарии");
+        }
       }
 
-      if (message.getPostscore() == POSTSCORE_MODERATORS_ONLY ||
-              message.getPostscore() == POSTSCORE_NO_COMMENTS ||
-              message.getPostscore() == POSTSCORE_HIDE_COMMENTS) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в закрытых темах");
+      boolean viewByAuthor = currentUser != null && currentUser.getId() == message.getAuthorUserId();
+
+      if (message.isDeleted()) {
+        if (message.isExpired()) {
+          throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+        }
+
+        if (unauthorized) {
+          throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+        }
+
+        if (!viewByAuthor) {
+          if (currentUser.isFrozen()) {
+            throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+          }
+
+          if (currentUser.getScore() < VIEW_DELETED_SCORE) {
+            throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+          }
+
+          if (topicAuthor.isModerator()) {
+            throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+          }
+        }
       }
 
-      if (unauthorized || currentUser.isFrozen()) {
-        throw new MessageNotFoundException(message.getId(), "вы не можете смотреть удаленные комментарии");
-      }
-    }
+      if (message.isDraft()) {
+        if (message.isExpired()) {
+          throw new MessageNotFoundException(message.getId(), "Черновик устарел");
+        }
 
-    boolean viewByAuthor = currentUser!=null && currentUser.getId() == message.getAuthorUserId();
-    boolean viewByCorrector = currentUser !=null && currentUser.isCorrector();
-
-    if (message.isDeleted()) {
-      if (message.isExpired()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+        if (!viewByAuthor) {
+          throw new MessageNotFoundException(message.getId(), "Нельзя посмотреть чужой черновик");
+        }
       }
 
-      if (unauthorized) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      if (group.getCommentsRestriction() == -1 && unauthorized) {
+        throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
-      if (viewByAuthor) {
-        return;
+      boolean viewByCorrector = currentUser != null && currentUser.isCorrector();
+
+      if (group.isPremoderated() && !message.isCommited() && topicAuthor.isAnonymous() && !viewByCorrector) {
+        throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
-
-      if (currentUser.isFrozen()) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-      }
-
-      if (currentUser.getScore() < VIEW_DELETED_SCORE) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-      }
-    }
-
-    if (message.isDraft()) {
-      if (message.isExpired()) {
-        throw new MessageNotFoundException(message.getId(), "Черновик устарел");
-      }
-
-      if (!viewByAuthor) {
-        throw new MessageNotFoundException(message.getId(), "Нельзя посмотреть чужой черновик");
-      }
-    }
-
-    if (group.getCommentsRestriction() == -1 && unauthorized) {
-      throw new AccessViolationException("Это сообщение нельзя посмотреть");
-    }
-
-    if (group.isPremoderated() && !message.isCommited() && topicAuthor.isAnonymous() && !viewByCorrector) {
-      throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
   }
 
