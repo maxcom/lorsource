@@ -177,7 +177,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def getUsersCached(ids: java.lang.Iterable[Integer]): java.util.List[User] =
     ids.asScala.map(x => userDao.getUserCached(x)).toSeq.asJava
 
-  def getNewUsers = getUsersCached(userDao.getNewUserIds)
+  def getNewUsers: util.List[User] = getUsersCached(userDao.getNewUserIds)
+  def getFrozenUsers: util.List[User] = getUsersCached(userDao.getFrozenUserIds)
 
   def getModerators = getUsersCached(userDao.getModeratorIds)
 

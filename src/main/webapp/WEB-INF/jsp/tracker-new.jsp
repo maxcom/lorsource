@@ -15,6 +15,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
+<%--@elvariable id="frozenUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
@@ -117,25 +118,34 @@
   </div>
 </div>
 
-<c:if test="${newUsers!=null and fn:length(newUsers)!=0}">
-  <h2>Новые пользователи</h2>
-  Новые пользователи за последние 3 дня:
-  <c:forEach items="${newUsers}" var="user">
-    <c:if test="${user.activated}">
-      <b>
-    </c:if>
-    <c:if test="${user.blocked}">
-      <s>
-    </c:if>
-    <a href="/people/${user.nick}/profile">${user.nick}</a>
-    <c:if test="${user.blocked}">
-      </s>
-    </c:if>
-    <c:if test="${user.activated}">
-      </b>
-    </c:if>
-  </c:forEach>
-  (всего ${fn:length(newUsers)})
+<c:if test="${not empty newUsers || not empty frozenUsers}">
+  <h2>Пользователи</h2>
+  <p>
+    Новые пользователи за последние 3 дня:
+    <c:forEach items="${newUsers}" var="user">
+      <c:if test="${user.activated}">
+        <b>
+      </c:if>
+      <c:if test="${user.blocked}">
+        <s>
+      </c:if>
+      <a href="/people/${user.nick}/profile">${user.nick}</a>
+      <c:if test="${user.blocked}">
+        </s>
+      </c:if>
+      <c:if test="${user.activated}">
+        </b>
+      </c:if>
+    </c:forEach>
+    (всего ${fn:length(newUsers)})
+  </p>
+  <p>
+    Замороженные пользователи:
+    <c:forEach items="${frozenUsers}" var="user">
+      <lor:user user="${user}" link="true"/>
+    </c:forEach>
+    (всего ${fn:length(frozenUsers)})
+  </p>
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

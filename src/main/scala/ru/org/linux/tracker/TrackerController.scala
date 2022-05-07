@@ -14,6 +14,7 @@
  */
 package ru.org.linux.tracker
 
+import com.google.common.collect.ImmutableList
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
@@ -101,6 +102,10 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     if (tmpl.isModeratorSession) {
       params.put("newUsers", userService.getNewUsers)
+      params.put("frozenUsers", userService.getFrozenUsers)
+    } else {
+      params.put("newUsers", ImmutableList.of())
+      params.put("frozenUsers", ImmutableList.of())
     }
 
     val userAgent = Option(request.getHeader("user-agent"))

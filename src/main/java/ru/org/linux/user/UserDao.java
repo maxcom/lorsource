@@ -58,11 +58,6 @@ public class UserDao {
   private static final String queryUserIdByNick = "SELECT id FROM users where nick=?";
   private static final String updateUserStyle = "UPDATE users SET style=? WHERE id=?";
 
-  private static final String queryNewUsers = "SELECT id FROM users where " +
-                                                "regdate IS NOT null " +
-                                                "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
-                                              "ORDER BY regdate";
-
   private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
@@ -190,7 +185,16 @@ public class UserDao {
    * @return список новых пользователей
    */
   public List<Integer> getNewUserIds() {
-    return jdbcTemplate.queryForList(queryNewUsers, Integer.class);
+    return jdbcTemplate.queryForList("SELECT id FROM users where " +
+                                                  "regdate IS NOT null " +
+                                                  "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
+                                                "ORDER BY regdate", Integer.class);
+  }
+
+  public List<Integer> getFrozenUserIds() {
+    return jdbcTemplate.queryForList("SELECT id FROM users where " +
+            "frozen_until > CURRENT_TIMESTAMP " +
+            "ORDER BY frozen_until", Integer.class);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
