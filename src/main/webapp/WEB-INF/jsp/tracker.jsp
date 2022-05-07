@@ -145,7 +145,7 @@
   <p>
     Замороженные пользователи:
     <c:forEach items="${frozenUsers}" var="user">
-      <lor:user user="${user}" link="true"/>
+      <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(frozenUsers)})
   </p>
