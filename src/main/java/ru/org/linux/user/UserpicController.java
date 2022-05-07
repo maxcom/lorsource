@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -97,7 +97,7 @@ public class UserpicController {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
     }
 
-    boolean wasReset = userLogDao.wasUserpicReset(currentUser, Duration.ofDays(10));
+    boolean wasReset = userLogDao.wasUserpicReset(currentUser, Duration.ofDays(21));
 
     if (wasReset) {
       return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
