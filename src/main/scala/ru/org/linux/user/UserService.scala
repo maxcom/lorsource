@@ -255,7 +255,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
       userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp &&
       userDao.getNewUserIds.size() < MaxNewUsers &&
-      getCountry(remoteAddr).exists(c => c == "RU" || c == "BY")
+      getCountry(remoteAddr).exists(c => c != "UA")
   }
 
   def getCountry(remoteAddr: String): Option[String] = {
