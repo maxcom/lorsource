@@ -121,7 +121,7 @@
   </div>
 </div>
 
-<c:if test="${not empty newUsers || not empty frozenUsers}">
+<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers}">
   <h2>Пользователи</h2>
   <p>
     Новые пользователи за последние 3 дня:
@@ -148,6 +148,13 @@
       <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(frozenUsers)})
+  </p>
+  <p>
+    Заблокированные пользователи:
+    <c:forEach items="${blockedUsers}" var="user">
+      <lor:user user="${user}" link="true"/><c:out value=" "/>
+    </c:forEach>
+    (всего ${fn:length(blockedUsers)})
   </p>
 </c:if>
 

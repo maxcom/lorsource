@@ -241,6 +241,13 @@ public class UserLogDao {
             OffsetDateTime.now().minus(duration));
   }
 
+  public List<Integer> getRecentlyBlocked() {
+    return jdbcTemplate.queryForList(
+            "SELECT userid FROM user_log WHERE action=?::user_log_action AND action_date>CURRENT_TIMESTAMP - interval '3 days' ORDER BY action_date",
+            Integer.class,
+            UserLogAction.BLOCK_USER.toString());
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy) {
     ImmutableMap<String, String> params;

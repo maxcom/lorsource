@@ -179,6 +179,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getNewUsers: util.List[User] = getUsersCached(userDao.getNewUserIds)
   def getFrozenUsers: util.List[User] = getUsersCached(userDao.getFrozenUserIds)
+  def getRecentlyBlocked: util.List[User] = getUsersCached(userLogDao.getRecentlyBlocked)
 
   def getModerators = getUsersCached(userDao.getModeratorIds)
 
