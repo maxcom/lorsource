@@ -147,7 +147,7 @@
     (всего ${fn:length(frozenUsers)})
   </p>
   <p>
-    Заблокированные пользователи:
+    Заблокированные пользователи за последние 3 дня:
     <c:forEach items="${blockedUsers}" var="user">
       <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
