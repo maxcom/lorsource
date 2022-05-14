@@ -63,7 +63,7 @@ public class UserpicController {
     this.userLogDao = userLogDao;
   }
 
-  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
+//  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
@@ -76,7 +76,7 @@ public class UserpicController {
     return new ModelAndView("addphoto");
   }
 
-  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
+//  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
   public ModelAndView addPhoto(ServletRequest request, @RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
