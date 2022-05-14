@@ -126,8 +126,7 @@ public class Profile {
   }
 
   public boolean isShowPhotos() {
-    return false;
-    //return showPhotos;
+    return showPhotos;
   }
 
   public void setShowPhotos(boolean showPhotos) {
@@ -151,8 +150,7 @@ public class Profile {
   }
 
   public String getAvatarMode() {
-    return "empty";
-    //return avatarMode;
+    return avatarMode;
   }
 
   public void setAvatarMode(String avatarMode) {
