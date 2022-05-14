@@ -126,7 +126,8 @@ public class Profile {
   }
 
   public boolean isShowPhotos() {
-    return showPhotos;
+    return false;
+    //return showPhotos;
   }
 
   public void setShowPhotos(boolean showPhotos) {
