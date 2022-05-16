@@ -129,51 +129,43 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     val emailHash = StringUtil.md5hash(email.toLowerCase)
 
-    s"https://secure.gravatar.com/avatar/$emailHash?s=$size&r=g&d=$nonExist"
+    s"https://secure.gravatar.com/avatar/$emailHash?s=$size&r=g&d=$nonExist&f=y"
   }
 
   def getUserpic(user: User, avatarStyle: String, misteryMan: Boolean): Userpic = {
-    /*
-        val avatarMode = if (misteryMan && ("empty" == avatarStyle)) {
-          "mm"
-        } else {
-          avatarStyle
-        }
-
-        val userpic = if (user.isAnonymous && misteryMan) {
-          Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
-        } else if (user.getPhoto != null && !user.getPhoto.isEmpty) {
-          Try {
-            val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto).scale(150)
-
-            new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
-          } match {
-            case Failure(e: FileNotFoundException) =>
-              logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
-              None
-            case Failure(e) =>
-              logger.warn(s"Bad userpic for ${user.getNick}", e)
-              None
-            case Success(u) =>
-              Some(u)
-          }
-        } else {
-          None
-        }
-
-        userpic.getOrElse {
-          if (user.hasGravatar && user.getPhoto != "") {
-            new Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
-          } else {
-            UserService.DisabledUserpic
-          }
-        }
-    */
-
-    if (misteryMan) {
-      new Userpic(gravatar("anonymous@linux.org.ru", "mm", 150), 150, 150)
+    val avatarMode = if (misteryMan && ("empty" == avatarStyle)) {
+      "mm"
     } else {
-      UserService.DisabledUserpic
+      avatarStyle
+    }
+
+    val userpic = if (user.isAnonymous && misteryMan) {
+      Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
+    } else /*if (user.getPhoto != null && !user.getPhoto.isEmpty) {
+      Try {
+        val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto).scale(150)
+
+        new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
+      } match {
+        case Failure(e: FileNotFoundException) =>
+          logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
+          None
+        case Failure(e) =>
+          logger.warn(s"Bad userpic for ${user.getNick}", e)
+          None
+        case Success(u) =>
+          Some(u)
+      }
+    } else */ {
+      None
+    }
+
+    userpic.getOrElse {
+      if (user.hasGravatar && user.getPhoto != "") {
+        new Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
+      } else {
+        UserService.DisabledUserpic
+      }
     }
   }
 

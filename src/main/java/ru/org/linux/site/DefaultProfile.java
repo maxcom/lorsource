@@ -41,7 +41,7 @@ public final class DefaultProfile {
   private static final ImmutableMap<String, Theme> THEMES = Maps.uniqueIndex(Theme.THEMES, Theme::getId);
 
   private static final ImmutableList<String> AVATAR_TYPES =
-          ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
+          ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro", "robohash");
 
   public static final TrackerFilterEnum DEFAULT_TRACKER_MODE = TrackerFilterEnum.MAIN;
 
