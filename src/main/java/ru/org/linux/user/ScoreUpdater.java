@@ -66,9 +66,9 @@ public class ScoreUpdater {
   public void deleteInactivated() {
     logger.info("Deleting non-activated accounts");
 
-    jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 days'::interval)");
-    jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 days'::interval)");
-    int deleted = jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 days'::interval");
+    jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)");
+    jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)");
+    int deleted = jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval");
 
     jdbcTemplate.update("delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)");
     jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)");
