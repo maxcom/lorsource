@@ -126,26 +126,14 @@
   <p>
     Новые пользователи за последние 3 дня:
     <c:forEach items="${newUsers}" var="user">
-      <c:if test="${user.activated}">
-        <b>
-      </c:if>
-      <c:if test="${user.blocked}">
-        <s>
-      </c:if>
-      <a href="/people/${user.nick}/profile">${user.nick}</a>
-      <c:if test="${user.blocked}">
-        </s>
-      </c:if>
-      <c:if test="${user.activated}">
-        </b>
-      </c:if>
+      <lor:user user="${user}" link="true" bold="${user.activated}"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(newUsers)})
   </p>
   <p>
     Замороженные пользователи:
     <c:forEach items="${frozenUsers}" var="user">
-      <lor:user user="${user}" link="true"/><c:out value=" "/>
+      <lor:user user="${user._1()}" bold="${user._2()}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(frozenUsers)})
   </p>

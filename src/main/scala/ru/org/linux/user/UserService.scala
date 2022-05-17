@@ -178,7 +178,16 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     ids.asScala.map(x => userDao.getUserCached(x)).toSeq.asJava
 
   def getNewUsers: util.List[User] = getUsersCached(userDao.getNewUserIds)
-  def getFrozenUsers: util.List[User] = getUsersCached(userDao.getFrozenUserIds)
+
+  def getFrozenUsers: util.List[(User, Boolean)] = {
+    val recentSeenDate = DateTime.now().minusDays(1)
+
+    userDao.getFrozenUserIds.asScala.map { case (userId, lastlogin) =>
+      val user = getUserCached(userId)
+      (user, lastlogin.isAfter(recentSeenDate))
+    }.asJava
+  }
+
   def getRecentlyBlocked: util.List[User] = getUsersCached(userLogDao.getRecentlyBlocked)
 
   def getModerators = getUsersCached(userDao.getModeratorIds)

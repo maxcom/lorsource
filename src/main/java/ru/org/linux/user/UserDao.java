@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -191,10 +194,15 @@ public class UserDao {
                                                 "ORDER BY regdate", Integer.class);
   }
 
-  public List<Integer> getFrozenUserIds() {
-    return jdbcTemplate.queryForList("SELECT id FROM users where " +
+  public List<Tuple2<Integer, DateTime>> getFrozenUserIds() {
+    return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
             "frozen_until > CURRENT_TIMESTAMP and not blocked " +
-            "ORDER BY frozen_until", Integer.class);
+            "ORDER BY frozen_until", new RowMapper<Tuple2<Integer, DateTime>>() {
+      @Override
+      public Tuple2<Integer, DateTime> mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime()));
+      }
+    });
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)

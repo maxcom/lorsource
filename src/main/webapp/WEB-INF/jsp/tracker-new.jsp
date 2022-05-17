@@ -15,7 +15,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
-<%--@elvariable id="frozenUsers" type="java.util.List<ru.org.linux.user.User>"--%>
+<%--@elvariable id="frozenUsers" type="java.util.List<scala.Tuple2<ru.org.linux.user.User, java.lang.Boolean>>"--%>
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
@@ -123,26 +123,14 @@
   <p>
     Новые пользователи за последние 3 дня:
     <c:forEach items="${newUsers}" var="user">
-      <c:if test="${user.activated}">
-        <b>
-      </c:if>
-      <c:if test="${user.blocked}">
-        <s>
-      </c:if>
-      <a href="/people/${user.nick}/profile">${user.nick}</a>
-      <c:if test="${user.blocked}">
-        </s>
-      </c:if>
-      <c:if test="${user.activated}">
-        </b>
-      </c:if>
+      <lor:user user="${user}" link="true" bold="${user.activated}"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(newUsers)})
   </p>
   <p>
     Замороженные пользователи:
     <c:forEach items="${frozenUsers}" var="user">
-      <lor:user user="${user}" link="true"/><c:out value=" "/>
+      <lor:user user="${user._1()}" bold="${user._2()}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(frozenUsers)})
   </p>

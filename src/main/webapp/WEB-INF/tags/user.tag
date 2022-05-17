@@ -17,10 +17,12 @@
         attribute name="link" required="false" type="java.lang.Boolean" %><%@
         attribute name="rel" required="false" type="java.lang.String" %><%@
         attribute name="user" type="ru.org.linux.user.User" %><%@
+        attribute name="bold" type="java.lang.Boolean" required="false"%><%@
         attribute name="itemprop" type="java.lang.String" required="false" %><%@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%--
 --%><c:if test="${user.blocked}"><s></c:if><%--
+--%><c:if test="${bold!=null && bold}"><b></c:if><%--
 --%><c:choose><%--
 --%><c:when test="${link!=null and link and not user.anonymous}"><%--
 --%><a <%= Strings.isNullOrEmpty(rel)?"":"rel=\""+rel+ '"' %> <%= Strings.isNullOrEmpty(itemprop)?"":"itemprop=\""+itemprop+ '"' %> href="/people/${user.nick}/profile">${user.nick}</a><%--
@@ -29,6 +31,5 @@
 --%>${user.nick}<%--
 --%></c:otherwise><%--
 --%></c:choose><%--
---%><c:if test="${user.blocked}"><%--
---%></s><%--
---%></c:if>
+--%><c:if test="${bold!=null && bold}"></b></c:if><%--
+--%><c:if test="${user.blocked}"></s></c:if>
