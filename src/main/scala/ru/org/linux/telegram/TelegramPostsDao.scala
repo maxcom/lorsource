@@ -46,7 +46,7 @@ class TelegramPostsDao(ds: DataSource) {
         |from topics join groups ON (groups.id=topics.groupid) join sections on (sections.id=groups.section)
         |where topics.id in (
         |  select topic from comments join users on comments.userid=users.id join topics on (comments.topic=topics.id)
-        |    where comments.postdate>CURRENT_TIMESTAMP-'5 hour'::interval and score>=100
+        |    where comments.postdate>CURRENT_TIMESTAMP-'5 hour'::interval and score>=100 and group!=4068
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
         |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
