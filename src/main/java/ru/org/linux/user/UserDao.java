@@ -197,12 +197,15 @@ public class UserDao {
   public List<Tuple2<Integer, DateTime>> getFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
             "frozen_until > CURRENT_TIMESTAMP and not blocked " +
-            "ORDER BY frozen_until", new RowMapper<Tuple2<Integer, DateTime>>() {
-      @Override
-      public Tuple2<Integer, DateTime> mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime()));
-      }
-    });
+            "ORDER BY frozen_until",
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+  }
+
+  public List<Tuple2<Integer, DateTime>> getUnFrozenUserIds() {
+    return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
+                    "frozen_until < CURRENT_TIMESTAMP and frozen_until > CURRENT_TIMESTAMP - '3 days'::interval and not blocked " +
+                    "ORDER BY frozen_until",
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)

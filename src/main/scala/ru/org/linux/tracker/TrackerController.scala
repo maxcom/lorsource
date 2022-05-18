@@ -103,10 +103,12 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     if (tmpl.isModeratorSession) {
       params.put("newUsers", userService.getNewUsers)
       params.put("frozenUsers", userService.getFrozenUsers)
+      params.put("unFrozenUsers", userService.getUnFrozenUsers)
       params.put("blockedUsers", userService.getRecentlyBlocked)
     } else {
       params.put("newUsers", ImmutableList.of())
       params.put("frozenUsers", ImmutableList.of())
+      params.put("unFrozenUsers", ImmutableList.of())
       params.put("blockedUsers", ImmutableList.of())
     }
 
