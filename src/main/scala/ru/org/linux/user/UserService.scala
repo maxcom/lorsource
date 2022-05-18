@@ -141,11 +141,11 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     val userpic = if (user.isAnonymous && misteryMan) {
       Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
-    } else /*if (user.getPhoto != null && !user.getPhoto.isEmpty) {
+    } else if (user.getPhoto != null && user.getPhoto.nonEmpty) {
       Try {
-        val info = new ImageInfo(siteConfig.getUploadPath + "/photos/" + user.getPhoto).scale(150)
+        val info = new ImageInfo(s"${siteConfig.getUploadPath}/photos/${user.getPhoto}").scale(150)
 
-        new Userpic("/photos/" + user.getPhoto, info.getWidth, info.getHeight)
+        new Userpic(s"/photos/${user.getPhoto}", info.getWidth, info.getHeight)
       } match {
         case Failure(e: FileNotFoundException) =>
           logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
@@ -156,7 +156,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
         case Success(u) =>
           Some(u)
       }
-    } else */ {
+    } else {
       None
     }
 
