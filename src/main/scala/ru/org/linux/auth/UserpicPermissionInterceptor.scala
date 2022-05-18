@@ -18,7 +18,7 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.site.Template
-import ru.org.linux.user.{UserDao, UserNotFoundException}
+import ru.org.linux.user.{UserDao, UserNotFoundException, UserService}
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -41,19 +41,19 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
           } else {
             val currentUser = Option(tmpl.getCurrentUser)
 
-            val check = currentUser.exists(u => u.getId == user.getId || u.isModerator)
+            val allowed = currentUser.exists(u => u.getId == user.getId || u.isModerator)
 
-            if (!check) {
-              if (user.getPhoto!=null) {
+            if (!allowed) {
+              if (user.getPhoto!=null && user.getPhoto.nonEmpty) {
                 logger.warn(s"Redirect $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")} to ${user.getPhoto}")
                 response.sendRedirect(s"/photos/${user.getPhoto}")
               } else {
                 logger.warn(s"Forbidden access $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")}")
-                response.sendError(404)
+                response.sendRedirect(UserService.DisabledUserpic.getUrl)
               }
             }
 
-            check
+            allowed
           }
         } catch {
           case _: UserNotFoundException =>
