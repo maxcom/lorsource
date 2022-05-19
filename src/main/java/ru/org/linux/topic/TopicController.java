@@ -410,6 +410,8 @@ public class TopicController {
             moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
     );
 
+    params.put("showDeletedButton", permissionService.allowViewDeletedComments(topic, currentUser) && !showDeleted);
+
     return new ModelAndView("view-message", params);
   }
 

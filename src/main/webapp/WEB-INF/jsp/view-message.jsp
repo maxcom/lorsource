@@ -357,7 +357,7 @@
   </div>
 </c:if>
 
-<c:if test="${template.sessionAuthorized && (!message.expired || template.moderatorSession) && !showDeleted && !message.draft}">
+<c:if test="${showDeletedButton}">
     <hr>
     <form action="${message.link}" method=POST>
     <lor:csrf/>

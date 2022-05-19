@@ -90,6 +90,28 @@ public class TopicPermissionService {
     }
   }
 
+  public boolean allowViewDeletedComments(Topic message, @Nullable User currentUser) {
+    if (currentUser == null || !currentUser.isModerator()) {
+      if (message.isExpired() || message.isDraft()) {
+        return false;
+      }
+
+      if (message.getPostscore() == POSTSCORE_MODERATORS_ONLY ||
+              message.getPostscore() == POSTSCORE_NO_COMMENTS ||
+              message.getPostscore() == POSTSCORE_HIDE_COMMENTS) {
+        return false;
+      }
+
+      boolean unauthorized = currentUser == null || currentUser.isAnonymous();
+
+      if (unauthorized || currentUser.isFrozen()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public void checkView(
           Group group,
           Topic message,
@@ -104,17 +126,7 @@ public class TopicPermissionService {
       boolean unauthorized = currentUser == null || currentUser.isAnonymous();
 
       if (showDeleted) {
-        if (message.isExpired()) {
-          throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
-        }
-
-        if (message.getPostscore() == POSTSCORE_MODERATORS_ONLY ||
-                message.getPostscore() == POSTSCORE_NO_COMMENTS ||
-                message.getPostscore() == POSTSCORE_HIDE_COMMENTS) {
-          throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в закрытых темах");
-        }
-
-        if (unauthorized || currentUser.isFrozen()) {
+        if (!allowViewDeletedComments(message, currentUser)) {
           throw new MessageNotFoundException(message.getId(), "вы не можете смотреть удаленные комментарии");
         }
       }
