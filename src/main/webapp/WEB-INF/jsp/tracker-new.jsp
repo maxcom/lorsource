@@ -118,7 +118,7 @@
   </div>
 </div>
 
-<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers}">
+<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers}">
   <h2>Пользователи</h2>
   <p>
     Новые пользователи за последние 3 дня:
@@ -135,6 +135,13 @@
     (всего ${fn:length(frozenUsers)})
   </p>
   <p>
+    Размороженные пользователи за последние 3 дня:
+    <c:forEach items="${unFrozenUsers}" var="user">
+      <lor:user user="${user._1()}" bold="${user._2()}" link="true"/><c:out value=" "/>
+    </c:forEach>
+    (всего ${fn:length(unFrozenUsers)})
+  </p>
+  <p>
     Заблокированные пользователи за последние 3 дня:
     <c:forEach items="${blockedUsers}" var="user">
       <lor:user user="${user}" link="true"/><c:out value=" "/>
@@ -142,11 +149,11 @@
     (всего ${fn:length(blockedUsers)})
   </p>
   <p>
-    Размороженные пользователи за последние 3 дня:
-    <c:forEach items="${unFrozenUsers}" var="user">
-      <lor:user user="${user._1()}" bold="${user._2()}" link="true"/><c:out value=" "/>
+    Разблокированные пользователи за последние 3 дня:
+    <c:forEach items="${unBlockedUsers}" var="user">
+      <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
-    (всего ${fn:length(unFrozenUsers)})
+    (всего ${fn:length(unBlockedUsers)})
   </p>
 </c:if>
 

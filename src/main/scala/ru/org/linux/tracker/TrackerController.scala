@@ -105,11 +105,13 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
       params.put("frozenUsers", userService.getFrozenUsers)
       params.put("unFrozenUsers", userService.getUnFrozenUsers)
       params.put("blockedUsers", userService.getRecentlyBlocked)
+      params.put("unBlockedUsers", userService.getRecentlyBlocked)
     } else {
       params.put("newUsers", ImmutableList.of())
       params.put("frozenUsers", ImmutableList.of())
       params.put("unFrozenUsers", ImmutableList.of())
       params.put("blockedUsers", ImmutableList.of())
+      params.put("unBlockedUsers", ImmutableList.of())
     }
 
     val userAgent = Option(request.getHeader("user-agent"))
