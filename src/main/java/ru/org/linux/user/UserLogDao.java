@@ -245,7 +245,7 @@ public class UserLogDao {
     return jdbcTemplate.queryForList(
             "SELECT userid FROM user_log WHERE action=?::user_log_action AND action_date>CURRENT_TIMESTAMP - interval '3 days' ORDER BY action_date",
             Integer.class,
-            UserLogAction.BLOCK_USER.toString());
+            action.toString());
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
