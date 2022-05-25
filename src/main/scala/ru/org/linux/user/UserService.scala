@@ -61,6 +61,8 @@ object UserService {
 
   val MaxUnactivatedPerIp = 2
   val MaxNewUsers = 30 // 3 day window
+
+  val CorrectorScore = 200
 }
 
 @Service

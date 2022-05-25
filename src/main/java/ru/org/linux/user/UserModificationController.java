@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,15 +46,15 @@ import java.util.Random;
 @Controller
 public class UserModificationController {
   private static final Logger logger = LoggerFactory.getLogger(UserModificationController.class);
+  private final SearchQueueSender searchQueueSender;
+  private final UserDao userDao;
+  private final CommentDeleteService commentService;
 
-  @Autowired
-  private SearchQueueSender searchQueueSender;
-
-  @Autowired
-  private UserDao userDao;
-
-  @Autowired
-  private CommentDeleteService commentService;
+  public UserModificationController(SearchQueueSender searchQueueSender, UserDao userDao, CommentDeleteService commentService) {
+    this.searchQueueSender = searchQueueSender;
+    this.userDao = userDao;
+    this.commentService = commentService;
+  }
 
   /**
    * Возвращает объект User модератора, если текущая сессия не модераторская, тогда исключение
@@ -206,7 +206,7 @@ public class UserModificationController {
       @RequestParam("id") User user
   ) throws Exception {
     User moderator = getModerator(request);
-    if (user.getScore()<User.CORRECTOR_SCORE) {
+    if (user.getScore()<UserService$.MODULE$.InviteScore()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
     }
     userDao.toggleCorrector(user, moderator);

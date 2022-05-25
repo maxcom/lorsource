@@ -105,7 +105,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def isImagePostingAllowed(section: Section, @Nullable currentUser: User): Boolean = {
     if (section.isImagepost) {
       true
-    } else if (currentUser != null && (currentUser.isModerator || currentUser.isCorrector || currentUser.getScore >= 50)) {
+    } else if (currentUser != null && (currentUser.isModerator || currentUser.canCorrect || currentUser.getScore >= 50)) {
       section.isImageAllowed
     } else {
       false
@@ -256,5 +256,5 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def canCommit(user: User, topic: Topic): Boolean =
-    user!=null && (user.isModerator || (user.isCorrector && topic.getAuthorUserId != user.getId))
+    user!=null && (user.isModerator || (user.canCorrect && topic.getAuthorUserId != user.getId))
 }

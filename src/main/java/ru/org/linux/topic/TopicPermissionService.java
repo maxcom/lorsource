@@ -171,7 +171,7 @@ public class TopicPermissionService {
         throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
-      boolean viewByCorrector = currentUser != null && currentUser.isCorrector();
+      boolean viewByCorrector = currentUser != null && currentUser.canCorrect();
 
       if (group.isPremoderated() && !message.isCommited() && topicAuthor.isAnonymous() && !viewByCorrector) {
         throw new AccessViolationException("Это сообщение нельзя посмотреть");

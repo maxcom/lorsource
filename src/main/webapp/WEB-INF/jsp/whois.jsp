@@ -13,6 +13,8 @@
   ~    limitations under the License.
   --%>
 <%@ page import="org.joda.time.DateTime" %>
+<%@ page import="ru.org.linux.user.User" %>
+<%@ page import="ru.org.linux.user.UserService$" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
@@ -463,7 +465,7 @@
 
 <p>
 
-    <c:if test="${user.corrector or user.score > user.correctorScore}">
+    <c:if test="${user.corrector or user.score > UserService$.MODULE$.CorrectorScore()}">
 
 <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
     <lor:csrf/>

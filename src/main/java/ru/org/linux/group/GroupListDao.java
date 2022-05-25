@@ -222,7 +222,7 @@ public class GroupListDao {
       tagIgnored = "";
     }
 
-    boolean showUncommited = currentUser!=null && (currentUser.isModerator() || currentUser.isCorrector());
+    boolean showUncommited = currentUser!=null && (currentUser.isModerator() || currentUser.canCorrect());
 
     String partUncommited = showUncommited ? "" : noUncommited;
     String partDeleted = showDeleted?"":" AND NOT t.deleted ";

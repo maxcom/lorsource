@@ -54,7 +54,6 @@ public class User implements Serializable {
   private final String freezingReason;
 
   private final boolean activated;
-  public static final int CORRECTOR_SCORE = 200;
 
   public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 
@@ -225,11 +224,11 @@ public class User implements Serializable {
   }
 
   public boolean canCorrect() {
-    return corrector && score>= CORRECTOR_SCORE;
+    return corrector && !isFrozen();
   }
 
-  public int getCorrectorScore() {
-    return CORRECTOR_SCORE;
+  public boolean isCorrector() {
+    return corrector;
   }
 
   public boolean isAnonymous() {
@@ -355,10 +354,6 @@ public class User implements Serializable {
 
   public boolean isAnonymousScore() {
     return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
-  }
-
-  public boolean isCorrector() {
-    return corrector;
   }
 
   public static void checkNick(String nick) throws BadInputException {

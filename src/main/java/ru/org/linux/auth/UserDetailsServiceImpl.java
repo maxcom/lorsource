@@ -71,7 +71,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       if (user.getScore() >= 50) {
         results.add(new SimpleGrantedAuthority("ROLE_USER"));
       }
-      if (user.isCorrector()) {
+      if (user.canCorrect()) {
         results.add(new SimpleGrantedAuthority("ROLE_CORRECTOR"));
       }
       if (user.isModerator()) {
