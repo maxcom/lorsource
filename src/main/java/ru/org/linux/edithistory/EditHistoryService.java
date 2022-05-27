@@ -270,7 +270,7 @@ public class EditHistoryService {
   public ImmutableSet<User> getEditorUsers(final Topic message, List<EditHistoryRecord> editInfoList) {
     ImmutableSet<Integer> editors = getEditors(message, editInfoList);
 
-    return ImmutableSet.copyOf(userService.getUsersCached(editors));
+    return ImmutableSet.copyOf(userService.getUsersCachedJava(editors));
   }
 
   public ImmutableSet<Integer> getEditors(final Topic message, List<EditHistoryRecord> editInfoList) {

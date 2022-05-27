@@ -38,9 +38,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
     val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0).distinct
 
-    val users = userService.getUsersCached(userIds.map(Integer.valueOf).asJavaCollection).asScala.map { user =>
-      user.getId -> user
-    }.toMap
+    val users = userService.getUsersCached(userIds).view.map { user => user.getId -> user }.toMap
 
     val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).view.mapValues(_.map(_.name))
 

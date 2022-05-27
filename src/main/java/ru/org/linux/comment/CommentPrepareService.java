@@ -275,7 +275,7 @@ public class CommentPrepareService {
   private Map<Integer, User> loadUsers(Iterable<Integer> userIds) {
     ImmutableMap.Builder<Integer, User> builder = ImmutableMap.builder();
 
-    for (User user : userService.getUsersCached(ImmutableSet.copyOf(userIds))) {
+    for (User user : userService.getUsersCachedJava(ImmutableSet.copyOf(userIds))) {
       builder.put(user.getId(), user);
     }
 

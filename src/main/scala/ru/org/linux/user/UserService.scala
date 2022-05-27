@@ -176,10 +176,12 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + tm.getTime.toString + ":reset")
   }
 
-  def getUsersCached(ids: java.lang.Iterable[Integer]): java.util.List[User] =
-    ids.asScala.map(x => userDao.getUserCached(x)).toSeq.asJava
+  def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => userDao.getUserCached(x)).toSeq
 
-  def getNewUsers: util.List[User] = getUsersCached(userDao.getNewUserIds)
+  def getUsersCachedJava(ids: java.lang.Iterable[Integer]): util.List[User] =
+    getUsersCached(ids.asScala.map(i => i)).asJava
+
+  def getNewUsers: util.List[User] = getUsersCachedJava(userDao.getNewUserIds)
 
   private def makeFrozenList(users: util.List[(Integer, DateTime)]): util.List[(User, Boolean)] = {
     val recentSeenDate = DateTime.now().minusDays(1)
@@ -193,12 +195,11 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def getFrozenUsers: util.List[(User, Boolean)] = makeFrozenList(userDao.getFrozenUserIds)
   def getUnFrozenUsers: util.List[(User, Boolean)] = makeFrozenList(userDao.getUnFrozenUserIds)
 
-  def getRecentlyBlocked: util.List[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
-  def getRecentlyUnBlocked: util.List[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
+  def getRecentlyBlocked: util.List[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
+  def getRecentlyUnBlocked: util.List[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
 
-  def getModerators = getUsersCached(userDao.getModeratorIds)
-
-  def getCorrectors = getUsersCached(userDao.getCorrectorIds)
+  def getModerators: util.List[User] = getUsersCachedJava(userDao.getModeratorIds)
+  def getCorrectors: util.List[User] = getUsersCachedJava(userDao.getCorrectorIds)
 
   private def findUserIdCached(nick: String): Int = {
     try {
