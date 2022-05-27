@@ -14,10 +14,6 @@
  */
 package ru.org.linux.group
 
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-
-import javax.annotation.Nullable
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.markup.MarkupPermissions
@@ -25,6 +21,11 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.User
+
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import javax.annotation.Nullable
+import scala.jdk.OptionConverters.RichOptional
 
 @Service
 object GroupPermissionService {
@@ -63,7 +64,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       } else if (!topic.isExpired) {
         true
       } else {
-        Option(deleteInfoDao.getDeleteInfo(topic.getId))
+        deleteInfoDao.getDeleteInfo(topic.getId).toScala
           .filter(_.delDate != null)
           .map(_.delDate.toInstant)
           .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
@@ -119,7 +120,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       case TopicPermissionService.POSTSCORE_UNRESTRICTED =>
         ""
       case 100 | 200 | 300 | 400 | 500 =>
-        "<b>Ограничение на добавление сообщений</b>: " + User.getStars(postscore, postscore, true)
+        s"<b>Ограничение на добавление сообщений</b>: ${User.getStars(postscore, postscore, true)}"
       case TopicPermissionService.POSTSCORE_MODERATORS_ONLY =>
         "<b>Ограничение на добавление сообщений</b>: только для модераторов"
       case TopicPermissionService.POSTSCORE_REGISTERED_ONLY =>

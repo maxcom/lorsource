@@ -24,18 +24,18 @@ import ru.org.linux.user.User;
 import scala.Option;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Получение информации кем и почему удален топик
  */
 @Repository
 public class DeleteInfoDao {
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
   private static final String QUERY_DELETE_INFO =
           "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=?";
 
@@ -54,9 +54,8 @@ public class DeleteInfoDao {
    * @param id id проверяемого сообщения
    * @return информация о удаленном сообщении
    */
-  @Nullable
-  public DeleteInfo getDeleteInfo(int id) {
-    return getDeleteInfo(id, false);
+  public Optional<DeleteInfo> getDeleteInfo(int id) {
+    return Optional.ofNullable(getDeleteInfo(id, false));
   }
 
   /**

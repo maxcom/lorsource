@@ -17,7 +17,6 @@ package ru.org.linux.edithistory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.gallery.Image;
@@ -98,7 +97,7 @@ public class EditHistoryService {
     List<TagRef> currentTags = topicTagService.getTagRefs(topic);
     boolean currentMinor = topic.isMinor();
     Image maybeImage = imageDao.imageForTopic(topic);
-    PreparedImage currentImage = maybeImage !=null ? imageService.prepareImageOrNull(maybeImage) : null;
+    PreparedImage currentImage = maybeImage !=null ? imageService.prepareImageJava(maybeImage).orElse(null) : null;
     Poll maybePoll;
     Integer lastId = null;
 
@@ -136,7 +135,7 @@ public class EditHistoryService {
         if (dto.getOldimage() == 0) {
           currentImage = null;
         } else {
-          currentImage = imageService.prepareImageOrNull(imageDao.getImage(dto.getOldimage()));
+          currentImage = imageService.prepareImageJava(imageDao.getImage(dto.getOldimage())).orElse(null);
         }
       }
 

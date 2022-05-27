@@ -220,7 +220,7 @@ public class TopicController {
           String filter,
           String groupName,
           int msgid,
-          int threadRoot) throws Exception {
+          int threadRoot) {
 
     Deadline deadline = MoreLikeThisTimeout.fromNow();
 
@@ -362,16 +362,16 @@ public class TopicController {
 
     CommentFilter cv = new CommentFilter(comments);
 
-    List<Comment> commentsFiltred;
+    List<Comment> commentsFiltered;
     int unfilteredCount;
 
     if (threadRoot!=0) {
-      commentsFiltred = cv.getCommentsSubtree(threadRoot, hideSet);
+      commentsFiltered = cv.getCommentsSubtree(threadRoot, hideSet);
       unfilteredCount = cv.getCommentsSubtree(threadRoot, ImmutableSet.of()).size();
       params.put("threadMode", true);
       params.put("threadRoot", threadRoot);
     } else {
-      commentsFiltred = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), hideSet);
+      commentsFiltered = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), hideSet);
       unfilteredCount = cv.getCommentsForPage(false, page, tmpl.getProf().getMessages(), ImmutableSet.of()).size();
     }
 
@@ -379,7 +379,7 @@ public class TopicController {
 
     List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
             comments,
-            commentsFiltred,
+            commentsFiltered,
             tmpl,
             topic,
             hideSet
@@ -430,7 +430,7 @@ public class TopicController {
           HttpServletRequest request,
           HttpServletResponse response,
           String groupName,
-          int msgid) throws Exception {
+          int msgid) {
     Topic topic = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
 
@@ -520,7 +520,6 @@ public class TopicController {
    * @param filter  фильтр
    * @param output  ?
    * @return вовзращает редирект на новый код
-   * @throws Exception если получится
    */
 
   @RequestMapping("/view-message.jsp")
@@ -530,7 +529,7 @@ public class TopicController {
           @RequestParam(value = "lastmod", required = false) Long lastmod,
           @RequestParam(value = "filter", required = false) String filter,
           @RequestParam(required = false) String output
-  ) throws Exception {
+  ) {
     Topic topic = messageDao.getById(msgid);
 
     StringBuilder link = new StringBuilder(topic.getLink());
@@ -583,7 +582,7 @@ public class TopicController {
   private ModelAndView jumpMessage(
           HttpServletRequest request,
           int msgid,
-          int cid, boolean skipDeleted) throws Exception {
+          int cid, boolean skipDeleted) {
     Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
     Group group = groupDao.getGroup(topic.getGroupId());

@@ -39,6 +39,7 @@ import scala.Some;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Service
@@ -435,7 +436,7 @@ public class TopicPermissionService {
     return !author.isAnonymousScore();
   }
 
-  public boolean isUndeletable(Topic topic, Comment comment, @Nullable User user, DeleteInfo deleteInfo) {
+  public boolean isUndeletable(Topic topic, Comment comment, @Nullable User user, Optional<DeleteInfo> deleteInfo) {
     if (user==null) {
       return false;
     }
@@ -444,7 +445,7 @@ public class TopicPermissionService {
       return false;
     }
 
-    if (comment.getUserid() == deleteInfo.userid()) {
+    if (comment.getUserid() == deleteInfo.map(DeleteInfo::userid).orElse(0)) {
       return false;
     }
 

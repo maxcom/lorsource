@@ -17,13 +17,14 @@ package ru.org.linux.user
 
 import java.sql.ResultSet
 import javax.sql.DataSource
-
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
+import java.util.Optional
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters.RichOption
 
 @Repository
 class RemarkDao(ds:DataSource) {
@@ -50,6 +51,8 @@ class RemarkDao(ds:DataSource) {
       new Remark(rs)
     }.headOption
   }
+
+  def getRemarkJava(user: User, ref: User): Optional[Remark] = getRemark(user, ref).toJava
 
   def getRemarks(user: User, refs:java.lang.Iterable[User]): java.util.Map[Integer, Remark] = {
     val r: Map[Integer, Remark] = if (refs.asScala.isEmpty) {

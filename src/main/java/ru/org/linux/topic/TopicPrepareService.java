@@ -16,8 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.edithistory.EditInfoSummary;
 import ru.org.linux.gallery.Image;
@@ -39,80 +37,72 @@ import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
-import scala.Option;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicPrepareService {
-  @Autowired
-  private GroupDao groupDao;
+  private final GroupDao groupDao;
+  private final UserDao userDao;
+  private final SectionService sectionService;
+  private final DeleteInfoDao deleteInfoDao;
+  private final PollPrepareService pollPrepareService;
+  private final MessageTextService textService;
+  private final SiteConfig siteConfig;
+  private final TopicPermissionService topicPermissionService;
+  private final GroupPermissionService groupPermissionService;
+  private final MsgbaseDao msgbaseDao;
+  private final ImageService imageService;
+  private final UserService userService;
+  private final TopicTagService topicTagService;
+  private final RemarkDao remarkDao;
 
-  @Autowired
-  private UserDao userDao;
+  public TopicPrepareService(SectionService sectionService, GroupDao groupDao, UserDao userDao,
+                             DeleteInfoDao deleteInfoDao, PollPrepareService pollPrepareService, RemarkDao remarkDao,
+                             MessageTextService textService, SiteConfig siteConfig, UserService userService,
+                             TopicPermissionService topicPermissionService,
+                             GroupPermissionService groupPermissionService, TopicTagService topicTagService,
+                             MsgbaseDao msgbaseDao, ImageService imageService) {
+    this.sectionService = sectionService;
+    this.groupDao = groupDao;
+    this.userDao = userDao;
+    this.deleteInfoDao = deleteInfoDao;
+    this.pollPrepareService = pollPrepareService;
+    this.remarkDao = remarkDao;
+    this.textService = textService;
+    this.siteConfig = siteConfig;
+    this.userService = userService;
+    this.topicPermissionService = topicPermissionService;
+    this.groupPermissionService = groupPermissionService;
+    this.topicTagService = topicTagService;
+    this.msgbaseDao = msgbaseDao;
+    this.imageService = imageService;
+  }
 
-  @Autowired
-  private SectionService sectionService;
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
-
-  @Autowired
-  private PollPrepareService pollPrepareService;
-
-  @Autowired
-  private MessageTextService textService;
-
-  @Autowired
-  private SiteConfig siteConfig;
-
-  @Autowired
-  private TopicPermissionService topicPermissionService;
-  
-  @Autowired
-  private GroupPermissionService groupPermissionService;
-  
-  @Autowired
-  private MsgbaseDao msgbaseDao;
-
-  @Autowired
-  private ImageService imageService;
-
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private TopicTagService topicTagService;
-
-  @Autowired
-  private RemarkDao remarkDao;
-  
   public PreparedTopic prepareTopic(Topic message, User user) {
-    return prepareMessage(
+    return prepareTopic(
             message,
             topicTagService.getTagRefs(message),
             false,
-            null,
+            Optional.empty(),
             user,
             msgbaseDao.getMessageText(message.getId()),
-            null
+            Optional.empty()
     );
   }
 
   public PreparedTopic prepareTopic(Topic message, List<TagRef> tags, User user, MessageText text) {
-    return prepareMessage(
+    return prepareTopic(
             message,
             tags,
             false,
-            null,
+            Optional.empty(),
             user,
             text,
-            null
+            Optional.empty()
     );
   }
 
@@ -123,14 +113,14 @@ public class TopicPrepareService {
           MessageText text,
           Image image
   ) {
-    return prepareMessage(
+    return prepareTopic(
             message,
             tags,
             false,
-            newPoll != null ? pollPrepareService.preparePollPreview(newPoll) : null,
+            Optional.ofNullable(newPoll).map(pollPrepareService::preparePollPreview),
             null,
             text,
-            image
+            Optional.ofNullable(image)
     );
   }
 
@@ -143,107 +133,95 @@ public class TopicPrepareService {
 
   /**
    * Функция подготовки топика
-   * @param message топик
+   * @param topic топик
    * @param tags список тэгов
    * @param minimizeCut сворачивать ли cut
    * @param poll опрос к топику
    * @param user пользователь
    * @return подготовленный топик
    */
-  private PreparedTopic prepareMessage(
-          Topic message, 
+  private PreparedTopic prepareTopic(
+          Topic topic,
           List<TagRef> tags,
           boolean minimizeCut, 
-          PreparedPoll poll,
+          Optional<PreparedPoll> poll,
           User user,
           MessageText text,
-          @Nullable Image image) {
+          Optional<Image> image) {
     try {
-      Group group = groupDao.getGroup(message.getGroupId());
-      User author = userDao.getUserCached(message.getAuthorUserId());
-      Section section = sectionService.getSection(message.getSectionId());
+      Group group = groupDao.getGroup(topic.getGroupId());
+      User author = userDao.getUserCached(topic.getAuthorUserId());
+      Section section = sectionService.getSection(topic.getSectionId());
 
-      DeleteInfo deleteInfo;
-      User deleteUser;
-      if (message.isDeleted()) {
-        deleteInfo = deleteInfoDao.getDeleteInfo(message.getId());
+      Optional<DeleteInfo> deleteInfo;
+      Optional<User> deleteUser;
 
-        if (deleteInfo!=null) {
-          deleteUser = userDao.getUserCached(deleteInfo.getUserid());
-        } else {
-          deleteUser = null;
-        }
+      if (topic.isDeleted()) {
+        deleteInfo = deleteInfoDao.getDeleteInfo(topic.getId());
       } else {
-        deleteInfo = null;
-        deleteUser = null;
+        deleteInfo = Optional.empty();
       }
 
-      PreparedPoll preparedPoll;
+      deleteUser = deleteInfo.map(DeleteInfo::getUserid).map(userDao::getUserCached);
+
+      Optional<PreparedPoll> preparedPoll;
 
       if (section.isPollPostAllowed()) {
-        if (poll==null) {
-          preparedPoll = pollPrepareService.preparePoll(message, user);
-        } else {
-          preparedPoll = poll;
-        }
+        preparedPoll = Optional.of(poll.orElseGet(() -> pollPrepareService.preparePoll(topic, user)));
       } else {
-        preparedPoll = null;
+        preparedPoll = Optional.empty();
       }
 
-      User commiter;
+      Optional<User> commiter;
 
-      if (message.getCommitby()!=0) {
-        commiter = userDao.getUserCached(message.getCommitby());
+      if (topic.getCommitby()!=0) {
+        commiter = Optional.of(userDao.getUserCached(topic.getCommitby()));
       } else {
-        commiter = null;
+        commiter = Optional.empty();
       }
 
-      String url = siteConfig.getSecureUrlWithoutSlash() + message.getLink();
+      String url = siteConfig.getSecureUrlWithoutSlash() + topic.getLink();
 
       String processedMessage =
-              textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(message, author), url);
+              textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url);
 
-      PreparedImage preparedImage = null;
+      Optional<PreparedImage> preparedImage = Optional.empty();
 
       if (section.isImagepost() || section.isImageAllowed()) {
-        if (message.getId()!=0) {
-          image = imageService.imageForTopic(message);
+        if (topic.getId()!=0) {
+          image = imageService.imageForTopic(topic);
         }
 
-        if (image != null) {
-          Option<PreparedImage> maybeImage = imageService.prepareImage(image);
-
-          if (maybeImage.isDefined()) {
-            preparedImage = maybeImage.get();
-          }
-        }
-      }
-      Remark remark = null;
-      if (user != null ){
-        Option<Remark> remarkOption = remarkDao.getRemark(user, author);
-
-        if (remarkOption.isDefined()) {
-          remark = remarkOption.get();
+        if (image.isPresent()) {
+          preparedImage = image.flatMap(imageService::prepareImageJava);
         }
       }
 
-      int postscore = topicPermissionService.getPostscore(group, message);
+      Optional<Remark> remark;
+
+      if (user != null) {
+        remark = remarkDao.getRemarkJava(user, author);
+      } else {
+        remark = Optional.empty();
+      }
+
+      int postscore = topicPermissionService.getPostscore(group, topic);
 
       return new PreparedTopic(
-              message, 
+              topic,
               author, 
-              deleteInfo, 
-              deleteUser, 
+              deleteInfo.orElse(null),
+              deleteUser.orElse(null),
               processedMessage,
-              preparedPoll,
-              commiter, 
+              preparedPoll.orElse(null),
+              commiter.orElse(null),
               tags,
               group,
               section,
               text.markup(),
-              preparedImage, 
+              preparedImage.orElse(null),
               TopicPermissionService.getPostScoreInfo(postscore),
-              remark);
+              remark.orElse(null));
     } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -270,14 +248,14 @@ public class TopicPrepareService {
     ImmutableListMultimap<Integer,TagRef> tags = topicTagService.getTagRefs(messages);
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(
+      PreparedTopic preparedMessage = prepareTopic(
               message,
               tags.get(message.getId()),
               true,
-              null,
+              Optional.empty(),
               user,
               textMap.get(message.getId()),
-              null
+              Optional.empty()
       );
 
       TopicMenu topicMenu = getTopicMenu(
@@ -294,7 +272,7 @@ public class TopicPrepareService {
   }
 
   private Map<Integer, MessageText> loadTexts(List<Topic> messages) {
-    return msgbaseDao.getMessageText(Lists.transform(messages, Topic::getId));
+    return msgbaseDao.getMessageText(messages.stream().map(Topic::getId).collect(Collectors.toList()));
   }
 
   /**
@@ -310,14 +288,14 @@ public class TopicPrepareService {
     ImmutableListMultimap<Integer,TagRef> tags = topicTagService.getTagRefs(messages);
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(
+      PreparedTopic preparedMessage = prepareTopic(
               message,
               tags.get(message.getId()),
               true,
-              null,
+              Optional.empty(),
               null,
               textMap.get(message.getId()),
-              null
+              Optional.empty()
       );
 
       pm.add(preparedMessage);

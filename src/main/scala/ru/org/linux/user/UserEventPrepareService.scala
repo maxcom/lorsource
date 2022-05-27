@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,6 +23,7 @@ import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
 
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters.RichOptional
 
 @Service
 class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: MessageTextService, userService: UserService,
@@ -41,9 +42,9 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       user.getId -> user
     }.toMap
 
-    val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).mapValues(_.map(_.name))
+    val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).view.mapValues(_.map(_.name))
 
-    val prepared = evts map { event =>
+    val prepared = evts.map { event =>
       val msgid = if (event.isComment) event.getCid else event.getTopicId
 
       val text = if (readMessage) {
@@ -63,10 +64,10 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       }
 
       val bonus = (if ("DEL" == event.getType.getType) {
-        Option(deleteInfoDao.getDeleteInfo(msgid))
+        deleteInfoDao.getDeleteInfo(msgid).toScala
       } else {
         None
-      }) map (_.getBonus)
+      }).map(_.getBonus)
 
       val group = groupDao.getGroup(event.getGroupId)
 

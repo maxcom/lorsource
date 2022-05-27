@@ -15,11 +15,8 @@
 
 package ru.org.linux.gallery
 
-import java.io.{File, FileNotFoundException, IOException}
-
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
-import javax.servlet.http.{HttpServletRequest, HttpSession}
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -32,7 +29,11 @@ import ru.org.linux.user.{User, UserDao}
 import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
+import java.io.{File, FileNotFoundException, IOException}
+import java.util.Optional
+import javax.servlet.http.{HttpServletRequest, HttpSession}
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal
 
 @Service
@@ -88,8 +89,9 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     } catch prepareException(image)
   }
 
-  // java api
-  def prepareImageOrNull(image: Image): PreparedImage = prepareImage(image).orNull
+
+    // java api
+  def prepareImageJava(image: Image): Optional[PreparedImage] = prepareImage(image).toJava
 
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
     items.asScala.map(prepareGalleryItem).asJava
@@ -99,7 +101,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems)
 
-  def imageForTopic(topic: Topic): Image = imageDao.imageForTopic(topic)
+  def imageForTopic(topic: Topic): Optional[Image] = Option(imageDao.imageForTopic(topic)).toJava
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
