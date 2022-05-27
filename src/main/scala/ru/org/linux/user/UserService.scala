@@ -267,7 +267,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def canRegister(remoteAddr: String): Boolean = {
     val currentHour = DateTime.now().hourOfDay().get
 
-    currentHour >= 9 && currentHour <= 21 &&
+    currentHour >= 8 && currentHour <= 22 &&
       !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
       userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp &&
       userDao.getNewUserIds.size() < MaxNewUsers &&
