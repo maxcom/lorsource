@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -70,9 +71,9 @@ public class UserEventDaoIntegrationTest {
             UserEventFilterEnum.TAG.toString(),
             TEST_USER_ID,
             false,
-            TEST_TOPIC_ID,
-            null,
-            null
+            Optional.of(TEST_TOPIC_ID),
+            Optional.empty(),
+            Optional.empty()
     );
   }
 

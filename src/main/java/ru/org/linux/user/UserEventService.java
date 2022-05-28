@@ -53,9 +53,9 @@ public class UserEventService {
               REFERENCE.getType(),
               user.getId(),
               false,
-              topicId,
-              commentId,
-              null
+              Optional.of(topicId),
+              Optional.of(commentId),
+              Optional.empty()
       );
     }
   }
@@ -75,9 +75,9 @@ public class UserEventService {
               REFERENCE.getType(),
               user,
               false,
-              topicId,
-              null,
-              null
+              Optional.of(topicId),
+              Optional.empty(),
+              Optional.empty()
       );
     }
   }
@@ -88,10 +88,6 @@ public class UserEventService {
 
   /**
    * Добавление уведомления об ответе на сообщение пользователя.
-   *
-   * @param parentAuthor
-   * @param topicId
-   * @param commentId
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
@@ -99,9 +95,9 @@ public class UserEventService {
             ANSWERS.getType(),
             parentAuthor.getId(),
             false,
-            topicId,
-            commentId,
-            null
+            Optional.of(topicId),
+            Optional.of(commentId),
+            Optional.empty()
     );
   }
 
@@ -120,9 +116,9 @@ public class UserEventService {
               TAG.getType(),
               userId,
               false,
-              topicId,
-              null,
-              null
+              Optional.of(topicId),
+              Optional.empty(),
+              Optional.empty()
       );
     }
   }

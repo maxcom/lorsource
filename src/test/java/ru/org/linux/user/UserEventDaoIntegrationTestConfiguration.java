@@ -18,14 +18,15 @@ package ru.org.linux.user;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class UserEventDaoIntegrationTestConfiguration {
   @Bean
-  public UserEventDao userEventDao(DataSource ds) {
-    return new UserEventDao(ds);
+  public UserEventDao userEventDao(DataSource ds, PlatformTransactionManager transactionManager) {
+    return new UserEventDao(ds, transactionManager);
   }
 
   @Bean

@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -33,20 +32,20 @@ import java.util.Map;
 
 @Controller
 public class UserEventController {
-  @Autowired
-  private ReplyFeedView feedView;
+  private final ReplyFeedView feedView;
+  private final UserService userService;
+  private final UserEventService userEventService;
+  private final UserEventPrepareService prepareService;
+  private final UserEventApiController apiController;
 
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private UserEventService userEventService;
-
-  @Autowired
-  private UserEventPrepareService prepareService;
-
-  @Autowired
-  private UserEventApiController apiController;
+  public UserEventController(ReplyFeedView feedView, UserService userService, UserEventService userEventService,
+                             UserEventPrepareService prepareService, UserEventApiController apiController) {
+    this.feedView = feedView;
+    this.userService = userService;
+    this.userEventService = userEventService;
+    this.prepareService = prepareService;
+    this.apiController = apiController;
+  }
 
   @ModelAttribute("filterValues")
   public static List<UserEventFilterEnum> getFilter() {
