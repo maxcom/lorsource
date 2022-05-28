@@ -380,9 +380,10 @@ public class TopicController {
     List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
             comments,
             commentsFiltered,
-            tmpl,
             topic,
-            hideSet
+            hideSet,
+            tmpl.getCurrentUser(),
+            tmpl.getProf()
     );
 
     params.put("commentsPrepared", commentsPrepared);

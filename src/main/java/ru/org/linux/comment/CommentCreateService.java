@@ -46,6 +46,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import scala.Tuple2;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.util.HashSet;
@@ -272,9 +273,9 @@ public class CommentCreateService {
     }
   }
 
-  public ImmutableMap<String, Object> prepareReplyto(CommentRequest add) throws UserNotFoundException {
+  public ImmutableMap<String, Object> prepareReplyto(CommentRequest add, @Nullable User currentUser, Profile profile, Topic topic) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplyto(add.getReplyto()));
+      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplyto(add.getReplyto(), currentUser, profile, topic));
     } else {
       return ImmutableMap.of();
     }

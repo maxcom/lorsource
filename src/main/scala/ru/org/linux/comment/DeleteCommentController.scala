@@ -63,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, tmpl, topic, ImmutableSet.of())
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), tmpl.getCurrentUser, tmpl.getProf)
     ).asJava)
   }
 
@@ -183,7 +183,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentForReplyto(comment),
+      "comment" -> prepareService.prepareCommentForReplyto(comment, tmpl.getCurrentUser, tmpl.getProf, topic),
       "topic" -> topic
     ).asJava)
   }

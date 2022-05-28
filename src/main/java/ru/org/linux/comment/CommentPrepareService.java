@@ -16,13 +16,13 @@
 package ru.org.linux.comment;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.springframework.stereotype.Service;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.site.ApiDeleteInfo;
 import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -31,56 +31,43 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.*;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CommentPrepareService {
-  @Autowired
-  private UserDao userDao;
+  private final MessageTextService textService;
+  private final MsgbaseDao msgbaseDao;
+  private final TopicPermissionService topicPermissionService;
+  private final UserService userService;
+  private final DeleteInfoDao deleteInfoDao;
+  private final UserAgentDao userAgentDao;
+  private final RemarkDao remarkDao;
 
-  @Autowired
-  private MessageTextService textService;
-
-  @Autowired
-  private MsgbaseDao msgbaseDao;
-
-  @Autowired
-  private TopicPermissionService topicPermissionService;
-
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
-
-  @Autowired
-  private UserAgentDao userAgentDao;
-
-  @Autowired
-  private RemarkDao remarkDao;
-
-  private PreparedComment prepareComment(
-          @Nonnull Comment comment
-  ) throws UserNotFoundException {
-    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
-    User author = userDao.getUserCached(comment.getUserid());
-
-    return prepareComment(messageText, author, null, comment, null, null, null, ImmutableSet.of(), null);
+  public CommentPrepareService(MessageTextService textService, MsgbaseDao msgbaseDao,
+                               TopicPermissionService topicPermissionService, UserService userService,
+                               DeleteInfoDao deleteInfoDao, UserAgentDao userAgentDao, RemarkDao remarkDao) {
+    this.textService = textService;
+    this.msgbaseDao = msgbaseDao;
+    this.topicPermissionService = topicPermissionService;
+    this.userService = userService;
+    this.deleteInfoDao = deleteInfoDao;
+    this.userAgentDao = userAgentDao;
+    this.remarkDao = remarkDao;
   }
 
   private PreparedComment prepareComment(
           MessageText messageText,
           User author,
-          @Nullable String remark,
+          Optional<String> remark,
           Comment comment,
-          CommentList comments,
-          Template tmpl,
+          Optional<CommentList> comments,
+          Profile profile,
           Topic topic,
           Set<Integer> hideSet,
-          @Nullable Set<Integer> samePageComments) throws UserNotFoundException {
+          Set<Integer> samePageComments,
+          @Nullable User currentUser) {
     String processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author));
 
     ReplyInfo replyInfo = null;
@@ -90,9 +77,9 @@ public class CommentPrepareService {
     String answerLink;
     boolean answerSamepage = false;
 
-    if (comments != null) {
+    if (comments.isPresent()) {
       if (comment.getReplyTo() != 0) {
-        CommentNode replyNode = comments.getNode(comment.getReplyTo());
+        CommentNode replyNode = comments.get().getNode(comment.getReplyTo());
 
         boolean replyDeleted = replyNode == null;
         if (replyDeleted) {
@@ -101,9 +88,9 @@ public class CommentPrepareService {
         } else {
           Comment reply = replyNode.getComment();
 
-          boolean samePage = samePageComments!=null && samePageComments.contains(reply.getId());
+          boolean samePage = samePageComments.contains(reply.getId());
 
-          String replyAuthor = userDao.getUserCached(reply.getUserid()).getNick();
+          String replyAuthor = userService.getUserCached(reply.getUserid()).getNick();
 
           replyInfo = new ReplyInfo(
                   reply.getId(),
@@ -116,7 +103,7 @@ public class CommentPrepareService {
         }
       }
 
-      CommentNode node = comments.getNode(comment.getId());
+      CommentNode node = comments.get().getNode(comment.getId());
       List<CommentNode> replysFiltered = node.childs().stream().filter(commentNode ->
               !hideSet.contains(commentNode.getComment().getId())
       ).collect(Collectors.toList());
@@ -132,16 +119,8 @@ public class CommentPrepareService {
         answerLink = null;
       }
 
-      if (tmpl != null && topic != null) {
-        final User currentUser = tmpl.getCurrentUser();
-
-        deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser, topic, node.hasAnswers());
-
-        if (currentUser != null) {
-          editable = topicPermissionService.isCommentEditableNow(comment, currentUser, node.hasAnswers(), topic,
-                  messageText.markup());
-        }
-      }
+      deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser, topic, node.hasAnswers());
+      editable = topicPermissionService.isCommentEditableNow(comment, currentUser, node.hasAnswers(), topic, messageText.markup());
     } else {
       answerCount = 0;
       answerLink = null;
@@ -149,64 +128,48 @@ public class CommentPrepareService {
 
     Userpic userpic = null;
 
-    if (tmpl != null && tmpl.getProf().isShowPhotos()) {
-      userpic = userService.getUserpic(
-              author,
-              tmpl.getProf().getAvatarMode(),
-              false
-      );
+    if (profile.isShowPhotos()) {
+      userpic = userService.getUserpic(author, profile.getAvatarMode(), false);
     }
 
-    ApiUserRef ref = userService.ref(author, tmpl!=null?tmpl.getCurrentUser():null);
+    ApiUserRef ref = userService.ref(author, currentUser);
 
-    ApiDeleteInfo deleteInfo = loadDeleteInfo(comment);
+    Optional<DeleteInfo> deleteInfo = loadDeleteInfo(comment);
+    Optional<ApiDeleteInfo> apiDeleteInfo = deleteInfo.map(i ->
+            new ApiDeleteInfo(userService.getUserCached(i.getUserid()).getNick(), i.getReason())
+    );
 
     EditSummary editSummary = loadEditSummary(comment);
 
     String postIP = null;
     String userAgent = null;
 
-    if (tmpl!=null && tmpl.isModeratorSession()) {
+    if (currentUser!=null && currentUser.isModerator()) {
       postIP = comment.getPostIP();
       userAgent = userAgentDao.getUserAgentById(comment.getUserAgentId());
     }
 
-    boolean undeletable = false;
-    if (tmpl!=null) {
-      Optional<DeleteInfo> info = Optional.empty();
-
-      if (comment.isDeleted()) {
-        info = deleteInfoDao.getDeleteInfo(comment.getId());
-      }
-
-      undeletable = topicPermissionService.isUndeletable(topic, comment, tmpl.getCurrentUser(), info);
-    }
+    boolean undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser, deleteInfo);
 
     return new PreparedComment(comment, ref, processedMessage, replyInfo,
-            deletable, editable, remark, userpic, deleteInfo, editSummary,
+            deletable, editable, remark.orElse(null), userpic, apiDeleteInfo.orElse(null), editSummary,
             postIP, userAgent, comment.getUserAgentId(), undeletable, answerCount, answerLink, answerSamepage);
   }
 
-  private ApiDeleteInfo loadDeleteInfo(Comment comment) throws UserNotFoundException {
-    ApiDeleteInfo deleteInfo = null;
-
+  private Optional<DeleteInfo> loadDeleteInfo(Comment comment) {
     if (comment.isDeleted()) {
-      Optional<DeleteInfo> info = deleteInfoDao.getDeleteInfo(comment.getId());
-
-      deleteInfo = info.map(i ->
-              new ApiDeleteInfo(userDao.getUserCached(i.getUserid()).getNick(), i.getReason())
-      ).orElse(null);
+      return deleteInfoDao.getDeleteInfo(comment.getId());
+    } else {
+      return Optional.empty();
     }
-
-    return deleteInfo;
   }
 
-  private EditSummary loadEditSummary(Comment comment) throws UserNotFoundException {
+  private EditSummary loadEditSummary(Comment comment) {
     EditSummary editSummary = null;
 
     if (comment.getEditCount()>0) {
       editSummary = new EditSummary(
-              userDao.getUserCached(comment.getEditorId()).getNick(),
+              userService.getUserCached(comment.getEditorId()).getNick(),
               comment.getEditDate(),
               comment.getEditCount()
       );
@@ -215,19 +178,19 @@ public class CommentPrepareService {
     return editSummary;
   }
 
-  private PreparedRSSComment prepareRSSComment(
-          @Nonnull MessageText messageText,
-          @Nonnull Comment comment
-  ) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
+  private PreparedRSSComment prepareRSSComment(MessageText messageText, Comment comment) {
+    User author = userService.getUserCached(comment.getUserid());
 
     String processedMessage = textService.renderTextRSS(messageText);
 
     return new PreparedRSSComment(comment, author, processedMessage);
   }
 
-  public PreparedComment prepareCommentForReplyto(Comment comment) throws UserNotFoundException {
-    return prepareComment(comment);
+  public PreparedComment prepareCommentForReplyto(Comment comment, @Nullable User currentUser, Profile profile, Topic topic) {
+    MessageText messageText = msgbaseDao.getMessageText(comment.getId());
+    User author = userService.getUserCached(comment.getUserid());
+
+    return prepareComment(messageText, author, Optional.empty(), comment, Optional.empty(), profile, topic, ImmutableSet.of(), ImmutableSet.of(), currentUser);
   }
 
   /**
@@ -237,8 +200,8 @@ public class CommentPrepareService {
    * @param message Тело комментария
    * @return подготовленный коментарий
    */
-  public PreparedComment prepareCommentForEdit(Comment comment, MessageText message) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
+  public PreparedComment prepareCommentForEdit(Comment comment, MessageText message) {
+    User author = userService.getUserCached(comment.getUserid());
     String processedMessage = textService.renderCommentText(message, false);
 
     ApiUserRef ref = userService.ref(author, null);
@@ -260,9 +223,7 @@ public class CommentPrepareService {
             false, 0, null, false);
   }
 
-  public List<PreparedRSSComment> prepareCommentListRSS(
-          @Nonnull List<Comment> list
-  ) throws UserNotFoundException {
+  public List<PreparedRSSComment> prepareCommentListRSS(List<Comment> list) {
     List<PreparedRSSComment> commentsPrepared = new ArrayList<>(list.size());
     for (Comment comment : list) {
       MessageText messageText = msgbaseDao.getMessageText(comment.getId());
@@ -283,19 +244,19 @@ public class CommentPrepareService {
   }
 
   public List<PreparedComment> prepareCommentList(
-          @Nonnull CommentList comments,
-          @Nonnull List<Comment> list,
-          @Nonnull Template tmpl,
-          @Nonnull Topic topic,
-          Set<Integer> hideSet) throws UserNotFoundException {
+          CommentList comments,
+          List<Comment> list,
+          Topic topic,
+          Set<Integer> hideSet,
+          @Nullable User currentUser,
+          Profile profile) {
     if (list.isEmpty()) {
       return ImmutableList.of();
     }
 
-    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(Lists.transform(list, Comment::getId));
+    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(list.stream().map(Comment::getId).collect(Collectors.toList()));
 
-    Map<Integer, User> users = loadUsers(Iterables.transform(list, Comment::getUserid));
-    User currentUser = tmpl.getCurrentUser();
+    Map<Integer, User> users = loadUsers(list.stream().map(Comment::getUserid).collect(Collectors.toList()));
 
     Map<Integer, Remark> remarks;
 
@@ -312,23 +273,16 @@ public class CommentPrepareService {
 
       User author = users.get(comment.getUserid());
 
-      Remark remark = remarks.get(author.getId());
+      Optional<Remark> remark = Optional.ofNullable(remarks.get(author.getId()));
 
-      String remarkText;
-
-      if (remark!=null) {
-        remarkText = remark.getText();
-      } else {
-        remarkText = null;
-      }
-
-      return prepareComment(text, author, remarkText, comment, comments, tmpl, topic, hideSet, samePageComments);
+      return prepareComment(text, author, remark.map(Remark::getText), comment, Optional.of(comments), profile, topic,
+              hideSet, samePageComments, currentUser);
     }).collect(Collectors.toList());
   }
 
   public List<PreparedCommentsListItem> prepareCommentsList(List<CommentsListItem> comments) {
-    Map<Integer, User> users = loadUsers(Iterables.transform(comments, CommentsListItem::getAuthorId));
-    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(Lists.transform(comments, CommentsListItem::getCommentId));
+    Map<Integer, User> users = loadUsers(comments.stream().map(CommentsListItem::getAuthorId).collect(Collectors.toList()));
+    Map<Integer, MessageText> texts = msgbaseDao.getMessageText(comments.stream().map(CommentsListItem::getCommentId).collect(Collectors.toList()));
 
     return comments.stream().map(comment -> {
       User author = users.get(comment.authorId());

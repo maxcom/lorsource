@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -76,7 +76,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment))
+      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, tmpl.getCurrentUser, tmpl.getProf, topic))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 
@@ -103,8 +103,9 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
 
     val comment = commentService.getComment(commentRequest, user, request)
+    val tmpl = Template.getTemplate(request)
 
-    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest))
+    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, tmpl.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
 
@@ -123,7 +124,6 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 
-    val tmpl = Template.getTemplate(request)
     topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
       tmpl.getCurrentUser, errors, originalMessageText.markup)
 
