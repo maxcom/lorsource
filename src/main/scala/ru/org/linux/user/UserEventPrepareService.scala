@@ -36,9 +36,9 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
   def prepare(events: java.util.List[UserEvent], readMessage: Boolean): java.util.List[PreparedUserEvent] = {
     val evts = events.asScala
 
-    val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0).distinct
+    val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0)
 
-    val users = userService.getUsersCached(userIds).view.map { user => user.getId -> user }.toMap
+    val users = userService.getUsersCachedMap(userIds)
 
     val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).view.mapValues(_.map(_.name))
 

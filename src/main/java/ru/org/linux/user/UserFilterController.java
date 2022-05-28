@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.org.linux.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,17 +39,18 @@ import java.util.Set;
 
 @Controller
 public class UserFilterController {
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+  private final IgnoreListDao ignoreListDao;
+  private final UserTagService userTagService;
+  private final RemarkDao remarkDao;
 
-  @Autowired
-  private IgnoreListDao ignoreListDao;
-
-  @Autowired
-  private UserTagService userTagService;
-
-  @Autowired
-  private RemarkDao remarkDao;
+  public UserFilterController(UserService userService, IgnoreListDao ignoreListDao, UserTagService userTagService,
+                              RemarkDao remarkDao) {
+    this.userService = userService;
+    this.ignoreListDao = ignoreListDao;
+    this.userTagService = userTagService;
+    this.remarkDao = remarkDao;
+  }
 
   @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(
@@ -71,7 +71,7 @@ public class UserFilterController {
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
 
-    Map<Integer, Remark> ignoreRemarks = remarkDao.getRemarks(user, ignoreMap.values());
+    Map<Integer, Remark> ignoreRemarks = remarkDao.getRemarksJava(user, ignoreMap.values());
     modelAndView.addObject("ignoreRemarks", ignoreRemarks);
 
     modelAndView.addObject("ignoreList", ignoreMap);
@@ -219,9 +219,9 @@ public class UserFilterController {
     try {
       int id = userTagService.favoriteAdd(user, tagName);
 
-      return ImmutableMap.<String, Object>of("count", userTagService.countFavs(id));
+      return ImmutableMap.of("count", userTagService.countFavs(id));
     } catch (TagNotFoundException e) {
-      return ImmutableMap.<String, Object>of("error", e.getMessage());
+      return ImmutableMap.of("error", e.getMessage());
     }
   }
 
@@ -280,7 +280,7 @@ public class UserFilterController {
 
     int tagId = userTagService.favoriteDel(user, tagName);
 
-    return ImmutableMap.<String, Object>of("count", userTagService.countFavs(tagId));
+    return ImmutableMap.of("count", userTagService.countFavs(tagId));
   }
 
   /**
@@ -354,9 +354,9 @@ public class UserFilterController {
     try {
       int tagId = userTagService.ignoreAdd(user, tagName);
 
-      return ImmutableMap.<String, Object>of("count", userTagService.countIgnore(tagId));
+      return ImmutableMap.of("count", userTagService.countIgnore(tagId));
     } catch (TagNotFoundException e) {
-      return ImmutableMap.<String, Object>of("error", e.getMessage());
+      return ImmutableMap.of("error", e.getMessage());
     }
     
   }
@@ -424,6 +424,6 @@ public class UserFilterController {
 
     int tagId = userTagService.ignoreDel(user, tagName);
 
-    return ImmutableMap.<String, Object>of("count", userTagService.countIgnore(tagId));
+    return ImmutableMap.of("count", userTagService.countIgnore(tagId));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -54,24 +54,27 @@ class RemarkDao(ds:DataSource) {
 
   def getRemarkJava(user: User, ref: User): Optional[Remark] = getRemark(user, ref).toJava
 
-  def getRemarks(user: User, refs:java.lang.Iterable[User]): java.util.Map[Integer, Remark] = {
-    val r: Map[Integer, Remark] = if (refs.asScala.isEmpty) {
+  def getRemarks(user: User, refs: Iterable[User]): Map[Int, Remark] = {
+    val r: Map[Int, Remark] = if (refs.isEmpty) {
       Map.empty
     } else {
       namedTemplate.query(
         "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
-        Map("list" -> refs.asScala.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId).asJava,
-        new RowMapper[(Integer, Remark)]() {
+        Map("list" -> refs.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId).asJava,
+        new RowMapper[(Int, Remark)]() {
           override def mapRow(rs: ResultSet, rowNum: Int) = {
             val remark = new Remark(rs)
-            Integer.valueOf(remark.getRefUserId) -> remark
+            remark.getRefUserId -> remark
           }
         }
       ).asScala.toMap
     }
 
-    r.asJava
+    r
   }
+
+  def getRemarksJava(user: User, refs: java.lang.Iterable[User]): java.util.Map[Integer, Remark] =
+    getRemarks(user, refs.asScala).map(p => Integer.valueOf(p._1) -> p._2).asJava
 
   private def setRemark(user: User, ref: User, text: String):Unit = {
     if (text.nonEmpty) {
@@ -95,7 +98,7 @@ class RemarkDao(ds:DataSource) {
    * @param ref  user
    * @param text текст комментария
    */
-  def setOrUpdateRemark(user: User, ref: User, text: String) = {
+  def setOrUpdateRemark(user: User, ref: User, text: String): Unit = {
     getRemark(user, ref) match {
       case Some(remark) => updateRemark(remark.getId, text)
       case None         => setRemark(user, ref, text)

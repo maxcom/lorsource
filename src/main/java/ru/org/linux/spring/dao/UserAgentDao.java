@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Optional;
 
 /**
  * Информация о UA пользователей
@@ -42,14 +43,14 @@ public class UserAgentDao {
    * @param id id UA
    * @return название UA или null если отсутствует
    */
-  public String getUserAgentById(int id) {
+  public Optional<String> getUserAgentById(int id) {
     if (id == 0) {
-      return null;
+      return Optional.empty();
     }
     try {
-      return jdbcTemplate.queryForObject(queryUserAgentById, String.class, id);
+      return Optional.of(jdbcTemplate.queryForObject(queryUserAgentById, String.class, id));
     } catch (EmptyResultDataAccessException exception) {
-      return null;
+      return Optional.empty();
     }
   }
 }

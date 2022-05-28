@@ -173,10 +173,13 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getResetCode(nick: String, email: String, tm: Timestamp): String = {
     val base = siteConfig.getSecret
-    StringUtil.md5hash(base + ':' + nick + ':' + email + ':' + tm.getTime.toString + ":reset")
+    StringUtil.md5hash(s"$base:$nick:$email:${tm.getTime.toString}:reset")
   }
 
   def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => userDao.getUserCached(x)).toSeq
+
+  def getUsersCachedMap(userIds: Iterable[Int]): Map[Int, User] =
+    getUsersCached(userIds.toSet).view.map(u => u.getId -> u).toMap
 
   def getUsersCachedJava(ids: java.lang.Iterable[Integer]): util.List[User] =
     getUsersCached(ids.asScala.map(i => i)).asJava
@@ -282,7 +285,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       if ((data \ "success").as[Boolean]) {
         val country = (data \ "country_code").asOpt[String]
 
-        logger.debug(s"Country for ${remoteAddr}: $country")
+        logger.debug(s"Country for $remoteAddr: $country")
 
         country // "RU"
       } else {
