@@ -53,7 +53,7 @@ object UserEventDao {
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
-      |WHERE user_events.userid = ? %s AND not private
+      |WHERE user_events.userid = ? AND not private
       |ORDER BY id DESC LIMIT ? OFFSET ?
       |""".stripMargin
 }
