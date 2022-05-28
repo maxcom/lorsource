@@ -45,7 +45,6 @@ import ru.org.linux.user.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import scala.Tuple2;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
@@ -61,7 +60,6 @@ public class CommentCreateService {
 
   private final CommentDao commentDao;
   private final TopicDao topicDao;
-  private final UserDao userDao;
   private final UserService userService;
   private final CaptchaService captcha;
   private final CommentPrepareService commentPrepareService;
@@ -73,12 +71,11 @@ public class CommentCreateService {
   private final EditHistoryService editHistoryService;
   private final TopicPermissionService permissionService;
 
-  public CommentCreateService(UserDao userDao, CommentDao commentDao, TopicDao topicDao, UserService userService,
-                              CaptchaService captcha, CommentPrepareService commentPrepareService,
-                              FloodProtector floodProtector, EditHistoryService editHistoryService,
-                              MessageTextService textService, UserEventService userEventService, MsgbaseDao msgbaseDao,
-                              IgnoreListDao ignoreListDao, TopicPermissionService permissionService) {
-    this.userDao = userDao;
+  public CommentCreateService(CommentDao commentDao, TopicDao topicDao, UserService userService, CaptchaService captcha,
+                              CommentPrepareService commentPrepareService, FloodProtector floodProtector,
+                              EditHistoryService editHistoryService, MessageTextService textService,
+                              UserEventService userEventService, MsgbaseDao msgbaseDao, IgnoreListDao ignoreListDao,
+                              TopicPermissionService permissionService) {
     this.commentDao = commentDao;
     this.topicDao = topicDao;
     this.userService = userService;
@@ -248,7 +245,6 @@ public class CommentCreateService {
    * @param errors          обработчик ошибок ввода для формы
    * @return объект пользователя
    */
-  @Nonnull
   public User getCommentUser(
     CommentRequest commentRequest,
     HttpServletRequest request,
@@ -294,8 +290,8 @@ public class CommentCreateService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public Tuple2<Integer, List<Integer>> create(
-          @Nonnull User author,
-          @Nonnull Comment comment,
+          User author,
+          Comment comment,
           MessageText commentBody,
           String remoteAddress,
           String xForwardedFor,
@@ -339,7 +335,7 @@ public class CommentCreateService {
   /* оповещение об ответе на коммент */
   private Optional<User> notifyReply(Comment comment, int commentId, Comment parentComment) {
     if (parentComment.getUserid() != comment.getUserid()) {
-      User parentAuthor = userDao.getUserCached(parentComment.getUserid());
+      User parentAuthor = userService.getUserCached(parentComment.getUserid());
 
       if (!parentAuthor.isAnonymous()) {
         Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
@@ -376,15 +372,8 @@ public class CommentCreateService {
    * @param xForwardedFor  IP-адрес через шлюз, с которого был добавлен комментарий
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void edit(
-    Comment oldComment,
-    Comment newComment,
-    String commentBody,
-    String remoteAddress,
-    String xForwardedFor,
-    @Nonnull User editor,
-    MessageText originalMessageText
-  ) {
+  public void edit(Comment oldComment, Comment newComment, String commentBody, String remoteAddress,
+                   String xForwardedFor, User editor, MessageText originalMessageText) {
     commentDao.changeTitle(oldComment, newComment.getTitle());
     msgbaseDao.updateMessage(oldComment.getId(), commentBody);
 
@@ -445,7 +434,6 @@ public class CommentCreateService {
     if (modified) {
       editHistoryService.insert(editHistoryRecord);
     }
-
   }
 
   /**
