@@ -38,7 +38,6 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagRef;
 import ru.org.linux.user.*;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -304,9 +303,8 @@ public class TopicPrepareService {
     return pm;
   }
 
-  @Nonnull
   public TopicMenu getTopicMenu(
-          @Nonnull PreparedTopic message,
+          PreparedTopic message,
           @Nullable User currentUser,
           Profile profile,
           boolean loadUserpics
@@ -329,14 +327,16 @@ public class TopicPrepareService {
       undeletable = false;
     }
 
-    Userpic userpic = null;
+    Optional<Userpic> userpic;
 
     if (loadUserpics && profile.isShowPhotos()) {
-      userpic = userService.getUserpic(
+      userpic = Optional.of(userService.getUserpic(
               message.getAuthor(),
               profile.getAvatarMode(),
               true
-      );
+      ));
+    } else {
+      userpic = Optional.empty();
     }
 
     int postscore = topicPermissionService.getPostscore(message.getGroup(), message.getMessage());
@@ -350,7 +350,7 @@ public class TopicPrepareService {
             deletable,
             undeletable,
             groupPermissionService.canCommit(currentUser, message.getMessage()),
-            userpic,
+            userpic.orElse(null),
             showComments
     );
   }
