@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
@@ -26,6 +25,7 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.site.Template
 import ru.org.linux.user._
 
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.jdk.CollectionConverters._
 
 @Controller
@@ -156,7 +156,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
       "user" -> user
     )
 
-    new ModelAndView("deleted-topics", params.asJava);
+    new ModelAndView("deleted-topics", params.asJava)
   }
 
   @RequestMapping(value = Array("tracked"), params = Array("!output"))
@@ -196,12 +196,12 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     messages: java.util.List[Topic]
   ): Unit = {
     if (rss) {
-      modelAndView.addObject("messages", prepareService.prepareMessages(messages))
+      modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
       modelAndView.setViewName("section-rss")
     } else {
       val tmpl = Template.getTemplate(request)
       modelAndView.addObject("messages",
-        prepareService.prepareMessagesForUser(messages, tmpl.getCurrentUser, tmpl.getProf, false))
+        prepareService.prepareTopicsForUser(messages, tmpl.getCurrentUser, tmpl.getProf, loadUserpics = false))
     }
   }
 

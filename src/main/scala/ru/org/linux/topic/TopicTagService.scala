@@ -78,10 +78,10 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
   def getTagRefs(topic: Topic): java.util.List[TagRef] =
     topicTagDao.getTags(topic.getId).map(tagRef).asJava
 
-  def getTagRefs(topics:java.util.List[Topic]): ImmutableListMultimap[Integer, TagRef] = {
+  def getTagRefs(topics: Seq[Topic]): ImmutableListMultimap[Integer, TagRef] = {
     val builder = ImmutableListMultimap.builder[Integer,TagRef]()
 
-    val tags = topicTagDao.getTags(topics.asScala.map(_.getId))
+    val tags = topicTagDao.getTags(topics.map(_.getId))
 
     for ((msgid, tag) <- tags) {
       builder.put(msgid, tagRef(tag))

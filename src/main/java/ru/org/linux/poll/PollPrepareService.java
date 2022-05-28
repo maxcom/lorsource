@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,6 @@ package ru.org.linux.poll;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
@@ -28,8 +27,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class PollPrepareService {
-  @Autowired
-  private PollDao pollDao;
+  private final PollDao pollDao;
+
+  public PollPrepareService(PollDao pollDao) {
+    this.pollDao = pollDao;
+  }
 
   /**
    * Функция подготовки опроса для пользователя
@@ -52,10 +54,7 @@ public class PollPrepareService {
     final Map<Integer,PollVariantResult> currentMap;
 
     if (newPoll.getId()>0) {
-      currentMap = Maps.uniqueIndex(
-              pollDao.getPollVariants(newPoll),
-              input -> input.getId()
-      );
+      currentMap = Maps.uniqueIndex(pollDao.getPollVariants(newPoll), PollVariantResult::getId);
     } else {
       currentMap = ImmutableSortedMap.of();
     }

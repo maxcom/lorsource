@@ -57,7 +57,7 @@ class MainPageController(
     val mv = new ModelAndView("index")
 
     mv.getModel.put("news",
-      prepareService.prepareMessagesForUser(
+      prepareService.prepareTopicsForUser(
         messages.asJava,
         tmpl.getCurrentUser,
         profile,

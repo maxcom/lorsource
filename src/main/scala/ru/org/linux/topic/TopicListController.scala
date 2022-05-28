@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,10 +14,6 @@
  */
 
 package ru.org.linux.topic
-
-import java.net.URLEncoder
-import java.util.concurrent.CompletionStage
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -35,10 +31,13 @@ import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.RichFuture._
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
 
-import scala.jdk.CollectionConverters._
+import java.net.URLEncoder
+import java.util.concurrent.CompletionStage
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
+import scala.jdk.CollectionConverters._
 
 object TopicListController {
   def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer): Unit = {
@@ -61,7 +60,7 @@ object TopicListController {
     if (topicListForm.getMonth == null) {
       section.getName
     } else {
-      "Архив: " + section.getName + ", " + topicListForm.getYear + ", " + DateUtil.getMonth(topicListForm.getMonth)
+      s"Архив: ${section.getName}, ${topicListForm.getYear}, ${DateUtil.getMonth(topicListForm.getMonth)}"
     }
   }
 
@@ -117,7 +116,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareMessagesForUser(messages, tmpl.getCurrentUser, tmpl.getProf, false))
+      prepareService.prepareTopicsForUser(messages, tmpl.getCurrentUser, tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth == null)
 
@@ -203,9 +202,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   def showUserTopics(@RequestParam("nick") nick: String,
                      @RequestParam(value = "output", required = false) output: String): View = {
     if (output != null) {
-      new RedirectView("/people/" + nick + "/?output=rss")
+      new RedirectView(s"/people/$nick/?output=rss")
     } else {
-      new RedirectView("/people/" + nick + '/')
+      new RedirectView(s"/people/$nick/")
     }
   }
 
@@ -235,7 +234,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   }
 
   @RequestMapping(Array("/section-rss.jsp"))
-  def showRSS(request: HttpServletRequest, topicListForm: TopicListRequest,
+  def showRSS(topicListForm: TopicListRequest,
               @RequestParam(value = "section", defaultValue = "1") sectionId: Int,
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
               @RequestParam(value = "filter", required = false) filter: String): ModelAndView = {
@@ -270,7 +269,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val fromDate = DateTime.now.minusMonths(3)
     val messages = topicListService.getRssTopicsFeed(section, group.orNull, fromDate.toDate, notalks, tech)
 
-    modelAndView.addObject("messages", prepareService.prepareMessages(messages))
+    modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
 
     modelAndView
   }
@@ -281,7 +280,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, Some(group))
 
-    modelAndView.addObject("ptitle", section.getName + " - " + group.getTitle)
+    modelAndView.addObject("ptitle", s"${section.getName} - ${group.getTitle}")
     modelAndView.addObject("url", group.getUrl)
 
     modelAndView
@@ -298,7 +297,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     group foreach { group =>
       if (group.getSectionId != section.getId) {
-        throw new ScriptErrorException("группа #" + group.getId + " не принадлежит разделу #" + section.getId)
+        throw new ScriptErrorException(s"группа #${group.getId} не принадлежит разделу #${section.getId}")
       }
     }
   }

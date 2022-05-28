@@ -107,7 +107,7 @@ class TagTopicListController (
     val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, tmpl.getCurrentUser)
 
     val preparedTopics =
-      prepareService.prepareMessagesForUser(topics, tmpl.getCurrentUser, tmpl.getProf, false)
+      prepareService.prepareTopicsForUser(topics, tmpl.getCurrentUser, tmpl.getProf, false)
 
     modelAndView.addObject("messages", preparedTopics)
     modelAndView.addObject("offsetNavigation", true)

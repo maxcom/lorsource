@@ -130,7 +130,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, tmpl.getCurrentUser)
     val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)
-    val fullNews = prepareService.prepareMessagesForUser(fullNewsTopics.asJava, tmpl.getCurrentUser, tmpl.getProf, false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, tmpl.getCurrentUser, tmpl.getProf, false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
