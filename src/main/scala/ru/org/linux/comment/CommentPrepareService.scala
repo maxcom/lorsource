@@ -200,12 +200,16 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def buildDateJumpSet(comments: java.util.List[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
-    val commentDates = comments.asScala.view.map { c =>
-      c.getId -> new DateTime(c.getPostdate)
-    }
+    if (comments.size() > 1) {
+      val commentDates = comments.asScala.view.map { c =>
+        c.getId -> new DateTime(c.getPostdate)
+      }
 
-    commentDates.zip(commentDates.tail).filter { case (first, second) =>
-      new Duration(first._2, second._2).isLongerThan(jumpMinDuration)
-    }.map(_._2._1).map(Integer.valueOf).toSet.asJava
+      commentDates.zip(commentDates.tail).filter { case (first, second) =>
+        new Duration(first._2, second._2).isLongerThan(jumpMinDuration)
+      }.map(_._2._1).map(Integer.valueOf).toSet.asJava
+    } else {
+      Set.empty[Integer].asJava
+    }
   }
 }
