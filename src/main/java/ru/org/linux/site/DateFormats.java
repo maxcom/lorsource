@@ -42,6 +42,8 @@ public class DateFormats {
   private static final DateTimeFormatter DATE =
           DateTimeFormat.forPattern("dd.MM.yy").withLocale(RUSSIAN_LOCALE);
 
+  private static final DateTimeFormatter DATE_LONG = DateTimeFormat.longDate().withLocale(RUSSIAN_LOCALE);
+
   private DateFormats() {
   }
 
@@ -63,6 +65,10 @@ public class DateFormats {
 
   public static DateTimeFormatter date() {
     return DATE;
+  }
+
+  public static DateTimeFormatter dateLong() {
+    return DATE_LONG;
   }
 
   public static DateTimeFormatter rfc822() {

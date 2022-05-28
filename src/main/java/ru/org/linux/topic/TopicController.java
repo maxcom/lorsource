@@ -72,6 +72,7 @@ public class TopicController {
   private static final FiniteDuration MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS);
 
   private final static Logger logger = LoggerFactory.getLogger(TopicController.class);
+  public static final org.joda.time.Duration JUMP_MIN_DURATION = org.joda.time.Duration.standardDays(30);
 
   @Autowired
   private SectionService sectionService;
@@ -132,7 +133,7 @@ public class TopicController {
           @PathVariable("section") String sectionName,
           @PathVariable("group") String groupName,
           @PathVariable("id") int msgid
-  ) throws Exception {
+  ) {
     if (cid != null) {
       return jumpMessage(request, msgid, cid, skipDeleted);
     }
@@ -158,7 +159,7 @@ public class TopicController {
           @PathVariable("group") String groupName,
           @PathVariable("id") int msgid,
           @PathVariable("page") int page
-  ) throws Exception {
+  ) {
     Section section = sectionService.getSectionByName(sectionName);
 
     return getMessage(section, webRequest, request, response, page, filter, groupName, msgid, 0);
@@ -175,7 +176,7 @@ public class TopicController {
           @PathVariable("group") String groupName,
           @PathVariable("id") int msgid,
           @PathVariable("threadRoot") int threadRoot
-  ) throws Exception {
+  ) {
     Section section = sectionService.getSectionByName(sectionName);
 
     return getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot);
@@ -412,6 +413,8 @@ public class TopicController {
     );
 
     params.put("showDeletedButton", permissionService.allowViewDeletedComments(topic, currentUser) && !showDeleted);
+
+    params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, JUMP_MIN_DURATION));
 
     return new ModelAndView("view-message", params);
   }
@@ -650,7 +653,7 @@ public class TopicController {
           @RequestParam int msgid,
           @RequestParam(required = false) Integer page,
           @RequestParam(required = false) Integer cid
-  ) throws Exception {
+  ) {
     if (cid != null) {
       return jumpMessage(request, msgid, cid, false);
     }

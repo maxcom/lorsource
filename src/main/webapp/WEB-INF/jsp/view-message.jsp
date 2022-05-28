@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.site.DateFormats" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -34,6 +35,7 @@
 <%--@elvariable id="moreLikeThisGetter" type="java.util.concurrent.Callable<java.util.List<java.util.List<ru.org.linux.search.MoreLikeThisTopic>>>"--%>
 <%--@elvariable id="ogDescription" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.topic.PreparedEditInfoSummary"--%>
+<%--@elvariable id="dateJumps" type="java.util.Set<Integer>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -317,6 +319,10 @@
     </c:if>
 </c:if>
     <c:forEach var="comment" items="${commentsPrepared}">
+      <c:if test="${dateJumps.contains(comment.id)}">
+        <div class="datejump">${DateFormats.dateLong().print(comment.postdate.time)}</div>
+      </c:if>
+
       <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}"
                  showMenu="true" comment="${comment}"/>
     </c:forEach>

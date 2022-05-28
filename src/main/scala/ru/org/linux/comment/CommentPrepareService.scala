@@ -15,6 +15,7 @@
 package ru.org.linux.comment
 
 import com.google.common.base.Strings
+import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.site.ApiDeleteInfo
@@ -196,5 +197,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
       PreparedCommentsListItem(comment, author, textPreview)
     }.asJava
+  }
+
+  def buildDateJumpSet(comments: java.util.List[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
+    val commentDates = comments.asScala.view.map { c =>
+      c.getId -> new DateTime(c.getPostdate)
+    }
+
+    commentDates.zip(commentDates.tail).filter { case (first, second) =>
+      new Duration(first._2, second._2).isLongerThan(jumpMinDuration)
+    }.map(_._2._1).map(Integer.valueOf).toSet.asJava
   }
 }
