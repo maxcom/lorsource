@@ -54,13 +54,12 @@ object UserService {
 
   private val NameCacheSize = 10000
 
-  val MaxTotalInvites = 5
+  val MaxTotalInvites = 15
   val MaxUserInvites = 1
   val MaxInviteScoreLoss = 10
   val InviteScore = 200
 
   val MaxUnactivatedPerIp = 2
-  val MaxNewUsers = 60 // 3 day window
 
   val CorrectorScore = 200
 }
@@ -269,12 +268,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userInvitesDao.getAllInvitedUsers(user).map(userDao.getUserCached).asJava
 
   def canRegister(remoteAddr: String): Boolean = {
-    val currentHour = DateTime.now().hourOfDay().get
-
-    currentHour >= 8 && currentHour <= 22 &&
-      !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
+    !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
       userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp &&
-      userDao.getNewUserIds.size() < MaxNewUsers &&
       getCountry(remoteAddr).exists(c => c != "UA")
   }
 
