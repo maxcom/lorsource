@@ -14,7 +14,7 @@
  */
 package ru.org.linux.user
 
-import com.google.common.collect.{ImmutableList, ImmutableMap}
+import com.google.common.collect.ImmutableMap
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
@@ -85,25 +85,25 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param commentId идентификационный номер комментария (null если нет)
    * @param message   дополнительное сообщение уведомления (null если нет)
    */
-  def addEvent(eventType: String, userId: Int, isPrivate: Boolean, topicId: Optional[Int],
-               commentId: Optional[Int], message: Optional[String]): Unit = {
+  def addEvent(eventType: String, userId: Int, isPrivate: Boolean, topicId: Option[Int],
+               commentId: Option[Int], message: Option[String]): Unit = {
     val params = mutable.Map("userid" -> userId, "type" -> eventType, "private" -> isPrivate)
 
-    if (topicId.isPresent) params.put("message_id", topicId.get())
-    if (commentId.isPresent) params.put("comment_id", commentId.get())
-    if (message.isPresent) params.put("message", message.get())
+    topicId.foreach(v => params.put("message_id", v))
+    commentId.foreach(v => params.put("comment_id", v))
+    message.foreach(v => params.put("message", v))
 
     insert.execute(params.asJava)
   }
 
-  def insertTopicNotification(topicId: Int, userIds: java.lang.Iterable[Integer]): Unit = {
-    val batch = userIds.asScala.view.map(userId => Map("topic" -> topicId, "userid" -> userId).asJava).toSeq
+  def insertTopicNotification(topicId: Int, userIds: Iterable[Integer]): Unit = {
+    val batch = userIds.view.map(userId => Map("topic" -> topicId, "userid" -> userId).asJava).toSeq
 
     insertTopicUsersNotified.executeBatch(batch: _*)
   }
 
-  def getNotifiedUsers(topicId: Int): util.List[Integer] =
-    jdbcTemplate.queryForSeq[Integer]("SELECT userid FROM topic_users_notified WHERE topic=?", topicId).asJava
+  def getNotifiedUsers(topicId: Int): collection.Seq[Integer] =
+    jdbcTemplate.queryForSeq[Integer]("SELECT userid FROM topic_users_notified WHERE topic=?", topicId)
 
   /**
    * Сброс уведомлений.
@@ -114,15 +114,15 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   def resetUnreadReplies(userId: Int, topId: Int): Unit = {
     transactional() { _ =>
       jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId)
-      recalcEventCount(ImmutableList.of(userId))
+      recalcEventCount(Seq(userId))
     }
   }
 
-  def recalcEventCount(userids: util.Collection[Integer]): Unit = {
-    if (!userids.isEmpty) {
+  def recalcEventCount(userids: collection.Seq[Integer]): Unit = {
+    if (userids.nonEmpty) {
       namedJdbcTemplate.update("UPDATE users SET unread_events = " +
         "(SELECT count(*) FROM user_events WHERE unread AND userid=users.id) WHERE users.id IN (:list)",
-        ImmutableMap.of("list", userids))
+        ImmutableMap.of("list", userids.asJavaCollection))
     }
   }
 
@@ -160,10 +160,11 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param eventFilterType тип уведомлений
    * @return список уведомлений
    */
-  def getRepliesForUser(userId: Int, showPrivate: Boolean, topics: Int, offset: Int, eventFilterType: String): util.List[UserEvent] = {
+  def getRepliesForUser(userId: Int, showPrivate: Boolean, topics: Int, offset: Int,
+                        eventFilterType: Option[String]): collection.Seq[UserEvent] = {
     val queryString = if (showPrivate) {
-      val queryPart = if (eventFilterType != null) {
-        s" AND type = '$eventFilterType' "
+      val queryPart = if (eventFilterType.isDefined) {
+        s" AND type = '${eventFilterType.get}' "
       } else {
         ""
       }
@@ -191,49 +192,49 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       val unread = resultSet.getBoolean("unread")
 
       new UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"))
-    }.asJava
+    }
   }
 
-  def deleteTopicEvents(topics: util.Collection[Integer]): util.List[Integer] = {
+  def deleteTopicEvents(topics: collection.Seq[Integer]): collection.Seq[Integer] = {
     transactional() { _ =>
       if (topics.isEmpty) {
-        Seq.empty.asJava
+        Seq.empty
       } else {
-        val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')", ImmutableMap.of("list", topics), classOf[Integer])
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')", ImmutableMap.of("list", topics))
-        affectedUsers
+        val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')", ImmutableMap.of("list", topics.asJava), classOf[Integer])
+        namedJdbcTemplate.update("DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')", ImmutableMap.of("list", topics.asJava))
+        affectedUsers.asScala
       }
     }
   }
 
-  def deleteCommentEvents(comments: util.Collection[Integer]): util.List[Integer] = {
+  def deleteCommentEvents(comments: collection.Seq[Integer]): collection.Seq[Integer] = {
     transactional() { _ =>
       if (comments.isEmpty) {
-        Seq.empty.asJava
+        Seq.empty
       } else {
         val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments), classOf[Integer])
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments))
-        affectedUsers
+        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments.asJava))
+        affectedUsers.asScala
       }
     }
   }
 
-  def insertCommentWatchNotification(comment: Comment, parentComment: Optional[Comment], commentId: Int): util.List[Integer] = {
+  def insertCommentWatchNotification(comment: Comment, parentComment: Optional[Comment], commentId: Int): collection.Seq[Integer] = {
     transactional(propagation = Propagation.MANDATORY) { _ =>
       val params = new util.HashMap[String, Integer]
       params.put("topic", comment.getTopicId)
       params.put("id", commentId)
       params.put("userid", comment.getUserid)
 
-      val userIds = if (parentComment.isPresent) {
+      val userIds = (if (parentComment.isPresent) {
         params.put("parent_author", parentComment.get.getUserid)
         namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND memories.userid != :parent_author " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch", params, classOf[Integer])
       } else {
         namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=:userid) AND watch", params, classOf[Integer])
-      }
+      }).asScala
 
-      if (!userIds.isEmpty) {
-        val batch = userIds.asScala.view.map { userId =>
+      if (userIds.nonEmpty) {
+        val batch = userIds.view.map { userId =>
           Map(
             "userid" -> userId,
             "type" -> "WATCH",
