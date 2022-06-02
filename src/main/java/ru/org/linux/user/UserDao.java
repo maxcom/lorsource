@@ -410,12 +410,14 @@ public class UserDao {
     userLogDao.logUnblockUser(user, moderator);
   }
 
-  public List<Integer> getModeratorIds() {
-    return jdbcTemplate.queryForList("SELECT id FROM users WHERE canmod ORDER BY id", Integer.class);
+  public List<Tuple2<Integer, DateTime>> getModerators() {
+    return jdbcTemplate.query("SELECT id, lastlogin FROM users where canmod ORDER BY id",
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
   }
 
-  public List<Integer> getCorrectorIds() {
-    return jdbcTemplate.queryForList("SELECT id FROM users WHERE corrector ORDER BY id", Integer.class);
+  public List<Tuple2<Integer, DateTime>> getCorrectors() {
+    return jdbcTemplate.query("SELECT id, lastlogin FROM users where corrector ORDER BY id",
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
   }
 
   public User getByEmail(String email, boolean searchBlocked) {

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserService;
+import scala.Tuple2;
 
 import java.util.List;
 
@@ -31,12 +32,12 @@ public class ServerInfoController {
 
   @RequestMapping("/about")
   public ModelAndView serverInfo() {
-    List<User> moderators = userService.getModerators();
+    List<Tuple2<User, Object>> moderators = userService.getModerators();
 
     ModelAndView mv = new ModelAndView("server");
     mv.getModel().put("moderators", moderators);
 
-    List<User> correctors = userService.getCorrectors();
+    List<Tuple2<User, Object>> correctors = userService.getCorrectors();
 
     mv.getModel().put("correctors", correctors);
 

@@ -101,8 +101,10 @@
   проекта</i>:
   разработка, поддержка, дизайн, новости, информационное наполнение;
 
+<%--
   <li><a href="/people/green/profile">Олег Дрокин</a> (green)&nbsp;&#8212; администрирование сервера, железо;
   <li><a href="/people/Slavaz/profile">Вячеслав Занько</a> (Slavaz)&nbsp;&#8212; разработка, поддержка.
+--%>
   </ul>
 
   Модераторы:
@@ -110,11 +112,11 @@
     <c:forEach var="user" items="${moderators}">
       <li>
         <c:choose>
-            <c:when test="${not empty user.name}">
-                <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" link="true"/>)
+            <c:when test="${not empty user._1().name}">
+                <c:out escapeXml="true" value="${user._1().name}"/> (<lor:user user="${user._1()}" link="true" bold="${user._2()}"/>)
             </c:when>
             <c:otherwise>
-                <lor:user user="${user}" link="true"/>
+                <lor:user user="${user._1()}" link="true" bold="${user._2()}"/>
             </c:otherwise>
         </c:choose>
       </li>
@@ -126,11 +128,11 @@
     <c:forEach var="user" items="${correctors}">
       <li>
         <c:choose>
-            <c:when test="${not empty user.name}">
-                <c:out escapeXml="true" value="${user.name}"/> (<lor:user user="${user}" link="true"/>)
+            <c:when test="${not empty user._1().name}">
+                <c:out escapeXml="true" value="${user._1().name}"/> (<lor:user user="${user._1()}" link="true" bold="${user._2()}"/>)
             </c:when>
             <c:otherwise>
-                <lor:user user="${user}" link="true"/>
+                <lor:user user="${user._1()}" link="true" bold="${user._2()}"/>
             </c:otherwise>
         </c:choose>
       </li>
