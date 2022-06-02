@@ -212,7 +212,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       if (comments.isEmpty) {
         Seq.empty
       } else {
-        val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments), classOf[Integer])
+        val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments.asJava), classOf[Integer])
         namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments.asJava))
         affectedUsers.asScala
       }
