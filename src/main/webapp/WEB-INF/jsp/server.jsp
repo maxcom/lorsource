@@ -111,14 +111,10 @@
   <ul>
     <c:forEach var="user" items="${moderators}">
       <li>
-        <c:choose>
-            <c:when test="${not empty user._1().name}">
-                <c:out escapeXml="true" value="${user._1().name}"/> (<lor:user user="${user._1()}" link="true" bold="${user._2()}"/>)
-            </c:when>
-            <c:otherwise>
-                <lor:user user="${user._1()}" link="true" bold="${user._2()}"/>
-            </c:otherwise>
-        </c:choose>
+        <lor:user user="${user._1()}" link="true" bold="${user._2()}"/>
+        <c:if test="${not empty user._1().name}">
+          (<c:out escapeXml="true" value="${user._1().name}"/>)
+        </c:if>
       </li>
     </c:forEach>
   </ul>
@@ -127,14 +123,10 @@
   <ul>
     <c:forEach var="user" items="${correctors}">
       <li>
-        <c:choose>
-            <c:when test="${not empty user._1().name}">
-                <c:out escapeXml="true" value="${user._1().name}"/> (<lor:user user="${user._1()}" link="true" bold="${user._2()}"/>)
-            </c:when>
-            <c:otherwise>
-                <lor:user user="${user._1()}" link="true" bold="${user._2()}"/>
-            </c:otherwise>
-        </c:choose>
+        <lor:user user="${user._1()}" link="true" bold="${user._2()}"/>
+        <c:if test="${not empty user._1().name}">
+          (<c:out escapeXml="true" value="${user._1().name}"/>)
+        </c:if>
       </li>
     </c:forEach>
   </ul>
