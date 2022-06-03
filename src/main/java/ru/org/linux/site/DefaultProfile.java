@@ -88,7 +88,7 @@ public final class DefaultProfile {
   }
 
   public static final ImmutableSet<Integer> TOPICS_VALUES = ImmutableSet.of(30, 50, 100, 200, 300, 500);
-  public static final ImmutableSet<Integer> COMMENTS_VALUES = ImmutableSet.of(50, 100, 200, 300, 500);
+  public static final ImmutableSet<Integer> COMMENTS_VALUES = ImmutableSet.of(25, 50, 100, 200, 300, 500);
 
   public static Predicate<String> boxPredicate() {
     return DefaultProfile::isBox;
