@@ -23,7 +23,7 @@
 http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/security
-http://www.springframework.org/schema/security/spring-security-5.2.xsd">
+http://www.springframework.org/schema/security/spring-security-5.3.xsd">
 
     <http pattern="/css/**" security="none"/>
     <http pattern="/img/**" security="none"/>
