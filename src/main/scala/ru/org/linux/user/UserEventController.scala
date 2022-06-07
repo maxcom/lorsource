@@ -28,7 +28,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 @Controller
-class UserEventController(feedView: ReplyFeedView, userService: UserService, userEventService: UserEventService,
+class UserEventController(feedView: UserEventFeedView, userService: UserService, userEventService: UserEventService,
                           prepareService: UserEventPrepareService, apiController: UserEventApiController) {
 
   @ModelAttribute("filterValues")

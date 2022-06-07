@@ -26,10 +26,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ReplyFeedView extends AbstractRomeView {
+public class UserEventFeedView extends AbstractRomeView {
   private final SiteConfig siteConfig;
 
-  public ReplyFeedView(SiteConfig siteConfig) {
+  public UserEventFeedView(SiteConfig siteConfig) {
     this.siteConfig = siteConfig;
   }
 
@@ -37,7 +37,7 @@ public class ReplyFeedView extends AbstractRomeView {
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
     List<PreparedUserEvent> list = (List<PreparedUserEvent>) model.get("topicsList");
-    String s = "Ответы на комментарии пользователя " + model.get("nick");
+    String s = "Уведомления пользователя " + model.get("nick");
     feed.setTitle(s);
     feed.setLink(siteConfig.getSecureUrl());
     feed.setUri(siteConfig.getSecureUrl());
