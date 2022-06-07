@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ package ru.org.linux.user;
 import com.sun.syndication.feed.synd.*;
 import org.apache.commons.text.StringEscapeUtils;
 import ru.org.linux.spring.AbstractRomeView;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.StringUtil;
 
 import java.util.ArrayList;
@@ -26,14 +27,20 @@ import java.util.List;
 import java.util.Map;
 
 public class ReplyFeedView extends AbstractRomeView {
+  private final SiteConfig siteConfig;
+
+  public ReplyFeedView(SiteConfig siteConfig) {
+    this.siteConfig = siteConfig;
+  }
+
   @Override
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
     List<PreparedUserEvent> list = (List<PreparedUserEvent>) model.get("topicsList");
     String s = "Ответы на комментарии пользователя " + model.get("nick");
     feed.setTitle(s);
-    feed.setLink("http://www.linux.org.ru");
-    feed.setUri("http://www.linux.org.ru");
+    feed.setLink(siteConfig.getSecureUrl());
+    feed.setUri(siteConfig.getSecureUrl());
     feed.setAuthor("");
     feed.setDescription(s);
 
@@ -60,14 +67,16 @@ public class ReplyFeedView extends AbstractRomeView {
         feedEntry.setAuthor(preparedUserEvent.getAuthor().getNick());
 
         link = String.format(
-          "http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
-          String.valueOf(item.getTopicId()),
-          String.valueOf(item.getCid())
+          "%s/jump-message.jsp?msgid=%s&cid=%s",
+          siteConfig.getSecureUrlWithoutSlash(),
+          item.getTopicId(),
+          item.getCid()
         );
       } else {
         link = String.format(
-          "http://www.linux.org.ru/view-message.jsp?msgid=%s",
-          String.valueOf(item.getTopicId())
+          "%s/view-message.jsp?msgid=%s",
+           siteConfig.getSecureUrlWithoutSlash(),
+           item.getTopicId()
         );
       }
 

@@ -22,7 +22,6 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
 
-import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOptional
 
 @Service
@@ -33,16 +32,13 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
    * @param events      список событий
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
    */
-  def prepare(events: java.util.List[UserEvent], readMessage: Boolean): java.util.List[PreparedUserEvent] = {
-    val evts = events.asScala
-
-    val userIds = (evts.map(_.getCommentAuthor) ++ evts.map(_.getTopicAuthor)).filter(_ != 0)
-
+  def prepare(events: collection.Seq[UserEvent], readMessage: Boolean): Seq[PreparedUserEvent] = {
+    val userIds = (events.map(_.getCommentAuthor) ++ events.map(_.getTopicAuthor)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 
-    val tags = tagService.tagRefs(evts.map(_.getTopicId).distinct).view.mapValues(_.map(_.name))
+    val tags = tagService.tagRefs(events.map(_.getTopicId).distinct).view.mapValues(_.map(_.name))
 
-    val prepared = evts.map { event =>
+    val prepared = events.view.map { event =>
       val msgid = if (event.isComment) event.getCid else event.getTopicId
 
       val text = if (readMessage) {
@@ -81,6 +77,6 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       )
     }
 
-    prepared.asJava
-  }
+    prepared
+  }.toSeq
 }
