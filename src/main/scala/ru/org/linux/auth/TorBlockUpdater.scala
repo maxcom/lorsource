@@ -37,7 +37,7 @@ class TorBlockUpdater(wsClient: StandaloneWSClient, dao: IPBlockDao) extends Str
 
           response.body.linesIterator.foreach { ip =>
             dao.blockIP(ip, 0, "TOR Exit Node", new Timestamp(DateTime.now().plusMonths(1).getMillis),
-              false, false)
+              true, true)
           }
         } else {
           logger.warn(s"Can't update TOR exit node list: ${response.statusText}")
