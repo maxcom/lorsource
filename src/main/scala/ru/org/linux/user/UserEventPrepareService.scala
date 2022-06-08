@@ -33,13 +33,13 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
    */
   def prepare(events: collection.Seq[UserEvent], readMessage: Boolean): Seq[PreparedUserEvent] = {
-    val userIds = (events.map(_.getCommentAuthor) ++ events.map(_.getTopicAuthor)).filter(_ != 0)
+    val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 
-    val tags = tagService.tagRefs(events.map(_.getTopicId).distinct).view.mapValues(_.map(_.name))
+    val tags = tagService.tagRefs(events.map(_.topicId).distinct).view.mapValues(_.map(_.name))
 
     val prepared = events.view.map { event =>
-      val msgid = if (event.isComment) event.getCid else event.getTopicId
+      val msgid = if (event.isComment) event.cid else event.topicId
 
       val text = if (readMessage) {
         val messageText = msgbaseDao.getMessageText(msgid)
@@ -49,21 +49,21 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         None
       }
 
-      val topicAuthor = users(event.getTopicAuthor)
+      val topicAuthor = users(event.topicAuthor)
 
       val commentAuthor = if (event.isComment) {
-        users.get(event.getCommentAuthor)
+        users.get(event.commentAuthor)
       } else {
         None
       }
 
-      val bonus = (if ("DEL" == event.getType.getType) {
+      val bonus = (if ("DEL" == event.eventType.getType) {
         deleteInfoDao.getDeleteInfo(msgid).toScala
       } else {
         None
       }).map(_.getBonus)
 
-      val group = groupDao.getGroup(event.getGroupId)
+      val group = groupDao.getGroup(event.groupId)
 
       PreparedUserEvent(
         event = event,
@@ -73,7 +73,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         bonus = bonus,
         section = sectionService.getSection(group.getSectionId),
         group = group,
-        tags = tags.getOrElse(event.getTopicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq
+        tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq
       )
     }
 

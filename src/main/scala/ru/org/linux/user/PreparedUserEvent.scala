@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -40,13 +40,13 @@ case class PreparedUserEvent(
   def getTags:java.util.List[String] = tags.asJava
 
   def getLink:String = {
-    if (event.getType==UserEventFilterEnum.DELETED) {
-      s"${group.getUrl}${event.getTopicId}"
+    if (event.eventType==UserEventFilterEnum.DELETED) {
+      s"${group.getUrl}${event.topicId}"
     } else {
-      if (event.getCid>0) {
-        s"${group.getUrl}${event.getTopicId}?cid=${event.getCid}"
+      if (event.cid>0) {
+        s"${group.getUrl}${event.topicId}?cid=${event.cid}"
       } else {
-        s"${group.getUrl}${event.getTopicId}"
+        s"${group.getUrl}${event.topicId}"
       }
     }
   }

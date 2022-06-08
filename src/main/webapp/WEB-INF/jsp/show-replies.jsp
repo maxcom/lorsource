@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -104,16 +104,16 @@
 <tr>
   <td align="center">
     <c:choose>
-      <c:when test="${topic.event.type == 'DELETED'}">
+      <c:when test="${topic.event.eventType == 'DELETED'}">
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
-      <c:when test="${topic.event.type == 'ANSWERS'}">
+      <c:when test="${topic.event.eventType == 'ANSWERS'}">
         <i class="icon-reply icon-reply-color" title="Ответ"></i>
       </c:when>
-      <c:when test="${topic.event.type == 'REFERENCE'}">
+      <c:when test="${topic.event.eventType == 'REFERENCE'}">
         <i class="icon-user icon-user-color"></i>
       </c:when>
-      <c:when test="${topic.event.type == 'TAG'}">
+      <c:when test="${topic.event.eventType == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
     </c:choose>
@@ -127,7 +127,7 @@
     </a>
       (${topic.section.name})
 
-      <c:if test="${topic.event.type == 'DELETED'}">
+      <c:if test="${topic.event.eventType == 'DELETED'}">
         <br>
         <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
       </c:if>

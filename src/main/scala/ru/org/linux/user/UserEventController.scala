@@ -101,7 +101,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     if (list.nonEmpty) {
       params.put("enableReset", true)
-      params.put("topId", list.head.getId)
+      params.put("topId", list.head.id)
     }
 
     params.put("topicsList", prepared.asJava)
