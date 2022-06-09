@@ -47,6 +47,9 @@ http://www.springframework.org/schema/security/spring-security-5.5.xsd">
         <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
         <csrf disabled="true"/>
     </http>
+
+    <http-firewall ref="httpFirewall"/>
+
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
         <authentication-provider user-service-ref="userDetailsServiceImpl">
