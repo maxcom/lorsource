@@ -111,7 +111,7 @@
           $.ajax({
               method: 'GET',
               contentType: 'application/json',
-              url: 'https://ipwhois.app/json/${ip}?lang=ru',
+              url: 'https://ipwhois.app/json/${ip}',
               dataType: 'json',
               success: function (json) {
                   if (json.success) {
