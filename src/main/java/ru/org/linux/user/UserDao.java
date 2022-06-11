@@ -204,13 +204,13 @@ public class UserDao {
                       "regdate IS NOT null " +
                       "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
                       "and action='register' and (info->'ip')::inet <<= ?::inet " +
-                      "ORDER BY regdate",
+                      "ORDER BY regdate desc",
               mapper, ip);
     } else {
       return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users WHERE " +
                       "regdate IS NOT null " +
                       "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
-                      "ORDER BY regdate",
+                      "ORDER BY regdate desc",
               mapper);
     }
   }
