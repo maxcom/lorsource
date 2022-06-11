@@ -127,7 +127,7 @@
 </c:if>
 
 <c:if test="${not empty newUsers}">
-  <h2>Новые пользователи</h2>
+  <h2>Новые пользователи за 3 дня</h2>
   <div class=forum>
     <table width="100%" class="message-table">
       <thead>
