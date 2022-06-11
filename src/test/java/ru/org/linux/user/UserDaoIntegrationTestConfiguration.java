@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,14 +24,16 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
+
 @Configuration
 @EnableCaching
 public class UserDaoIntegrationTestConfiguration {
   private static final String USERS_CACHE = "Users";
 
   @Bean
-  public UserDao userDao() {
-    return new UserDao();
+  public UserDao userDao(UserLogDao userLogDao, DataSource dataSource) {
+    return new UserDao(userLogDao, dataSource);
   }
 
   @Bean

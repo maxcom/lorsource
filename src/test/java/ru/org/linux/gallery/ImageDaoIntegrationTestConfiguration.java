@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,6 +24,8 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserLogDao;
 
+import javax.sql.DataSource;
+
 import static org.mockito.Mockito.mock;
 
 @Configuration
@@ -45,8 +47,8 @@ public class ImageDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public UserDao userDao() {
-    return new UserDao();
+  public UserDao userDao(UserLogDao userLogDao, DataSource dataSource) {
+    return new UserDao(userLogDao, dataSource);
   }
 
   @Bean

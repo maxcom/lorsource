@@ -31,7 +31,7 @@ import ru.org.linux.comment.PreparedCommentsListItem;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.UserAgentDao;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.StringUtil;
 import scala.Tuple2;
 
@@ -49,11 +49,11 @@ import java.util.regex.Pattern;
 
 @Controller
 public class SameIPController {
-  private static final Pattern ipRE = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
+  private static final Pattern ipRE = Pattern.compile("^\\d+\\.\\d+\\.\\d+\\.\\d+$");
 
   private final IPBlockDao ipBlockDao;
 
-  private final UserDao userDao;
+  private final UserService userService;
 
   private final UserAgentDao userAgentDao;
   private final CommentDao commentDao;
@@ -61,10 +61,10 @@ public class SameIPController {
 
   private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-  public SameIPController(IPBlockDao ipBlockDao, UserDao userDao, UserAgentDao userAgentDao, CommentDao commentDao,
+  public SameIPController(IPBlockDao ipBlockDao, UserService userService, UserAgentDao userAgentDao, CommentDao commentDao,
                           CommentPrepareService commentPrepareService, DataSource ds) {
     this.ipBlockDao = ipBlockDao;
-    this.userDao = userDao;
+    this.userService = userService;
     this.userAgentDao = userAgentDao;
     this.commentDao = commentDao;
     this.commentPrepareService = commentPrepareService;
@@ -152,13 +152,15 @@ public class SameIPController {
           captchaRequired = blockInfo.isCaptchaRequired();
 
           if (blockInfo.getModerator() != 0) {
-            mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+            mv.getModel().put("blockModerator", userService.getUserCached(blockInfo.getModerator()));
           }
         }
         mv.addObject("allowPosting", allowPosting);
         mv.addObject("captchaRequired", captchaRequired);
       }
     }
+
+    mv.getModel().put("newUsers", userService.getNewUsersByIp(ipMask));
 
     if (userAgent!=null) {
       mv.getModel().put("userAgent", userAgentDao.getUserAgentById(userAgent).orElse(null));

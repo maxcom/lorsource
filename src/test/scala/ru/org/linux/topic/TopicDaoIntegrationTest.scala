@@ -84,7 +84,7 @@ class TopicDaoIntegrationTestConfiguration {
   def topicDao = new TopicDao()
 
   @Bean
-  def userDao = new UserDao()
+  def userDao(userLogDao: UserLogDao, dataSource: DataSource) = new UserDao(userLogDao, dataSource)
 
   @Bean
   def userInvitesDao(ds: DataSource) = new UserInvitesDao(ds)

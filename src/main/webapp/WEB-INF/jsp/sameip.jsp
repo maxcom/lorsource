@@ -3,7 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -123,6 +123,36 @@
           });
       })
   </script>
+
+</c:if>
+
+<c:if test="${not empty newUsers}">
+  <h2>Новые пользователи</h2>
+  <div class=forum>
+    <table width="100%" class="message-table">
+      <thead>
+      <tr><th>Nick</th><th>Дата регистрации</th><th>Последнее посещение</th></tr>
+      <tbody>
+      <c:forEach items="${newUsers}" var="user">
+      <tr>
+        <td>
+            <lor:user user="${user._1()}" link="true"/>
+        </td>
+        <td>
+          <lor:date date="${user._2()}"/>
+        </td>
+        <td>
+          <c:if test="${not user._1().activated}">
+            не активирован
+          </c:if>
+          <c:if test="${user._1().activated}">
+            <lor:dateinterval date="${user._3()}"/>
+          </c:if>
+        </td>
+      </tr>
+      </c:forEach>
+    </table>
+  </div>
 
 </c:if>
 

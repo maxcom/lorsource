@@ -184,6 +184,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     getUsersCached(ids.asScala.map(i => i)).asJava
 
   def getNewUsers: util.List[User] = getUsersCachedJava(userDao.getNewUserIds)
+  def getNewUsersByIp(ip: String): util.List[(User, Timestamp, Timestamp)] = userDao.getNewUsersByIP(ip).asScala.map { case (id, regdate, lastlogin) =>
+    (getUserCached(id), regdate, lastlogin)
+  }.asJava
 
   private def makeFrozenList(users: util.List[(Integer, DateTime)], activityDays: Int): util.List[(User, Boolean)] = {
     val recentSeenDate = DateTime.now().minusDays(activityDays)

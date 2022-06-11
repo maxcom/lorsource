@@ -30,8 +30,8 @@ public class UserEventDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public UserDao userDao() {
-    return new UserDao();
+  public UserDao userDao(UserLogDao userLogDao, DataSource dataSource) {
+    return new UserDao(userLogDao, dataSource);
   }
 
   @Bean

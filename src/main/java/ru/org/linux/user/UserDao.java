@@ -20,7 +20,6 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -33,12 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import scala.Tuple2;
+import scala.Tuple3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -48,10 +47,9 @@ import java.util.stream.Collectors;
 public class UserDao {
   private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
-  @Autowired
-  private UserLogDao userLogDao;
+  private final UserLogDao userLogDao;
 
   /**
    * изменение score пользователю
@@ -66,8 +64,8 @@ public class UserDao {
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
 
-  @Autowired
-  public void setJdbcTemplate(DataSource dataSource) {
+  public UserDao(UserLogDao userLogDao, DataSource dataSource) {
+    this.userLogDao = userLogDao;
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
@@ -192,6 +190,29 @@ public class UserDao {
                                                   "regdate IS NOT null " +
                                                   "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
                                                 "ORDER BY regdate", Integer.class);
+  }
+
+  public List<Tuple3<Integer, Timestamp, Timestamp>> getNewUsersByIP(@Nullable String ip) {
+    RowMapper<Tuple3<Integer, Timestamp, Timestamp>> mapper = (rs, rowNum) -> Tuple3.apply(
+            rs.getInt("id"),
+            rs.getTimestamp("regdate"),
+            rs.getTimestamp("lastlogin"));
+
+
+    if (ip!=null) {
+      return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users join user_log on users.id = user_log.userid WHERE " +
+                      "regdate IS NOT null " +
+                      "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
+                      "and action='register' and (info->'ip')::inet <<= ?::inet " +
+                      "ORDER BY regdate",
+              mapper, ip);
+    } else {
+      return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users WHERE " +
+                      "regdate IS NOT null " +
+                      "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
+                      "ORDER BY regdate",
+              mapper);
+    }
   }
 
   public List<Tuple2<Integer, DateTime>> getFrozenUserIds() {
