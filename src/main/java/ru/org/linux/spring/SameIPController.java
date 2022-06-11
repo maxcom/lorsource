@@ -160,7 +160,11 @@ public class SameIPController {
       }
     }
 
-    mv.getModel().put("newUsers", userService.getNewUsersByIp(ipMask));
+    if (userAgent==null) {
+      mv.getModel().put("newUsers", userService.getNewUsersByIp(ipMask));
+    } else {
+      mv.getModel().put("newUsers", ImmutableList.of());
+    }
 
     if (userAgent!=null) {
       mv.getModel().put("userAgent", userAgentDao.getUserAgentById(userAgent).orElse(null));
