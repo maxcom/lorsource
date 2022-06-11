@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.site.Template
+import ru.org.linux.spring.StatUpdater
 
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -48,7 +49,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
    *
    * @param request  запрос
    * @param response ответ
-   * @param offset   смещение
+   * @param offsetRaw   смещение
    * @return вьюшку
    */
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
@@ -95,17 +96,33 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     response.addHeader("Cache-Control", "no-cache")
 
-    val list = userEventService.getRepliesForUser(currentUser, showPrivate = true, topics, offset, eventFilter)
+    if (currentUser!=null && currentUser.getScore >= 500) {
+      val list = userEventService.getUserEvents(currentUser, showPrivate = true, StatUpdater.MAX_EVENTS, 0, eventFilter)
 
-    val prepared = prepareService.prepare(list, readMessage = false)
+      val prepared = prepareService.prepareGrouped(list)
 
-    if (list.nonEmpty) {
-      params.put("enableReset", true)
-      params.put("topId", list.head.id)
+      if (list.nonEmpty) {
+        params.put("enableReset", true)
+        params.put("topId", prepared.head.lastId)
+      }
+
+      val sliced = prepared.slice(offset, offset + topics).take(topics)
+
+      params.put("topicsList", sliced.asJava)
+      params.put("hasMore", sliced.size == topics)
+    } else {
+      val list = userEventService.getUserEvents(currentUser, showPrivate = true, topics, offset, eventFilter)
+
+      val prepared = prepareService.prepare(list, withText = false)
+
+      if (list.nonEmpty) {
+        params.put("enableReset", true)
+        params.put("topId", prepared.head.lastId)
+      }
+
+      params.put("topicsList", prepared.asJava)
+      params.put("hasMore", list.size == topics)
     }
-
-    params.put("topicsList", prepared.asJava)
-    params.put("hasMore", list.size == topics)
 
     new ModelAndView("show-replies", params.asJava)
   }
@@ -176,7 +193,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       response.addHeader("Cache-Control", "no-cache")
     }
 
-    val list = userEventService.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL)
+    val list = userEventService.getUserEvents(user, showPrivate, topics, offset, UserEventFilterEnum.ALL)
     val prepared = prepareService.prepare(list, feedRequested)
     params.put("isMyNotifications", false)
     params.put("topicsList", prepared.asJava)
@@ -195,7 +212,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
   @ExceptionHandler(Array(classOf[UserNotFoundException]))
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  def handleUserNotFound = {
+  def handleUserNotFound: ModelAndView = {
     val mav = new ModelAndView("errors/good-penguin")
 
     mav.addObject("msgTitle", "Ошибка: пользователя не существует")

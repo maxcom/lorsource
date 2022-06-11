@@ -30,9 +30,9 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
                               tagService: TopicTagService) {
   /**
    * @param events      список событий
-   * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
+   * @param withText возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
    */
-  def prepare(events: collection.Seq[UserEvent], readMessage: Boolean): Seq[PreparedUserEvent] = {
+  def prepare(events: collection.Seq[UserEvent], withText: Boolean): Seq[PreparedUserEvent] = {
     val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 
@@ -41,7 +41,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     val prepared = events.view.map { event =>
       val msgid = if (event.isComment) event.cid else event.topicId
 
-      val text = if (readMessage) {
+      val text = if (withText) {
         val messageText = msgbaseDao.getMessageText(msgid)
 
         Some(messageTextService.renderTextRSS(messageText))
@@ -49,34 +49,77 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         None
       }
 
-      val topicAuthor = users(event.topicAuthor)
-
       val commentAuthor = if (event.isComment) {
         users.get(event.commentAuthor)
       } else {
         None
       }
 
-      val bonus = (if ("DEL" == event.eventType.getType) {
-        deleteInfoDao.getDeleteInfo(msgid).toScala
-      } else {
-        None
-      }).map(_.getBonus)
-
       val group = groupDao.getGroup(event.groupId)
 
       PreparedUserEvent(
         event = event,
         messageText = text,
-        topicAuthor = topicAuthor,
+        topicAuthor = users(event.topicAuthor),
         commentAuthor = commentAuthor,
-        bonus = bonus,
+        bonus = loadBonus(event),
         section = sectionService.getSection(group.getSectionId),
         group = group,
-        tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq
-      )
+        tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
+        lastId = event.id,
+        date = event.eventDate)
     }
 
     prepared
   }.toSeq
+
+  private def loadBonus(event: UserEvent): Option[Int] = {
+    (if ("DEL" == event.eventType.getType) {
+      val msgid = if (event.isComment) event.cid else event.topicId
+
+      deleteInfoDao.getDeleteInfo(msgid).toScala
+    } else {
+      None
+    }).map(_.getBonus)
+  }
+
+  def prepareGrouped(events: collection.Seq[UserEvent]): Seq[PreparedUserEvent] = {
+    val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor)).filter(_ != 0)
+    val users = userService.getUsersCachedMap(userIds)
+
+    val tags = tagService.tagRefs(events.map(_.topicId).distinct).view.mapValues(_.map(_.name))
+
+    val (toGroup, other) = events.partition(event => event.eventType == UserEventFilterEnum.FAVORITES)
+
+    // grouped by (topicId, unread)
+    val grouped = toGroup.foldRight(Map.empty[(Int, Boolean), PreparedUserEvent]) { case (event, acc) =>
+      acc.updatedWith((event.topicId, event.unread)) {
+        case None =>
+          val commentAuthor = if (event.isComment) {
+            users.get(event.commentAuthor)
+          } else {
+            None
+          }
+
+          val group = groupDao.getGroup(event.groupId)
+
+          Some(PreparedUserEvent(
+            event = event,
+            messageText = None,
+            topicAuthor = users(event.topicAuthor),
+            commentAuthor = commentAuthor,
+            bonus = loadBonus(event),
+            section = sectionService.getSection(group.getSectionId),
+            group = group,
+            tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
+            lastId = event.id,
+            date = event.eventDate))
+        case Some(existing) =>
+          Some(existing.withSimilar(event))
+      }
+    }
+
+    (grouped.values ++ prepare(other, withText = false))
+      .toSeq.sorted(Ordering.by((_: PreparedUserEvent).date).reverse)
+  }
 }

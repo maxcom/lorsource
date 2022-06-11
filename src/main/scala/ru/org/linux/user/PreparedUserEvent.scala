@@ -18,24 +18,29 @@ package ru.org.linux.user
 import ru.org.linux.group.Group
 import ru.org.linux.section.Section
 
+import java.sql.Timestamp
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
-case class PreparedUserEvent(
-  @BeanProperty event: UserEvent,
-  messageText: Option[String],
-  topicAuthor: User,
-  commentAuthor: Option[User],
-  bonus: Option[Int],
-  @BeanProperty section: Section,
-  group: Group,
-  tags: Seq[String]
-) {
-  def getAuthor = commentAuthor getOrElse topicAuthor
+case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], topicAuthor: User,
+                             commentAuthor: Option[User], bonus: Option[Int], @BeanProperty section: Section,
+                             group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
+                             @BeanProperty count: Int = 1) {
+  def withSimilar(event: UserEvent): PreparedUserEvent = {
+    assume(this.event.unread == event.unread)
 
-  def getMessageText = messageText.orNull
+    if (event.unread) {
+      copy(count = count + 1, lastId = event.id)
+    } else {
+      copy(count = count + 1, lastId = event.id, date = event.eventDate)
+    }
+  }
 
-  def getBonus = bonus.getOrElse(0)
+  def getAuthor: User = commentAuthor.getOrElse(topicAuthor)
+
+  def getMessageText: String = messageText.orNull
+
+  def getBonus: Int = bonus.getOrElse(0)
 
   def getTags:java.util.List[String] = tags.asJava
 

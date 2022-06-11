@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 @Component
 public class StatUpdater {
   private static final Logger logger = LoggerFactory.getLogger(StatUpdater.class);
-  private static final int MAX_EVENTS = 2000;
+  public static final int MAX_EVENTS = 2000;
 
   private static final int FIVE_MINS = 5 * 60 * 1000;
   private static final int TEN_MINS = 10 * 60 * 1000;

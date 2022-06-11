@@ -135,8 +135,13 @@
     <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
   <td>
-    <lor:dateinterval date="${topic.event.eventDate}"/><!--
-    --><c:if test="${topic.author != null}">,<br> <lor:user user="${topic.author}"/> </c:if>
+    <lor:dateinterval date="${topic.date}"/><br>
+    <c:if test="${topic.count > 1}">
+      <i class="icon-comment"></i> ${topic.count}
+    </c:if>
+    <c:if test="${topic.count == 1}">
+      <lor:user user="${topic.author}"/>
+    </c:if>
   </td>
 </tr>
 </c:forEach>

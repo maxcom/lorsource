@@ -191,7 +191,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       val eventMessage = resultSet.getString("ev_msg")
       val unread = resultSet.getBoolean("unread")
 
-      new UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"))
+      UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"))
     }
   }
 

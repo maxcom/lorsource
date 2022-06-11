@@ -104,8 +104,8 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param eventFilter тип уведомлений
    * @return список уведомлений
    */
-  def getRepliesForUser(user: User, showPrivate: Boolean, topics: Int, offset: Int,
-                        eventFilter: UserEventFilterEnum): collection.Seq[UserEvent] = {
+  def getUserEvents(user: User, showPrivate: Boolean, topics: Int, offset: Int,
+                    eventFilter: UserEventFilterEnum): collection.Seq[UserEvent] = {
     val eventFilterType = if (eventFilter!=ALL) {
       Some(eventFilter.getType)
     } else {
