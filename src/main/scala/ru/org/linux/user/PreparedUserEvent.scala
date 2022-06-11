@@ -25,14 +25,14 @@ import scala.jdk.CollectionConverters._
 case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], topicAuthor: User,
                              commentAuthor: Option[User], bonus: Option[Int], @BeanProperty section: Section,
                              group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
-                             @BeanProperty count: Int = 1) {
+                             commentId: Int, @BeanProperty count: Int = 1) {
   def withSimilar(event: UserEvent): PreparedUserEvent = {
     assume(this.event.unread == event.unread)
 
     if (event.unread) {
       copy(count = count + 1, lastId = event.id)
     } else {
-      copy(count = count + 1, lastId = event.id, date = event.eventDate)
+      copy(count = count + 1, lastId = event.id, date = event.eventDate, commentId = event.cid)
     }
   }
 
@@ -44,12 +44,12 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
 
   def getTags:java.util.List[String] = tags.asJava
 
-  def getLink:String = {
+  def getLink: String = {
     if (event.eventType==UserEventFilterEnum.DELETED) {
       s"${group.getUrl}${event.topicId}"
     } else {
-      if (event.cid>0) {
-        s"${group.getUrl}${event.topicId}?cid=${event.cid}"
+      if (commentId>0) {
+        s"${group.getUrl}${event.topicId}?cid=$commentId"
       } else {
         s"${group.getUrl}${event.topicId}"
       }

@@ -67,7 +67,8 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         group = group,
         tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
         lastId = event.id,
-        date = event.eventDate)
+        date = event.eventDate,
+        commentId = event.getCid)
     }
 
     prepared
@@ -113,7 +114,8 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             group = group,
             tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
             lastId = event.id,
-            date = event.eventDate))
+            date = event.eventDate,
+            commentId = event.getCid))
         case Some(existing) =>
           Some(existing.withSimilar(event))
       }
