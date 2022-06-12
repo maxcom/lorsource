@@ -57,5 +57,9 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
     }
   }
 
-  def getAuthorsText: String = authors.toSeq.map(_.getNick).sorted.mkString("Комментарии ", ", ", "")
+  def getAuthorsText: String = if (authors.sizeIs > 1) {
+    authors.toSeq.map(_.getNick).sorted.mkString("Комментарии ", ", ", "")
+  } else {
+    ""
+  }
 }
