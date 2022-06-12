@@ -57,10 +57,12 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
       val group = groupDao.getGroup(event.groupId)
 
+      val topicAuthor = users(event.topicAuthor)
+
       PreparedUserEvent(
         event = event,
         messageText = text,
-        topicAuthor = users(event.topicAuthor),
+        topicAuthor = topicAuthor,
         commentAuthor = commentAuthor,
         bonus = loadBonus(event),
         section = sectionService.getSection(group.getSectionId),
@@ -68,7 +70,8 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
         lastId = event.id,
         date = event.eventDate,
-        commentId = event.getCid)
+        commentId = event.getCid,
+        authors = Set(commentAuthor.getOrElse(topicAuthor)))
     }
 
     prepared
@@ -104,10 +107,12 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
           val group = groupDao.getGroup(event.groupId)
 
+          val topicAuthor = users(event.topicAuthor)
+
           Some(PreparedUserEvent(
             event = event,
             messageText = None,
-            topicAuthor = users(event.topicAuthor),
+            topicAuthor = topicAuthor,
             commentAuthor = commentAuthor,
             bonus = loadBonus(event),
             section = sectionService.getSection(group.getSectionId),
@@ -115,9 +120,16 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
             lastId = event.id,
             date = event.eventDate,
-            commentId = event.getCid))
+            commentId = event.getCid,
+            authors = Set(commentAuthor.getOrElse(topicAuthor))))
         case Some(existing) =>
-          Some(existing.withSimilar(event))
+          val author = if (event.isComment) {
+            users(event.commentAuthor)
+          } else {
+            users(event.topicAuthor)
+          }
+
+          Some(existing.withSimilar(event, author))
       }
     }
 

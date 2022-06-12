@@ -25,14 +25,15 @@ import scala.jdk.CollectionConverters._
 case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], topicAuthor: User,
                              commentAuthor: Option[User], bonus: Option[Int], @BeanProperty section: Section,
                              group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
-                             commentId: Int, @BeanProperty count: Int = 1) {
-  def withSimilar(event: UserEvent): PreparedUserEvent = {
+                             commentId: Int, @BeanProperty count: Int = 1, authors: Set[User]) {
+  def withSimilar(event: UserEvent, author: User): PreparedUserEvent = {
     assume(this.event.unread == event.unread)
 
     if (event.unread) {
-      copy(count = count + 1, lastId = event.id)
+      copy(count = count + 1, lastId = event.id, authors = authors + author)
     } else {
-      copy(count = count + 1, lastId = event.id, date = event.eventDate, commentId = event.cid)
+      copy(count = count + 1, lastId = event.id, date = event.eventDate, commentId = event.cid,
+        authors = authors + author)
     }
   }
 
@@ -55,4 +56,6 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
       }
     }
   }
+
+  def getAuthorsText: String = authors.toSeq.map(_.getNick).sorted.mkString("Комментарии ", ", ", "")
 }
