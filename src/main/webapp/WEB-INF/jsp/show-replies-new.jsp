@@ -120,12 +120,12 @@
   </td>
   <td>
     <a href="${topic.link}">
-      <c:forEach var="tag" items="${topic.tags}">
-        <span class="tag">${tag}</span>
-      </c:forEach>
       <l:title>${topic.event.subj}</l:title>
     </a>
-    (${topic.section.name})
+    (${topic.section.name})<br>
+    <c:forEach var="tag" items="${topic.tags}">
+      <span class="tag">${tag}</span>
+    </c:forEach>
 
       <c:if test="${topic.event.eventType == 'DELETED'}">
         <br>
@@ -135,7 +135,7 @@
     <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
   <td title="${topic.authorsText}">
-    <lor:dateinterval date="${topic.date}"/>
+    <lor:dateinterval date="${topic.date}" compact="true"/><br>
     <c:if test="${topic.count > 1}">
       <i class="icon-comment"></i> ${topic.count}
     </c:if>

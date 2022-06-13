@@ -124,7 +124,12 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       params.put("hasMore", list.size == topics)
     }
 
-    new ModelAndView("show-replies", params.asJava)
+    if (!tmpl.getProf.isOldTracker) {
+      new ModelAndView("show-replies-new", params.asJava)
+    } else {
+      new ModelAndView("show-replies", params.asJava)
+    }
+
   }
 
   @RequestMapping(value = Array("/show-replies.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
