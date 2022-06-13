@@ -272,8 +272,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def canRegister(remoteAddr: String): Boolean = {
     !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
-      userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp &&
-      getCountry(remoteAddr).exists(c => c != "UA")
+      userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
   }
 
   def getCountry(remoteAddr: String): Option[String] = {
