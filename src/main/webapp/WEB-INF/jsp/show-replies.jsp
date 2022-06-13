@@ -135,7 +135,7 @@
     <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
   <td title="${topic.authorsText}">
-    <lor:dateinterval date="${topic.date}"/>
+    <lor:dateinterval date="${topic.date}"/>,
     <c:if test="${topic.count > 1}">
       <i class="icon-comment"></i> ${topic.count}
     </c:if>
