@@ -96,7 +96,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     response.addHeader("Cache-Control", "no-cache")
 
-    if (currentUser!=null && currentUser.getScore >= 400) {
+    if (currentUser!=null && currentUser.getScore >= 300) {
       val list = userEventService.getUserEvents(currentUser, showPrivate = true, StatUpdater.MAX_EVENTS, 0, eventFilter)
 
       val prepared = prepareService.prepareGrouped(list)
