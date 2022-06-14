@@ -50,7 +50,7 @@ public class EditRemarkController {
 
     User user = userService.getUserCached(nick);
     if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
-      Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
+      Option<Remark> remark = remarkDao.getRemark(Template.getCurrentUser(), user);
       if (remark.isDefined()) {
         mv.getModel().put("remark", remark.get());
       }
@@ -74,7 +74,7 @@ public class EditRemarkController {
     if(text.length()>255){
       text=text.substring(0,255);
     }
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     User refUser = userService.getUserCached(nick);
     remarkDao.setOrUpdateRemark(user, refUser, text);
 

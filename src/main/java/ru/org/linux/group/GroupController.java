@@ -72,7 +72,7 @@ public class GroupController {
     Group group = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString()));
+      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject));
     } else {
       return new ModelAndView(new RedirectView(group.getUrl()));
     }
@@ -86,7 +86,7 @@ public class GroupController {
     Group group = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString() + "&lastmod=true"));
+      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject + "&lastmod=true"));
     } else {
       return new ModelAndView(new RedirectView(group.getUrl() + "?lastmod=true"));
     }
@@ -213,7 +213,7 @@ public class GroupController {
     if (!lastmod) {
       mainTopics = groupListDao.getGroupListTopics(
               group.getId(),
-              tmpl.getCurrentUser(),
+              Template.getCurrentUser(),
               tmpl.getProf().getTopics(),
               offset,
               tmpl.getProf().getMessages(),
@@ -224,7 +224,7 @@ public class GroupController {
     } else {
       mainTopics = groupListDao.getGroupTrackerTopics(
               group.getId(),
-              tmpl.getCurrentUser(),
+              Template.getCurrentUser(),
               tmpl.getProf().getTopics(),
               offset,
               tmpl.getProf().getMessages());
@@ -244,7 +244,7 @@ public class GroupController {
       params.put("hasNext", offset<MAX_OFFSET && mainTopics.size()==tmpl.getProf().getTopics());
     }
 
-    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
+    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, Template.getCurrentUser()));
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 

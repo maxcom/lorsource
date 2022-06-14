@@ -28,8 +28,6 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)
 
-    val tmpl = Template.getTemplate(request)
-
     val continue = uri match {
       case ImagesPattern(userid, suffix) =>
         try {
@@ -39,7 +37,7 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
           if (image == user.getPhoto) {
             true
           } else {
-            val currentUser = Option(tmpl.getCurrentUser)
+            val currentUser = Option(Template.getCurrentUser)
 
             val allowed = currentUser.exists(u => u.getId == user.getId || u.isModerator)
 

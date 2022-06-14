@@ -44,14 +44,14 @@ public class MemoriesController {
           ServletRequest request,
           @RequestParam("msgid") int msgid,
           @RequestParam("watch") boolean watch
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
@@ -81,7 +81,7 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 

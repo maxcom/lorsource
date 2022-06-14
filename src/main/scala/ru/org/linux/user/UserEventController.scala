@@ -63,7 +63,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
     }
 
     val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
-    val currentUser = tmpl.getCurrentUser
+    val currentUser = Template.getCurrentUser
     val nick = currentUser.getNick
 
     val params = mutable.Map[String, Any]()
@@ -151,7 +151,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         throw new AccessViolationException("not authorized")
       }
 
-      if (tmpl.isSessionAuthorized && nick == tmpl.getCurrentUser.getNick && !feedRequested) {
+      if (tmpl.isSessionAuthorized && nick == Template.getCurrentUser.getNick && !feedRequested) {
         return new ModelAndView(new RedirectView("/notifications"))
       }
 
@@ -188,9 +188,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     val user = userService.getUser(nick)
     var showPrivate = tmpl.isModeratorSession
-    val currentUser = tmpl.getCurrentUser
-
-    params.put("currentUser", currentUser)
+    val currentUser = Template.getCurrentUser
 
     if (currentUser != null && currentUser.getId == user.getId) {
       showPrivate = true

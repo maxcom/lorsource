@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -41,7 +41,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
       throw new AccessViolationException("Not authorized")
     }
 
-    val user = tmpl.getCurrentUser
+    val user = Template.getCurrentUser
     val poll = pollDao.getPoll(voteid)
 
     val msg = topicDao.getById(poll.getTopic)

@@ -81,7 +81,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       throw new UserErrorException(s"invalid postscore $postscore")
     }
 
-    val user = tmpl.getCurrentUser
+    val user = Template.getCurrentUser
 
     user.checkCommit()
 
@@ -137,13 +137,13 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
         val markup = msgbaseDao.getMessageText(msg.getId).markup
 
-        Some(textService.moveInfo(markup, url, linktext, tmpl.getCurrentUser, moveFrom))
+        Some(textService.moveInfo(markup, url, linktext, Template.getCurrentUser, moveFrom))
       } else {
         None
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
-      logger.info(s"topic ${msg.getId} moved by ${tmpl.getCurrentUser.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
+      logger.info(s"topic ${msg.getId} moved by ${Template.getCurrentUser.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
     }
 
     searchQueueSender.updateMessage(msg.getId, true)
@@ -202,7 +202,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     new ModelAndView("uncommit", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, tmpl.getCurrentUser)
+      "preparedMessage" -> prepareService.prepareTopic(message, Template.getCurrentUser)
     ).asJava)
   }
 

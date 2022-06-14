@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -59,9 +59,9 @@ class MainPageController(
     mv.getModel.put("news",
       prepareService.prepareTopicsForUser(
         messages.asJava,
-        tmpl.getCurrentUser,
+        Template.getCurrentUser,
         profile,
-        false)
+        loadUserpics = false)
     )
 
     val briefNewsByDate = TopicListTools.datePartition(titles)
@@ -71,8 +71,8 @@ class MainPageController(
       TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2))))
 
     if (tmpl.isSessionAuthorized) {
-      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(tmpl.getCurrentUser)))
-      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(tmpl.getCurrentUser)))
+      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(Template.getCurrentUser)))
+      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(Template.getCurrentUser)))
     }
 
     if (tmpl.isModeratorSession || tmpl.isCorrectorSession) {

@@ -68,7 +68,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val messageText = msgbaseDao.getMessageText(original.getId)
 
-    val commentEditable = topicPermissionService.isCommentEditableNow(comment, tmpl.getCurrentUser,
+    val commentEditable = topicPermissionService.isCommentEditableNow(comment, Template.getCurrentUser,
       commentReadService.isHaveAnswers(comment), topic, messageText.markup)
 
     if (commentEditable) {
@@ -76,7 +76,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, tmpl.getCurrentUser, tmpl.getProf, topic))
+      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, Template.getCurrentUser, tmpl.getProf, topic))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 
@@ -99,13 +99,13 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest,
                              @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
-    val user = commentService.getCommentUser(commentRequest, request, errors)
+    val user = commentService.getCommentUser(commentRequest, errors)
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
 
     val comment = commentService.getComment(commentRequest, user, request)
     val tmpl = Template.getTemplate(request)
 
-    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, tmpl.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
+    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, Template.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
 
@@ -125,7 +125,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     }
 
     topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
-      tmpl.getCurrentUser, errors, originalMessageText.markup)
+      Template.getCurrentUser, errors, originalMessageText.markup)
 
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)

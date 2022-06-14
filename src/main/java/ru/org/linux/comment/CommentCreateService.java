@@ -240,19 +240,12 @@ public class CommentCreateService {
   /**
    * Получить объект пользователя, добавляющего или изменяющего комментарий
    *
-   * @param commentRequest  WEB-форма, содержащая данные
-   * @param request         данные запроса от web-клиента
-   * @param errors          обработчик ошибок ввода для формы
+   * @param commentRequest WEB-форма, содержащая данные
+   * @param errors         обработчик ошибок ввода для формы
    * @return объект пользователя
    */
-  public User getCommentUser(
-    CommentRequest commentRequest,
-    HttpServletRequest request,
-    Errors errors
-  ) {
-    Template tmpl = Template.getTemplate(request);
-
-    User currentUser = tmpl.getCurrentUser();
+  public User getCommentUser(CommentRequest commentRequest, Errors errors) {
+    User currentUser = Template.getCurrentUser();
 
     if (currentUser!=null) {
       return currentUser;

@@ -598,17 +598,6 @@ public class UserDao {
     return jdbcTemplate.queryForObject("SELECT token_generation FROM users WHERE nick=?", Integer.class, nick);
   }
 
-  /**
-   * Move all comments and topics to another user
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void moveMessages(int user, int targetUser) {
-    jdbcTemplate.update("UPDATE comments SET userid=? WHERE userid=?", targetUser, user);
-    jdbcTemplate.update("UPDATE comments SET editor_id=? WHERE editor_id=?", targetUser, user);
-    jdbcTemplate.update("UPDATE edit_info SET editor=? WHERE editor=?", targetUser, user);
-    jdbcTemplate.update("UPDATE topics SET userid=? WHERE userid=?", targetUser, user);
-  }
-
   public int countUnactivated(String ip) {
     return jdbcTemplate.queryForObject(
             "select count(*) from users join user_log on users.id = user_log.userid " +

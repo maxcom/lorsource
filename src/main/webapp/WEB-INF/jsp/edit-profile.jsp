@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -47,7 +48,7 @@ $script.ready('plugins', function() {
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type="checkbox" name="showanonymous" <c:if test="${template.prof.showAnonymous}">checked</c:if> ></td></tr>
 <tr><td>Показывать меньше рекламы (доступна пользователям начиная с одной зеленой звезды)</td>
-<td><input type="checkbox" <c:if test="${template.currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
+<td><input type="checkbox" <c:if test="${currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
 <tr><td>Показывать галерею в ленте на главной</td>
 <td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
   <tr>
@@ -168,7 +169,7 @@ $script.ready('plugins', function() {
 <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
 <li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
 <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
-<c:if test="${template.currentUser.score >= 100 && !template.moderatorSession && !template.currentUser.administrator}">
+<c:if test="${currentUser.score >= 100 && !template.moderatorSession && !template.currentUser.administrator}">
   <li><a href="/deregister.jsp">Удаление аккаунта</a>
 </c:if>
 </ul>

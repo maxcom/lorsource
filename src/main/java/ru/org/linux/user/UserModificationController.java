@@ -17,7 +17,6 @@ package ru.org.linux.user;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -34,7 +33,6 @@ import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -66,7 +64,7 @@ public class UserModificationController {
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
-    return tmpl.getCurrentUser();
+    return Template.getCurrentUser();
   }
 
   /**
@@ -75,15 +73,13 @@ public class UserModificationController {
    * @param user блокируемый пользователь
    * @param reason причина блокировки
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или блокируемого пользователя
-   * нельзя блокировать
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block")
   public ModelAndView blockUser(
       HttpServletRequest request,
       @RequestParam("id") User user,
       @RequestParam(value = "reason", required = false) String reason
-  ) throws Exception {
+  ) {
     User moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
@@ -104,13 +100,12 @@ public class UserModificationController {
    * @param request http запрос
    * @param user кому ставим score
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или пользователь блокирован
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=score50")
   public ModelAndView score50(
           HttpServletRequest request,
           @RequestParam("id") User user
-  ) throws Exception {
+  ) {
     User moderator = getModerator(request);
     if (user.isBlocked() || user.isAnonymous()) {
       throw new AccessViolationException("Нельзя выставить score=50 пользователю " + user.getNick());
@@ -126,13 +121,12 @@ public class UserModificationController {
    * @param request http запрос
    * @param user разблокируемый пользователь
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя разблокировать
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=unblock")
   public ModelAndView unblockUser(
       HttpServletRequest request,
       @RequestParam("id") User user
-  ) throws Exception {
+  ) {
 
     User moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
@@ -143,7 +137,7 @@ public class UserModificationController {
     return redirectToProfile(user);
   }
 
-  private static ModelAndView redirectToProfile(User user) throws UnsupportedEncodingException{
+  private static ModelAndView redirectToProfile(User user) {
     return new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)));
   }
 
@@ -198,13 +192,12 @@ public class UserModificationController {
    * @param request http запрос
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=toggle_corrector")
   public ModelAndView toggleUserCorrector(
       HttpServletRequest request,
       @RequestParam("id") User user
-  ) throws Exception {
+  ) {
     User moderator = getModerator(request);
     if (user.getScore()<UserService$.MODULE$.InviteScore()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
@@ -220,13 +213,12 @@ public class UserModificationController {
    * @param request http запрос
    * @param user пользователь которому сбрасываем пароль
    * @return сообщение о успешности сброса
-   * @throws Exception при ошибке или отсутствии прав
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=reset-password")
   public ModelAndView resetPassword(
       HttpServletRequest request,
       @RequestParam("id") User user
-  ) throws Exception {
+  ) {
     User moderator = getModerator(request);
 
     if (user.isModerator() || user.isAnonymous()) {
@@ -248,13 +240,12 @@ public class UserModificationController {
    * @param request http запрос
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или нельзя трогать дополнительные сведения
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_userinfo")
   public ModelAndView removeUserInfo(
       HttpServletRequest request,
       @RequestParam("id") User user
-  ) throws Exception {
+  ) {
     User moderator = getModerator(request);
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
@@ -269,14 +260,14 @@ public class UserModificationController {
   public ModelAndView removeUserpic(
     ServletRequest request,
     @RequestParam("id") User user
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not autorized");
     }
 
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = Template.getCurrentUser();
 
     // Не модератор не может удалять чужие аватары
     if (!tmpl.isModeratorSession() && currentUser.getId()!=user.getId()) {
@@ -301,15 +292,14 @@ public class UserModificationController {
    *              в результате даёт until, отрицательное значение используется
    *              для разморозки
    * @return возвращаемся в профиль
-   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=freeze")
   public ModelAndView freezeUser(
       HttpServletRequest request,
-      @RequestParam(name = "id", required = true) User user,
-      @RequestParam(name = "reason", required = true) String reason,
-      @RequestParam(name = "shift", required = true) String shift
-  ) throws Exception {
+      @RequestParam(name = "id") User user,
+      @RequestParam(name = "reason") String reason,
+      @RequestParam(name = "shift") String shift
+  ) {
 
     if (reason.length() > 255) {
       throw new UserErrorException("Причина слишком длиная, максимум 255 байт");

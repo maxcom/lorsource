@@ -53,7 +53,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def getModes(request: HttpServletRequest): util.Map[String, String] = {
     val tmpl = Template.getTemplate(request)
 
-    MessageTextService.postingModeSelector(tmpl.getCurrentUser, tmpl.getFormatMode)
+    MessageTextService.postingModeSelector(Template.getCurrentUser, tmpl.getFormatMode)
   }
 
   /**
@@ -71,11 +71,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       add.setMode(tmpl.getFormatMode)
     }
 
-    topicPermissionService.checkCommentsAllowed(add.getTopic, tmpl.getCurrentUser, errors)
+    topicPermissionService.checkCommentsAllowed(add.getTopic, Template.getCurrentUser, errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, tmpl.getCurrentUser, tmpl.getProf, add.getTopic).asScala + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, Template.getCurrentUser, tmpl.getProf, add.getTopic).asScala + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -86,9 +86,9 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @RequestMapping(Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest, request: HttpServletRequest): ModelAndView = {
     val tmpl = Template.getTemplate(request)
-    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, tmpl.getCurrentUser)
+    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, Template.getCurrentUser)
 
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.getGroup, add.getTopic, tmpl.getCurrentUser))
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.getGroup, add.getTopic, Template.getCurrentUser))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
 
     if (add.getMode == null) {
@@ -110,7 +110,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
-    val user = commentService.getCommentUser(add, request, errors)
+    val user = commentService.getCommentUser(add, errors)
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 
     val comment = commentService.getComment(add, user, request)
@@ -121,7 +121,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val tmpl = Template.getTemplate(request)
 
-    if (!MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(_.formId).contains(add.getMode)) {
+    if (!MarkupPermissions.allowedFormats(Template.getCurrentUser).map(_.formId).contains(add.getMode)) {
       errors.rejectValue("mode", null, "Некорректный режим разметки")
       add.setMode(MarkupType.Lorcode.formId)
     }
@@ -144,7 +144,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, tmpl.getCurrentUser, tmpl.getProf, add.getTopic).asScala ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, Template.getCurrentUser, tmpl.getProf, add.getTopic).asScala ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
         Optional.ofNullable(request.getHeader("user-agent")))
@@ -162,7 +162,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                      @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): util.Map[String, AnyRef] = {
-    val user = commentService.getCommentUser(add, request, errors)
+    val user = commentService.getCommentUser(add, errors)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 

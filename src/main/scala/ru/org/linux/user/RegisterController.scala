@@ -89,7 +89,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
     textEncryptor.decrypt(permit).split(":", 2) match {
       case Array("permit", date) =>
         val decodedDate = new DateTime(date.toLong)
-        logger.debug(s"Decoded permit date: ${decodedDate}")
+        logger.debug(s"Decoded permit date: $decodedDate")
         decodedDate.isAfterNow
       case other =>
         logger.warn(s"Invalid permit - decrypted: $other")
@@ -220,7 +220,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Not authorized!")
     }
 
-    val user = tmpl.getCurrentUser
+    val user = Template.getCurrentUser
     val newEmail = userDao.getNewEmail(user)
 
     if (newEmail == null) {
@@ -270,7 +270,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = tmpl.getCurrentUser
+    val currentUser = Template.getCurrentUser
 
     if (!userService.canInvite(currentUser)) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
@@ -287,7 +287,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = tmpl.getCurrentUser
+    val currentUser = Template.getCurrentUser
 
     if (!userService.canInvite(currentUser)) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")

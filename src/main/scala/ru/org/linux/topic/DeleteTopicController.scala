@@ -55,7 +55,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(msg, tmpl.getCurrentUser)) {
+    if (!permissionService.isDeletable(msg, Template.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
@@ -80,7 +80,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new AccessViolationException("Not authorized")
     }
 
-    val user = tmpl.getCurrentUser
+    val user = Template.getCurrentUser
     user.checkAnonymous()
 
     val message = messageDao.getById(msgid)
@@ -109,11 +109,11 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     }
 
     val message = messageDao.getById(msgid)
-    checkUndeletable(message, tmpl.getCurrentUser)
+    checkUndeletable(message, Template.getCurrentUser)
 
     new ModelAndView("undelete", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, tmpl.getCurrentUser)
+      "preparedMessage" -> prepareService.prepareTopic(message, Template.getCurrentUser)
     ).asJava)
   }
 
@@ -126,7 +126,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     }
 
     val message = messageDao.getById(msgid)
-    checkUndeletable(message, tmpl.getCurrentUser)
+    checkUndeletable(message, Template.getCurrentUser)
 
     if (message.isDeleted) {
       messageDao.undelete(message)

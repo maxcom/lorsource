@@ -64,7 +64,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     ModelAndView modelAndView = new ModelAndView("user-filter-list");
@@ -114,7 +114,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     User addUser;
@@ -150,7 +150,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     User delUser = userService.getUserCached(id);
@@ -179,7 +179,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     List<String> r = userTagService.addMultiplyTags(user, tagName, true);
@@ -213,7 +213,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     try {
@@ -245,7 +245,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     userTagService.favoriteDel(user, tagName);
@@ -275,7 +275,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     int tagId = userTagService.favoriteDel(user, tagName);
@@ -305,7 +305,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
@@ -343,7 +343,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
@@ -385,7 +385,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     userTagService.ignoreDel(user, tagName);
@@ -419,7 +419,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     int tagId = userTagService.ignoreDel(user, tagName);

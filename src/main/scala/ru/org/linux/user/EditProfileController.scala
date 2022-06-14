@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -50,8 +50,8 @@ class EditProfileController(
 
     val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
 
-    if (DefaultProfile.getTheme(tmpl.getCurrentUser.getStyle).isDeprecated) {
-      params.put("stylesList", (nonDeprecatedThemes :+ tmpl.getCurrentUser.getStyle).asJava)
+    if (DefaultProfile.getTheme(Template.getCurrentUser.getStyle).isDeprecated) {
+      params.put("stylesList", (nonDeprecatedThemes :+ Template.getCurrentUser.getStyle).asJava)
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
@@ -64,7 +64,7 @@ class EditProfileController(
     params.put("format_mode", tmpl.getFormatMode)
 
     params.put("formatModes",
-      MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(m => m.formId -> m.title).toMap.asJava)
+      MarkupPermissions.allowedFormats(Template.getCurrentUser).map(m => m.formId -> m.title).toMap.asJava)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
@@ -94,7 +94,7 @@ class EditProfileController(
       throw new BadInputException("неправльное название темы")
     }
 
-    if (!MarkupPermissions.allowedFormats(tmpl.getCurrentUser).map(_.formId).contains(formatMode)) {
+    if (!MarkupPermissions.allowedFormats(Template.getCurrentUser).map(_.formId).contains(formatMode)) {
       throw new BadInputException("некорректный режим форматирования")
     }
 
@@ -105,7 +105,7 @@ class EditProfileController(
     tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
     tmpl.getProf.setFormatMode(formatMode)
     tmpl.getProf.setStyle(request.getParameter("style"))
-    userDao.setStyle(tmpl.getCurrentUser, request.getParameter("style"))
+    userDao.setStyle(Template.getCurrentUser, request.getParameter("style"))
     tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
     tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode"), tmpl.isModeratorSession).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
@@ -116,7 +116,7 @@ class EditProfileController(
 
     tmpl.getProf.setAvatarMode(avatar)
     tmpl.getProf.setShowAnonymous("on" == request.getParameter("showanonymous"))
-    profileDao.writeProfile(tmpl.getCurrentUser, tmpl.getProf)
+    profileDao.writeProfile(Template.getCurrentUser, tmpl.getProf)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))
   }

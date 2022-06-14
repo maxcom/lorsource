@@ -44,13 +44,13 @@ public class ShowRemarkController {
     , @PathVariable String nick
     , @RequestParam(value = "offset", defaultValue = "0") int offset
     , @RequestParam(value = "sort", defaultValue = "0") int sortorder
-    ) throws Exception {
+    ) {
     Template tmpl = Template.getTemplate(request);
-    if (!tmpl.isSessionAuthorized() || !tmpl.getCurrentUser().getNick().equals(nick)) {
+    if (!tmpl.isSessionAuthorized() || !Template.getCurrentUser().getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
 
-    int count = remarkDao.remarkCount(tmpl.getCurrentUser());
+    int count = remarkDao.remarkCount(Template.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("view-remarks");
 
@@ -70,7 +70,7 @@ public class ShowRemarkController {
       }
 
 
-      List<Remark> remarks = remarkDao.getRemarkList(tmpl.getCurrentUser(), offset, sortorder, limit);
+      List<Remark> remarks = remarkDao.getRemarkList(Template.getCurrentUser(), offset, sortorder, limit);
       List<PreparedRemark> preparedRemarks = prepareService.prepareRemarkList(remarks);
 
       mv.getModel().put("remarks", preparedRemarks);

@@ -63,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), tmpl.getCurrentUser, tmpl.getProf)
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), Template.getCurrentUser, tmpl.getProf)
     ).asJava)
   }
 
@@ -88,7 +88,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new AccessViolationException("нет авторизации")
     }
 
-    val user = tmpl.getCurrentUser
+    val user = Template.getCurrentUser
     user.checkBlocked()
     user.checkAnonymous()
 
@@ -178,12 +178,12 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser, deleteInfo)) {
+    if (!permissionService.isUndeletable(topic, comment, Template.getCurrentUser, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentForReplyto(comment, tmpl.getCurrentUser, tmpl.getProf, topic),
+      "comment" -> prepareService.prepareCommentForReplyto(comment, Template.getCurrentUser, tmpl.getProf, topic),
       "topic" -> topic
     ).asJava)
   }
@@ -199,7 +199,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val topic = topicDao.getById(comment.getTopicId)
     val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-    if (!permissionService.isUndeletable(topic, comment, tmpl.getCurrentUser, deleteInfo)) {
+    if (!permissionService.isUndeletable(topic, comment, Template.getCurrentUser, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
@@ -207,7 +207,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     searchQueueSender.updateComment(msgid)
 
-    logger.info(s"Восстановлен комментарий пользователем ${tmpl.getCurrentUser}: ${topic.getLink + "?cid=" + msgid}")
+    logger.info(s"Восстановлен комментарий пользователем ${Template.getCurrentUser}: ${topic.getLink + "?cid=" + msgid}")
 
     new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
   }

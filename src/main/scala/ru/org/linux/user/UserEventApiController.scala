@@ -33,7 +33,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
     val tmpl = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
     response.setHeader("Cache-control", "no-cache")
-    tmpl.getCurrentUser.getUnreadEvents
+    Template.getCurrentUser.getUnreadEvents
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
@@ -41,7 +41,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
   def resetNotifications(request: HttpServletRequest, @RequestParam topId: Int): String = {
     val tmpl = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
-    val currentUser = tmpl.getCurrentUser
+    val currentUser = Template.getCurrentUser
     userEventService.resetUnreadReplies(currentUser, topId)
     RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.getId))
     "ok"
@@ -55,7 +55,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
       Map.empty[String, Int].asJava
     } else {
       response.setHeader("Cache-control", "no-cache")
-      Map("notifications" -> tmpl.getCurrentUser.getUnreadEvents).asJava
+      Map("notifications" -> Template.getCurrentUser.getUnreadEvents).asJava
     }
   }
 }

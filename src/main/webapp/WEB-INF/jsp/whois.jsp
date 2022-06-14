@@ -26,7 +26,7 @@
 <%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
 <%--@elvariable id="userStat" type="ru.org.linux.user.UserStats"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
+<%--@elvariable id="viewByOwner" type="java.lang.Boolean"--%>
 <%--@elvariable id="ignored" type="java.lang.Boolean"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
@@ -34,6 +34,7 @@
 <%--@elvariable id="hasRemarks" type="java.lang.Boolean"--%>
 <%--@elvariable id="userlog" type="java.util.List<ru.org.linux.user.PreparedUserLogItem>"--%>
 <%--@elvariable id="otherUsers" type="java.util.List<ru.org.linux.user.User>"--%>
+<%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -100,7 +101,7 @@
 
 <jsp:include page="header.jsp"/>
 
-<c:if test="${currentUser}">
+<c:if test="${viewByOwner}">
     <div style="margin-bottom: 1em">
         <a href="/people/${user.nick}/edit" class="btn btn-default">Редактировать профиль</a>
         <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
@@ -121,7 +122,7 @@
     </div>
 </c:if>
 
-<c:if test="${not currentUser}">
+<c:if test="${not viewByOwner}">
 <h1>Информация о пользователе ${user.nick}</h1>
 </c:if>
 
@@ -136,7 +137,7 @@
                 <button type="submit" class="btn btn-danger btn-small">Удалить</button>
             </form>
         </c:if>
-        <c:if test="${currentUser}">
+        <c:if test="${viewByOwner}">
             <form method="get" action="addphoto.jsp">
                 <button type="submit" class="btn btn-default btn-small">Изменить</button>
             </form>
@@ -155,7 +156,7 @@
         <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
     </c:if>
     <b>ID:</b> ${user.id}<br>
-    <c:if test="${template.sessionAuthorized and !currentUser}">
+    <c:if test="${template.sessionAuthorized and !viewByOwner}">
         <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/>
         [<a href="/people/${user.nick}/remark/">Изменить</a>]
     </c:if>
@@ -253,7 +254,7 @@
     </c:if>
     <br>
 
-    <c:if test="${not currentUser && template.moderatorSession}">
+    <c:if test="${not viewByOwner && template.moderatorSession}">
       <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
     </c:if>
   </div>
@@ -268,7 +269,7 @@
         <a class="tag" href="${tagLink}">${tagName}</a><c:if test="${not status.last}">, </c:if>
     </c:forEach>
 
-    <c:if test="${currentUser}">
+    <c:if test="${viewByOwner}">
         &emsp;<a href="<c:url value="/user-filter"/>">изменить</a>
     </c:if>
     <br>
@@ -284,7 +285,7 @@
     <br>
 </c:if>
 
-<c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
+<c:if test="${template.sessionAuthorized and !viewByOwner and not user.moderator}">
     <c:if test="${ignored}">
         <form name='i_unblock' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
             <lor:csrf/>
@@ -305,7 +306,7 @@
 </c:if>
 
 <!-- ability to freeze a user temporary -->
-<c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
+<c:if test="${(template.moderatorSession and user.blockable) or currentUser.administrator}">
     <br />
     <div style="border: 1px dotted; padding: 1em;">
         <span>Заморозить, разморозить, изменить время заморозки.</span>
@@ -426,7 +427,7 @@
     </div>
 </c:if>
 
-<c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
+<c:if test="${(template.moderatorSession and user.blockable) or currentUser.administrator}">
     <br>
 
     <div style="border: 1px dotted; padding: 1em;">
@@ -483,7 +484,7 @@
 </c:if>
 </c:if>
 
-<c:if test="${currentUser}">
+<c:if test="${viewByOwner}">
     <h2>Действия</h2>
     <ul>
         <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a></li>

@@ -91,7 +91,7 @@ public class GroupModificationController {
 
     groupDao.setParams(group, title, info, longInfo, resolvable!=null, urlName);
 
-    logger.info("Настройки группы {} изменены {}", group.getUrlName(), tmpl.getCurrentUser().getNick());
+    logger.info("Настройки группы {} изменены {}", group.getUrlName(), Template.getCurrentUser().getNick());
 
     return new ModelAndView("action-done", "message", "Параметры изменены");
   }

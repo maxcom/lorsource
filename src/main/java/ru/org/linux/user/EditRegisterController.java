@@ -60,7 +60,6 @@ public class EditRegisterController {
   private final UserDao userDao;
   private final UserService userService;
   private final EmailService emailService;
-  private final ResourceLoader resourceLoader;
   private final EditRegisterRequestValidator validator;
 
   public EditRegisterController(RememberMeServices rememberMeServices,
@@ -74,7 +73,6 @@ public class EditRegisterController {
     this.userDao = userDao;
     this.userService = userService;
     this.emailService = emailService;
-    this.resourceLoader = resourceLoader;
 
     validator = new EditRegisterRequestValidator(resourceLoader);
   }
@@ -93,7 +91,7 @@ public class EditRegisterController {
     if(!tmpl.getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     UserInfo userInfo = userDao.getUserInfoClass(user);
 
     ModelAndView mv = new ModelAndView("edit-reg");
@@ -163,7 +161,7 @@ public class EditRegisterController {
       info = StringUtil.escapeHtml(form.getInfo());
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors, tmpl.getCurrentUser());
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors, Template.getCurrentUser());
 
     boolean emailChanged = false;
 

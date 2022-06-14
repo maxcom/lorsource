@@ -143,7 +143,7 @@ public class TopicController {
     boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (rss) {
-      return getMessageRss(section, request, response, groupName, msgid);
+      return getMessageRss(section, response, groupName, msgid);
     } else {
       return getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0);
     }
@@ -238,7 +238,7 @@ public class TopicController {
     PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
-            tmpl.getCurrentUser(),
+            Template.getCurrentUser(),
             messageText
     );
 
@@ -383,7 +383,7 @@ public class TopicController {
             commentsFiltered,
             topic,
             hideSet,
-            tmpl.getCurrentUser(),
+            Template.getCurrentUser(),
             tmpl.getProf()
     );
 
@@ -398,7 +398,7 @@ public class TopicController {
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
-    params.put("modes", MessageTextService.postingModeSelector(tmpl.getCurrentUser(), tmpl.getFormatMode()));
+    params.put("modes", MessageTextService.postingModeSelector(Template.getCurrentUser(), tmpl.getFormatMode()));
 
     CommentRequest add = new CommentRequest();
     add.setMode(tmpl.getFormatMode());
@@ -431,12 +431,10 @@ public class TopicController {
 
   private ModelAndView getMessageRss(
           Section section,
-          HttpServletRequest request,
           HttpServletResponse response,
           String groupName,
           int msgid) {
     Topic topic = messageDao.getById(msgid);
-    Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<>();
 
@@ -447,7 +445,7 @@ public class TopicController {
     PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
-            tmpl.getCurrentUser(),
+            Template.getCurrentUser(),
             messageText
     );
 
@@ -631,7 +629,7 @@ public class TopicController {
     }
 
     if (tmpl.isSessionAuthorized() && !deleted) {
-      Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
+      Set<Integer> ignoreList = ignoreListDao.get(Template.getCurrentUser());
 
       Set<Integer> hideSet = commentService.makeHideSet(
               comments,

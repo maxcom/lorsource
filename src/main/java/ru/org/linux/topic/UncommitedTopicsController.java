@@ -98,7 +98,7 @@ public class UncommitedTopicsController {
             "messages",
             prepareService.prepareTopicsForUser(
                     messages,
-                    tmpl.getCurrentUser(),
+                    Template.getCurrentUser(),
                     tmpl.getProf(),
                     false
             )

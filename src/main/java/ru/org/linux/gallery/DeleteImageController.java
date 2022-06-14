@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -62,14 +62,12 @@ public class DeleteImageController {
   public ModelAndView deleteForm(
           @RequestParam int id,
           HttpServletRequest request
-  ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
+  ) {
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, Template.getCurrentUser());
 
-    checkDelete(preparedTopic, tmpl.getCurrentUser());
+    checkDelete(preparedTopic, Template.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("delete_image");
 
@@ -83,16 +81,14 @@ public class DeleteImageController {
   public RedirectView deleteImage(
           @RequestParam int id,
           HttpServletRequest request
-  ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
+  ) {
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, tmpl.getCurrentUser());
+    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, Template.getCurrentUser());
 
-    checkDelete(preparedTopic, tmpl.getCurrentUser());
+    checkDelete(preparedTopic, Template.getCurrentUser());
 
-    imageService.deleteImage(tmpl.getCurrentUser(), image);
+    imageService.deleteImage(Template.getCurrentUser(), image);
 
     return new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod().build());
   }

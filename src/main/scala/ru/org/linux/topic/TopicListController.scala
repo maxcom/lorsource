@@ -112,11 +112,11 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val tmpl = Template.getTemplate(request)
 
     val messages = topicListService.getTopicsFeed(
-      section, group.orNull, null, topicListForm.getOffset, topicListForm.getYear, topicListForm.getMonth, 20, tmpl.getCurrentUser)
+      section, group.orNull, null, topicListForm.getOffset, topicListForm.getYear, topicListForm.getMonth, 20, Template.getCurrentUser)
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, tmpl.getCurrentUser, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, Template.getCurrentUser, tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth == null)
 

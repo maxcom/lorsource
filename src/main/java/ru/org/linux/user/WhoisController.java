@@ -119,7 +119,7 @@ public class WhoisController {
       mv.getModel().put("freezer", freezer);
     }
 
-    boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
+    boolean viewByOwner = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     if (tmpl.isModeratorSession()) {
       mv.getModel().put(
@@ -133,29 +133,29 @@ public class WhoisController {
       mv.getModel().put("watchPresent", memoriesDao.isWatchPresetForUser(user));
       mv.getModel().put("favPresent", memoriesDao.isFavPresetForUser(user));
 
-      if (currentUser || tmpl.isModeratorSession()) {
+      if (viewByOwner || tmpl.isModeratorSession()) {
         mv.getModel().put("hasDrafts", topicDao.hasDrafts(user));
         mv.getModel().put("invitedUsers", userService.getAllInvitedUsers(user));
       }
     }
 
-    mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
-    mv.getModel().put("currentUser", currentUser);
-    mv.getModel().put("canInvite", currentUser && userService.canInvite(user));
+    mv.getModel().put("moderatorOrCurrentUser", viewByOwner || tmpl.isModeratorSession());
+    mv.getModel().put("viewByOwner", viewByOwner);
+    mv.getModel().put("canInvite", viewByOwner && userService.canInvite(user));
 
-    if (tmpl.isSessionAuthorized() && !currentUser) {
-      Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
+    if (tmpl.isSessionAuthorized() && !viewByOwner) {
+      Set<Integer> ignoreList = ignoreListDao.get(Template.getCurrentUser());
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
 
-      Option<Remark> remark = remarkDao.getRemark(tmpl.getCurrentUser(), user);
+      Option<Remark> remark = remarkDao.getRemark(Template.getCurrentUser(), user);
       if (remark.isDefined()) {
         mv.getModel().put("remark", remark.get());
       }
     }
 
-    if (tmpl.isSessionAuthorized() && currentUser) {
-      mv.getModel().put("hasRemarks", remarkDao.hasRemarks(tmpl.getCurrentUser()));
+    if (tmpl.isSessionAuthorized() && viewByOwner) {
+      mv.getModel().put("hasRemarks", remarkDao.hasRemarks(Template.getCurrentUser()));
     }
 
     String userinfo = userDao.getUserInfo(user);
@@ -171,11 +171,11 @@ public class WhoisController {
     }
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user));
-    if (currentUser || tmpl.isModeratorSession()) {
+    if (viewByOwner || tmpl.isModeratorSession()) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user));
     }
 
-    if (currentUser || tmpl.isModeratorSession()) {
+    if (viewByOwner || tmpl.isModeratorSession()) {
       List<UserLogItem> logItems = userLogDao.getLogItems(user, tmpl.isModeratorSession());
 
       if (!logItems.isEmpty()) {

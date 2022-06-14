@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,12 +43,12 @@ public class ResolveController  {
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @RequestParam("resolve") String resolved
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
-    User currentUser = tmpl.getCurrentUser();
+    User currentUser = Template.getCurrentUser();
     if (!group.isResolvable()) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
     }

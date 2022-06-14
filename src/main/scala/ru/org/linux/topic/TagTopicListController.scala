@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -104,10 +104,10 @@ class TagTopicListController (
     val tmpl = Template.getTemplate(request)
 
     val offset = topicListService.fixOffset(rawOffset)
-    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, tmpl.getCurrentUser)
+    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, Template.getCurrentUser)
 
     val preparedTopics =
-      prepareService.prepareTopicsForUser(topics, tmpl.getCurrentUser, tmpl.getProf, false)
+      prepareService.prepareTopicsForUser(topics, Template.getCurrentUser, tmpl.getProf, loadUserpics = false)
 
     modelAndView.addObject("messages", preparedTopics)
     modelAndView.addObject("offsetNavigation", true)
@@ -117,12 +117,12 @@ class TagTopicListController (
     modelAndView.addObject("sectionList", sectionService.getSectionList)
 
     if (tmpl.isSessionAuthorized) {
-      modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag))
-      modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag))
+      modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(Template.getCurrentUser, tag))
+      modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(Template.getCurrentUser, tag))
 
       if (!tmpl.isModeratorSession) {
-        modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag))
-        modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag))
+        modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(Template.getCurrentUser, tag))
+        modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(Template.getCurrentUser, tag))
       }
     }
 

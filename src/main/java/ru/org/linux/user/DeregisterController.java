@@ -34,7 +34,6 @@ import ru.org.linux.search.ElasticsearchIndexService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.List;
 
 @Controller
 public class DeregisterController {
@@ -61,7 +60,7 @@ public class DeregisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
 
     if (user.getScore() < 100) {
@@ -88,7 +87,7 @@ public class DeregisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
     user.checkAnonymous();
     user.checkFrozen(errors);
 
@@ -107,17 +106,6 @@ public class DeregisterController {
     if (errors.hasErrors()) {
       return new ModelAndView("deregister");
     }
-
-    // Move messages
-/*
-    List<Integer> movedComments = commentDao.getAllByUser(user);
-    List<Integer> movedTopics = topicDao.getAllByUser(user);
-
-    userDao.moveMessages(user.getId(), userDao.findUserId("Deleted"));
-
-    indexService.reindexComments(movedComments);
-    indexService.reindexTopics(movedTopics);
-*/
 
     // Remove user info
     userDao.resetUserpic(user, user);

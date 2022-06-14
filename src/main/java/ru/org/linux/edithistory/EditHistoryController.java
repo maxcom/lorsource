@@ -65,17 +65,13 @@ public class EditHistoryController {
     "/gallery/{group}/{id}/history",
     "/polls/{group}/{id}/history"
 })
-  public ModelAndView showEditInfo(
-    HttpServletRequest request,
-    @PathVariable("id") int msgid
-  ) throws Exception {
+  public ModelAndView showEditInfo(@PathVariable("id") int msgid) {
     Topic message = messageDao.getById(msgid);
-    Template tmpl = Template.getTemplate(request);
     Group group = groupDao.getGroup(message.getGroupId());
 
-    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, Template.getCurrentUser());
 
-    topicPermissionService.checkView(group, message, tmpl.getCurrentUser(), preparedMessage.getAuthor(), false);
+    topicPermissionService.checkView(group, message, Template.getCurrentUser(), preparedMessage.getAuthor(), false);
 
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message);
 
@@ -83,7 +79,7 @@ public class EditHistoryController {
 
     modelAndView.getModel().put("message", message);
     modelAndView.getModel().put("editHistories", editHistories);
-    modelAndView.getModel().put("canRestore", groupPermissionService.isEditable(preparedMessage, tmpl.getCurrentUser()));
+    modelAndView.getModel().put("canRestore", groupPermissionService.isEditable(preparedMessage, Template.getCurrentUser()));
 
     return modelAndView;
   }
@@ -98,7 +94,7 @@ public class EditHistoryController {
     HttpServletRequest request,
     @PathVariable("id") int msgid,
     @PathVariable("commentid") int commentId
-  ) throws Exception {
+  ) {
     Topic message = messageDao.getById(msgid);
     Comment comment =  commentService.getById(commentId);
 

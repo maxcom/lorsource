@@ -49,7 +49,7 @@ public class DevconfController {
       throw new UserErrorException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    User user = Template.getCurrentUser();
 
     if (!"devconf2019".equals(msg)) {
       throw new UserErrorException("Неправильный код, прочитайте текст новости");

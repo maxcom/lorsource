@@ -23,6 +23,7 @@
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
 <%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 <%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
+<%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -172,7 +173,7 @@
       <h2>Добро пожаловать!</h2>
 
       <div class="boxlet_content">
-        Ваш статус: ${template.currentUser.status}
+        Ваш статус: ${currentUser.status}
         <ul>
           <li><a href="/people/${template.nick}/">Мои темы</a></li>
           <c:if test="${favPresent}">

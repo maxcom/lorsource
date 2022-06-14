@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -84,7 +84,7 @@ public class AddRemoveBoxesController {
         boxlets.remove(form.position.intValue());
         tmpl.getProf().setBoxlets(boxlets);
 
-        profileDao.writeProfile(tmpl.getCurrentUser(), tmpl.getProf());
+        profileDao.writeProfile(Template.getCurrentUser(), tmpl.getProf());
       }
     }
     
@@ -130,7 +130,7 @@ public class AddRemoveBoxesController {
     
     t.getProf().setBoxlets(boxlets);
 
-    profileDao.writeProfile(t.getCurrentUser(), t.getProf());
+    profileDao.writeProfile(Template.getCurrentUser(), t.getProf());
 
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
@@ -138,7 +138,6 @@ public class AddRemoveBoxesController {
 
   public static class EditBoxesRequest {
     private Integer position;
-    private String password;
     private String boxName;
 
     public Integer getPosition() {
@@ -147,15 +146,6 @@ public class AddRemoveBoxesController {
 
     public void setPosition(Integer position) {
       this.position = position;
-    }
-
-
-    public String getPassword() {
-      return password;
-    }
-
-    public void setPassword(String password) {
-      this.password = password;
     }
 
     public String getBoxName() {

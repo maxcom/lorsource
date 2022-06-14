@@ -76,10 +76,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     val favs = if (tmpl.isSessionAuthorized) {
-      Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
-        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(tmpl.getCurrentUser, tag),
-        "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag)),
-	      "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(tmpl.getCurrentUser, tag)))
+      Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(Template.getCurrentUser, tag),
+        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(Template.getCurrentUser, tag),
+        "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(Template.getCurrentUser, tag)),
+	      "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(Template.getCurrentUser, tag)))
     } else {
       Seq.empty
     }
@@ -87,8 +87,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val tagInfo = tagService.getTagInfo(tag, skipZero = !tmpl.isModeratorSession)
 
     val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, tmpl.getCurrentUser) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, tmpl.getCurrentUser)
+      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, Template.getCurrentUser) ++
+      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, Template.getCurrentUser)
 
     val model = Map(
       "tag" -> tag,
@@ -128,9 +128,9 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private def getNewsSection(request: HttpServletRequest, tag: String) = {
     val tmpl = Template.getTemplate(request)
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
-    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, tmpl.getCurrentUser)
+    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, Template.getCurrentUser)
     val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, tmpl.getCurrentUser, tmpl.getProf, false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, Template.getCurrentUser, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 

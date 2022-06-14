@@ -65,7 +65,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val tmpl = Template.getTemplate(request)
     val (modelAndView, user) = mkModel(nick)
 
-    if (!tmpl.isModeratorSession && !(user == tmpl.getCurrentUser)) {
+    if (!tmpl.isModeratorSession && !(user == Template.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете смотреть черновики другого пользователя")
     }
 
@@ -145,7 +145,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val user = userService.getUserCached(nick)
 
-    if (!tmpl.isModeratorSession && !(user == tmpl.getCurrentUser)) {
+    if (!tmpl.isModeratorSession && !(user == Template.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете смотреть удаленные темы другого пользователя")
     }
 
@@ -169,7 +169,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val (modelAndView, user) = mkModel(nick)
 
-    if (!tmpl.isModeratorSession && !(user == tmpl.getCurrentUser)) {
+    if (!tmpl.isModeratorSession && !(user == Template.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете смотреть отслеживаемые темы другого пользователя")
     }
 
@@ -201,7 +201,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     } else {
       val tmpl = Template.getTemplate(request)
       modelAndView.addObject("messages",
-        prepareService.prepareTopicsForUser(messages, tmpl.getCurrentUser, tmpl.getProf, loadUserpics = false))
+        prepareService.prepareTopicsForUser(messages, Template.getCurrentUser, tmpl.getProf, loadUserpics = false))
     }
   }
 

@@ -3,7 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 <%--@elvariable id="sortorder" type="java.lang.String>"--%>
 <%--@elvariable id="hasMore" type="java.lang.Boolean>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -34,15 +35,15 @@
 
   </div>
 
-<h2>Комментарии пользователя ${template.currentUser.nick}</h2>
+<h2>Комментарии пользователя ${currentUser.nick}</h2>
 <c:choose>
   <c:when test="${not empty remarks}">
     <div class=forum>
     <table class="message-table" width="100%">
     <thead>
     <tr>
-    <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=0">Ник</a></th>
-    <th><a href="/people/${template.currentUser.nick}/remarks/?offset=${offset}&amp;sort=1">Комментарий</a></th>
+    <th><a href="/people/${currentUser.nick}/remarks/?offset=${offset}&amp;sort=0">Ник</a></th>
+    <th><a href="/people/${currentUser.nick}/remarks/?offset=${offset}&amp;sort=1">Комментарий</a></th>
     </tr>
     <tbody>
 
@@ -61,12 +62,12 @@
     <div style="display: table; width: 100%">
       <c:if test="${offset !=0}">
         <div style="display: table-cell; text-align: left">
-          <a href="/people/${template.currentUser.nick}/remarks/?offset=${offset-limit}${sortorder}">← предыдущие</a>
+          <a href="/people/${currentUser.nick}/remarks/?offset=${offset-limit}${sortorder}">← предыдущие</a>
         </div>
       </c:if>
       <c:if test="${hasMore}">
         <div style="display: table-cell; text-align: right">
-          <a href="/people/${template.currentUser.nick}/remarks/?offset=${offset+limit}${sortorder}">следующие →</a>
+          <a href="/people/${currentUser.nick}/remarks/?offset=${offset+limit}${sortorder}">следующие →</a>
         </div>
       </c:if>
     </div>

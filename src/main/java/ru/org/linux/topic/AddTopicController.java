@@ -136,11 +136,11 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Map<String, Object> params = new HashMap<>(prepareModel(form, tmpl.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, Template.getCurrentUser()));
 
     Group group = form.getGroup();
 
-    if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
+    if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, Template.getCurrentUser())) {
       ModelAndView errorView = new ModelAndView("errors/good-penguin");
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу");
       errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group));
@@ -186,7 +186,7 @@ public class AddTopicController {
         user = userService.getAnonymous();
       }
     } else {
-      user = tmpl.getCurrentUser();
+      user = Template.getCurrentUser();
     }
 
     return user;
@@ -199,13 +199,13 @@ public class AddTopicController {
           @Valid @ModelAttribute("form") AddTopicRequest form,
           BindingResult errors,
           @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
     Group group = form.getGroup();
 
-    Map<String, Object> params = new HashMap<>(prepareModel(form, tmpl.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, Template.getCurrentUser()));
 
     Section section = null;
 
@@ -232,7 +232,7 @@ public class AddTopicController {
       form.setAllowAnonymous(true);
     }
 
-    if (MarkupPermissions.allowedFormatsJava(tmpl.getCurrentUser()).stream().map(MarkupType::formId).noneMatch(s -> s.equals(form.getMode()))) {
+    if (MarkupPermissions.allowedFormatsJava(Template.getCurrentUser()).stream().map(MarkupType::formId).noneMatch(s -> s.equals(form.getMode()))) {
       errors.rejectValue("mode", null, "Некорректный режим разметки");
       form.setMode(MarkupType.Lorcode$.MODULE$.formId());
     }
@@ -302,7 +302,7 @@ public class AddTopicController {
 
       TopicMenu topicMenu = prepareService.getTopicMenu(
               preparedTopic,
-              tmpl.getCurrentUser(),
+              Template.getCurrentUser(),
               tmpl.getProf(),
               true
       );
@@ -332,7 +332,7 @@ public class AddTopicController {
 
   private ModelAndView createNewTopic(HttpServletRequest request, AddTopicRequest form, HttpSession session,
                                       Group group, Map<String, Object> params, Section section, User user,
-                                      MessageText message, UploadedImagePreview scrn, Topic previewMsg) throws Exception {
+                                      MessageText message, UploadedImagePreview scrn, Topic previewMsg) {
     session.removeAttribute("image");
 
     Tuple2<Integer, Set<Integer>> result = topicService.addMessage(
@@ -433,7 +433,7 @@ public class AddTopicController {
   public Map<String, String> getModes(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    return MessageTextService.postingModeSelector(tmpl.getCurrentUser(), tmpl.getFormatMode());
+    return MessageTextService.postingModeSelector(Template.getCurrentUser(), tmpl.getFormatMode());
   }
 
   public static String getAddUrl(Section section, String tag) {
