@@ -100,11 +100,7 @@ public class WhoisController {
     mv.getModel().put("user", user);
     mv.getModel().put("userInfo", userDao.getUserInfoClass(user));
 
-    mv.getModel().put("userpic", userService.getUserpic(
-            user,
-            tmpl.getProf().getAvatarMode(),
-            true
-    ));
+    mv.getModel().put("userpic", userService.getUserpic(user, tmpl.getProf().getAvatarMode(), true));
 
     if (user.isBlocked()) {
       mv.getModel().put("banInfo", userDao.getBanInfoClass(user));
@@ -154,8 +150,9 @@ public class WhoisController {
       }
     }
 
-    if (tmpl.isSessionAuthorized() && viewByOwner) {
+    if (viewByOwner) {
       mv.getModel().put("hasRemarks", remarkDao.hasRemarks(Template.getCurrentUser()));
+      mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(user));
     }
 
     String userinfo = userDao.getUserInfo(user);

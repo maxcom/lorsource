@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -39,7 +39,9 @@ $script.ready("plugins", function() {
 
 <nav>
   <a href="/people/${template.nick}/edit" class="btn btn-selected">Редактировать профиль</a>
-  <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  <c:if test="${canLoadUserpic}">
+    <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  </c:if>
   <a class="btn btn-default" href="/people/${form.nick}/settings">Настройки</a>
 </nav>
 

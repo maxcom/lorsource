@@ -13,7 +13,6 @@
   ~    limitations under the License.
   --%>
 <%@ page import="org.joda.time.DateTime" %>
-<%@ page import="ru.org.linux.user.User" %>
 <%@ page import="ru.org.linux.user.UserService$" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -137,7 +136,7 @@
                 <button type="submit" class="btn btn-danger btn-small">Удалить</button>
             </form>
         </c:if>
-        <c:if test="${viewByOwner}">
+        <c:if test="${viewByOwner && canLoadUserpic}">
             <form method="get" action="addphoto.jsp">
                 <button type="submit" class="btn btn-default btn-small">Изменить</button>
             </form>

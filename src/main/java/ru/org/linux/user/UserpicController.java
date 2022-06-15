@@ -55,13 +55,10 @@ public class UserpicController {
 
   private final UserService userService;
 
-  private final UserLogDao userLogDao;
-
-  public UserpicController(UserDao userDao, SiteConfig siteConfig, UserService userService, UserLogDao userLogDao) {
+  public UserpicController(UserDao userDao, SiteConfig siteConfig, UserService userService) {
     this.userDao = userDao;
     this.siteConfig = siteConfig;
     this.userService = userService;
-    this.userLogDao = userLogDao;
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
@@ -71,8 +68,6 @@ public class UserpicController {
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-
-    Template.getCurrentUser().checkFrozen();
 
     if (userService.canLoadUserpic(AuthUtil.getCurrentUser())) {
       return new ModelAndView("addphoto");
@@ -90,7 +85,6 @@ public class UserpicController {
     }
 
     User currentUser = Template.getCurrentUser();
-    currentUser.checkFrozen();
 
     if (!userService.canLoadUserpic(currentUser)) {
       throw new AccessViolationException("Forbidden");
@@ -98,18 +92,6 @@ public class UserpicController {
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
-    }
-
-    int userpicSetCount = userLogDao.getUserpicSetCount(currentUser, Duration.ofHours(1));
-
-    if (userpicSetCount >= 3) {
-      return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
-    }
-
-    boolean wasReset = userLogDao.wasUserpicReset(currentUser, Duration.ofDays(21));
-
-    if (wasReset) {
-      return new ModelAndView("addphoto", "error", "Вы не можете сейчас поменять изображение, попробуйте позже.");
     }
 
     Path uploadedFile = Files.createTempFile("userpic-", "");

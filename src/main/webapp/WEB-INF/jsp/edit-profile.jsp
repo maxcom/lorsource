@@ -36,7 +36,9 @@ $script.ready('plugins', function() {
 
 <nav>
   <a href="/people/${template.nick}/edit" class="btn btn-default">Редактировать профиль</a>
-  <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  <c:if test="${canLoadUserpic}">
+    <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
+  </c:if>
   <a href="/people/${template.nick}/settings" class="btn btn-selected">Настройки</a>
 </nav>
 

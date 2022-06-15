@@ -95,6 +95,7 @@ public class EditRegisterController {
     UserInfo userInfo = userDao.getUserInfoClass(user);
 
     ModelAndView mv = new ModelAndView("edit-reg");
+    mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(Template.getCurrentUser()));
 
     form.setEmail(user.getEmail());
     form.setUrl(userInfo.getUrl());
@@ -219,7 +220,9 @@ public class EditRegisterController {
         emailService.sendRegistrationEmail(user.getNick(), newEmail, false);
       }
     } else {
-      return new ModelAndView("edit-reg");
+      ModelAndView mv = new ModelAndView("edit-reg");
+      mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(Template.getCurrentUser()));
+      return mv;
     }
 
     if (emailChanged) {

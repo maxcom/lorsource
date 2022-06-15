@@ -31,10 +31,7 @@ import scala.jdk.CollectionConverters._
 
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
-class EditProfileController(
-  userDao: UserDao,
-  profileDao: ProfileDao
-) {
+class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @PathVariable nick: String): ModelAndView = {
     val tmpl = Template.getTemplate(request)
@@ -68,14 +65,16 @@ class EditProfileController(
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
+    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(Template.getCurrentUser)))
+
     new ModelAndView("edit-profile", params)
   }
 
   @RequestMapping(method = Array(RequestMethod.POST))
-  def editProfile(request: ServletRequest, @RequestParam("topics") topics: Int,
-                  @RequestParam("messages") messages: Int,
-                  @RequestParam("format_mode") formatMode: String,
-                  @PathVariable nick: String
+  def updateSettings(request: ServletRequest, @RequestParam("topics") topics: Int,
+                     @RequestParam("messages") messages: Int,
+                     @RequestParam("format_mode") formatMode: String,
+                     @PathVariable nick: String
                  ): ModelAndView = {
     val tmpl: Template = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) {

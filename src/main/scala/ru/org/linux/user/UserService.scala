@@ -30,6 +30,7 @@ import ru.org.linux.util.{BadImageException, StringUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
+import java.time.Duration
 import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
@@ -269,5 +270,11 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
   }
 
-  def canLoadUserpic(user: User): Boolean = false
+  def canLoadUserpic(user: User): Boolean = {
+    val userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
+
+    val wasReset = userLogDao.wasUserpicReset(user, Duration.ofDays(30))
+
+    !user.isFrozen && (userpicSetCount < 3) && !wasReset && user.isAdministrator
+  }
 }
