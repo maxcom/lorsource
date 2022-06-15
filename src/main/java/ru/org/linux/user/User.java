@@ -21,7 +21,6 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.BadPasswordException;
-import ru.org.linux.site.BadInputException;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
@@ -356,17 +355,11 @@ public class User implements Serializable {
     return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
   }
 
-  public static void checkNick(String nick) throws BadInputException {
-    if (nick==null || !StringUtil.checkLoginName(nick)) {
-      throw new BadInputException("некорректное имя пользователя");
-    }
-  }
-
   public String getEmail() {
     return email;
   }
 
-  public boolean hasGravatar() {
+  public boolean hasEmail() {
     return email!=null;
   }
 

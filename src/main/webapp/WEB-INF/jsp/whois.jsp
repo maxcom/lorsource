@@ -130,7 +130,7 @@
     <l:userpic userpic="${userpic}"/>
     <c:if test="${moderatorOrCurrentUser}">
         <span>
-        <c:if test="${user.photo != ''}">
+        <c:if test="${user.photo != null}">
             <form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
                 <lor:csrf/>
                 <input type='hidden' name='id' value='${user.id}'>

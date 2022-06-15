@@ -21,8 +21,6 @@ import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import play.api.libs.json.Json
-import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.auth.{AccessViolationException, IPBlockDao}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
@@ -36,9 +34,6 @@ import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.compat.java8.OptionConverters.RichOptionForJava8
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
@@ -67,8 +62,7 @@ object UserService {
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  ipBlockDao: IPBlockDao, wsClient: StandaloneWSClient,
-                  val transactionManager: PlatformTransactionManager)
+                  ipBlockDao: IPBlockDao, val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
@@ -162,10 +156,10 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     userpic.getOrElse {
-      if (user.hasGravatar && user.getPhoto != "") {
-        new Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
-      } else {
+      if (avatarMode=="empty" || !user.hasEmail) {
         UserService.DisabledUserpic
+      } else {
+        new Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
       }
     }
   }
@@ -275,25 +269,5 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
   }
 
-  def getCountry(remoteAddr: String): Option[String] = {
-    val result = wsClient.url(s"https://ipwhois.app/json/$remoteAddr?lang=ru").get().map { response =>
-      val data = Json.parse(response.body)
-
-      if ((data \ "success").as[Boolean]) {
-        val country = (data \ "country_code").asOpt[String]
-
-        logger.debug(s"Country for $remoteAddr: $country")
-
-        country // "RU"
-      } else {
-        logger.warn(s"Can't get country for $remoteAddr: ${data \ "message"}")
-        None
-      }
-    }.recover { ex =>
-      logger.warn(s"Can't get country for $remoteAddr", ex)
-      None
-    }
-
-    Await.result(result, 10.seconds)
-  }
+  def canLoadUserpic(user: User): Boolean = false
 }

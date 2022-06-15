@@ -20,8 +20,9 @@ import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.site.Template
+import ru.org.linux.site.{BadInputException, Template}
 import ru.org.linux.spring.StatUpdater
+import ru.org.linux.util.StringUtil
 
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -129,7 +130,6 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
     } else {
       new ModelAndView("show-replies", params.asJava)
     }
-
   }
 
   @RequestMapping(value = Array("/show-replies.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
@@ -146,7 +146,10 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         throw new AccessViolationException("not authorized")
       }
     } else {
-      User.checkNick(nick)
+      if (!StringUtil.checkLoginName(nick)) {
+        throw new BadInputException("некорректное имя пользователя")
+      }
+
       if (!tmpl.isSessionAuthorized && !feedRequested) {
         throw new AccessViolationException("not authorized")
       }

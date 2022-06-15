@@ -77,7 +77,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertTrue(user.hasGravatar());
+    Assert.assertTrue(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -135,7 +135,7 @@ public class UserTest {
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -193,7 +193,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -254,7 +254,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -315,7 +315,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -376,7 +376,7 @@ public class UserTest {
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -435,7 +435,7 @@ public class UserTest {
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -496,7 +496,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertFalse(user.isFrozen());
   }
@@ -558,7 +558,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
     Assert.assertEquals(resultSet.getString("email"), user.getEmail());
-    Assert.assertFalse(user.hasGravatar());
+    Assert.assertFalse(user.hasEmail());
     Assert.assertEquals(resultSet.getString("name"), user.getName());
     Assert.assertTrue(user.isFrozen());
     Assert.assertEquals(resultSet.getTimestamp("frozen_until"), 

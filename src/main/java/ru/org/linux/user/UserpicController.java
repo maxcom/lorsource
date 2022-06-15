@@ -18,6 +18,8 @@ package ru.org.linux.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -26,6 +28,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
@@ -61,7 +64,7 @@ public class UserpicController {
     this.userLogDao = userLogDao;
   }
 
-//  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
+  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
@@ -71,10 +74,14 @@ public class UserpicController {
 
     Template.getCurrentUser().checkFrozen();
 
-    return new ModelAndView("addphoto");
+    if (userService.canLoadUserpic(AuthUtil.getCurrentUser())) {
+      return new ModelAndView("addphoto");
+    } else {
+      return new ModelAndView("error403");
+    }
   }
 
-//  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
+  @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
   public ModelAndView addPhoto(ServletRequest request, @RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -84,6 +91,10 @@ public class UserpicController {
 
     User currentUser = Template.getCurrentUser();
     currentUser.checkFrozen();
+
+    if (!userService.canLoadUserpic(currentUser)) {
+      throw new AccessViolationException("Forbidden");
+    }
 
     if (file==null || file.isEmpty()) {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
