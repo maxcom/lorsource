@@ -77,7 +77,7 @@ public class UserpicController {
     if (userService.canLoadUserpic(AuthUtil.getCurrentUser())) {
       return new ModelAndView("addphoto");
     } else {
-      return new ModelAndView("error403");
+      return new ModelAndView("errors/code403");
     }
   }
 
