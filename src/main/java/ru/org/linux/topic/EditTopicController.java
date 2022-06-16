@@ -112,7 +112,7 @@ public class EditTopicController {
 
     Topic topic = messageDao.getById(msgid);
 
-    if (!permissionService.canCommit(Template.getCurrentUser(), topic)) {
+      if (!permissionService.canCommit(AuthUtil.getCurrentUser(), topic)) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -120,16 +120,16 @@ public class EditTopicController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(topic, Template.getCurrentUser());
+      PreparedTopic preparedMessage = prepareService.prepareTopic(topic, AuthUtil.getCurrentUser());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
-    ModelAndView mv = prepareModel(
+      ModelAndView mv = prepareModel(
             preparedMessage,
             form,
-            Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
             tmpl.getProf()
     );
 
@@ -152,18 +152,18 @@ public class EditTopicController {
 
     Topic message = messageDao.getById(msgid);
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
 
-    PreparedTopic preparedMessage = prepareService.prepareTopic(message, Template.getCurrentUser());
+      PreparedTopic preparedMessage = prepareService.prepareTopic(message, AuthUtil.getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    return prepareModel(
+      return prepareModel(
             preparedMessage,
             form,
-            Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
             tmpl.getProf()
     );
   }
@@ -272,10 +272,10 @@ public class EditTopicController {
     Map<String, Object> params = new HashMap<>();
 
     final Topic topic = messageDao.getById(msgid);
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, Template.getCurrentUser());
+      PreparedTopic preparedTopic = prepareService.prepareTopic(topic, AuthUtil.getCurrentUser());
     Group group = preparedTopic.getGroup();
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
@@ -289,9 +289,9 @@ public class EditTopicController {
     params.put("message", topic);
     params.put("preparedMessage", preparedTopic);
     params.put("group", group);
-    params.put("topicMenu", prepareService.getTopicMenu(
+      params.put("topicMenu", prepareService.getTopicMenu(
             preparedTopic,
-            Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
             tmpl.getProf(),
             true
     ));
@@ -326,7 +326,7 @@ public class EditTopicController {
     boolean commit = request.getParameter("commit") != null;
 
     if (commit) {
-      if (!permissionService.canCommit(Template.getCurrentUser(), topic)) {
+        if (!permissionService.canCommit(AuthUtil.getCurrentUser(), topic)) {
         throw new AccessViolationException("Not authorized");
       }
       if (topic.isCommited()) {

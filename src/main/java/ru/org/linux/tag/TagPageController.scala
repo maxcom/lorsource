@@ -22,6 +22,7 @@ import org.apache.commons.text.WordUtils
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
@@ -76,10 +77,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     val favs = if (tmpl.isSessionAuthorized) {
-      Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(Template.getCurrentUser, tag),
-        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(Template.getCurrentUser, tag),
-        "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(Template.getCurrentUser, tag)),
-	      "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(Template.getCurrentUser, tag)))
+      Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag),
+        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag),
+        "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)),
+	      "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)))
     } else {
       Seq.empty
     }
@@ -87,8 +88,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val tagInfo = tagService.getTagInfo(tag, skipZero = !tmpl.isModeratorSession)
 
     val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, Template.getCurrentUser) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, Template.getCurrentUser)
+      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, AuthUtil.getCurrentUser) ++
+      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, AuthUtil.getCurrentUser)
 
     val model = Map(
       "tag" -> tag,
@@ -128,9 +129,9 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private def getNewsSection(request: HttpServletRequest, tag: String) = {
     val tmpl = Template.getTemplate(request)
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
-    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, Template.getCurrentUser)
+    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, AuthUtil.getCurrentUser)
     val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, Template.getCurrentUser, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.site.{BadInputException, Template}
 import ru.org.linux.spring.StatUpdater
 import ru.org.linux.util.StringUtil
@@ -64,7 +64,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
     }
 
     val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
-    val currentUser = Template.getCurrentUser
+    val currentUser = AuthUtil.getCurrentUser
     val nick = currentUser.getNick
 
     val params = mutable.Map[String, Any]()
@@ -140,7 +140,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         throw new AccessViolationException("not authorized")
       }
 
-      if (tmpl.isSessionAuthorized && nick == Template.getCurrentUser.getNick && !feedRequested) {
+      if (tmpl.isSessionAuthorized && nick == AuthUtil.getCurrentUser.getNick && !feedRequested) {
         return new ModelAndView(new RedirectView("/notifications"))
       }
 
@@ -177,7 +177,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     val user = userService.getUser(nick)
     var showPrivate = tmpl.isModeratorSession
-    val currentUser = Template.getCurrentUser
+    val currentUser = AuthUtil.getCurrentUser
 
     if (currentUser != null && currentUser.getId == user.getId) {
       showPrivate = true

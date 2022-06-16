@@ -16,12 +16,12 @@
 package ru.org.linux.topic
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagService}
@@ -104,10 +104,10 @@ class TagTopicListController (
     val tmpl = Template.getTemplate(request)
 
     val offset = topicListService.fixOffset(rawOffset)
-    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, Template.getCurrentUser)
+    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, AuthUtil.getCurrentUser)
 
     val preparedTopics =
-      prepareService.prepareTopicsForUser(topics, Template.getCurrentUser, tmpl.getProf, loadUserpics = false)
+      prepareService.prepareTopicsForUser(topics, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false)
 
     modelAndView.addObject("messages", preparedTopics)
     modelAndView.addObject("offsetNavigation", true)
@@ -117,12 +117,12 @@ class TagTopicListController (
     modelAndView.addObject("sectionList", sectionService.getSectionList)
 
     if (tmpl.isSessionAuthorized) {
-      modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(Template.getCurrentUser, tag))
-      modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(Template.getCurrentUser, tag))
+      modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
+      modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
 
       if (!tmpl.isModeratorSession) {
-        modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(Template.getCurrentUser, tag))
-        modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(Template.getCurrentUser, tag))
+        modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
+        modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
       }
     }
 

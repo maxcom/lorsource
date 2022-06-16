@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.section.SectionService
 import ru.org.linux.site.Template
 import ru.org.linux.user._
@@ -65,7 +65,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val tmpl = Template.getTemplate(request)
     val (modelAndView, user) = mkModel(nick)
 
-    if (!tmpl.isModeratorSession && !(user == Template.getCurrentUser)) {
+    if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете смотреть черновики другого пользователя")
     }
 
@@ -145,7 +145,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val user = userService.getUserCached(nick)
 
-    if (!tmpl.isModeratorSession && !(user == Template.getCurrentUser)) {
+    if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете смотреть удаленные темы другого пользователя")
     }
 
@@ -169,7 +169,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val (modelAndView, user) = mkModel(nick)
 
-    if (!tmpl.isModeratorSession && !(user == Template.getCurrentUser)) {
+    if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете смотреть отслеживаемые темы другого пользователя")
     }
 
@@ -201,7 +201,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     } else {
       val tmpl = Template.getTemplate(request)
       modelAndView.addObject("messages",
-        prepareService.prepareTopicsForUser(messages, Template.getCurrentUser, tmpl.getProf, loadUserpics = false))
+        prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
     }
   }
 

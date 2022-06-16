@@ -18,7 +18,7 @@ import akka.actor.ActorRef
 import com.google.common.collect.ImmutableList
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.site.Template
 
@@ -33,7 +33,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
     val tmpl = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
     response.setHeader("Cache-control", "no-cache")
-    Template.getCurrentUser.getUnreadEvents
+    AuthUtil.getCurrentUser.getUnreadEvents
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
@@ -41,7 +41,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
   def resetNotifications(request: HttpServletRequest, @RequestParam topId: Int): String = {
     val tmpl = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
-    val currentUser = Template.getCurrentUser
+    val currentUser = AuthUtil.getCurrentUser
     userEventService.resetUnreadReplies(currentUser, topId)
     RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.getId))
     "ok"
@@ -55,7 +55,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
       Map.empty[String, Int].asJava
     } else {
       response.setHeader("Cache-control", "no-cache")
-      Map("notifications" -> Template.getCurrentUser.getUnreadEvents).asJava
+      Map("notifications" -> AuthUtil.getCurrentUser.getUnreadEvents).asJava
     }
   }
 }

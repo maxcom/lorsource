@@ -37,7 +37,7 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
           if (image == user.getPhoto) {
             true
           } else {
-            val currentUser = Option(Template.getCurrentUser)
+            val currentUser = Option(AuthUtil.getCurrentUser)
 
             val allowed = currentUser.exists(u => u.getId == user.getId || u.isModerator)
 

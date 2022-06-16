@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
@@ -94,11 +95,11 @@ public class UncommitedTopicsController {
     List<Topic> messages = topicListService.getUncommitedTopic(section, calendar.getTime(),
             tmpl.isModeratorSession() || tmpl.isCorrectorSession());
 
-    modelAndView.addObject(
+      modelAndView.addObject(
             "messages",
             prepareService.prepareTopicsForUser(
                     messages,
-                    Template.getCurrentUser(),
+                    AuthUtil.getCurrentUser(),
                     tmpl.getProf(),
                     false
             )

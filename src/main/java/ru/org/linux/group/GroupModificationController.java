@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;
@@ -91,7 +92,7 @@ public class GroupModificationController {
 
     groupDao.setParams(group, title, info, longInfo, resolvable!=null, urlName);
 
-    logger.info("Настройки группы {} изменены {}", group.getUrlName(), Template.getCurrentUser().getNick());
+      logger.info("Настройки группы {} изменены {}", group.getUrlName(), AuthUtil.getCurrentUser().getNick());
 
     return new ModelAndView("action-done", "message", "Параметры изменены");
   }

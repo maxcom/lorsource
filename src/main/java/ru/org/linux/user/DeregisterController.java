@@ -25,9 +25,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.search.ElasticsearchIndexService;
@@ -60,7 +60,7 @@ public class DeregisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     if (user.getScore() < 100) {
@@ -87,7 +87,7 @@ public class DeregisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
     user.checkFrozen(errors);
 

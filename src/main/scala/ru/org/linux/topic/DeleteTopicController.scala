@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
@@ -55,7 +55,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(msg, Template.getCurrentUser)) {
+    if (!permissionService.isDeletable(msg, AuthUtil.getCurrentUser)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
@@ -80,7 +80,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new AccessViolationException("Not authorized")
     }
 
-    val user = Template.getCurrentUser
+    val user = AuthUtil.getCurrentUser
     user.checkAnonymous()
 
     val message = messageDao.getById(msgid)
@@ -109,11 +109,11 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     }
 
     val message = messageDao.getById(msgid)
-    checkUndeletable(message, Template.getCurrentUser)
+    checkUndeletable(message, AuthUtil.getCurrentUser)
 
     new ModelAndView("undelete", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, Template.getCurrentUser)
+      "preparedMessage" -> prepareService.prepareTopic(message, AuthUtil.getCurrentUser)
     ).asJava)
   }
 
@@ -126,7 +126,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     }
 
     val message = messageDao.getById(msgid)
-    checkUndeletable(message, Template.getCurrentUser)
+    checkUndeletable(message, AuthUtil.getCurrentUser)
 
     if (message.isDeleted) {
       messageDao.undelete(message)

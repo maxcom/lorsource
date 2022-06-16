@@ -19,12 +19,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,9 +69,9 @@ public class EditHistoryController {
     Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
 
-    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, Template.getCurrentUser());
+      PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, AuthUtil.getCurrentUser());
 
-    topicPermissionService.checkView(group, message, Template.getCurrentUser(), preparedMessage.getAuthor(), false);
+      topicPermissionService.checkView(group, message, AuthUtil.getCurrentUser(), preparedMessage.getAuthor(), false);
 
     List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message);
 
@@ -79,7 +79,7 @@ public class EditHistoryController {
 
     modelAndView.getModel().put("message", message);
     modelAndView.getModel().put("editHistories", editHistories);
-    modelAndView.getModel().put("canRestore", groupPermissionService.isEditable(preparedMessage, Template.getCurrentUser()));
+      modelAndView.getModel().put("canRestore", groupPermissionService.isEditable(preparedMessage, AuthUtil.getCurrentUser()));
 
     return modelAndView;
   }

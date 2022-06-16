@@ -235,10 +235,10 @@ public class TopicController {
 
     Template tmpl = Template.getTemplate(request);
 
-    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
+      PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
-            Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
             messageText
     );
 
@@ -378,12 +378,12 @@ public class TopicController {
 
     params.put("unfilteredCount", unfilteredCount);
 
-    List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
             comments,
             commentsFiltered,
             topic,
             hideSet,
-            Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
             tmpl.getProf()
     );
 
@@ -398,7 +398,7 @@ public class TopicController {
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
 
-    params.put("modes", MessageTextService.postingModeSelector(Template.getCurrentUser(), tmpl.getFormatMode()));
+      params.put("modes", MessageTextService.postingModeSelector(AuthUtil.getCurrentUser(), tmpl.getFormatMode()));
 
     CommentRequest add = new CommentRequest();
     add.setMode(tmpl.getFormatMode());
@@ -442,10 +442,10 @@ public class TopicController {
 
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
 
-    PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
+      PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
             tags,
-            Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
             messageText
     );
 
@@ -629,7 +629,7 @@ public class TopicController {
     }
 
     if (tmpl.isSessionAuthorized() && !deleted) {
-      Set<Integer> ignoreList = ignoreListDao.get(Template.getCurrentUser());
+        Set<Integer> ignoreList = ignoreListDao.get(AuthUtil.getCurrentUser());
 
       Set<Integer> hideSet = commentService.makeHideSet(
               comments,

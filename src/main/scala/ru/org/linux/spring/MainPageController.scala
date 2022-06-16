@@ -16,10 +16,10 @@
 package ru.org.linux.spring
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.section.Section
 import ru.org.linux.site.Template
 import ru.org.linux.topic._
@@ -59,7 +59,7 @@ class MainPageController(
     mv.getModel.put("news",
       prepareService.prepareTopicsForUser(
         messages.asJava,
-        Template.getCurrentUser,
+        AuthUtil.getCurrentUser,
         profile,
         loadUserpics = false)
     )
@@ -71,8 +71,8 @@ class MainPageController(
       TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2))))
 
     if (tmpl.isSessionAuthorized) {
-      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(Template.getCurrentUser)))
-      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(Template.getCurrentUser)))
+      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(AuthUtil.getCurrentUser)))
+      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(AuthUtil.getCurrentUser)))
     }
 
     if (tmpl.isModeratorSession || tmpl.isCorrectorSession) {

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
@@ -51,7 +52,7 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
@@ -81,7 +82,7 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 

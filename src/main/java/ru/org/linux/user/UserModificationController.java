@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.CommentDeleteService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
@@ -64,7 +65,7 @@ public class UserModificationController {
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
-    return Template.getCurrentUser();
+      return AuthUtil.getCurrentUser();
   }
 
   /**
@@ -267,7 +268,7 @@ public class UserModificationController {
       throw new AccessViolationException("Not autorized");
     }
 
-    User currentUser = Template.getCurrentUser();
+      User currentUser = AuthUtil.getCurrentUser();
 
     // Не модератор не может удалять чужие аватары
     if (!tmpl.isModeratorSession() && currentUser.getId()!=user.getId()) {

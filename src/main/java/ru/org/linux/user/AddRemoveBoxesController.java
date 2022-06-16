@@ -27,6 +27,7 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
 
@@ -84,7 +85,7 @@ public class AddRemoveBoxesController {
         boxlets.remove(form.position.intValue());
         tmpl.getProf().setBoxlets(boxlets);
 
-        profileDao.writeProfile(Template.getCurrentUser(), tmpl.getProf());
+          profileDao.writeProfile(AuthUtil.getCurrentUser(), tmpl.getProf());
       }
     }
     
@@ -130,7 +131,7 @@ public class AddRemoveBoxesController {
     
     t.getProf().setBoxlets(boxlets);
 
-    profileDao.writeProfile(Template.getCurrentUser(), t.getProf());
+      profileDao.writeProfile(AuthUtil.getCurrentUser(), t.getProf());
 
     status.setComplete();
     return "redirect:/edit-boxes.jsp";

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.group.GroupListDao
 import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
@@ -93,7 +94,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     params.put("topics", Integer.valueOf(topics))
 
-    val user = Template.getCurrentUser
+    val user = AuthUtil.getCurrentUser
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
     val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user, topics, offset, messages).asScala

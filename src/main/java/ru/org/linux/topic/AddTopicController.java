@@ -136,11 +136,11 @@ public class AddTopicController {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Map<String, Object> params = new HashMap<>(prepareModel(form, Template.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, AuthUtil.getCurrentUser()));
 
     Group group = form.getGroup();
 
-    if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, Template.getCurrentUser())) {
+    if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, AuthUtil.getCurrentUser())) {
       ModelAndView errorView = new ModelAndView("errors/good-penguin");
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу");
       errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group));
@@ -186,7 +186,7 @@ public class AddTopicController {
         user = userService.getAnonymous();
       }
     } else {
-      user = Template.getCurrentUser();
+      user = AuthUtil.getCurrentUser();
     }
 
     return user;
@@ -205,7 +205,7 @@ public class AddTopicController {
 
     Group group = form.getGroup();
 
-    Map<String, Object> params = new HashMap<>(prepareModel(form, Template.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form, AuthUtil.getCurrentUser()));
 
     Section section = null;
 
@@ -232,7 +232,7 @@ public class AddTopicController {
       form.setAllowAnonymous(true);
     }
 
-    if (MarkupPermissions.allowedFormatsJava(Template.getCurrentUser()).stream().map(MarkupType::formId).noneMatch(s -> s.equals(form.getMode()))) {
+    if (MarkupPermissions.allowedFormatsJava(AuthUtil.getCurrentUser()).stream().map(MarkupType::formId).noneMatch(s -> s.equals(form.getMode()))) {
       errors.rejectValue("mode", null, "Некорректный режим разметки");
       form.setMode(MarkupType.Lorcode$.MODULE$.formId());
     }
@@ -302,7 +302,7 @@ public class AddTopicController {
 
       TopicMenu topicMenu = prepareService.getTopicMenu(
               preparedTopic,
-              Template.getCurrentUser(),
+              AuthUtil.getCurrentUser(),
               tmpl.getProf(),
               true
       );
@@ -433,7 +433,7 @@ public class AddTopicController {
   public Map<String, String> getModes(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    return MessageTextService.postingModeSelector(Template.getCurrentUser(), tmpl.getFormatMode());
+    return MessageTextService.postingModeSelector(AuthUtil.getCurrentUser(), tmpl.getFormatMode());
   }
 
   public static String getAddUrl(Section section, String tag) {

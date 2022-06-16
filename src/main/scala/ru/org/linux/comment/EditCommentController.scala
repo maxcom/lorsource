@@ -20,7 +20,7 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
+import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.search.SearchQueueSender
@@ -68,7 +68,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val messageText = msgbaseDao.getMessageText(original.getId)
 
-    val commentEditable = topicPermissionService.isCommentEditableNow(comment, Template.getCurrentUser,
+    val commentEditable = topicPermissionService.isCommentEditableNow(comment, AuthUtil.getCurrentUser,
       commentReadService.isHaveAnswers(comment), topic, messageText.markup)
 
     if (commentEditable) {
@@ -76,7 +76,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, Template.getCurrentUser, tmpl.getProf, topic))
+      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, AuthUtil.getCurrentUser, tmpl.getProf, topic))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 
@@ -105,7 +105,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     val comment = commentService.getComment(commentRequest, user, request)
     val tmpl = Template.getTemplate(request)
 
-    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, Template.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
+    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, AuthUtil.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
 
@@ -125,7 +125,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     }
 
     topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
-      Template.getCurrentUser, errors, originalMessageText.markup)
+      AuthUtil.getCurrentUser, errors, originalMessageText.markup)
 
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)

@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.group.GroupPermissionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.topic.*;
 import ru.org.linux.user.User;
 
@@ -65,9 +65,9 @@ public class DeleteImageController {
   ) {
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, Template.getCurrentUser());
+      PreparedTopic preparedTopic = prepareService.prepareTopic(topic, AuthUtil.getCurrentUser());
 
-    checkDelete(preparedTopic, Template.getCurrentUser());
+      checkDelete(preparedTopic, AuthUtil.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("delete_image");
 
@@ -84,11 +84,11 @@ public class DeleteImageController {
   ) {
     Image image = imageDao.getImage(id);
     Topic topic = topicDao.getById(image.getTopicId());
-    PreparedTopic preparedTopic = prepareService.prepareTopic(topic, Template.getCurrentUser());
+      PreparedTopic preparedTopic = prepareService.prepareTopic(topic, AuthUtil.getCurrentUser());
 
-    checkDelete(preparedTopic, Template.getCurrentUser());
+      checkDelete(preparedTopic, AuthUtil.getCurrentUser());
 
-    imageService.deleteImage(Template.getCurrentUser(), image);
+      imageService.deleteImage(AuthUtil.getCurrentUser(), image);
 
     return new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod().build());
   }

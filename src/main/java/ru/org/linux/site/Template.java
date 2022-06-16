@@ -25,7 +25,6 @@ import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.ServletRequest;
 
 public final class Template {
@@ -49,7 +48,7 @@ public final class Template {
   }
 
   public Theme getTheme() {
-    User user = getCurrentUser();
+    User user = AuthUtil.getCurrentUser();
 
     if (user == null) {
       return DefaultProfile.getDefaultTheme();
@@ -61,7 +60,7 @@ public final class Template {
   public String getFormatMode() {
     String mode = userProfile.getFormatMode();
 
-    if (MarkupPermissions.allowedFormatsJava(getCurrentUser()).stream().map(MarkupType::formId).anyMatch(s -> s.equals(mode))) {
+    if (MarkupPermissions.allowedFormatsJava(AuthUtil.getCurrentUser()).stream().map(MarkupType::formId).anyMatch(s -> s.equals(mode))) {
       return mode;
     } else {
       return MarkupType.Lorcode$.MODULE$.formId();
@@ -104,7 +103,7 @@ public final class Template {
    * @return nick or null if not authorized
    */
   public String getNick() {
-    User currentUser = getCurrentUser();
+    User currentUser = AuthUtil.getCurrentUser();
 
     if (currentUser==null) {
       return null;
@@ -116,10 +115,5 @@ public final class Template {
   @Nonnull
   public static Template getTemplate(ServletRequest request) {
     return new Template(request);
-  }
-
-  @Nullable
-  public static User getCurrentUser()  {
-    return AuthUtil.getCurrentUser();
   }
 }

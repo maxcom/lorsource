@@ -14,11 +14,8 @@
  */
 package ru.org.linux.auth
 
-import java.util.concurrent.CompletionStage
-
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
@@ -27,9 +24,11 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.site.{PublicApi, Template}
+import ru.org.linux.site.PublicApi
 import ru.org.linux.user.UserDao
 
+import java.util.concurrent.CompletionStage
+import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Promise
@@ -120,7 +119,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
 
   @RequestMapping(value = Array("/logout_all_sessions"), method = Array(RequestMethod.POST))
   def logoutAllDevices(request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
-    if (AuthUtil.isSessionAuthorized) userDao.unloginAllSessions(Template.getCurrentUser)
+    if (AuthUtil.isSessionAuthorized) userDao.unloginAllSessions(AuthUtil.getCurrentUser)
     logout(request, response)
   }
 

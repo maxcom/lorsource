@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
@@ -140,18 +141,18 @@ public class WhoisController {
     mv.getModel().put("canInvite", viewByOwner && userService.canInvite(user));
 
     if (tmpl.isSessionAuthorized() && !viewByOwner) {
-      Set<Integer> ignoreList = ignoreListDao.get(Template.getCurrentUser());
+        Set<Integer> ignoreList = ignoreListDao.get(AuthUtil.getCurrentUser());
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
 
-      Option<Remark> remark = remarkDao.getRemark(Template.getCurrentUser(), user);
+        Option<Remark> remark = remarkDao.getRemark(AuthUtil.getCurrentUser(), user);
       if (remark.isDefined()) {
         mv.getModel().put("remark", remark.get());
       }
     }
 
     if (viewByOwner) {
-      mv.getModel().put("hasRemarks", remarkDao.hasRemarks(Template.getCurrentUser()));
+        mv.getModel().put("hasRemarks", remarkDao.hasRemarks(AuthUtil.getCurrentUser()));
       mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(user));
     }
 

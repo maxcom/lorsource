@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Random;
 
 @Controller
@@ -84,7 +83,7 @@ public class UserpicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User currentUser = Template.getCurrentUser();
+      User currentUser = AuthUtil.getCurrentUser();
 
     if (!userService.canLoadUserpic(currentUser)) {
       throw new AccessViolationException("Forbidden");

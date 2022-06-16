@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import scala.Option;
 
@@ -50,7 +51,7 @@ public class EditRemarkController {
 
     User user = userService.getUserCached(nick);
     if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
-      Option<Remark> remark = remarkDao.getRemark(Template.getCurrentUser(), user);
+        Option<Remark> remark = remarkDao.getRemark(AuthUtil.getCurrentUser(), user);
       if (remark.isDefined()) {
         mv.getModel().put("remark", remark.get());
       }
@@ -74,7 +75,7 @@ public class EditRemarkController {
     if(text.length()>255){
       text=text.substring(0,255);
     }
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     User refUser = userService.getUserCached(nick);
     remarkDao.setOrUpdateRemark(user, refUser, text);
 

@@ -220,7 +220,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Not authorized!")
     }
 
-    val user = Template.getCurrentUser
+    val user = AuthUtil.getCurrentUser
     val newEmail = userDao.getNewEmail(user)
 
     if (newEmail == null) {
@@ -270,7 +270,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = Template.getCurrentUser
+    val currentUser = AuthUtil.getCurrentUser
 
     if (!userService.canInvite(currentUser)) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
@@ -287,7 +287,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = Template.getCurrentUser
+    val currentUser = AuthUtil.getCurrentUser
 
     if (!userService.canInvite(currentUser)) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -211,9 +212,9 @@ public class GroupController {
     List<TopicsListItem> mainTopics;
 
     if (!lastmod) {
-      mainTopics = groupListDao.getGroupListTopics(
+        mainTopics = groupListDao.getGroupListTopics(
               group.getId(),
-              Template.getCurrentUser(),
+                AuthUtil.getCurrentUser(),
               tmpl.getProf().getTopics(),
               offset,
               tmpl.getProf().getMessages(),
@@ -222,9 +223,9 @@ public class GroupController {
               year,
               month);
     } else {
-      mainTopics = groupListDao.getGroupTrackerTopics(
+        mainTopics = groupListDao.getGroupTrackerTopics(
               group.getId(),
-              Template.getCurrentUser(),
+                AuthUtil.getCurrentUser(),
               tmpl.getProf().getTopics(),
               offset,
               tmpl.getProf().getMessages());
@@ -244,7 +245,7 @@ public class GroupController {
       params.put("hasNext", offset<MAX_OFFSET && mainTopics.size()==tmpl.getProf().getTopics());
     }
 
-    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, Template.getCurrentUser()));
+      params.put("addable", groupPermissionService.isTopicPostingAllowed(group, AuthUtil.getCurrentUser()));
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 

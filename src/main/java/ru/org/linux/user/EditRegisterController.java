@@ -32,10 +32,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.UserDetailsImpl;
-import ru.org.linux.auth.UserDetailsServiceImpl;
+import ru.org.linux.auth.*;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -91,11 +88,11 @@ public class EditRegisterController {
     if(!tmpl.getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
-    User user = Template.getCurrentUser();
+    User user = AuthUtil.getCurrentUser();
     UserInfo userInfo = userDao.getUserInfoClass(user);
 
     ModelAndView mv = new ModelAndView("edit-reg");
-    mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(Template.getCurrentUser()));
+    mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(AuthUtil.getCurrentUser()));
 
     form.setEmail(user.getEmail());
     form.setUrl(userInfo.getUrl());
@@ -162,11 +159,11 @@ public class EditRegisterController {
       info = StringUtil.escapeHtml(form.getInfo());
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors, Template.getCurrentUser());
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors, AuthUtil.getCurrentUser());
 
     boolean emailChanged = false;
 
-    User user = userService.getUser(nick);
+    User user = AuthUtil.getCurrentUser();
 
     if (Strings.isNullOrEmpty(form.getOldpass())) {
       errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль");
@@ -221,7 +218,7 @@ public class EditRegisterController {
       }
     } else {
       ModelAndView mv = new ModelAndView("edit-reg");
-      mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(Template.getCurrentUser()));
+      mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(AuthUtil.getCurrentUser()));
       return mv;
     }
 

@@ -16,14 +16,13 @@ package ru.org.linux.poll
 
 import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
-
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.site.Template
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
@@ -41,7 +40,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
       throw new AccessViolationException("Not authorized")
     }
 
-    val user = Template.getCurrentUser
+    val user = AuthUtil.getCurrentUser
     val poll = pollDao.getPoll(voteid)
 
     val msg = topicDao.getById(poll.getTopic)

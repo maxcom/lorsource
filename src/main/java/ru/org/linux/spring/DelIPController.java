@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.comment.CommentDeleteService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
@@ -82,7 +83,7 @@ public class DelIPController {
     Timestamp ts = new Timestamp(calendar.getTimeInMillis());
     params.put("message", "Удаляем темы и сообщения после "+ ts +" с IP "+ip+"<br>");
 
-    User moderator = Template.getCurrentUser();
+      User moderator = AuthUtil.getCurrentUser();
 
     DeleteCommentResult deleteResult = commentDeleteService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 

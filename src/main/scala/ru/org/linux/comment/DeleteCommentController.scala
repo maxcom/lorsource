@@ -23,7 +23,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
 import ru.org.linux.spring.dao.DeleteInfoDao
@@ -63,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), Template.getCurrentUser, tmpl.getProf)
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), AuthUtil.getCurrentUser, tmpl.getProf)
     ).asJava)
   }
 
@@ -88,7 +88,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new AccessViolationException("нет авторизации")
     }
 
-    val user = Template.getCurrentUser
+    val user = AuthUtil.getCurrentUser
     user.checkBlocked()
     user.checkAnonymous()
 
@@ -178,12 +178,12 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-    if (!permissionService.isUndeletable(topic, comment, Template.getCurrentUser, deleteInfo)) {
+    if (!permissionService.isUndeletable(topic, comment, AuthUtil.getCurrentUser, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentForReplyto(comment, Template.getCurrentUser, tmpl.getProf, topic),
+      "comment" -> prepareService.prepareCommentForReplyto(comment, AuthUtil.getCurrentUser, tmpl.getProf, topic),
       "topic" -> topic
     ).asJava)
   }
@@ -199,7 +199,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val topic = topicDao.getById(comment.getTopicId)
     val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-    if (!permissionService.isUndeletable(topic, comment, Template.getCurrentUser, deleteInfo)) {
+    if (!permissionService.isUndeletable(topic, comment, AuthUtil.getCurrentUser, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
@@ -207,7 +207,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     searchQueueSender.updateComment(msgid)
 
-    logger.info(s"Восстановлен комментарий пользователем ${Template.getCurrentUser}: ${topic.getLink + "?cid=" + msgid}")
+    logger.info(s"Восстановлен комментарий пользователем ${AuthUtil.getCurrentUser}: ${topic.getLink + "?cid=" + msgid}")
 
     new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
   }

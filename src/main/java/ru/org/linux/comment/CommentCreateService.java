@@ -25,10 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import ru.org.linux.auth.CaptchaService;
-import ru.org.linux.auth.FloodProtector;
-import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.auth.*;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryRecord;
@@ -245,7 +242,7 @@ public class CommentCreateService {
    * @return объект пользователя
    */
   public User getCommentUser(CommentRequest commentRequest, Errors errors) {
-    User currentUser = Template.getCurrentUser();
+      User currentUser = AuthUtil.getCurrentUser();
 
     if (currentUser!=null) {
       return currentUser;

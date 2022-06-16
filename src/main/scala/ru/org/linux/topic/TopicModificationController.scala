@@ -16,13 +16,14 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
+
 import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
@@ -81,7 +82,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       throw new UserErrorException(s"invalid postscore $postscore")
     }
 
-    val user = Template.getCurrentUser
+    val user = AuthUtil.getCurrentUser
 
     user.checkCommit()
 
@@ -137,13 +138,13 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
         val markup = msgbaseDao.getMessageText(msg.getId).markup
 
-        Some(textService.moveInfo(markup, url, linktext, Template.getCurrentUser, moveFrom))
+        Some(textService.moveInfo(markup, url, linktext, AuthUtil.getCurrentUser, moveFrom))
       } else {
         None
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
-      logger.info(s"topic ${msg.getId} moved by ${Template.getCurrentUser.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
+      logger.info(s"topic ${msg.getId} moved by ${AuthUtil.getCurrentUser.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
     }
 
     searchQueueSender.updateMessage(msg.getId, true)
@@ -202,7 +203,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     new ModelAndView("uncommit", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, Template.getCurrentUser)
+      "preparedMessage" -> prepareService.prepareTopic(message, AuthUtil.getCurrentUser)
     ).asJava)
   }
 

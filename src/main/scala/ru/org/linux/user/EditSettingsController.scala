@@ -16,13 +16,12 @@
 package ru.org.linux.user
 
 import java.util
-
 import javax.servlet.ServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
@@ -47,8 +46,8 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
 
-    if (DefaultProfile.getTheme(Template.getCurrentUser.getStyle).isDeprecated) {
-      params.put("stylesList", (nonDeprecatedThemes :+ Template.getCurrentUser.getStyle).asJava)
+    if (DefaultProfile.getTheme(AuthUtil.getCurrentUser.getStyle).isDeprecated) {
+      params.put("stylesList", (nonDeprecatedThemes :+ AuthUtil.getCurrentUser.getStyle).asJava)
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
@@ -61,11 +60,11 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
     params.put("format_mode", tmpl.getFormatMode)
 
     params.put("formatModes",
-      MarkupPermissions.allowedFormats(Template.getCurrentUser).map(m => m.formId -> m.title).toMap.asJava)
+      MarkupPermissions.allowedFormats(AuthUtil.getCurrentUser).map(m => m.formId -> m.title).toMap.asJava)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
-    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(Template.getCurrentUser)))
+    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(AuthUtil.getCurrentUser)))
 
     new ModelAndView("edit-profile", params)
   }
@@ -93,7 +92,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
       throw new BadInputException("неправльное название темы")
     }
 
-    if (!MarkupPermissions.allowedFormats(Template.getCurrentUser).map(_.formId).contains(formatMode)) {
+    if (!MarkupPermissions.allowedFormats(AuthUtil.getCurrentUser).map(_.formId).contains(formatMode)) {
       throw new BadInputException("некорректный режим форматирования")
     }
 
@@ -104,7 +103,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
     tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
     tmpl.getProf.setFormatMode(formatMode)
     tmpl.getProf.setStyle(request.getParameter("style"))
-    userDao.setStyle(Template.getCurrentUser, request.getParameter("style"))
+    userDao.setStyle(AuthUtil.getCurrentUser, request.getParameter("style"))
     tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
     tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode"), tmpl.isModeratorSession).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
@@ -115,7 +114,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     tmpl.getProf.setAvatarMode(avatar)
     tmpl.getProf.setShowAnonymous("on" == request.getParameter("showanonymous"))
-    profileDao.writeProfile(Template.getCurrentUser, tmpl.getProf)
+    profileDao.writeProfile(AuthUtil.getCurrentUser, tmpl.getProf)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))
   }

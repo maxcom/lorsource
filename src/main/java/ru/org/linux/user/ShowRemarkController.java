@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;
@@ -46,11 +47,11 @@ public class ShowRemarkController {
     , @RequestParam(value = "sort", defaultValue = "0") int sortorder
     ) {
     Template tmpl = Template.getTemplate(request);
-    if (!tmpl.isSessionAuthorized() || !Template.getCurrentUser().getNick().equals(nick)) {
+      if (!tmpl.isSessionAuthorized() || !AuthUtil.getCurrentUser().getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
 
-    int count = remarkDao.remarkCount(Template.getCurrentUser());
+      int count = remarkDao.remarkCount(AuthUtil.getCurrentUser());
 
     ModelAndView mv = new ModelAndView("view-remarks");
 
@@ -70,7 +71,7 @@ public class ShowRemarkController {
       }
 
 
-      List<Remark> remarks = remarkDao.getRemarkList(Template.getCurrentUser(), offset, sortorder, limit);
+        List<Remark> remarks = remarkDao.getRemarkList(AuthUtil.getCurrentUser(), offset, sortorder, limit);
       List<PreparedRemark> preparedRemarks = prepareService.prepareRemarkList(remarks);
 
       mv.getModel().put("remarks", preparedRemarks);

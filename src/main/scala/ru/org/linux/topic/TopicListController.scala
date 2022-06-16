@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
@@ -112,11 +113,11 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val tmpl = Template.getTemplate(request)
 
     val messages = topicListService.getTopicsFeed(
-      section, group.orNull, null, topicListForm.getOffset, topicListForm.getYear, topicListForm.getMonth, 20, Template.getCurrentUser)
+      section, group.orNull, null, topicListForm.getOffset, topicListForm.getYear, topicListForm.getMonth, 20, AuthUtil.getCurrentUser)
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, Template.getCurrentUser, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth == null)
 

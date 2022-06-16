@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.csrf.CSRFNoAuto;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
@@ -49,7 +50,7 @@ public class DevconfController {
       throw new UserErrorException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
 
     if (!"devconf2019".equals(msg)) {
       throw new UserErrorException("Неправильный код, прочитайте текст новости");

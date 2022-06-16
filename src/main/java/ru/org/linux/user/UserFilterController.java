@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagName;
@@ -64,7 +65,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     ModelAndView modelAndView = new ModelAndView("user-filter-list");
@@ -114,7 +115,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     User addUser;
@@ -150,7 +151,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     User delUser = userService.getUserCached(id);
@@ -179,7 +180,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     List<String> r = userTagService.addMultiplyTags(user, tagName, true);
@@ -213,7 +214,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     try {
@@ -245,7 +246,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     userTagService.favoriteDel(user, tagName);
@@ -275,7 +276,7 @@ public class UserFilterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     int tagId = userTagService.favoriteDel(user, tagName);
@@ -305,7 +306,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
@@ -343,7 +344,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
@@ -385,7 +386,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     userTagService.ignoreDel(user, tagName);
@@ -419,7 +420,7 @@ public class UserFilterController {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
     user.checkAnonymous();
 
     int tagId = userTagService.ignoreDel(user, tagName);

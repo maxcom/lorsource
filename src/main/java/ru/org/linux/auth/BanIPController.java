@@ -89,7 +89,7 @@ public class BanIPController {
       ts = new Timestamp(calendar.getTimeInMillis());
     }
 
-    User user = Template.getCurrentUser();
+      User user = AuthUtil.getCurrentUser();
 
     user.checkCommit();
 
