@@ -165,7 +165,7 @@
         <b>URL:</b>
 
         <c:choose>
-            <c:when test="${user.score < 100 || user.blocked || not user.activated}">
+            <c:when test="${user.score < 100 || user.blocked || not user.activated || user.frozenF}">
                 <a class="url" href="${fn:escapeXml(userInfo.url)}" rel="nofollow">${fn:escapeXml(userInfo.url)}</a><br>
             </c:when>
             <c:otherwise>

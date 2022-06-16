@@ -417,7 +417,7 @@ public class TopicPermissionService {
    * @return true обычная ссылка, false - добавить rel=nofollow
    */
   public boolean followAuthorLinks(User author) {
-    if (author.isBlocked() || author.isAnonymous()) {
+    if (author.isBlocked() || author.isAnonymous() || author.isFrozen()) {
       return false;
     }
 
