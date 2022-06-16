@@ -46,7 +46,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   }
 
   /**
-   * Показывает уведомления для текущего пользоваетля
+   * Показывает уведомления для текущего пользователя
    *
    * @param request  запрос
    * @param response ответ
@@ -97,33 +97,19 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     response.addHeader("Cache-Control", "no-cache")
 
-    if (currentUser!=null && currentUser.getScore >= 200) {
-      val list = userEventService.getUserEvents(currentUser, showPrivate = true, StatUpdater.MAX_EVENTS, 0, eventFilter)
+    val list = userEventService.getUserEvents(currentUser, showPrivate = true, StatUpdater.MAX_EVENTS, 0, eventFilter)
 
-      val prepared = prepareService.prepareGrouped(list)
+    val prepared = prepareService.prepareGrouped(list)
 
-      if (list.nonEmpty) {
-        params.put("enableReset", true)
-        params.put("topId", prepared.head.lastId)
-      }
-
-      val sliced = prepared.slice(offset, offset + topics).take(topics)
-
-      params.put("topicsList", sliced.asJava)
-      params.put("hasMore", sliced.size == topics)
-    } else {
-      val list = userEventService.getUserEvents(currentUser, showPrivate = true, topics, offset, eventFilter)
-
-      val prepared = prepareService.prepare(list, withText = false)
-
-      if (list.nonEmpty) {
-        params.put("enableReset", true)
-        params.put("topId", prepared.head.lastId)
-      }
-
-      params.put("topicsList", prepared.asJava)
-      params.put("hasMore", list.size == topics)
+    if (list.nonEmpty) {
+      params.put("enableReset", true)
+      params.put("topId", prepared.head.lastId)
     }
+
+    val sliced = prepared.slice(offset, offset + topics).take(topics)
+
+    params.put("topicsList", sliced.asJava)
+    params.put("hasMore", sliced.size == topics)
 
     if (!tmpl.getProf.isOldTracker) {
       new ModelAndView("show-replies-new", params.asJava)
