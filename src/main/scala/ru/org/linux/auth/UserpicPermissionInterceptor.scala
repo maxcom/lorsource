@@ -17,7 +17,6 @@ package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.web.servlet.HandlerInterceptor
-import ru.org.linux.site.Template
 import ru.org.linux.user.{UserDao, UserNotFoundException, UserService}
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
