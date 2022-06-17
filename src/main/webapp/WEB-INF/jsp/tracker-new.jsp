@@ -118,7 +118,7 @@
   </div>
 </div>
 
-<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers}">
+<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers || not empty recentUserpics}">
   <h2>Пользователи</h2>
   <p>
     Новые пользователи за последние 3 дня:
@@ -154,6 +154,14 @@
       <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(unBlockedUsers)})
+  </p>
+
+  <p>
+    <c:forEach items="${recentUserpics}" var="userpic">
+      <a href="/people/${userpic._1().nick}/profile">
+        <l:userpic userpic="${userpic._2()}"/>
+      </a>
+    </c:forEach>
   </p>
 </c:if>
 

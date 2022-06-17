@@ -44,7 +44,7 @@ object UserService {
   val MinImageSize = 50
   val MaxImageSize = 300
 
-  val DisabledUserpic = new Userpic("/img/p.gif", 1, 1)
+  val DisabledUserpic: Userpic = Userpic("/img/p.gif", 1, 1)
 
   val AnonymousUserId = 2
 
@@ -136,12 +136,12 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     val userpic = if (user.isAnonymous && misteryMan) {
-      Some(new Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
+      Some(Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
     } else if (user.getPhoto != null && user.getPhoto.nonEmpty) {
       Try {
         val info = new ImageInfo(s"${siteConfig.getUploadPath}/photos/${user.getPhoto}").scale(150)
 
-        new Userpic(s"/photos/${user.getPhoto}", info.getWidth, info.getHeight)
+        Userpic(s"/photos/${user.getPhoto}", info.getWidth, info.getHeight)
       } match {
         case Failure(e: FileNotFoundException) =>
           logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
@@ -160,7 +160,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       if (avatarMode=="empty" || !user.hasEmail) {
         UserService.DisabledUserpic
       } else {
-        new Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
+        Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
       }
     }
   }
@@ -200,6 +200,14 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getModerators: util.List[(User, Boolean)] = makeFrozenList(userDao.getModerators, activityDays = 30)
   def getCorrectors: util.List[(User, Boolean)] = makeFrozenList(userDao.getCorrectors, activityDays = 30)
+
+  def getRecentUserpics: util.List[(User, Userpic)] = {
+    val userIds: Seq[Int] = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).asScala.map(_.toInt).toSeq.distinct
+
+    getUsersCached(userIds).map { user =>
+      user -> getUserpic(user, "empty", misteryMan = false)
+    }.filterNot(_._2 == DisabledUserpic).asJava
+  }
 
   private def findUserIdCached(nick: String): Int = {
     try {

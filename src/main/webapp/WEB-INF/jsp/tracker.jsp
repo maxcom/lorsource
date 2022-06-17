@@ -21,7 +21,6 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -121,7 +120,7 @@
   </div>
 </div>
 
-<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers}">
+<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers || not empty recentUserpics}">
   <h2>Пользователи</h2>
   <p>
     Новые пользователи за последние 3 дня:
@@ -157,6 +156,14 @@
       <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(unBlockedUsers)})
+  </p>
+
+  <p>
+    <c:forEach items="${recentUserpics}" var="userpic">
+      <a href="/people/${userpic._1().nick}/profile">
+        <l:userpic userpic="${userpic._2()}"/>
+      </a>
+    </c:forEach>
   </p>
 </c:if>
 
