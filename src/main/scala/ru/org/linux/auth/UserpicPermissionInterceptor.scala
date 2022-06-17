@@ -46,7 +46,7 @@ class UserpicPermissionInterceptor(userDao: UserDao) extends HandlerInterceptor 
                 response.sendRedirect(s"/photos/${user.getPhoto}")
               } else {
                 logger.warn(s"Forbidden access $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")}")
-                response.sendRedirect(UserService.DisabledUserpic.getUrl)
+                response.sendRedirect(UserService.DisabledUserpic.url)
               }
             }
 
