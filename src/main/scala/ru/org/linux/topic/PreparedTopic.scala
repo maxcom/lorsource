@@ -30,6 +30,6 @@ case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: Use
                          @BeanProperty tags: java.util.List[TagRef], @BeanProperty group: Group,
                          @BeanProperty section: Section, @BeanProperty markupType: MarkupType,
                          @BeanProperty image: PreparedImage, @BeanProperty postscoreInfo: String,
-                         @BeanProperty remark: Remark) {
+                         @BeanProperty remark: Remark, @BeanProperty showRegisterInvite: Boolean) {
   def getId: Int = message.getId
 }

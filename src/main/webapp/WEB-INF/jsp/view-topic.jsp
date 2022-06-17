@@ -339,6 +339,9 @@
       <c:when test="${message.expired}">
         Вы не можете добавлять комментарии в эту тему. Тема перемещена в архив.
       </c:when>
+      <c:when test="${preparedMessage.showRegisterInvite}">
+        Для того чтобы оставить комментарий <a href="login.jsp">войдите</a> или <a href="register.jsp">зарегистрируйтесь</a>.
+      </c:when>
       <c:otherwise>
         ${preparedMessage.postscoreInfo}
       </c:otherwise>

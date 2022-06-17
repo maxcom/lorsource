@@ -63,11 +63,11 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param tags        список тэгов
    * @param minimizeCut сворачивать ли cut
    * @param poll        опрос к топику
-   * @param user        пользователь
+   * @param currentUser        пользователь
    * @return подготовленный топик
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
-                           @Nullable user: User, text: MessageText, image: Option[Image]): PreparedTopic = try {
+                           @Nullable currentUser: User, text: MessageText, image: Option[Image]): PreparedTopic = try {
     val group = groupDao.getGroup(topic.getGroupId)
     val author = userService.getUserCached(topic.getAuthorUserId)
     val section = sectionService.getSection(topic.getSectionId)
@@ -81,7 +81,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val deleteUser = deleteInfo.map(_.userid).map(userService.getUserCached)
 
     val preparedPoll = if (section.isPollPostAllowed) {
-      Some(poll.getOrElse(pollPrepareService.preparePoll(topic, user)))
+      Some(poll.getOrElse(pollPrepareService.preparePoll(topic, currentUser)))
     } else {
       None
     }
@@ -107,17 +107,19 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       None
     }
 
-    val remark = if (user != null) {
-      remarkDao.getRemark(user, author)
+    val remark = if (currentUser != null) {
+      remarkDao.getRemark(currentUser, author)
     } else {
       None
     }
 
     val postscore = topicPermissionService.getPostscore(group, topic)
 
+    val showRegisterInvite = currentUser==null && postscore == TopicPermissionService.POSTSCORE_REGISTERED_ONLY;
+
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
-      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull)
+      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite)
   } catch {
     case e: PollNotFoundException =>
       throw new RuntimeException(e)
