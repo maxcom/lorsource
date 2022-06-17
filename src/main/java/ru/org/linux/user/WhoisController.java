@@ -116,7 +116,7 @@ public class WhoisController {
       mv.getModel().put("freezer", freezer);
     }
 
-    boolean viewByOwner = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
+      boolean viewByOwner = tmpl.isSessionAuthorized() && AuthUtil.getNick().equals(nick);
 
     if (tmpl.isModeratorSession()) {
       mv.getModel().put(

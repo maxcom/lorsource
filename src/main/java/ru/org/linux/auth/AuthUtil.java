@@ -22,7 +22,6 @@ import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class AuthUtil {
@@ -69,11 +68,15 @@ public class AuthUtil {
    *
    * @return nick or null if not authorized
    */
+  @Nullable
   public static String getNick() {
-    if (!isSessionAuthorized()) {
+    User currentUser = getCurrentUser();
+
+    if (currentUser==null) {
       return null;
+    } else {
+      return currentUser.getNick();
     }
-    return getCurrentUser().getNick();
   }
 
   @Nullable
@@ -90,7 +93,6 @@ public class AuthUtil {
     }
   }
 
-  @Nonnull
   public static Profile getProfile() {
     if (!isSessionAuthorized()) {
       return Profile.createDefault();

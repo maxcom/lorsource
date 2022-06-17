@@ -24,9 +24,9 @@
 
 <h1>Загрузка фотографии</h1>
 <nav>
-  <a href="/people/${template.nick}/edit" class="btn btn-default">Редактировать профиль</a>
+  <a href="/people/${currentUser.nick}/edit" class="btn btn-default">Редактировать профиль</a>
   <a class="btn btn-selected" href="/addphoto.jsp">Добавить фотографию</a>
-  <a href="/people/${template.nick}/settings" class="btn btn-default">Настройки</a>
+  <a href="/people/${currentUser.nick}/settings" class="btn btn-default">Настройки</a>
 </nav>
 
 <p>

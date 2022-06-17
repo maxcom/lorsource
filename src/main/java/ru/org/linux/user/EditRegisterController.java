@@ -85,7 +85,7 @@ public class EditRegisterController {
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-    if(!tmpl.getNick().equals(nick)) {
+      if(!AuthUtil.getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }
     User user = AuthUtil.getCurrentUser();
@@ -118,7 +118,7 @@ public class EditRegisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-    String nick = tmpl.getNick();
+      String nick = AuthUtil.getNick();
     String password = Strings.emptyToNull(form.getPassword());
 
     if (password!=null && password.equalsIgnoreCase(nick)) {
@@ -228,7 +228,7 @@ public class EditRegisterController {
 
       return new ModelAndView("action-done", "message", msg);
     } else {
-      return new ModelAndView(new RedirectView("/people/" + tmpl.getNick() + "/profile"));
+        return new ModelAndView(new RedirectView("/people/" + AuthUtil.getNick() + "/profile"));
     }
   }
 

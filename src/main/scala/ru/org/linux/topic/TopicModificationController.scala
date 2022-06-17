@@ -223,7 +223,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     searchQueueSender.updateMessage(message.getId, true)
 
-    logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick)
+    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${AuthUtil.getNick}")
 
     new ModelAndView("action-done", "message", "Подтверждение отменено")
   }

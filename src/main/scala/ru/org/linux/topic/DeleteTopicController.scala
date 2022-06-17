@@ -131,7 +131,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     if (message.isDeleted) {
       messageDao.undelete(message)
 
-      logger.info(s"Восстановлено сообщение $msgid пользователем ${tmpl.getNick}")
+      logger.info(s"Восстановлено сообщение $msgid пользователем ${AuthUtil.getNick}")
 
       searchQueueSender.updateMessage(msgid, true)
     }

@@ -38,7 +38,7 @@ public final class Template {
     userProfile = AuthUtil.getProfile();
   }
 
-  public Template(ServletRequest request) {
+  private Template(ServletRequest request) {
     this(WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()));
   }
 
@@ -98,21 +98,6 @@ public final class Template {
     return AuthUtil.isCorrectorSession();
   }
 
-  /**
-   * Get current authorized users nick
-   * @return nick or null if not authorized
-   */
-  public String getNick() {
-    User currentUser = AuthUtil.getCurrentUser();
-
-    if (currentUser==null) {
-      return null;
-    } else {
-      return currentUser.getNick();
-    }
-  }
-
-  @Nonnull
   public static Template getTemplate(ServletRequest request) {
     return new Template(request);
   }

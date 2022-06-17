@@ -50,7 +50,7 @@ public class EditRemarkController {
     ModelAndView mv = new ModelAndView("edit-remark");
 
     User user = userService.getUserCached(nick);
-    if (tmpl.isSessionAuthorized() && !tmpl.getNick().equals(nick) ) {
+      if (tmpl.isSessionAuthorized() && !AuthUtil.getNick().equals(nick) ) {
         Option<Remark> remark = remarkDao.getRemark(AuthUtil.getCurrentUser(), user);
       if (remark.isDefined()) {
         mv.getModel().put("remark", remark.get());

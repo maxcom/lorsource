@@ -107,11 +107,7 @@
 </div>
 </c:if>
 <%
-  boolean multiPortal = false;
-
-  if (tmpl.getProf().isShowGalleryOnMain()) {
-    multiPortal = true;
-  }
+  boolean multiPortal = tmpl.getProf().isShowGalleryOnMain();
 %>
     <c:forEach var="msg" items="${news}">
       <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
@@ -175,20 +171,20 @@
       <div class="boxlet_content">
         Ваш статус: ${currentUser.status}
         <ul>
-          <li><a href="/people/${template.nick}/">Мои темы</a></li>
+          <li><a href="/people/${currentUser.nick}/">Мои темы</a></li>
           <c:if test="${favPresent}">
-              <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
+              <li><a href="/people/${currentUser.nick}/favs">Избранные темы</a></li>
           </c:if>
-          <li><a href="search.jsp?range=COMMENTS&user=${template.nick}&sort=DATE">Мои комментарии</a></li>
+          <li><a href="search.jsp?range=COMMENTS&user=${currentUser.nick}&sort=DATE">Мои комментарии</a></li>
           <c:if test="${hasDrafts}">
               <li>
-                  <a href="/people/${template.nick}/drafts">Черновики</a>
+                  <a href="/people/${currentUser.nick}/drafts">Черновики</a>
               </li>
           </c:if>
         </ul>
         <ul>
-          <li><a href="/people/${template.nick}/settings">Настройки</a></li>
-          <li><a href="/people/${template.nick}/edit">Редактировать профиль</a></li>
+          <li><a href="/people/${currentUser.nick}/settings">Настройки</a></li>
+          <li><a href="/people/${currentUser.nick}/edit">Редактировать профиль</a></li>
         </ul>
       </div>
     </div>

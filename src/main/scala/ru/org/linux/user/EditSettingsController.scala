@@ -38,7 +38,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
       throw new AccessViolationException("Not authorized")
     }
 
-    if (!(tmpl.getNick == nick)) {
+    if (!(AuthUtil.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -75,11 +75,11 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
                  ): ModelAndView = {
-    val tmpl: Template = Template.getTemplate(request)
+    val tmpl = Template.getTemplate(request)
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }
-    if (!(tmpl.getNick == nick)) {
+    if (!(AuthUtil.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
     if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == tmpl.getProf.getTopics)) {

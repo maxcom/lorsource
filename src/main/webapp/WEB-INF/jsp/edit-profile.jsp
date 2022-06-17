@@ -35,11 +35,11 @@ $script.ready('plugins', function() {
 <h1>Настройки</h1>
 
 <nav>
-  <a href="/people/${template.nick}/edit" class="btn btn-default">Редактировать профиль</a>
+  <a href="/people/${currentUser.nick}/edit" class="btn btn-default">Редактировать профиль</a>
   <c:if test="${canLoadUserpic}">
     <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
   </c:if>
-  <a href="/people/${template.nick}/settings" class="btn btn-selected">Настройки</a>
+  <a href="/people/${currentUser.nick}/settings" class="btn btn-selected">Настройки</a>
 </nav>
 
 <form method=POST id="profileForm" action="/people/${nick}/settings">

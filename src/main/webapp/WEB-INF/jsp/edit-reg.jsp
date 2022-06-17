@@ -38,7 +38,7 @@ $script.ready("plugins", function() {
 <h1>Редактирование профиля</h1>
 
 <nav>
-  <a href="/people/${template.nick}/edit" class="btn btn-selected">Редактировать профиль</a>
+  <a href="/people/${currentUser.nick}/edit" class="btn btn-selected">Редактировать профиль</a>
   <c:if test="${canLoadUserpic}">
     <a class="btn btn-default" href="/addphoto.jsp">Добавить фотографию</a>
   </c:if>

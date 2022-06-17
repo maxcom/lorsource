@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TagTopicListController;
 
@@ -185,7 +186,7 @@ public class TagController {
       logger.info(
               "Тег '{}' изменен пользователем {}",
               tagRequestChange.getOldTagName(),
-              template.getNick()
+              AuthUtil.getNick()
       );
 
       return redirectToListPage(tagRequestChange.getTagName());
@@ -268,7 +269,7 @@ public class TagController {
         firstLetter = tagRequestDelete.getTagName().substring(0, 1);
       }
 
-      logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName(), template.getNick());
+      logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName(), AuthUtil.getNick());
 
       return redirectToListPage(firstLetter);
     } else {

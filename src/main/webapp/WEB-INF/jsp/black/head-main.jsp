@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -45,8 +45,8 @@
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
 <c:if test="${template.sessionAuthorized}">
-  <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-  добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+  <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
+  добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${currentUser.nick}</a>
   <%--<br>--%>
   <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
 </c:if>
