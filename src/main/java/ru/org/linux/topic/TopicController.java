@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -74,53 +73,62 @@ public class TopicController {
   private final static Logger logger = LoggerFactory.getLogger(TopicController.class);
   public static final org.joda.time.Duration JUMP_MIN_DURATION = org.joda.time.Duration.standardDays(30);
 
-  @Autowired
-  private SectionService sectionService;
+  private final SectionService sectionService;
 
-  @Autowired
-  private TopicDao messageDao;
+  private final TopicDao messageDao;
 
-  @Autowired
-  private CommentPrepareService prepareService;
+  private final CommentPrepareService prepareService;
 
-  @Autowired
-  private TopicPrepareService topicPrepareService;
+  private final TopicPrepareService topicPrepareService;
 
-  @Autowired
-  private CommentReadService commentService;
+  private final CommentReadService commentService;
 
-  @Autowired
-  private IgnoreListDao ignoreListDao;
+  private final IgnoreListDao ignoreListDao;
 
-  @Autowired
-  private SiteConfig siteConfig;
+  private final SiteConfig siteConfig;
 
-  @Autowired
-  private IPBlockDao ipBlockDao;
+  private final IPBlockDao ipBlockDao;
 
-  @Autowired
-  private TopicPermissionService permissionService;
+  private final TopicPermissionService permissionService;
 
-  @Autowired
-  private MoreLikeThisService moreLikeThisService;
+  private final MoreLikeThisService moreLikeThisService;
 
-  @Autowired
-  private TopicTagService topicTagService;
+  private final TopicTagService topicTagService;
 
-  @Autowired
-  private MsgbaseDao msgbaseDao;
+  private final MsgbaseDao msgbaseDao;
 
-  @Autowired
-  private MessageTextService textService;
+  private final MessageTextService textService;
 
-  @Autowired
-  private MemoriesDao memoriesDao;
+  private final MemoriesDao memoriesDao;
 
-  @Autowired
-  private EditHistoryService editHistoryService;
+  private final EditHistoryService editHistoryService;
 
-  @Autowired
-  private GroupDao groupDao;
+  private final GroupDao groupDao;
+
+  public TopicController(SectionService sectionService, TopicDao messageDao, CommentPrepareService prepareService,
+                         TopicPrepareService topicPrepareService, CommentReadService commentService,
+                         IgnoreListDao ignoreListDao, SiteConfig siteConfig, IPBlockDao ipBlockDao,
+                         EditHistoryService editHistoryService, MemoriesDao memoriesDao,
+                         TopicPermissionService permissionService, MoreLikeThisService moreLikeThisService,
+                         TopicTagService topicTagService, MsgbaseDao msgbaseDao, MessageTextService textService,
+                         GroupDao groupDao) {
+    this.sectionService = sectionService;
+    this.messageDao = messageDao;
+    this.prepareService = prepareService;
+    this.topicPrepareService = topicPrepareService;
+    this.commentService = commentService;
+    this.ignoreListDao = ignoreListDao;
+    this.siteConfig = siteConfig;
+    this.ipBlockDao = ipBlockDao;
+    this.editHistoryService = editHistoryService;
+    this.memoriesDao = memoriesDao;
+    this.permissionService = permissionService;
+    this.moreLikeThisService = moreLikeThisService;
+    this.topicTagService = topicTagService;
+    this.msgbaseDao = msgbaseDao;
+    this.textService = textService;
+    this.groupDao = groupDao;
+  }
 
   @RequestMapping("/{section:(?:forum)|(?:news)|(?:polls)|(?:gallery)}/{group}/{id}")
   public ModelAndView getMessageNewMain(
@@ -416,7 +424,7 @@ public class TopicController {
 
     params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, JUMP_MIN_DURATION));
 
-    return new ModelAndView("view-message", params);
+    return new ModelAndView("view-topic", params);
   }
 
   private CommentList getCommentList(Topic topic, Group group, boolean showDeleted) {

@@ -70,7 +70,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
         lastId = event.id,
         date = event.eventDate,
-        commentId = event.getCid,
+        commentId = event.cid,
         authors = Set(commentAuthor.getOrElse(topicAuthor)))
     }
 
@@ -120,7 +120,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
             lastId = event.id,
             date = event.eventDate,
-            commentId = event.getCid,
+            commentId = event.cid,
             authors = Set(commentAuthor.getOrElse(topicAuthor))))
         case Some(existing) =>
           val author = if (event.isComment) {

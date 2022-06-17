@@ -174,9 +174,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return true если можно, false если нет
     */
   def isEditable(topic: PreparedTopic, @Nullable by: User): Boolean = {
-    val message = topic.getMessage
-    val section = topic.getSection
-    val author = topic.getAuthor
+    val message = topic.message
+    val section = topic.section
+    val author = topic.author
 
     if (message.isDeleted) {
       false
@@ -186,7 +186,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       false
     } else if (by.isAdministrator) {
       true
-    } else if (!MarkupPermissions.allowedFormatsJava(by).contains(topic.getMarkupType)) {
+    } else if (!MarkupPermissions.allowedFormatsJava(by).contains(topic.markupType)) {
       false
     } else if (by.isModerator) {
       true
@@ -217,9 +217,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return true если можно, false если нет
     */
   def isTagsEditable(topic: PreparedTopic, @Nullable by: User): Boolean = {
-    val message = topic.getMessage
-    val section = topic.getSection
-    val author = topic.getAuthor
+    val message = topic.message
+    val section = topic.section
+    val author = topic.author
 
     if (message.isDeleted) {
       false

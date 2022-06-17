@@ -88,7 +88,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val tmpl = Template.getTemplate(request)
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, AuthUtil.getCurrentUser)
 
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.getGroup, add.getTopic, AuthUtil.getCurrentUser))
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, AuthUtil.getCurrentUser))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
 
     if (add.getMode == null) {

@@ -114,7 +114,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }
 
     val postscore = topicPermissionService.getPostscore(group, topic)
-    new PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
+
+    PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
       TopicPermissionService.getPostScoreInfo(postscore), remark.orNull)
   } catch {
@@ -165,15 +166,17 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }
   }
 
-  def getTopicMenu(message: PreparedTopic, @Nullable currentUser: User, profile: Profile,
+  def getTopicMenu(topic: PreparedTopic, @Nullable currentUser: User, profile: Profile,
                    loadUserpics: Boolean): TopicMenu = {
-    val topicEditable = groupPermissionService.isEditable(message, currentUser)
-    val tagsEditable = groupPermissionService.isTagsEditable(message, currentUser)
+    val topicEditable = groupPermissionService.isEditable(topic, currentUser)
+    val tagsEditable = groupPermissionService.isTagsEditable(topic, currentUser)
 
     val (resolvable, deletable, undeletable) = if (currentUser != null) {
-      val resolvable = (currentUser.isModerator || (message.getAuthor.getId == currentUser.getId)) && message.getGroup.isResolvable
-      val deletable = groupPermissionService.isDeletable(message.getMessage, currentUser)
-      val undeletable = groupPermissionService.isUndeletable(message.getMessage, currentUser)
+      val resolvable = (currentUser.isModerator || (topic.author.getId == currentUser.getId)) &&
+        topic.group.isResolvable
+
+      val deletable = groupPermissionService.isDeletable(topic.message, currentUser)
+      val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser)
 
       (resolvable, deletable, undeletable)
     } else {
@@ -181,16 +184,16 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }
 
     val userpic = if (loadUserpics && profile.isShowPhotos) {
-      Some(userService.getUserpic(message.getAuthor, profile.getAvatarMode, misteryMan = true))
+      Some(userService.getUserpic(topic.author, profile.getAvatarMode, misteryMan = true))
     } else {
       None
     }
 
-    val postscore = topicPermissionService.getPostscore(message.getGroup, message.getMessage)
+    val postscore = topicPermissionService.getPostscore(topic.group, topic.message)
     val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 
     new TopicMenu(topicEditable, tagsEditable, resolvable,
-      topicPermissionService.isCommentsAllowed(message.getGroup, message.getMessage, currentUser), deletable,
-      undeletable, groupPermissionService.canCommit(currentUser, message.getMessage), userpic.orNull, showComments)
+      topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUser), deletable,
+      undeletable, groupPermissionService.canCommit(currentUser, topic.message), userpic.orNull, showComments)
   }
 }

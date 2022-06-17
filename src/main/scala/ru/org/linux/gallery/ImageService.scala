@@ -49,22 +49,22 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     transactional() { _ =>
       val info = new EditHistoryRecord
       info.setEditor(editor.getId)
-      info.setMsgid(image.getTopicId)
-      info.setOldimage(image.getId)
+      info.setMsgid(image.topicId)
+      info.setOldimage(image.id)
       info.setObjectType(EditHistoryObjectTypeEnum.TOPIC)
 
       imageDao.deleteImage(image)
       editHistoryDao.insert(info)
-      topicDao.updateLastmod(image.getTopicId, false)
+      topicDao.updateLastmod(image.topicId, false)
     }
   }
 
   private def prepareException(image: Image):PartialFunction[Throwable, None.type] = {
     case e: FileNotFoundException =>
-      logger.error(s"Image not found! id=${image.getId}: ${e.getMessage}")
+      logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
       None
     case NonFatal(e) =>
-      logger.error(s"Bad image id=${image.getId}", e)
+      logger.error(s"Bad image id=${image.id}", e)
       None
   }
 
@@ -81,9 +81,9 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
     try {
       val mediumImageInfo = new ImageInfo(htmlPath + mediumName)
-      val fullInfo = new ImageInfo(htmlPath + image.getOriginal)
+      val fullInfo = new ImageInfo(htmlPath + image.original)
       val medURI = siteConfig.getSecureUrl + mediumName
-      val fullURI = siteConfig.getSecureUrl + image.getOriginal
+      val fullURI = siteConfig.getSecureUrl + image.original
 
       Some(new PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image))
     } catch prepareException(image)
