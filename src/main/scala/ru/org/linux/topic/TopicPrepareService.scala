@@ -115,7 +115,9 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     val postscore = topicPermissionService.getPostscore(group, topic)
 
-    val showRegisterInvite = currentUser==null && postscore == TopicPermissionService.POSTSCORE_REGISTERED_ONLY;
+    val showRegisterInvite = currentUser==null &&
+      postscore <= 45 &&
+      postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED
 
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
