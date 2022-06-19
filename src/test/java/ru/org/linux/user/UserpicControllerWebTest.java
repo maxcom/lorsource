@@ -43,7 +43,7 @@ import static org.junit.Assert.assertTrue;
         @ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 })
 @Ignore
-public class AddPhotoWebTest {
+public class UserpicControllerWebTest {
   private WebResource resource;
 
   @Autowired
