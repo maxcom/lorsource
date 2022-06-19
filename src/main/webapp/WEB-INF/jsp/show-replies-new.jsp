@@ -119,7 +119,7 @@
     </c:choose>
   </td>
   <td>
-    <a href="${topic.link}">
+    <a href="${topic.link}" class="event-unread-${topic.event.unread}">
       <l:title>${topic.event.subj}</l:title>
     </a>
     (${topic.section.name})<br>
