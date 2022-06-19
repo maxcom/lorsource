@@ -58,6 +58,8 @@ object UserService {
   val MaxUnactivatedPerIp = 2
 
   val CorrectorScore = 200
+
+  val MaxUserpicScoreLoss = 20
 }
 
 @Service
@@ -279,10 +281,15 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def canLoadUserpic(user: User): Boolean = {
-    val userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
+    def userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
 
-    val wasReset = userLogDao.wasUserpicReset(user, Duration.ofDays(30))
+    def wasReset = userLogDao.wasUserpicReset(user, Duration.ofDays(30))
+    def userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
 
-    !user.isFrozen && (userpicSetCount < 3) && !wasReset && user.isAdministrator
+    user.isAdministrator &&
+      !user.isFrozen &&
+      (userpicSetCount < 3) &&
+      !wasReset &&
+      (userScoreLoss < MaxUserpicScoreLoss)
   }
 }
