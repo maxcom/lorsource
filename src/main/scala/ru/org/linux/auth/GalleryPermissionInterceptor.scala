@@ -35,8 +35,8 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)
 
-    val continue = if (uri.startsWith("gallery/preview/")) {
-      AuthUtil.isSessionAuthorized
+    val (continue, code) = if (uri.startsWith("gallery/preview/")) {
+      (AuthUtil.isSessionAuthorized, 403)
     } else if (uri.startsWith("images/")) {
       logger.debug(s"Checking ${request.getRequestURI}")
 
@@ -46,21 +46,21 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
           try {
             val topic = topicDao.getById(imageDao.getImage(id.toInt).topicId)
 
-            visible(AuthUtil.getCurrentUser, topic)
+            (visible(AuthUtil.getCurrentUser, topic), 403)
           } catch {
             case _: EmptyResultDataAccessException =>
-              false
+              (false, 404)
           }
         case other =>
           logger.info(s"Strange URI in images: $other")
-          true
+          (false, 404)
       }
     } else {
-      true
+      (true, 200)
     }
 
     if (!continue) {
-      response.sendError(403)
+      response.sendError(code)
     }
 
     continue
