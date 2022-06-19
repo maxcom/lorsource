@@ -16,6 +16,7 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
@@ -29,7 +30,7 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
                                    topicPermissionService: TopicPermissionService, userDao: UserDao)
   extends HandlerInterceptor with StrictLogging {
 
-  private val ImagesPattern = "^images/(\\d+)/.*".r
+  import GalleryPermissionInterceptor._
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)
@@ -41,9 +42,15 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
 
       uri match {
         case ImagesPattern(id) =>
-          val topic = topicDao.getById(imageDao.getImage(id.toInt).topicId)
 
-          visible(AuthUtil.getCurrentUser, topic)
+          try {
+            val topic = topicDao.getById(imageDao.getImage(id.toInt).topicId)
+
+            visible(AuthUtil.getCurrentUser, topic)
+          } catch {
+            case _: EmptyResultDataAccessException =>
+              false
+          }
         case other =>
           logger.info(s"Strange URI in images: $other")
           true
@@ -74,4 +81,8 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
         false
     }
   }
+}
+
+object GalleryPermissionInterceptor {
+  private val ImagesPattern = "^images/(\\d+)/.*".r
 }
