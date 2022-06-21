@@ -15,7 +15,7 @@
     <java.version>11</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.20</dependency.spring.version>
+    <dependency.spring.version>5.3.21</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
     <jdbc.postgresql.version>42.3.6</jdbc.postgresql.version>
     <elastic4s.version>6.7.8</elastic4s.version>
@@ -405,7 +405,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.14.3</version>
+      <version>1.15.1</version>
     </dependency>
 
     <dependency>
