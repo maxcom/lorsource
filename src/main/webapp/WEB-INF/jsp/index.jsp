@@ -79,18 +79,24 @@
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
-    $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'rimg',
-          img730: '/adv/Kuber_730_90.png',
-          img320: '/adv/Kuber_320_100.png',
-          href: 'https://otus.pw/3VFK/'
-        }
-      ];
+      $script.ready('lorjs', function () {
+          var ads = [
+              {
+                  type: 'rimg',
+                  img730: '/adv/linux-2022-730x90.png',
+                  img320: '/adv/linux-2022-320x100.png',
+                  href: 'https://otus.ru/lessons/linux-specialization/?utm_source=partners&utm_medium=cpm&utm_campaign=spec-linux&utm_content=all-lesson&utm_term=linux-org-ru#broadcast'
+              },
+              {
+                  type: 'rimg',
+                  img730: '/adv/linux-banner-730-90.png',
+                  img320: '/adv/linux-banner-320-100.png',
+                  href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test&utm_term=linux-org-ru'
+              }
+          ];
 
-      init_interpage_adv(ads);
-    });
+          init_interpage_adv(ads);
+      });
   </script>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
