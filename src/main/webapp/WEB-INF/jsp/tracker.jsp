@@ -158,13 +158,13 @@
     (всего ${fn:length(unBlockedUsers)})
   </p>
 
-  <p class="userpic-list">
+  <div class="userpic-list">
     <c:forEach items="${recentUserpics}" var="userpic">
       <a href="/people/${userpic._1().nick}/profile">
         <l:userpic userpic="${userpic._2()}"/>
       </a>
     </c:forEach>
-  </p>
+  </div>
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
