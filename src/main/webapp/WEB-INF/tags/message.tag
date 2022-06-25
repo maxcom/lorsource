@@ -186,6 +186,11 @@
           date="${briefEditInfo.lastEditDate()}"/>
     (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
   </c:if>
+  <c:if test="${preparedMessage.userAgent!=null}">
+    <br>
+    <c:out escapeXml="true" value="${preparedMessage.userAgent}"/>&nbsp;
+    <a href="sameip.jsp?ua=${message.userAgentId}&ip=${message.postIP}&mask=0">&#x1f50d;</a>
+  </c:if>
    </span>
 </div>
 </footer>

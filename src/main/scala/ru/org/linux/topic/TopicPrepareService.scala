@@ -22,7 +22,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollNotFoundException, PollPrepareService, PreparedPoll}
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao}
+import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user._
 
@@ -36,7 +36,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           siteConfig: SiteConfig, userService: UserService,
                           topicPermissionService: TopicPermissionService,
                           groupPermissionService: GroupPermissionService, topicTagService: TopicTagService,
-                          msgbaseDao: MsgbaseDao, imageService: ImageService) {
+                          msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao) {
   def prepareTopic(message: Topic, user: User): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
       msgbaseDao.getMessageText(message.getId), None)
@@ -119,9 +119,15 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       postscore <= 45 &&
       postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED
 
+    val userAgent = if (currentUser != null && currentUser.isModerator) {
+      userAgentDao.getUserAgentById(topic.getUserAgentId).toScala
+    } else {
+      None
+    }
+
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
-      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite)
+      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull)
   } catch {
     case e: PollNotFoundException =>
       throw new RuntimeException(e)

@@ -330,7 +330,7 @@ public class Topic implements Serializable {
     return msgid;
   }
 
-  public int getUserAgent() {
+  public int getUserAgentId() {
     return userAgent;
   }
 

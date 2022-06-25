@@ -22,14 +22,16 @@ import ru.org.linux.site.DeleteInfo
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.{Remark, User}
 
+import javax.annotation.Nullable
 import scala.beans.BeanProperty
 
-case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: User, @BeanProperty deleteInfo: DeleteInfo,
-                         @BeanProperty deleteUser: User, @BeanProperty processedMessage: String,
-                         @BeanProperty poll: PreparedPoll, @BeanProperty commiter: User,
-                         @BeanProperty tags: java.util.List[TagRef], @BeanProperty group: Group,
-                         @BeanProperty section: Section, @BeanProperty markupType: MarkupType,
-                         @BeanProperty image: PreparedImage, @BeanProperty postscoreInfo: String,
-                         @BeanProperty remark: Remark, @BeanProperty showRegisterInvite: Boolean) {
+case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: User,
+                         @Nullable @BeanProperty deleteInfo: DeleteInfo, @Nullable @BeanProperty deleteUser: User,
+                         @BeanProperty processedMessage: String, @BeanProperty poll: PreparedPoll,
+                         @Nullable @BeanProperty commiter: User, @BeanProperty tags: java.util.List[TagRef],
+                         @BeanProperty group: Group, @BeanProperty section: Section,
+                         @BeanProperty markupType: MarkupType, @Nullable @BeanProperty image: PreparedImage,
+                         @BeanProperty postscoreInfo: String, @Nullable @BeanProperty remark: Remark,
+                         @BeanProperty showRegisterInvite: Boolean, @Nullable @BeanProperty userAgent: String) {
   def getId: Int = message.getId
 }
