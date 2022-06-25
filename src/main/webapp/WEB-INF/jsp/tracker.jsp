@@ -158,7 +158,7 @@
     (всего ${fn:length(unBlockedUsers)})
   </p>
 
-  <p>
+  <p class="userpic-list">
     <c:forEach items="${recentUserpics}" var="userpic">
       <a href="/people/${userpic._1().nick}/profile">
         <l:userpic userpic="${userpic._2()}"/>

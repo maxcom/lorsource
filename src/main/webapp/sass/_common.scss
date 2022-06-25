@@ -795,6 +795,12 @@ figure.medium-image {
   padding-bottom: 1em;
 }
 
+.userpic-list .userpic {
+  padding: 0.5em;
+  display: inline-block;
+  float: none;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
