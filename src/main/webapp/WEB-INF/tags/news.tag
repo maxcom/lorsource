@@ -89,6 +89,10 @@
     </div>
   </c:if>
 
+  <c:if test="${not empty preparedMessage.tags}">
+    <l:tags list="${preparedMessage.tags}"/>
+  </c:if>
+
   <c:if test="${preparedMessage.image != null}">
     <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
@@ -166,9 +170,6 @@
   }
 %>
   </div>
-<c:if test="${not empty preparedMessage.tags}">
-  <l:tags list="${preparedMessage.tags}"/>
-</c:if>
 
   <div class=sign>
   <c:choose>
