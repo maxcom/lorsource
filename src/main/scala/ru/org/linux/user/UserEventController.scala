@@ -103,7 +103,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
     if (list.nonEmpty) {
       params.put("enableReset", true)
-      params.put("topId", prepared.head.lastId)
+      params.put("topId", prepared.view.map(_.lastId).max)
     }
 
     val sliced = prepared.slice(offset, offset + topics).take(topics)
