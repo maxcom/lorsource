@@ -61,7 +61,7 @@
 <ul>
   <li>Supermicro 6016T-UF;</li>
   <li>2 x Intel Xeon E5620 12M Cache, 2.40 GHz, 4 ядра;</li>
-  <li>48 GB DDR3, ECC, REG;</li>
+  <li>96 GB DDR3, ECC, REG;</li>
   <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm);</li>
   <li>2x 240Gb OCZ Trion 1000 (RAID1 with HDD, «write mostly»).</li>
 </ul>
