@@ -14,9 +14,6 @@
  */
 package ru.org.linux.auth;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,8 +28,6 @@ import java.util.Collection;
 
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
-  private static final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
-
   private final UserDao userDao;
   private final UserService userService;
   private final ProfileDao profileDao;
@@ -64,7 +59,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   }
 
   private static Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
-    logger.debug("retrive auth for:" + user.getNick()) ;
     Collection<GrantedAuthority> results = new ArrayList<>();
     if(user.isActivated()) {
       results.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));

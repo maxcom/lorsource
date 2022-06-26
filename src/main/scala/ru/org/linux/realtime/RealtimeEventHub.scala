@@ -155,7 +155,7 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
         notifyEvent(session)
       } catch handleExceptions
     case Tick =>
-      log.debug("Sending keepalive")
+//      log.debug("Sending keepalive")
       try {
         session.sendMessage(new PingMessage())
       } catch handleExceptions
