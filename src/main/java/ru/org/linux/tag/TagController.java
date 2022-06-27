@@ -30,7 +30,6 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TagTopicListController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -123,18 +122,16 @@ public class TagController {
   /**
    * Показ формы изменения существующего тега.
    *
-   * @param request     данные запроса от web-клиента
    * @param firstLetter фильтр: первая буква для тегов, которые должны быть показаны
    * @param oldTagName  название редактируемого тега
    * @return объект web-модели
    */
   @RequestMapping(value = "/tags/change", method = RequestMethod.GET)
   public ModelAndView changeTagShowFormHandler(
-    HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @RequestParam("tagName") String oldTagName
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
+    Template template = Template.getTemplate();
     if (!template.isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
@@ -150,7 +147,6 @@ public class TagController {
   /**
    * Обработка данных с формы изменения тега.
    *
-   * @param request          данные запроса от web-клиента
    * @param firstLetter      фильтр: первая буква для тегов, которые должны быть показаны
    * @param tagRequestChange форма добавления тега
    * @param errors           обработчик ошибок ввода для формы
@@ -158,12 +154,11 @@ public class TagController {
    */
   @RequestMapping(value = "/tags/change", method = RequestMethod.POST)
   public ModelAndView changeTagSubmitHandler(
-    HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @ModelAttribute("tagRequestChange") TagRequest.Change tagRequestChange,
     Errors errors
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
+    Template template = Template.getTemplate();
     if (!template.isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
@@ -200,18 +195,16 @@ public class TagController {
   /**
    * Показ формы удаления существующего тега.
    *
-   * @param request     данные запроса от web-клиента
    * @param firstLetter фильтр: первая буква для тегов, которые должны быть показаны
    * @param oldTagName  название редактируемого тега
    * @return объект web-модели
    */
   @RequestMapping(value = "/tags/delete", method = RequestMethod.GET)
   public ModelAndView deleteTagShowFormHandler(
-    HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @RequestParam("tagName") String oldTagName
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
+    Template template = Template.getTemplate();
     if (!template.isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }
@@ -227,7 +220,6 @@ public class TagController {
   /**
    * Обработка данных с формы изменения тега.
    *
-   * @param request          данные запроса от web-клиента
    * @param firstLetter      фильтр: первая буква для тегов, которые должны быть показаны
    * @param tagRequestDelete форма удаления тега
    * @param errors           обработчик ошибок ввода для формы
@@ -235,11 +227,10 @@ public class TagController {
    */
   @RequestMapping(value = "/tags/delete", method = RequestMethod.POST)
   public ModelAndView deleteTagSubmitHandler(
-    HttpServletRequest request,
     @ModelAttribute("tagRequestDelete") TagRequest.Delete tagRequestDelete,
     Errors errors
   ) throws AccessViolationException {
-    Template template = Template.getTemplate(request);
+    Template template = Template.getTemplate();
     if (!template.isModeratorSession()) {
       throw new AccessViolationException(REJECT_REASON);
     }

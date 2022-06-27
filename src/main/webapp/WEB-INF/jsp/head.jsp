@@ -18,7 +18,7 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <c:if test="${empty template}">
-  <c:set var="template" value="<%= Template.getTemplate(request) %>"/>
+  <c:set var="template" value="<%= Template.getTemplate() %>"/>
 </c:if>
 <!DOCTYPE html>
 <html lang=ru>

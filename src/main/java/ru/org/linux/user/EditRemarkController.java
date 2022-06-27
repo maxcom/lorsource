@@ -28,8 +28,6 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import scala.Option;
 
-import javax.servlet.ServletRequest;
-
 @Controller
 @RequestMapping("/people/{nick}/remark")
 public class EditRemarkController {
@@ -40,8 +38,8 @@ public class EditRemarkController {
   private RemarkDao remarkDao;
 
   @RequestMapping(method=RequestMethod.GET)
-  public ModelAndView showForm(ServletRequest request, @PathVariable String nick) {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView showForm(@PathVariable String nick) {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -63,11 +61,10 @@ public class EditRemarkController {
 
   @RequestMapping(method=RequestMethod.POST)
   public ModelAndView editProfile(
-          ServletRequest request,
           @RequestParam("text") String text,
           @PathVariable String nick
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

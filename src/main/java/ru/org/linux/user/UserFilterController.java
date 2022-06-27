@@ -31,7 +31,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.tag.TagNotFoundException;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
@@ -55,11 +54,10 @@ public class UserFilterController {
 
   @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(
-    HttpServletRequest request,
     @RequestParam(value = "newFavoriteTagName", required = false) String newFavoriteTagName,
     @RequestParam(value = "newIgnoreTagName", required = false) String newIgnoreTagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -106,10 +104,9 @@ public class UserFilterController {
 
   @RequestMapping(value = "/user-filter/ignore-user", method = RequestMethod.POST, params = "add")
   public ModelAndView listAdd(
-    HttpServletRequest request,
     @RequestParam String nick
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -142,10 +139,9 @@ public class UserFilterController {
 
   @RequestMapping(value = "/user-filter/ignore-user", method = RequestMethod.POST, params = "del")
   public ModelAndView listDel(
-    ServletRequest request,
     @RequestParam int id
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -174,7 +170,7 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -186,7 +182,7 @@ public class UserFilterController {
     List<String> r = userTagService.addMultiplyTags(user, tagName, true);
 
     if (!r.isEmpty()) {
-      ModelAndView modelAndView = showList(request, tagName, null);
+      ModelAndView modelAndView = showList(tagName, null);
       modelAndView.addObject("favoriteTagAddError", r);
       return modelAndView;
     }
@@ -197,7 +193,6 @@ public class UserFilterController {
   /**
    * Добавление тега к пользователю.
    *
-   * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
@@ -205,10 +200,9 @@ public class UserFilterController {
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   @ResponseBody
   public Map<String, Object> favoriteTagAddJSON(
-    HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -229,7 +223,6 @@ public class UserFilterController {
   /**
    * Удаление тега у пользователя.
    *
-   * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws TagNotFoundException     тег не найден
@@ -237,10 +230,9 @@ public class UserFilterController {
    */
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del")
   public ModelAndView favoriteTagDel(
-    ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -257,7 +249,6 @@ public class UserFilterController {
   /**
    * Удаление тега у пользователя.
    *
-   * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws TagNotFoundException     тег не найден
@@ -267,10 +258,9 @@ public class UserFilterController {
   @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
   Map<String, Object> favoriteTagDelJSON(
-    ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -297,7 +287,7 @@ public class UserFilterController {
     HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -312,7 +302,7 @@ public class UserFilterController {
     List<String> errorMessage = userTagService.addMultiplyTags(user, tagName, false);
 
     if (!errorMessage.isEmpty()) {
-      ModelAndView modelAndView = showList(request, null, tagName);
+      ModelAndView modelAndView = showList(null, tagName);
       modelAndView.addObject("ignoreTagAddError", errorMessage);
       return modelAndView;
     }
@@ -323,7 +313,6 @@ public class UserFilterController {
   /**
    * Добавление игнорированного тега к пользователю.
    *
-   * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws AccessViolationException нарушение прав доступа
@@ -332,10 +321,9 @@ public class UserFilterController {
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add", headers = "Accept=application/json")
   public
   Map<String, Object> ignoreTagAddJSON(
-    HttpServletRequest request,
     @RequestParam String tagName
   ) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -365,7 +353,6 @@ public class UserFilterController {
   /**
    * Удаление игнорированного тега у пользователя.
    *
-   * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws TagNotFoundException     тег не найден
@@ -373,10 +360,9 @@ public class UserFilterController {
    */
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del")
   public ModelAndView ignoreTagDel(
-    ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -397,7 +383,6 @@ public class UserFilterController {
   /**
    * Удаление игнорированного тега у пользователя.
    *
-   * @param request данные запроса от web-клиента
    * @param tagName название тега
    * @return объект web-модели
    * @throws TagNotFoundException     тег не найден
@@ -407,10 +392,9 @@ public class UserFilterController {
   @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del", headers = "Accept=application/json")
   public
   Map<String, Object> ignoreTagDelJSON(
-    ServletRequest request,
     @RequestParam String tagName
   ) throws TagNotFoundException, AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

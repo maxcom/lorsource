@@ -21,6 +21,7 @@
 <%@ tag import="ru.org.linux.util.image.ImageInfo" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="java.net.URI" %>
+<%@ tag import="ru.org.linux.spring.SiteConfig" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
@@ -35,7 +36,7 @@
 <c:set var="message" value="${preparedMessage.message}"/>
 
 <%
-  Template tmpl = Template.getTemplate(request);
+  Template tmpl = Template.getTemplate();
   Topic message = preparedMessage.getMessage();
   int pages = message.getPageCount(tmpl.getProf().getMessages());
 %>
@@ -100,7 +101,8 @@
   <a href="${group.url}">
   <%
     try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "tango" + image);
+      String htmlPathPrefix = ((SiteConfig) request.getAttribute("configuration")).getHTMLPathPrefix();
+      ImageInfo info = new ImageInfo(htmlPathPrefix + "tango" + image);
       out.append("<img src=\"/").append("tango").append(image).append("\" ").append(info.getCode()).append(" alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
       out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");

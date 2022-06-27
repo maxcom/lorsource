@@ -27,7 +27,6 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.StringUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 
 @Controller
@@ -41,10 +40,10 @@ public class ResetPasswordController {
   private UserService userService;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="reset-password")
-  public ModelAndView showModeratorForm(@PathVariable String nick, HttpServletRequest request) {
+  public ModelAndView showModeratorForm(@PathVariable String nick) {
     User user = userService.getUser(nick);
 
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }

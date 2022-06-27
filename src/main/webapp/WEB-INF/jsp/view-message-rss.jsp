@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <rss version="2.0">
 <channel>
-<link>${template.secureMainUrlNoSlash}${message.link}</link>
+<link>${configuration.secureUrlWithoutSlash}${message.link}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${l:escapeHtml(message.title)}</title>
   <lor:message-rss preparedTopic="${preparedMessage}"/>
@@ -38,8 +38,8 @@
         </c:if>
       </title>
       <author>${comment.author.nick}</author>
-      <link>${template.secureMainUrlNoSlash}${message.link}?cid=${comment.comment.id}</link>
-      <guid>${template.secureMainUrlNoSlash}${message.link}?cid=${comment.comment.id}</guid>
+      <link>${configuration.secureUrlWithoutSlash}${message.link}?cid=${comment.comment.id}</link>
+      <guid>${configuration.secureUrlWithoutSlash}${message.link}?cid=${comment.comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
       <description ><![CDATA[${comment.processedMessage}]]>
       </description>

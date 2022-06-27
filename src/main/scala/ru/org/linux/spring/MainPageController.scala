@@ -36,7 +36,7 @@ class MainPageController(
 ) {
   @RequestMapping(Array("/", "/index.jsp"))
   def mainPage(request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
     response.setDateHeader("Last-Modified", System.currentTimeMillis - 2 * 1000)

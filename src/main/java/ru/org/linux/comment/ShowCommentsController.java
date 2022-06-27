@@ -26,8 +26,6 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.user.UserService;
 
-import javax.servlet.http.HttpServletRequest;
-
 @Controller
 public class ShowCommentsController {
   private final UserService userService;
@@ -49,10 +47,9 @@ public class ShowCommentsController {
 
   @RequestMapping(value="/people/{nick}/deleted-comments")
   public ModelAndView showCommentsOld(
-    @PathVariable String nick,
-    HttpServletRequest request
+    @PathVariable String nick
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }

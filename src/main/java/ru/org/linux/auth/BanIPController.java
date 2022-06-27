@@ -52,7 +52,7 @@ public class BanIPController {
     @RequestParam(value="allow_posting", required = false, defaultValue="false") boolean allowPosting,
     @RequestParam(value="captcha_required", required = false, defaultValue="false") boolean captchaRequired
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isModeratorSession()) {
       throw new IllegalAccessException("Not authorized");

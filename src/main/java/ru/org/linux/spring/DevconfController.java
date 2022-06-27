@@ -28,7 +28,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -43,8 +42,8 @@ public class DevconfController {
 
   @RequestMapping(value = "/devconf", method = RequestMethod.POST)
   @CSRFNoAuto
-  public ModelAndView add(HttpServletRequest request, @RequestParam("msg") String msg) {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView add(@RequestParam("msg") String msg) {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new UserErrorException("Not authorized");

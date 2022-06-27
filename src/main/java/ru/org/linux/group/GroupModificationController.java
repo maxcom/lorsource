@@ -27,7 +27,6 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 
-import javax.servlet.ServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +41,8 @@ public class GroupModificationController {
   private GroupInfoPrepareService prepareService;
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.GET)
-  public ModelAndView showForm(@RequestParam("group") int id, ServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView showForm(@RequestParam("group") int id) {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
@@ -66,10 +65,9 @@ public class GroupModificationController {
     @RequestParam("urlName") String urlName,
     @RequestParam("longinfo") String longInfo,
     @RequestParam(value = "preview", required = false) String preview,
-    @RequestParam(value = "resolvable", required = false) String resolvable,
-    ServletRequest request
+    @RequestParam(value = "resolvable", required = false) String resolvable
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");

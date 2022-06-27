@@ -31,8 +31,6 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +42,9 @@ public class AddRemoveBoxesController {
   private ProfileDao profileDao;
 
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
-  public ModelMap showRemove(@RequestParam(required = false) Integer pos,
-                             ServletRequest request)
+  public ModelMap showRemove(@RequestParam(required = false) Integer pos)
     throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -62,8 +59,8 @@ public class AddRemoveBoxesController {
 
   @RequestMapping(value = "/remove-box.jsp", method = RequestMethod.POST)
   public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
-                         SessionStatus status, HttpServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
+                         SessionStatus status) {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -100,7 +97,7 @@ public class AddRemoveBoxesController {
 
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
   public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
-                      SessionStatus status, HttpServletRequest request) {
+                      SessionStatus status) {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
@@ -109,7 +106,7 @@ public class AddRemoveBoxesController {
     if (result.hasErrors()) {
       return "add-box";
     }
-    Template t = Template.getTemplate(request);
+    Template t = Template.getTemplate();
 
     if (result.hasErrors()) {
       return "add-box";

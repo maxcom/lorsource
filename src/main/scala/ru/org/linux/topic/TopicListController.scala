@@ -110,7 +110,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     topicListForm.setOffset(topicListService.fixOffset(topicListForm.getOffset))
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     val messages = topicListService.getTopicsFeed(
       section, group.orNull, null, topicListForm.getOffset, topicListForm.getYear, topicListForm.getMonth, 20, AuthUtil.getCurrentUser)

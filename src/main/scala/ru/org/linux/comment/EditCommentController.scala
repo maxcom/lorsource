@@ -64,7 +64,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     if (original == null) throw new ServletParameterException("Комментарий не задан")
 
     val comment = commentRequest.getOriginal
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     val messageText = msgbaseDao.getMessageText(original.getId)
 
@@ -103,7 +103,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
 
     val comment = commentService.getComment(commentRequest, user, request)
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, AuthUtil.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
 

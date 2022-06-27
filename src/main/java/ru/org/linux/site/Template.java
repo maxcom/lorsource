@@ -15,31 +15,19 @@
 
 package ru.org.linux.site;
 
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.markup.MarkupPermissions;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
 import javax.annotation.Nonnull;
-import javax.servlet.ServletRequest;
 
 public final class Template {
-  @Nonnull
   private final Profile userProfile;
 
-  private final SiteConfig siteConfig;
-
-  public Template(WebApplicationContext ctx) {
-    siteConfig = ctx.getBean(SiteConfig.class);
+  public Template() {
     userProfile = AuthUtil.getProfile();
-  }
-
-  private Template(ServletRequest request) {
-    this(WebApplicationContextUtils.getWebApplicationContext(request.getServletContext()));
   }
 
   @Deprecated
@@ -72,20 +60,6 @@ public final class Template {
     return userProfile;
   }
 
-  public String getWSUrl() { return siteConfig.getWSUrl(); }
-
-  public String getSecureMainUrl() {
-    return siteConfig.getSecureUrl();
-  }
-
-  public String getSecureMainUrlNoSlash() {
-    return siteConfig.getSecureUrlWithoutSlash();
-  }
-
-  public SiteConfig getConfig() {
-    return siteConfig;
-  }
-
   public boolean isSessionAuthorized() {
     return AuthUtil.isSessionAuthorized();
   }
@@ -98,7 +72,7 @@ public final class Template {
     return AuthUtil.isCorrectorSession();
   }
 
-  public static Template getTemplate(ServletRequest request) {
-    return new Template(request);
+  public static Template getTemplate() {
+    return new Template();
   }
 }

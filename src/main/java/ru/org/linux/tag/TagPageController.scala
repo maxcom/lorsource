@@ -58,7 +58,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   def tagPage(request: HttpServletRequest, @PathVariable tag: String): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!TagName.isGoodTag(tag)) {
       throw new TagNotFoundException
@@ -127,7 +127,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   }
 
   private def getNewsSection(request: HttpServletRequest, tag: String) = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, AuthUtil.getCurrentUser)
     val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)

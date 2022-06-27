@@ -43,7 +43,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not moderator")
@@ -63,7 +63,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
                   @RequestParam postscore: Int,
                   @RequestParam(defaultValue = "false") sticky: Boolean,
                   @RequestParam(defaultValue = "false") notop: Boolean): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not moderator")
@@ -117,7 +117,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.POST))
   def moveTopic(request: ServletRequest, @RequestParam msgid: Int, @RequestParam("moveto") newgr: Int): RedirectView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not moderator")
@@ -154,7 +154,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
   def moveTopicFormForum(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not authorized")
@@ -173,7 +173,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   @RequestMapping(value = Array("/mtn.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
   def moveTopicForm(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not authorized")
@@ -191,7 +191,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.GET))
   def uncommitForm(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not authorized")
@@ -209,7 +209,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.POST))
   def uncommit(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not authorized")

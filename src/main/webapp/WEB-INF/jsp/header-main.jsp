@@ -1,6 +1,6 @@
 <%@ page import="ru.org.linux.site.Template" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,13 +17,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 <c:if test="${empty template}">
-    <c:set var="template" value="<%= Template.getTemplate(request) %>"/>
+    <c:set var="template" value="<%= Template.getTemplate() %>"/>
 </c:if>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 
-<base href="${fn:escapeXml(template.secureMainUrl)}">
+<base href="${fn:escapeXml(configuration.secureUrl)}">
 
 <jsp:include page="${template.theme.headMain}"/>
 

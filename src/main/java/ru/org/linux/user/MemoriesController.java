@@ -28,7 +28,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
-import javax.servlet.ServletRequest;
 import java.util.Map;
 
 @Controller
@@ -42,11 +41,10 @@ public class MemoriesController {
   @ResponseBody
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
   public Map<String, Integer> add(
-          ServletRequest request,
           @RequestParam("msgid") int msgid,
           @RequestParam("watch") boolean watch
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -73,10 +71,9 @@ public class MemoriesController {
   @ResponseBody
   @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)
   public int remove(
-          ServletRequest request,
           @RequestParam("id") int id
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

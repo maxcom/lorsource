@@ -34,7 +34,6 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.image.ImageParam;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -61,8 +60,8 @@ public class UserpicController {
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
-  public ModelAndView showForm(ServletRequest request) throws AccessViolationException {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView showForm() throws AccessViolationException {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -76,8 +75,8 @@ public class UserpicController {
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
-  public ModelAndView addPhoto(ServletRequest request, @RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView addPhoto(@RequestParam("file") MultipartFile file, HttpServletResponse response) throws Exception {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

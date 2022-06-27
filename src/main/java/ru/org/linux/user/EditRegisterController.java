@@ -78,10 +78,9 @@ public class EditRegisterController {
   public ModelAndView show(
       @ModelAttribute("form") EditRegisterRequest form,
       @PathVariable String nick,
-      HttpServletRequest request,
       HttpServletResponse response
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
@@ -112,7 +111,7 @@ public class EditRegisterController {
       @Valid @ModelAttribute("form") EditRegisterRequest form,
       Errors errors
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

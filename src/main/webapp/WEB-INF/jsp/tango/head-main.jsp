@@ -16,6 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 <meta name="viewport" content="initial-scale=1.0">
 </head>
@@ -33,11 +34,11 @@
 
       <c:if test="${not template.sessionAuthorized}">
         <div id="regmenu" class="head">
-          <a href="${template.secureMainUrl}register.jsp">Регистрация</a> -
-          <a id="loginbutton" href="${template.secureMainUrl}login.jsp">Вход</a>
+          <a href="${configuration.secureUrl}register.jsp">Регистрация</a> -
+          <a id="loginbutton" href="${configuration.secureUrl}login.jsp">Вход</a>
         </div>
 
-        <form method=POST action="${template.secureMainUrlNoSlash}/ajax_login_process" style="display: none" id="regform">
+        <form method=POST action="${configuration.secureUrlWithoutSlash}/ajax_login_process" style="display: none" id="regform">
           <lor:csrf/>
           <label>Имя: <input type=text name=nick size=15 placeholder="nick или email" autocapitalize="off"></label>
           <label>Пароль: <input type=password name=passwd size=15></label>

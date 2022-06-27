@@ -36,7 +36,6 @@ import ru.org.linux.util.StringUtil;
 import scala.Tuple2;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -82,12 +81,11 @@ public class SameIPController {
 
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
-    HttpServletRequest request,
     @RequestParam(required = false) String ip,
     @RequestParam(required = false, defaultValue = "32") int mask,
     @RequestParam(required = false, name="ua") Integer userAgent
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");

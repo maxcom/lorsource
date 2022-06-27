@@ -30,7 +30,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,21 +46,19 @@ public class DelIPController {
 
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
-   * @param request http запрос (для получения текущего пользователя)
    * @param reason причина удаления
    * @param ip ip по которому удаляем
    * @param time время за которое удаляем (hour, day, 3day)
    * @return возвращаем страничку с результатом выполнения
    */
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
-  public ModelAndView delIp(HttpServletRequest request,
-                            @RequestParam("reason") String reason,
+  public ModelAndView delIp(@RequestParam("reason") String reason,
                             @RequestParam("ip") String ip,
                             @RequestParam("time") String time
                             ) {
     Map<String, Object> params = new HashMap<>();
 
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");

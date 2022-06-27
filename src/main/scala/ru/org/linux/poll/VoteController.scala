@@ -34,7 +34,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
   def vote(request: ServletRequest, @RequestParam(value = "vote", required = false) votes: Array[Int],
            @RequestParam("voteid") voteid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
@@ -74,7 +74,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
   @RequestMapping(value = Array("/vote-vote.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
   def showForm(@RequestParam("msgid") msgid: Int, request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")

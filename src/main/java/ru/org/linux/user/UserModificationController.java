@@ -32,8 +32,6 @@ import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.Template;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -57,11 +55,10 @@ public class UserModificationController {
 
   /**
    * Возвращает объект User модератора, если текущая сессия не модераторская, тогда исключение
-   * @param request текущий http запрос
    * @return текущий модератор
    */
-  private static User getModerator(HttpServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
+  private static User getModerator() {
+    Template tmpl = Template.getTemplate();
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
@@ -70,18 +67,16 @@ public class UserModificationController {
 
   /**
    * Контроллер блокировки пользователя
-   * @param request http запрос
    * @param user блокируемый пользователь
    * @param reason причина блокировки
    * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block")
   public ModelAndView blockUser(
-      HttpServletRequest request,
       @RequestParam("id") User user,
       @RequestParam(value = "reason", required = false) String reason
   ) {
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
@@ -98,16 +93,14 @@ public class UserModificationController {
   /**
    * Выставляем score=50 для пользователей у которых score меньше
    *
-   * @param request http запрос
    * @param user кому ставим score
    * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=score50")
   public ModelAndView score50(
-          HttpServletRequest request,
           @RequestParam("id") User user
   ) {
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     if (user.isBlocked() || user.isAnonymous()) {
       throw new AccessViolationException("Нельзя выставить score=50 пользователю " + user.getNick());
     }
@@ -119,17 +112,15 @@ public class UserModificationController {
 
   /**
    * Контроллер разблокировки пользователя
-   * @param request http запрос
    * @param user разблокируемый пользователь
    * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=unblock")
   public ModelAndView unblockUser(
-      HttpServletRequest request,
       @RequestParam("id") User user
   ) {
 
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
     }
@@ -149,17 +140,15 @@ public class UserModificationController {
 
   /**
    * Контроллер блокирования и полного удаления комментариев и топиков пользователя
-   * @param request http запрос
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block-n-delete-comments")
   public ModelAndView blockAndMassiveDeleteCommentUser(
-      HttpServletRequest request,
       @RequestParam("id") User user,
       @RequestParam(value = "reason", required = false) String reason
   ) {
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
@@ -190,16 +179,14 @@ public class UserModificationController {
 
   /**
    * Контроллер смена признака корректора
-   * @param request http запрос
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=toggle_corrector")
   public ModelAndView toggleUserCorrector(
-      HttpServletRequest request,
       @RequestParam("id") User user
   ) {
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     if (user.getScore()<UserService$.MODULE$.InviteScore()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
     }
@@ -211,16 +198,14 @@ public class UserModificationController {
 
   /**
    * Сброс пароля пользователю
-   * @param request http запрос
    * @param user пользователь которому сбрасываем пароль
    * @return сообщение о успешности сброса
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=reset-password")
   public ModelAndView resetPassword(
-      HttpServletRequest request,
       @RequestParam("id") User user
   ) {
-    User moderator = getModerator(request);
+    User moderator = getModerator();
 
     if (user.isModerator() || user.isAnonymous()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
@@ -238,16 +223,14 @@ public class UserModificationController {
   
   /**
    * Контроллер отчистки дополнительной информации в профиле
-   * @param request http запрос
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_userinfo")
   public ModelAndView removeUserInfo(
-      HttpServletRequest request,
       @RequestParam("id") User user
   ) {
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
@@ -259,10 +242,9 @@ public class UserModificationController {
 
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
   public ModelAndView removeUserpic(
-    ServletRequest request,
     @RequestParam("id") User user
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not autorized");
@@ -286,7 +268,6 @@ public class UserModificationController {
 
   /**
    * Контроллер заморозки и разморозки пользователя
-   * @param request http запрос
    * @param user блокируемый пользователь
    * @param reason причина заморозки, общедоступна в дальнейшем
    * @param shift отсчёт времени от текущей точки, может быть отрицательным, в
@@ -296,7 +277,6 @@ public class UserModificationController {
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=freeze")
   public ModelAndView freezeUser(
-      HttpServletRequest request,
       @RequestParam(name = "id") User user,
       @RequestParam(name = "reason") String reason,
       @RequestParam(name = "shift") String shift
@@ -306,7 +286,7 @@ public class UserModificationController {
       throw new UserErrorException("Причина слишком длиная, максимум 255 байт");
     }
 
-    User moderator = getModerator(request);
+    User moderator = getModerator();
     Timestamp until = getUntil(shift);
 
 

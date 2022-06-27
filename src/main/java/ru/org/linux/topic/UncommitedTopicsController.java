@@ -25,7 +25,6 @@ import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,10 +48,9 @@ public class UncommitedTopicsController {
   @RequestMapping
   public ModelAndView viewAll(
           @RequestParam(value = "section", required = false, defaultValue = "0") int sectionId,
-          HttpServletRequest request,
           HttpServletResponse response
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 

@@ -143,7 +143,7 @@ public class TopicController {
           @PathVariable("id") int msgid
   ) {
     if (cid != null) {
-      return jumpMessage(request, msgid, cid, skipDeleted);
+      return jumpMessage(msgid, cid, skipDeleted);
     }
 
     Section section = sectionService.getSectionByName(sectionName);
@@ -241,7 +241,7 @@ public class TopicController {
     MessageText messageText = msgbaseDao.getMessageText(topic.getId());
     String plainText = textService.extractPlainText(messageText);
 
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
       PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
             topic,
@@ -590,10 +590,9 @@ public class TopicController {
   }
 
   private ModelAndView jumpMessage(
-          HttpServletRequest request,
           int msgid,
           int cid, boolean skipDeleted) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
     Topic topic = messageDao.getById(msgid);
     Group group = groupDao.getGroup(topic.getGroupId());
 
@@ -655,13 +654,12 @@ public class TopicController {
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView jumpMessage(
-          HttpServletRequest request,
           @RequestParam int msgid,
           @RequestParam(required = false) Integer page,
           @RequestParam(required = false) Integer cid
   ) {
     if (cid != null) {
-      return jumpMessage(request, msgid, cid, false);
+      return jumpMessage(msgid, cid, false);
     }
 
     Topic topic = messageDao.getById(msgid);

@@ -43,7 +43,7 @@ public class SecurityFilter extends GenericFilterBean implements InitializingBea
     WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
     HttpServletRequest request = (HttpServletRequest) req;
     request.setAttribute("configuration", ctx.getBean(SiteConfig.class));
-    request.setAttribute("template", new Template(ctx));
+    request.setAttribute("template", new Template());
     request.setAttribute("currentUser", AuthUtil.getCurrentUser());
     request.setCharacterEncoding("utf-8"); // блядский tomcat
     res.setLocale(russian);

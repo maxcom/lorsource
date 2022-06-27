@@ -37,7 +37,7 @@ public class TopTenBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/top10.boxlet")
   protected ModelAndView getData(HttpServletRequest request) {
-    Profile profile = Template.getTemplate(request).getProf();
+    Profile profile = Template.getTemplate().getProf();
 
     List<TopTenMessageDTO> list = topTenDao.getMessages();
 

@@ -57,7 +57,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   def showNotifications(request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", defaultValue = "all") filter: String,
                         @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("not authorized")
@@ -122,7 +122,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   def showReplies(request: HttpServletRequest, response: HttpServletResponse,
                   @RequestParam(value = "nick", required = false) nick: String,
                   @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     val feedRequested = request.getParameterMap.containsKey("output")
 
     if (nick == null) {

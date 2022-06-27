@@ -50,8 +50,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
   @ModelAttribute("modes")
-  def getModes(request: HttpServletRequest): util.Map[String, String] = {
-    val tmpl = Template.getTemplate(request)
+  def getModes: util.Map[String, String] = {
+    val tmpl = Template.getTemplate()
 
     MessageTextService.postingModeSelector(AuthUtil.getCurrentUser, tmpl.getFormatMode)
   }
@@ -65,7 +65,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (add.getMode == null) {
       add.setMode(tmpl.getFormatMode)
@@ -85,7 +85,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     */
   @RequestMapping(Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest, request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, AuthUtil.getCurrentUser)
 
     if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, AuthUtil.getCurrentUser))
@@ -119,7 +119,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
     }
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!MarkupPermissions.allowedFormats(AuthUtil.getCurrentUser).map(_.formId).contains(add.getMode)) {
       errors.rejectValue("mode", null, "Некорректный режим разметки")

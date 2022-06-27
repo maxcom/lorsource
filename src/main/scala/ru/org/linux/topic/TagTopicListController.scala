@@ -101,7 +101,7 @@ class TagTopicListController (
     modelAndView.addObject("navtitle", title)
     modelAndView.addObject("ptitle", title)
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     val offset = topicListService.fixOffset(rawOffset)
     val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, AuthUtil.getCurrentUser)

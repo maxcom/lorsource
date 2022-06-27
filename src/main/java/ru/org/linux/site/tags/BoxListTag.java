@@ -36,7 +36,7 @@ public class BoxListTag extends BodyTagSupport {
 
   @Override
   public int doStartTag() {
-    Template t = Template.getTemplate(pageContext.getRequest());
+    Template t = Template.getTemplate();
 
     List<String> boxnames = ImmutableList.copyOf(
             Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate()::test)

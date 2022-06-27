@@ -56,7 +56,6 @@ import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import scala.Tuple2;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
@@ -104,11 +103,10 @@ public class EditTopicController {
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
-    HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @ModelAttribute("form") EditTopicRequest form
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     Topic topic = messageDao.getById(msgid);
 
@@ -140,11 +138,10 @@ public class EditTopicController {
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
   public ModelAndView showEditForm(
-    ServletRequest request,
     @RequestParam("msgid") int msgid,
     @ModelAttribute("form") EditTopicRequest form
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -263,7 +260,7 @@ public class EditTopicController {
     Errors errors,
     @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

@@ -127,10 +127,9 @@ public class AddTopicController {
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(
-          @Valid @ModelAttribute("form") AddTopicRequest form,
-          HttpServletRequest request
+          @Valid @ModelAttribute("form") AddTopicRequest form
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
@@ -200,7 +199,7 @@ public class AddTopicController {
           BindingResult errors,
           @ModelAttribute("ipBlockInfo") IPBlockInfo ipBlockInfo
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
     HttpSession session = request.getSession();
 
     Group group = form.getGroup();
@@ -430,8 +429,8 @@ public class AddTopicController {
   }
 
   @ModelAttribute("modes")
-  public Map<String, String> getModes(HttpServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
+  public Map<String, String> getModes() {
+    Template tmpl = Template.getTemplate();
 
     return MessageTextService.postingModeSelector(AuthUtil.getCurrentUser(), tmpl.getFormatMode());
   }

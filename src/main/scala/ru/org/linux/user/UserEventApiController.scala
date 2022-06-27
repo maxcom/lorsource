@@ -30,7 +30,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
   @ResponseBody
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
   def getEventsCount(request: HttpServletRequest, response: HttpServletResponse): Int = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
     response.setHeader("Cache-control", "no-cache")
     AuthUtil.getCurrentUser.getUnreadEvents
@@ -39,7 +39,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
   @ResponseBody
   def resetNotifications(request: HttpServletRequest, @RequestParam topId: Int): String = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
     val currentUser = AuthUtil.getCurrentUser
     userEventService.resetUnreadReplies(currentUser, topId)
@@ -50,7 +50,7 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
   @ResponseBody
   @RequestMapping(value = Array("/yandex-tableau"), method = Array(RequestMethod.GET), produces = Array("application/json"))
   def getYandexWidget(request: HttpServletRequest, response: HttpServletResponse): java.util.Map[String, Int] = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       Map.empty[String, Int].asJava
     } else {

@@ -145,7 +145,7 @@ public class CommentCreateService {
       commentRequest.setMsg("");
     }
 
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (commentRequest.getMode() == null) {
       commentRequest.setMode(tmpl.getFormatMode());

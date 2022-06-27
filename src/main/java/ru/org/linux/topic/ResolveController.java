@@ -26,8 +26,6 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 
-import javax.servlet.http.HttpServletRequest;
-
 @Controller
 public class ResolveController  {
   private final TopicDao messageDao;
@@ -41,11 +39,10 @@ public class ResolveController  {
 
   @RequestMapping("/resolve.jsp")
   public RedirectView resolve(
-    HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @RequestParam("resolve") String resolved
   ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());

@@ -25,7 +25,7 @@
 <%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
 <%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
-<% Template tmpl = Template.getTemplate(request); %>
+<% Template tmpl = Template.getTemplate(); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>LINUX.ORG.RU — Русская информация об ОС Linux</title>

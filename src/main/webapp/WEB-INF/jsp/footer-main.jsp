@@ -15,7 +15,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-
+<%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 </div>
 <div id="ft">
   <p id="ft-info">
@@ -47,7 +47,7 @@
 <script type="text/javascript">
   <c:if test="${template.sessionAuthorized}">
     $script.ready('realtime', function() {
-      RealtimeContext.start("${template.WSUrl}");
+      RealtimeContext.start("${configuration.WSUrl}");
     });
   </c:if>
 </script>

@@ -33,7 +33,7 @@ import scala.jdk.CollectionConverters._
 class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(request: ServletRequest, @PathVariable nick: String): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }
@@ -75,7 +75,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
                  ): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }

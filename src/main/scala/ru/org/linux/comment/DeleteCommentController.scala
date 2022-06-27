@@ -40,7 +40,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
                               commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) extends StrictLogging {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("нет авторизации")
     }
@@ -83,7 +83,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new BadParameterException("неправильный размер штрафа")
     }
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("нет авторизации")
     }
@@ -167,7 +167,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
   @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.GET))
   def showUndeleteForm(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("нет авторизации")
     }
@@ -190,7 +190,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
   @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.POST))
   def undelete(request: HttpServletRequest, @RequestParam("msgid") msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("нет авторизации")
     }

@@ -33,8 +33,6 @@ import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -84,8 +82,8 @@ public class WhoisController {
   private RemarkDao remarkDao;
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView getInfoNew(@PathVariable String nick, HttpServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView getInfoNew(@PathVariable String nick) throws Exception {
+    Template tmpl = Template.getTemplate();
 
     User user = userService.getUser(nick);
 
@@ -185,8 +183,8 @@ public class WhoisController {
   }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
-  public ModelAndView wipe(@PathVariable String nick, ServletRequest request) {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView wipe(@PathVariable String nick) {
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("not moderator");

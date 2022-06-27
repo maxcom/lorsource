@@ -26,7 +26,6 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 
-import javax.servlet.ServletRequest;
 import java.util.List;
 
 @Controller
@@ -41,12 +40,11 @@ public class ShowRemarkController {
   private PreparedRemarkService prepareService;
   
   @RequestMapping("/people/{nick}/remarks")
-  public ModelAndView showRemarks(ServletRequest request
-    , @PathVariable String nick
+  public ModelAndView showRemarks(@PathVariable String nick
     , @RequestParam(value = "offset", defaultValue = "0") int offset
     , @RequestParam(value = "sort", defaultValue = "0") int sortorder
     ) {
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
       if (!tmpl.isSessionAuthorized() || !AuthUtil.getCurrentUser().getNick().equals(nick)) {
       throw new AccessViolationException("Not authorized");
     }

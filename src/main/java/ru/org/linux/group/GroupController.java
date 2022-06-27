@@ -126,7 +126,7 @@ public class GroupController {
     Integer month
   ) throws Exception {
     Map<String, Object> params = new HashMap<>();
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     boolean showDeleted = request.getParameter("deleted") != null;
     params.put("showDeleted", showDeleted);

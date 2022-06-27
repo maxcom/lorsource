@@ -62,7 +62,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
   ): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     val (modelAndView, user) = mkModel(nick)
 
     if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
@@ -141,7 +141,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
   @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
   def showDeletedTopics(request: HttpServletRequest, @PathVariable nick: String): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     val user = userService.getUserCached(nick)
 
@@ -165,7 +165,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
   ): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     val (modelAndView, user) = mkModel(nick)
 
@@ -199,7 +199,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
       modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
       modelAndView.setViewName("section-rss")
     } else {
-      val tmpl = Template.getTemplate(request)
+      val tmpl = Template.getTemplate
       modelAndView.addObject("messages",
         prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
     }

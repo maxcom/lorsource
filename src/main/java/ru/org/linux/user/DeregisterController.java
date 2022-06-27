@@ -32,7 +32,6 @@ import ru.org.linux.comment.CommentDao;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.search.ElasticsearchIndexService;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Controller
@@ -51,11 +50,10 @@ public class DeregisterController {
 
   @RequestMapping(value = "/deregister.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView show(
-    HttpServletRequest request,
     @ModelAttribute("form") DeregisterRequest form
   ) {
 
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
@@ -76,12 +74,11 @@ public class DeregisterController {
 
   @RequestMapping(value = "/deregister.jsp", method = {RequestMethod.POST})
   public ModelAndView deregister(
-    HttpServletRequest request,
     @Valid @ModelAttribute("form") DeregisterRequest form,
     Errors errors
   ) {
 
-    Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");

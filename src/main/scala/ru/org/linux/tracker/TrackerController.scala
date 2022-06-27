@@ -32,7 +32,7 @@ import scala.jdk.CollectionConverters._
 class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @ModelAttribute("filters")
   def getFilter(request: HttpServletRequest): java.util.List[TrackerFilterEnum] = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (tmpl.isModeratorSession) {
       TrackerFilterEnum.values.toSeq.asJava
@@ -45,7 +45,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @throws[Exception]
   def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String,
                     request: HttpServletRequest): View = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
     val redirectView = new RedirectView("/tracker/")
 
@@ -72,7 +72,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
               request: HttpServletRequest): ModelAndView = {
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
     val trackerFilter = TrackerFilterEnum.getByValue(filterAction, tmpl.isModeratorSession).orElse(defaultFilter)
 

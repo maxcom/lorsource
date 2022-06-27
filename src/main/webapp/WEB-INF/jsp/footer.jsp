@@ -15,6 +15,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 </div>
 <footer id="ft">
 
@@ -24,7 +25,7 @@
   <a href="/help/lorcode.md">Правила разметки (LORCODE)</a> -
   <a href="/help/markdown.md">Правила разметки (Markdown)</a><br>
   <a href="https://github.com/maxcom/lorsource/issues">Сообщить об ошибке</a><br>
-  <a href="${template.secureMainUrl}">${template.secureMainUrl}</a>
+  <a href="${configuration.secureUrl}">${configuration.secureUrl}</a>
 </p>
 
 <script type="text/javascript">
@@ -46,7 +47,7 @@
 <script type="text/javascript">
   <c:if test="${template.sessionAuthorized}">
     $script.ready('realtime', function() {
-      RealtimeContext.start("${template.WSUrl}");
+      RealtimeContext.start("${configuration.WSUrl}");
     });
   </c:if>
 </script>

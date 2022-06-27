@@ -24,7 +24,7 @@
   --%>
 
 <%
-  Template tmpl = Template.getTemplate(request);
+  Template tmpl = Template.getTemplate();
 
   if (!tmpl.isSessionAuthorized() || ipBlockInfo != null && ipBlockInfo.isCaptchaRequired()) {
     WebApplicationContext ctx=RequestContextUtils.findWebApplicationContext(request);

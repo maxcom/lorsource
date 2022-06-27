@@ -34,7 +34,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
-import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Properties;
@@ -54,8 +53,8 @@ public class LostPasswordController {
   }
 
   @RequestMapping(method=RequestMethod.POST)
-  public ModelAndView sendPassword(@RequestParam("email") String email, HttpServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
+  public ModelAndView sendPassword(@RequestParam("email") String email) throws Exception {
+    Template tmpl = Template.getTemplate();
 
     if (Strings.isNullOrEmpty(email)) {
       throw new BadInputException("email не задан");

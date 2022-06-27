@@ -43,7 +43,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int, request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
@@ -74,7 +74,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   def deleteMessage(@RequestParam("msgid") msgid: Int, @RequestParam("reason") reason: String,
                     @RequestParam(value = "bonus", defaultValue = "0") bonus: Int,
                     request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
@@ -102,7 +102,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.GET))
   def undeleteForm(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
@@ -119,7 +119,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.POST))
   def undelete(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isModeratorSession) {
       throw new AccessViolationException("Not authorized")

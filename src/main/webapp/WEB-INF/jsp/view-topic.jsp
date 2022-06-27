@@ -36,6 +36,7 @@
 <%--@elvariable id="ogDescription" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.topic.PreparedEditInfoSummary"--%>
 <%--@elvariable id="dateJumps" type="java.util.Set<Integer>"--%>
+<%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -47,7 +48,7 @@
   <meta name="twitter:card" content="summary_large_image">
 </c:if>
 <c:if test="${not preparedMessage.section.imagepost}">
-  <meta property="og:image" content="${template.secureMainUrlNoSlash}/img/good-penguin.png">
+  <meta property="og:image" content="${configuration.secureUrlWithoutSlash}/img/good-penguin.png">
   <meta name="twitter:card" content="summary">
 </c:if>
 <meta name="twitter:site" content="@wwwlinuxorgru">
@@ -55,9 +56,9 @@
   <meta property="og:description" content="${ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${template.secureMainUrlNoSlash}${message.link}">
+<meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
 
-<link rel="canonical" href="${template.secureMainUrlNoSlash}${message.getLinkPage(page)}">
+<link rel="canonical" href="${configuration.secureUrlWithoutSlash}${message.getLinkPage(page)}">
 
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
@@ -80,7 +81,7 @@
   <c:if test="${not message.expired and not pages.hasNext}">
     $script.ready('realtime', function() {
         RealtimeContext.setupTopic(${message.id}, "${message.link}", ${lastCommentId})
-        RealtimeContext.start("${template.WSUrl}");
+        RealtimeContext.start("${configuration.WSUrl}")
     });
   </c:if>
 </script>

@@ -215,7 +215,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("!action"))
   def activate(request: HttpServletRequest, @RequestParam activation: String): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized!")
     }
@@ -264,7 +264,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.GET))
   def createInviteForm(request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
@@ -281,7 +281,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.POST))
   def createInvite(request: HttpServletRequest, @RequestParam email: String): ModelAndView = {
-    val tmpl = Template.getTemplate(request)
+    val tmpl = Template.getTemplate
 
     if (!tmpl.isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
