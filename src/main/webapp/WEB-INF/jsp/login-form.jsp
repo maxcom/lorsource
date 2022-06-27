@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -22,7 +23,7 @@
 
 <h1>Вход</h1>
 
-<form method=POST action="${template.secureMainUrlNoSlash}/login_process">
+<form method=POST action="${configuration.secureUrlWithoutSlash}/login_process">
   <c:if test="${param.error == 'true'}">
     <div class="error">Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.</div>
   </c:if>
