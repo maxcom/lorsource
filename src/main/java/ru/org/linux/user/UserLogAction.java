@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,6 +23,8 @@ public enum UserLogAction {
   UNBLOCK_USER("unblock_user", "Разблокирован"),
   ACCEPT_NEW_EMAIL("accept_new_email", "Установлен новый email"),
   RESET_INFO("reset_info", "Сброшен текст информации"),
+  RESET_URL("reset_url", "Сброшен URL"),
+  RESET_TOWN("reset_town", "Сброшено поле \"город\""),
   RESET_PASSWORD("reset_password", "Сброшен пароль"),
   SET_PASSWORD("set_password", "Установлен новый пароль"),
   SET_CORRECTOR("set_corrector", "Добавлены права корректора"),

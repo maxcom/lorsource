@@ -166,16 +166,39 @@
 
         <c:choose>
             <c:when test="${user.score < 100 || user.blocked || not user.activated || user.frozen}">
-                <a class="url" href="${fn:escapeXml(userInfo.url)}" rel="nofollow">${fn:escapeXml(userInfo.url)}</a><br>
+                <a class="url" href="${fn:escapeXml(userInfo.url)}" rel="nofollow">${fn:escapeXml(userInfo.url)}</a>
             </c:when>
             <c:otherwise>
-                <a class="url" href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a><br>
+                <a class="url" href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a>
             </c:otherwise>
         </c:choose>
+
+        <c:if test="${template.moderatorSession}">
+            &nbsp;
+            <form method='post' action='usermod.jsp' style="display: inline-block">
+                <lor:csrf/>
+                <input type='hidden' name='id' value='${user.id}'>
+                <input type='hidden' name='action' value='remove_url'>
+                <button type='submit' class="btn btn-danger btn-small">Удалить URL</button>
+            </form>
+        </c:if>
+
+        <br>
     </c:if>
 
     <c:if test="${not empty userInfo.town}">
-        <b>Город:</b> <c:out value="${userInfo.town}" escapeXml="true"/><br>
+        <b>Город:</b> <c:out value="${userInfo.town}" escapeXml="true"/>
+
+        <c:if test="${template.moderatorSession}">
+            &nbsp;
+            <form method='post' action='usermod.jsp' style="display: inline-block">
+                <lor:csrf/>
+                <input type='hidden' name='id' value='${user.id}'>
+                <input type='hidden' name='action' value='remove_town'>
+                <button type='submit' class="btn btn-danger btn-small">Удалить город</button>
+            </form>
+        </c:if>
+        <br>
     </c:if>
     <c:if test="${not empty userInfo.registrationDate}">
         <b>Дата регистрации:</b> <lor:date date="${userInfo.registrationDate}"/><br>
@@ -460,7 +483,7 @@
     <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='remove_userinfo'>
-    <button type='submit'>Удалить текст</button>
+    <button type='submit' class="btn btn-danger">Удалить текст</button>
 </form>
 
 <p>

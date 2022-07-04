@@ -159,7 +159,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     userpic.getOrElse {
-      if (avatarMode=="empty" || !user.hasEmail) {
+      if (avatarMode == "empty" || !user.hasEmail) {
         UserService.DisabledUserpic
       } else {
         Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
@@ -181,6 +181,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     getUsersCached(ids.asScala.map(i => i)).asJava
 
   def getNewUsers: util.List[User] = getUsersCachedJava(userDao.getNewUserIds)
+
   def getNewUsersByIp(ip: String): util.List[(User, Timestamp, Timestamp)] = userDao.getNewUsersByIP(ip).asScala.map { case (id, regdate, lastlogin) =>
     (getUserCached(id), regdate, lastlogin)
   }.asJava
@@ -195,12 +196,15 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def getFrozenUsers: util.List[(User, Boolean)] = makeFrozenList(userDao.getFrozenUserIds, activityDays = 1)
+
   def getUnFrozenUsers: util.List[(User, Boolean)] = makeFrozenList(userDao.getUnFrozenUserIds, activityDays = 1)
 
   def getRecentlyBlocked: util.List[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
+
   def getRecentlyUnBlocked: util.List[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
 
   def getModerators: util.List[(User, Boolean)] = makeFrozenList(userDao.getModerators, activityDays = 30)
+
   def getCorrectors: util.List[(User, Boolean)] = makeFrozenList(userDao.getCorrectors, activityDays = 30)
 
   def getRecentUserpics: util.List[(User, Userpic)] = {
@@ -284,6 +288,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     def userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
 
     def wasReset = userLogDao.wasUserpicReset(user, Duration.ofDays(30))
+
     def userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
 
     user.getScore >= 200 &&
@@ -291,5 +296,35 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       (userpicSetCount < 3) &&
       !wasReset &&
       (userScoreLoss < MaxUserpicScoreLoss)
+  }
+
+  def removeUserInfo(user: User, moderator: User): Unit = transactional() { _ =>
+    val userInfo = userDao.getUserInfo(user)
+
+    if ((userInfo != null) && userInfo.trim.nonEmpty) {
+      userDao.setUserInfo(user.getId, null)
+      userDao.changeScore(user.getId, -10)
+      userLogDao.logResetInfo(user, moderator, userInfo, -10)
+    }
+  }
+
+  def removeTown(user: User, moderator: User): Unit = transactional() { _ =>
+    val userInfo = userDao.getUserInfoClass(user)
+
+    if (userInfo.getTown != null && userInfo.getTown.trim.nonEmpty) {
+      userDao.removeTown(user)
+      userLogDao.logResetTown(user, moderator, userInfo.getTown, -10)
+      userDao.changeScore(user.getId, -10)
+    }
+  }
+
+  def removeUrl(user: User, moderator: User): Unit = transactional() { _ =>
+    val userInfo = userDao.getUserInfoClass(user)
+
+    if (userInfo.getUrl != null || userInfo.getUrl.trim.nonEmpty) {
+      userDao.removeUrl(user)
+      userLogDao.logResetUrl(user, moderator, userInfo.getUrl, -10)
+      userDao.changeScore(user.getId, -10)
+    }
   }
 }

@@ -46,11 +46,14 @@ public class UserModificationController {
   private final SearchQueueSender searchQueueSender;
   private final UserDao userDao;
   private final CommentDeleteService commentService;
+  private final UserService userService;
 
-  public UserModificationController(SearchQueueSender searchQueueSender, UserDao userDao, CommentDeleteService commentService) {
+  public UserModificationController(SearchQueueSender searchQueueSender, UserDao userDao,
+                                    CommentDeleteService commentService, UserService userService) {
     this.searchQueueSender = searchQueueSender;
     this.userDao = userDao;
     this.commentService = commentService;
+    this.userService = userService;
   }
 
   /**
@@ -223,19 +226,45 @@ public class UserModificationController {
   
   /**
    * Контроллер отчистки дополнительной информации в профиле
-   * @param user блокируемый пользователь
-   * @return возвращаемся в профиль
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_userinfo")
-  public ModelAndView removeUserInfo(
-      @RequestParam("id") User user
-  ) {
+  public ModelAndView removeUserInfo(@RequestParam("id") User user) {
     User moderator = getModerator();
+
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
-    userDao.removeUserInfo(user, moderator);
-    logger.info("Clearing " + user.getNick() + " userinfo by " + moderator.getNick());
+
+    userService.removeUserInfo(user, moderator);
+
+    return redirectToProfile(user);
+  }
+
+  /**
+   * Контроллер отчистки поля город
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_town")
+  public ModelAndView removeTown(@RequestParam("id") User user) {
+    User moderator = getModerator();
+
+    if (user.isModerator()) {
+      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
+    }
+
+    userService.removeTown(user, moderator);
+
+    return redirectToProfile(user);
+  }
+
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_url")
+  public ModelAndView removeUrl(@RequestParam("id") User user) {
+    User moderator = getModerator();
+
+    if (user.isModerator()) {
+      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
+    }
+
+    userService.removeUrl(user, moderator);
 
     return redirectToProfile(user);
   }

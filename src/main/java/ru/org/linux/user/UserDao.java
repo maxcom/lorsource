@@ -229,16 +229,12 @@ public class UserDao {
             (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void removeUserInfo(User user, User moderator) {
-    String userInfo = getUserInfo(user);
-    if(userInfo == null || userInfo.trim().isEmpty()) {
-      return;
-    }
+  public void removeTown(User user) {
+    jdbcTemplate.update("UPDATE users SET town=null WHERE id=?", user.getId());
+  }
 
-    setUserInfo(user.getId(), null);
-    changeScore(user.getId(), -10);
-    userLogDao.logResetInfo(user, moderator, userInfo, -10);
+  public void removeUrl(User user) {
+    jdbcTemplate.update("UPDATE users SET url=null WHERE id=?", user.getId());
   }
 
   /**
@@ -285,7 +281,7 @@ public class UserDao {
    * @param userid пользователь
    * @param text текст дополнительной информации
    */
-  private void setUserInfo(int userid, String text){
+  public void setUserInfo(int userid, String text){
     jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, userid);
   }
 

@@ -41,6 +41,8 @@ public class UserLogDao {
   public static final String OPTION_OLD_EMAIL = "old_email";
   public static final String OPTION_NEW_EMAIL = "new_email";
   public static final String OPTION_OLD_INFO = "old_info";
+  public static final String OPTION_OLD_TOWN = "old_town";
+  public static final String OPTION_OLD_URL = "old_url";
   public static final String OPTION_IP = "ip";
   public static final String OPTION_INVITED_BY = "invited_by";
 
@@ -180,6 +182,34 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logResetUrl(@Nonnull User user, @Nonnull User moderator, @Nonnull String url, int bonus) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.RESET_URL.toString(),
+            ImmutableMap.of(
+                    OPTION_OLD_URL, url,
+                    OPTION_BONUS, bonus
+            )
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logResetTown(@Nonnull User user, @Nonnull User moderator, @Nonnull String town, int bonus) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            moderator.getId(),
+            UserLogAction.RESET_TOWN.toString(),
+            ImmutableMap.of(
+                    OPTION_OLD_TOWN, town,
+                    OPTION_BONUS, bonus
+            )
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logResetPassword(@Nonnull User user, @Nonnull User moderator) {
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
@@ -252,12 +282,9 @@ public class UserLogDao {
   public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy) {
     ImmutableMap<String, String> params;
 
-    if (invitedBy.isPresent()) {
-      params = ImmutableMap.of(OPTION_IP, ip, OPTION_INVITED_BY, invitedBy.get().toString());
-
-    } else {
-      params = ImmutableMap.of(OPTION_IP, ip);
-    }
+    params = invitedBy
+            .map(integer -> ImmutableMap.of(OPTION_IP, ip, OPTION_INVITED_BY, integer.toString()))
+            .orElseGet(() -> ImmutableMap.of(OPTION_IP, ip));
 
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
