@@ -97,7 +97,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                         ul
                             if topic.commentsAllowed
                                 li
-                                    a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}')
+                                    a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}', data-author-readonly='#{comment.authorReadonly}')
                                         | Ответить
                                         span.hideon-phone
                                             |  на это сообщение

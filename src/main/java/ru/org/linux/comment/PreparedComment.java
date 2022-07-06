@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,19 +15,15 @@
 
 package ru.org.linux.comment;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Strings;
 import org.apache.commons.text.StringEscapeUtils;
 import ru.org.linux.site.ApiDeleteInfo;
-import ru.org.linux.site.PublicApi;
 import ru.org.linux.user.ApiUserRef;
 import ru.org.linux.user.Userpic;
 
 import javax.annotation.Nullable;
 import java.util.Date;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@PublicApi
 public class PreparedComment {
   private final int id;
 
@@ -67,6 +63,7 @@ public class PreparedComment {
   private final int answerCount;
   private final String answerLink;
   private final boolean answerSamepage;
+  private final boolean authorReadonly;
 
   public PreparedComment(Comment comment,
                          ApiUserRef author,
@@ -84,7 +81,8 @@ public class PreparedComment {
                          boolean undeletable,
                          int answerCount,
                          @Nullable String answerLink,
-                         boolean answerSamepage) {
+                         boolean answerSamepage,
+                         boolean authorReadonly) {
     this.deleteInfo = deleteInfo;
     this.editSummary = editSummary;
     this.postIP = postIP;
@@ -102,6 +100,7 @@ public class PreparedComment {
     this.answerCount = answerCount;
     this.answerLink = answerLink;
     this.answerSamepage = answerSamepage;
+    this.authorReadonly = authorReadonly;
 
     String encodedTitle = Strings.emptyToNull(comment.getTitle().trim());
 
@@ -200,5 +199,9 @@ public class PreparedComment {
 
   public int getUserAgentId() {
     return userAgentId;
+  }
+
+  public boolean isAuthorReadonly() {
+    return authorReadonly;
   }
 }

@@ -17,6 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Strings
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
+import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
@@ -30,11 +31,13 @@ import scala.jdk.OptionConverters._
 @Service
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
                             topicPermissionService: TopicPermissionService, userService: UserService,
-                            deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao) {
+                            deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
+                            groupDao: GroupDao) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
-                             hideSet: Set[Int], samePageComments: Set[Int], @Nullable currentUser: User) = {
+                             hideSet: Set[Int], samePageComments: Set[Int], @Nullable currentUser: User,
+                             group: Group) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
@@ -93,9 +96,11 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser, topic, hasAnswers)
     val editable = topicPermissionService.isCommentEditableNow(comment, currentUser, hasAnswers, topic, messageText.markup)
 
+    val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author) && !author.isFrozen
+
     new PreparedComment(comment, ref, processedMessage, replyInfo.orNull, deletable, editable, remark.orNull,
       userpic.orNull, apiDeleteInfo.orNull, editSummary.orNull, postIP.orNull, userAgent.orNull, comment.getUserAgentId,
-      undeletable, answerCount, answerLink.orNull, answerSamepage)
+      undeletable, answerCount, answerLink.orNull, answerSamepage, authorReadonly)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -123,8 +128,9 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   def prepareCommentForReplyto(comment: Comment, @Nullable currentUser: User, profile: Profile, topic: Topic): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.getId)
     val author = userService.getUserCached(comment.getUserid)
+    val group = groupDao.getGroup(topic.getGroupId)
 
-    prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser)
+    prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser, group)
   }
 
   /**
@@ -145,7 +151,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       false, // editable
       null, // Remark
       null, // userpic
-      null, null, null, null, 0, false, 0, null, false)
+      null, null, null, null, 0, false, 0,
+      null, false, false)
   }
 
   def prepareCommentListRSS(list: java.util.List[Comment]): java.util.List[PreparedRSSComment] = {
@@ -163,6 +170,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     } else {
       val texts = msgbaseDao.getMessageText(list.asScala.map(c => Integer.valueOf(c.getId)).asJava)
       val users = userService.getUsersCachedMap(list.asScala.map(_.getUserid))
+      val group = groupDao.getGroup(topic.getGroupId)
 
       val remarks = if (currentUser != null) {
         remarkDao.getRemarks(currentUser, users.values)
@@ -180,7 +188,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val remark = remarks.get(author.getId)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSetScala,
-          samePageComments, currentUser)
+          samePageComments, currentUser, group)
       }.asJava
     }
   }

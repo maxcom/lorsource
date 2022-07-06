@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,9 +31,15 @@ $script.ready(['jquery', 'hljs'], function() {
       csrf = getCookie("CSRF_TOKEN").replace(/(^")|("$)/g, "");
     }
 
-    function sh(type, id) {
+    function sh(type, id, authorReadonly) {
       if (csrf.length>0) {
         $("input[name='csrf']").attr('value', csrf);
+      }
+
+      if (authorReadonly) {
+        $('#author-readonly-note').text("Внимание! Вы отвечаете на комментарий, автор которого не может создавать новые комментарии в этом топике.")
+      } else {
+        $('#author-readonly-note').text("")
       }
 
       if (type == 1) {
@@ -71,7 +77,7 @@ $script.ready(['jquery', 'hljs'], function() {
 
     $('div.reply').each(function() {
       $('a[href^="comment-message.jsp"]', this).bind("click", function() {
-        sh(0, 0);
+        sh(0, 0, false);
         return false;
       });
 
@@ -80,7 +86,7 @@ $script.ready(['jquery', 'hljs'], function() {
         var buff = lnk.attr('href').match(/\d+/g);
         var idr = buff[1];
         lnk.bind("click", function() {
-          sh(1, idr);
+          sh(1, idr, lnk.attr('data-author-readonly')=="true");
           return false;
         });
       }

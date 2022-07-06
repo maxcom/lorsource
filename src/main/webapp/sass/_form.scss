@@ -94,6 +94,13 @@ select {
   line-height: 1.4;
 }
 
+.warning-block {
+  display: block;
+  margin-bottom: .5em;
+  margin-top: .3em;
+  color: #f00;
+}
+
 form .error {
     color: #f00;
 }

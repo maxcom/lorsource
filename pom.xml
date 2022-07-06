@@ -722,6 +722,7 @@
         <configuration>
           <includes>
             <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/head.jsp</include>
+            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/view-topic.jsp</include>
           </includes>
           <replacements>
             <replacement>
