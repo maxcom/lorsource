@@ -96,7 +96,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser, topic, hasAnswers)
     val editable = topicPermissionService.isCommentEditableNow(comment, currentUser, hasAnswers, topic, messageText.markup)
 
-    val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author) && !author.isFrozen
+    val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
 
     new PreparedComment(comment, ref, processedMessage, replyInfo.orNull, deletable, editable, remark.orNull,
       userpic.orNull, apiDeleteInfo.orNull, editSummary.orNull, postIP.orNull, userAgent.orNull, comment.getUserAgentId,

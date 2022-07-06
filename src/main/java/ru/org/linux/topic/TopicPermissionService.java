@@ -198,7 +198,7 @@ public class TopicPermissionService {
 
     Group group = groupDao.getGroup(topic.getGroupId());
 
-    if (!isCommentsAllowed(group, topic, user)) {
+    if (!isCommentsAllowed(group, topic, user, false)) {
       errors.reject(null, "Вы не можете добавлять комментарии в эту тему");
     }
   }
@@ -241,8 +241,8 @@ public class TopicPermissionService {
     return getPostscore(group, topic);
   }
 
-  public boolean isCommentsAllowed(Group group, Topic topic, User user) {
-    if (user != null && (user.isBlocked() || user.isFrozen())) {
+  public boolean isCommentsAllowed(Group group, Topic topic, User user, boolean ignoreFrozen) {
+    if (user != null && (user.isBlocked() || (!ignoreFrozen && user.isFrozen()))) {
       return false;
     }
 
