@@ -60,7 +60,7 @@
 </p>
 <ul>
   <li>Supermicro 6016T-UF;</li>
-  <li>2 x Intel Xeon E5620 12M Cache, 2.40 GHz, 4 ядра;</li>
+  <li>2 x Intel Xeon X5675 12M Cache, 3.06 GHz, 6 ядер;</li>
   <li>96 GB DDR3, ECC, REG;</li>
   <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm);</li>
   <li>2x 240Gb OCZ Trion 1000 (RAID1 with HDD, «write mostly»).</li>
@@ -76,10 +76,10 @@
       <li>OpenJDK 11;</li>
       <li>Scala 2.13;</li>
       <li>Apache Tomcat 8.5;</li>
-      <li>ActiveMQ 5.11;</li>
-      <li>Spring 4.3;</li>
-      <li>поиск: Elasticsearch 6.x;</li>
-      <li>Nginx 1.14.</li>
+      <li>ActiveMQ 5.17;</li>
+      <li>Spring 5.3;</li>
+      <li>Elasticsearch 6.x;</li>
+      <li>Nginx 1.22.</li>
     </ul>
 
 <h1>Исходные тексты</h1>
