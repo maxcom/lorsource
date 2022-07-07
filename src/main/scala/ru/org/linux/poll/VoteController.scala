@@ -14,16 +14,13 @@
  */
 package ru.org.linux.poll
 
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServletRequest
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
-import ru.org.linux.site.Template
+import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
@@ -32,65 +29,56 @@ import scala.jdk.CollectionConverters._
 @Controller
 class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging {
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
-  def vote(request: ServletRequest, @RequestParam(value = "vote", required = false) votes: Array[Int],
+  def vote(@RequestParam(value = "vote", required = false) votes: Array[Int],
            @RequestParam("voteid") voteid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
+    AuthorizedOnly { currentUser =>
+      val poll = pollDao.getPoll(voteid)
 
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
+      val msg = topicDao.getById(poll.getTopic)
+
+      if (!msg.isCommited) {
+        throw new BadVoteException("Опрос еще не подтвержден")
+      }
+
+      if (msg.isExpired) {
+        throw new BadVoteException("Опрос завернен")
+      }
+
+      if (votes == null || votes.length == 0) {
+        throw new UserErrorException("ничего не выбрано")
+      }
+
+      if (!poll.isMultiSelect && votes.length != 1) {
+        throw new BadVoteException("этот опрос допускает только один вариант ответа")
+      }
+
+      try {
+        pollDao.updateVotes(voteid, votes, currentUser.user)
+      } catch {
+        case ex: DuplicateKeyException =>
+          logger.debug("Vote already in database", ex)
+      }
+
+      new ModelAndView(new RedirectView(msg.getLink))
     }
-
-    val user = AuthUtil.getCurrentUser
-    val poll = pollDao.getPoll(voteid)
-
-    val msg = topicDao.getById(poll.getTopic)
-
-    if (!msg.isCommited) {
-      throw new BadVoteException("Опрос еще не подтвержден")
-    }
-
-    if (msg.isExpired) {
-      throw new BadVoteException("Опрос завернен")
-    }
-
-    if (votes == null || votes.length == 0) {
-      throw new UserErrorException("ничего не выбрано")
-    }
-
-    if (!poll.isMultiSelect && votes.length != 1) {
-      throw new BadVoteException("этот опрос допускает только один вариант ответа")
-    }
-
-    try {
-      pollDao.updateVotes(voteid, votes, user)
-    } catch {
-      case ex: DuplicateKeyException =>
-        logger.debug("Vote already in database", ex)
-    }
-
-    new ModelAndView(new RedirectView(msg.getLink))
   }
 
   @RequestMapping(value = Array("/vote-vote.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
-  def showForm(@RequestParam("msgid") msgid: Int, request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate
+  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = {
+    AuthorizedOnly { _ =>
+      val msg = topicDao.getById(msgid)
+      val poll = pollDao.getPollByTopicId(msgid)
 
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
+      if (msg.isExpired) {
+        throw new BadVoteException("Опрос завершен")
+      }
+
+      new ModelAndView("vote-vote", Map(
+        "message" -> msg,
+        "poll" -> poll
+      ).asJava)
     }
-
-    val msg = topicDao.getById(msgid)
-    val poll = pollDao.getPollByTopicId(msgid)
-
-    if (msg.isExpired) {
-      throw new BadVoteException("Опрос завершен")
-    }
-
-    new ModelAndView("vote-vote", Map(
-      "message" -> msg,
-      "poll" -> poll
-    ).asJava)
   }
 
   @RequestMapping(Array("/view-vote.jsp"))

@@ -21,6 +21,8 @@ import ru.org.linux.user.{Profile, User, UserDao}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters._
 
+case class CurrentUser(user: User, corrector: Boolean, moderator: Boolean)
+
 object AuthUtil {
   def updateLastLogin(authentication: Authentication, userDao: UserDao): Unit = {
     if (authentication != null && authentication.isAuthenticated) {
@@ -103,5 +105,31 @@ object AuthUtil {
           Profile.createDefault
       }
     }
+  }
+
+  def AuthorizedOnly[T](f: CurrentUser => T): T = {
+    if (!isSessionAuthorized) {
+      throw new AccessViolationException("Not authorized")
+    }
+
+    val currentUser = CurrentUser(getCurrentUser, isCorrectorSession, isModeratorSession)
+
+    f(currentUser)
+  }
+
+  def ModeratorOnly[T](f: CurrentUser => T): T = {
+    if (!isModeratorSession) {
+      throw new AccessViolationException("Not moderator")
+    }
+
+    AuthorizedOnly(f)
+  }
+
+  def CorrectorOrModerator[T](f: CurrentUser => T): T = {
+    if (!(isCorrectorSession || isModeratorSession)) {
+      throw new AccessViolationException("Not corrector or moderator")
+    }
+
+    AuthorizedOnly(f)
   }
 }
