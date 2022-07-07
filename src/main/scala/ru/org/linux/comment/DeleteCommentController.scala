@@ -38,8 +38,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
                               permissionService: TopicPermissionService,
                               commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) extends StrictLogging {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
-  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = {
-    AuthorizedOnly { currentUser =>
+  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
       val tmpl = Template.getTemplate
 
       val comment = commentService.getById(msgid)
@@ -63,7 +62,6 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
         "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), currentUser.user, tmpl.getProf)
       ).asJava)
     }
-  }
 
   private def findNextComment(comment: Comment): Option[Comment] = {
     val updatedTopic = topicDao.getById(comment.getTopicId)
