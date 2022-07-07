@@ -15,16 +15,15 @@
 
 package ru.org.linux.topic
 
-import javax.servlet.http.HttpServletRequest
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
+import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
-import ru.org.linux.site.Template
 import ru.org.linux.user.{User, UserDao, UserErrorException}
 
 import scala.jdk.CollectionConverters._
@@ -42,20 +41,14 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   }
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.GET))
-  def showForm(@RequestParam("msgid") msgid: Int, request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val msg = messageDao.getById(msgid)
 
     if (msg.isDeleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(msg, AuthUtil.getCurrentUser)) {
+    if (!permissionService.isDeletable(msg, currentUser.user)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
@@ -72,16 +65,8 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.POST))
   def deleteMessage(@RequestParam("msgid") msgid: Int, @RequestParam("reason") reason: String,
-                    @RequestParam(value = "bonus", defaultValue = "0") bonus: Int,
-                    request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-
-    val user = AuthUtil.getCurrentUser
-    user.checkAnonymous()
+                    @RequestParam(value = "bonus", defaultValue = "0") bonus: Int): ModelAndView = AuthorizedOnly { currentUser =>
+    val user = currentUser.user
 
     val message = messageDao.getById(msgid)
     if (message.isDeleted) {
@@ -101,37 +86,25 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   }
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.GET))
-  def undeleteForm(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def undeleteForm(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val message = messageDao.getById(msgid)
-    checkUndeletable(message, AuthUtil.getCurrentUser)
+    checkUndeletable(message, currentUser.user)
 
     new ModelAndView("undelete", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, AuthUtil.getCurrentUser)
+      "preparedMessage" -> prepareService.prepareTopic(message, currentUser.user)
     ).asJava)
   }
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.POST))
-  def undelete(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def undelete(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val message = messageDao.getById(msgid)
     checkUndeletable(message, AuthUtil.getCurrentUser)
 
     if (message.isDeleted) {
       messageDao.undelete(message)
 
-      logger.info(s"Восстановлено сообщение $msgid пользователем ${AuthUtil.getNick}")
+      logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.getNick}")
 
       searchQueueSender.updateMessage(msgid, true)
     }
