@@ -30,55 +30,51 @@ import scala.jdk.CollectionConverters._
 class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging {
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
   def vote(@RequestParam(value = "vote", required = false) votes: Array[Int],
-           @RequestParam("voteid") voteid: Int): ModelAndView = {
-    AuthorizedOnly { currentUser =>
-      val poll = pollDao.getPoll(voteid)
+           @RequestParam("voteid") voteid: Int): ModelAndView = AuthorizedOnly { currentUser =>
+    val poll = pollDao.getPoll(voteid)
 
-      val msg = topicDao.getById(poll.getTopic)
+    val msg = topicDao.getById(poll.getTopic)
 
-      if (!msg.isCommited) {
-        throw new BadVoteException("Опрос еще не подтвержден")
-      }
-
-      if (msg.isExpired) {
-        throw new BadVoteException("Опрос завернен")
-      }
-
-      if (votes == null || votes.length == 0) {
-        throw new UserErrorException("ничего не выбрано")
-      }
-
-      if (!poll.isMultiSelect && votes.length != 1) {
-        throw new BadVoteException("этот опрос допускает только один вариант ответа")
-      }
-
-      try {
-        pollDao.updateVotes(voteid, votes, currentUser.user)
-      } catch {
-        case ex: DuplicateKeyException =>
-          logger.debug("Vote already in database", ex)
-      }
-
-      new ModelAndView(new RedirectView(msg.getLink))
+    if (!msg.isCommited) {
+      throw new BadVoteException("Опрос еще не подтвержден")
     }
+
+    if (msg.isExpired) {
+      throw new BadVoteException("Опрос завернен")
+    }
+
+    if (votes == null || votes.length == 0) {
+      throw new UserErrorException("ничего не выбрано")
+    }
+
+    if (!poll.isMultiSelect && votes.length != 1) {
+      throw new BadVoteException("этот опрос допускает только один вариант ответа")
+    }
+
+    try {
+      pollDao.updateVotes(voteid, votes, currentUser.user)
+    } catch {
+      case ex: DuplicateKeyException =>
+        logger.debug("Vote already in database", ex)
+    }
+
+    new ModelAndView(new RedirectView(msg.getLink))
   }
 
   @RequestMapping(value = Array("/vote-vote.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
-  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = {
-    AuthorizedOnly { _ =>
-      val msg = topicDao.getById(msgid)
-      val poll = pollDao.getPollByTopicId(msgid)
+  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { _ =>
+    val msg = topicDao.getById(msgid)
+    val poll = pollDao.getPollByTopicId(msgid)
 
-      if (msg.isExpired) {
-        throw new BadVoteException("Опрос завершен")
-      }
-
-      new ModelAndView("vote-vote", Map(
-        "message" -> msg,
-        "poll" -> poll
-      ).asJava)
+    if (msg.isExpired) {
+      throw new BadVoteException("Опрос завершен")
     }
+
+    new ModelAndView("vote-vote", Map(
+      "message" -> msg,
+      "poll" -> poll
+    ).asJava)
   }
 
   @RequestMapping(Array("/view-vote.jsp"))

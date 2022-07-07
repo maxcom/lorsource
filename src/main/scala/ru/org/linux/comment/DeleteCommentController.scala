@@ -39,29 +39,29 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
                               commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) extends StrictLogging {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-      val tmpl = Template.getTemplate
+    val tmpl = Template.getTemplate
 
-      val comment = commentService.getById(msgid)
-      if (comment.isDeleted) {
-        throw new UserErrorException("комментарий уже удален")
-      }
-
-      val topic = topicDao.getById(comment.getTopicId)
-      if (topic.isDeleted) {
-        throw new AccessViolationException("тема удалена")
-      }
-
-      val comments = commentService.getCommentList(topic, currentUser.moderator)
-      val cv = new CommentFilter(comments)
-      val list = cv.getCommentsSubtree(msgid, ImmutableSet.of())
-
-      new ModelAndView("delete_comment", Map[String, Any](
-        "msgid" -> msgid,
-        "comments" -> comments,
-        "topic" -> topic,
-        "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), currentUser.user, tmpl.getProf)
-      ).asJava)
+    val comment = commentService.getById(msgid)
+    if (comment.isDeleted) {
+      throw new UserErrorException("комментарий уже удален")
     }
+
+    val topic = topicDao.getById(comment.getTopicId)
+    if (topic.isDeleted) {
+      throw new AccessViolationException("тема удалена")
+    }
+
+    val comments = commentService.getCommentList(topic, currentUser.moderator)
+    val cv = new CommentFilter(comments)
+    val list = cv.getCommentsSubtree(msgid, ImmutableSet.of())
+
+    new ModelAndView("delete_comment", Map[String, Any](
+      "msgid" -> msgid,
+      "comments" -> comments,
+      "topic" -> topic,
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), currentUser.user, tmpl.getProf)
+    ).asJava)
+  }
 
   private def findNextComment(comment: Comment): Option[Comment] = {
     val updatedTopic = topicDao.getById(comment.getTopicId)
@@ -73,76 +73,74 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.POST))
   def deleteComments(@RequestParam("msgid") msgid: Int, @RequestParam("reason") reason: String,
                      @RequestParam(value = "bonus", defaultValue = "0") bonus: Int,
-                     @RequestParam(value = "delete_replys", defaultValue = "false") deleteReplys: Boolean): ModelAndView = {
+                     @RequestParam(value = "delete_replys", defaultValue = "false") deleteReplys: Boolean): ModelAndView = AuthorizedOnly { currentUser =>
     if (bonus < 0 || bonus > 20) {
       throw new BadParameterException("неправильный размер штрафа")
     }
 
-    AuthorizedOnly { currentUser =>
-      val user = currentUser.user
+    val user = currentUser.user
 
-      val comment = commentService.getById(msgid)
-      if (comment.isDeleted) {
-        throw new UserErrorException("комментарий уже удален")
-      }
+    val comment = commentService.getById(msgid)
+    if (comment.isDeleted) {
+      throw new UserErrorException("комментарий уже удален")
+    }
 
-      val topic = topicDao.getById(comment.getTopicId)
-      val haveAnswers = commentService.isHaveAnswers(comment)
-      if (!permissionService.isCommentDeletableNow(comment, user, topic, haveAnswers)) {
-        throw new UserErrorException("комментарий нельзя удалить")
-      }
+    val topic = topicDao.getById(comment.getTopicId)
+    val haveAnswers = commentService.isHaveAnswers(comment)
+    if (!permissionService.isCommentDeletableNow(comment, user, topic, haveAnswers)) {
+      throw new UserErrorException("комментарий нельзя удалить")
+    }
 
-      val deleted: Seq[Integer] = if (user.isModerator) {
-        val effectiveBonus = if (user.getId != comment.getId) {
-          bonus
-        } else {
-          0
-        }
-
-        if (deleteReplys) {
-          commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
-        } else {
-          if (commentDeleteService.deleteComment(msgid, reason, user, effectiveBonus, false)) {
-            Seq(msgid)
-          } else {
-            Seq.empty
-          }
-        }
+    val deleted: Seq[Integer] = if (user.isModerator) {
+      val effectiveBonus = if (user.getId != comment.getId) {
+        bonus
       } else {
-        if (commentDeleteService.deleteComment(msgid, reason, user, 0, true)) {
+        0
+      }
+
+      if (deleteReplys) {
+        commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
+      } else {
+        if (commentDeleteService.deleteComment(msgid, reason, user, effectiveBonus, false)) {
           Seq(msgid)
         } else {
           Seq.empty
         }
       }
-
-      val nextComment = findNextComment(comment)
-      searchQueueSender.updateComment(deleted.asJava)
-
-      val nextLink = nextComment match {
-        case Some(c) =>
-          s"${topic.getLink}?cid=${c.getId}"
-        case None =>
-          topic.getLink
-      }
-
-      val message = if (deleted.nonEmpty) {
-        "Удалено успешно"
+    } else {
+      if (commentDeleteService.deleteComment(msgid, reason, user, 0, true)) {
+        Seq(msgid)
       } else {
-        "Сообщение уже удалено"
+        Seq.empty
       }
-
-      val bigMessage = if (deleted.nonEmpty) {
-        Some("bigMessage" -> s"Удаленные комментарии: ${deleted.mkString(", ")}")
-      } else {
-        None
-      }
-
-      new ModelAndView("action-done", (Map(
-        "message" -> message,
-        "link" -> nextLink
-      ) ++ bigMessage).asJava)
     }
+
+    val nextComment = findNextComment(comment)
+    searchQueueSender.updateComment(deleted.asJava)
+
+    val nextLink = nextComment match {
+      case Some(c) =>
+        s"${topic.getLink}?cid=${c.getId}"
+      case None =>
+        topic.getLink
+    }
+
+    val message = if (deleted.nonEmpty) {
+      "Удалено успешно"
+    } else {
+      "Сообщение уже удалено"
+    }
+
+    val bigMessage = if (deleted.nonEmpty) {
+      Some("bigMessage" -> s"Удаленные комментарии: ${deleted.mkString(", ")}")
+    } else {
+      None
+    }
+
+    new ModelAndView("action-done", (Map(
+      "message" -> message,
+      "link" -> nextLink
+    ) ++ bigMessage).asJava)
   }
 
   @ExceptionHandler(Array(classOf[ScriptErrorException], classOf[UserErrorException], classOf[AccessViolationException]))
@@ -156,45 +154,41 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   }
 
   @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.GET))
-  def showUndeleteForm(@RequestParam("msgid") msgid: Int): ModelAndView = {
-    AuthorizedOnly { currentUser =>
-      val tmpl = Template.getTemplate
+  def showUndeleteForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
+    val tmpl = Template.getTemplate
 
-      val comment = commentService.getById(msgid)
+    val comment = commentService.getById(msgid)
 
-      val topic = topicDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.getTopicId)
 
-      val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-      if (!permissionService.isUndeletable(topic, comment, currentUser.user, deleteInfo)) {
-        throw new AccessViolationException("этот комментарий нельзя восстановить")
-      }
-
-      new ModelAndView("undelete_comment", Map[String, Any](
-        "comment" -> prepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf, topic),
-        "topic" -> topic
-      ).asJava)
+    if (!permissionService.isUndeletable(topic, comment, currentUser.user, deleteInfo)) {
+      throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
+
+    new ModelAndView("undelete_comment", Map[String, Any](
+      "comment" -> prepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf, topic),
+      "topic" -> topic
+    ).asJava)
   }
 
   @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.POST))
-  def undelete(@RequestParam("msgid") msgid: Int): ModelAndView = {
-    AuthorizedOnly { currentUser =>
-      val comment = commentService.getById(msgid)
-      val topic = topicDao.getById(comment.getTopicId)
-      val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
+  def undelete(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
+    val comment = commentService.getById(msgid)
+    val topic = topicDao.getById(comment.getTopicId)
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
-      if (!permissionService.isUndeletable(topic, comment, currentUser.user, deleteInfo)) {
-        throw new AccessViolationException("этот комментарий нельзя восстановить")
-      }
-
-      commentDeleteService.undeleteComment(comment)
-
-      searchQueueSender.updateComment(msgid)
-
-      logger.info(s"Восстановлен комментарий пользователем ${currentUser.user}: ${topic.getLink + "?cid=" + msgid}")
-
-      new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
+    if (!permissionService.isUndeletable(topic, comment, currentUser.user, deleteInfo)) {
+      throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
+
+    commentDeleteService.undeleteComment(comment)
+
+    searchQueueSender.updateComment(msgid)
+
+    logger.info(s"Восстановлен комментарий пользователем ${currentUser.user}: ${topic.getLink + "?cid=" + msgid}")
+
+    new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
   }
 }
