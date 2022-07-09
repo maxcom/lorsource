@@ -4,7 +4,7 @@ SERVICE=tomcat-opt.service
 
 set -e
 
-mvn -P production clean package
+mvn -T 1C -P production clean package
 
 echo Copying files...
 
