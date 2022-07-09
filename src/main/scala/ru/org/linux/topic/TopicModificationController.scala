@@ -16,24 +16,21 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
-
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{UserDao, UserErrorException}
 
-import scala.jdk.CollectionConverters._
 import scala.compat.java8.OptionConverters._
+import scala.jdk.CollectionConverters._
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
@@ -42,13 +39,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
                                   msgbaseDao: MsgbaseDao, textService: MessageTextService) extends StrictLogging {
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
-  def showForm(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not moderator")
-    }
-
+  def showForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val message = messageDao.getById(msgid)
 
     new ModelAndView("setpostscore", Map(
@@ -58,17 +49,10 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.POST))
-  def modifyTopic(request: ServletRequest,
-                  @RequestParam msgid: Int,
+  def modifyTopic(@RequestParam msgid: Int,
                   @RequestParam postscore: Int,
                   @RequestParam(defaultValue = "false") sticky: Boolean,
-                  @RequestParam(defaultValue = "false") notop: Boolean): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not moderator")
-    }
-
+                  @RequestParam(defaultValue = "false") notop: Boolean): ModelAndView = ModeratorOnly { currentUser =>
     if (postscore < TopicPermissionService.POSTSCORE_UNRESTRICTED) {
       throw new UserErrorException(s"invalid postscore $postscore")
     }
@@ -82,10 +66,6 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       throw new UserErrorException(s"invalid postscore $postscore")
     }
 
-    val user = AuthUtil.getCurrentUser
-
-    user.checkCommit()
-
     val topic = messageDao.getById(msgid)
 
     messageDao.setTopicOptions(topic, postscore, sticky, notop)
@@ -93,7 +73,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val out = new StringBuilder
     if (topic.getPostscore != postscore) {
       out.append("Установлен новый уровень записи: ").append(postScoreInfoFull(postscore)).append("<br>")
-      logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${user.getNick}")
+      logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${currentUser.user.getNick}")
 
       searchQueueSender.updateMessage(topic.getId, true)
     }
@@ -116,13 +96,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.POST))
-  def moveTopic(request: ServletRequest, @RequestParam msgid: Int, @RequestParam("moveto") newgr: Int): RedirectView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not moderator")
-    }
-
+  def moveTopic(@RequestParam msgid: Int,
+                @RequestParam("moveto") newgr: Int): RedirectView = ModeratorOnly { currentUser =>
     val msg = messageDao.getById(msgid)
     if (msg.isDeleted) {
       throw new AccessViolationException("Сообщение удалено")
@@ -138,13 +113,13 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
         val markup = msgbaseDao.getMessageText(msg.getId).markup
 
-        Some(textService.moveInfo(markup, url, linktext, AuthUtil.getCurrentUser, moveFrom))
+        Some(textService.moveInfo(markup, url, linktext, currentUser.user, moveFrom))
       } else {
         None
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
-      logger.info(s"topic ${msg.getId} moved by ${AuthUtil.getCurrentUser.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
+      logger.info(s"topic ${msg.getId} moved by ${currentUser.user.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
     }
 
     searchQueueSender.updateMessage(msg.getId, true)
@@ -153,13 +128,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
-  def moveTopicFormForum(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def moveTopicFormForum(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
     val section = sectionService.getSection(Section.SECTION_FORUM)
 
@@ -172,13 +141,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/mtn.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
-  def moveTopicForm(request: ServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def moveTopicForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
     val section = sectionService.getSection(topic.getSectionId)
 
@@ -190,31 +153,19 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.GET))
-  def uncommitForm(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { currentUser =>
     val message = messageDao.getById(msgid)
 
     checkUncommitable(message)
 
     new ModelAndView("uncommit", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, AuthUtil.getCurrentUser)
+      "preparedMessage" -> prepareService.prepareTopic(message, currentUser.user)
     ).asJava)
   }
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.POST))
-  def uncommit(request: HttpServletRequest, @RequestParam msgid: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isModeratorSession) {
-      throw new AccessViolationException("Not authorized")
-    }
-
+  def uncommit(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { currentUser =>
     val message = messageDao.getById(msgid)
 
     checkUncommitable(message)
@@ -223,12 +174,12 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     searchQueueSender.updateMessage(message.getId, true)
 
-    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${AuthUtil.getNick}")
+    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.getNick}")
 
     new ModelAndView("action-done", "message", "Подтверждение отменено")
   }
 
-  private def checkUncommitable(message: Topic):Unit = {
+  private def checkUncommitable(message: Topic): Unit = {
     if (message.isExpired) {
       throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения")
     }
