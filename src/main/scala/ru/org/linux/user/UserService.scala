@@ -323,8 +323,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     if (userInfo.getUrl != null || userInfo.getUrl.trim.nonEmpty) {
       userDao.removeUrl(user)
-      userLogDao.logResetUrl(user, moderator, userInfo.getUrl, -10)
-      userDao.changeScore(user.getId, -10)
+      userLogDao.logResetUrl(user, moderator, userInfo.getUrl, 0)
+      userDao.changeScore(user.getId, 0)
     }
   }
 }
