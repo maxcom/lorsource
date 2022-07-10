@@ -15,30 +15,27 @@
 
 package ru.org.linux.user
 
-import java.util
-import javax.servlet.ServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 
+import java.util
+import javax.servlet.ServletRequest
 import scala.jdk.CollectionConverters._
 
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
 class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
-  def showForm(request: ServletRequest, @PathVariable nick: String): ModelAndView = {
+  def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-
-    if (!(AuthUtil.getNick == nick)) {
+    if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -46,8 +43,8 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
 
-    if (DefaultProfile.getTheme(AuthUtil.getCurrentUser.getStyle).isDeprecated) {
-      params.put("stylesList", (nonDeprecatedThemes :+ AuthUtil.getCurrentUser.getStyle).asJava)
+    if (DefaultProfile.getTheme(currentUser.user.getStyle).isDeprecated) {
+      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.getStyle).asJava)
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
@@ -60,11 +57,11 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
     params.put("format_mode", tmpl.getFormatMode)
 
     params.put("formatModes",
-      MarkupPermissions.allowedFormats(AuthUtil.getCurrentUser).map(m => m.formId -> m.title).toMap.asJava)
+      MarkupPermissions.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
-    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(AuthUtil.getCurrentUser)))
+    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(currentUser.user)))
 
     new ModelAndView("edit-profile", params)
   }
@@ -74,12 +71,9 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
                      @RequestParam("messages") messages: Int,
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
-                 ): ModelAndView = {
+                 ): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-    if (!(AuthUtil.getNick == nick)) {
+    if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
     if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == tmpl.getProf.getTopics)) {
@@ -92,7 +86,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
       throw new BadInputException("неправльное название темы")
     }
 
-    if (!MarkupPermissions.allowedFormats(AuthUtil.getCurrentUser).map(_.formId).contains(formatMode)) {
+    if (!MarkupPermissions.allowedFormats(currentUser.user).map(_.formId).contains(formatMode)) {
       throw new BadInputException("некорректный режим форматирования")
     }
 
@@ -103,7 +97,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
     tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
     tmpl.getProf.setFormatMode(formatMode)
     tmpl.getProf.setStyle(request.getParameter("style"))
-    userDao.setStyle(AuthUtil.getCurrentUser, request.getParameter("style"))
+    userDao.setStyle(currentUser.user, request.getParameter("style"))
     tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
     tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode"), tmpl.isModeratorSession).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
@@ -114,7 +108,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     tmpl.getProf.setAvatarMode(avatar)
     tmpl.getProf.setShowAnonymous("on" == request.getParameter("showanonymous"))
-    profileDao.writeProfile(AuthUtil.getCurrentUser, tmpl.getProf)
+    profileDao.writeProfile(currentUser.user, tmpl.getProf)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))
   }
