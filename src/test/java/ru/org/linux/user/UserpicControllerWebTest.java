@@ -42,7 +42,6 @@ import static org.junit.Assert.assertTrue;
         @ContextConfiguration("classpath:database.xml"),
         @ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 })
-@Ignore
 public class UserpicControllerWebTest {
   private WebResource resource;
 
