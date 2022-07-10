@@ -42,8 +42,8 @@ public class ImageDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public SectionDao sectionDao() {
-    return new SectionDaoImpl();
+  public SectionDao sectionDao(DataSource ds) {
+    return new SectionDaoImpl(ds);
   }
 
   @Bean

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ public class Section implements Serializable {
   private final int topicsRestriction;
   private final boolean imageAllowed;
   
-  private SectionScrollModeEnum scrollMode;
+  private final SectionScrollModeEnum scrollMode;
 
   public static final int SECTION_FORUM = 2;
   public static final int SECTION_GALLERY = 3;
@@ -134,7 +134,7 @@ public class Section implements Serializable {
     }
   }
 
-  private static String getUrlName(int section) {
+  public static String getUrlName(int section) {
     String name = sections.get(section);
 
     if (name!=null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,11 +20,11 @@ import scala.jdk.CollectionConverters._
 
 @Service
 class SectionService(sectionDao: SectionDao) {
-  val sections: Seq[Section] = sectionDao.getAllSections.asScala.toVector
-  val nameToSection = sections map { section => section.getUrlName -> section } toMap
-  val idToSection = sections map { section => section.getId -> section } toMap
+  val sections: Seq[Section] = sectionDao.getAllSections
+  val nameToSection: Map[String, Section] = sections.map(section => section.getUrlName -> section).toMap
+  val idToSection: Map[Int, Section] = sections.map(section => section.getId -> section).toMap
 
-  val fuzzyNameToSection = nameToSection ++ idToSection.map { case (k, v) => k.toString -> v }
+  val fuzzyNameToSection: Map[String, Section] = nameToSection ++ idToSection.map { case (k, v) => k.toString -> v }
 
   /**
    * Получить идентификатор секции по url-имени.
@@ -50,14 +50,6 @@ class SectionService(sectionDao: SectionDao) {
    * @return список секций
    */
   def getSectionList: java.util.List[Section] = sections.asJava
-
-  /**
-   * Получить расширенную информацию о секции по идентификатору секции.
-   *
-   * @param id идентификатор секции
-   * @return расширеннуя информация о секции
-   */
-  def getAddInfo(id: Int): String = sectionDao.getAddInfo(id)
 
   /**
    * Получить тип "листания" между страницами.

@@ -3,7 +3,7 @@
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%@ page import="ru.org.linux.gallery.Image" %>
 <%--
-  ~ Copyright 1998-2020 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -63,17 +63,18 @@
   });
 </script>
 <link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
-  <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-  <c:if test="${not form.noinfo}">
-      ${addportal}
-  </c:if>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <c:if test="${message != null}">
 <h1>Предпросмотр</h1>
 <div class=messages>
   <lor:message messageMenu="${topicMenu}" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
-<h1>Добавить в раздел «${group.title}»</h1>
+<h1>Добавить в «${group.title}»</h1>
+<c:if test="${not form.noinfo}">
+  ${addportal}
+</c:if>
+
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
 <%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>

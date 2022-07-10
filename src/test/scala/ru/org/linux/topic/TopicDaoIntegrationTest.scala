@@ -78,7 +78,7 @@ class TopicDaoIntegrationTestConfiguration {
   def sectionService(sectionDao: SectionDao) = new SectionService(sectionDao)
 
   @Bean
-  def sectionDao = new SectionDaoImpl()
+  def sectionDao(ds: DataSource) = new SectionDaoImpl(ds)
 
   @Bean
   def topicDao = new TopicDao()

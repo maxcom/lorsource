@@ -18,6 +18,7 @@ package ru.org.linux.topic;
 import akka.actor.ActorRef;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -54,56 +55,70 @@ import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.UserService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
+import ru.org.linux.util.markdown.MarkdownFormatter;
 import scala.Tuple2;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Controller
 public class AddTopicController {
-  @Autowired
-  private SearchQueueSender searchQueueSender;
+  private final SearchQueueSender searchQueueSender;
 
-  @Autowired
-  private CaptchaService captcha;
+  private final CaptchaService captcha;
 
   private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
-  @Autowired
-  private SectionService sectionService;
+  private final SectionService sectionService;
 
-  @Autowired
-  private TagService tagService;
+  private final TagService tagService;
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private TopicPrepareService prepareService;
+  private final TopicPrepareService prepareService;
 
-  @Autowired
-  private GroupPermissionService groupPermissionService;
+  private final GroupPermissionService groupPermissionService;
 
-  @Autowired
-  private AddTopicRequestValidator addTopicRequestValidator;
+  private final AddTopicRequestValidator addTopicRequestValidator;
 
-  @Autowired
-  private ImageService imageService;
+  private final ImageService imageService;
 
-  @Autowired
-  private TopicService topicService;
+  private final TopicService topicService;
 
-  @Autowired
-  @Qualifier("realtimeHubWS")
-  private ActorRef realtimeHubWS;
+  private final ActorRef realtimeHubWS;
+  private final MarkdownFormatter renderService;
 
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
   private static final int MAX_MESSAGE_LENGTH = 32768;
+
+  public AddTopicController(SearchQueueSender searchQueueSender, CaptchaService captcha, SectionService sectionService,
+                            TagService tagService, UserService userService, TopicPrepareService prepareService,
+                            GroupPermissionService groupPermissionService,
+                            AddTopicRequestValidator addTopicRequestValidator, ImageService imageService,
+                            TopicService topicService, @Qualifier("realtimeHubWS") ActorRef realtimeHubWS,
+                            MarkdownFormatter renderService) {
+    this.searchQueueSender = searchQueueSender;
+    this.captcha = captcha;
+    this.sectionService = sectionService;
+    this.tagService = tagService;
+    this.userService = userService;
+    this.prepareService = prepareService;
+    this.groupPermissionService = groupPermissionService;
+    this.addTopicRequestValidator = addTopicRequestValidator;
+    this.imageService = imageService;
+    this.topicService = topicService;
+    this.realtimeHubWS = realtimeHubWS;
+    this.renderService = renderService;
+  }
 
   @Autowired
   public void setDupeProtector(FloodProtector dupeProtector) {
@@ -126,16 +141,14 @@ public class AddTopicController {
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(
-          @Valid @ModelAttribute("form") AddTopicRequest form
-  ) {
+  public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) {
     Template tmpl = Template.getTemplate();
 
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Map<String, Object> params = new HashMap<>(prepareModel(form, AuthUtil.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form.getGroup(), AuthUtil.getCurrentUser(), form.getGroup().getSectionId(), request));
 
     Group group = form.getGroup();
 
@@ -150,24 +163,31 @@ public class AddTopicController {
     return new ModelAndView("add", params);
   }
 
-  private ImmutableMap<String, Object> prepareModel(AddTopicRequest form, User currentUser) {
+  private ImmutableMap<String, Object> prepareModel(@Nullable Group group, @Nullable User currentUser, int sectionId,
+                                                    HttpServletRequest request) {
     ImmutableMap.Builder<String, Object> params = ImmutableMap.builder();
 
-    Group group = form.getGroup();
+    Section section = sectionService.getSection(sectionId);
+
+    try {
+      URL helpResource = request.getServletContext().getResource("/help/new-topic-" + Section.getUrlName(sectionId) + ".md");
+      if (helpResource != null) {
+        String helpRawText = IOUtils.toString(helpResource, StandardCharsets.UTF_8);
+
+        String addInfo = renderService.renderToHtml(helpRawText, false);
+
+        params.put("addportal", addInfo);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    params.put("sectionId", sectionId);
 
     if (group!=null) {
       params.put("group", group);
       params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
       params.put("showAllowAnonymous", groupPermissionService.enableAllowAnonymousCheckbox(group, currentUser));
-      Section section = sectionService.getSection(group.getSectionId());
-
-      params.put("section", section);
-
-      String addInfo = sectionService.getAddInfo(group.getSectionId());
-
-      if (addInfo!=null) {
-        params.put("addportal", addInfo);
-      }
 
       params.put("imagepost", groupPermissionService.isImagePostingAllowed(section, currentUser));
     }
@@ -204,7 +224,7 @@ public class AddTopicController {
 
     Group group = form.getGroup();
 
-    Map<String, Object> params = new HashMap<>(prepareModel(form, AuthUtil.getCurrentUser()));
+    Map<String, Object> params = new HashMap<>(prepareModel(form.getGroup(), AuthUtil.getCurrentUser(), form.getGroup().getSectionId(), request));
 
     Section section = null;
 
@@ -378,22 +398,19 @@ public class AddTopicController {
   @RequestMapping("/add-section.jsp")
   public ModelAndView showForm(
           @RequestParam("section") int sectionId,
-          @RequestParam(value="tag", required = false) String tag
+          @RequestParam(value="tag", required = false) String tag,
+          HttpServletRequest request
   ) throws UserErrorException {
-    Map<String, Object> params = new HashMap<>();
+    Map<String, Object> params = new HashMap<>(prepareModel(null, AuthUtil.getCurrentUser(), sectionId, request));
 
     if (tag!=null) {
       TagName.checkTag(tag);
       params.put("tag", tag);
     }
 
-    params.put("sectionId", sectionId);
-
     Section section = sectionService.getSection(sectionId);
 
     params.put("section", section);
-
-    params.put("info", sectionService.getAddInfo(section.getId()));
 
     params.put("groups", groupDao.getGroups(section));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class SectionServiceTest {
-  private SectionService sectionService = new SectionService(new TestSectionDaoImpl());
+  private final SectionService sectionService = new SectionService(new TestSectionDaoImpl());
 
   @Test
   public void getSectionTest() {
@@ -50,15 +50,6 @@ public class SectionServiceTest {
   public void getSectionListTest() {
     List<Section> sectionList = sectionService.getSectionList();
     assertEquals(4, sectionList.size());
-  }
-
-  @Test
-  public void getAddInfoTest() {
-    String additionalInfo = sectionService.getAddInfo(1);
-    assertEquals("Extended info for Section 1", additionalInfo);
-
-    additionalInfo = sectionService.getAddInfo(3);
-    assertEquals("Extended info for Section 3", additionalInfo);
   }
 
   @Test
