@@ -11,10 +11,10 @@ echo Copying files...
 sudo systemctl stop $SERVICE
 sudo rm -f /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 mvn -P production liquibase:update
-sudo rm -f /var/lib/tomcat/webapps/ROOT/WEB-INF/lib/*.jar
 sudo rm -rf /var/lib/tomcat/webapps/ROOT/WEB-INF/classes
-sudo rm -rf /var/lib/tomcat/webapps/ROOT/WEB-INF/jsp
 sudo rm -rf /var/cache/tomcat/work/Catalina/localhost/_/
+sudo rsync --delete-after -t -r -v target/lor-1.0-SNAPSHOT/WEB-INF/lib /var/lib/tomcat/webapps/ROOT/WEB-INF/lib
+sudo rsync --delete-after -t -r -v target/lor-1.0-SNAPSHOT/WEB-INF/jsp /var/lib/tomcat/webapps/ROOT/WEB-INF/jsp
 sudo rsync -t -r -v target/lor-1.0-SNAPSHOT/ /var/lib/tomcat/webapps/ROOT
 sudo touch /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 
