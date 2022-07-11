@@ -291,7 +291,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     def userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
 
-    user.getScore >= 200 &&
+    user.getScore >= 100 &&
       !user.isFrozen &&
       (userpicSetCount < 3) &&
       !wasReset &&
