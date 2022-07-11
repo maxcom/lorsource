@@ -83,7 +83,7 @@
 <%--<p>--%>
 <%--<% } %>--%>
 
-<c:if test="${imagepost}">
+<c:if test="${imagepost and not form.noinfo}">
 <p>
   Технические требования к изображению:
   <ul>
