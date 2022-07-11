@@ -183,6 +183,7 @@ public class AddTopicController {
     }
 
     params.put("sectionId", sectionId);
+    params.put("section", section);
 
     if (group!=null) {
       params.put("group", group);
@@ -409,8 +410,6 @@ public class AddTopicController {
     }
 
     Section section = sectionService.getSection(sectionId);
-
-    params.put("section", section);
 
     params.put("groups", groupDao.getGroups(section));
 
