@@ -170,8 +170,6 @@ public class EditRegisterController {
       errors.rejectValue("oldpass", null, "Неверный пароль");
     }
 
-    user.checkAnonymous();
-
     String newEmail = null;
 
     if (mail != null) {

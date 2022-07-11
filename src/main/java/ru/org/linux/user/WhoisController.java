@@ -192,9 +192,6 @@ public class WhoisController {
 
     User user = userService.getUser(nick);
 
-    user.checkAnonymous();
-    user.checkBlocked();
-
     if (!user.isBlockable()) {
       throw new AccessViolationException("Пользователя нельзя заблокировать");
     }

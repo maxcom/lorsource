@@ -16,37 +16,27 @@
 package ru.org.linux.user;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.comment.CommentDao;
-import ru.org.linux.topic.TopicDao;
-import ru.org.linux.search.ElasticsearchIndexService;
 
 import javax.validation.Valid;
 
 @Controller
 public class DeregisterController {
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private CommentDao commentDao;
-
-  @Autowired
-  private TopicDao topicDao;
-
-  @Autowired
-  private ElasticsearchIndexService indexService;
+  public DeregisterController(UserDao userDao) {
+    this.userDao = userDao;
+  }
 
   @RequestMapping(value = "/deregister.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView show(
@@ -58,8 +48,7 @@ public class DeregisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-      User user = AuthUtil.getCurrentUser();
-    user.checkAnonymous();
+    User user = AuthUtil.getCurrentUser();
 
     if (user.getScore() < 100) {
       throw new AccessViolationException("Удаление аккаунта недоступно для пользователей со score < 100");
@@ -84,8 +73,7 @@ public class DeregisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-      User user = AuthUtil.getCurrentUser();
-    user.checkAnonymous();
+    User user = AuthUtil.getCurrentUser();
     user.checkFrozen(errors);
 
     if (user.getScore() < 100) {

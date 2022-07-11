@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,11 +40,14 @@ import java.util.Properties;
 @Controller
 @RequestMapping("/lostpwd.jsp")
 public class LostPasswordController {
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+
+  public LostPasswordController(UserDao userDao, UserService userService) {
+    this.userDao = userDao;
+    this.userService = userService;
+  }
 
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm() {
@@ -66,7 +68,9 @@ public class LostPasswordController {
     }
 
     user.checkBlocked();
-    user.checkAnonymous();
+    if (user.isAnonymous()) {
+      throw new AccessViolationException("Anonymous user");
+    }
 
     if (user.isModerator() && !tmpl.isModeratorSession()) {
       throw new AccessViolationException("этот пароль могут сбросить только модераторы");

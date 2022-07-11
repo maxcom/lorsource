@@ -41,11 +41,6 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
       Assert.fail();
@@ -95,12 +90,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertFalse(user.matchPassword("passwd"));
-    try {
-      user.checkAnonymous();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Anonymous user",e.getMessage());
-    }
     try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
@@ -154,11 +143,6 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
       Assert.fail();
@@ -211,11 +195,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
-    try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
@@ -273,11 +252,6 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
       Assert.fail();
@@ -333,11 +307,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
-    try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
@@ -395,12 +364,6 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkAnonymous();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Anonymous user", e.getMessage());
-    }
-    try {
       user.checkBlocked();
       Assert.fail();
     } catch (AccessViolationException e) {
@@ -453,11 +416,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
-    try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
@@ -514,11 +472,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
-    try {
-      user.checkAnonymous();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     try {
       user.checkBlocked();
     } catch (AccessViolationException e) {
