@@ -15,7 +15,6 @@ sudo rm -f /var/lib/tomcat/webapps/ROOT/WEB-INF/lib/*.jar
 sudo rm -rf /var/lib/tomcat/webapps/ROOT/WEB-INF/classes
 sudo rm -rf /var/lib/tomcat/webapps/ROOT/WEB-INF/jsp
 sudo rm -rf /var/cache/tomcat/work/Catalina/localhost/_/
-#sudo cp -R --preserve=timestamp target/lor-1.0-SNAPSHOT/* /var/lib/tomcat/webapps/ROOT
 sudo rsync -t -r -v target/lor-1.0-SNAPSHOT/ /var/lib/tomcat/webapps/ROOT
 sudo touch /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 
