@@ -20,9 +20,11 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,11 +34,17 @@ import java.util.List;
 @Component
 public class SearchQueueSender {
   private final JmsTemplate jmsTemplate;
+  private final JmsTemplate lowPriorityJmsTemplate;
   private final Queue queue;
   private static final Logger logger = LoggerFactory.getLogger(SearchQueueSender.class);
 
-  public SearchQueueSender(JmsTemplate jmsTemplate, Queue queue) {
-    this.jmsTemplate = jmsTemplate;
+  public SearchQueueSender(@Qualifier("jmsConnectionFactory") ConnectionFactory jmsConnectionFactory, Queue queue) {
+    jmsTemplate = new JmsTemplate(jmsConnectionFactory);
+    jmsTemplate.setExplicitQosEnabled(true);
+    lowPriorityJmsTemplate = new JmsTemplate(jmsConnectionFactory);
+    lowPriorityJmsTemplate.setPriority(1);
+    lowPriorityJmsTemplate.setExplicitQosEnabled(true);
+
     this.queue = queue;
   }
 
@@ -53,7 +61,7 @@ public class SearchQueueSender {
   public void updateMonth(final int year, final int month) {
     logger.info("Scheduling reindex by date "+year+ '/' +month);
 
-    jmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateMonth(year, month)));
+    lowPriorityJmsTemplate.send(queue, session -> session.createObjectMessage(new UpdateMonth(year, month)));
   }
 
   public void updateComment(final int msgid) {
