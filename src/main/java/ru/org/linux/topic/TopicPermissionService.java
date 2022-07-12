@@ -458,7 +458,7 @@ public class TopicPermissionService {
     return !msg.isDeleted()
             && !msg.isDraft()
             && (msg.getPostscore() != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
+            && (group.getCommentsRestriction() != -1)
             && (!group.isPremoderated() || msg.isCommited() || msg.getAuthorUserId() != User.ANONYMOUS_ID);
   }
-
 }
