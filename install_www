@@ -9,7 +9,6 @@ mvn -T 1C -P production clean package
 echo Copying files...
 
 sudo systemctl stop $SERVICE
-sudo rm -f /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 mvn -P production liquibase:update
 sudo rm -rf /var/cache/tomcat/work/Catalina/localhost/_/
 sudo rsync --delete-after -t -r -v target/lor-1.0-SNAPSHOT/WEB-INF/lib /var/lib/tomcat/webapps/ROOT/WEB-INF/
