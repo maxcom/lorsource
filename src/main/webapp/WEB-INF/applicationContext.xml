@@ -139,7 +139,7 @@
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
     <property name="destination" ref="searchQueue"/>
     <property name="sessionTransacted" value="true"/>
-    <property name="concurrency" value="1"/>
+    <property name="concurrency" value="4"/>
   </bean>
 
   <task:annotation-driven/>
