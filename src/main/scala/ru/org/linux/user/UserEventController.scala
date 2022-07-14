@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.site.{BadInputException, Template}
 import ru.org.linux.spring.StatUpdater
@@ -37,8 +38,8 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   def filterValues: util.List[UserEventFilterEnum] = UserEventFilterEnum.values.toSeq.asJava
 
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
-  def resetNotifications(request: HttpServletRequest, @RequestParam topId: Int): RedirectView = {
-    apiController.resetNotifications(request, topId)
+  def resetNotifications(@RequestParam topId: Int): RedirectView = {
+    apiController.resetNotifications(topId)
 
     val view = new RedirectView("/notifications")
     view.setExposeModelAttributes(false)
@@ -48,158 +49,156 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   /**
    * Показывает уведомления для текущего пользователя
    *
-   * @param request  запрос
    * @param response ответ
    * @param offsetRaw   смещение
    * @return вьюшку
    */
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def showNotifications(request: HttpServletRequest, response: HttpServletResponse,
+  def showNotifications(response: HttpServletResponse,
                         @RequestParam(value = "filter", defaultValue = "all") filter: String,
-                        @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
+                        @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView =
+    AuthorizedOnly { currentUser =>
+      val tmpl = Template.getTemplate
 
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("not authorized")
-    }
+      val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
+      val nick = currentUser.user.getNick
 
-    val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
-    val currentUser = AuthUtil.getCurrentUser
-    val nick = currentUser.getNick
+      val params = mutable.Map[String, Any]()
 
-    val params = mutable.Map[String, Any]()
+      params.put("filter", eventFilter.getName)
+      params.put("nick", nick)
 
-    params.put("filter", eventFilter.getName)
-    params.put("nick", nick)
+      if (eventFilter != UserEventFilterEnum.ALL) {
+        params.put("addition_query", s"&filter=${eventFilter.getName}")
+      } else {
+        params.put("addition_query", "")
+      }
 
-    if (eventFilter != UserEventFilterEnum.ALL) {
-      params.put("addition_query", s"&filter=${eventFilter.getName}")
-    } else {
-      params.put("addition_query", "")
-    }
+      val offset = if (offsetRaw < 0) {
+        0
+      } else {
+        offsetRaw
+      }
 
-    val offset = if (offsetRaw < 0) {
-      0
-    } else {
-      offsetRaw
-    }
+      val firstPage = offset == 0
 
-    val firstPage = offset == 0
+      val topics = tmpl.getProf.getTopics
 
-    val topics = tmpl.getProf.getTopics
+      params.put("firstPage", firstPage)
+      params.put("topics", topics)
+      params.put("offset", offset)
+      params.put("disable_event_header", true)
+      params.put("unreadCount", currentUser.user.getUnreadEvents)
+      params.put("isMyNotifications", true)
 
-    params.put("firstPage", firstPage)
-    params.put("topics", topics)
-    params.put("offset", offset)
-    params.put("disable_event_header", true)
-    params.put("unreadCount", currentUser.getUnreadEvents)
-    params.put("isMyNotifications", true)
+      response.addHeader("Cache-Control", "no-cache")
 
-    response.addHeader("Cache-Control", "no-cache")
+      val list = userEventService.getUserEvents(currentUser.user, showPrivate = true,
+        StatUpdater.MAX_EVENTS, 0, eventFilter)
 
-    val list = userEventService.getUserEvents(currentUser, showPrivate = true, StatUpdater.MAX_EVENTS, 0, eventFilter)
+      val prepared = prepareService.prepareGrouped(list)
 
-    val prepared = prepareService.prepareGrouped(list)
+      if (list.nonEmpty) {
+        params.put("enableReset", true)
+        params.put("topId", prepared.view.map(_.lastId).max)
+      }
 
-    if (list.nonEmpty) {
-      params.put("enableReset", true)
-      params.put("topId", prepared.view.map(_.lastId).max)
-    }
+      val sliced = prepared.slice(offset, offset + topics).take(topics)
 
-    val sliced = prepared.slice(offset, offset + topics).take(topics)
+      params.put("topicsList", sliced.asJava)
+      params.put("hasMore", sliced.size == topics)
 
-    params.put("topicsList", sliced.asJava)
-    params.put("hasMore", sliced.size == topics)
-
-    if (!tmpl.getProf.isOldTracker) {
-      new ModelAndView("show-replies-new", params.asJava)
-    } else {
-      new ModelAndView("show-replies", params.asJava)
-    }
+      if (!tmpl.getProf.isOldTracker) {
+        new ModelAndView("show-replies-new", params.asJava)
+      } else {
+        new ModelAndView("show-replies", params.asJava)
+      }
   }
 
   @RequestMapping(value = Array("/show-replies.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def showReplies(request: HttpServletRequest, response: HttpServletResponse,
                   @RequestParam(value = "nick", required = false) nick: String,
-                  @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView = {
-    val tmpl = Template.getTemplate
-    val feedRequested = request.getParameterMap.containsKey("output")
+                  @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView =
+    AuthUtil.AuthorizedOpt { currentUserOpt =>
+      val feedRequested = request.getParameterMap.containsKey("output")
 
-    if (nick == null) {
-      if (tmpl.isSessionAuthorized) {
-        return new ModelAndView(new RedirectView("/notifications"))
+      if (nick == null) {
+        if (currentUserOpt.isDefined) {
+          return new ModelAndView(new RedirectView("/notifications"))
+        } else {
+          throw new AccessViolationException("not authorized")
+        }
       } else {
-        throw new AccessViolationException("not authorized")
+        if (!StringUtil.checkLoginName(nick)) {
+          throw new BadInputException("некорректное имя пользователя")
+        }
+
+        if (currentUserOpt.isEmpty && !feedRequested) {
+          throw new AccessViolationException("not authorized")
+        }
+
+        val viewByOwner = currentUserOpt.exists(_.user.getNick == nick)
+        if (viewByOwner && !feedRequested) {
+          return new ModelAndView(new RedirectView("/notifications"))
+        }
+
+        val viewByModerator = currentUserOpt.exists(_.moderator)
+        if (!feedRequested && !viewByModerator) {
+          throw new AccessViolationException("нельзя смотреть чужие уведомления")
+        }
+
+        val params = mutable.Map[String, Any]()
+
+        params.put("nick", nick)
+
+        val offset = if (offsetRaw < 0) {
+          0
+        } else {
+          offsetRaw
+        }
+
+        val firstPage = offset == 0
+
+        val tmpl = Template.getTemplate
+
+        val topics = if (feedRequested) {
+          200
+        } else {
+          tmpl.getProf.getTopics
+        }
+
+        params.put("firstPage", firstPage)
+        params.put("topics", topics)
+        params.put("offset", offset)
+
+        val time = System.currentTimeMillis
+        val delay = if (firstPage) 90 else 60 * 60
+        response.setDateHeader("Expires", time + 1000 * delay)
+
+        val user = userService.getUser(nick)
+        val showPrivate = viewByModerator || viewByOwner
+
+        if (viewByOwner) {
+          params.put("unreadCount", user.getUnreadEvents)
+          response.addHeader("Cache-Control", "no-cache")
+        }
+
+        val list = userEventService.getUserEvents(user, showPrivate, topics, offset, UserEventFilterEnum.ALL)
+        val prepared = prepareService.prepare(list, feedRequested)
+        params.put("isMyNotifications", false)
+        params.put("topicsList", prepared.asJava)
+        params.put("hasMore", list.size == topics)
+
+        val result = new ModelAndView("show-replies", params.asJava)
+
+        if (feedRequested) {
+          result.addObject("feed-type", "rss")
+          if ("atom" == request.getParameter("output")) result.addObject("feed-type", "atom")
+          result.setView(feedView)
+        }
+
+        result
       }
-    } else {
-      if (!StringUtil.checkLoginName(nick)) {
-        throw new BadInputException("некорректное имя пользователя")
-      }
-
-      if (!tmpl.isSessionAuthorized && !feedRequested) {
-        throw new AccessViolationException("not authorized")
-      }
-
-      if (tmpl.isSessionAuthorized && nick == AuthUtil.getCurrentUser.getNick && !feedRequested) {
-        return new ModelAndView(new RedirectView("/notifications"))
-      }
-
-      if (!feedRequested && !tmpl.isModeratorSession) {
-        throw new AccessViolationException("нельзя смотреть чужие уведомления")
-      }
-    }
-
-    val params = mutable.Map[String, Any]()
-
-    params.put("nick", nick)
-
-    val offset = if (offsetRaw < 0) {
-      0
-    } else {
-      offsetRaw
-    }
-
-    val firstPage = offset == 0
-
-    val topics = if (feedRequested) {
-      200
-    } else {
-      tmpl.getProf.getTopics
-    }
-
-    params.put("firstPage", firstPage)
-    params.put("topics", topics)
-    params.put("offset", offset)
-
-    val time = System.currentTimeMillis
-    val delay = if (firstPage) 90 else 60 * 60
-    response.setDateHeader("Expires", time + 1000 * delay)
-
-    val user = userService.getUser(nick)
-    var showPrivate = tmpl.isModeratorSession
-    val currentUser = AuthUtil.getCurrentUser
-
-    if (currentUser != null && currentUser.getId == user.getId) {
-      showPrivate = true
-      params.put("unreadCount", user.getUnreadEvents)
-      response.addHeader("Cache-Control", "no-cache")
-    }
-
-    val list = userEventService.getUserEvents(user, showPrivate, topics, offset, UserEventFilterEnum.ALL)
-    val prepared = prepareService.prepare(list, feedRequested)
-    params.put("isMyNotifications", false)
-    params.put("topicsList", prepared.asJava)
-    params.put("hasMore", list.size == topics)
-
-    val result = new ModelAndView("show-replies", params.asJava)
-
-    if (feedRequested) {
-      result.addObject("feed-type", "rss")
-      if ("atom" == request.getParameter("output")) result.addObject("feed-type", "atom")
-      result.setView(feedView)
-    }
-
-    result
   }
 
   @ExceptionHandler(Array(classOf[UserNotFoundException]))

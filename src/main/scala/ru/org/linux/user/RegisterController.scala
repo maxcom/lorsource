@@ -29,9 +29,9 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation._
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth._
 import ru.org.linux.email.EmailService
-import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
@@ -214,29 +214,23 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("!action"))
-  def activate(request: HttpServletRequest, @RequestParam activation: String): ModelAndView = {
-    val tmpl = Template.getTemplate
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized!")
-    }
-
-    val user = AuthUtil.getCurrentUser
-    val newEmail = userDao.getNewEmail(user)
+  def activate(@RequestParam activation: String): ModelAndView = AuthorizedOnly { currentUser =>
+    val newEmail = userDao.getNewEmail(currentUser.user)
 
     if (newEmail == null) {
       throw new AccessViolationException("new_email == null?!")
     }
 
-    val regcode = user.getActivationCode(siteConfig.getSecret, newEmail)
+    val regcode = currentUser.user.getActivationCode(siteConfig.getSecret, newEmail)
 
     if (!regcode.equalsIgnoreCase(activation)) {
-      val params = activationFormParams(user.getNick, activation) + ("error" -> "Неправильный код активации")
+      val params = activationFormParams(currentUser.user.getNick, activation) + ("error" -> "Неправильный код активации")
 
       new ModelAndView("activate", params.asJava)
     } else {
-      userDao.acceptNewEmail(user, newEmail)
+      userDao.acceptNewEmail(currentUser.user, newEmail)
 
-      new ModelAndView(new RedirectView("/people/" + user.getNick + "/profile"))
+      new ModelAndView(new RedirectView("/people/" + currentUser.user.getNick + "/profile"))
     }
   }
 
@@ -263,16 +257,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.GET))
-  def createInviteForm(request: HttpServletRequest): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-
-    val currentUser = AuthUtil.getCurrentUser
-
-    if (!userService.canInvite(currentUser)) {
+  def createInviteForm(): ModelAndView = AuthorizedOnly { currentUser =>
+    if (!userService.canInvite(currentUser.user)) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 
@@ -280,16 +266,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.POST))
-  def createInvite(request: HttpServletRequest, @RequestParam email: String): ModelAndView = {
-    val tmpl = Template.getTemplate
-
-    if (!tmpl.isSessionAuthorized) {
-      throw new AccessViolationException("Not authorized")
-    }
-
-    val currentUser = AuthUtil.getCurrentUser
-
-    if (!userService.canInvite(currentUser)) {
+  def createInvite(@RequestParam email: String): ModelAndView = AuthorizedOnly { currentUser =>
+    if (!userService.canInvite(currentUser.user)) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 
@@ -303,9 +281,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Некорректный email домен")
     }
 
-    val (token, validUntil) = invitesDao.createInvite(currentUser, email)
+    val (token, validUntil) = invitesDao.createInvite(currentUser.user, email)
 
-    emailService.sendInviteEmail(currentUser, email, token, validUntil)
+    emailService.sendInviteEmail(currentUser.user, email, token, validUntil)
 
     new ModelAndView("action-done", "message", s"Приглашение отправлено по адресу $email")
   }

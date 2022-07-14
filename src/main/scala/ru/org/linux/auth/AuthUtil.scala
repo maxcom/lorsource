@@ -107,6 +107,16 @@ object AuthUtil {
     }
   }
 
+  def AuthorizedOpt[T](f: Option[CurrentUser] => T): T = {
+    if (isSessionAuthorized) {
+      val currentUser = CurrentUser(getCurrentUser, isCorrectorSession, isModeratorSession)
+
+      f(Some(currentUser))
+    } else {
+      f(None)
+    }
+  }
+
   def AuthorizedOnly[T](f: CurrentUser => T): T = {
     if (!isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")

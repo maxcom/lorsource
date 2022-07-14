@@ -18,6 +18,7 @@ import akka.actor.ActorRef
 import com.google.common.collect.ImmutableList
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.site.Template
@@ -29,33 +30,27 @@ import scala.jdk.CollectionConverters._
 class UserEventApiController(userEventService: UserEventService, realtimeHubWS: ActorRef) {
   @ResponseBody
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
-  def getEventsCount(request: HttpServletRequest, response: HttpServletResponse): Int = {
-    val tmpl = Template.getTemplate
-    if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
+  def getEventsCount(response: HttpServletResponse): Int = AuthorizedOnly { _ =>
     response.setHeader("Cache-control", "no-cache")
     AuthUtil.getCurrentUser.getUnreadEvents
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
   @ResponseBody
-  def resetNotifications(request: HttpServletRequest, @RequestParam topId: Int): String = {
-    val tmpl = Template.getTemplate
-    if (!tmpl.isSessionAuthorized) throw new AccessViolationException("not authorized")
-    val currentUser = AuthUtil.getCurrentUser
-    userEventService.resetUnreadReplies(currentUser, topId)
-    RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.getId))
+  def resetNotifications(@RequestParam topId: Int): String = AuthorizedOnly { currentUser =>
+    userEventService.resetUnreadReplies(currentUser.user, topId)
+    RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.user.getId))
     "ok"
   }
 
   @ResponseBody
-  @RequestMapping(value = Array("/yandex-tableau"), method = Array(RequestMethod.GET), produces = Array("application/json"))
-  def getYandexWidget(request: HttpServletRequest, response: HttpServletResponse): java.util.Map[String, Int] = {
-    val tmpl = Template.getTemplate
-    if (!tmpl.isSessionAuthorized) {
+  @RequestMapping(value = Array("/yandex-tableau"), method = Array(RequestMethod.GET),
+    produces = Array("application/json"))
+  def getYandexWidget(response: HttpServletResponse): java.util.Map[String, Int] = AuthorizedOpt {
+    case None =>
       Map.empty[String, Int].asJava
-    } else {
+    case Some(currentUser) =>
       response.setHeader("Cache-control", "no-cache")
-      Map("notifications" -> AuthUtil.getCurrentUser.getUnreadEvents).asJava
-    }
+      Map("notifications" -> currentUser.user.getUnreadEvents).asJava
   }
 }
