@@ -13,7 +13,7 @@ mvn -P production liquibase:update
 sudo rm -rf /var/cache/tomcat/work/Catalina/localhost/_/
 sudo rsync --delete-after -t -r -v target/lor-1.0-SNAPSHOT/WEB-INF/lib /var/lib/tomcat/webapps/ROOT/WEB-INF/
 sudo rsync --delete-after -t -r -v target/lor-1.0-SNAPSHOT/WEB-INF/jsp /var/lib/tomcat/webapps/ROOT/WEB-INF/
-sudo rsync --delete-after -r -v target/lor-1.0-SNAPSHOT/WEB-INF/classes /var/lib/tomcat/webapps/ROOT/WEB-INF/
+sudo rsync --delete-after -t -r target/lor-1.0-SNAPSHOT/WEB-INF/classes /var/lib/tomcat/webapps/ROOT/WEB-INF/
 sudo rsync -t -r -v target/lor-1.0-SNAPSHOT/ /var/lib/tomcat/webapps/ROOT
 sudo touch /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 
