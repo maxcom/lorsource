@@ -16,7 +16,7 @@ package ru.org.linux.auth
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
+import org.springframework.security.authentication.{AccountStatusException, AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
@@ -68,7 +68,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
         }
       }
     } catch {
-      case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) =>
+      case e@(_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
 
         delayResponse {
