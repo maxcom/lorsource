@@ -113,18 +113,13 @@
   </rule>
 
   <rule>
-    <from>\.(jade)$</from>
-    <set type="charset">UTF-8</set>
+    <from>\.(css|js|woff|svg|ttf)\?.</from>
+    <set type="response-header" name="Cache-Control">max-age=315360000</set>
   </rule>
 
   <rule>
     <from>\.(gif)|(jpg)|(png)$</from>
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
-  </rule>
-
-  <rule>
-    <from>^/books/lor-faq.*</from>
-    <to type="redirect">/wiki/en/lor-faq</to>
   </rule>
 
     <outbound-rule encodefirst="true">
