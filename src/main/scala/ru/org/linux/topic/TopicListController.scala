@@ -21,6 +21,7 @@ import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation._
+import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil
@@ -238,7 +239,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   def showRSS(topicListForm: TopicListRequest,
               @RequestParam(value = "section", defaultValue = "1") sectionId: Int,
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
-              @RequestParam(value = "filter", required = false) filter: String): ModelAndView = {
+              @RequestParam(value = "filter", required = false) filter: String,
+              webRequest: WebRequest): ModelAndView = {
     if (filter != null && !TopicListController.RssFilters.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter")
     }
@@ -257,7 +259,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     checkRequestConditions(section, group, topicListForm)
     val modelAndView = new ModelAndView("section-rss")
 
-    group foreach { group =>
+    group.foreach { group =>
       modelAndView.addObject("group", group)
     }
 
@@ -270,9 +272,17 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val fromDate = DateTime.now.minusMonths(3)
     val messages = topicListService.getRssTopicsFeed(section, group.orNull, fromDate.toDate, notalks, tech)
 
-    modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
+    // не лучший вариант, так как включает комментарии
+    // по хорошему тут надо учитывать только правки текста топика
+    val lastModified = messages.asScala.view.map(_.getLastModified.getTime).maxOption
 
-    modelAndView
+    if (lastModified.exists(webRequest.checkNotModified)) {
+      null
+    } else {
+      modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
+
+      modelAndView
+    }
   }
 
   private def group(section: Section, request: HttpServletRequest, topicListForm: TopicListRequest,
