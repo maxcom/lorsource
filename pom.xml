@@ -15,9 +15,9 @@
     <java.version>11</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.21</dependency.spring.version>
+    <dependency.spring.version>5.3.22</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
-    <jdbc.postgresql.version>42.3.6</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.4.0</jdbc.postgresql.version>
     <elastic4s.version>6.7.8</elastic4s.version>
     <scala.version>2.13.8</scala.version>
     <scala.suffix>2.13</scala.suffix>
@@ -27,7 +27,7 @@
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>9.4.45.v20220203</jetty.version>
     <akka.version>2.6.19</akka.version>
-    <log4j.version>2.17.2</log4j.version>
+    <log4j.version>2.18.0</log4j.version>
     <play-ws.version>2.1.6</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.24.0</momentjs.version>
