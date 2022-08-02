@@ -23,8 +23,8 @@
     <scala.suffix>2.13</scala.suffix>
     <activemq.version>5.17.1</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
-    <jquery.validation.version>1.17.0</jquery.validation.version>
-    <jquery.form.version>4.2.1</jquery.form.version>
+    <jquery.validation.version>1.19.5</jquery.validation.version>
+    <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>9.4.45.v20220203</jetty.version>
     <akka.version>2.6.19</akka.version>
     <log4j.version>2.17.2</log4j.version>
@@ -429,13 +429,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
-      <version>1.12.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>html5shiv</artifactId>
-      <version>3.7.2</version>
+      <version>2.2.4</version>
     </dependency>
 
     <dependency>
@@ -514,7 +508,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <warSourceExcludes>**/*.css,**/*.js</warSourceExcludes>
+          <warSourceExcludes>**/*.css,**/js/*.js</warSourceExcludes>
         </configuration>
         <executions>
           <execution>
@@ -593,6 +587,9 @@
           <nosuffix>true</nosuffix>
           <jswarn>false</jswarn>
           <encoding>utf-8</encoding>
+          <excludes>
+            <exclude>**/jquery-ui-*/**/*.js</exclude>
+          </excludes>
           <aggregations>
             <aggregation>
               <removeIncluded>false</removeIncluded>
@@ -611,11 +608,11 @@
               <output>${project.build.directory}/${project.build.finalName}/js/plugins.js</output>
               <includes>
                 <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-form/${jquery.form.version}/jquery.form.min.js
+                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-form/${jquery.form.version}/dist/jquery.form.min.js
                 </include>
                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
                 <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/jquery.validate.min.js
+                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/jquery.validate.min.js
                 </include>
                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/pattern.js</include>
@@ -806,13 +803,13 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>org.webjars</groupId>
+                  <groupId>org.webjars.npm</groupId>
                   <artifactId>jquery-validation</artifactId>
                   <version>${jquery.validation.version}</version>
                   <includes>**/*.js</includes>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.webjars</groupId>
+                  <groupId>org.webjars.npm</groupId>
                   <artifactId>jquery-form</artifactId>
                   <version>${jquery.form.version}</version>
                   <includes>**/*.js</includes>

@@ -43,12 +43,8 @@
   <c:out value="${scriptminjs}" escapeXml="false"/>
 </script>
 
-<!--[if lt IE 9]>
-  <script src="/webjars/html5shiv/3.7.2/html5shiv.min.js" type="text/javascript"></script>
-<![endif]-->
-
 <script type="text/javascript">
-  $script('/webjars/jquery/1.12.3/jquery.min.js', 'jquery');
+  $script('/webjars/jquery/2.2.4/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
     $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');

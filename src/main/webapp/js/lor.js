@@ -68,16 +68,6 @@ function init_interpage_adv(ads) {
     $(function() {
         var ad = ads[Math.floor(Math.random() * ads.length)];
 
-        if (ad.type==='flash') {
-            $script('/js/jquery.swfobject.1-1-1.min.js', function() {
-                $('#interpage').flash({
-                    "swf": ad.src,
-                    "width": 728,
-                    "height": 90
-                });
-            });
-        }
-
         if (ad.type==='img') {
             var anchor = $('<a>');
             anchor.attr('href', ad.href);
@@ -340,25 +330,23 @@ $script.ready('plugins', function() {
       }
     };
 
-    if (location.protocol === 'https:') {
-      $('#regform').ajaxForm(options);
+    $('#regform').ajaxForm(options);
 
-      $('#loginbutton').bind('click', function(e) {
-        $("#regmenu").fadeOut("fast", function() {
-          $("#regform").fadeIn("fast", function() {
-            $("#regform input[name='nick']").focus();
-          });
+    $('#loginbutton').bind('click', function (e) {
+      $("#regmenu").fadeOut("fast", function () {
+        $("#regform").fadeIn("fast", function () {
+          $("#regform input[name='nick']").focus();
         });
-        return false;
       });
+      return false;
+    });
 
-      $('#hide_loginbutton').bind('click', function(e) {
-        $("#regform").fadeOut("fast", function() {
-          $("#regmenu").fadeIn("fast");
-        });
-        return false;
+    $('#hide_loginbutton').bind('click', function (e) {
+      $("#regform").fadeOut("fast", function () {
+        $("#regmenu").fadeIn("fast");
       });
-    }
+      return false;
+    });
   }
 
   $(function() {

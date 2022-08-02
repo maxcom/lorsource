@@ -22,7 +22,7 @@
 <link rel="parent" title="Linux.org.ru" href="/">
 <script type="text/javascript">
   $script.ready("jquery", function() {
-    $script("/js/jqueryui/jquery-ui-1.10.3.custom.min.js", "jqueryui");
+    $script("/js/jquery-ui-1.13.2.custom/jquery-ui.min.js", "jqueryui");
   });
 
   $script.ready("jqueryui", function() {
@@ -56,7 +56,7 @@
             });
   });
  </script>
-<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.10.3.custom.min.css">
+<link rel="stylesheet" href="/js/jquery-ui-1.13.2.custom/jquery-ui.min.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Удаление метки «${tagRequestDelete.oldTagName}»</h1>
