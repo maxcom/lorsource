@@ -73,7 +73,7 @@
     <ul>
       <li>CentOS 7.x;</li>
       <li>СУБД PostgreSQL 10;</li>
-      <li>OpenJDK 11;</li>
+      <li>OpenJDK 17 (Temurin);</li>
       <li>Scala 2.13;</li>
       <li>Apache Tomcat 8.5;</li>
       <li>ActiveMQ 5.17;</li>
