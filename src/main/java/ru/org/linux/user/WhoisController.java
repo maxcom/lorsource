@@ -196,6 +196,10 @@ public class WhoisController {
       throw new AccessViolationException("Пользователя нельзя заблокировать");
     }
 
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь уже блокирован");
+    }
+
     ModelAndView mv = new ModelAndView("wipe-user");
     mv.getModel().put("user", user);
 

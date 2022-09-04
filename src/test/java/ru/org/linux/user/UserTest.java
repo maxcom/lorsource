@@ -393,7 +393,7 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());  // TODO для заблокированного ананомного пользователя False :-\
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertFalse(user.isBlockable());
+    Assert.assertTrue(user.isBlockable()); // можно разблокировать
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
