@@ -39,13 +39,15 @@ public class Section implements Serializable {
   public static final int SECTION_GALLERY = 3;
   public static final int SECTION_NEWS = 1;
   public static final int SECTION_POLLS = 5;
+  public static final int SECTION_ARTICLES = 6;
 
   private static final ImmutableMap<Integer, String> sections
           = ImmutableMap.of(
           SECTION_NEWS, "news",
           SECTION_FORUM, "forum",
           SECTION_GALLERY, "gallery",
-          SECTION_POLLS, "polls"
+          SECTION_POLLS, "polls",
+          SECTION_ARTICLES, "articles"
   );
 
   public Section(ResultSet rs) throws SQLException {

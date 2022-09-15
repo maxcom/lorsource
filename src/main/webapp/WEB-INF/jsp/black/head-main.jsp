@@ -35,7 +35,7 @@
   <td><lor:events/></td>
 </tr>
 <tr>
-  <td></td>
+  <td><a href="/articles/">Статьи</a></td>
   <td></td>
   <td><a href="search.jsp">Поиск</a></td>
 </tr>

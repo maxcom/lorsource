@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,14 +33,17 @@ import java.util.List;
 
 @Controller
 public class ArchiveController {
-  @Autowired
-  private SectionService sectionService;
+  private final SectionService sectionService;
 
-  @Autowired
-  private GroupDao groupDao;
+  private final GroupDao groupDao;
 
-  @Autowired
-  private ArchiveDao archiveDao;
+  private final ArchiveDao archiveDao;
+
+  public ArchiveController(SectionService sectionService, GroupDao groupDao, ArchiveDao archiveDao) {
+    this.sectionService = sectionService;
+    this.groupDao = groupDao;
+    this.archiveDao = archiveDao;
+  }
 
   public ModelAndView archiveList(
     int sectionid
@@ -48,7 +51,7 @@ public class ArchiveController {
     return archiveList(sectionid, null);
   }
 
-  public ModelAndView archiveList(
+  private ModelAndView archiveList(
     int sectionid,
     String groupName
   ) {
@@ -72,26 +75,27 @@ public class ArchiveController {
   }
 
   @RequestMapping("/gallery/archive")
-  public ModelAndView galleryArchive(
-  ) throws Exception {
+  public ModelAndView galleryArchive() {
     return archiveList(Section.SECTION_GALLERY);
   }
+
   @RequestMapping("/news/archive")
-  public ModelAndView newsArchive(
-  ) throws Exception {
+  public ModelAndView newsArchive() {
     return archiveList(Section.SECTION_NEWS);
   }
 
   @RequestMapping("/polls/archive")
-  public ModelAndView pollsArchive(
-  ) throws Exception {
+  public ModelAndView pollsArchive() {
     return archiveList(Section.SECTION_POLLS);
   }
 
+  @RequestMapping("/articles/archive")
+  public ModelAndView articlesArchive() {
+    return archiveList(Section.SECTION_ARTICLES);
+  }
+
   @RequestMapping("/forum/{group}/archive")
-  public ModelAndView forumArchive(
-    @PathVariable String group
-  ) {
+  public ModelAndView forumArchive(@PathVariable String group) {
     return archiveList(Section.SECTION_FORUM, group);
   }
 

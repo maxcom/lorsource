@@ -48,6 +48,7 @@
         <td align=right valign=bottom>
                 <a style="text-decoration: none" href="/news/">Новости</a> -
                 <a style="text-decoration: none" href="/gallery/">Галерея</a> -
+                <a style="text-decoration: none" href="/articles/">Статьи</a> -
                 <a style="text-decoration: none" href="/forum/">Форум</a> -
                 <c:if test="${template.sessionAuthorized}">
                     <lor:events/> - 
