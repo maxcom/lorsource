@@ -51,7 +51,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 *
 	 * @param dataSource the JDBC DataSource to obtain connections from
 	 */
-	def this(dataSource: DataSource) {
+	def this(dataSource: DataSource) = {
 		this(new org.springframework.jdbc.core.JdbcTemplate(dataSource))
 	}
 

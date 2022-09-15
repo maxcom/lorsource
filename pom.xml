@@ -15,18 +15,18 @@
     <java.version>17</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.22</dependency.spring.version>
+    <dependency.spring.version>5.3.23</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
-    <jdbc.postgresql.version>42.4.1</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.5.0</jdbc.postgresql.version>
     <elastic4s.version>6.7.8</elastic4s.version>
     <scala.version>2.13.8</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.17.1</activemq.version>
+    <activemq.version>5.17.2</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>9.4.45.v20220203</jetty.version>
-    <akka.version>2.6.19</akka.version>
+    <akka.version>2.6.20</akka.version>
     <log4j.version>2.18.0</log4j.version>
     <play-ws.version>2.1.6</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
@@ -469,7 +469,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>4.6.2</version>
+        <version>4.7.1</version>
         <configuration>
           <args>
             <arg>-deprecation</arg>
@@ -481,6 +481,7 @@
             <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
             <arg>-target:jvm-17</arg>
+            <arg>-Xsource:3</arg>
           </args>
           <recompileMode>incremental</recompileMode>
         </configuration>
