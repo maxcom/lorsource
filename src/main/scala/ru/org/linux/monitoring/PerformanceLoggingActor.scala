@@ -63,7 +63,7 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
       elastic execute {
         bulk {
           queue map { m =>
-            indexInto(indexOf(m.start), PerfType) fields (
+            indexInto(indexOf(m.start), PerfType).fields(
               "controller" -> m.name,
               "startdate"  -> m.start,
               "elapsed"    -> m.controllerTime,
@@ -106,12 +106,12 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
 
     elastic.execute {
       createIndexTemplate(s"$IndexPrefix-template", PerfPattern) mappings (
-        mapping(PerfType) fields(
+        mapping(PerfType).fields(
           keywordField("controller"),
           dateField("startdate") format "dateTime",
           longField("elapsed"),
           longField("view")
-          ) all false
+          ).all(false)
         )
     }
   }

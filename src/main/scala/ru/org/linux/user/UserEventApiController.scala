@@ -18,13 +18,12 @@ import akka.actor.ActorRef
 import com.google.common.collect.ImmutableList
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.realtime.RealtimeEventHub
-import ru.org.linux.site.Template
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import scala.jdk.CollectionConverters._
+import javax.servlet.http.HttpServletResponse
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class UserEventApiController(userEventService: UserEventService, realtimeHubWS: ActorRef) {

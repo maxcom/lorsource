@@ -30,15 +30,15 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
 import ru.org.linux.auth.UserDetailsImpl
 import ru.org.linux.comment.{CommentList, CommentReadService}
-import ru.org.linux.realtime.RealtimeEventHub._
+import ru.org.linux.realtime.RealtimeEventHub.*
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 import java.io.IOException
 import scala.collection.mutable
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 // TODO ignore list support
@@ -141,7 +141,6 @@ object RealtimeEventHub {
 }
 
 class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLogging with Timers {
-  private implicit val ec: ExecutionContext = context.dispatcher
   timers.startTimerWithFixedDelay(Tick, Tick, initialDelay = 5.seconds, delay = 1.minute)
 
   override def receive: Receive = {

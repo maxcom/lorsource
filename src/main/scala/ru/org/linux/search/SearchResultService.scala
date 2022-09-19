@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 case class SearchItem (
   @BeanProperty title: String,
@@ -104,10 +104,10 @@ class SearchResultsService(
 
     if (comment) {
       val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
-      builder.buildAndExpand(section, group, new Integer(topic), msgid).toUriString
+      builder.buildAndExpand(section, group, Integer.valueOf(topic), msgid).toUriString
     } else {
       val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-      builder.buildAndExpand(section, group, new Integer(topic)).toUriString
+      builder.buildAndExpand(section, group, Integer.valueOf(topic)).toUriString
     }
   }
 

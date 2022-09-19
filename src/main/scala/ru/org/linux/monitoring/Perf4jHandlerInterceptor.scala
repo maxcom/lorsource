@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,21 +15,19 @@
 
 package ru.org.linux.monitoring
 
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import akka.actor.ActorRef
 import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.method.HandlerMethod
-import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import org.springframework.web.servlet.resource.{DefaultServletHttpRequestHandler, ResourceHttpRequestHandler}
-import ru.org.linux.monitoring.Perf4jHandlerInterceptor._
+import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
+import ru.org.linux.monitoring.Perf4jHandlerInterceptor.*
 
-import scala.concurrent.duration._
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import scala.concurrent.duration.*
 import scala.util.control.NonFatal
 
 object Perf4jHandlerInterceptor {
@@ -66,7 +64,7 @@ object Perf4jHandlerInterceptor {
 }
 
 class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor: ActorRef)
-  extends HandlerInterceptorAdapter with StrictLogging {
+  extends HandlerInterceptor with StrictLogging {
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef): Boolean = {
     if (handler.isInstanceOf[ResourceHttpRequestHandler] || handler.isInstanceOf[DefaultServletHttpRequestHandler]) {

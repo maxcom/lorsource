@@ -15,12 +15,12 @@
 
 package ru.org.linux.auth
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
+import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.user.UserDao
 
-class LastLoginInterceptor(userDao:UserDao) extends HandlerInterceptorAdapter {
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
+class LastLoginInterceptor(userDao:UserDao) extends HandlerInterceptor {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {
     if (AuthUtil.isSessionAuthorized) {
       userDao.updateLastlogin(AuthUtil.getCurrentUser, false)
