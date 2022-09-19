@@ -27,7 +27,6 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.topic.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -63,8 +62,9 @@ public class EditHistoryController {
     "/news/{group}/{id}/history",
     "/forum/{group}/{id}/history",
     "/gallery/{group}/{id}/history",
-    "/polls/{group}/{id}/history"
-})
+    "/polls/{group}/{id}/history",
+    "/articles/{group}/{id}/history",
+  })
   public ModelAndView showEditInfo(@PathVariable("id") int msgid) {
     Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
@@ -88,13 +88,10 @@ public class EditHistoryController {
     "/news/{group}/{id}/{commentid}/history",
     "/forum/{group}/{id}/{commentid}/history",
     "/gallery/{group}/{id}/{commentid}/history",
-    "/polls/{group}/{id}/{commentid}/history"
+    "/polls/{group}/{id}/{commentid}/history",
+    "/articles/{group}/{id}/{commentid}/history"
   })
-  public ModelAndView showCommentEditInfo(
-    HttpServletRequest request,
-    @PathVariable("id") int msgid,
-    @PathVariable("commentid") int commentId
-  ) {
+  public ModelAndView showCommentEditInfo(@PathVariable("id") int msgid, @PathVariable("commentid") int commentId) {
     Topic message = messageDao.getById(msgid);
     Comment comment =  commentService.getById(commentId);
 
