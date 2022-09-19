@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
@@ -30,16 +30,16 @@ import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
 import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.user.UserErrorException
-import ru.org.linux.util.RichFuture._
+import ru.org.linux.util.RichFuture.*
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
 
 import java.net.URLEncoder
 import java.util.concurrent.CompletionStage
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import scala.compat.java8.FutureConverters._
+import javax.servlet.http.HttpServletResponse
+import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.*
+import scala.jdk.CollectionConverters.*
 
 object TopicListController {
   def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer): Unit = {
@@ -90,8 +90,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   private implicit val akka: ActorSystem = actorSystem
 
-  private def mainTopicsFeedHandler(section: Section, request: HttpServletRequest,
-                                    topicListForm: TopicListRequest, response: HttpServletResponse,
+  private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest, response: HttpServletResponse,
                                     group: Option[Group]): ModelAndView = {
     checkRequestConditions(section, group, topicListForm)
 
@@ -126,8 +125,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   }
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
-  def topics(request: HttpServletRequest, @PathVariable("section") sectionName: String,
-             topicListForm: TopicListRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
+  def topics(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
+             response: HttpServletResponse): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val section = sectionService.getSectionByName(sectionName)
@@ -142,7 +141,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       }
     }
 
-    val modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, None)
+    val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, None)
 
     modelAndView.addObject("ptitle", TopicListController.calculatePTitle(section, topicListForm))
     modelAndView.addObject("url", section.getNewsViewerLink)
@@ -165,23 +164,21 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   }
 
   @RequestMapping(Array("/forum/lenta"))
-  def forum(request: HttpServletRequest, topicListForm: TopicListRequest,
-            response: HttpServletResponse): CompletionStage[ModelAndView] = {
-    topics(request, "forum", topicListForm, response)
+  def forum(topicListForm: TopicListRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
+    topics("forum", topicListForm, response)
   }
 
-  @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:gallery)}/{group:[^.]+}"))
-  def topicsByGroup(@PathVariable("section") sectionName: String, request: HttpServletRequest,
-                    topicListForm: TopicListRequest, @PathVariable("group") groupName: String,
-                    response: HttpServletResponse): ModelAndView = {
+  @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
+  def topicsByGroup(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
+                    @PathVariable("group") groupName: String, response: HttpServletResponse): ModelAndView = {
     val section = sectionService.getSectionByName(sectionName)
 
-    group(section, request, topicListForm, groupName, response)
+    group(section, topicListForm, groupName, response)
   }
 
   @RequestMapping(Array("/{section}/archive/{year}/{month}"))
-  def galleryArchive(request: HttpServletRequest, @PathVariable section: String, @PathVariable year: Int,
-                     @PathVariable month: Int, response: HttpServletResponse): ModelAndView = {
+  def galleryArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int,
+                     response: HttpServletResponse): ModelAndView = {
     val sectionObject = sectionService.getSectionByName(section)
 
     if (sectionObject.isPremoderated) {
@@ -190,7 +187,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       topicListForm.setYear(year)
       topicListForm.setMonth(month)
 
-      val modelAndView = mainTopicsFeedHandler(sectionObject, request, topicListForm, response, None)
+      val modelAndView = mainTopicsFeedHandler(sectionObject, topicListForm, response, None)
 
       modelAndView.addObject("ptitle", TopicListController.calculatePTitle(sectionObject, topicListForm))
 
@@ -285,11 +282,11 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  private def group(section: Section, request: HttpServletRequest, topicListForm: TopicListRequest,
-                    groupName: String, response: HttpServletResponse): ModelAndView = {
+  private def group(section: Section, topicListForm: TopicListRequest, groupName: String,
+                    response: HttpServletResponse): ModelAndView = {
     val group = groupDao.getGroup(section, groupName)
 
-    val modelAndView = mainTopicsFeedHandler(section, request, topicListForm, response, Some(group))
+    val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, Some(group))
 
     modelAndView.addObject("ptitle", s"${section.getName} - ${group.getTitle}")
     modelAndView.addObject("url", group.getUrl)
