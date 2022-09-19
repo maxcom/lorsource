@@ -14,8 +14,6 @@
  */
 package ru.org.linux.tag
 
-import java.util.concurrent.CompletionStage
-import javax.servlet.http.HttpServletRequest
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.WordUtils
@@ -27,23 +25,24 @@ import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
+import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDao.CommitMode
-import ru.org.linux.topic._
 import ru.org.linux.user.{User, UserTagService}
-import ru.org.linux.util.RichFuture._
+import ru.org.linux.util.RichFuture.*
 
-import scala.jdk.CollectionConverters._
-import scala.compat.java8.FutureConverters._
+import java.util.concurrent.CompletionStage
+import scala.compat.java8.FutureConverters.*
+import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 
 object TagPageController {
   val TotalNewsCount = 21
   val ForumTopicCount = 20
   val GalleryCount = 6
 
-  val Timeout: FiniteDuration = 500 millis
+  val Timeout: FiniteDuration = 500.millis
 }
 
 @Controller
@@ -55,10 +54,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private implicit val akka: ActorSystem = actorSystem
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(request: HttpServletRequest, @PathVariable tag: String): CompletionStage[ModelAndView] = {
-    val deadline = TagPageController.Timeout.fromNow
+  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = AuthUtil.AuthorizedOpt { currentUserObj =>
+    val currentUser = currentUserObj.map(_.user)
 
-    val tmpl = Template.getTemplate
+    val deadline = TagPageController.Timeout.fromNow
 
     if (!TagName.isGoodTag(tag)) {
       throw new TagNotFoundException
@@ -76,28 +75,32 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       }
     }
 
-    val favs = if (tmpl.isSessionAuthorized) {
-      Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag),
-        "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag),
-        "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)),
-        "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)))
-    } else {
-      Seq.empty
+    val favs = currentUser match {
+      case Some(currentUser) =>
+        Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(currentUser, tag),
+          "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(currentUser, tag),
+          "showIgnoreTagButton" -> (currentUserObj.forall(!_.moderator) && !userTagService.hasIgnoreTag(currentUser, tag)),
+          "showUnIgnoreTagButton" -> (currentUserObj.forall(!_.moderator) && userTagService.hasIgnoreTag(currentUser, tag)))
+      case None =>
+        Seq.empty
     }
 
-    val tagInfo = tagService.getTagInfo(tag, skipZero = !tmpl.isModeratorSession)
+    val tagInfo = tagService.getTagInfo(tag, skipZero = currentUserObj.forall(!_.moderator))
 
-    val sections = getNewsSection(request, tag) ++ getGallerySection(tag, tagInfo.id, tmpl) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, AuthUtil.getCurrentUser) ++
-      getForumSection(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, AuthUtil.getCurrentUser)
+    val sections = getNewsSection(tag, currentUser) ++ getGallerySection(tag, tagInfo.id, currentUser) ++
+      getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser) ++
+      getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser) ++
+      getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY, currentUser)
+
+    val tmpl = Template.getTemplate
 
     val model = Map(
       "tag" -> tag,
       "title" -> WordUtils.capitalize(tag),
       "favsCount" -> userTagService.countFavs(tagInfo.id),
       "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-      "showAdsense" -> Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense),
-      "showDelete" -> Boolean.box(tmpl.isModeratorSession)
+      "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
+      "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator))
     ) ++ sections ++ favs
 
     val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
@@ -123,15 +126,15 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       related <- safeRelatedF
     } yield {
       new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
-    }) toJava
+    }).toJava
   }
 
-  private def getNewsSection(request: HttpServletRequest, tag: String) = {
-    val tmpl = Template.getTemplate
+  private def getNewsSection(tag: String, currentUser: Option[User]) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
-    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, AuthUtil.getCurrentUser)
+    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, currentUser.orNull)
     val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false)
+    val tmpl = Template.getTemplate
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, currentUser.orNull, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
@@ -148,11 +151,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ more
   }
 
-  private def getGallerySection(tag: String, tagId: Int, tmpl: Template) = {
+  private def getGallerySection(tag: String, tagId: Int, currentUser: Option[User]) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId))
     val section = sectionService.getSection(Section.SECTION_GALLERY)
 
-    val add = if (tmpl.isSessionAuthorized) {
+    val add = if (currentUser.isDefined) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
     } else {
       None
@@ -169,7 +172,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ add ++ more
   }
 
-  private def getForumSection(tag: String, tagId: Int, section: Int, mode: CommitMode, currentUser: User) = {
+  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, currentUser: Option[User]) = {
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
@@ -178,7 +181,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto, currentUser)
+    val forumTopics = topicListService.getTopics(topicListDto, currentUser.orNull)
     val topicByDate = TopicListTools.datePartition(forumTopics.asScala)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {

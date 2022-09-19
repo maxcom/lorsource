@@ -255,6 +255,44 @@
 </section>
 </c:if>
 
+<c:if test="${not empty articles}">
+  <section>
+  <h2>Статьи</h2>
+
+  <div class="container" id="tag-page-articles">
+  <c:forEach var="map" items="${articles}">
+    <section>
+      <c:forEach var="entry" items="${map}">
+        <h3>${entry._1()}</h3>
+        <ul>
+          <c:forEach var="msg" items="${entry._2()}">
+            <li>
+              <c:if test="${msg.group.defined}">
+                <span class="group-label">${msg.group.get()}</span>
+              </c:if>
+              <a href="${msg.url}">${msg.title}</a>
+              <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
+            </li>
+          </c:forEach>
+        </ul>
+      </c:forEach>
+    </section>
+  </c:forEach>
+  </div>
+
+  <div class="tag-page-buttons">
+  <div>
+  <c:if test="${not empty articlesAdd}">
+    <a href="${articlesAdd}" class="btn btn-primary">Добавить тему</a>
+  </c:if>
+  <c:if test="${not empty articlesMore}">
+    <a href="${articlesMore}" class="btn btn-default">Все темы</a>
+  </c:if>
+  </div>
+  </div>
+  </section>
+</c:if>
+
 <c:if test="${not empty forum}">
   <section>
     <h2>Форум</h2>

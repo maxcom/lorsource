@@ -24,10 +24,10 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.tag.TagRef
-import ru.org.linux.user._
+import ru.org.linux.user.*
 
 import javax.annotation.Nullable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOptional
 
 @Service
@@ -143,7 +143,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: java.util.List[Topic], user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
+  def prepareTopicsForUser(messages: java.util.List[Topic], @Nullable user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages.asScala)
     val tags = topicTagService.getTagRefs(messages.asScala.toSeq)
 
