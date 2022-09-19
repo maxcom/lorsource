@@ -236,7 +236,7 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="year-stats")
   @ResponseBody
-  public CompletionStage<Map<Object, Object>> yearStats(@PathVariable String nick) {
+  public CompletionStage<Map<String, Map<Object, Object>>> yearStats(@PathVariable String nick) {
     User user = userService.getUser(nick);
 
     user.checkBlocked();

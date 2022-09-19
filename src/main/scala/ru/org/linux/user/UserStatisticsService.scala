@@ -21,6 +21,7 @@ import java.util.concurrent.CompletionStage
 
 import com.sksamuel.elastic4s.http.ElasticClient
 import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.Response
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.searches.DateHistogramInterval
 import com.typesafe.scalalogging.StrictLogging
@@ -84,18 +85,29 @@ class UserStatisticsService(
     )
   }
 
-  def getYearStats(user: User): CompletionStage[java.util.Map[Long, Long]] = {
-    Future.successful(elastic).flatMap {
-      _ execute {
-        val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/M"))
+  def getYearStats(user: User): CompletionStage[java.util.Map[String, java.util.Map[Long, Long]]] = {
+    val queries = Map(
+      "talks" -> termsQuery("group", Seq("talks", "science", "club")),
+      "news" -> termsQuery("section", Seq("news", "polls", "gallery")),
+      "tech" -> filter( termQuery("section", "forum"), not( termsQuery("group", Seq("talks", "science", "club")) ) )
+    )
 
-        search(MessageIndex) size 0 timeout 30.seconds query root aggs
-          dateHistogramAgg("days", "postdate").interval(DateHistogramInterval.days(1)).minDocCount(1)
-      } map {
-        _.result.aggregations.dateHistogram("days").buckets.map { bucket =>
-          bucket.timestamp/1000 -> bucket.docCount
-        }.toMap.asJava
-      }
+    Future.successful(elastic).flatMap { el =>
+      Future.successful(queries.keys.map { key =>
+        key -> Await.result(el.execute {
+          val root = boolQuery().filter(
+            termQuery("author", user.getNick),
+            rangeQuery("postdate").gt("now-1y/M"),
+            queries(key))
+
+          search(MessageIndex) size 0 timeout 30.seconds query root aggs
+            dateHistogramAgg("days", "postdate").interval(DateHistogramInterval.days(1)).minDocCount(1)
+        } map { sr: Response[SearchResponse] =>
+          sr.result.aggregations.dateHistogram("days").buckets.map { bucket =>
+            bucket.timestamp/1000 -> bucket.docCount
+          }.toMap.asJava
+        }, 5.seconds)
+      }.toMap[String, java.util.Map[Long, Long]].asJava)
     }.toJava
   }
 

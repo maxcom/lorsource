@@ -66,21 +66,83 @@
                         range: 12,
                         domainDynamicDimension: false,
                         displayLegend: false,
-                        legend: [8, 32, 64, 128],
+                        legend: [8],
+                        legendColors: ['#000', '#fff'],
                         cellSize: size,
                         start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
-                        tooltip: true,
+                        tooltip: false,
                         domainLabelFormat: function (date) {
                             return moment(date).format("MMMM");
                         },
                         subDomainDateFormat: function (date) {
                             return moment(date).format("LL");
                         },
-                        subDomainTitleFormat: {
-                            empty: "{date}",
-                            filled: "{date}<br>сообщений: {count}"
+                        afterLoadData: function(data) {
+                          var stats = {};
+                          var sections = {
+                            talks: 16,
+                            tech: 8,
+                            news: 0,
+                          };
+                          var curIntTs, ts, addition, curCount;
+
+                          for (var section in sections) {
+                            if (sections.hasOwnProperty(section) && data[section]) {
+                              for (ts in data[section]) {
+                                curIntTs = parseInt(ts);
+                                if (!isNaN(curIntTs)) {
+                                  curCount = data[section][ts];
+                                  if (curCount > 0xff) curCount = 0xff; // clamp
+                                  addition = curCount << sections[section];
+                                  if (stats[curIntTs] !== undefined) {
+                                    stats[curIntTs] += addition;
+                                  } else {
+                                    stats[curIntTs] = addition;
+                                  }
+                                }
+                              }
+                            }
+                          }
+
+                          return stats;
+                        },
+                        onComplete: function() {
+                          var rects = document.getElementById('cal-heatmap').getElementsByTagName('rect');
+                          var rect, value, talks, tech, news, r, g, b;
+                          var PI_0019 = Math.PI * 0.0019;
+                          for (var i = 0; i < rects.length; i ++) {
+                            rect = rects[i];
+                            if (rect.__data__ && rect.__data__.v) {
+                              value = parseInt(rect.__data__.v);
+                              if (!isNaN(value)) {
+                                talks = value >> 16;
+                                tech = (value >> 8) & 0xff;
+                                news = value & 0xff;
+
+                                // excite
+                                r = talks ? parseInt(180 + 60 * Math.sin(talks * PI_0019)) : 0;
+                                g = tech ? parseInt(180 + 60 * Math.sin(tech * PI_0019)) : 0;
+                                b = news ? parseInt(180 + 60 * Math.sin(news * PI_0019)) : 0;
+
+                                rect.setAttribute('fill', 'rgb(' + r + ',' + g + ',' + b + ')');
+                                rect.setAttribute('class', '');
+
+                                if (rect.nextSibling && rect.nextSibling.tagName === 'title') {
+                                  rect.nextSibling.innerHTML += '\n' +
+                                    (talks ? 'Talks / Клуб / S&amp;E: ' +
+                                      (talks === 0xff ? '≥' : '') + talks + '\n' : '') +
+                                    (tech ? 'Технические разделы: ' +
+                                      (tech === 0xff ? '≥' : '') + tech + '\n' : '') +
+                                    (news ? 'Новости / Галерея / Опросы: ' +
+                                      (news === 0xff ? '≥' : '') + news : '');
+                                }
+                              }
+                            }
+                          }
                         }
                     });
+                    // suppress automatic redraws
+                    CalHeatMap.prototype.fill = function() {};
                 }
             });
         });

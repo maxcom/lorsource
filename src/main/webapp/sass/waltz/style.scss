@@ -480,4 +480,9 @@ fieldset legend {
   color: $stars_color;
 }
 
+.cal-heatmap-container .graph-label
+{
+  fill: $text_color;
+}
+
 @import "../responsive";

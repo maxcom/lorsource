@@ -166,7 +166,7 @@ a:hover {
   display: none;
 }
 
-article, .boxlet, #counter_block, .infoblock, #nav-menu, #p-lang, .messages .msg, #warning-text, #tag-page-forum, fieldset, legend, #tag-page-news, #related-topics, .tags-first-letters{
+article, .boxlet, #counter_block, .infoblock, #nav-menu, #p-lang, .messages .msg, #warning-text, #tag-page-forum, fieldset, legend, #tag-page-news, #related-topics, .tags-first-letters, #cal-heatmap{
   background-color: $article_background;
   border-top-color: white;
   border-left-color: white;
@@ -726,6 +726,11 @@ fieldset legend {
 
 .messages .msg:target {
   border: 2px solid $targeted_message_border_color;
+}
+
+.cal-heatmap-container .graph-label
+{
+  fill: $text_color;
 }
 
 @import "../responsive";
