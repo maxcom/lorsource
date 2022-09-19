@@ -80,7 +80,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag),
         "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag),
         "showIgnoreTagButton" -> (!tmpl.isModeratorSession && !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)),
-	      "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)))
+        "showUnIgnoreTagButton" -> (!tmpl.isModeratorSession && userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag)))
     } else {
       Seq.empty
     }

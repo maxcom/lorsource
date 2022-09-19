@@ -27,8 +27,8 @@
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>9.4.45.v20220203</jetty.version>
     <akka.version>2.6.20</akka.version>
-    <log4j.version>2.18.0</log4j.version>
-    <play-ws.version>2.1.6</play-ws.version>
+    <log4j.version>2.19.0</log4j.version>
+    <play-ws.version>2.1.10</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.24.0</momentjs.version>
   </properties>
@@ -92,14 +92,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.15.0</version>
+      <version>4.16.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.15.0</version>
+      <version>4.16.1</version>
       <scope>test</scope>
     </dependency>
 
