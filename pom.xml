@@ -78,18 +78,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-reflect</artifactId>
-      <version>${scala.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.scala-lang.modules</groupId>
       <artifactId>scala-collection-contrib_${scala.suffix}</artifactId>
       <version>0.2.2</version>
