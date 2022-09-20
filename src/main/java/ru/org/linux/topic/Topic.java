@@ -32,7 +32,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class Topic implements Serializable {
+import static ru.org.linux.section.Section.SECTION_ARTICLES;
+import static ru.org.linux.section.Section.SECTION_NEWS;
+
+public class Topic {
   private final int msgid;
   private final int postscore;
   private final boolean sticky;
@@ -58,8 +61,6 @@ public class Topic implements Serializable {
   private final boolean minor;
   private final boolean draft;
   private final boolean allowAnonymous;
-
-  private static final long serialVersionUID = 807240555706110851L;
 
   private Topic(int msgId,
                 int postScore,
@@ -245,7 +246,7 @@ public class Topic implements Serializable {
       draft = original.draft;
     }
 
-    if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
+    if (form.getMinor()!=null && (sectionid==SECTION_NEWS || sectionid==SECTION_ARTICLES)) {
       minor = form.getMinor();
     } else {
       minor = original.minor;
