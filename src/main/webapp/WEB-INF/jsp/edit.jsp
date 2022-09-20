@@ -153,7 +153,7 @@
   </c:if>
 
   <c:if test="${group.premoderated and topicMenu.commitable and !group.pollPostAllowed}">
-    <label>Мини-новость: <form:checkbox path="minor"/></label>
+    <label>Мини: <form:checkbox path="minor"/></label>
   </c:if>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
