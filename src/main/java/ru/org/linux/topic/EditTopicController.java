@@ -222,7 +222,7 @@ public class EditTopicController {
       form.setMsg(messageText.text());
     }
 
-    if (message.getSectionId() == Section.SECTION_NEWS) {
+    if (message.getSectionId() == Section.SECTION_NEWS || message.getSectionId() == Section.SECTION_ARTICLES) {
       form.setMinor(message.isMinor());
     }
 
