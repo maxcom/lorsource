@@ -33,12 +33,16 @@ import ru.org.linux.section.Section;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
 import scala.Option;
 import scala.Some;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -53,15 +57,20 @@ public class TopicPermissionService {
   private static final int LINK_FOLLOW_MIN_SCORE = 100;
   private static final int VIEW_DELETED_SCORE = 100;
   private static final Duration DELETE_PERIOD = Duration.standardHours(3);
+  public static final int VIEW_AFTER_DELETE_DAYS = 14; // для топика
 
   private final CommentReadService commentService;
   private final SiteConfig siteConfig;
   private final GroupDao groupDao;
 
-  public TopicPermissionService(CommentReadService commentService, SiteConfig siteConfig, GroupDao groupDao) {
+  private final DeleteInfoDao deleteInfoDao;
+
+  public TopicPermissionService(CommentReadService commentService, SiteConfig siteConfig, GroupDao groupDao,
+                                DeleteInfoDao deleteInfoDao) {
     this.commentService = commentService;
     this.siteConfig = siteConfig;
     this.groupDao = groupDao;
+    this.deleteInfoDao = deleteInfoDao;
   }
 
   public static String getPostScoreInfo(int postscore) {
@@ -144,6 +153,17 @@ public class TopicPermissionService {
         }
 
         if (!viewByAuthor) {
+          final var deleteExpire =
+                  deleteInfoDao.getDeleteInfo(message.getId())
+                          .map(DeleteInfo::delDate)
+                          .map(Timestamp::toInstant)
+                          .map(t -> t.isBefore(Instant.now().minus(VIEW_AFTER_DELETE_DAYS, ChronoUnit.DAYS)))
+                          .orElse(true);
+
+          if (deleteExpire) {
+            throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+          }
+
           if (currentUser.isFrozen()) {
             throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
           }
