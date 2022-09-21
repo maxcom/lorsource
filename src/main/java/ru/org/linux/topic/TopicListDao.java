@@ -89,11 +89,11 @@ public class TopicListDao {
    * Темы, удаленные автором пропускаются.
    *
    * @param sectionId номер раздела или 0 для всех премодерируемых
-   * @param skipEmptyReason Пропускать темы, удаленные с пустым комментарием
+   * @param skipBadReason Пропускать темы, удаленные с пустым комментарием и спам
    * @param includeAnonymous
    * @return список удаленных тем
    */
-  public List<DeletedTopic> getDeletedTopics(int sectionId, boolean skipEmptyReason, boolean includeAnonymous) {
+  public List<DeletedTopic> getDeletedTopics(int sectionId, boolean skipBadReason, boolean includeAnonymous) {
     StringBuilder query = new StringBuilder();
     List <Object> queryParameters = new ArrayList<>();
 
@@ -107,8 +107,8 @@ public class TopicListDao {
       .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
       .append("AND delDate > CURRENT_TIMESTAMP - '2 weeks'::interval ");
 
-    if (skipEmptyReason) {
-      query.append("AND reason!='' ");
+    if (skipBadReason) {
+      query.append("AND reason!='' AND reason!='Блокировка пользователя с удалением сообщений' AND reason!='4.6 Спам' ");
     }
 
     if (!includeAnonymous) {
