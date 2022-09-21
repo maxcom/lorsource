@@ -74,30 +74,26 @@ public class TopicPermissionService {
   }
 
   public static String getPostScoreInfo(int postscore) {
-    switch (postscore) {
-      case POSTSCORE_UNRESTRICTED:
-        return "";
-      case 50:
-        return "Закрыто добавление комментариев для недавно зарегистрированных пользователей (со score < 50)";
-      case 100:
-      case 200:
-      case 300:
-      case 400:
-      case 500:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore, true);
-      case POSTSCORE_MOD_AUTHOR:
-        return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
-      case POSTSCORE_MODERATORS_ONLY:
-        return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
-      case POSTSCORE_NO_COMMENTS:
-        return "<b>Ограничение на отправку комментариев</b>: комментарии запрещены";
-      case POSTSCORE_HIDE_COMMENTS:
-        return "<b>Ограничение на отправку комментариев</b>: без комментариев";
-      case POSTSCORE_REGISTERED_ONLY:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
-      default:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore;
-    }
+    return switch (postscore) {
+      case POSTSCORE_UNRESTRICTED ->
+              "";
+      case 50 ->
+              "Закрыто добавление комментариев для недавно зарегистрированных пользователей (со score < 50)";
+      case 100, 200, 300, 400, 500 ->
+              "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore, true);
+      case POSTSCORE_MOD_AUTHOR ->
+              "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
+      case POSTSCORE_MODERATORS_ONLY -> "" +
+              "<b>Ограничение на отправку комментариев</b>: только для модераторов";
+      case POSTSCORE_NO_COMMENTS ->
+              "<b>Ограничение на отправку комментариев</b>: комментарии запрещены";
+      case POSTSCORE_HIDE_COMMENTS ->
+              "<b>Ограничение на отправку комментариев</b>: без комментариев";
+      case POSTSCORE_REGISTERED_ONLY ->
+              "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
+      default ->
+              "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore;
+    };
   }
 
   public boolean allowViewDeletedComments(Topic message, @Nullable User currentUser) {
