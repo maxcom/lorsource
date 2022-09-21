@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -64,25 +64,13 @@ public class UncommitedTopicsController {
     response.setDateHeader("Expires", new Date(System.currentTimeMillis() - 20 * 3600 * 1000).getTime());
     response.setDateHeader("Last-Modified", new Date(System.currentTimeMillis() - 120 * 1000).getTime());
 
-    String title;
-
-    switch (sectionId) {
-      case Section.SECTION_NEWS:
-        title = "Неподтвержденные новости";
-        break;
-      case Section.SECTION_POLLS:
-        title = "Неподтвержденные опросы";
-        break;
-      case Section.SECTION_GALLERY:
-        title = "Неподтвержденные изображения";
-        break;
-      case 0:
-        title = "Просмотр неподтвержденных сообщений";
-        break;
-      default:
-        title = "Неподтвержденные: "+section.getName();
-        break;
-    }
+    String title = switch (sectionId) {
+      case Section.SECTION_NEWS -> "Неподтвержденные новости";
+      case Section.SECTION_POLLS -> "Неподтвержденные опросы";
+      case Section.SECTION_GALLERY -> "Неподтвержденные изображения";
+      case 0 -> "Просмотр неподтвержденных сообщений";
+      default -> "Неподтвержденные: " + section.getName();
+    };
 
     modelAndView.addObject("title", title);
 

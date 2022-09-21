@@ -105,7 +105,7 @@ public class TopicListDao {
       .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
       .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
-      .append("AND delDate is not null ");
+      .append("AND delDate > CURRENT_TIMESTAMP - '2 weeks'::interval ");
 
     if (skipEmptyReason) {
       query.append("AND reason!='' ");
@@ -249,16 +249,12 @@ public class TopicListDao {
       return "ORDER BY memories.id DESC";
     }
 
-    switch (topicListDto.getCommitMode()) {
-      case COMMITED_ONLY:
-        return " ORDER BY commitdate DESC";
-      case UNCOMMITED_ONLY:
-        return " ORDER BY postdate DESC";
-      case POSTMODERATED_ONLY:
-        return " ORDER BY postdate DESC";
-      default:
-        return " ORDER BY COALESCE(commitdate, postdate) DESC";
-    }
+    return switch (topicListDto.getCommitMode()) {
+      case COMMITED_ONLY -> " ORDER BY commitdate DESC";
+      case UNCOMMITED_ONLY -> " ORDER BY postdate DESC";
+      case POSTMODERATED_ONLY -> " ORDER BY postdate DESC";
+      default -> " ORDER BY COALESCE(commitdate, postdate) DESC";
+    };
   }
 
   /**
