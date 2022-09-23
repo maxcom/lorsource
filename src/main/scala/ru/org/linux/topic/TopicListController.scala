@@ -103,6 +103,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("url", "view-news.jsp")
     modelAndView.addObject("section", section)
     modelAndView.addObject("archiveLink", section.getArchiveLink)
+    modelAndView.addObject("groupList", groupDao.getGroups(section))
 
     TopicListController.setExpireHeaders(response, topicListForm.getYear, topicListForm.getMonth)
 

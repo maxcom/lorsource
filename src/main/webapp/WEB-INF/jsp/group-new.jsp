@@ -55,40 +55,12 @@
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<form>
-  <div class=nav>
-    <div id="navPath">
-      ${section.name} «${group.title}»
-      <c:if test="${year != null}">
-        — Архив ${year}, ${l:getMonthName(month)}
-      </c:if>
-    </div>
-
-    <div class="nav-buttons">
-      <select name=group onchange="goto(this);" title="Быстрый переход">
-        <c:forEach items="${groupList}" var="item">
-          <c:if test="${item.id == group.id}">
-            <c:if test="${lastmod}">
-              <option value="${item.url}?lastmod=true" selected>${item.title}</option>
-            </c:if>
-            <c:if test="${not lastmod}">
-              <option value="${item.url}" selected>${item.title}</option>
-            </c:if>
-          </c:if>
-          <c:if test="${item.id != group.id}">
-            <c:if test="${lastmod}">
-              <option value="${item.url}?lastmod=true">${item.title}</option>
-            </c:if>
-            <c:if test="${not lastmod}">
-              <option value="${item.url}">${item.title}</option>
-            </c:if>
-          </c:if>
-        </c:forEach>
-      </select>
-    </div>
-  </div>
-
-</form>
+<h1>
+  ${section.name} «${group.title}»
+  <c:if test="${year != null}">
+    — Архив ${year}, ${l:getMonthName(month)}
+  </c:if>
+</h1>
 
 <nav>
   <c:if test="${year!=null}">
@@ -113,6 +85,31 @@
       <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
     </c:if>
   </c:if>
+
+  <div class="nav-buttons">
+    <form>
+    <select name=group onchange="goto(this);" title="Быстрый переход" class="btn btn-default">
+      <c:forEach items="${groupList}" var="item">
+        <c:if test="${item.id == group.id}">
+          <c:if test="${lastmod}">
+            <option value="${item.url}?lastmod=true" selected>${item.title}</option>
+          </c:if>
+          <c:if test="${not lastmod}">
+            <option value="${item.url}" selected>${item.title}</option>
+          </c:if>
+        </c:if>
+        <c:if test="${item.id != group.id}">
+          <c:if test="${lastmod}">
+            <option value="${item.url}?lastmod=true">${item.title}</option>
+          </c:if>
+          <c:if test="${not lastmod}">
+            <option value="${item.url}">${item.title}</option>
+          </c:if>
+        </c:if>
+      </c:forEach>
+    </select>
+    </form>
+  </div>
 </nav>
 
 <c:if test="${year == null && offset==0}">

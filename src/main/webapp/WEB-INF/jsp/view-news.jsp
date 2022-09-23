@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -26,7 +26,13 @@
 <c:if test="${rssLink != null}">
   <link rel="alternate" href="${rssLink}" type="application/rss+xml">
 </c:if>
-
+<script type="text/javascript">
+  <!--
+  function goto(mySelect) {
+    window.location.href = mySelect.options[mySelect.selectedIndex].value;
+  }
+  -->
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>${navtitle}</h1>
@@ -82,6 +88,30 @@
       </c:otherwise>
     </c:choose>
   </c:if>
+
+  <div class="nav-buttons">
+    <form>
+      <select name=group onchange="goto(this);" title="Быстрый переход" class="btn btn-default">
+        <c:choose>
+          <c:when test="${group == null}">
+            <option value="${section.newsViewerLink}" selected>Все темы</option>
+          </c:when>
+          <c:otherwise>
+            <option value="${section.newsViewerLink}">Все темы</option>
+          </c:otherwise>
+        </c:choose>
+
+        <c:forEach items="${groupList}" var="item">
+          <c:if test="${item.id == group.id}">
+            <option value="${item.url}" selected>${item.title}</option>
+          </c:if>
+          <c:if test="${item.id != group.id}">
+            <option value="${item.url}">${item.title}</option>
+          </c:if>
+        </c:forEach>
+      </select>
+    </form>
+  </div>
 </nav>
 
 <c:if test="${not empty activeTags}">
