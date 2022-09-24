@@ -30,7 +30,7 @@
     <log4j.version>2.19.0</log4j.version>
     <play-ws.version>2.1.10</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
-    <momentjs.version>2.24.0</momentjs.version>
+    <momentjs.version>2.29.4</momentjs.version>
   </properties>
 
   <dependencies>
