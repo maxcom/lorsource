@@ -36,7 +36,7 @@ object GroupPermissionService {
 
 @Service
 class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao) {
-  import GroupPermissionService._
+  import GroupPermissionService.*
   /**
     * Проверка может ли пользователь удалить топик
     *
@@ -204,6 +204,10 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
+    } else if (by.getId == author.getId && message.isCommited && section.getId == Section.SECTION_ARTICLES) {
+      val editDeadline = new DateTime(message.getCommitDate).plus(EditPeriod)
+
+      editDeadline.isAfterNow
     } else {
       false
     }
@@ -223,7 +227,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
     if (message.isDeleted) {
       false
-    } else if (by == null || by.isAnonymous || by.isBlocked) {
+    } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
       false
     } else if (by.isAdministrator) {
       true
@@ -243,6 +247,10 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
+    } else if (by.getId == author.getId && message.isCommited && section.getId == Section.SECTION_ARTICLES) {
+      val editDeadline = new DateTime(message.getCommitDate).plus(EditPeriod)
+
+      editDeadline.isAfterNow
     } else {
       false
     }
