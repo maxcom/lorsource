@@ -31,6 +31,7 @@ import static ru.org.linux.user.Profile.*;
 public final class DefaultProfile {
   private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
       .put("poll", "Текущий опрос")
+      .put("articles", "Новые статьи")
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
       .put("gallery", "Галерея")
       .put("tagcloud", "Облако тэгов")
@@ -80,7 +81,7 @@ public final class DefaultProfile {
     builder.put("DebugMode", Boolean.FALSE);
 
     // main page settings
-    ImmutableList<String> boxes = ImmutableList.of("poll", "top10", "gallery", "tagcloud");
+    ImmutableList<String> boxes = ImmutableList.of("poll", "articles", "top10", "gallery", "tagcloud");
 
     builder.put(BOXES_MAIN2_PROPERTY, boxes);
 

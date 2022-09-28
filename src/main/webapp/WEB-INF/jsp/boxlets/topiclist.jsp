@@ -12,16 +12,16 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.TopTenDao.TopTenMessageDTO>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.BoxletTopicDao.TopTenMessageDTO>"--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<h2>Top 10</h2>
+<h2>${name}</h2>
 
 <div class="boxlet_content">
-  Наиболее обсуждаемые темы этого месяца:
+  ${title}:
   <ul>
     <c:forEach items="${messages}" var="message">
       <li>
