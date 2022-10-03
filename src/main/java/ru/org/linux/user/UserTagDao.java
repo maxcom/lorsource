@@ -133,6 +133,7 @@ public class UserTagDao {
     if (tags.isEmpty()) {
       return ImmutableList.of();
     }
+
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("values", tags);
     parameters.addValue("user_id", userId);
@@ -140,7 +141,10 @@ public class UserTagDao {
     return jdbcTemplate.queryForList(
       "select distinct user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) "
         + "AND is_favorite = true "
-        + "AND user_id not in (select userid from ignore_list where ignored=:user_id union select :user_id)",
+        + "AND user_id not in (" +
+              "select userid from ignore_list where ignored=:user_id union " +
+              "select :user_id union " +
+              "select user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) and is_favorite = false)",
       parameters,
       Integer.class
     );
