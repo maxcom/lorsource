@@ -18,25 +18,24 @@ package ru.org.linux.user
 import java.sql.Timestamp
 import java.util.Date
 import java.util.concurrent.CompletionStage
-
 import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.ElasticDsl.*
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.searches.DateHistogramInterval
 import com.typesafe.scalalogging.StrictLogging
 import org.elasticsearch.ElasticsearchException
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.user.UserStatisticsService._
+import ru.org.linux.user.UserStatisticsService.*
 
 import scala.beans.BeanProperty
-import scala.compat.java8.FutureConverters._
+import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
+import scala.concurrent.*
+import scala.concurrent.duration.*
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 @Service
@@ -90,7 +89,10 @@ class UserStatisticsService(
         val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/M"))
 
         search(MessageIndex) size 0 timeout 30.seconds query root aggs
-          dateHistogramAgg("days", "postdate").interval(DateHistogramInterval.days(1)).minDocCount(1)
+          dateHistogramAgg("days", "postdate")
+            .timeZone(DateTimeZone.getDefault)
+            .interval(DateHistogramInterval.days(1))
+            .minDocCount(1)
       } map {
         _.result.aggregations.dateHistogram("days").buckets.map { bucket =>
           bucket.timestamp/1000 -> bucket.docCount
