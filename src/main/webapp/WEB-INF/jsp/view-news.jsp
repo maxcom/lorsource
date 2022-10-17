@@ -89,6 +89,7 @@
     </c:choose>
   </c:if>
 
+  <c:if test="${fn:length(groupList)>1}">
   <div class="nav-buttons">
     <form>
       <select name=group onchange="goto(this);" title="Быстрый переход" class="btn btn-default">
@@ -112,6 +113,7 @@
       </select>
     </form>
   </div>
+  </c:if>
 </nav>
 
 <c:if test="${not empty activeTags}">
