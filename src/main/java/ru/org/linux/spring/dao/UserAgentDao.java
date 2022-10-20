@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.spring.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -28,13 +27,9 @@ import java.util.Optional;
  */
 @Repository
 public class UserAgentDao {
+  private final JdbcTemplate jdbcTemplate;
 
-  private static final String queryUserAgentById = "SELECT name FROM user_agents WHERE id=?";
-
-  private JdbcTemplate jdbcTemplate;
-
-  @Autowired
-  public void setDataSource(DataSource dataSource) {
+  public UserAgentDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
@@ -48,7 +43,7 @@ public class UserAgentDao {
       return Optional.empty();
     }
     try {
-      return Optional.of(jdbcTemplate.queryForObject(queryUserAgentById, String.class, id));
+      return Optional.of(jdbcTemplate.queryForObject("SELECT name FROM user_agents WHERE id=?", String.class, id));
     } catch (EmptyResultDataAccessException exception) {
       return Optional.empty();
     }
