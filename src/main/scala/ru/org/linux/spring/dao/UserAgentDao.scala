@@ -12,40 +12,33 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.spring.dao
 
-package ru.org.linux.spring.dao;
+import org.springframework.scala.jdbc.core.JdbcTemplate
+import org.springframework.stereotype.Repository
 
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
-import java.util.Optional;
+import java.util.Optional
+import javax.sql.DataSource
+import scala.jdk.OptionConverters.RichOption
 
 /**
  * Информация о UA пользователей
  */
 @Repository
-public class UserAgentDao {
-  private final JdbcTemplate jdbcTemplate;
-
-  public UserAgentDao(DataSource dataSource) {
-    jdbcTemplate = new JdbcTemplate(dataSource);
-  }
+class UserAgentDao(dataSource: DataSource) {
+  private val jdbcTemplate = new JdbcTemplate(dataSource)
 
   /**
    * получить UA по его id
+   *
    * @param id id UA
    * @return название UA или null если отсутствует
    */
-  public Optional<String> getUserAgentById(int id) {
-    if (id == 0) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(jdbcTemplate.queryForObject("SELECT name FROM user_agents WHERE id=?", String.class, id));
-    } catch (EmptyResultDataAccessException exception) {
-      return Optional.empty();
-    }
+  def getUserAgentById(id: Int): Optional[String] = {
+    (if (id == 0) {
+      None
+    } else {
+      jdbcTemplate.queryForObject[String]("SELECT name FROM user_agents WHERE id=?", id)
+    }).toJava
   }
 }
