@@ -26,19 +26,20 @@ import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth._
+import ru.org.linux.auth.*
 import ru.org.linux.email.EmailService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
+import java.util.Optional
 import javax.mail.internet.InternetAddress
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.validation.Valid
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMeServices,
@@ -136,7 +137,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
     if (!errors.hasErrors) {
       val mail = new InternetAddress(form.getEmail.toLowerCase)
       val userid = userService.createUser("", form.getNick, form.getPassword, "", mail, "",
-        request.getRemoteAddr, Option(invite))
+        request.getRemoteAddr, Option(invite), Option(request.getHeader("user-agent")))
 
       logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 

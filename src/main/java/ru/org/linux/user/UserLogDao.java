@@ -44,6 +44,7 @@ public class UserLogDao {
   public static final String OPTION_OLD_TOWN = "old_town";
   public static final String OPTION_OLD_URL = "old_url";
   public static final String OPTION_IP = "ip";
+  public static final String OPTION_USET_AGENT = "user_agent";
   public static final String OPTION_INVITED_BY = "invited_by";
 
   private JdbcTemplate jdbcTemplate;
@@ -279,12 +280,12 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy) {
+  public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy, int userAgent) {
     ImmutableMap<String, String> params;
 
     params = invitedBy
-            .map(integer -> ImmutableMap.of(OPTION_IP, ip, OPTION_INVITED_BY, integer.toString()))
-            .orElseGet(() -> ImmutableMap.of(OPTION_IP, ip));
+            .map(integer -> ImmutableMap.of(OPTION_IP, ip, OPTION_USET_AGENT, Integer.toString(userAgent), OPTION_INVITED_BY, integer.toString()))
+            .orElseGet(() -> ImmutableMap.of(OPTION_IP, ip, OPTION_USET_AGENT, Integer.toString(userAgent)));
 
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",

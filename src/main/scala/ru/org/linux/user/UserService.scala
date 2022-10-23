@@ -23,8 +23,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.{AccessViolationException, IPBlockDao}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.user.UserService._
+import ru.org.linux.spring.dao.{DeleteInfoDao, UserAgentDao}
+import ru.org.linux.user.UserService.*
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
 
@@ -35,7 +35,7 @@ import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.compat.java8.OptionConverters.RichOptionForJava8
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
 @Service
@@ -65,7 +65,7 @@ object UserService {
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  ipBlockDao: IPBlockDao, val transactionManager: PlatformTransactionManager)
+                  ipBlockDao: IPBlockDao, userAgentDao: UserAgentDao, val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
@@ -256,7 +256,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String,
-                 ip: String, invite: Option[String]): Int = {
+                 ip: String, invite: Option[String], userAgent: Option[String]): Int = {
     transactional() { _ =>
       val newUserId = userDao.createUser(name, nick, password, url, mail, town, ip)
 
@@ -270,7 +270,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       val inviteOwner = invite.flatMap(userInvitesDao.ownerOfInvite)
 
-      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).asJava)
+      val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
+
+      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).asJava, userAgentId)
 
       newUserId
     }

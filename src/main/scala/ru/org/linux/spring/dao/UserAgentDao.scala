@@ -41,4 +41,7 @@ class UserAgentDao(dataSource: DataSource) {
       jdbcTemplate.queryForObject[String]("SELECT name FROM user_agents WHERE id=?", id)
     }).toJava
   }
+
+  def createOrGetId(userAgent: String): Int =
+    jdbcTemplate.queryForObject[Integer]("SELECT create_user_agent(?)", userAgent).get
 }

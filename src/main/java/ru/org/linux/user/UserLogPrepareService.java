@@ -15,21 +15,22 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
+import ru.org.linux.spring.dao.UserAgentDao;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static ru.org.linux.util.StringUtil.escapeHtml;
 
 @Service
 public class UserLogPrepareService {
   private final UserDao userDao;
+  private final UserAgentDao userAgentDao;
 
   private final static ImmutableMap<String, String> OPTION_DESCRIPTION;
 
@@ -47,47 +48,57 @@ public class UserLogPrepareService {
     OPTION_DESCRIPTION = builder.build();
   }
 
-  public UserLogPrepareService(UserDao userDao) {
+  public UserLogPrepareService(UserDao userDao, UserAgentDao userAgentDao) {
     this.userDao = userDao;
+    this.userAgentDao = userAgentDao;
   }
 
   @Nonnull
   public List<PreparedUserLogItem> prepare(@Nonnull List<UserLogItem> items) {
-    return ImmutableList.copyOf(Lists.transform(
-            items, item -> {
-              Map<String, String> options = new HashMap<>();
+    return items.stream().map(item -> {
+      Map<String, String> options = new HashMap<>();
 
-              for (Map.Entry<String, String> option : item.getOptions().entrySet()) {
-                String key = OPTION_DESCRIPTION.get(option.getKey());
-                if (key==null) {
-                  key = escapeHtml(option.getKey());
-                }
+      for (Map.Entry<String, String> option : item.getOptions().entrySet()) {
+        String key = OPTION_DESCRIPTION.get(option.getKey());
+        if (key == null) {
+          key = escapeHtml(option.getKey());
+        }
 
-                String value;
+        String value;
 
-                switch (option.getKey()) {
-                  case UserLogDao.OPTION_OLD_USERPIC:
-                  case UserLogDao.OPTION_NEW_USERPIC:
-                    value = "<a href=\"/photos/" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
-                    break;
-                  case UserLogDao.OPTION_IP:
-                    value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue())+"</a>";
-                    break;
-                  case UserLogDao.OPTION_INVITED_BY:
-                    User user = userDao.getUserCached(Integer.parseInt(option.getValue()));
+        switch (option.getKey()) {
+          case UserLogDao.OPTION_OLD_USERPIC:
+          case UserLogDao.OPTION_NEW_USERPIC:
+            value = "<a href=\"/photos/" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue()) + "</a>";
+            break;
+          case UserLogDao.OPTION_IP:
+            value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue()) + "</a>";
+            break;
+          case UserLogDao.OPTION_INVITED_BY:
+            User user = userDao.getUserCached(Integer.parseInt(option.getValue()));
 
-                    value = "<a href=\"/people/" +user.getNick() + "/profile\">" + user.getNick() + "</a>";
+            value = "<a href=\"/people/" + user.getNick() + "/profile\">" + user.getNick() + "</a>";
 
-                    break;
-                  default:
-                    value = escapeHtml(option.getValue());
-                    break;
-                }
+            break;
+          case UserLogDao.OPTION_USET_AGENT:
+            int id = Integer.parseInt(option.getValue());
 
-                options.put(key, value);
-              }
+            if (id != 0) {
+              value = "<a href=\"/sameip?ua=" + id + "\">" + userAgentDao.getUserAgentById(id).orElse("<не найден>") + "</a>";
+            } else {
+              value = "<нет>";
+            }
 
-              return new PreparedUserLogItem(item, userDao.getUserCached(item.getActionUser()), options);
-            }));
+            break;
+          default:
+            value = escapeHtml(option.getValue());
+            break;
+        }
+
+        options.put(key, value);
+      }
+
+      return new PreparedUserLogItem(item, userDao.getUserCached(item.getActionUser()), options);
+    }).collect(Collectors.toList());
   }
 }

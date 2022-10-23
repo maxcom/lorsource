@@ -31,8 +31,8 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.PollDao
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
-import ru.org.linux.topic.TopicDaoIntegrationTest._
+import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
+import ru.org.linux.topic.TopicDaoIntegrationTest.*
 import ru.org.linux.user.{IgnoreListDao, UserDao, UserInvitesDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
 
@@ -104,12 +104,15 @@ class TopicDaoIntegrationTestConfiguration {
   @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  IPBlockDao: IPBlockDao, transactionManager: PlatformTransactionManager) =
+                  IPBlockDao: IPBlockDao, userAgentDao: UserAgentDao, transactionManager: PlatformTransactionManager) =
     new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, deleteInfoDao, IPBlockDao,
-      transactionManager)
+      userAgentDao, transactionManager)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])
+
+  @Bean
+  def userAgentDao = Mockito.mock(classOf[UserAgentDao])
 
   @Bean
   def topicTagService = Mockito.mock(classOf[TopicTagService])
