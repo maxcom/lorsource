@@ -84,7 +84,7 @@ public class UserLogPrepareService {
             int id = Integer.parseInt(option.getValue());
 
             if (id != 0) {
-              value = "<a href=\"/sameip?ua=" + id + "\">" + userAgentDao.getUserAgentById(id).orElse("<не найден>") + "</a>";
+              value = "<a href=\"/sameip.jsp?ua=" + id + "\">" + userAgentDao.getUserAgentById(id).orElse("<не найден>") + "</a>";
             } else {
               value = "<нет>";
             }
