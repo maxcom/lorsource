@@ -258,7 +258,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String,
                  ip: String, invite: Option[String], userAgent: Option[String]): Int = {
     transactional() { _ =>
-      val newUserId = userDao.createUser(name, nick, password, url, mail, town, ip)
+      val newUserId = userDao.createUser(name, nick, password, url, mail, town)
 
       invite.foreach { token =>
         val marked = userInvitesDao.markUsed(token, newUserId)
@@ -327,6 +327,26 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       userDao.removeUrl(user)
       userLogDao.logResetUrl(user, moderator, userInfo.getUrl, 0)
       userDao.changeScore(user.getId, 0)
+    }
+  }
+
+  def updateUser(user: User, name: String, url: String, @Nullable newEmail: String, town: String,
+                @Nullable password: String, info: String): Unit = transactional() { _ =>
+    userDao.updateUserInfoFields(user, name, url,  town)
+    userDao.setUserInfo(user.getId, info)
+
+    updateEmailPasswd(user, newEmail, password)
+  }
+
+  def updateEmailPasswd(user: User, @Nullable newEmail: String,
+                        @Nullable password: String): Unit = transactional() { _ =>
+    if (password != null) {
+      userDao.setPassword(user, password)
+      userLogDao.logSetPassword(user)
+    }
+
+    if (newEmail != null) {
+      userDao.setEmail(user, newEmail)
     }
   }
 }

@@ -186,17 +186,14 @@ public class EditRegisterController {
     }
 
     if (!errors.hasErrors()) {
-      userDao.updateUser(
-          user,
-          name,
-          url,
-          newEmail,
-          town,
-          password,
-          info
-      );
+      if (user.isFrozen()) {
+        userService.updateEmailPasswd(user, newEmail, password);
+      } else {
+        userService.updateUser(user, name, url, newEmail, town, password, info);
+      }
+
       // Обновление token-а аудетификации после смены пароля
-      if(password != null) {
+      if (password != null) {
         try {
           UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getNick(), password);
           UserDetailsImpl details = (UserDetailsImpl) userDetailsService.loadUserByUsername(user.getNick());
@@ -224,7 +221,7 @@ public class EditRegisterController {
 
       return new ModelAndView("action-done", "message", msg);
     } else {
-        return new ModelAndView(new RedirectView("/people/" + AuthUtil.getNick() + "/profile"));
+      return new ModelAndView(new RedirectView("/people/" + AuthUtil.getNick() + "/profile"));
     }
   }
 

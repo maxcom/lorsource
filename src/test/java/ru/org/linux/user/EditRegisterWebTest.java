@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -65,9 +65,12 @@ public class EditRegisterWebTest {
   @Autowired
   private UserDao userDao;
 
+  @Autowired
+  private UserService userService;
+
   private void rescueMaxcom() {
     final User user = userDao.getUser(userDao.findUserId("maxcom"));
-    userDao.updateUser(
+    userService.updateUser(
         user,
         MAXCOM_NAME,
         MAXCOM_URL,
@@ -81,7 +84,7 @@ public class EditRegisterWebTest {
 
   private void rescueJB() {
     final User user = userDao.getUser(userDao.findUserId("JB"));
-    userDao.updateUser(
+    userService.updateUser(
         user,
         JB_NAME,
         JB_URL,

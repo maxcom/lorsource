@@ -33,9 +33,11 @@ import javax.validation.Valid;
 @Controller
 public class DeregisterController {
   private final UserDao userDao;
+  private final UserService userService;
 
-  public DeregisterController(UserDao userDao) {
+  public DeregisterController(UserDao userDao, UserService userService) {
     this.userDao = userDao;
+    this.userService = userService;
   }
 
   @RequestMapping(value = "/deregister.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
@@ -94,7 +96,7 @@ public class DeregisterController {
 
     // Remove user info
     userDao.resetUserpic(user, user);
-    userDao.updateUser(user, "", "", null, "", null, "");
+    userService.updateUser(user, "", "", null, "", null, "");
 
     // Block account
     userDao.block(user, user, "самостоятельная блокировка аккаунта");

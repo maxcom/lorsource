@@ -51,7 +51,7 @@ $script.ready("plugins", function() {
     <dl>
         <dt><label for="name">Полное имя</label></dt>
         <dd>
-            <form:input path="name" size="40" cssErrorClass="error" maxlength="255"/>
+            <form:input readonly="${currentUser.frozen}" path="name" size="40" cssErrorClass="error" maxlength="255"/>
             <form:errors path="name" element="label" cssClass="error" for="name"/>
             <span class="help-block">&nbsp;</span>
         </dd>
@@ -72,7 +72,7 @@ $script.ready("plugins", function() {
 
         <dt><label for="url">URL</label></dt>
         <dd>
-            <form:input path="url" size="60" cssErrorClass="error" maxlength="255"/>
+            <form:input readonly="${currentUser.frozen}" path="url" size="60" cssErrorClass="error" maxlength="255"/>
             <form:errors path="url" element="label" cssClass="error" for="url"/>
             <span class="help-block">не забудьте добавить <i>http://</i></span>
         </dd>
@@ -86,14 +86,14 @@ $script.ready("plugins", function() {
 
         <dt><label for="town">Город</label></dt>
         <dd>
-            <form:input path="town" size="60" cssErrorClass="error" maxlength="100"/>
+            <form:input readonly="${currentUser.frozen}" path="town" size="60" cssErrorClass="error" maxlength="100"/>
             <form:errors path="town" element="label" cssClass="error" for="town"/>
             <span class="help-block">просьба писать русскими буквами без сокращений, например: Москва, Нижний Новгород, Троицк (Московская область)</span>
         </dd>
 
         <dt><label for="info">Дополнительная информация</label></dt>
         <dd>
-            <form:textarea path="info" cols="60" rows="10" cssErrorClass="error"/>
+            <form:textarea readonly="${currentUser.frozen}" path="info" cols="60" rows="10" cssErrorClass="error"/>
             <form:errors path="info" element="label" cssClass="error" for="info"/>
             <span class="help-block"><a href="/help/lorcode.md" target="_blank" title="справка откроется в новом окне">справка по разметке LORCODE</a></span>
         </dd>

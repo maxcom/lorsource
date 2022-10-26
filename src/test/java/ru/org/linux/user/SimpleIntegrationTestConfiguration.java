@@ -17,6 +17,11 @@ package ru.org.linux.user;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.spring.SiteConfig;
+import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.UserAgentDao;
 
 import javax.sql.DataSource;
 
@@ -32,6 +37,14 @@ public class SimpleIntegrationTestConfiguration {
   @Bean
   public UserDao userDao(UserLogDao userLogDao, DataSource dataSource) {
     return new UserDao(userLogDao, dataSource);
+  }
+
+  @Bean
+  UserService userService(UserDao userDao, UserLogDao userLogDao,
+                          PlatformTransactionManager transactionManager) {
+    return new UserService(mock(SiteConfig.class), userDao, mock(IgnoreListDao.class), mock(UserInvitesDao.class),
+            userLogDao, mock(DeleteInfoDao.class), mock(IPBlockDao.class), mock(UserAgentDao.class),
+            transactionManager);
   }
 
   @Bean

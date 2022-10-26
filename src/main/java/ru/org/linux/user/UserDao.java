@@ -346,7 +346,7 @@ public class UserDao {
     userLogDao.logResetPassword(user, moderator);
   }
 
-  private String setPassword(User user, String password) {
+  public String setPassword(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
 
@@ -485,29 +485,12 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public void updateUser(
-          @Nonnull User user,
-          String name,
-          String url,
-          @Nullable String newEmail,
-          String town,
-          @Nullable String password,
-          String info
-  ) {
+  public void updateUserInfoFields(User user, String name, String url, String town) {
     jdbcTemplate.update("UPDATE users SET name=?, url=?, town=? WHERE id=?", name, url, town, user.getId());
+  }
 
-    if (newEmail!=null) {
-      jdbcTemplate.update("UPDATE users SET new_email=? WHERE id=?", newEmail, user.getId());
-    }
-
-    if (password != null) {
-      setPassword(user, password);
-      userLogDao.logSetPassword(user);
-    }
-
-    setUserInfo(user.getId(), info);
+  public void setEmail(User user, String newEmail) {
+    jdbcTemplate.update("UPDATE users SET new_email=? WHERE id=?", newEmail, user.getId());
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
@@ -517,9 +500,7 @@ public class UserDao {
           String password,
           String url,
           InternetAddress mail,
-          String town,
-          String ip
-  ) {
+          String town) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
     int userid = jdbcTemplate.queryForObject("select nextval('s_uid') as userid", Integer.class);
