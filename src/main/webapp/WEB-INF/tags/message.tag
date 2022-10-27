@@ -15,7 +15,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -154,7 +154,7 @@
   <c:if test="${not preparedMessage.author.anonymous}">
     <c:out value=" "/>${preparedMessage.author.stars}
 
-    <c:if test="${template.moderatorSession && preparedMessage.author.score<50}">
+    <c:if test="${template.moderatorSession}">
       (Score: ${preparedMessage.author.score} MaxScore: ${preparedMessage.author.maxScore})
     </c:if>
   </c:if>
