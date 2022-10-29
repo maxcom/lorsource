@@ -188,9 +188,9 @@ public class EditRegisterController {
 
     if (!errors.hasErrors()) {
       if (userService.canEditProfileInfo(user)) {
-        userService.updateEmailPasswd(user, newEmail, password);
-      } else {
         userService.updateUser(user, name, url, newEmail, town, password, info);
+      } else {
+        userService.updateEmailPasswd(user, newEmail, password);
       }
 
       // Обновление token-а аудетификации после смены пароля
