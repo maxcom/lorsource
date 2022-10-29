@@ -289,7 +289,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def canLoadUserpic(user: User): Boolean = {
     def userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
 
-    def wasReset = userLogDao.wasUserpicReset(user, Duration.ofDays(30))
+    def wasReset = userLogDao.hasRecentModerationEvent(user, Duration.ofDays(30), UserLogAction.RESET_USERPIC)
 
     def userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
 
@@ -299,6 +299,12 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       !wasReset &&
       (userScoreLoss < MaxUserpicScoreLoss)
   }
+
+  def canEditProfileInfo(user: User): Boolean =
+    !user.isFrozen &&
+      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_INFO) &&
+      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_URL) &&
+      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_TOWN)
 
   def removeUserInfo(user: User, moderator: User): Unit = transactional() { _ =>
     val userInfo = userDao.getUserInfo(user)

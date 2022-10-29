@@ -263,12 +263,12 @@ public class UserLogDao {
             OffsetDateTime.now().minus(duration));
   }
 
-  public boolean wasUserpicReset(User user, Duration duration) {
+  public boolean hasRecentModerationEvent(User user, Duration duration, UserLogAction action) {
     return jdbcTemplate.queryForObject(
             "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid!=action_userid)",
             Boolean.class,
             user.getId(),
-            UserLogAction.RESET_USERPIC.toString(),
+            action.toString(),
             OffsetDateTime.now().minus(duration));
   }
 

@@ -91,6 +91,7 @@ public class EditRegisterController {
 
     ModelAndView mv = new ModelAndView("edit-reg");
     mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(AuthUtil.getCurrentUser()));
+    mv.getModel().put("canEditInfo", userService.canEditProfileInfo(AuthUtil.getCurrentUser()));
 
     form.setEmail(user.getEmail());
     form.setUrl(userInfo.getUrl());
@@ -116,7 +117,7 @@ public class EditRegisterController {
       throw new AccessViolationException("Not authorized");
     }
 
-      String nick = AuthUtil.getNick();
+    String nick = AuthUtil.getNick();
     String password = Strings.emptyToNull(form.getPassword());
 
     if (password!=null && password.equalsIgnoreCase(nick)) {
@@ -186,7 +187,7 @@ public class EditRegisterController {
     }
 
     if (!errors.hasErrors()) {
-      if (user.isFrozen()) {
+      if (userService.canEditProfileInfo(user)) {
         userService.updateEmailPasswd(user, newEmail, password);
       } else {
         userService.updateUser(user, name, url, newEmail, town, password, info);
@@ -212,6 +213,7 @@ public class EditRegisterController {
     } else {
       ModelAndView mv = new ModelAndView("edit-reg");
       mv.getModel().put("canLoadUserpic", userService.canLoadUserpic(AuthUtil.getCurrentUser()));
+      mv.getModel().put("canEditInfo", userService.canEditProfileInfo(AuthUtil.getCurrentUser()));
       return mv;
     }
 
