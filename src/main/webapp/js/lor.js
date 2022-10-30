@@ -408,6 +408,18 @@ $(document).ready(function() {
     });
   }
 
+  function detectTimezone() {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    if (typeof tz !== 'undefined') {
+      $script.ready('plugins', function () {
+        if (Cookies.get('tz') !== tz) {
+          Cookies.set('tz', tz, { expires: 365 })
+        }
+      });
+    }
+  }
+
   initCtrlEnter();
 
   initSamepageCommentNavigation();
@@ -417,4 +429,6 @@ $(document).ready(function() {
   $(window).bind('hashchange', replace_state);
 
   initCodeSpoilers();
+
+  detectTimezone();
 });

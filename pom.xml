@@ -31,6 +31,7 @@
     <play-ws.version>2.1.10</play-ws.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
+    <js-cookie.version>3.0.1</js-cookie.version>
   </properties>
 
   <dependencies>
@@ -444,6 +445,13 @@
       <artifactId>momentjs</artifactId>
       <version>${momentjs.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>js-cookie</artifactId>
+      <version>${js-cookie.version}</version>
+    </dependency>
+
     <!-- MarkDown implementation -->
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
@@ -608,6 +616,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -813,6 +822,11 @@
                   <groupId>org.webjars</groupId>
                   <artifactId>momentjs</artifactId>
                   <version>${momentjs.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>js-cookie</artifactId>
+                  <version>${js-cookie.version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
