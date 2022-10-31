@@ -67,6 +67,6 @@ http://www.springframework.org/schema/security/spring-security-5.5.xsd">
         <beans:property name="alwaysRemember" value="true" />
     </beans:bean>
 
-    <beans:bean id="securityFilter" class="ru.org.linux.auth.SecurityFilter"/>
+    <beans:bean id="securityFilter" class="ru.org.linux.auth.CommonContextFilter"/>
     <beans:bean id="authenticationEntryPoint" class="ru.org.linux.auth.AuthenticationEntryPointImpl" />
 </beans:beans>
