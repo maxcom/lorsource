@@ -321,7 +321,7 @@
 </c:if>
     <c:forEach var="comment" items="${commentsPrepared}">
       <c:if test="${dateJumps.contains(comment.id)}">
-        <div class="datejump">${DateFormats.dateLong().print(comment.postdate.time)}</div>
+        <div class="datejump">${DateFormats.dateLong(timezone).print(comment.postdate.time)}</div>
       </c:if>
 
       <l:comment enableSchema="true" commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}"

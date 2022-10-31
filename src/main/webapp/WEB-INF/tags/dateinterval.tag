@@ -1,8 +1,9 @@
 <%@ tag import="org.joda.time.DateTime" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
+<%@ tag import="org.joda.time.DateTimeZone" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,9 +21,10 @@
   long diff = System.currentTimeMillis() - date.getTime();
   boolean comp = compact!=null && compact;
   DateTime c = new DateTime(date.getTime());
+  DateTimeZone timezone = (DateTimeZone) request.getAttribute("timezone");
 
-  DateTime today = DateTime.now().withTimeAtStartOfDay();
-  DateTime yesterday = DateTime.now().minusDays(1).withTimeAtStartOfDay();
+  DateTime today = DateTime.now().withZone(timezone).withTimeAtStartOfDay();
+  DateTime yesterday = DateTime.now().withZone(timezone).minusDays(1).withTimeAtStartOfDay();
 
   if (diff<2*1000*60) {
     if (comp) {
@@ -46,21 +48,21 @@
     }
   } else if (c.isAfter(today)) {
     if (comp) {
-      out.print(DateFormats.time().print(c));
+      out.print(DateFormats.time(timezone).print(c));
     } else {
-      out.print("сегодня " + DateFormats.time().print(c));
+      out.print("сегодня " + DateFormats.time(timezone).print(c));
     }
   } else if (c.isAfter(yesterday)) {
     if (comp) {
       out.print("вчера");
     } else {
-      out.print("вчера " + DateFormats.time().print(c));
+      out.print("вчера " + DateFormats.time(timezone).print(c));
     }
   } else {
     if (comp) {
-      out.print(DateFormats.date().print(c));
+      out.print(DateFormats.date(timezone).print(c));
     } else {
-      out.print(DateFormats.getShort().print(c));
+      out.print(DateFormats.getShort(timezone).print(c));
     }
   }
 %></time>

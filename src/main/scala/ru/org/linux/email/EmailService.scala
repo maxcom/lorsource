@@ -18,7 +18,7 @@ package ru.org.linux.email
 import akka.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthUtil
@@ -33,7 +33,7 @@ import java.util.{Date, Properties}
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, Session, Transport}
 import javax.servlet.http.HttpServletRequest
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Service
 class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") exceptionMailingActor: ActorRef)
@@ -110,7 +110,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |https://www.linux.org.ru/register.jsp?invite=${URLEncoder.encode(inviteCode, "utf-8")}
          |
          |Эта ссылка позволяет зарегистрировать только одну учетную запись. Ссылка действует
-         |до ${DateFormats.getDefault.print(validUntil)}.
+         |до ${DateFormats.getDefault(DateTimeZone.getDefault).print(validUntil)}.
          |
          |До встречи!
          |
@@ -187,7 +187,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
 }
 
 object EmailService {
-  def createMessage = {
+  def createMessage: MimeMessage = {
     val props = new Properties
     props.put("mail.smtp.host", "localhost")
     new MimeMessage(Session.getDefaultInstance(props, null))

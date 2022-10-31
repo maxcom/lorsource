@@ -14,6 +14,7 @@
  */
 package ru.org.linux.auth
 
+import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.filter.GenericFilterBean
@@ -33,10 +34,20 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext)
     val request = req.asInstanceOf[HttpServletRequest]
     val response = res.asInstanceOf[HttpServletResponse]
+    val currentUser = AuthUtil.getCurrentUser
+
+    if (currentUser!=null && currentUser.isAdministrator) {
+      // temp for testing
+      request.setAttribute("timezone", DateTimeZone.forID("Asia/Yekaterinburg"))
+    } else {
+      request.setAttribute("timezone", DateTimeZone.getDefault)
+    }
 
     request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))
     request.setAttribute("template", new Template)
-    request.setAttribute("currentUser", AuthUtil.getCurrentUser)
+    request.setAttribute("currentUser", currentUser)
+
+
     request.setCharacterEncoding("utf-8")
     res.setLocale(russian)
 

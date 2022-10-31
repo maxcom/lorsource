@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -25,10 +26,9 @@ public class DateFormats {
   public static final Locale RUSSIAN_LOCALE = new Locale("ru");
 
   private static final DateTimeFormatter DEFAULT =
-          DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss").withLocale(RUSSIAN_LOCALE);
+          DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss z").withLocale(RUSSIAN_LOCALE);
 
-  private static final DateTimeFormatter ISO8601 =
-          ISODateTimeFormat.dateTime();
+  private static final DateTimeFormatter ISO8601 = ISODateTimeFormat.dateTime();
 
   private static final DateTimeFormatter SHORT =
           DateTimeFormat.forPattern("dd.MM.yy HH:mm").withLocale(RUSSIAN_LOCALE);
@@ -47,28 +47,28 @@ public class DateFormats {
   private DateFormats() {
   }
 
-  public static DateTimeFormatter getDefault() {
-    return DEFAULT;
+  public static DateTimeFormatter getDefault(DateTimeZone tz) {
+    return DEFAULT.withZone(tz);
   }
 
   public static DateTimeFormatter iso8601() {
     return ISO8601;
   }
 
-  public static DateTimeFormatter getShort() {
-    return SHORT;
+  public static DateTimeFormatter getShort(DateTimeZone tz) {
+    return SHORT.withZone(tz);
   }
 
-  public static DateTimeFormatter time() {
-    return TIME;
+  public static DateTimeFormatter time(DateTimeZone tz) {
+    return TIME.withZone(tz);
   }
 
-  public static DateTimeFormatter date() {
-    return DATE;
+  public static DateTimeFormatter date(DateTimeZone tz) {
+    return DATE.withZone(tz);
   }
 
-  public static DateTimeFormatter dateLong() {
-    return DATE_LONG;
+  public static DateTimeFormatter dateLong(DateTimeZone tz) {
+    return DATE_LONG.withZone(tz);
   }
 
   public static DateTimeFormatter rfc822() {

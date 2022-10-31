@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ package ru.org.linux.site.tags;
 import com.google.common.collect.Maps;
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.JadeTemplate;
+import org.joda.time.DateTimeZone;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.comment.ApiCommentTopicInfo;
@@ -74,20 +75,9 @@ public class CommentTag extends TagSupport {
 
     data.put("showMenu", showMenu);
 
-    // TODO: move to globals
-    data.put("dateFormat", new SignTag.DateFormatHandler());
+    data.put("dateFormat", new SignTag.DateFormatHandler((DateTimeZone) pageContext.getRequest().getAttribute("timezone")));
 
     jadeConfiguration.renderTemplate(jadeTemplate, data, pageContext.getOut());
-
-/*
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      pageContext.getOut().append(mapper.writer().writeValueAsString(data.get("user")));
-    } catch (Exception e) {
-      e.printStackTrace();
-     // throw new RuntimeException(e);
-    }
-*/
 
     return SKIP_BODY;
   }

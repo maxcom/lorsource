@@ -1,7 +1,8 @@
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%@
         tag import="ru.org.linux.site.DateFormats" %>
+<%@ tag import="org.joda.time.DateTimeZone" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -18,5 +19,5 @@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         attribute name="itemprop" type="java.lang.String" required="false" %><%--
 --%><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
-  out.print(DateFormats.getDefault().print(date.getTime()));
+  out.print(DateFormats.getDefault((DateTimeZone) request.getAttribute("timezone")).print(date.getTime()));
 %></time>
