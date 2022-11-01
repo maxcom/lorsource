@@ -408,18 +408,6 @@ $(document).ready(function() {
     });
   }
 
-  function detectTimezone() {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    if (typeof tz !== 'undefined') {
-      $script.ready('plugins', function () {
-        if (Cookies.get('tz') !== tz) {
-          Cookies.set('tz', tz, { expires: 365 })
-        }
-      });
-    }
-  }
-
   initCtrlEnter();
 
   initSamepageCommentNavigation();
@@ -429,6 +417,34 @@ $(document).ready(function() {
   $(window).bind('hashchange', replace_state);
 
   initCodeSpoilers();
-
-  detectTimezone();
 });
+
+function fixTimezone(serverTz) {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (typeof tz !== 'undefined') {
+    $script.ready('plugins', function () {
+      if (Cookies.get('tz') !== tz) {
+        Cookies.set('tz', tz, { expires: 365 })
+      }
+
+      if ("Europe/Moscow" !== serverTz) { // temporary override of "tz !== serverTz"
+        $(function() {
+          $("time[data-format]").each(function() {
+            const date = Date.parse($(this).attr("datetime"));
+
+            const formats = {
+              "default": "DD.MM.yy HH:mm:ss Z"
+            }
+
+            const format = formats[$(this).attr("data-format")];
+
+            if (typeof format !== 'undefined') {
+              $(this).text(moment(date).format(format));
+            }
+          });
+        })
+      }
+    });
+  }
+}
