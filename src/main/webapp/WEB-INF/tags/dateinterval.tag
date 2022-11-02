@@ -1,4 +1,3 @@
-<%@ tag import="org.joda.time.DateTime" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag import="org.joda.time.DateTimeZone" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
