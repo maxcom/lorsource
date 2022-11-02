@@ -17,7 +17,7 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="compact" required="false" type="java.lang.Boolean"%>
-<%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.iso8601().print(date.getTime()) %>"><%
+<%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.Iso8601().print(date.getTime()) %>"><%
   long diff = System.currentTimeMillis() - date.getTime();
   boolean comp = compact!=null && compact;
   DateTime c = new DateTime(date.getTime());

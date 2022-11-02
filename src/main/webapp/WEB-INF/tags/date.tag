@@ -18,6 +18,6 @@
         taglib tagdir="/WEB-INF/tags" prefix="lor" %><%@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         attribute name="itemprop" type="java.lang.String" required="false" %><%--
---%><time data-format="default" datetime="<%= DateFormats.iso8601().print(date.getTime()) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
+--%><time data-format="default" datetime="<%= DateFormats.Iso8601().print(date.getTime()) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
   out.print(DateFormats.getDefault((DateTimeZone) request.getAttribute("timezone")).print(date.getTime()));
 %></time>

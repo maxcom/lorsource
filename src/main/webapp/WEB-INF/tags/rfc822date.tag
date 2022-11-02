@@ -15,6 +15,6 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><%
-  out.print(DateFormats.rfc822().print(date.getTime()));
+  out.print(DateFormats.Rfc822().print(date.getTime()));
 %>
 

@@ -92,7 +92,7 @@ public class SignTag extends TagSupport {
     }
 
     public String iso(Date input) {
-      return DateFormats.iso8601().print(input.getTime());
+      return DateFormats.Iso8601().print(input.getTime());
     }
   }
 }
