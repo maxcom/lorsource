@@ -78,7 +78,7 @@ object DateFormats {
       val min = Math.max(1, diff / (1000 * 60))
 
       min + "&nbsp;мин"
-    } else if (diff < 1000 * 60 * 60 * 12 || c.isAfter(today)) {
+    } else if (diff < 1000 * 60 * 60 * 4 || c.isAfter(today)) {
       time(timezone).print(c)
     } else if (c.isAfter(yesterday)) {
       "вчера"
