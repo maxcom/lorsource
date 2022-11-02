@@ -30,8 +30,10 @@ object DateFormats {
 
   val Iso8601: DateTimeFormatter = ISODateTimeFormat.dateTime
   val Rfc822: DateTimeFormatter = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US)
+  val DateLong: DateTimeFormatter = DateTimeFormat.longDate().withLocale(RussianLocale);
 
   def getDefault(tz: DateTimeZone): DateTimeFormatter = Default.withZone(tz)
+  def dateLong(tz: DateTimeZone): DateTimeFormatter = DateLong.withZone(tz)
 
   private def short(tz: DateTimeZone): DateTimeFormatter = Short.withZone(tz)
   private def time(tz: DateTimeZone): DateTimeFormatter = Time.withZone(tz)
