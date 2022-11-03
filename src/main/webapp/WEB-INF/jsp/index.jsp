@@ -84,7 +84,7 @@
         {
           type: 'rimg',
           img730: '/adv/devops-banner-730-90.png',
-          img320: '/adv//devops-banner-320-100.png',
+          img320: '/adv/devops-banner-320-100.png',
           href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=partners&utm_medium=cpm&utm_campaign=devops&utm_content=mops-test&utm_term=linux-org-ru'
         }
       ];
