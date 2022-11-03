@@ -439,13 +439,13 @@ function fixTimezone(serverTz) {
             const today = new Date().setHours(0)
             const yesterday = new Date()
             yesterday.setDate(yesterday.getDate() - 1)
-            const min = diff / (1000 * 60)
+            const min = Math.floor(diff / (1000 * 60))
 
             if (format === 'default') {
               $(this).text(moment(date).format("DD.MM.yy HH:mm:ss Z"));
             } else if (format === 'compact-interval') {
               if (diff < 1000 * 60 * 60) {
-                $(this).text(Math.max(1, min) + "&nbsp;мин");
+                $(this).text(Math.max(1, min) + "\xA0мин");
               } else if (diff < 1000 * 60 * 60 * 4 || date >= today) {
                 $(this).text(moment(date).format("HH:mm"));
               } else if (date >= yesterday) {
@@ -458,11 +458,11 @@ function fixTimezone(serverTz) {
                 $(this).text("минуту назад");
               } else if (diff < 1000 * 60 * 60) {
                 if (min % 10 < 5 && min % 10 > 1 && (min > 20 || min < 10)) {
-                  $(this).text(min + "&nbsp;минуты назад");
+                  $(this).text(min + "\xA0минуты назад");
                 } else if (min % 10 === 1 && min > 20) {
-                  $(this).text(min + "&nbsp;минута назад");
+                  $(this).text(min + "\xA0минута назад");
                 } else {
-                  $(this).text(min + "&nbsp;минут назад");
+                  $(this).text(min + "\xA0минут назад");
                 }
               } else if (date >= today) {
                 $(this).text("сегодня " + moment(date).format("HH:mm"));
