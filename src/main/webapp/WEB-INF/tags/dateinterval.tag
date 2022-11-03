@@ -16,12 +16,16 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="compact" required="false" type="java.lang.Boolean"%>
-<%@ attribute name="date" required="true" type="java.util.Date" %><time datetime="<%= DateFormats.Iso8601().print(date.getTime()) %>"><%
+<%@ attribute name="date" required="true" type="java.util.Date" %><%
   boolean comp = compact!=null && compact;
 
   if (comp) {
+    out.print("<time data-format=\"compact-interval\" datetime=\"" + DateFormats.Iso8601().print(date.getTime())+"\">");
     out.print(DateFormats.formatCompactInterval(date, (DateTimeZone) request.getAttribute("timezone")));
   } else {
+    out.print("<time data-format=\"interval\" datetime=\"" + DateFormats.Iso8601().print(date.getTime())+"\">");
     out.print(DateFormats.formatInterval(date, (DateTimeZone) request.getAttribute("timezone")));
   }
+
+  out.print("</time>");
 %></time>

@@ -433,14 +433,44 @@ function fixTimezone(serverTz) {
           $("time[data-format]").each(function() {
             const date = Date.parse($(this).attr("datetime"));
 
-            const formats = {
-              "default": "DD.MM.yy HH:mm:ss Z"
-            }
+            const format = $(this).attr("data-format");
 
-            const format = formats[$(this).attr("data-format")];
+            const diff = Date.now() - date;
+            const today = new Date().setHours(0)
+            const yesterday = new Date()
+            yesterday.setDate(yesterday.getDate() - 1)
+            const min = diff / (1000 * 60)
 
-            if (typeof format !== 'undefined') {
-              $(this).text(moment(date).format(format));
+            if (format === 'default') {
+              $(this).text(moment(date).format("DD.MM.yy HH:mm:ss Z"));
+            } else if (format === 'compact-interval') {
+              if (diff < 1000 * 60 * 60) {
+                $(this).text(Math.max(1, min) + "&nbsp;мин");
+              } else if (diff < 1000 * 60 * 60 * 4 || date >= today) {
+                $(this).text(moment(date).format("HH:mm"));
+              } else if (date >= yesterday) {
+                $(this).text("вчера")
+              } else {
+                $(this).text(moment(date).format("DD.MM.yy"));
+              }
+            } else if (format === 'compact-interval') {
+              if (diff < 2 * 1000 * 60) {
+                $(this).text("минуту назад");
+              } else if (diff < 1000 * 60 * 60) {
+                if (min % 10 < 5 && min % 10 > 1 && (min > 20 || min < 10)) {
+                  $(this).text(min + "&nbsp;минуты назад");
+                } else if (min % 10 === 1 && min > 20) {
+                  $(this).text(min + "&nbsp;минута назад");
+                } else {
+                  $(this).text(min + "&nbsp;минут назад");
+                }
+              } else if (date >= today) {
+                $(this).text("сегодня " + moment(date).format("HH:mm"));
+              } else if (date >= yesterday) {
+                $(this).text("вчера " + moment(date).format("HH:mm"));
+              } else {
+                $(this).text(moment(date).format("DD.MM.yy HH:mm"));
+              }
             }
           });
         })
