@@ -39,8 +39,10 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     if (currentUser!=null && currentUser.isAdministrator) {
       // temp for testing
       request.setAttribute("timezone", DateTimeZone.forID("Asia/Yekaterinburg"))
+      request.setAttribute("timezoneFix", true);
     } else {
       request.setAttribute("timezone", DateTimeZone.getDefault)
+      request.setAttribute("timezoneFix", false);
     }
 
     request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))

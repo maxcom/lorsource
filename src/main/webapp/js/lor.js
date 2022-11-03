@@ -419,7 +419,7 @@ $(document).ready(function() {
   initCodeSpoilers();
 });
 
-function fixTimezone(serverTz) {
+function fixTimezone(serverTz, timezoneFix) {
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   if (typeof tz !== 'undefined') {
@@ -428,7 +428,7 @@ function fixTimezone(serverTz) {
         Cookies.set('tz', tz, { expires: 365 })
       }
 
-      if ("Europe/Moscow" !== serverTz) { // temporary override of "tz !== serverTz"
+      if (timezoneFix && tz !== serverTz) {
         $(function() {
           $("time[data-format]").each(function() {
             const date = Date.parse($(this).attr("datetime"));
