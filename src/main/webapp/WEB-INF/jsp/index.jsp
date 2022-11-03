@@ -37,6 +37,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -74,7 +75,7 @@
   </script>
   </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -82,22 +83,15 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/linux-banner-730-90.png',
-          img320: '/adv/linux-banner-320-100.png',
-          href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test&utm_term=linux-org-ru'
-        },
-        {
-          type: 'rimg',
-          img730: '/adv/spec-730-90.png',
-          img320: '/adv/spec-320-100.png',
-          href: 'https://otus.ru/lessons/linux-specialization/?utm_source=partners&utm_medium=cpm&utm_campaign=spec-linux&utm_content=all-lesson&utm_term=linux-org-ru#broadcast'
+          img730: '/adv/devops-banner-730-90.png',
+          img320: '/adv//devops-banner-320-100.png',
+          href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=partners&utm_medium=cpm&utm_campaign=devops&utm_content=mops-test&utm_term=linux-org-ru'
         }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
