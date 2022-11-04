@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,23 +26,6 @@ import java.util.Properties;
 
 public final class LorHttpUtils {
   private LorHttpUtils() {
-  }
-
-  public static Properties getCookies(Cookie[] cookies) {
-    Properties c = new Properties();
-
-    if (cookies == null) {
-      return c;
-    }
-
-    for (Cookie cooky : cookies) {
-      String n = cooky.getName();
-      if (n != null) {
-        c.put(n, cooky.getValue());
-      }
-    }
-
-    return c;
   }
 
   public static String getRequestIP(HttpServletRequest request) {

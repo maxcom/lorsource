@@ -21,7 +21,6 @@ import org.springframework.web.filter.GenericFilterBean
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.util.LorHttpUtils
 
 import java.util.Locale
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
@@ -37,8 +36,8 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val currentUser = AuthUtil.getCurrentUser
 
     if (currentUser!=null && currentUser.isModerator) {
-      val cookies = LorHttpUtils.getCookies(request.getCookies)
-      val timezoneName = Option(cookies.getProperty("tz"))
+      val cookies = getCookies(request)
+      val timezoneName = cookies.get("tz")
 
       val timezone = (try {
         timezoneName.map(DateTimeZone.forID)
@@ -49,10 +48,10 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
       }).getOrElse(DateTimeZone.getDefault)
 
       request.setAttribute("timezone", timezone)
-      request.setAttribute("timezoneFix", true);
+      request.setAttribute("timezoneFix", true)
     } else {
       request.setAttribute("timezone", DateTimeZone.getDefault)
-      request.setAttribute("timezoneFix", false);
+      request.setAttribute("timezoneFix", false)
     }
 
     request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))
@@ -70,13 +69,19 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
   }
 
   private def csrfManipulation(request: HttpServletRequest, response: HttpServletResponse): Unit = {
-    val cookies = LorHttpUtils.getCookies(request.getCookies)
+    val cookies = getCookies(request)
 
-    if (cookies.get(CSRFProtectionService.CSRF_COOKIE) == null) {
-      CSRFProtectionService.generateCSRFCookie(request, response)
-    } else {
-      request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE,
-        cookies.getProperty(CSRFProtectionService.CSRF_COOKIE).trim)
+    cookies.get(CSRFProtectionService.CSRF_COOKIE) match {
+      case None =>
+        CSRFProtectionService.generateCSRFCookie(request, response)
+      case Some(value) =>
+        request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, value.trim)
     }
+  }
+
+  private def getCookies(request: HttpServletRequest): Map[String, String] = {
+    Option(request.getCookies).map { cookies =>
+      cookies.view.map(c => c.getName -> c.getValue).toMap
+    }.getOrElse(Map.empty)
   }
 }
