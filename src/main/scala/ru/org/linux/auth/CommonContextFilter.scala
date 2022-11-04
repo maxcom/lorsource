@@ -36,9 +36,19 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val response = res.asInstanceOf[HttpServletResponse]
     val currentUser = AuthUtil.getCurrentUser
 
-    if (currentUser!=null && currentUser.isAdministrator) {
-      // temp for testing
-      request.setAttribute("timezone", DateTimeZone.forID("Asia/Yekaterinburg"))
+    if (currentUser!=null && currentUser.isModerator) {
+      val cookies = LorHttpUtils.getCookies(request.getCookies)
+      val timezoneName = Option(cookies.getProperty("tz"))
+
+      val timezone = (try {
+        timezoneName.map(DateTimeZone.forID)
+      } catch {
+        case ex: IllegalStateException =>
+          logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
+          None
+      }).getOrElse(DateTimeZone.getDefault)
+
+      request.setAttribute("timezone", timezone)
       request.setAttribute("timezoneFix", true);
     } else {
       request.setAttribute("timezone", DateTimeZone.getDefault)
@@ -48,7 +58,6 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))
     request.setAttribute("template", new Template)
     request.setAttribute("currentUser", currentUser)
-
 
     request.setCharacterEncoding("utf-8")
     res.setLocale(russian)
