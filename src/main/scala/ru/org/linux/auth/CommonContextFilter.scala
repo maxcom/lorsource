@@ -35,7 +35,7 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val response = res.asInstanceOf[HttpServletResponse]
     val currentUser = AuthUtil.getCurrentUser
 
-    if (currentUser!=null && currentUser.getScore >= 400) {
+    if (currentUser!=null && currentUser.getScore >= 300) {
       val cookies = getCookies(request)
       val timezoneName = cookies.get("tz")
 
