@@ -42,7 +42,7 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
       val timezone = (try {
         timezoneName.map(DateTimeZone.forID)
       } catch {
-        case ex: IllegalStateException =>
+        case ex: IllegalArgumentException =>
           logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
           None
       }).getOrElse(DateTimeZone.getDefault)
