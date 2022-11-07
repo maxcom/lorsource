@@ -311,7 +311,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     val userInfo = userDao.getUserInfo(user)
 
     if ((userInfo != null) && userInfo.trim.nonEmpty) {
-      userDao.setUserInfo(user.getId, null)
+      userDao.updateUserInfo(user.getId, null)
       userDao.changeScore(user.getId, -10)
       userLogDao.logResetInfo(user, moderator, userInfo, -10)
     }
@@ -353,7 +353,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       changed += "town" -> town
     }
 
-    if (userDao.setUserInfo(user.getId, info)) {
+    if (userDao.updateUserInfo(user.getId, info)) {
       changed += "info" -> info
     }
 

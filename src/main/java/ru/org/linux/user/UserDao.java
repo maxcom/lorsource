@@ -281,8 +281,8 @@ public class UserDao {
    * @param userid пользователь
    * @param text текст дополнительной информации
    */
-  public boolean setUserInfo(int userid, String text){
-    return jdbcTemplate.update("UPDATE users SET userinfo=? where id=? AND userinfo!=?", text, userid, text) > 0;
+  public boolean updateUserInfo(int userid, String text){
+    return jdbcTemplate.update("UPDATE users SET userinfo=? where id=? AND userinfo is distinct from ?", text, userid, text) > 0;
   }
 
   /**
@@ -486,15 +486,15 @@ public class UserDao {
   }
 
   public boolean updateName(User user, String name) {
-    return jdbcTemplate.update("UPDATE users SET name=? WHERE id=? and name!=?", name, user.getId(), name) > 0;
+    return jdbcTemplate.update("UPDATE users SET name=? WHERE id=? and name is distinct from ?", name, user.getId(), name) > 0;
   }
 
   public boolean updateUrl(User user, String url) {
-    return jdbcTemplate.update("UPDATE users SET url=? WHERE id=? and url!=?", url, user.getId(), url) > 0;
+    return jdbcTemplate.update("UPDATE users SET url=? WHERE id=? and url is distinct from ?", url, user.getId(), url) > 0;
   }
 
   public boolean updateTown(User user, String town) {
-    return jdbcTemplate.update("UPDATE users SET town=? WHERE id=? AND town!=?", town, user.getId(), town) > 0;
+    return jdbcTemplate.update("UPDATE users SET town=? WHERE id=? AND town is distinct from ?", town, user.getId(), town) > 0;
   }
 
   public void setNewEmail(User user, String newEmail) {
