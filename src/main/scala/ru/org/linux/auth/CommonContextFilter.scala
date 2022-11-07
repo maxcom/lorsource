@@ -35,24 +35,19 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val response = res.asInstanceOf[HttpServletResponse]
     val currentUser = AuthUtil.getCurrentUser
 
-    if (currentUser!=null) {
-      val cookies = getCookies(request)
-      val timezoneName = cookies.get("tz")
+    val cookies = getCookies(request)
+    val timezoneName = cookies.get("tz")
 
-      val timezone = (try {
-        timezoneName.map(DateTimeZone.forID)
-      } catch {
-        case ex: IllegalArgumentException =>
-          logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
-          None
-      }).getOrElse(DateTimeZone.getDefault)
+    val timezone = (try {
+      timezoneName.map(DateTimeZone.forID)
+    } catch {
+      case ex: IllegalArgumentException =>
+        logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
+        None
+    }).getOrElse(DateTimeZone.getDefault)
 
-      request.setAttribute("timezone", timezone)
-      request.setAttribute("timezoneFix", true)
-    } else {
-      request.setAttribute("timezone", DateTimeZone.getDefault)
-      request.setAttribute("timezoneFix", false)
-    }
+    request.setAttribute("timezone", timezone)
+    request.setAttribute("timezoneFix", true)
 
     request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))
     request.setAttribute("template", new Template)
