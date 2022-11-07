@@ -232,6 +232,17 @@ public class UserLogDao {
     );
   }
 
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logSetUserInfo(@Nonnull User user, Map<String, String> info) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            user.getId(),
+            user.getId(),
+            UserLogAction.SET_INFO.toString(),
+            info
+    );
+  }
+
   @Nonnull
   public List<UserLogItem> getLogItems(@Nonnull User user, boolean includeSelf) {
     String sql =

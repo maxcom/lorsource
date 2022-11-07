@@ -34,6 +34,7 @@ import java.time.Duration
 import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
+import scala.collection.mutable
 import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
@@ -338,10 +339,29 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def updateUser(user: User, name: String, url: String, @Nullable newEmail: String, town: String,
                 @Nullable password: String, info: String): Unit = transactional() { _ =>
-    userDao.updateUserInfoFields(user, name, url,  town)
-    userDao.setUserInfo(user.getId, info)
+    val changed = mutable.Map[String, String]()
+
+    if (userDao.updateName(user, name)) {
+      changed += "name" -> name
+    }
+
+    if (userDao.updateUrl(user, url)) {
+      changed += "url" -> url
+    }
+
+    if (userDao.updateTown(user, town)) {
+      changed += "town" -> town
+    }
+
+    if (userDao.setUserInfo(user.getId, info)) {
+      changed += "info" -> info
+    }
 
     updateEmailPasswd(user, newEmail, password)
+
+    if (changed.nonEmpty) {
+      userLogDao.logSetUserInfo(user, changed.asJava)
+    }
   }
 
   def updateEmailPasswd(user: User, @Nullable newEmail: String,
@@ -352,7 +372,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     if (newEmail != null) {
-      userDao.setEmail(user, newEmail)
+      userDao.setNewEmail(user, newEmail)
     }
   }
 }

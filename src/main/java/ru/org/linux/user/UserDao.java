@@ -281,8 +281,8 @@ public class UserDao {
    * @param userid пользователь
    * @param text текст дополнительной информации
    */
-  public void setUserInfo(int userid, String text){
-    jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, userid);
+  public boolean setUserInfo(int userid, String text){
+    return jdbcTemplate.update("UPDATE users SET userinfo=? where id=? AND userinfo!=?", text, userid, text) > 0;
   }
 
   /**
@@ -485,11 +485,19 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
   }
 
-  public void updateUserInfoFields(User user, String name, String url, String town) {
-    jdbcTemplate.update("UPDATE users SET name=?, url=?, town=? WHERE id=?", name, url, town, user.getId());
+  public boolean updateName(User user, String name) {
+    return jdbcTemplate.update("UPDATE users SET name=? WHERE id=? and name!=?", name, user.getId(), name) > 0;
   }
 
-  public void setEmail(User user, String newEmail) {
+  public boolean updateUrl(User user, String url) {
+    return jdbcTemplate.update("UPDATE users SET url=? WHERE id=? and url!=?", url, user.getId(), url) > 0;
+  }
+
+  public boolean updateTown(User user, String town) {
+    return jdbcTemplate.update("UPDATE users SET town=? WHERE id=? AND town!=?", town, user.getId(), town) > 0;
+  }
+
+  public void setNewEmail(User user, String newEmail) {
     jdbcTemplate.update("UPDATE users SET new_email=? WHERE id=?", newEmail, user.getId());
   }
 

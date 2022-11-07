@@ -27,6 +27,7 @@ public enum UserLogAction {
   RESET_TOWN("reset_town", "Сброшено поле \"город\""),
   RESET_PASSWORD("reset_password", "Сброшен пароль"),
   SET_PASSWORD("set_password", "Установлен новый пароль"),
+  SET_INFO("set_info", "Обновлен профиль"),
   SET_CORRECTOR("set_corrector", "Добавлены права корректора"),
   UNSET_CORRECTOR("unset_corrector", "Убраны права корректора"),
   REGISTER("register", "Зарегистрирован"),
