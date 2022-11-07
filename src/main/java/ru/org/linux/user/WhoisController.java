@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.util.bbcode.LorCodeService;
 import scala.Option;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -236,11 +238,15 @@ public class WhoisController {
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="year-stats")
   @ResponseBody
-  public CompletionStage<Map<Object, Object>> yearStats(@PathVariable String nick) {
+  public CompletionStage<Map<Object, Object>> yearStats(@PathVariable String nick, HttpServletRequest request) {
     User user = userService.getUser(nick);
 
-    user.checkBlocked();
+    if (!AuthUtil.isModeratorSession()) {
+      user.checkBlocked();
+    }
 
-    return userStatisticsService.getYearStats(user);
+    DateTimeZone timezone = (DateTimeZone) request.getAttribute("timezone");
+
+    return userStatisticsService.getYearStats(user, timezone);
   }
 }

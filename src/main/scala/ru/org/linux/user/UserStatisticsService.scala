@@ -83,14 +83,14 @@ class UserStatisticsService(
     )
   }
 
-  def getYearStats(user: User): CompletionStage[java.util.Map[Long, Long]] = {
+  def getYearStats(user: User, timezone: DateTimeZone): CompletionStage[java.util.Map[Long, Long]] = {
     Future.successful(elastic).flatMap {
       _ execute {
         val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/M"))
 
         search(MessageIndex) size 0 timeout 30.seconds query root aggs
           dateHistogramAgg("days", "postdate")
-            .timeZone(DateTimeZone.getDefault)
+            .timeZone(timezone)
             .interval(DateHistogramInterval.days(1))
             .minDocCount(1)
       } map {
