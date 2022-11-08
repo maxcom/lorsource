@@ -15,10 +15,12 @@
 
 package ru.org.linux.user;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class UserLogItem {
   private final int id;
@@ -41,7 +43,10 @@ public class UserLogItem {
     this.actionUser = actionUser;
     this.actionDate = actionDate;
     this.action = action;
-    this.options = ImmutableMap.copyOf(options);
+    this.options = options
+            .entrySet()
+            .stream()
+            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, v -> Strings.nullToEmpty(v.getValue())));
   }
 
   public int getId() {
