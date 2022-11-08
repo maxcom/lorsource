@@ -136,7 +136,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
     if (!errors.hasErrors) {
       val mail = new InternetAddress(form.getEmail.toLowerCase)
-      val userid = userService.createUser("", form.getNick, form.getPassword, "", mail, "",
+      val userid = userService.createUser("", form.getNick, form.getPassword, null, mail, null,
         request.getRemoteAddr, Option(invite), Option(request.getHeader("user-agent")))
 
       logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
