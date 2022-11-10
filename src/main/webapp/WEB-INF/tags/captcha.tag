@@ -31,8 +31,8 @@
 
     String key = ((SiteConfig) ctx.getBean("siteConfig")).getCaptchaPublicKey();
 %>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <div class="g-recaptcha" data-sitekey="<%= key %>"></div>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<div class="h-captcha" data-sitekey="<%= key %>"></div>
 <%
   }
 %>

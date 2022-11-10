@@ -104,11 +104,11 @@ public class SiteConfig {
   }
 
   public String getCaptchaPublicKey() {
-    return properties.getProperty("recaptcha.public");
+    return properties.getProperty("captcha.public");
   }
 
   public String getCaptchaPrivateKey() {
-    return properties.getProperty("recaptcha.private");
+    return properties.getProperty("captcha.private");
   }
 
   public String getSecret() {

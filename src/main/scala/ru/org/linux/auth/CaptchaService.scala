@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @Service
 class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) extends StrictLogging {
   def checkCaptcha(request: ServletRequest, errors: Errors): Unit = {
-    val captchaResponse = request.getParameter("g-recaptcha-response")
+    val captchaResponse = request.getParameter("h-captcha-response")
 
     if (captchaResponse == null) {
       errors.reject(null, "Код проверки защиты от роботов не указан")
@@ -45,10 +45,11 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
         val params = Map(
           "secret" -> siteConfig.getCaptchaPrivateKey,
           "response" -> captchaResponse,
-          "remoteip" -> request.getRemoteAddr)
+          "remoteip" -> request.getRemoteAddr,
+          "sitekey" -> siteConfig.getCaptchaPublicKey)
 
         val apiResponse = Await.result(wsClient
-          .url("https://www.google.com/recaptcha/api/siteverify")
+          .url("https://hcaptcha.com/siteverify")
           .post(params)
           .map { response =>
             val jsonData = response.body[JsValue]
