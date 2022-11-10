@@ -15,14 +15,17 @@
 package ru.org.linux.search
 
 import java.nio.file.Files
-
 import com.sksamuel.elastic4s.ElasticsearchClientUri
+import com.sksamuel.elastic4s.embedded.{InternalLocalNode, LocalNode}
 import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.ElasticDsl.*
+import org.elasticsearch.analysis.common.CommonAnalysisPlugin
+import org.elasticsearch.common.settings.Settings
+import org.elasticsearch.transport.Netty4Plugin
 import org.mockito.Mockito
 import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation._
+import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import play.api.libs.ws.StandaloneWSClient
@@ -63,7 +66,25 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 )
 class SearchIntegrationTestConfiguration {
   class LocalNodeProvider {
-    val node = ElasticsearchConfiguration.createEmbedded("test-elastic", Files.createTempDirectory("test-elastic").toFile.getAbsolutePath)
+    private def createEmbedded(name: String, homePath: String): InternalLocalNode = {
+      val settings = LocalNode.requiredSettings(name, homePath).foldLeft(Settings.builder) {
+        case (builder, (key, value)) => builder.put(key, value)
+      }.build()
+
+      // https://discuss.elastic.co/t/unknown-filter-type-stemmer/109567/5
+
+      val plugins = List(classOf[Netty4Plugin], classOf[CommonAnalysisPlugin])
+
+      val mergedSettings = Settings.builder().put(settings)
+        .put("http.type", "netty4")
+        .put("http.enabled", "true")
+        .put("node.max_local_storage_nodes", "10")
+        .build()
+
+      new InternalLocalNode(mergedSettings, plugins)
+    }
+
+    val node: InternalLocalNode = createEmbedded("test-elastic", Files.createTempDirectory("test-elastic").toFile.getAbsolutePath)
 
     def close(): Unit = node.stop(true)
   }
@@ -73,7 +94,7 @@ class SearchIntegrationTestConfiguration {
 
   @Bean
   def elasticClient(node: LocalNodeProvider): ElasticClient = {
-    ElasticClient(ElasticsearchClientUri("localhost", 9200))
+    node.node.client(true)
   }
 
   @Bean
