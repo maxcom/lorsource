@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,13 +37,13 @@ import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, TimeoutException}
 import scala.util.control.NonFatal
-import scala.collection.{Seq => MSeq}
+import scala.collection.{Seq as MSeq}
 
 @Service
 class MoreLikeThisService(
@@ -51,7 +51,7 @@ class MoreLikeThisService(
   sectionService: SectionService,
   scheduler: Scheduler
 ) extends StrictLogging {
-  import ru.org.linux.search.MoreLikeThisService._
+  import ru.org.linux.search.MoreLikeThisService.*
 
   type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
@@ -103,7 +103,7 @@ class MoreLikeThisService(
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
     search(MessageIndex) query {
-      boolQuery.should(queries:_*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
+      boolQuery.should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
     } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 
@@ -130,7 +130,7 @@ class MoreLikeThisService(
     val group = SearchResultsService.group(hit)
 
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
-    val link = builder.buildAndExpand(section, group, new Integer(hit.id)).toUriString
+    val link = builder.buildAndExpand(section, group, Integer.parseInt(hit.id)).toUriString
 
     val postdate = SearchResultsService.postdate(hit)
 
