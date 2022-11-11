@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.ElasticDsl.*
 import com.sksamuel.elastic4s.DocumentRef
 import com.sksamuel.elastic4s.http.ElasticClient
 import com.sksamuel.elastic4s.http.search.SearchHit
@@ -28,7 +28,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-import org.elasticsearch.ElasticsearchException
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageType}
@@ -77,23 +76,19 @@ class MoreLikeThisService(
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
-        try {
-          val searchResult = elastic execute makeQuery(topic, tags.asScala)
+        val searchResult = elastic execute makeQuery(topic, tags.asScala)
 
-          val result: Future[Result] = searchResult.map(_.result).map(result => if (result.hits.nonEmpty) {
-            val half = result.hits.hits.length / 2 + result.hits.hits.length % 2
+        val result: Future[Result] = searchResult.map(_.result).map(result => if (result.hits.nonEmpty) {
+          val half = result.hits.hits.length / 2 + result.hits.hits.length % 2
 
-            result.hits.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
-          } else Seq().asJava)
+          result.hits.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
+        } else Seq().asJava)
 
-          result.foreach {
-            v => cache.put(topic.getId, v)
-          }
-
-          result
-        } catch {
-          case ex: ElasticsearchException => Future.failed(ex)
+        result.foreach {
+          v => cache.put(topic.getId, v)
         }
+
+        result
       }
     }
   }

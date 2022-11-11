@@ -23,7 +23,6 @@ import com.sksamuel.elastic4s.http.ElasticDsl.*
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.searches.DateHistogramInterval
 import com.typesafe.scalalogging.StrictLogging
-import org.elasticsearch.ElasticsearchException
 import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
@@ -112,48 +111,42 @@ class UserStatisticsService(
   private def statSearch = search(MessageIndex) size 0 timeout ElasticTimeout
 
   private def countComments(user: User): Future[Long] = {
-    try {
-      elastic execute {
-        val root = boolQuery() filter (
-              termQuery("author", user.getNick),
-              termQuery("is_comment", true))
+    elastic execute {
+      val root = boolQuery() filter(
+        termQuery("author", user.getNick),
+        termQuery("is_comment", true))
 
-        statSearch query root
-      } map (_.result) flatMap timeoutHandler map { _.totalHits }
-    } catch {
-      case ex: ElasticsearchException => Future.failed(ex)
+      statSearch query root
+    } map (_.result) flatMap timeoutHandler map {
+      _.totalHits
     }
   }
 
   private def topicStats(user: User): Future[TopicStats] = {
-    try {
-      elastic execute {
-        val root = boolQuery().filter (
-          termQuery("author", user.getNick),
-          termQuery("is_comment", false))
+    elastic execute {
+      val root = boolQuery().filter(
+        termQuery("author", user.getNick),
+        termQuery("is_comment", false))
 
-        statSearch query root aggs(
-          statsAggregation("topic_stats") field "postdate",
-          termsAggregation("sections") field "section")
-      } map(_.result) flatMap timeoutHandler map { response =>
-        // workaround https://github.com/sksamuel/elastic4s/issues/1614
-        val topicStatsResult = Try(response.aggregations.statsBucket("topic_stats")).toOption
-        val sectionsResult = response.aggregations.terms("sections")
+      statSearch query root aggs(
+        statsAggregation("topic_stats") field "postdate",
+        termsAggregation("sections") field "section")
+    } map (_.result) flatMap timeoutHandler map { response =>
+      // workaround https://github.com/sksamuel/elastic4s/issues/1614
+      val topicStatsResult = Try(response.aggregations.statsBucket("topic_stats")).toOption
+      val sectionsResult = response.aggregations.terms("sections")
 
-        val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count > 0)) {
-          (Some(new DateTime(topicStatsResult.get.min.toLong)), Some(new DateTime(topicStatsResult.get.max.toLong)))
-        } else {
-          (None, None)
-        }
-
-        val sections = sectionsResult.buckets.map { bucket =>
-          (bucket.key, bucket.docCount)
-        }
-
-        TopicStats(firstTopic, lastTopic, sections)
+      val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count > 0)) {
+        (Some(new DateTime(topicStatsResult.get.min.toLong)), Some(new DateTime(topicStatsResult.get.max.toLong)))
+      } else {
+        (None, None)
       }
-    } catch {
-      case ex: ElasticsearchException => Future.failed(ex)
+
+      val sections = sectionsResult.buckets.map { bucket =>
+        (bucket.key, bucket.docCount)
+      }
+
+      TopicStats(firstTopic, lastTopic, sections)
     }
   }
 }

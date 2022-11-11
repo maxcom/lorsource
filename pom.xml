@@ -66,17 +66,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.sksamuel.elastic4s</groupId>
-      <artifactId>elastic4s-embedded_${scala.suffix}</artifactId>
-      <version>${elastic4s.version}</version>
-    </dependency>
-
-    <!-- https://discuss.elastic.co/t/unknown-filter-type-stemmer/109567/6 -->
-    <dependency>
-      <groupId>org.codelibs.elasticsearch.module</groupId>
-      <artifactId>analysis-common</artifactId>
-      <version>6.7.2</version>
-      <scope>test</scope>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-analyzers-common</artifactId>
+      <version>7.7.0</version>
     </dependency>
 
     <dependency>
@@ -458,6 +450,13 @@
       <groupId>com.vladsch.flexmark</groupId>
       <artifactId>flexmark-all</artifactId>
       <version>0.42.14</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>1.17.5</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
