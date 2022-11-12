@@ -20,8 +20,8 @@ import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
 import akka.pattern.PipeToSupport
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.handlers.index.CreateIndexTemplateResponse
 import com.sksamuel.elastic4s.requests.bulk.BulkResponse
-import com.sksamuel.elastic4s.requests.indexes.CreateIndexTemplateResponse
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.springframework.context.annotation.{Bean, Configuration}
