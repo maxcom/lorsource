@@ -22,9 +22,8 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class Comment(@BeanProperty id: Int, @BeanProperty title: String, @BeanProperty userid: Int,
                    @BeanProperty replyTo: Int, @BeanProperty topicId: Int, @BooleanBeanProperty deleted: Boolean,
-                   @BeanProperty postdate: Timestamp, @BeanProperty userAgentId: Int,
-                   @Nullable @BeanProperty postIP: String, @BeanProperty editorId: Int,
-                   @Nullable @BeanProperty editDate: Timestamp, @BeanProperty editCount: Int) {
+                   @BeanProperty postdate: Timestamp, userAgentId: Int, @Nullable @BeanProperty postIP: String,
+                   editorId: Int, @Nullable editDate: Timestamp, editCount: Int) {
   def isIgnored(ignoreList: util.Set[Integer]): Boolean = ignoreList != null && ignoreList.contains(userid)
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -35,10 +35,6 @@ public class CommentNode implements Serializable {
 
   public ImmutableList<CommentNode> childs() {
     return childs;
-  }
-
-  public boolean hasAnswers() {
-    return !childs.isEmpty();
   }
 
   public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws UserNotFoundException {
