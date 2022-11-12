@@ -32,7 +32,7 @@ import ru.org.linux.util.ServletParameterException
 import java.util
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
@@ -55,8 +55,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest,
-                             request: HttpServletRequest): ModelAndView = {
+  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = {
     val topic = commentRequest.getTopic
     if (topic == null) throw new ServletParameterException("тема не задана")
 
@@ -66,7 +65,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     val comment = commentRequest.getOriginal
     val tmpl = Template.getTemplate
 
-    val messageText = msgbaseDao.getMessageText(original.getId)
+    val messageText = msgbaseDao.getMessageText(original.id)
 
     val commentEditable = topicPermissionService.isCommentEditableNow(comment, AuthUtil.getCurrentUser,
       commentReadService.isHaveAnswers(comment), topic, messageText.markup)
@@ -82,7 +81,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       new ModelAndView("edit_comment", formParams)
     } else {
-      new ModelAndView(new RedirectView(topic.getLink + "?cid=" + original.getId))
+      new ModelAndView(new RedirectView(topic.getLink + "?cid=" + original.id))
     }
   }
 
@@ -107,7 +106,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, AuthUtil.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
 
-    val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.getId)
+    val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.id)
 
     commentRequest.setMode(originalMessageText.markup.formId)
 
@@ -135,8 +134,8 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       modelAndView
     } else {
       commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr, request.getHeader("X-Forwarded-For"), user, originalMessageText)
-      searchQueueSender.updateComment(commentRequest.getOriginal.getId)
-      val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.getId + "&cid=" + commentRequest.getOriginal.getId
+      searchQueueSender.updateComment(commentRequest.getOriginal.id)
+      val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.getId + "&cid=" + commentRequest.getOriginal.id
       new ModelAndView(new RedirectView(returnUrl))
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -89,7 +89,7 @@ public class CommentDao {
   public Comment getById(int id) throws MessageNotFoundException {
     Comment comment;
     try {
-      comment = jdbcTemplate.queryForObject(queryCommentById, (resultSet, i) -> new Comment(resultSet), id);
+      comment = jdbcTemplate.queryForObject(queryCommentById, (resultSet, i) -> Comment.apply(resultSet), id);
     } catch (EmptyResultDataAccessException exception) {
       throw new MessageNotFoundException(id);
     }
@@ -105,9 +105,9 @@ public class CommentDao {
      */
   public List<Comment> getCommentList(int topicId, boolean showDeleted) {
     if (showDeleted) {
-      return jdbcTemplate.query(queryCommentListByTopicId, (resultSet, rownum) -> new Comment(resultSet), topicId);
+      return jdbcTemplate.query(queryCommentListByTopicId, (resultSet, rownum) -> Comment.apply(resultSet), topicId);
     } else {
-      return jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, (resultSet, rownum) -> new Comment(resultSet), topicId);
+      return jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, (resultSet, rownum) -> Comment.apply(resultSet), topicId);
     }
   }
 

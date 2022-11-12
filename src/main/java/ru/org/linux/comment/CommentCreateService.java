@@ -222,9 +222,8 @@ public class CommentCreateService {
         ? 0
         : commentRequest.getOriginal().getId();
 
-      comment = new Comment(
+      comment = Comment.buildNew(
         replyto,
-        "",
         commentRequest.getTopic().getId(),
         commentId,
         user.getId(),

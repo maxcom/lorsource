@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.util.markdown
 
-import com.vladsch.flexmark.ast._
-import com.vladsch.flexmark.html.renderer._
+import com.vladsch.flexmark.ast.*
+import com.vladsch.flexmark.html.renderer.*
 import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
 import com.vladsch.flexmark.util.options.MutableDataHolder
 import org.apache.commons.httpclient.URIException
@@ -26,8 +26,8 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.LorURL
 
-import scala.compat.java8.OptionConverters._
-import scala.jdk.CollectionConverters._
+import scala.compat.java8.OptionConverters.*
+import scala.jdk.CollectionConverters.*
 
 class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
@@ -73,7 +73,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
         case Some(message) =>
           val deleted = if (url.isCommentUrl && !message.isDeleted) {
             try {
-              commentDao.getById(url.getCommentId).isDeleted
+              commentDao.getById(url.getCommentId).deleted
             } catch {
               case _: MessageNotFoundException =>
                 false

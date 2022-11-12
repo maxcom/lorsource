@@ -173,7 +173,7 @@ class RealtimeSessionActor(session: WebSocketSession) extends Actor with ActorLo
 }
 
 object RealtimeSessionActor {
-  def props(session: WebSocketSession) = Props(new RealtimeSessionActor(session))
+  def props(session: WebSocketSession): Props = Props(new RealtimeSessionActor(session))
 }
 
 @Service
@@ -225,7 +225,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
         new CommentList(ImmutableList.of(), 0)
       }
 
-      val missed = comments.getList.asScala.map(_.getId).dropWhile(_ <= last).toVector
+      val missed = comments.getList.asScala.map(_.id).dropWhile(_ <= last).toVector
 
       missed.foreach { cid =>
         logger.debug(s"Sending missed comment $cid")

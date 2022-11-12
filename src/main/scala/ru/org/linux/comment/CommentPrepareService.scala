@@ -22,11 +22,11 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
-import ru.org.linux.user._
+import ru.org.linux.user.*
 
 import javax.annotation.Nullable
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 
 @Service
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
@@ -41,32 +41,32 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
-      val replyInfo: Option[ReplyInfo] = if (comment.getReplyTo != 0) {
-        val replyNode = comments.get.getNode(comment.getReplyTo)
+      val replyInfo: Option[ReplyInfo] = if (comment.replyTo != 0) {
+        val replyNode = comments.get.getNode(comment.replyTo)
         val replyDeleted = replyNode == null
 
         if (replyDeleted) { // ответ на удаленный комментарий
-          Some(new ReplyInfo(comment.getReplyTo, true))
+          Some(new ReplyInfo(comment.replyTo, true))
         } else {
           val reply = replyNode.getComment
-          val samePage = samePageComments.contains(reply.getId)
-          val replyAuthor = userService.getUserCached(reply.getUserid).getNick
-          Some(new ReplyInfo(reply.getId, replyAuthor, Strings.emptyToNull(reply.getTitle.trim), reply.getPostdate, samePage, false))
+          val samePage = samePageComments.contains(reply.id)
+          val replyAuthor = userService.getUserCached(reply.userid).getNick
+          Some(new ReplyInfo(reply.id, replyAuthor, Strings.emptyToNull(reply.title.trim), reply.postdate, samePage, false))
         }
       } else {
         None
       }
 
-      val node = comments.get.getNode(comment.getId)
-      val replysFiltered = node.childs.asScala.filter(commentNode => !hideSet.contains(commentNode.getComment.getId))
+      val node = comments.get.getNode(comment.id)
+      val replysFiltered = node.childs.asScala.filter(commentNode => !hideSet.contains(commentNode.getComment.id))
 
       val answerCount = replysFiltered.size
 
       if (answerCount > 1) {
-        (Some(s"${topic.getLink}/thread/${comment.getId}#comments"), false, answerCount, replyInfo, true)
+        (Some(s"${topic.getLink}/thread/${comment.id}#comments"), false, answerCount, replyInfo, true)
       } else if (answerCount == 1) {
-        val answerSamepage = samePageComments.contains(replysFiltered.head.getComment.getId)
-        (Some(s"${topic.getLink}?cid=${replysFiltered.head.getComment.getId}"), answerSamepage, 1, replyInfo, true)
+        val answerSamepage = samePageComments.contains(replysFiltered.head.getComment.id)
+        (Some(s"${topic.getLink}?cid=${replysFiltered.head.getComment.id}"), answerSamepage, 1, replyInfo, true)
       } else {
         (None, false, 0, replyInfo, false)
       }
@@ -87,7 +87,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val editSummary = loadEditSummary(comment)
 
     val (postIP, userAgent) = if (currentUser != null && currentUser.isModerator) {
-      (Option(comment.getPostIP), userAgentDao.getUserAgentById(comment.getUserAgentId).toScala)
+      (Option(comment.postIP), userAgentDao.getUserAgentById(comment.userAgentId).toScala)
     } else {
       (None, None)
     }
@@ -99,35 +99,35 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
 
     new PreparedComment(comment, ref, processedMessage, replyInfo.orNull, deletable, editable, remark.orNull,
-      userpic.orNull, apiDeleteInfo.orNull, editSummary.orNull, postIP.orNull, userAgent.orNull, comment.getUserAgentId,
+      userpic.orNull, apiDeleteInfo.orNull, editSummary.orNull, postIP.orNull, userAgent.orNull, comment.userAgentId,
       undeletable, answerCount, answerLink.orNull, answerSamepage, authorReadonly)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
-    if (comment.isDeleted) {
-      deleteInfoDao.getDeleteInfo(comment.getId).toScala
+    if (comment.deleted) {
+      deleteInfoDao.getDeleteInfo(comment.id).toScala
     } else {
       None
     }
   }
 
   private def loadEditSummary(comment: Comment): Option[EditSummary] = {
-    if (comment.getEditCount > 0) {
-      Some(new EditSummary(userService.getUserCached(comment.getEditorId).getNick, comment.getEditDate, comment.getEditCount))
+    if (comment.editCount > 0) {
+      Some(new EditSummary(userService.getUserCached(comment.editorId).getNick, comment.editDate, comment.editCount))
     } else {
       None
     }
   }
 
   private def prepareRSSComment(messageText: MessageText, comment: Comment) = {
-    val author = userService.getUserCached(comment.getUserid)
+    val author = userService.getUserCached(comment.userid)
     val processedMessage = textService.renderTextRSS(messageText)
     new PreparedRSSComment(comment, author, processedMessage)
   }
 
   def prepareCommentForReplyto(comment: Comment, @Nullable currentUser: User, profile: Profile, topic: Topic): PreparedComment = {
-    val messageText = msgbaseDao.getMessageText(comment.getId)
-    val author = userService.getUserCached(comment.getUserid)
+    val messageText = msgbaseDao.getMessageText(comment.id)
+    val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.getGroupId)
 
     prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser, group)
@@ -142,7 +142,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
    * @return подготовленный коментарий
    */
   def prepareCommentForEdit(comment: Comment, message: MessageText): PreparedComment = {
-    val author = userService.getUserCached(comment.getUserid)
+    val author = userService.getUserCached(comment.userid)
     val processedMessage = textService.renderCommentText(message, nofollow = false)
     val ref = userService.ref(author, null)
 
@@ -157,7 +157,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   def prepareCommentListRSS(list: java.util.List[Comment]): java.util.List[PreparedRSSComment] = {
     list.asScala.map { comment =>
-      val messageText = msgbaseDao.getMessageText(comment.getId)
+      val messageText = msgbaseDao.getMessageText(comment.id)
       prepareRSSComment(messageText, comment)
     }.asJava
   }
@@ -168,8 +168,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     if (list.isEmpty) {
       Seq.empty.asJava
     } else {
-      val texts = msgbaseDao.getMessageText(list.asScala.map(c => Integer.valueOf(c.getId)).asJava)
-      val users = userService.getUsersCachedMap(list.asScala.map(_.getUserid))
+      val texts = msgbaseDao.getMessageText(list.asScala.map(c => Integer.valueOf(c.id)).asJava)
+      val users = userService.getUsersCachedMap(list.asScala.map(_.userid))
       val group = groupDao.getGroup(topic.getGroupId)
 
       val remarks = if (currentUser != null) {
@@ -178,13 +178,13 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         Map.empty[Int, Remark]
       }
 
-      val samePageComments = list.asScala.map(_.getId).toSet
+      val samePageComments = list.asScala.map(_.id).toSet
 
       val hideSetScala = hideSet.asScala.view.map(_.toInt).toSet
 
       list.asScala.map { comment =>
-        val text = texts.get(comment.getId)
-        val author = users(comment.getUserid)
+        val text = texts.get(comment.id)
+        val author = users(comment.userid)
         val remark = remarks.get(author.getId)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSetScala,
@@ -209,7 +209,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   def buildDateJumpSet(comments: java.util.List[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
     val commentDates = comments.asScala.view.map { c =>
-      c.getId -> new DateTime(c.getPostdate)
+      c.id -> new DateTime(c.postdate)
     }
 
     commentDates.zip(commentDates.drop(1)).filter { case (first, second) =>

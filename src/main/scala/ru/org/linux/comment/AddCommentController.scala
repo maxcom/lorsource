@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
@@ -38,7 +38,7 @@ import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: CommentPrepareService,
@@ -51,7 +51,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
   @ModelAttribute("modes")
   def getModes: util.Map[String, String] = {
-    val tmpl = Template.getTemplate()
+    val tmpl = Template.getTemplate
 
     MessageTextService.postingModeSelector(AuthUtil.getCurrentUser, tmpl.getFormatMode)
   }
@@ -60,8 +60,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     * Показ формы добавления ответа на комментарий.
     */
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.GET))
-  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors,
-                    request: HttpServletRequest): ModelAndView = {
+  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors): ModelAndView = {
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
@@ -84,7 +83,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     * Показ топика с формой добавления комментария верхнего уровня.
     */
   @RequestMapping(Array("/comment-message.jsp"))
-  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest, request: HttpServletRequest): ModelAndView = {
+  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = {
     val tmpl = Template.getTemplate
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, AuthUtil.getCurrentUser)
 
@@ -150,7 +149,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         Optional.ofNullable(request.getHeader("user-agent")))
 
       searchQueueSender.updateComment(msgid)
-      realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
+      realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
       realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions.asScala.map(_.toInt).toSet)
 
       new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid))
@@ -188,7 +187,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       searchQueueSender.updateComment(msgid)
 
-      realtimeHubWS ! RealtimeEventHub.NewComment(comment.getTopicId, msgid)
+      realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
       realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions.asScala.map(_.toInt).toSet)
 
       Map("url" -> (add.getTopic.getLink + "?cid=" + msgid))

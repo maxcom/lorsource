@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
@@ -30,7 +30,7 @@ import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.UserErrorException
 
 import scala.collection.Seq
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentReadService,
@@ -42,11 +42,11 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val tmpl = Template.getTemplate
 
     val comment = commentService.getById(msgid)
-    if (comment.isDeleted) {
+    if (comment.deleted) {
       throw new UserErrorException("комментарий уже удален")
     }
 
-    val topic = topicDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.topicId)
     if (topic.isDeleted) {
       throw new AccessViolationException("тема удалена")
     }
@@ -64,10 +64,10 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   }
 
   private def findNextComment(comment: Comment): Option[Comment] = {
-    val updatedTopic = topicDao.getById(comment.getTopicId)
+    val updatedTopic = topicDao.getById(comment.topicId)
     val commentList = commentService.getCommentList(updatedTopic, false)
 
-    commentList.getList.asScala.find(_.getId >= comment.getId)
+    commentList.getList.asScala.find(_.id >= comment.id)
   }
 
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.POST))
@@ -81,18 +81,18 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val user = currentUser.user
 
     val comment = commentService.getById(msgid)
-    if (comment.isDeleted) {
+    if (comment.deleted) {
       throw new UserErrorException("комментарий уже удален")
     }
 
-    val topic = topicDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.topicId)
     val haveAnswers = commentService.isHaveAnswers(comment)
     if (!permissionService.isCommentDeletableNow(comment, user, topic, haveAnswers)) {
       throw new UserErrorException("комментарий нельзя удалить")
     }
 
     val deleted: Seq[Integer] = if (user.isModerator) {
-      val effectiveBonus = if (user.getId != comment.getId) {
+      val effectiveBonus = if (user.getId != comment.id) {
         bonus
       } else {
         0
@@ -120,7 +120,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val nextLink = nextComment match {
       case Some(c) =>
-        s"${topic.getLink}?cid=${c.getId}"
+        s"${topic.getLink}?cid=${c.id}"
       case None =>
         topic.getLink
     }
@@ -159,7 +159,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val comment = commentService.getById(msgid)
 
-    val topic = topicDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.topicId)
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
@@ -176,7 +176,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.POST))
   def undelete(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val comment = commentService.getById(msgid)
-    val topic = topicDao.getById(comment.getTopicId)
+    val topic = topicDao.getById(comment.topicId)
     val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
     if (!permissionService.isUndeletable(topic, comment, currentUser.user, deleteInfo)) {

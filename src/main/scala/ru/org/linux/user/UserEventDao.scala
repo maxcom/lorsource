@@ -29,7 +29,7 @@ import java.util
 import java.util.Optional
 import javax.sql.DataSource
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Repository
 object UserEventDao {
@@ -99,7 +99,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   def insertTopicNotification(topicId: Int, userIds: Iterable[Integer]): Unit = {
     val batch = userIds.view.map(userId => Map("topic" -> topicId, "userid" -> userId).asJava).toSeq
 
-    insertTopicUsersNotified.executeBatch(batch: _*)
+    insertTopicUsersNotified.executeBatch(batch*)
   }
 
   def getNotifiedUsers(topicId: Int): collection.Seq[Integer] =
@@ -222,12 +222,12 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   def insertCommentWatchNotification(comment: Comment, parentComment: Optional[Comment], commentId: Int): collection.Seq[Integer] = {
     transactional(propagation = Propagation.MANDATORY) { _ =>
       val params = new util.HashMap[String, Integer]
-      params.put("topic", comment.getTopicId)
+      params.put("topic", comment.topicId)
       params.put("id", commentId)
-      params.put("userid", comment.getUserid)
+      params.put("userid", comment.userid)
 
       val userIds = (if (parentComment.isPresent) {
-        params.put("parent_author", parentComment.get.getUserid)
+        params.put("parent_author", parentComment.get.userid)
         namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND memories.userid != :parent_author " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch", params, classOf[Integer])
       } else {
         namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=:userid) AND watch", params, classOf[Integer])
@@ -239,11 +239,11 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
             "userid" -> userId,
             "type" -> "WATCH",
             "private" -> false,
-            "message_id" -> comment.getTopicId,
+            "message_id" -> comment.topicId,
             "comment_id" -> commentId).asJava
         }.toSeq
 
-        insert.executeBatch(batch: _*)
+        insert.executeBatch(batch*)
       }
 
       userIds
