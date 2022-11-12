@@ -103,7 +103,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
               boolQuery().filter(
                 termQuery("is_comment", "false"),
                 termQuery("section", section.getUrlName),
-                rangeQuery("postdate").gte("now/d-2y"))
+                rangeQuery("postdate")) //.gte("now/d-2y"))
           }
       }
     } map { r =>
