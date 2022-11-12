@@ -93,7 +93,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search(MessageIndex).requestCache(false).size(0).query(
+        search(MessageIndex).size(0).query(
           boolQuery().filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
