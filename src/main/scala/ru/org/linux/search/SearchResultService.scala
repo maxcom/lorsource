@@ -15,7 +15,9 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.http.search.{Aggregations, FilterAggregationResult, SearchHit, TermBucket}
+import com.sksamuel.elastic4s.requests.searches.SearchHit
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.{Aggregations, FilterAggregationResult}
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.TermBucket
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -45,7 +47,7 @@ case class SearchItem (
 class SearchResultsService(
   userService: UserService, sectionService: SectionService, groupDao: GroupDao
 ) extends StrictLogging {
-  import ru.org.linux.search.SearchResultsService._
+  import ru.org.linux.search.SearchResultsService.*
 
   def prepareAll(docs:java.lang.Iterable[SearchHit]) = (docs.asScala map prepare).asJavaCollection
 
@@ -61,7 +63,7 @@ class SearchResultsService(
     } else {
       if (doc.sourceAsMap.contains("tag")) {
         doc.sourceAsMap("tag").asInstanceOf[Seq[String]].map(
-          tag => TagService.tagRef(tag.toString))
+          tag => TagService.tagRef(tag))
       } else {
         Seq()
       }
@@ -83,7 +85,7 @@ class SearchResultsService(
     val itemTitle = doc.highlight.get("title").flatMap(_.headOption)
       .orElse(doc.sourceAsMap.get("title") map { v => StringUtil.escapeHtml(v.asInstanceOf[String]) } )
 
-    itemTitle.filter(!_.trim.isEmpty).orElse(
+    itemTitle.filter(_.trim.nonEmpty).orElse(
       doc.highlight.get("topic_title").flatMap(_.headOption))
         .getOrElse(StringUtil.escapeHtml(doc.sourceAsMap("topic_title").asInstanceOf[String]))
   }

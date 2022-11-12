@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,18 +18,18 @@ package ru.org.linux.monitoring
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
 import akka.pattern.PipeToSupport
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
-import com.sksamuel.elastic4s.http.bulk.BulkResponse
-import com.sksamuel.elastic4s.http.index.CreateIndexTemplateResponse
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.requests.bulk.BulkResponse
+import com.sksamuel.elastic4s.requests.indexes.CreateIndexTemplateResponse
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.springframework.context.annotation.{Bean, Configuration}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLogging with PipeToSupport with Timers {
-  import PerformanceLoggingActor._
+  import PerformanceLoggingActor.*
   import context.dispatcher
 
   private var queue: Seq[Metric] = Vector.empty[Metric]
@@ -63,7 +63,7 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
       elastic execute {
         bulk {
           queue map { m =>
-            indexInto(indexOf(m.start), PerfType).fields(
+            indexInto(indexOf(m.start)).fields(
               "controller" -> m.name,
               "startdate"  -> m.start,
               "elapsed"    -> m.controllerTime,
@@ -105,13 +105,13 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
     log.info("Create performance index template")
 
     elastic.execute {
-      createIndexTemplate(s"$IndexPrefix-template", PerfPattern) mappings (
-        mapping(PerfType).fields(
+      createIndexTemplate(s"$IndexPrefix-template", PerfPattern).mappings (
+        properties(
           keywordField("controller"),
           dateField("startdate") format "dateTime",
           longField("elapsed"),
           longField("view")
-          ).all(false)
+          )
         )
     }
   }
@@ -120,7 +120,6 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
 object PerformanceLoggingActor {
   val MaxQueue = 5000
   private val IndexPrefix = "perf"
-  private val PerfType = "metric"
   private val PerfPattern = s"$IndexPrefix-*"
   private val indexDateFormat = DateTimeFormat.forPattern("YYYY-MM")
 

@@ -15,13 +15,12 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.IndexAndType
-import com.sksamuel.elastic4s.analyzers._
-import com.sksamuel.elastic4s.bulk.{BulkCompatibleRequest, BulkRequest}
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
-import com.sksamuel.elastic4s.indexes.IndexRequest
-import com.sksamuel.elastic4s.mappings.{MappingDefinition, TermVector}
+import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.requests.analyzers.*
+import com.sksamuel.elastic4s.requests.bulk.{BulkCompatibleRequest, BulkRequest}
+import com.sksamuel.elastic4s.requests.indexes.IndexRequest
+import com.sksamuel.elastic4s.requests.mappings.{MappingDefinition, TermVector}
+import com.sksamuel.elastic4s.{ElasticClient, Index}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.StringEscapeUtils
 import org.joda.time.DateTime
@@ -34,18 +33,17 @@ import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
 import ru.org.linux.user.UserDao
 
-import scala.collection.{Seq => MSeq}
-import scala.jdk.CollectionConverters._
+import scala.collection.Seq as MSeq
+import scala.jdk.CollectionConverters.*
 
 object ElasticsearchIndexService {
   val MessageIndex = "messages"
-  val MessageType = "message"
 
-  val MessageIndexType: IndexAndType = IndexAndType(MessageIndex, MessageType)
+  val MessageIndexType: Index = Index(MessageIndex)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
 
-  val Mapping: MappingDefinition = mapping(MessageType).fields(
+  val Mapping: MappingDefinition = properties(
     keywordField("group"),
     keywordField("section"),
     booleanField("is_comment"),
@@ -57,17 +55,15 @@ object ElasticsearchIndexService {
     textField("topic_title").index(false),
     textField("title").analyzer("text_analyzer"),
     textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets),
-    booleanField("topic_awaits_commit")
-  ).all(false)
+    booleanField("topic_awaits_commit"))
 
   val Analyzers: Seq[CustomAnalyzerDefinition] = Seq(
     CustomAnalyzerDefinition(
       "text_analyzer",
-      tokenizer = StandardTokenizer,
+      tokenizer = StandardTokenizer("text_tokenizer"),
       filters = Seq(
         LengthTokenFilter("m_long_word").max(100),
         LowercaseTokenFilter,
-        StandardTokenFilter,
         MappingCharFilter("m_ee", "ё" -> "е", "Ё" -> "Е"),
         SnowballTokenFilter("m_my_snow_ru", "Russian"),
         SnowballTokenFilter("m_my_snow_en", "English")))
@@ -79,7 +75,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
                                 topicTagService: TopicTagService, messageTextService: MessageTextService,
                                 msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
                                 elastic: ElasticClient, topicPermissionService: TopicPermissionService) extends StrictLogging {
-  import ElasticsearchIndexService._
+  import ElasticsearchIndexService.*
 
   private def reindexComments(topic: Topic, comments: CommentList): MSeq[BulkCompatibleRequest] = {
     for (comment <- comments.getList.asScala) yield {
@@ -153,21 +149,15 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
     reindexComments(comments.asScala.map(x => x.toInt))
   }
 
-  def reindexTopics(topics: java.util.List[java.lang.Integer]): Unit = {
-    for (topic <- topics.asScala.map(x => x.toInt)) {
-      reindexMessage(topic, withComments = false)
-    }
-  }
-
   def createIndexIfNeeded(): Unit = {
     val indexExistsResult = elastic execute {
       indexExists(MessageIndex)
     } await
 
     if (!indexExistsResult.result.isExists) {
-      elastic execute {
-        createIndex(MessageIndex).mappings(Mapping).analysis(Analyzers)
-      } await
+      elastic.execute {
+        createIndex(MessageIndex).mapping(Mapping).analysis(Analyzers)
+      }.await.result
     }
   }
 

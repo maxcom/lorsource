@@ -14,15 +14,15 @@
  */
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl.*
 import org.specs2.mutable.{After, SpecificationWithJUnit}
 import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
 @DirtiesContext

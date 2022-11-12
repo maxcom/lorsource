@@ -16,21 +16,20 @@
 package ru.org.linux.search
 
 import java.util.concurrent.TimeUnit
-
 import akka.actor.Scheduler
 import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.http.ElasticDsl.*
-import com.sksamuel.elastic4s.DocumentRef
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.search.SearchHit
+import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.requests.common.DocumentRef
+import com.sksamuel.elastic4s.requests.searches.SearchHit
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex, MessageType}
+import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
@@ -43,7 +42,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, TimeoutException}
 import scala.util.control.NonFatal
-import scala.collection.{Seq as MSeq}
+import scala.collection.Seq as MSeq
 
 @Service
 class MoreLikeThisService(
@@ -155,7 +154,7 @@ class MoreLikeThisService(
 
   private def textQuery(id: Int) = {
     moreLikeThisQuery("message")
-      .likeDocs(Seq(DocumentRef(MessageIndex, MessageType, id.toString)))
+      .likeDocs(Seq(DocumentRef(MessageIndex, id.toString)))
       .minTermFreq(1)
       .stopWords(StopWords)
       .minWordLength(3)

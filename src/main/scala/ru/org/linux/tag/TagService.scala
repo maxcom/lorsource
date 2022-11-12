@@ -17,14 +17,14 @@ package ru.org.linux.tag
 
 import java.util
 
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl.*
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,7 +32,7 @@ import scala.collection.Seq
 
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient) {
-  import ru.org.linux.tag.TagService._
+  import ru.org.linux.tag.TagService.*
 
   /**
    * Получение идентификационного номера тега по названию.
@@ -143,7 +143,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       info <- tagDao.getTagsByPrefix(prefix, threshold)
     ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
 
-    SortedMap(result.toSeq: _*).asJava
+    SortedMap(result.toSeq*).asJava
   }
 }
 

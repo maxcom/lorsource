@@ -15,7 +15,8 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.http.{ElasticClient, ElasticProperties}
+import com.sksamuel.elastic4s.http.JavaClient
+import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
 import org.springframework.context.annotation.{Bean, Configuration}
 import ru.org.linux.spring.SiteConfig
 
@@ -23,6 +24,6 @@ import ru.org.linux.spring.SiteConfig
 class ElasticsearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
   def client: ElasticClient = {
-    ElasticClient(ElasticProperties(config.getElasticsearch))
+    ElasticClient(JavaClient(ElasticProperties(config.getElasticsearch)))
   }
 }

@@ -16,12 +16,11 @@
 package ru.org.linux.user
 
 import java.sql.Timestamp
-import java.util.Date
+import java.util.{Date, TimeZone}
 import java.util.concurrent.CompletionStage
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl.*
-import com.sksamuel.elastic4s.http.search.SearchResponse
-import com.sksamuel.elastic4s.searches.DateHistogramInterval
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.requests.searches.{DateHistogramInterval, SearchResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.stereotype.Service
@@ -89,7 +88,7 @@ class UserStatisticsService(
 
         search(MessageIndex) size 0 timeout 30.seconds query root aggs
           dateHistogramAgg("days", "postdate")
-            .timeZone(timezone)
+            .timeZone(TimeZone.getTimeZone(timezone.getID))
             .interval(DateHistogramInterval.days(1))
             .minDocCount(1)
       } map {

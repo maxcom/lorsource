@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,11 +19,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
-import com.sksamuel.elastic4s.http.ElasticClient;
-import com.sksamuel.elastic4s.http.search.FilterAggregationResult;
-import com.sksamuel.elastic4s.http.search.SearchResponse;
-import com.sksamuel.elastic4s.http.search.TermBucket;
-import com.sksamuel.elastic4s.http.search.TermsAggResult;
+import com.sksamuel.elastic4s.ElasticClient;
+import com.sksamuel.elastic4s.requests.searches.SearchResponse;
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.FilterAggregationResult;
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.TermBucket;
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -124,9 +124,9 @@ public class SearchController {
 
       if (response.aggregations() != null) {
         FilterAggregationResult countFacet = response.aggregations().filter("sections");
-        TermsAggResult sectionsFacet = countFacet.terms("sections");
+        Terms sectionsFacet = countFacet.terms("sections");
 
-        if (sectionsFacet.getBuckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
+        if (sectionsFacet.buckets().size()>1 || !Strings.isNullOrEmpty(query.getSection())) {
           params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection()))));
 
           if (!Strings.isNullOrEmpty(query.getSection())) {
@@ -205,15 +205,12 @@ public class SearchController {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
         switch (s) {
-          case "1":  // for old links
-            setValue(SearchOrder.Relevance$.MODULE$);
-            break;
-          case "2":
-            setValue(SearchOrder.Date$.MODULE$);
-            break;
-          default:
-            setValue(SearchOrder$.MODULE$.valueOf(s));
-            break;
+          case "1" ->  // for old links
+                  setValue(SearchOrder.Relevance$.MODULE$);
+          case "2" ->
+                  setValue(SearchOrder.Date$.MODULE$);
+          default ->
+                  setValue(SearchOrder$.MODULE$.valueOf(s));
         }
       }
     });

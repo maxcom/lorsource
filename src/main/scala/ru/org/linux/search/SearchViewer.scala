@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,17 +15,17 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticDsl.{termsAggregation, _}
-import com.sksamuel.elastic4s.http.search.SearchResponse
-import com.sksamuel.elastic4s.searches.queries.Query
-import com.sksamuel.elastic4s.searches.queries.funcscorer.WeightScore
+import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.requests.searches.SearchResponse
+import com.sksamuel.elastic4s.requests.searches.queries.Query
+import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.WeightScore
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
-  import ru.org.linux.search.SearchViewer._
+  import ru.org.linux.search.SearchViewer.*
 
   private def processQueryString(queryText: String) = {
     if (queryText.isEmpty) {

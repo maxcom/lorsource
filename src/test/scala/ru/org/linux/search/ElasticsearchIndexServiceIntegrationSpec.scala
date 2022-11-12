@@ -14,8 +14,9 @@
  */
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.http.{ElasticClient, ElasticProperties}
-import com.sksamuel.elastic4s.http.ElasticDsl.*
+import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
+import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.http.JavaClient
 import org.mockito.Mockito
 import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,12 +63,12 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 class SearchIntegrationTestConfiguration {
   @Bean(destroyMethod="close")
   def elasticClient: ElasticClient = {
-    val container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.23")
+    val container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2")
     container.start()
 
     val host = container.getHttpHostAddress
 
-    ElasticClient(ElasticProperties(s"http://$host"))
+    ElasticClient(JavaClient(ElasticProperties(s"http://$host")))
   }
 
   @Bean

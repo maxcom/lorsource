@@ -15,7 +15,7 @@
 
 package ru.org.linux.topic;
 
-import com.sksamuel.elastic4s.http.ElasticClient;
+import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import play.api.libs.ws.StandaloneWSClient;
