@@ -78,7 +78,7 @@
       <li>Apache Tomcat 8.5;</li>
       <li>ActiveMQ 5.17;</li>
       <li>Spring 5.3;</li>
-      <li>Elasticsearch 7.10;</li>
+      <li>OpenSearch 2.3.x;</li>
       <li>Nginx 1.22.</li>
     </ul>
 

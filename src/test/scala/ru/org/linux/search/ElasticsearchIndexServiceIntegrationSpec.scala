@@ -18,12 +18,13 @@ import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.http.JavaClient
 import org.mockito.Mockito
+import org.opensearch.testcontainers.OpensearchContainer
 import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
-import org.testcontainers.elasticsearch.ElasticsearchContainer
+import org.testcontainers.utility.DockerImageName
 import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
@@ -63,12 +64,12 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 class SearchIntegrationTestConfiguration {
   @Bean(destroyMethod="close")
   def elasticClient: ElasticClient = {
-    val container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2")
+    val container = new OpensearchContainer(DockerImageName.parse("opensearchproject/opensearch:2.3.0"))
     container.start()
 
     val host = container.getHttpHostAddress
 
-    ElasticClient(JavaClient(ElasticProperties(s"http://$host")))
+    ElasticClient(JavaClient(ElasticProperties(host)))
   }
 
   @Bean
