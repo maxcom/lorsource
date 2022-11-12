@@ -102,8 +102,8 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
             sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
               boolQuery().filter(
                 termQuery("is_comment", "false"),
-                termQuery("section", section.getUrlName),
-                rangeQuery("postdate")) //.gte("now/d-2y"))
+                termQuery("section", section.getUrlName)/*,
+                rangeQuery("postdate").gte("now/d-2y")*/)
           }
       }
     } map { r =>
