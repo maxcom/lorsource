@@ -47,7 +47,7 @@
           </c:if>
           <c:if test="${comment.reply.title==null}">комментарий</c:if>
         </a>
-        от ${comment.reply.author} <lor:date date="${comment.reply.postdate}"/>
+        от ${comment.reply.author}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
       </c:if>
     </c:if>
   </div>
