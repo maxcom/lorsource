@@ -23,9 +23,11 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.org.linux.comment.ApiCommentTopicInfo;
 import ru.org.linux.comment.PreparedComment;
+import ru.org.linux.site.DateFormats;
 import ru.org.linux.topic.Topic;
 
 import javax.servlet.jsp.tagext.TagSupport;
+import java.util.Date;
 import java.util.Map;
 
 public class CommentTag extends TagSupport {
@@ -75,10 +77,26 @@ public class CommentTag extends TagSupport {
 
     data.put("showMenu", showMenu);
 
-    data.put("dateFormat", new SignTag.DateFormatHandler((DateTimeZone) pageContext.getRequest().getAttribute("timezone")));
+    data.put("dateFormat", new DateFormatHandler((DateTimeZone) pageContext.getRequest().getAttribute("timezone")));
 
     jadeConfiguration.renderTemplate(jadeTemplate, data, pageContext.getOut());
 
     return SKIP_BODY;
+  }
+
+  public static class DateFormatHandler {
+    private final DateTimeZone tz;
+
+    public DateFormatHandler(DateTimeZone tz) {
+      this.tz = tz;
+    }
+
+    public String apply(Date input) {
+      return DateFormats.getDefault(tz).print(input.getTime());
+    }
+
+    public String iso(Date input) {
+      return DateFormats.Iso8601().print(input.getTime());
+    }
   }
 }

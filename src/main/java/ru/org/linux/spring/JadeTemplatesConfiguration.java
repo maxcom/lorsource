@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,25 +25,6 @@ import java.io.IOException;
 
 @Configuration
 public class JadeTemplatesConfiguration {
-  /*
-      <bean id="templateLoader" class="de.neuland.jade4j.spring.template.SpringTemplateLoader">
-        <property name="basePath" value="template/" />
-    </bean>
-
-    <bean id="jadeConfiguration" class="de.neuland.jade4j.JadeConfiguration">
-        <property name="prettyPrint" value="false" />
-        <property name="caching" value="true" />
-        <property name="templateLoader" ref="templateLoader" />
-    </bean>
-
-    <bean id="TemplateSign" factory-bean="jadeConfiguration" factory-method="getTemplate">
-        <constructor-arg value="sign"/>
-    </bean>
-    <bean id="TemplateComment" factory-bean="jadeConfiguration" factory-method="getTemplate">
-        <constructor-arg value="comment"/>
-    </bean>
-   */
-
   @Bean
   public SpringTemplateLoader templateLoader() {
     SpringTemplateLoader templateLoader = new SpringTemplateLoader();
@@ -58,11 +39,6 @@ public class JadeTemplatesConfiguration {
     cfg.setCaching(true);
     cfg.setTemplateLoader(loader);
     return cfg;
-  }
-
-  @Bean(name="TemplateSign")
-  public JadeTemplate templateSign(JadeConfiguration cfg) throws IOException {
-    return cfg.getTemplate("sign");
   }
 
   @Bean(name="TemplateComment")
