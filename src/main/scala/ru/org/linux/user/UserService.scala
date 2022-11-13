@@ -58,6 +58,9 @@ object UserService {
 
   val MaxUnactivatedPerIp = 2
 
+  // используется в jsp, не удалять!
+  val CorrectorScore = 200
+
   val MaxUserpicScoreLoss = 20
 }
 
