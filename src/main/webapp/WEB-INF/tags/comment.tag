@@ -94,7 +94,7 @@
           <br>
           <span class="sign_more">
             <c:out value="${comment.userAgent}" escapeXml="true"/>
-            <a href="sameip.jsp?ua=${comment.userAgentId}&ip=${comment.postIP}&mask=0">&#x1f50d;</a>
+            &nbsp;<a href="sameip.jsp?ua=${comment.userAgentId}&ip=${comment.postIP}&mask=0">&#x1f50d;</a>
           </span>
         </c:if>
       </div>
