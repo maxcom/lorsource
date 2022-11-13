@@ -34,7 +34,7 @@
 </p>
 
 <div class=messages>
-  <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${add.topic}"/>
+  <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${add.topic}"/>
 </div>
 
 <form:form modelAttribute="add">

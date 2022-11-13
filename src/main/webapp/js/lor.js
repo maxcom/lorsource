@@ -372,7 +372,7 @@ $(document).ready(function() {
   }
 
   function initSamepageCommentNavigation() {
-    $("article.msg a[data-samepage]").click(function(event) {
+    $("article.msg a[data-samepage=true]").click(function(event) {
       event.preventDefault();
       location.hash = "comment-" + this.search.substr(5);
     })

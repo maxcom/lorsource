@@ -391,18 +391,6 @@
     </dependency>
 
     <dependency>
-      <groupId>de.neuland-bfi</groupId>
-      <artifactId>jade4j</artifactId>
-      <version>0.4.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>de.neuland-bfi</groupId>
-      <artifactId>spring-jade4j</artifactId>
-      <version>0.4.2</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.imgscalr</groupId>
       <artifactId>imgscalr-lib</artifactId>
       <version>4.2</version>

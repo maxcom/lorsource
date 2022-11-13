@@ -324,7 +324,7 @@
         <div class="datejump">${DateFormats.dateLong(timezone).print(comment.postdate.time)}</div>
       </c:if>
 
-      <l:comment commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true"
+      <lor:comment commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true"
                  comment="${comment}"/>
     </c:forEach>
 </div>

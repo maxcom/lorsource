@@ -80,8 +80,6 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       None
     }
 
-    val ref = userService.ref(author, currentUser)
-
     val deleteInfo = loadDeleteInfo(comment)
     val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).getNick, i.getReason))
     val editSummary = loadEditSummary(comment)
@@ -98,7 +96,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
 
-    new PreparedComment(comment, ref, processedMessage, replyInfo.orNull, deletable, editable, remark.orNull,
+    new PreparedComment(comment, author, processedMessage, replyInfo.orNull, deletable, editable, remark.orNull,
       userpic.orNull, apiDeleteInfo.orNull, editSummary.orNull, postIP.orNull, userAgent.orNull, comment.userAgentId,
       undeletable, answerCount, answerLink.orNull, answerSamepage, authorReadonly)
   }
@@ -144,9 +142,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   def prepareCommentForEdit(comment: Comment, message: MessageText): PreparedComment = {
     val author = userService.getUserCached(comment.userid)
     val processedMessage = textService.renderCommentText(message, nofollow = false)
-    val ref = userService.ref(author, null)
 
-    new PreparedComment(comment, ref, processedMessage, null, // reply
+    new PreparedComment(comment, author, processedMessage, null, // reply
       false, // deletable
       false, // editable
       null, // Remark

@@ -316,9 +316,4 @@
   <listener>
     <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
   </listener>
-
-  <mime-mapping>
-    <extension>jade</extension>
-    <mime-type>text/plain</mime-type>
-  </mime-mapping>
 </web-app>

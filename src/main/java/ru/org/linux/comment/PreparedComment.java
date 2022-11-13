@@ -18,7 +18,7 @@ package ru.org.linux.comment;
 import com.google.common.base.Strings;
 import org.apache.commons.text.StringEscapeUtils;
 import ru.org.linux.site.ApiDeleteInfo;
-import ru.org.linux.user.ApiUserRef;
+import ru.org.linux.user.User;
 import ru.org.linux.user.Userpic;
 
 import javax.annotation.Nullable;
@@ -27,7 +27,7 @@ import java.util.Date;
 public class PreparedComment {
   private final int id;
 
-  private final ApiUserRef author;
+  private final User author;
   private final String processedMessage;
 
   @Nullable
@@ -66,7 +66,7 @@ public class PreparedComment {
   private final boolean authorReadonly;
 
   public PreparedComment(Comment comment,
-                         ApiUserRef author,
+                         User author,
                          String processedMessage,
                          @Nullable ReplyInfo reply,
                          boolean deletable,
@@ -114,7 +114,7 @@ public class PreparedComment {
     postdate = comment.getPostdate();
   }
 
-  public ApiUserRef getAuthor() {
+  public User getAuthor() {
     return author;
   }
 

@@ -58,8 +58,6 @@ object UserService {
 
   val MaxUnactivatedPerIp = 2
 
-  val CorrectorScore = 200
-
   val MaxUserpicScoreLoss = 20
 }
 
@@ -102,16 +100,6 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     param
-  }
-
-  def ref(user: User, @Nullable requestUser: User): ApiUserRef = {
-    if (requestUser != null && requestUser.isModerator && !user.isAnonymous) {
-      new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous,
-        User.getStars(user.getScore, user.getMaxScore, false), user.getScore, user.getMaxScore)
-    } else {
-      new ApiUserRef(user.getNick, user.isBlocked, user.isAnonymous,
-        User.getStars(user.getScore, user.getMaxScore, false), null, null)
-    }
   }
 
   def isIgnoring(userId: Int, ignoredUserId: Int): Boolean = {

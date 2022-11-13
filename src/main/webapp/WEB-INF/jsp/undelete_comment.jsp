@@ -27,7 +27,7 @@
 
 <div class="messages">
   <div class="comment">
-    <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${topic}"/>
+    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${topic}"/>
   </div>
 </div>
 

@@ -1,7 +1,7 @@
 <%@ tag
         pageEncoding="UTF-8" trimDirectiveWhitespaces="true"
 %><%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -19,16 +19,10 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ attribute name="shortMode" type="java.lang.Boolean" %><%@
         attribute name="user" type="ru.org.linux.user.User" %><%@
-        attribute name="author" type="java.lang.Boolean" required="false" %><%@
         attribute name="postdate" type="java.util.Date" %><%@
         attribute name="timeprop" type="java.lang.String" required="false" %>
 
-<c:if test="${author}">
-  <lor:user rel="author" itemprop="creator" link="true" user="${user}"/>
-</c:if>
-<c:if test="${not author}">
-  <lor:user itemprop="creator" link="true" user="${user}"/>
-</c:if>
+<lor:user itemprop="creator" link="true" user="${user}"/>
 
 <c:if test="${not shortMode and not user.anonymous}">
   <c:out value=" "/>${user.stars}
