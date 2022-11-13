@@ -122,7 +122,7 @@
               <li><a href="${comment.answerLink}" data-samepage="${comment.answerSamepage}">Показать ответ</a></li>
             </c:if>
 
-            <li><a href="s{topic.link}?cid=s{comment.id}">Ссылка</a></li>
+            <li><a href="${topic.link}?cid=${comment.id}">Ссылка</a></li>
           </ul>
         </div>
       </c:if>
