@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -34,7 +34,7 @@
 </p>
 
 <div class=messages>
-  <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${add.topic}" enableSchema="false"/>
+  <l:comment commentsAllowed="false" showMenu="false" comment="${comment}" topic="${add.topic}"/>
 </div>
 
 <form:form modelAttribute="add">

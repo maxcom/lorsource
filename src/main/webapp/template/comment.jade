@@ -4,16 +4,61 @@
     topic { id, link, commentsAllowed } - тема
     showMenu - показывать ли меню добавить/удалить/ссылка/тп
 
-include common
+//- пользователь
+    user - класс ApiUserRef
+    link - ставить ли ссылку на профиль
+    rel - значение атрибута rel ссылки
+    itemprop - значение атрибута itemprop ссылки
+mixin user(user, link, rel, itemprop)
+    if user.blocked
+        s
+            if link
+                a(href='/people/#{user.nick}/profile',rel=rel,itemprop=itemprop)
+                    | #{user.nick}
+            else
+                | #{user.nick}
+    else
+        if link && !user.anonymous
+            a(href='/people/#{user.nick}/profile',rel=rel,itemprop=itemprop)
+                | #{user.nick}
+        else
+            | #{user.nick}
 
-mixin comment(comment, enableSchema, topic, showMenu)
-    if enableSchema
-        articleItemprop = "comment"
-        articleItemscope = "itemscope"
-        articleItemtype = "http://schema.org/UserComments"
-        replyItemprop = "replyToUrl"
-    
-    article(class='msg',id='comment-#{comment.id}', itemprop=articleItemprop, itemscope=articleItemscope, itemtype=articleItemtype)
+//- подпись к посту
+    user - класс ApiUserRef
+    shortMode - boolean; короткий режим (для новостей)
+    author - boolean; является ли автором страницы
+    postdate - дата; дата написания
+    timeprop - атрибут itemprop даты
+mixin sign(user, shortMode, author, postdate, timeprop)
+    if author
+        mixin user(user, true, "author", itemprop="creator")
+    else
+        mixin user(user, true, rel=false, itemprop="creator")
+
+    | #{' '}
+
+    if !shortMode
+        span.stars
+            !{user.stars}
+    if !shortMode && user.score!=null
+        |  (Score: #{user.score} MaxScore: #{user.maxScore})
+
+    |  (
+
+    mixin time(postdate, timeprop)
+
+    | )
+
+mixin time(postdate, timeprop)
+    time(datetime='#{ dateFormat.iso(postdate) }', itemprop='#{timeprop}', data-format='default') #{ dateFormat.apply(postdate) }
+
+mixin userpic(userpic)
+    div.userpic
+        img.photo(src=userpic.url, width=userpic.width, height=userpic.height)
+
+mixin comment(comment, topic, showMenu)
+    article(class='msg',id='comment-#{comment.id}')
         div.title
             if comment.deleted
                 if comment.deleteInfo==null
@@ -97,7 +142,7 @@ mixin comment(comment, enableSchema, topic, showMenu)
                         ul
                             if topic.commentsAllowed
                                 li
-                                    a(itemprop=replyItemprop, href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}', data-author-readonly='#{comment.authorReadonly}')
+                                    a(href='add_comment.jsp?topic=#{topic.id}&replyto=#{comment.id}', data-author-readonly='#{comment.authorReadonly}')
                                         | Ответить
                                         span.hideon-phone
                                             |  на это сообщение
@@ -140,4 +185,4 @@ mixin comment(comment, enableSchema, topic, showMenu)
                                     | Ссылка
 
     
-mixin comment(comment, enableSchema, topic, showMenu)
+mixin comment(comment, topic, showMenu)

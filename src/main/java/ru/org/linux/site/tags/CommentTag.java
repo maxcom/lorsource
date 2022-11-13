@@ -32,17 +32,12 @@ import java.util.Map;
 
 public class CommentTag extends TagSupport {
   private PreparedComment comment;
-  private boolean enableSchema;
   private Topic topic;
   private boolean showMenu;
   private boolean commentsAllowed;
 
   public void setComment(PreparedComment comment) {
     this.comment = comment;
-  }
-
-  public void setEnableSchema(boolean enableSchema) {
-    this.enableSchema = enableSchema;
   }
 
   public void setTopic(Topic topic) {
@@ -68,7 +63,6 @@ public class CommentTag extends TagSupport {
     Map<String, Object> data = Maps.newHashMap();
 
     data.put("comment", comment);
-    data.put("enableSchema", enableSchema);
     data.put("topic", new ApiCommentTopicInfo(
             topic.getId(),
             topic.getLink(),

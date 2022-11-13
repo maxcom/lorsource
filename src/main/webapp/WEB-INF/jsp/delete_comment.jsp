@@ -111,8 +111,7 @@
 <div class="messages">
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <l:comment commentsAllowed="false" showMenu="true" comment="${comment}" enableSchema="false"
-                   topic="${topic}"/>
+      <l:comment commentsAllowed="false" showMenu="true" comment="${comment}" topic="${topic}"/>
     </c:forEach>
 
   </div>
