@@ -318,7 +318,7 @@ public class TopicPermissionService {
     Preconditions.checkNotNull(comment);
     Preconditions.checkNotNull(topic);
 
-    boolean haveAnswers = commentService.isHaveAnswers(comment);
+    boolean haveAnswers = commentService.hasAnswers(comment);
 
     checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup);
   }

@@ -68,7 +68,7 @@ public class CommentDeleteService {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean deleteComment(int msgid, String reason, User user, int scoreBonus,
                                boolean checkForReply) throws ScriptErrorException {
-    if (checkForReply && commentDao.getReplaysCount(msgid) != 0) {
+    if (checkForReply && commentDao.getRepliesCount(msgid) != 0) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
 
@@ -226,7 +226,7 @@ public class CommentDeleteService {
     List<Integer> deletedCommentIds = new ArrayList<>();
 
     for (int msgid : commentIds) {
-      if (commentDao.getReplaysCount(msgid) == 0) {
+      if (commentDao.getRepliesCount(msgid) == 0) {
         if (doDeleteComment(msgid, reason, moderator)) {
           deletedCommentIds.add(msgid);
           deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
@@ -280,7 +280,7 @@ public class CommentDeleteService {
     List<Integer> commentIds = commentDao.getAllByUserForUpdate(user);
 
     for (int msgid : commentIds) {
-      if (commentDao.getReplaysCount(msgid) == 0) {
+      if (commentDao.getRepliesCount(msgid) == 0) {
         doDeleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator);
         commentDao.updateStatsAfterDelete(msgid, 1);
         deletedCommentIds.add(msgid);
@@ -322,18 +322,18 @@ public class CommentDeleteService {
 
       if (score) {
         switch (depth) {
-          case 0:
+          case 0 -> {
             reason = "7.1 Ответ на некорректное сообщение (авто, уровень 0)";
             bonus = -2;
-            break;
-          case 1:
+          }
+          case 1 -> {
             reason = "7.1 Ответ на некорректное сообщение (авто, уровень 1)";
             bonus = -1;
-            break;
-          default:
+          }
+          default -> {
             reason = "7.1 Ответ на некорректное сообщение (авто, уровень >1)";
             bonus = 0;
-            break;
+          }
         }
       } else {
         reason = "7.1 Ответ на некорректное сообщение (авто)";

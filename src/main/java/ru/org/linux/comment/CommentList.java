@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import ru.org.linux.user.Profile;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +31,9 @@ public class CommentList implements Serializable {
   private final CommentNode root;
   private final ImmutableMap<Integer, CommentNode> nodeIndex;
 
-  private final long lastmod;
+  private final Instant lastmod;
 
-  public CommentList(List<Comment> comments, long lastmod) {
+  public CommentList(List<Comment> comments, Instant lastmod) {
     this.lastmod = lastmod;
 
     this.comments = ImmutableList.copyOf(comments);
@@ -104,7 +105,7 @@ public class CommentList implements Serializable {
     return getCommentPage(comment, messages);
   }
 
-  public long getLastmod() {
+  public Instant getLastmod() {
     return lastmod;
   }
 }

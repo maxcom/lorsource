@@ -68,7 +68,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     val messageText = msgbaseDao.getMessageText(original.id)
 
     val commentEditable = topicPermissionService.isCommentEditableNow(comment, AuthUtil.getCurrentUser,
-      commentReadService.isHaveAnswers(comment), topic, messageText.markup)
+      commentReadService.hasAnswers(comment), topic, messageText.markup)
 
     if (commentEditable) {
       commentRequest.setMsg(messageText.text)

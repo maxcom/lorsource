@@ -65,7 +65,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
   private def findNextComment(comment: Comment): Option[Comment] = {
     val updatedTopic = topicDao.getById(comment.topicId)
-    val commentList = commentService.getCommentList(updatedTopic, false)
+    val commentList = commentService.getCommentList(updatedTopic, showDeleted = false)
 
     commentList.getList.asScala.find(_.id >= comment.id)
   }
@@ -86,7 +86,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     val topic = topicDao.getById(comment.topicId)
-    val haveAnswers = commentService.isHaveAnswers(comment)
+    val haveAnswers = commentService.hasAnswers(comment)
     if (!permissionService.isCommentDeletableNow(comment, user, topic, haveAnswers)) {
       throw new UserErrorException("комментарий нельзя удалить")
     }

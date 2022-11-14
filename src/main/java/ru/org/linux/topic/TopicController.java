@@ -59,6 +59,7 @@ import scala.concurrent.duration.FiniteDuration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -430,7 +431,7 @@ public class TopicController {
   private CommentList getCommentList(Topic topic, Group group, boolean showDeleted) {
     CommentList comments;
     if (permissionService.getPostscore(group, topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS && !showDeleted) {
-      comments = new CommentList(ImmutableList.of(), 0);
+      comments = new CommentList(ImmutableList.of(), Instant.EPOCH);
     } else {
       comments = commentService.getCommentList(topic, showDeleted);
     }

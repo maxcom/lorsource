@@ -152,7 +152,7 @@ public class CommentDaoIntegrationTest {
             "comment body"
     );
 
-    assertEquals(0, commentDao.getReplaysCount(commentId1));
+    assertEquals(0, commentDao.getRepliesCount(commentId1));
 
     addComment(
             commentId2,
@@ -161,6 +161,6 @@ public class CommentDaoIntegrationTest {
             "comment body"
     );
 
-    assertTrue(commentDao.getReplaysCount(commentId1)>0);
+    assertTrue(commentDao.getRepliesCount(commentId1)>0);
   }
 }

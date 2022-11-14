@@ -19,7 +19,6 @@ import akka.Done
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated, Timers}
 import akka.pattern.ask
 import akka.util.Timeout
-import com.google.common.collect.ImmutableList
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -29,7 +28,7 @@ import org.springframework.web.socket.config.annotation.{EnableWebSocket, WebSoc
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.{CloseStatus, PingMessage, TextMessage, WebSocketSession}
 import ru.org.linux.auth.UserDetailsImpl
-import ru.org.linux.comment.{CommentList, CommentReadService}
+import ru.org.linux.comment.CommentReadService
 import ru.org.linux.realtime.RealtimeEventHub.*
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
@@ -220,12 +219,12 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
       val last = maybeComment.getOrElse(0)
 
       val comments = if (topic.getPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
-        commentService.getCommentList(topic, false)
+        commentService.getCommentList(topic, showDeleted = false).getList.asScala
       } else {
-        new CommentList(ImmutableList.of(), 0)
+        Seq.empty
       }
 
-      val missed = comments.getList.asScala.map(_.id).dropWhile(_ <= last).toVector
+      val missed = comments.map(_.id).dropWhile(_ <= last).toVector
 
       missed.foreach { cid =>
         logger.debug(s"Sending missed comment $cid")

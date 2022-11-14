@@ -157,7 +157,7 @@ public class CommentDao {
      * @param msgid id комментария
      * @return число ответов на комментарий
      */
-  public int getReplaysCount(int msgid) {
+  public int getRepliesCount(int msgid) {
     return jdbcTemplate.queryForObject(replysForCommentCount, Integer.class, msgid);
   }
 
