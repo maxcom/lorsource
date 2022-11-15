@@ -80,7 +80,7 @@
         <c:if test="${comment.editSummary!=null}">
           <span class="sign_more">
             <br>
-            Последнее исправление: ${comment.editSummary.editNick}
+            Последнее исправление: ${comment.editSummary.editNick}<c:out value=" "/>
             <lor:date date="${comment.editSummary.editDate}"/>
             (всего
               <a href="${topic.link}/${comment.id}/history">
