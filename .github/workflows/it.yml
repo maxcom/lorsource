@@ -8,7 +8,7 @@ jobs:
     container: maven:3.8.6-eclipse-temurin-17
     services:
       postgres:
-        image: postgres:10
+        image: postgres:15
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
