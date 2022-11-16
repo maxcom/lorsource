@@ -119,7 +119,15 @@
 
 <div class=tracker>
     <c:forEach var="msg" items="${topicsList}">
-      <a href="${msg.lastPageUrl}" class="group-item">
+      <c:if test="${lastmod}">
+        <c:set var="topicUrl" value="${msg.lastPageUrl}"/>
+      </c:if>
+
+      <c:if test="${!lastmod}">
+        <c:set var="topicUrl" value="${msg.firstPageUrl}"/>
+      </c:if>
+
+      <a href="${topicUrl}" class="group-item">
         <div class="tracker-count">
           <p>
           <c:choose>
