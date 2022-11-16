@@ -16,14 +16,15 @@
 package ru.org.linux.tag
 
 import java.util
-
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.sksamuel.elastic4s.ElasticDsl.*
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
+import java.time.LocalDate
+import java.time.temporal.{ChronoUnit, TemporalUnit}
 import scala.jdk.CollectionConverters.*
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -102,8 +103,9 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
             sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
               boolQuery().filter(
                 termQuery("is_comment", "false"),
-                termQuery("section", section.getUrlName)/*,
-                rangeQuery("postdate").gte("now/d-2y")*/)
+                termQuery("section", section.getUrlName),
+                rangeQuery("postdate").gte(
+                  ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate)))
           }
       }
     } map { r =>
