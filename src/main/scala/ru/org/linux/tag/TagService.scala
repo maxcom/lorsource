@@ -98,7 +98,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
               termQuery("section", section.getUrlName),
               rangeQuery("postdate").gte("now/d-1y")
           )).aggs {
-            sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
+            sigTermsAggregation("active") size 20 field "tag" minDocCount 50 backgroundFilter
               boolQuery().filter(
                 termQuery("section", section.getUrlName)/*,
                 rangeQuery("postdate").gte("now/d-2y")*/)
