@@ -72,7 +72,7 @@
   </p>
     <ul>
       <li>CentOS 7.x;</li>
-      <li>СУБД PostgreSQL 10;</li>
+      <li>СУБД PostgreSQL 15;</li>
       <li>OpenJDK 17 (Temurin);</li>
       <li>Scala 2.13;</li>
       <li>Apache Tomcat 8.5;</li>
