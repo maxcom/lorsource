@@ -86,19 +86,20 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search(ElasticsearchIndexService.MessageIndex) fetchSource true sourceInclude Fields query esQuery sortBy query.getSort.order aggs(
+      search(ElasticsearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
         filterAggregation("sections") query matchAllQuery subAggregations (
             termsAggregation("sections") field "section" size 50 subAggregations (
               termsAggregation("groups") field "group" size 50
             )
           ),
           sigTermsAggregation("tags") field "tag" minDocCount 30
-        ) highlighting(
+        ).highlighting(
           highlightOptions() encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight("title") numberOfFragments 0,
           highlight("topicTitle") numberOfFragments 0,
           highlight("message") numberOfFragments 1 fragmentSize MessageFragment highlighterType "fvh"
-        ) size SearchRows from this.query.getOffset postFilter andFilters(postFilters) timeout SearchTimeout
+        ).size(SearchRows).from(this.query.getOffset).postFilter(andFilters(postFilters)).timeout(SearchTimeout)
+        .trackTotalHits(true)
     }
 
     Await.result(future, SearchHardTimeout).result

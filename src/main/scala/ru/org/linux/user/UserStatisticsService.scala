@@ -107,7 +107,7 @@ class UserStatisticsService(
     }
   }
 
-  private def statSearch = search(MessageIndex) size 0 timeout ElasticTimeout
+  private def statSearch = search(MessageIndex).size(0).timeout(ElasticTimeout)
 
   private def countComments(user: User): Future[Long] = {
     elastic execute {
@@ -115,7 +115,7 @@ class UserStatisticsService(
         termQuery("author", user.getNick),
         termQuery("is_comment", true))
 
-      statSearch query root
+      statSearch.query(root).trackTotalHits(true)
     } map (_.result) flatMap timeoutHandler map {
       _.totalHits
     }

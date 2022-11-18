@@ -65,11 +65,12 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   def countTagTopics(tag: String): Future[Long] = {
     Future.successful(elastic) flatMap {
       _ execute {
-        search(MessageIndex) size 0 query
+        count(MessageIndex).query(
           boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
+        )
       }
     } map {
-      _.result.totalHits
+      _.result.count
     }
   }
 
@@ -150,7 +151,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
 }
 
 object TagService {
-  def tagRef(tag: TagInfo) = TagRef(tag.name,
+  def tagRef(tag: TagInfo): TagRef = TagRef(tag.name,
     if (TagName.isGoodTag(tag.name)) {
       Some(TagTopicListController.tagListUrl(tag.name))
     } else {
