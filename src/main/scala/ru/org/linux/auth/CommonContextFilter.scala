@@ -47,7 +47,6 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     }).getOrElse(DateTimeZone.getDefault)
 
     request.setAttribute("timezone", timezone)
-    request.setAttribute("timezoneFix", true)
 
     request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))
     request.setAttribute("template", new Template)

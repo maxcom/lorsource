@@ -61,6 +61,6 @@
   $script('/js/realtime.js?MAVEN_BUILD_TIMESTAMP', "realtime");
 
   $script.ready('lorjs', function() {
-    fixTimezone("${timezone}", ${timezoneFix});
+    fixTimezone("${timezone}");
   });
 </script>
