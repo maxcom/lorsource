@@ -52,6 +52,8 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     request.setAttribute("template", new Template)
     request.setAttribute("currentUser", currentUser)
 
+    request.setAttribute("reactionsEnabled", currentUser!=null && currentUser.isAdministrator)
+
     request.setCharacterEncoding("utf-8")
     res.setLocale(russian)
 
