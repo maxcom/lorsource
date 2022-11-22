@@ -17,7 +17,7 @@ package ru.org.linux.telegram
 
 import akka.actor.{Actor, ActorLogging, Status, Timers}
 import akka.pattern.PipeToSupport
-import play.api.libs.json.Json
+import io.circe.parser.*
 import play.api.libs.ws.{StandaloneWSClient, StandaloneWSResponse}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.telegram.TelegramBotActor.Check
@@ -77,7 +77,11 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
   private def posting(topic: Topic): Receive = {
     case r: StandaloneWSResponse =>
       if (r.status>=200 && r.status < 300) {
-        val telegramId = (Json.parse(r.body) \ "result" \ "message_id").as[Int]
+        val json = parse(r.body)
+
+        val telegramId = json.flatMap(
+          _.hcursor.downField("result").downField("message_id").as[Int]
+        ).toTry.get
 
         log.info(s"Post success! telegramId = $telegramId")
         dao.storePost(topic, telegramId)

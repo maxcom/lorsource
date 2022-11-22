@@ -32,6 +32,7 @@
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
+    <circe.version>0.14.3</circe.version>
   </properties>
 
   <dependencies>
@@ -365,9 +366,27 @@
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.play</groupId>
-      <artifactId>play-ws-standalone-json_${scala.suffix}</artifactId>
-      <version>${play-ws.version}</version>
+      <groupId>io.circe</groupId>
+      <artifactId>circe-core_${scala.suffix}</artifactId>
+      <version>${circe.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.circe</groupId>
+      <artifactId>circe-parser_${scala.suffix}</artifactId>
+      <version>${circe.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.circe</groupId>
+      <artifactId>circe-generic-extras_${scala.suffix}</artifactId>
+      <version>${circe.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.circe</groupId>
+      <artifactId>circe-generic_${scala.suffix}</artifactId>
+      <version>${circe.version}</version>
     </dependency>
 
     <dependency>

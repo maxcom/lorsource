@@ -14,24 +14,22 @@
  */
 package ru.org.linux.auth
 
-import javax.servlet.ServletRequest
-
 import com.typesafe.scalalogging.StrictLogging
+import io.circe.*
+import io.circe.generic.extras.Configuration
+import io.circe.generic.extras.semiauto.*
+import io.circe.parser.*
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
-import play.api.libs.json.{JsValue, Reads}
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedSimpleForm
 import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.spring.SiteConfig
-import play.api.libs.ws.JsonBodyReadables._
-import play.api.libs.ws.DefaultBodyWritables._
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
 
+import javax.servlet.ServletRequest
 import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.util.control.NonFatal
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.*
+import scala.util.control.NonFatal
 
 @Service
 class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) extends StrictLogging {
@@ -52,9 +50,11 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
           .url("https://hcaptcha.com/siteverify")
           .post(params)
           .map { response =>
-            val jsonData = response.body[JsValue]
+            val jsonData = response.body
 
-            jsonData.as[CaptchaResponse]
+            println(jsonData)
+
+            decode[CaptchaResponse](jsonData).toTry.get
           }, 1 minute)
 
         if (!apiResponse.success) {
@@ -72,9 +72,9 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
 }
 
 case class CaptchaResponse(success: Boolean, errorCodes: Option[Seq[String]])
+
 object CaptchaResponse {
-  implicit val reads: Reads[CaptchaResponse] = (
-    (__ \ "success").read[Boolean] and
-      (__ \ "error-codes").readNullable[Seq[String]]
-  )(CaptchaResponse.apply _)
+  implicit val customConfig: Configuration = Configuration.default.withKebabCaseMemberNames
+
+  implicit val decoder: Decoder[CaptchaResponse] = deriveConfiguredDecoder
 }
