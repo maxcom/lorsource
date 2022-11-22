@@ -35,7 +35,6 @@ import ru.org.linux.email.EmailService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
-import java.util.Optional
 import javax.mail.internet.InternetAddress
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.validation.Valid
