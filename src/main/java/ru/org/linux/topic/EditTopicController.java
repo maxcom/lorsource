@@ -333,7 +333,7 @@ public class EditTopicController {
 
     params.put("commit", !topic.isCommited() && preparedTopic.getSection().isPremoderated() && permissionService.canCommit(user, topic));
 
-    Topic newMsg = new Topic(group, topic, form, publish);
+    Topic newMsg = Topic.fromEditRequest(group, topic, form, publish);
 
     boolean modified = false;
 

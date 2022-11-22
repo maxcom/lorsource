@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,9 +28,9 @@ case class BriefTopicRef(
 
 object BriefTopicRef {
   def fromTopicNoGroup(input:Topic) =
-    BriefTopicRef(input.getLink, StringUtil.processTitle(input.getTitle), input.getCommentCount, None)
+    BriefTopicRef(input.getLink, StringUtil.processTitle(input.title), input.commentCount, None)
 
   def fromTopic(input:Topic, group:String) =
-    BriefTopicRef(input.getLink, StringUtil.processTitle(input.getTitle), input.getCommentCount, Some(group))
+    BriefTopicRef(input.getLink, StringUtil.processTitle(input.title), input.commentCount, Some(group))
 
 }

@@ -63,6 +63,6 @@ class BoxletTopicDao(sectionService: SectionService, dataSource: DataSource) {
       rs.getString("title"),
       rs.getTimestamp("lastmod"),
       commentCount,
-      Topic.getPageCount(commentCount, commentsPerPage))
+      Topic.pageCount(commentCount, commentsPerPage))
   }
 }

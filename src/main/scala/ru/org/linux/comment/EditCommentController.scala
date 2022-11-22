@@ -135,7 +135,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     } else {
       commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr, request.getHeader("X-Forwarded-For"), user, originalMessageText)
       searchQueueSender.updateComment(commentRequest.getOriginal.id)
-      val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.getId + "&cid=" + commentRequest.getOriginal.id
+      val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.id + "&cid=" + commentRequest.getOriginal.id
       new ModelAndView(new RedirectView(returnUrl))
     }
   }

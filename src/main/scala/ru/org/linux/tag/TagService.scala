@@ -15,21 +15,21 @@
 
 package ru.org.linux.tag
 
-import java.util
-import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
 import java.time.LocalDate
-import java.time.temporal.{ChronoUnit, TemporalUnit}
-import scala.jdk.CollectionConverters.*
+import java.time.temporal.ChronoUnit
+import java.util
+import scala.collection.Seq
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.collection.Seq
+import scala.jdk.CollectionConverters.*
 
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient) {

@@ -292,7 +292,7 @@ public class AddTopicController {
     Topic previewMsg = null;
 
     if (group!=null) {
-      previewMsg = new Topic(form, user, request.getRemoteAddr());
+      previewMsg = Topic.fromAddRequest(form, user, request.getRemoteAddr());
 
       Image imageObject = null;
 

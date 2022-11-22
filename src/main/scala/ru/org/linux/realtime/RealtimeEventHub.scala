@@ -218,7 +218,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 
       val last = maybeComment.getOrElse(0)
 
-      val comments = if (topic.getPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+      val comments = if (topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
         commentService.getCommentList(topic, showDeleted = false).getList.asScala
       } else {
         Seq.empty
@@ -231,7 +231,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
         notifyComment(session, cid)
       }
 
-      val result = hub ? SubscribeTopic(session, topic.getId)
+      val result = hub ? SubscribeTopic(session, topic.id)
 
       Await.result(result, 10.seconds)
     } catch {

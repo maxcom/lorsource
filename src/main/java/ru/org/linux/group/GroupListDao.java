@@ -263,7 +263,7 @@ public class GroupListDao {
       Timestamp postdate = resultSet.getTimestamp("comment_postdate");
       boolean sticky = resultSet.getBoolean("sticky");
       boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
-      int pages = Topic.getPageCount(stat1, messagesInPage);
+      int pages = Topic.pageCount(stat1, messagesInPage);
 
       ImmutableList<String> tags;
 

@@ -29,7 +29,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
   private def processQueryString(queryText: String) = {
     if (queryText.isEmpty) {
-      matchAllQuery
+      matchAllQuery()
     } else {
       boolQuery.
         should(

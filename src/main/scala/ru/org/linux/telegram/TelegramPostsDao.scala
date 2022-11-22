@@ -20,7 +20,7 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 
 import javax.sql.DataSource
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Repository
 class TelegramPostsDao(ds: DataSource) {
@@ -31,7 +31,7 @@ class TelegramPostsDao(ds: DataSource) {
       .usingColumns("topic_id", "telegram_id")
 
   def storePost(topic: Topic, telegramId: Int): Unit = {
-    simpleJdbcInsert.execute(Map("topic_id" -> topic.getId, "telegram_id" -> telegramId).asJava)
+    simpleJdbcInsert.execute(Map("topic_id" -> topic.id, "telegram_id" -> telegramId).asJava)
   }
 
   def hotTopic: Option[Topic] = {
@@ -53,7 +53,7 @@ class TelegramPostsDao(ds: DataSource) {
         |    having count (distinct comments.userid)>=12
         |    order by count(distinct comments.userid) desc
         |    limit 1)
-        |""".stripMargin) { (resultSet, _) => new Topic(resultSet) }.headOption
+        |""".stripMargin) { (resultSet, _) => Topic.fromResultSet(resultSet) }.headOption
   }
 
   def topicToDelete: Option[Int] = {

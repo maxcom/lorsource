@@ -30,7 +30,7 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
                                    topicPermissionService: TopicPermissionService, userDao: UserDao)
   extends HandlerInterceptor with StrictLogging {
 
-  import GalleryPermissionInterceptor._
+  import GalleryPermissionInterceptor.*
 
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
     val uri = request.getRequestURI.drop(1)
@@ -68,16 +68,16 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
 
   private def visible(currentUser: User, topic: Topic): Boolean = {
     try {
-      topicPermissionService.checkView(groupDao.getGroup(topic.getGroupId), topic, currentUser,
-        userDao.getUserCached(topic.getAuthorUserId), false)
+      topicPermissionService.checkView(groupDao.getGroup(topic.groupId), topic, currentUser,
+        userDao.getUserCached(topic.authorUserId), false)
 
       true
     } catch {
       case ex: MessageNotFoundException =>
-        logger.info(s"topic ${topic.getId} non-visible: ${ex.getMessage}")
+        logger.info(s"topic ${topic.id} non-visible: ${ex.getMessage}")
         false
       case ex: AccessViolationException =>
-        logger.info(s"topic ${topic.getId} non-visible: ${ex.getMessage}")
+        logger.info(s"topic ${topic.id} non-visible: ${ex.getMessage}")
         false
     }
   }

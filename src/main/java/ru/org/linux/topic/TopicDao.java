@@ -152,7 +152,7 @@ public class TopicDao {
 
   public Optional<Topic> findById(int id) {
     try {
-      return Optional.of(jdbcTemplate.queryForObject(queryMessage, (resultSet, i) -> new Topic(resultSet), id));
+      return Optional.of(jdbcTemplate.queryForObject(queryMessage, (resultSet, i) -> Topic.fromResultSet(resultSet), id));
     } catch (EmptyResultDataAccessException exception) {
       return Optional.empty();
     }

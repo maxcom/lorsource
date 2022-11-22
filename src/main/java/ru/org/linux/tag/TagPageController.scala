@@ -193,7 +193,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     Map(
       forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
       forumSection.getUrlName -> TopicListTools.split(
-        topicByDate.map(p => p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.getGroupId).getTitle)))
+        topicByDate.map(p => p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.groupId).getTitle)))
     ) ++ more
   }
 }

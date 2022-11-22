@@ -71,7 +71,7 @@ class MoreLikeThisService(
   breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
 
   def searchSimilar(topic: Topic, tags: java.util.List[TagRef]): Future[Result] = {
-    val cachedValue = Option(cache.getIfPresent(topic.getId))
+    val cachedValue = Option(cache.getIfPresent(topic.id))
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
@@ -84,7 +84,7 @@ class MoreLikeThisService(
         } else Seq().asJava)
 
         result.foreach {
-          v => cache.put(topic.getId, v)
+          v => cache.put(topic.id, v)
         }
 
         result
@@ -97,29 +97,29 @@ class MoreLikeThisService(
       Seq(tagsQuery(tags.map(_.name)))
     } else Seq.empty
 
-    val queries = Seq(titleQuery(topic), textQuery(topic.getId)) ++ tagsQ
+    val queries = Seq(titleQuery(topic), textQuery(topic.id)) ++ tagsQ
 
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
     search(MessageIndex) query {
-      boolQuery.should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.getId.toString))
+      boolQuery.should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.id.toString))
     } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
-    Option(cache.getIfPresent(topic.getId)).getOrElse {
+    Option(cache.getIfPresent(topic.id)).getOrElse {
       try {
         Await.result(featureResult, deadline.timeLeft)
       } catch {
         case _: CircuitBreakerOpenException =>
           logger.debug(s"Similar topics circuit breaker is open")
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+          Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
         case ex: TimeoutException =>
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+          Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
         case NonFatal(ex) =>
           logger.warn("Unable to find similar topics", ex)
-          Option(cache.getIfPresent(topic.getId)).getOrElse(Seq().asJava)
+          Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
       }
     }
   }

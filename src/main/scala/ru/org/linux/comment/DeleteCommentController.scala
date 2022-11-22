@@ -47,7 +47,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     val topic = topicDao.getById(comment.topicId)
-    if (topic.isDeleted) {
+    if (topic.deleted) {
       throw new AccessViolationException("тема удалена")
     }
 

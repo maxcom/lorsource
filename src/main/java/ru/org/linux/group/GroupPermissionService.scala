@@ -44,27 +44,27 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return признак возможности удаления
     */
   private def isDeletableByUser(topic: Topic, user: User): Boolean = {
-    if (topic.getAuthorUserId != user.getId) {
+    if (topic.authorUserId != user.getId) {
       false
-    } else if (topic.isDraft) {
+    } else if (topic.draft) {
       true
     } else {
-      val deleteDeadline = new DateTime(topic.getPostdate).plus(DeletePeriod)
+      val deleteDeadline = new DateTime(topic.postdate).plus(DeletePeriod)
 
-      deleteDeadline.isAfterNow && topic.getCommentCount == 0
+      deleteDeadline.isAfterNow && topic.commentCount == 0
     }
   }
 
   def isUndeletable(topic: Topic, user: User): Boolean = {
-    if (!topic.isDeleted || !user.isModerator) {
+    if (!topic.deleted || !user.isModerator) {
       false
     } else {
       if (user.isAdministrator) {
         true
-      } else if (!topic.isExpired) {
+      } else if (!topic.expired) {
         true
       } else {
-        deleteInfoDao.getDeleteInfo(topic.getId).toScala
+        deleteInfoDao.getDeleteInfo(topic.id).toScala
           .filter(_.delDate != null)
           .map(_.delDate.toInstant)
           .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
@@ -151,13 +151,13 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return признак возможности удаления
     */
   private def isDeletableByModerator(topic: Topic, moderator: User) = {
-    val deleteDeadline = new DateTime(topic.getPostdate).plusMonths(1)
+    val deleteDeadline = new DateTime(topic.postdate).plusMonths(1)
 
-    val section = sectionService.getSection(topic.getSectionId)
+    val section = sectionService.getSection(topic.sectionId)
 
-    if (section.isPremoderated && !topic.isCommited) {
+    if (section.isPremoderated && !topic.commited) {
       true
-    } else if (section.isPremoderated && topic.isCommited && deleteDeadline.isAfterNow) {
+    } else if (section.isPremoderated && topic.commited && deleteDeadline.isAfterNow) {
       true
     } else if (!section.isPremoderated) {
       true
@@ -178,11 +178,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     val section = topic.section
     val author = topic.author
 
-    if (message.isDeleted) {
+    if (message.deleted) {
       false
     } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
       false
-    } else if (message.isExpired) {
+    } else if (message.expired) {
       false
     } else if (by.isAdministrator) {
       true
@@ -192,20 +192,20 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (by.canCorrect && section.isPremoderated) {
       true
-    } else if (by.getId == author.getId && !message.isCommited) {
-      if (message.isSticky) {
+    } else if (by.getId == author.getId && !message.commited) {
+      if (message.sticky) {
         true
       } else if (section.isPremoderated) {
         true
-      } else if (message.isDraft) {
+      } else if (message.draft) {
         true
       } else {
-        val editDeadline = new DateTime(message.getPostdate).plus(EditPeriod)
+        val editDeadline = new DateTime(message.postdate).plus(EditPeriod)
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.isCommited && section.getId == Section.SECTION_ARTICLES) {
-      val editDeadline = new DateTime(message.getCommitDate).plus(EditPeriod)
+    } else if (by.getId == author.getId && message.commited && section.getId == Section.SECTION_ARTICLES) {
+      val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
     } else {
@@ -225,7 +225,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     val section = topic.section
     val author = topic.author
 
-    if (message.isDeleted) {
+    if (message.deleted) {
       false
     } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
       false
@@ -235,20 +235,20 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (by.canCorrect) {
       true
-    } else if (by.getId == author.getId && !message.isCommited) {
-      if (message.isSticky) {
+    } else if (by.getId == author.getId && !message.commited) {
+      if (message.sticky) {
         true
-      } else if (message.isDraft) {
+      } else if (message.draft) {
         true
       } else if (section.isPremoderated) {
         true
       } else {
-        val editDeadline = new DateTime(message.getPostdate).plus(EditPeriod)
+        val editDeadline = new DateTime(message.postdate).plus(EditPeriod)
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.isCommited && section.getId == Section.SECTION_ARTICLES) {
-      val editDeadline = new DateTime(message.getCommitDate).plus(EditPeriod)
+    } else if (by.getId == author.getId && message.commited && section.getId == Section.SECTION_ARTICLES) {
+      val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
     } else {
@@ -265,5 +265,5 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def canCommit(user: User, topic: Topic): Boolean =
-    user!=null && (user.isModerator || (user.canCorrect && topic.getAuthorUserId != user.getId))
+    user!=null && (user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
 }

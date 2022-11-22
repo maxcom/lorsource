@@ -49,7 +49,7 @@ class TopicDaoIntegrationTest {
     val topic = topicDao.getById(TestTopic)
 
     Assert.assertNotNull(topic)
-    Assert.assertEquals(TestTopic, topic.getId)
+    Assert.assertEquals(TestTopic, topic.id)
   }
 
   @Test
@@ -59,8 +59,8 @@ class TopicDaoIntegrationTest {
     val nextTopic = topicDao.getNextMessage(topic, null)
     val prevTopic = topicDao.getPreviousMessage(topic, null)
 
-    Assert.assertNotSame(topic.getId, nextTopic.getId)
-    Assert.assertNotSame(topic.getId, prevTopic.getId)
+    Assert.assertNotSame(topic.id, nextTopic.id)
+    Assert.assertNotSame(topic.id, prevTopic.id)
   }
 }
 

@@ -126,7 +126,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   def prepareCommentForReplyto(comment: Comment, @Nullable currentUser: User, profile: Profile, topic: Topic): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
-    val group = groupDao.getGroup(topic.getGroupId)
+    val group = groupDao.getGroup(topic.groupId)
 
     prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser, group)
   }
@@ -167,7 +167,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     } else {
       val texts = msgbaseDao.getMessageText(list.asScala.map(c => Integer.valueOf(c.id)).asJava)
       val users = userService.getUsersCachedMap(list.asScala.map(_.userid))
-      val group = groupDao.getGroup(topic.getGroupId)
+      val group = groupDao.getGroup(topic.groupId)
 
       val remarks = if (currentUser != null) {
         remarkDao.getRemarks(currentUser, users.values)

@@ -79,7 +79,7 @@ public class TopicListDao {
     return namedJdbcTemplate.query(
             query.toString(),
             params,
-            (resultSet, i) -> new Topic(resultSet)
+            (resultSet, i) -> Topic.fromResultSet(resultSet)
     );
   }
 
@@ -126,24 +126,20 @@ public class TopicListDao {
   }
 
   public List<DeletedTopic> getDeletedUserTopics(User user, int topics) {
-    StringBuilder query = new StringBuilder();
     List <Object> queryParameters = new ArrayList<>();
 
-    query
-            .append("SELECT ")
-            .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
-            .append("reason, topics.postdate, del_info.delDate, bonus ")
-            .append("FROM topics,groups,users,del_info ")
-            .append("WHERE topics.userid=users.id ")
-            .append("AND topics.groupid=groups.id AND deleted ")
-            .append("AND del_info.msgid=topics.id ")
-            .append("AND delDate is not null ");
+    String query = "SELECT " +
+            "topics.title as subj, nick, groups.section, topics.id as msgid, " +
+            "reason, topics.postdate, del_info.delDate, bonus " +
+            "FROM topics,groups,users,del_info " +
+            "WHERE topics.userid=users.id " +
+            "AND topics.groupid=groups.id AND deleted " +
+            "AND del_info.msgid=topics.id " +
+            "AND delDate is not null " +
+            "AND topics.userid = " + user.getId() + " " +
+            " ORDER BY del_info.delDate DESC LIMIT " + topics;
 
-    query.append("AND topics.userid = " + user.getId() + " ");
-
-    query.append(" ORDER BY del_info.delDate DESC LIMIT " + topics);
-
-    return jdbcTemplate.query(query.toString(), (rs, rowNum) -> DeletedTopic.apply(rs), queryParameters.toArray());
+    return jdbcTemplate.query(query, (rs, rowNum) -> DeletedTopic.apply(rs), queryParameters.toArray());
   }
 
   /**
@@ -251,8 +247,7 @@ public class TopicListDao {
 
     return switch (topicListDto.getCommitMode()) {
       case COMMITED_ONLY -> " ORDER BY commitdate DESC";
-      case UNCOMMITED_ONLY -> " ORDER BY postdate DESC";
-      case POSTMODERATED_ONLY -> " ORDER BY postdate DESC";
+      case UNCOMMITED_ONLY, POSTMODERATED_ONLY -> " ORDER BY postdate DESC";
       default -> " ORDER BY COALESCE(commitdate, postdate) DESC";
     };
   }

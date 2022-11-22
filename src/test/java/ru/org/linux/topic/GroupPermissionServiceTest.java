@@ -61,7 +61,7 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Topic message = new Topic(resultSet);
+    Topic message = Topic.fromResultSet(resultSet);
 
     assertFalse(user.isModerator());
     assertEquals(user.getId(), resultSet.getInt("userid"));
@@ -101,7 +101,7 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Topic message = new Topic(resultSet);
+    Topic message = Topic.fromResultSet(resultSet);
 
     assertFalse(user.isModerator());
     assertEquals(user.getId(), resultSet.getInt("userid"));
@@ -142,11 +142,11 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Topic message = new Topic(resultSet);
+    Topic message = Topic.fromResultSet(resultSet);
 
     assertFalse(user.isModerator());
-    assertFalse(user.getId() == resultSet.getInt("userid"));
-    assertFalse(user.getId() == message.getAuthorUserId());
+    assertNotEquals(user.getId(), resultSet.getInt("userid"));
+    assertNotEquals(user.getId(), message.getAuthorUserId());
 
     GroupPermissionService permissionService = new GroupPermissionService(null, null);
 
@@ -183,11 +183,11 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Topic message = new Topic(resultSet);
+    Topic message = Topic.fromResultSet(resultSet);
 
     assertFalse(user.isModerator());
-    assertFalse(user.getId() == resultSet.getInt("userid"));
-    assertFalse(user.getId() == message.getAuthorUserId());
+    assertNotEquals(user.getId(), resultSet.getInt("userid"));
+    assertNotEquals(user.getId(), message.getAuthorUserId());
 
     GroupPermissionService permissionService = new GroupPermissionService(null, null);
 
@@ -302,10 +302,10 @@ public class GroupPermissionServiceTest {
     assertEquals(0, (new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")));
 
 
-    Topic messageModerateOld = new Topic(resultSetModerateOld);
-    Topic messageNotModerateOld = new Topic(resultSetNotModerateOld);
-    Topic messageModerateNew = new Topic(resultSetModerateNew);
-    Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
+    Topic messageModerateOld = Topic.fromResultSet(resultSetModerateOld);
+    Topic messageNotModerateOld = Topic.fromResultSet(resultSetNotModerateOld);
+    Topic messageModerateNew = Topic.fromResultSet(resultSetModerateNew);
+    Topic messageNotModerateNew = Topic.fromResultSet(resultSetNotModerateNew);
 
     // проверка, что данные в mock message верные
     assertTrue(messageModerateNew.isCommited());

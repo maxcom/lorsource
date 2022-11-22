@@ -15,17 +15,17 @@
 
 package ru.org.linux.spring
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.section.Section
 import ru.org.linux.site.Template
-import ru.org.linux.topic._
+import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
-import scala.jdk.CollectionConverters._
+import javax.servlet.http.HttpServletResponse
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class MainPageController(
@@ -35,7 +35,7 @@ class MainPageController(
   memoriesDao: MemoriesDao
 ) {
   @RequestMapping(Array("/", "/index.jsp"))
-  def mainPage(request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
+  def mainPage(response: HttpServletResponse): ModelAndView = {
     val tmpl = Template.getTemplate
 
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
@@ -47,7 +47,7 @@ class MainPageController(
       profile.isMiniNewsBoxletOnMainPage).asScala
 
     val (messages, titles) = allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>
-      if (big.count(!_.isMinor)<5) {
+      if (big.count(!_.minor)<5) {
         (big :+ topic, small)
       } else {
         (big, small :+ topic)

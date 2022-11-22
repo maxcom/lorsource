@@ -24,7 +24,7 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging {
@@ -35,11 +35,11 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
 
     val msg = topicDao.getById(poll.getTopic)
 
-    if (!msg.isCommited) {
+    if (!msg.commited) {
       throw new BadVoteException("Опрос еще не подтвержден")
     }
 
-    if (msg.isExpired) {
+    if (msg.expired) {
       throw new BadVoteException("Опрос завернен")
     }
 
@@ -67,7 +67,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     val msg = topicDao.getById(msgid)
     val poll = pollDao.getPollByTopicId(msgid)
 
-    if (msg.isExpired) {
+    if (msg.expired) {
       throw new BadVoteException("Опрос завершен")
     }
 
