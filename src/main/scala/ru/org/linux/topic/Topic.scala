@@ -18,6 +18,7 @@ import com.google.common.base.Strings
 import org.apache.commons.text.StringEscapeUtils
 import org.joda.time.DateTime
 import ru.org.linux.group.Group
+import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
 import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_NEWS}
 import ru.org.linux.user.User
@@ -40,7 +41,8 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BeanProperty commentCount: Int, @BooleanBeanProperty commited: Boolean,
                  @BooleanBeanProperty notop: Boolean, @BeanProperty userAgentId: Int, @BeanProperty postIP: String,
                  @BooleanBeanProperty resolved: Boolean, @BooleanBeanProperty minor: Boolean,
-                 @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean) {
+                 @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
+                 reactions: Reactions) {
   def getTitleUnescaped: String = StringEscapeUtils.unescapeHtml4(title)
 
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
@@ -103,9 +105,9 @@ object Topic {
       resolved = rs.getBoolean("resolved"),
       minor = rs.getBoolean("minor"),
       draft = rs.getBoolean("draft"),
-      allowAnonymous = rs.getBoolean("allow_anonymous"))
+      allowAnonymous = rs.getBoolean("allow_anonymous"),
+      reactions = ReactionDao.parse(rs.getString("reactions")))
   }
-
 
   def fromAddRequest(form: AddTopicRequest, user: User, postIP: String): Topic = {
     val group = form.getGroup
@@ -136,7 +138,8 @@ object Topic {
       resolved = false,
       minor = false,
       draft = form.isDraftMode,
-      allowAnonymous = form.isAllowAnonymous)
+      allowAnonymous = form.isAllowAnonymous,
+      reactions = Reactions.empty)
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
@@ -173,6 +176,7 @@ object Topic {
       authorUserId = original.authorUserId,
       draft = if (publish) false else original.draft,
       minor = minor,
-      allowAnonymous = original.allowAnonymous)
+      allowAnonymous = original.allowAnonymous,
+      reactions = original.reactions)
   }
 }

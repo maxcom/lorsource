@@ -61,7 +61,7 @@ public class TopicListDao {
       .append("urlname, section, topics.sticky, topics.postip, ")
       .append("COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, ")
       .append("commitdate, topics.stat1, postscore, topics.moderate, notop, ")
-      .append("topics.resolved, minor, draft, allow_anonymous ")
+      .append("topics.resolved, minor, draft, allow_anonymous, topics.reactions ")
       .append("FROM topics ")
       .append("INNER JOIN groups ON (groups.id=topics.groupid) ")
       .append("INNER JOIN sections ON (sections.id=groups.section) ");
@@ -174,16 +174,15 @@ public class TopicListDao {
     }
 
     switch (request.getDateLimitType()) {
-      case BETWEEN:
+      case BETWEEN -> {
         where.append(" AND postdate>=:fromDate AND postdate<:toDate");
         paramsBuilder.put("fromDate", request.getFromDate());
         paramsBuilder.put("toDate", request.getToDate());
-        break;
-      case FROM_DATE:
+      }
+      case FROM_DATE -> {
         where.append(" AND postdate>=:fromDate");
         paramsBuilder.put("fromDate", request.getFromDate());
-        break;
-      default:
+      }
     }
 
     if (request.getUserId() != 0) {
@@ -212,12 +211,8 @@ public class TopicListDao {
     }
 
     switch (request.getMiniNewsMode()) {
-      case MAJOR:
-        where.append(" AND NOT minor");
-        break;
-      case MINOR:
-        where.append(" AND minor");
-        break;
+      case MAJOR -> where.append(" AND NOT minor");
+      case MINOR -> where.append(" AND minor");
     }
 
     if (request.getTag() != 0) {

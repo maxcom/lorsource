@@ -44,7 +44,7 @@ public class CommentDao {
   private static final String queryCommentById = "SELECT " +
     "postdate, topic, userid, comments.id as msgid, comments.title, " +
     "deleted, replyto, edit_count, edit_date, editor_id, " +
-    "ua_id, comments.postip " +
+    "ua_id, comments.postip, comments.reactions " +
     "FROM comments " +
     "WHERE comments.id=?";
 
@@ -54,7 +54,7 @@ public class CommentDao {
   private static final String queryCommentListByTopicId = "SELECT " +
     "comments.title, topic, postdate, userid, comments.id as msgid, " +
     "replyto, edit_count, edit_date, editor_id, deleted, " +
-    "ua_id, comments.postip " +
+    "ua_id, comments.postip, comments.reactions " +
     "FROM comments " +
     "WHERE topic=? ORDER BY msgid ASC";
 
@@ -64,7 +64,7 @@ public class CommentDao {
   private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
     "comments.title, topic, postdate, userid, comments.id as msgid, " +
     "replyto, edit_count, edit_date, editor_id, deleted, " +
-    "ua_id, comments.postip " +
+    "ua_id, comments.postip, comments.reactions " +
     "FROM comments " +
     "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 

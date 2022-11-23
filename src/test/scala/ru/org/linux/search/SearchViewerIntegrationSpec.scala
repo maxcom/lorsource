@@ -24,7 +24,7 @@ import org.springframework.test.context.{ContextConfiguration, TestContextManage
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
 @DirtiesContext
-class SearchViewerIntegrationSpec  extends SpecificationWithJUnit {
+class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired

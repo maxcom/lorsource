@@ -14,6 +14,8 @@
  */
 package ru.org.linux.comment
 
+import ru.org.linux.reaction.{ReactionDao, Reactions}
+
 import java.sql.{ResultSet, Timestamp}
 import java.time.Instant
 import java.util
@@ -23,7 +25,7 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 case class Comment(@BeanProperty id: Int, @BeanProperty title: String, @BeanProperty userid: Int,
                    @BeanProperty replyTo: Int, @BeanProperty topicId: Int, @BooleanBeanProperty deleted: Boolean,
                    @BeanProperty postdate: Timestamp, userAgentId: Int, @Nullable @BeanProperty postIP: String,
-                   editorId: Int, @Nullable editDate: Timestamp, editCount: Int) {
+                   editorId: Int, @Nullable editDate: Timestamp, editCount: Int, reactions: Reactions) {
   def isIgnored(ignoreList: util.Set[Integer]): Boolean = ignoreList != null && ignoreList.contains(userid)
 }
 
@@ -41,7 +43,8 @@ object Comment {
       postIP = rs.getString("postip"),
       editCount = rs.getInt("edit_count"),
       editorId = rs.getInt("editor_id"),
-      editDate = rs.getTimestamp("edit_date"))
+      editDate = rs.getTimestamp("edit_date"),
+      reactions = ReactionDao.parse(rs.getString("reactions")))
   }
 
   def buildNew(replyto: Integer, topic: Int, msgid: Int, userid: Int, postIP: String): Comment = {
@@ -57,6 +60,7 @@ object Comment {
       postdate = Timestamp.from(Instant.now()),
       userid = userid,
       userAgentId = 0,
-      postIP = postIP)
+      postIP = postIP,
+      reactions = Reactions.empty)
   }
 }

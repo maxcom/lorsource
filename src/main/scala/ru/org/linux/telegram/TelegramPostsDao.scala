@@ -42,7 +42,7 @@ class TelegramPostsDao(ds: DataSource) {
         |  urlname, section, topics.sticky, topics.postip,
         |  COALESCE(commitdate, topics.postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, topics.deleted, lastmod, commitby,
         |  commitdate, topics.stat1, postscore, topics.moderate, notop,
-        |  topics.resolved, minor, draft, allow_anonymous
+        |  topics.resolved, minor, draft, allow_anonymous, topics.reactions
         |from topics join groups ON (groups.id=topics.groupid) join sections on (sections.id=groups.section)
         |where topics.id in (
         |  select topic from comments join users on comments.userid=users.id join topics on (comments.topic=topics.id)
@@ -64,7 +64,7 @@ class TelegramPostsDao(ds: DataSource) {
     }.headOption
   }
 
-  def storeDeletion(post: Int) = {
+  def storeDeletion(post: Int): Int = {
     jdbcTemplate.update("delete from telegram_posts where telegram_id=?", post)
   }
 }

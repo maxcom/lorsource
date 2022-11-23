@@ -52,8 +52,6 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
           .map { response =>
             val jsonData = response.body
 
-            println(jsonData)
-
             decode[CaptchaResponse](jsonData).toTry.get
           }, 1 minute)
 
