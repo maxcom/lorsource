@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,14 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.auth.AccessViolationException;
 
-import javax.annotation.Nonnull;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Set;
 
 @Repository
@@ -39,10 +35,10 @@ public class IgnoreListDao {
   private static final String queryIgnoreList = "SELECT a.ignored FROM ignore_list a WHERE a.userid=?";
   private static final String queryIgnoreStat = "SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked";
 
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public void setDataSource(DataSource ds) {
+  public IgnoreListDao(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
@@ -75,14 +71,10 @@ public class IgnoreListDao {
    * @param user пользователь который игнорирует
    * @return список игнорируемых
    */
-  @Nonnull
-  public Set<Integer> get(@Nonnull User user) {
+  public Set<Integer> get(User user) {
     final Builder<Integer> builder = ImmutableSet.builder();
-    jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        builder.add(resultSet.getInt("ignored"));
-      }
+    jdbcTemplate.query(queryIgnoreList, resultSet -> {
+      builder.add(resultSet.getInt("ignored"));
     }, user.getId());
     return builder.build();
   }

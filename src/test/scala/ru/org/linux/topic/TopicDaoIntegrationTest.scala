@@ -99,7 +99,7 @@ class TopicDaoIntegrationTestConfiguration {
   def imageService = Mockito.mock(classOf[ImageService])
 
   @Bean
-  def ignoreListDao = new IgnoreListDao()
+  def ignoreListDao(ds: DataSource) = new IgnoreListDao(ds)
 
   @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
