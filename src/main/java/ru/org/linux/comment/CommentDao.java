@@ -262,14 +262,14 @@ public class CommentDao {
     return jdbcTemplate.query(
             "SELECT " +
                     "groups.title as gtitle, topics.title, topics.id as msgid, " +
-                    "del_info.reason, deldate, bonus, comments.id as cid, comments.postdate " +
-                    "FROM groups, topics, comments, del_info " +
-                    "WHERE groups.id=topics.groupid " +
-                    "AND comments.topic=topics.id " +
-                    "AND del_info.msgid=comments.id " +
-                    "AND comments.userid=? " +
-                    "AND del_info.delby!=comments.userid " +
-                    "ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20",
+                    "comdel.reason, COALESCE(comdel.delDate, topdel.delDate) deldate, comdel.bonus, " +
+                    "comments.id as cid, comments.postdate, topics.deleted topic_deleted " +
+                "FROM groups JOIN topics ON groups.id=topics.groupid " +
+                    "JOIN comments ON comments.topic=topics.id " +
+                    "LEFT JOIN del_info comdel ON comdel.msgid=comments.id " +
+                    "LEFT JOIN del_info topdel ON topdel.msgid=topics.id " +
+                "WHERE comments.userid=? AND (comments.deleted OR topics.deleted) " +
+                "ORDER BY COALESCE(comdel.delDate, topdel.delDate) DESC NULLS LAST, comments.id DESC LIMIT 50",
             (rs, rowNum) ->
                     new CommentsListItem(
                             rs.getString("gtitle"),
@@ -281,7 +281,8 @@ public class CommentDao {
                             rs.getInt("cid"),
                             true,
                             rs.getTimestamp("postdate"),
-                            userId),
+                            userId,
+                            rs.getBoolean("topic_deleted")),
             userId
     );
   }
@@ -299,7 +300,7 @@ public class CommentDao {
     return namedJdbcTemplate.query(
             "SELECT groups.title as gtitle, topics.title, topics.id as msgid, " +
                   "comments.id as cid, comments.postdate, comments.deleted, del_info.deldate, del_info.reason, " +
-                  "del_info.bonus, comments.userid " +
+                  "del_info.bonus, comments.userid, topics.deleted topic_deleted " +
                 "FROM groups JOIN topics ON groups.id=topics.groupid " +
                   "JOIN comments ON comments.topic=topics.id " +
                   "LEFT JOIN del_info ON del_info.msgid=comments.id " +
@@ -319,7 +320,8 @@ public class CommentDao {
                             rs.getInt("cid"),
                             rs.getBoolean("deleted"),
                             rs.getTimestamp("postdate"),
-                            rs.getInt("userid"))
-    );
+                            rs.getInt("userid"),
+                            rs.getBoolean("topic_deleted"))
+            );
   }
 }

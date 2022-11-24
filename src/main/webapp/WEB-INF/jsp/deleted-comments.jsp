@@ -23,7 +23,7 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Последние 20 удаленных модераторами комментариев ${user.nick}</h1>
+<h1>Последние 50 удаленных комментариев ${user.nick}</h1>
 
 <div class=forum>
   <table width="100%" class="message-table">
@@ -41,7 +41,15 @@
     <tr>
       <td>${item.gtitle}</td>
       <td>
-        <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title>${item.title}</l:title></a>
+        <c:if test="${item.topicDeleted}">
+          <s>
+        </c:if>
+
+          <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title>${item.title}</l:title></a>
+
+        <c:if test="${item.topicDeleted}">
+          </s>
+        </c:if>
       </td>
       <td><c:out value="${item.reason}" escapeXml="true"/></td>
       <td>${item.bonus}</td>
