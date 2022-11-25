@@ -39,7 +39,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao) {
   def prepareTopic(message: Topic, user: User): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
-      msgbaseDao.getMessageText(message.getId), None)
+      msgbaseDao.getMessageText(message.id), None)
 
   def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: User, text: MessageText): PreparedTopic =
     prepareTopic(message, tags.asScala, minimizeCut = false, None, user, text, None)
@@ -68,11 +68,11 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
                            @Nullable currentUser: User, text: MessageText, image: Option[Image]): PreparedTopic = try {
-    val group = groupDao.getGroup(topic.getGroupId)
-    val author = userService.getUserCached(topic.getAuthorUserId)
-    val section = sectionService.getSection(topic.getSectionId)
+    val group = groupDao.getGroup(topic.groupId)
+    val author = userService.getUserCached(topic.authorUserId)
+    val section = sectionService.getSection(topic.sectionId)
 
-    val deleteInfo = if (topic.isDeleted) {
+    val deleteInfo = if (topic.deleted) {
       deleteInfoDao.getDeleteInfo(topic.getId).toScala
     } else {
       None
@@ -86,8 +86,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       None
     }
 
-    val commiter = if (topic.getCommitby != 0) {
-      Some(userService.getUserCached(topic.getCommitby))
+    val commiter = if (topic.commitby != 0) {
+      Some(userService.getUserCached(topic.commitby))
     } else {
       None
     }
@@ -96,7 +96,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
     val preparedImage = if (section.isImagepost || section.isImageAllowed) {
-      val loadedImage = if (topic.getId != 0) {
+      val loadedImage = if (topic.id != 0) {
         imageService.imageForTopic(topic).toScala
       } else {
         image
@@ -120,7 +120,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED
 
     val userAgent = if (currentUser != null && currentUser.isModerator) {
-      userAgentDao.getUserAgentById(topic.getUserAgentId).toScala
+      userAgentDao.getUserAgentById(topic.userAgentId).toScala
     } else {
       None
     }
@@ -148,8 +148,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tags = topicTagService.getTagRefs(messages.asScala.toSeq)
 
     messages.asScala.map { message =>
-      val preparedMessage = prepareTopic(message, tags.get(message.getId).asScala, minimizeCut = true, None,
-        user, textMap(message.getId), None)
+      val preparedMessage = prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None,
+        user, textMap(message.id), None)
 
       val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
@@ -157,7 +157,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   }
 
   private def loadTexts(messages: collection.Seq[Topic]) =
-    msgbaseDao.getMessageText(messages.map(_.getId).map(Integer.valueOf).asJava).asScala
+    msgbaseDao.getMessageText(messages.map(_.id).map(Integer.valueOf).asJava).asScala
 
   /**
    * Подготовка ленты топиков, используется в TopicListController например
@@ -171,8 +171,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tags = topicTagService.getTagRefs(messages)
 
     messages.map { message =>
-      prepareTopic(message, tags.get(message.getId).asScala, minimizeCut = true, None, null,
-        textMap(message.getId), None)
+      prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None, null,
+        textMap(message.id), None)
     }
   }
 

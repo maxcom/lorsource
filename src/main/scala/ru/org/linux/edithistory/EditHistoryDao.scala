@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,14 +15,16 @@
 package ru.org.linux.edithistory
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import ru.org.linux.poll.Poll
 
 import java.sql.ResultSet
+import java.util
 import javax.sql.DataSource
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Repository
 class EditHistoryDao(dataSource: DataSource) {
@@ -52,6 +54,7 @@ class EditHistoryDao(dataSource: DataSource) {
 
     Option(resultSet.getString("oldpoll")).map { json =>
       val mapper = new ObjectMapper()
+      mapper.registerModule(DefaultScalaModule)
 
       mapper.readerFor(classOf[Poll]).readValue(json).asInstanceOf[Poll]
     }.foreach(editHistoryRecord.setOldPoll)
@@ -66,7 +69,7 @@ class EditHistoryDao(dataSource: DataSource) {
    * @param objectTypeEnum тип: топик или комментарий
    * @return список изменений топика
    */
-  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum) = {
+  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[EditHistoryRecord] = {
     jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC", (resultSet: ResultSet, i: Int) => {
       parseEditHistoryRecord(resultSet)
     }, id, objectTypeEnum.toString)
@@ -78,13 +81,13 @@ class EditHistoryDao(dataSource: DataSource) {
     }, msgid, objectTypeEnum.toString, recordId)
   }
 
-  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum) = {
+  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[BriefEditInfo] = {
     jdbcTemplate.query("SELECT editdate, editor FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
       (rs: ResultSet, rowNum: Int) =>
         BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor")), id, objectTypeEnum.toString)
   }
 
-  def insert(record: EditHistoryRecord) = {
+  def insert(record: EditHistoryRecord): Unit = {
     editInsert.execute(Map(
       "msgid" -> record.getMsgid,
       "editor" -> record.getEditor,
@@ -98,6 +101,7 @@ class EditHistoryDao(dataSource: DataSource) {
       "oldimage" -> record.getOldimage,
       "oldpoll" -> Option(record.getOldPoll).map { oldPoll =>
         val mapper = new ObjectMapper()
+        mapper.registerModule(DefaultScalaModule)
 
         mapper.writerFor(classOf[Poll]).writeValueAsString(oldPoll)
       }.orNull

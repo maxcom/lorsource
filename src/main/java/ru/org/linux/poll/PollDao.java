@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,7 +24,6 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 
@@ -153,7 +152,7 @@ public class PollDao {
       throw new PollNotFoundException();
     }
 
-    return new Poll(
+    return Poll.apply(
             pollId,
             rs.getInt("topic"),
             rs.getBoolean("multiselect"),
@@ -183,7 +182,7 @@ public class PollDao {
    * @return неизменяемый список вариантов опроса
    */
   public ImmutableList<PollVariantResult> getPollVariants(Poll poll) {
-    return getPollVariants(poll, Poll.ORDER_ID, null);
+    return getPollVariants(poll, Poll.OrderId(), null);
   }
 
   /**
@@ -198,16 +197,13 @@ public class PollDao {
     final List<PollVariantResult> variants = new ArrayList<>();
     
     String query;
-    
-    switch (order) {
-      case Poll.ORDER_ID:
-        query = queryPollVariantsOrderById;
-        break;
-      case Poll.ORDER_VOTES:
-        query = queryPollVariantsOrderByVotes;
-        break;
-      default:
-        throw new RuntimeException("Oops!? order="+order);
+
+    if (order == Poll.OrderId()) {
+      query = queryPollVariantsOrderById;
+    } else if (order == Poll.OrderVotes()) {
+      query = queryPollVariantsOrderByVotes;
+    } else {
+      throw new RuntimeException("Oops!? order=" + order);
     }
 
     jdbcTemplate.query(query, resultSet -> {
@@ -311,7 +307,7 @@ public class PollDao {
   public boolean updatePoll(Poll poll, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
     boolean modified = false;
 
-    ImmutableList<PollVariant> oldVariants = poll.getVariants();
+    List<PollVariant> oldVariants = poll.getVariants();
 
     Map<Integer, String> newMap = PollVariant.toMap(newVariants);
 

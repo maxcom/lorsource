@@ -33,7 +33,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
            @RequestParam("voteid") voteid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val poll = pollDao.getPoll(voteid)
 
-    val msg = topicDao.getById(poll.getTopic)
+    val msg = topicDao.getById(poll.topic)
 
     if (!msg.commited) {
       throw new BadVoteException("Опрос еще не подтвержден")
@@ -47,7 +47,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
       throw new UserErrorException("ничего не выбрано")
     }
 
-    if (!poll.isMultiSelect && votes.length != 1) {
+    if (!poll.multiSelect && votes.length != 1) {
       throw new BadVoteException("этот опрос допускает только один вариант ответа")
     }
 
@@ -81,6 +81,6 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
   @throws[Exception]
   def viewVote(@RequestParam("vote") voteid: Int): ModelAndView = {
     val poll = pollDao.getPoll(voteid)
-    new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopic))
+    new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.topic))
   }
 }

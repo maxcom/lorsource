@@ -46,7 +46,7 @@ public class PollPrepareService {
     return new PreparedPoll(
             poll,
             pollDao.getCountUsers(poll),
-            pollDao.getPollVariants(poll, Poll.ORDER_VOTES, user)
+            pollDao.getPollVariants(poll, Poll.OrderVotes(), user)
     );
   }
 

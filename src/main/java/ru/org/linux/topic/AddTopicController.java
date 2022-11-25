@@ -393,7 +393,7 @@ public class AddTopicController {
       }
     }
 
-    return new Poll(0, 0, form.isMultiSelect(), variants);
+    return Poll.apply(0, 0, form.isMultiSelect(), variants);
   }
 
   @RequestMapping("/add-section.jsp")
