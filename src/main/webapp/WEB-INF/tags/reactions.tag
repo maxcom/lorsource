@@ -12,7 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ tag pageEncoding="UTF-8"%>
+<%@ tag pageEncoding="UTF-8" %>
 <%@ attribute name="reactions" required="true" type="java.util.Map" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -21,11 +21,17 @@
   <c:if test="${not empty reactions}">
     <div class="reactions">
       <c:forEach var="r" items="${reactions}">
-        <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}:
+        <c:set var="title">
+          <c:forEach var="user" items="${r.value.topUsers}">
+            ${user.nick}
+          </c:forEach>
 
-        <c:forEach var="user" items="${r.value.topUsers}">
-          ${user.nick}
-        </c:forEach>
+          <c:if test="${r.value.hasMore}">...</c:if>
+        </c:set>
+
+        <div class="reaction" title="${title}">
+          <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}
+        </div>
       </c:forEach>
     </div>
   </c:if>
