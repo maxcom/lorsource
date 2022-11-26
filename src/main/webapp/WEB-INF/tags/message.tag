@@ -225,6 +225,7 @@
         </div>
       </c:if>
 
+    <lor:reactions reactions="${preparedMessage.reactions}"/>
   </div>
 </div>
 </article>

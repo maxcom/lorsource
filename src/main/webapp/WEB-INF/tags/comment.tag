@@ -126,6 +126,8 @@
           </ul>
         </div>
       </c:if>
+
+      <lor:reactions reactions="${comment.reactions}"/>
     </div>
   </div>
 
