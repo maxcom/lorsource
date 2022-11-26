@@ -96,9 +96,11 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
 
-    new PreparedComment(comment, author, processedMessage, replyInfo.orNull, deletable, editable, remark.orNull,
-      userpic.orNull, apiDeleteInfo.orNull, editSummary.orNull, postIP.orNull, userAgent.orNull, comment.userAgentId,
-      undeletable, answerCount, answerLink.orNull, answerSamepage, authorReadonly)
+    PreparedComment(comment = comment, author = author, processedMessage = processedMessage, reply = replyInfo,
+      deletable = deletable, editable = editable, remark = remark, userpic = userpic, deleteInfo = apiDeleteInfo,
+      editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
+      answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
+      authorReadonly = authorReadonly)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -143,13 +145,10 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val author = userService.getUserCached(comment.userid)
     val processedMessage = textService.renderCommentText(message, nofollow = false)
 
-    new PreparedComment(comment, author, processedMessage, null, // reply
-      false, // deletable
-      false, // editable
-      null, // Remark
-      null, // userpic
-      null, null, null, null, 0, false, 0,
-      null, false, false)
+    PreparedComment(comment = comment, author = author, reply = None, editable = false, remark = None,
+      userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
+      answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
+      processedMessage = processedMessage, deletable = false)
   }
 
   def prepareCommentListRSS(list: java.util.List[Comment]): java.util.List[PreparedRSSComment] = {
