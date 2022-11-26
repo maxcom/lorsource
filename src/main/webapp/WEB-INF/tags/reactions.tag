@@ -13,14 +13,14 @@
   ~    limitations under the License.
   --%>
 <%@ tag pageEncoding="UTF-8" %>
-<%@ attribute name="reactions" required="true" type="java.util.Map" %>
+<%@ attribute name="reactions" required="true" type="ru.org.linux.reaction.PreparedReactions" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <c:if test="${reactionsEnabled}">
   <c:if test="${not empty reactions}">
     <div class="reactions">
-      <c:forEach var="r" items="${reactions}">
+      <c:forEach var="r" items="${reactions.map}">
         <c:set var="title">
           <c:forEach var="user" items="${r.value.topUsers}">
             ${user.nick}

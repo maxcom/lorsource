@@ -17,7 +17,7 @@ package ru.org.linux.topic
 import ru.org.linux.group.Group
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.poll.PreparedPoll
-import ru.org.linux.reaction.PreparedReaction
+import ru.org.linux.reaction.PreparedReactions
 import ru.org.linux.section.Section
 import ru.org.linux.site.DeleteInfo
 import ru.org.linux.tag.TagRef
@@ -34,6 +34,6 @@ case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: Use
                          @BeanProperty markupType: MarkupType, @Nullable @BeanProperty image: PreparedImage,
                          @BeanProperty postscoreInfo: String, @Nullable @BeanProperty remark: Remark,
                          @BeanProperty showRegisterInvite: Boolean, @Nullable @BeanProperty userAgent: String,
-                         @BeanProperty reactions: java.util.Map[String, PreparedReaction]) {
+                         @BeanProperty reactions: PreparedReactions) {
   def getId: Int = message.id
 }

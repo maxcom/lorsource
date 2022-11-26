@@ -16,10 +16,9 @@ package ru.org.linux.comment
 
 import com.google.common.base.Strings
 import org.apache.commons.text.StringEscapeUtils
-import ru.org.linux.reaction.PreparedReaction
+import ru.org.linux.reaction.PreparedReactions
 import ru.org.linux.site.ApiDeleteInfo
-import ru.org.linux.user.User
-import ru.org.linux.user.Userpic
+import ru.org.linux.user.{User, Userpic}
 
 import java.sql.Timestamp
 import javax.annotation.Nullable
@@ -30,7 +29,7 @@ object PreparedComment {
             undeletable: Boolean, editable: Boolean, remark: Option[String], userpic: Option[Userpic], answerCount: Int,
             deleteInfo: Option[ApiDeleteInfo], editSummary: Option[EditSummary], userAgent: Option[String],
             answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean, postIP: Option[String],
-            @BeanProperty reactions: java.util.Map[String, PreparedReaction]): PreparedComment = {
+            @BeanProperty reactions: PreparedReactions): PreparedComment = {
     val encodedTitle = Strings.emptyToNull(comment.title.trim)
 
     val title = if (encodedTitle != null) {
@@ -75,4 +74,4 @@ case class PreparedComment(@BeanProperty id: Int, @BeanProperty author: User, @B
                            @BeanProperty @Nullable answerLink: String, @BooleanBeanProperty answerSamepage: Boolean,
                            @BooleanBeanProperty authorReadonly: Boolean, @Nullable @BeanProperty title: String,
                            @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp,
-                           @BeanProperty reactions: java.util.Map[String, PreparedReaction])
+                           @BeanProperty reactions: PreparedReactions)

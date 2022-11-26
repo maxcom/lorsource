@@ -24,10 +24,22 @@ import scala.jdk.CollectionConverters.*
 case class PreparedReaction(@BeanProperty count: Int, @BeanProperty topUsers: java.util.List[User],
                             @BooleanBeanProperty hasMore: Boolean)
 
+case class PreparedReactions(reactions: Map[String, PreparedReaction]) {
+  // used in jsp
+  def getMap: java.util.Map[String, PreparedReaction] = reactions.asJava
+
+  // empty is a keyword in jsp
+  // used in jsp
+  def isEmptyMap: Boolean = !reactions.exists(_._2.count > 0)
+}
+
+object PreparedReactions {
+  val empty: PreparedReactions = PreparedReactions(Map.empty)
+}
 @Service
 class ReactionPrepareService(userService: UserService) {
-  def prepare(reactions: Reactions, ignoreList: Set[Int]): Map[String, PreparedReaction] = {
-     reactions.reactions
+  def prepare(reactions: Reactions, ignoreList: Set[Int]): PreparedReactions = {
+    PreparedReactions(reactions.reactions
       .view
       .mapValues { userIds =>
         val filteredUserIds = userIds.toSet -- ignoreList
@@ -36,5 +48,6 @@ class ReactionPrepareService(userService: UserService) {
         PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava, users.sizeIs > 3)
       }
       .to(TreeMap)
+    )
   }
 }

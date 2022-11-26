@@ -203,6 +203,11 @@
               <li><a href="comment-message.jsp?topic=${message.id}">Ответить<span class="hideon-phone"> на это сообщение</span></a></li>
             </c:if>
         </c:if>
+
+        <c:if test="${reactionsEnabled and preparedMessage.reactions.emptyMap and currentUser != null}">
+          <li><a href="/reactions?topic=${message.id}">Реакции</a></li>
+        </c:if>
+
         <c:if test="${messageMenu.editable}">
             <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
         </c:if>
