@@ -28,7 +28,7 @@ class IgnoreListDao(ds: DataSource) extends StrictLogging {
   private val jdbcTemplate = new JdbcTemplate(ds)
 
   @throws[AccessViolationException]
-  def addUser (listOwner: User, userToIgnore: User): Unit = {
+  def addUser(listOwner: User, userToIgnore: User): Unit = {
     if (userToIgnore.isModerator) {
       throw new AccessViolationException ("Нельзя игнорировать модератора")
     }
