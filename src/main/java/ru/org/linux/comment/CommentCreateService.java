@@ -327,7 +327,7 @@ public class CommentCreateService {
       User parentAuthor = userService.getUserCached(parentComment.getUserid());
 
       if (!parentAuthor.isAnonymous()) {
-        Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
+        Set<Integer> ignoreList = ignoreListDao.getJava(parentAuthor);
 
         if (!ignoreList.contains(comment.getUserid())) {
           userEventService.addReplyEvent(parentAuthor, comment.getTopicId(), commentId);

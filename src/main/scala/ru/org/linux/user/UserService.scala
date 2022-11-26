@@ -105,10 +105,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     param
   }
 
-  def isIgnoring(userId: Int, ignoredUserId: Int): Boolean = {
-    val ignoredUsers = ignoreListDao.get(getUserCached(userId))
-    ignoredUsers.contains(ignoredUserId)
-  }
+  def isIgnoring(userId: Int, ignoredUserId: Int): Boolean = ignoreListDao.get(userId).contains(ignoredUserId)
 
   private def gravatar(email: String, avatarStyle: String, size: Int): String = {
     val nonExist: String = if ("empty" == avatarStyle) {

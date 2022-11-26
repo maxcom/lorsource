@@ -343,7 +343,7 @@ public class TopicController {
     Set<Integer> ignoreList;
 
     if (currentUser != null) {
-      ignoreList = ignoreListDao.get(currentUser);
+      ignoreList = ignoreListDao.getJava(currentUser);
     } else {
       ignoreList = ImmutableSet.of();
     }
@@ -637,7 +637,7 @@ public class TopicController {
     }
 
     if (tmpl.isSessionAuthorized() && !deleted) {
-        Set<Integer> ignoreList = ignoreListDao.get(AuthUtil.getCurrentUser());
+        Set<Integer> ignoreList = ignoreListDao.getJava(AuthUtil.getCurrentUser());
 
       Set<Integer> hideSet = commentService.makeHideSet(
               comments,

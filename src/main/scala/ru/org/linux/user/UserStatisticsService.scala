@@ -47,7 +47,7 @@ class UserStatisticsService(
     val commentCountFuture = countComments(user)
     val topicsFuture = topicStats(user)
 
-    val ignoreCount = ignoreListDao.getIgnoreStat(user)
+    val ignoreCount = ignoreListDao.getIgnoreCount(user)
     val (firstComment, lastComment) = userDao.getFirstAndLastCommentDate(user)
 
     try {

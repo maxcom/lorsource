@@ -67,7 +67,7 @@ public class UserFilterController {
 
     ModelAndView modelAndView = new ModelAndView("user-filter-list");
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.getJava(user));
 
     Map<Integer, Remark> ignoreRemarks = remarkDao.getRemarksJava(user, ignoreMap.values());
     modelAndView.addObject("ignoreRemarks", ignoreRemarks);
@@ -126,7 +126,7 @@ public class UserFilterController {
       throw new BadInputException("нельзя игнорировать самого себя");
     }
 
-    Set<Integer> ignoreSet = ignoreListDao.get(user);
+    Set<Integer> ignoreSet = ignoreListDao.getJava(user);
 
     if (!ignoreSet.contains(addUser.getId())) {
       ignoreListDao.addUser(user, addUser);

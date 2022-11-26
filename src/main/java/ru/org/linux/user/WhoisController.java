@@ -141,7 +141,7 @@ public class WhoisController {
     mv.getModel().put("canInvite", viewByOwner && userService.canInvite(user));
 
     if (tmpl.isSessionAuthorized() && !viewByOwner) {
-        Set<Integer> ignoreList = ignoreListDao.get(AuthUtil.getCurrentUser());
+        Set<Integer> ignoreList = ignoreListDao.getJava(AuthUtil.getCurrentUser());
 
       mv.getModel().put("ignored", ignoreList.contains(user.getId()));
 
