@@ -16,6 +16,7 @@ package ru.org.linux.comment
 
 import com.google.common.base.Strings
 import org.apache.commons.text.StringEscapeUtils
+import ru.org.linux.reaction.PreparedReaction
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.user.User
 import ru.org.linux.user.Userpic
@@ -28,8 +29,8 @@ object PreparedComment {
   def apply(comment: Comment, author: User, processedMessage: String, reply: Option[ReplyInfo], deletable: Boolean,
             undeletable: Boolean, editable: Boolean, remark: Option[String], userpic: Option[Userpic], answerCount: Int,
             deleteInfo: Option[ApiDeleteInfo], editSummary: Option[EditSummary], userAgent: Option[String],
-            answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean,
-            postIP: Option[String]): PreparedComment = {
+            answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean, postIP: Option[String],
+            @BeanProperty reactions: java.util.Map[String, PreparedReaction]): PreparedComment = {
     val encodedTitle = Strings.emptyToNull(comment.title.trim)
 
     val title = if (encodedTitle != null) {
@@ -59,7 +60,8 @@ object PreparedComment {
       answerCount = answerCount,
       answerLink = answerLink.orNull,
       answerSamepage = answerSamepage,
-      authorReadonly = authorReadonly)
+      authorReadonly = authorReadonly,
+      reactions = reactions)
   }
 }
 
@@ -72,4 +74,5 @@ case class PreparedComment(@BeanProperty id: Int, @BeanProperty author: User, @B
                            @BooleanBeanProperty undeletable: Boolean, @BeanProperty answerCount: Int,
                            @BeanProperty @Nullable answerLink: String, @BooleanBeanProperty answerSamepage: Boolean,
                            @BooleanBeanProperty authorReadonly: Boolean, @Nullable @BeanProperty title: String,
-                           @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp)
+                           @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp,
+                           @BeanProperty reactions: java.util.Map[String, PreparedReaction])

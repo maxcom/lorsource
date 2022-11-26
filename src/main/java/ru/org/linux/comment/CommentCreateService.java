@@ -18,6 +18,7 @@ package ru.org.linux.comment;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -258,9 +259,21 @@ public class CommentCreateService {
     }
   }
 
-  public ImmutableMap<String, Object> prepareReplyto(CommentRequest add, @Nullable User currentUser, Profile profile, Topic topic) throws UserNotFoundException {
+  public ImmutableMap<String, Object> prepareReplyto(CommentRequest add, @Nullable User currentUser,
+                                                     Profile profile, Topic topic) throws UserNotFoundException {
     if (add.getReplyto() != null) {
-      return ImmutableMap.of("onComment", commentPrepareService.prepareCommentForReplyto(add.getReplyto(), currentUser, profile, topic));
+      Set<Integer> ignoreList;
+
+      if (currentUser!=null) {
+        ignoreList = ignoreListDao.getJava(currentUser);
+      } else {
+        ignoreList = ImmutableSet.of();
+      }
+
+      PreparedComment preparedComment = commentPrepareService.prepareCommentForReplyto(add.getReplyto(), currentUser,
+              profile, topic, ignoreList);
+
+      return ImmutableMap.of("onComment", preparedComment);
     } else {
       return ImmutableMap.of();
     }

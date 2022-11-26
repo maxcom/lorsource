@@ -20,6 +20,7 @@ import ru.org.linux.gallery.{Image, ImageService}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollNotFoundException, PollPrepareService, PreparedPoll}
+import ru.org.linux.reaction.ReactionPrepareService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
@@ -36,7 +37,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           siteConfig: SiteConfig, userService: UserService,
                           topicPermissionService: TopicPermissionService,
                           groupPermissionService: GroupPermissionService, topicTagService: TopicTagService,
-                          msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao) {
+                          msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
+                          reactionPrepareService: ReactionPrepareService, ignoreListDao: IgnoreListDao) {
   def prepareTopic(message: Topic, user: User): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
       msgbaseDao.getMessageText(message.id), None)
@@ -73,7 +75,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val section = sectionService.getSection(topic.sectionId)
 
     val deleteInfo = if (topic.deleted) {
-      deleteInfoDao.getDeleteInfo(topic.getId).toScala
+      deleteInfoDao.getDeleteInfo(topic.id).toScala
     } else {
       None
     }
@@ -113,6 +115,12 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       None
     }
 
+    val ignoreList = if (currentUser != null) {
+      ignoreListDao.get(currentUser.getId)
+    } else {
+      Set.empty[Int]
+    }
+
     val postscore = topicPermissionService.getPostscore(group, topic)
 
     val showRegisterInvite = currentUser==null &&
@@ -127,7 +135,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
-      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull)
+      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
+      reactionPrepareService.prepare(topic.reactions, ignoreList).asJava)
   } catch {
     case e: PollNotFoundException =>
       throw new RuntimeException(e)

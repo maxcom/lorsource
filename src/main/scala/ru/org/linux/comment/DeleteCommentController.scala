@@ -27,7 +27,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
-import ru.org.linux.user.UserErrorException
+import ru.org.linux.user.{IgnoreListDao, UserErrorException}
 
 import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
@@ -35,8 +35,8 @@ import scala.jdk.CollectionConverters.*
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentReadService,
                               topicDao: TopicDao, prepareService: CommentPrepareService,
-                              permissionService: TopicPermissionService,
-                              commentDeleteService: CommentDeleteService, deleteInfoDao: DeleteInfoDao) extends StrictLogging {
+                              permissionService: TopicPermissionService, commentDeleteService: CommentDeleteService,
+                              deleteInfoDao: DeleteInfoDao, ignoreListDao: IgnoreListDao) extends StrictLogging {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate
@@ -55,11 +55,14 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val cv = new CommentFilter(comments)
     val list = cv.getCommentsSubtree(msgid, ImmutableSet.of())
 
+    val ignoreList = ignoreListDao.getJava(currentUser.user)
+
     new ModelAndView("delete_comment", Map[String, Any](
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(), currentUser.user, tmpl.getProf)
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(),
+        currentUser.user, tmpl.getProf, ignoreList)
     ).asJava)
   }
 
@@ -167,8 +170,10 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
+    val ignoreList = ignoreListDao.getJava(currentUser.user)
+
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf, topic),
+      "comment" -> prepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf, topic, ignoreList),
       "topic" -> topic
     ).asJava)
   }

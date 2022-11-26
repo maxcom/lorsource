@@ -20,6 +20,7 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.{MarkupType, MessageTextService}
@@ -27,6 +28,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
+import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException
 
 import java.util
@@ -38,7 +40,7 @@ import scala.jdk.CollectionConverters.*
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
                             searchQueueSender: SearchQueueSender, textService: MessageTextService,
-                            commentReadService: CommentReadService) {
+                            commentReadService: CommentReadService, ignoreListDao: IgnoreListDao) {
   @InitBinder(Array("edit"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)
 
@@ -55,7 +57,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = {
+  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { currentUser =>
     val topic = commentRequest.getTopic
     if (topic == null) throw new ServletParameterException("тема не задана")
 
@@ -75,7 +77,10 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, AuthUtil.getCurrentUser, tmpl.getProf, topic))
+      val ignoreList = ignoreListDao.getJava(currentUser.user)
+
+      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf,
+        topic, ignoreList))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 

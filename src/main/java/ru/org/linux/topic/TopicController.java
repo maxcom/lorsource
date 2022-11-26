@@ -387,13 +387,14 @@ public class TopicController {
 
     params.put("unfilteredCount", unfilteredCount);
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
+    List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(
             comments,
             commentsFiltered,
             topic,
             hideSet,
-              AuthUtil.getCurrentUser(),
-            tmpl.getProf()
+            AuthUtil.getCurrentUser(),
+            tmpl.getProf(),
+            ignoreList
     );
 
     params.put("commentsPrepared", commentsPrepared);

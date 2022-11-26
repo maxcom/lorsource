@@ -19,6 +19,7 @@ import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.reaction.{PreparedReaction, ReactionPrepareService}
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
@@ -32,12 +33,12 @@ import scala.jdk.OptionConverters.*
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
                             topicPermissionService: TopicPermissionService, userService: UserService,
                             deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
-                            groupDao: GroupDao) {
+                            groupDao: GroupDao, reactionPrepareService: ReactionPrepareService) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
                              hideSet: Set[Int], samePageComments: Set[Int], @Nullable currentUser: User,
-                             group: Group) = {
+                             group: Group, ignoreList: Set[Int]) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
@@ -100,7 +101,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       deletable = deletable, editable = editable, remark = remark, userpic = userpic, deleteInfo = apiDeleteInfo,
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
-      authorReadonly = authorReadonly)
+      authorReadonly = authorReadonly, reactions = reactionPrepareService.prepare(comment.reactions, ignoreList).asJava)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -125,12 +126,14 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     new PreparedRSSComment(comment, author, processedMessage)
   }
 
-  def prepareCommentForReplyto(comment: Comment, @Nullable currentUser: User, profile: Profile, topic: Topic): PreparedComment = {
+  def prepareCommentForReplyto(comment: Comment, @Nullable currentUser: User, profile: Profile,
+                               topic: Topic, ignoreList: java.util.Set[Integer]): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.groupId)
 
-    prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser, group)
+    prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser, group,
+      ignoreList.asScala.map(_.toInt).toSet)
   }
 
   /**
@@ -148,7 +151,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     PreparedComment(comment = comment, author = author, reply = None, editable = false, remark = None,
       userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
       answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
-      processedMessage = processedMessage, deletable = false)
+      processedMessage = processedMessage, deletable = false, reactions = Map.empty[String, PreparedReaction].asJava)
   }
 
   def prepareCommentListRSS(list: java.util.List[Comment]): java.util.List[PreparedRSSComment] = {
@@ -160,7 +163,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   def prepareCommentList(comments: CommentList, list: java.util.List[Comment], topic: Topic,
                          hideSet: java.util.Set[Integer], @Nullable currentUser: User,
-                         profile: Profile): java.util.List[PreparedComment] = {
+                         profile: Profile, ignoreList: java.util.Set[Integer]): java.util.List[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty.asJava
     } else {
@@ -184,7 +187,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val remark = remarks.get(author.getId)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSetScala,
-          samePageComments, currentUser, group)
+          samePageComments, currentUser, group, ignoreList.asScala.map(_.toInt).toSet)
       }.asJava
     }
   }
