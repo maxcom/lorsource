@@ -29,7 +29,11 @@
           <c:if test="${r.value.hasMore}">...</c:if>
         </c:set>
 
-        <div class="reaction" title="${title}">
+        <c:set var="clicked">
+          <c:if test="${r.value.clicked}">btn-primary</c:if>
+        </c:set>
+
+        <div class="reaction ${clicked}" title="${title}">
           <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}
         </div>
       </c:forEach>

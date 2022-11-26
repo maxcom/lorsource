@@ -101,7 +101,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       deletable = deletable, editable = editable, remark = remark, userpic = userpic, deleteInfo = apiDeleteInfo,
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
-      authorReadonly = authorReadonly, reactions = reactionPrepareService.prepare(comment.reactions, ignoreList))
+      authorReadonly = authorReadonly,
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser))
   }
 
   private def loadDeleteInfo(comment: Comment) = {
