@@ -25,6 +25,7 @@ Disallow: /activate.jsp
 Disallow: /delete_image
 Disallow: /add-section.jsp
 Disallow: /api/
+Disallow: /reactions
 Disallow: /*/*/*/thread
 
 Disallow: /wiki/
