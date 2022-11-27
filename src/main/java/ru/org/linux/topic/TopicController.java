@@ -76,7 +76,7 @@ public class TopicController {
 
   private final SectionService sectionService;
 
-  private final TopicDao messageDao;
+  private final TopicDao topicDao;
 
   private final CommentPrepareService prepareService;
 
@@ -106,7 +106,7 @@ public class TopicController {
 
   private final GroupDao groupDao;
 
-  public TopicController(SectionService sectionService, TopicDao messageDao, CommentPrepareService prepareService,
+  public TopicController(SectionService sectionService, TopicDao topicDao, CommentPrepareService prepareService,
                          TopicPrepareService topicPrepareService, CommentReadService commentService,
                          IgnoreListDao ignoreListDao, SiteConfig siteConfig, IPBlockDao ipBlockDao,
                          EditHistoryService editHistoryService, MemoriesDao memoriesDao,
@@ -114,7 +114,7 @@ public class TopicController {
                          TopicTagService topicTagService, MsgbaseDao msgbaseDao, MessageTextService textService,
                          GroupDao groupDao) {
     this.sectionService = sectionService;
-    this.messageDao = messageDao;
+    this.topicDao = topicDao;
     this.prepareService = prepareService;
     this.topicPrepareService = topicPrepareService;
     this.commentService = commentService;
@@ -234,7 +234,7 @@ public class TopicController {
 
     Deadline deadline = MoreLikeThisTimeout.fromNow();
 
-    Topic topic = messageDao.getById(msgid);
+    Topic topic = topicDao.getById(msgid);
     List<TagRef> tags = topicTagService.getTagRefs(topic);
 
     Future<List<List<MoreLikeThisTopic>>> moreLikeThis = moreLikeThisService.searchSimilar(topic, tags);
@@ -244,12 +244,10 @@ public class TopicController {
 
     Template tmpl = Template.getTemplate();
 
-      PreparedTopic preparedMessage = topicPrepareService.prepareTopic(
-            topic,
-            tags,
-              AuthUtil.getCurrentUser(),
-            messageText
-    );
+    User currentUser = AuthUtil.getCurrentUser();
+
+    PreparedTopic preparedMessage =
+            topicPrepareService.prepareTopic(topic, tags, currentUser, messageText);
 
     Map<String, Object> params = new HashMap<>();
 
@@ -271,8 +269,6 @@ public class TopicController {
     if (showDeleted) {
       page = -1;
     }
-
-    User currentUser = AuthUtil.getCurrentUser();
 
     permissionService.checkView(group, topic, currentUser, preparedMessage.getAuthor(), showDeleted);
 
@@ -444,7 +440,7 @@ public class TopicController {
           HttpServletResponse response,
           String groupName,
           int msgid) {
-    Topic topic = messageDao.getById(msgid);
+    Topic topic = topicDao.getById(msgid);
 
     Map<String, Object> params = new HashMap<>();
 
@@ -499,11 +495,11 @@ public class TopicController {
     Topic nextMessage;
 
     if (useIgnoreList) {
-      prevMessage = messageDao.getPreviousMessage(topic, currentUser);
-      nextMessage = messageDao.getNextMessage(topic, currentUser);
+      prevMessage = topicDao.getPreviousMessage(topic, currentUser);
+      nextMessage = topicDao.getNextMessage(topic, currentUser);
     } else {
-      prevMessage = messageDao.getPreviousMessage(topic, null);
-      nextMessage = messageDao.getNextMessage(topic, null);
+      prevMessage = topicDao.getPreviousMessage(topic, null);
+      nextMessage = topicDao.getNextMessage(topic, null);
     }
 
     params.put("prevMessage", prevMessage);
@@ -542,7 +538,7 @@ public class TopicController {
           @RequestParam(value = "filter", required = false) String filter,
           @RequestParam(required = false) String output
   ) {
-    Topic topic = messageDao.getById(msgid);
+    Topic topic = topicDao.getById(msgid);
 
     StringBuilder link = new StringBuilder(topic.getLink());
 
@@ -595,7 +591,7 @@ public class TopicController {
           int msgid,
           int cid, boolean skipDeleted) {
     Template tmpl = Template.getTemplate();
-    Topic topic = messageDao.getById(msgid);
+    Topic topic = topicDao.getById(msgid);
     Group group = groupDao.getGroup(topic.getGroupId());
 
     CommentList comments = getCommentList(topic, group, false);
@@ -664,7 +660,7 @@ public class TopicController {
       return jumpMessage(msgid, cid, false);
     }
 
-    Topic topic = messageDao.getById(msgid);
+    Topic topic = topicDao.getById(msgid);
 
     TopicLinkBuilder builder;
 

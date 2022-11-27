@@ -79,7 +79,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val ignoreList = ignoreListDao.getJava(currentUser.user)
 
-      formParams.put("comment", commentPrepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf,
+      formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf,
         topic, ignoreList))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))

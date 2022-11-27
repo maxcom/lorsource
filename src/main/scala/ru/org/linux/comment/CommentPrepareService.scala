@@ -19,7 +19,7 @@ import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
-import ru.org.linux.reaction.{PreparedReactions, ReactionPrepareService}
+import ru.org.linux.reaction.{PreparedReactions, ReactionService}
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
@@ -33,7 +33,7 @@ import scala.jdk.OptionConverters.*
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
                             topicPermissionService: TopicPermissionService, userService: UserService,
                             deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
-                            groupDao: GroupDao, reactionPrepareService: ReactionPrepareService) {
+                            groupDao: GroupDao, reactionPrepareService: ReactionService) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
@@ -127,14 +127,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     new PreparedRSSComment(comment, author, processedMessage)
   }
 
-  def prepareCommentForReplyto(comment: Comment, @Nullable currentUser: User, profile: Profile,
-                               topic: Topic, ignoreList: java.util.Set[Integer]): PreparedComment = {
+  def prepareCommentOnly(comment: Comment, @Nullable currentUser: User, profile: Profile,
+                         topic: Topic, ignoreList: java.util.Set[Integer]): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.groupId)
 
-    prepareComment(messageText, author, None, comment, None, profile, topic, Set.empty, Set.empty, currentUser, group,
-      ignoreList.asScala.map(_.toInt).toSet)
+    prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
+      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = currentUser,
+      group = group, ignoreList = ignoreList.asScala.map(_.toInt).toSet)
   }
 
   /**

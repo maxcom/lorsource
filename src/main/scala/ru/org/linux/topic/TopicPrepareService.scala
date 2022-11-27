@@ -20,7 +20,7 @@ import ru.org.linux.gallery.{Image, ImageService}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollNotFoundException, PollPrepareService, PreparedPoll}
-import ru.org.linux.reaction.ReactionPrepareService
+import ru.org.linux.reaction.ReactionService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
@@ -38,7 +38,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           topicPermissionService: TopicPermissionService,
                           groupPermissionService: GroupPermissionService, topicTagService: TopicTagService,
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
-                          reactionPrepareService: ReactionPrepareService, ignoreListDao: IgnoreListDao) {
+                          reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao) {
   def prepareTopic(message: Topic, user: User): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
       msgbaseDao.getMessageText(message.id), None)

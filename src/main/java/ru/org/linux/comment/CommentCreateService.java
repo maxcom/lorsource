@@ -270,7 +270,7 @@ public class CommentCreateService {
         ignoreList = ImmutableSet.of();
       }
 
-      PreparedComment preparedComment = commentPrepareService.prepareCommentForReplyto(add.getReplyto(), currentUser,
+      PreparedComment preparedComment = commentPrepareService.prepareCommentOnly(add.getReplyto(), currentUser,
               profile, topic, ignoreList);
 
       return ImmutableMap.of("onComment", preparedComment);
@@ -281,7 +281,6 @@ public class CommentCreateService {
 
    /**
    * Создание нового комментария.
-   *
    *
    * @param comment        объект комментария
    * @param commentBody    текст комментария

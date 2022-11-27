@@ -26,14 +26,14 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
 import ru.org.linux.user.{User, UserDao, UserErrorException}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService: SectionService,
-                                         messageDao: TopicDao, topicService: TopicService,
-                                         prepareService: TopicPrepareService,
-                                         permissionService: GroupPermissionService,
-                                         userDao: UserDao) extends StrictLogging {
+                            topicDao: TopicDao, topicService: TopicService,
+                            prepareService: TopicPrepareService,
+                            permissionService: GroupPermissionService,
+                            userDao: UserDao) extends StrictLogging {
   private def checkUndeletable(topic: Topic, currentUser: User): Unit = {
     if (!permissionService.isUndeletable(topic, currentUser)) {
       throw new AccessViolationException("это сообщение нельзя восстановить")
@@ -42,24 +42,24 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val msg = messageDao.getById(msgid)
+    val topic = topicDao.getById(msgid)
 
-    if (msg.isDeleted) {
+    if (topic.isDeleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(msg, currentUser.user)) {
+    if (!permissionService.isDeletable(topic, currentUser.user)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
-    val section = sectionService.getSection(msg.getSectionId)
+    val section = sectionService.getSection(topic.getSectionId)
 
     new ModelAndView("delete", Map[String, Any](
-      "bonus" -> (!section.isPremoderated && !msg.isDraft && !msg.isExpired),
-      "author" -> userDao.getUser(msg.getAuthorUserId),
+      "bonus" -> (!section.isPremoderated && !topic.isDraft && !topic.isExpired),
+      "author" -> userDao.getUser(topic.getAuthorUserId),
       "msgid" -> msgid,
-      "draft" -> msg.isDraft,
-      "uncommited" -> (section.isPremoderated && !msg.isCommited)
+      "draft" -> topic.isDraft,
+      "uncommited" -> (section.isPremoderated && !topic.isCommited)
     ).asJava)
   }
 
@@ -68,7 +68,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
                     @RequestParam(value = "bonus", defaultValue = "0") bonus: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val user = currentUser.user
 
-    val message = messageDao.getById(msgid)
+    val message = topicDao.getById(msgid)
     if (message.isDeleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
@@ -87,22 +87,22 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.GET))
   def undeleteForm(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val message = messageDao.getById(msgid)
-    checkUndeletable(message, currentUser.user)
+    val topic = topicDao.getById(msgid)
+    checkUndeletable(topic, currentUser.user)
 
     new ModelAndView("undelete", Map(
-      "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, currentUser.user)
+      "message" -> topic,
+      "preparedMessage" -> prepareService.prepareTopic(topic, currentUser.user)
     ).asJava)
   }
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.POST))
   def undelete(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val message = messageDao.getById(msgid)
+    val message = topicDao.getById(msgid)
     checkUndeletable(message, AuthUtil.getCurrentUser)
 
     if (message.isDeleted) {
-      messageDao.undelete(message)
+      topicDao.undelete(message)
 
       logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.getNick}")
 

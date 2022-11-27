@@ -18,24 +18,24 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <c:if test="${reactionsEnabled}">
-  <c:if test="${not empty reactions}">
+  <c:if test="${not reactions.emptyMap}">
     <div class="reactions">
       <c:forEach var="r" items="${reactions.map}">
-        <c:set var="title">
-          <c:forEach var="user" items="${r.value.topUsers}">
-            ${user.nick}
-          </c:forEach>
+        <c:if test="${r.value.count > 0}">
+          <c:set var="title">
+            <c:forEach var="user" items="${r.value.topUsers}">${user.nick} </c:forEach>
 
-          <c:if test="${r.value.hasMore}">...</c:if>
-        </c:set>
+            <c:if test="${r.value.hasMore}">...</c:if>
+          </c:set>
 
-        <c:set var="clicked">
-          <c:if test="${r.value.clicked}">btn-primary</c:if>
-        </c:set>
+          <c:set var="clicked">
+            <c:if test="${r.value.clicked}">btn-primary</c:if>
+          </c:set>
 
-        <div class="reaction ${clicked}" title="${title}">
-          <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}
-        </div>
+          <div class="reaction ${clicked}" title="${title}">
+            <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}
+          </div>
+        </c:if>
       </c:forEach>
     </div>
   </c:if>

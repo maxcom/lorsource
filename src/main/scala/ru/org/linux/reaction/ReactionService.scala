@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 package ru.org.linux.reaction
 
 import org.springframework.stereotype.Service
+import ru.org.linux.reaction.PreparedReactions.allZeros
+import ru.org.linux.reaction.ReactionService.AllowedReactions
 import ru.org.linux.user.{User, UserService}
 
 import javax.annotation.Nullable
@@ -24,6 +26,10 @@ import scala.jdk.CollectionConverters.*
 
 case class PreparedReaction(@BeanProperty count: Int, @BeanProperty topUsers: java.util.List[User],
                             @BooleanBeanProperty hasMore: Boolean, @BooleanBeanProperty clicked: Boolean)
+
+object PreparedReaction {
+  val empty: PreparedReaction = PreparedReaction(0, Seq.empty.asJava, hasMore = false, clicked = false)
+}
 
 case class PreparedReactions(reactions: Map[String, PreparedReaction]) {
   // used in jsp
@@ -36,21 +42,30 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction]) {
 
 object PreparedReactions {
   val empty: PreparedReactions = PreparedReactions(Map.empty)
-}
-@Service
-class ReactionPrepareService(userService: UserService) {
-  def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User): PreparedReactions = {
-    PreparedReactions(reactions.reactions
-      .view
-      .mapValues { userIds =>
-        val filteredUserIds = userIds.toSet -- ignoreList
-        val users = userService.getUsersCached(filteredUserIds)
-        val clicked = Option(currentUser).map(_.getId).exists(userIds.contains)
 
-        PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
-          hasMore = users.sizeIs > 3, clicked = clicked)
-      }
-      .to(TreeMap)
+  val allZeros: Map[String, PreparedReaction] =
+    AllowedReactions.view.map(_ -> PreparedReaction.empty).to(TreeMap)
+}
+
+object ReactionService {
+  val AllowedReactions: Set[String] = Set("\uD83D\uDC4D", "\uD83D\uDC4E", "\uD83D\uDE0A", "\uD83D\uDE31",
+    "\uD83E\uDD26", "\uD83D\uDD25", "\uD83E\uDD14")
+}
+
+@Service
+class ReactionService(userService: UserService) {
+  def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User): PreparedReactions = {
+    PreparedReactions(allZeros ++
+      reactions.reactions
+        .view
+        .mapValues { userIds =>
+          val filteredUserIds = userIds.toSet -- ignoreList
+          val users = userService.getUsersCached(filteredUserIds)
+          val clicked = Option(currentUser).map(_.getId).exists(userIds.contains)
+
+          PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
+            hasMore = users.sizeIs > 3, clicked = clicked)
+        }
     )
   }
 }

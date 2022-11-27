@@ -14,7 +14,6 @@
  */
 package ru.org.linux.comment
 
-import com.google.common.collect.ImmutableSet
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -51,9 +50,15 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new AccessViolationException("тема удалена")
     }
 
+    val haveAnswers = commentService.hasAnswers(comment)
+
+    if (!permissionService.isCommentDeletableNow(comment, currentUser.user, topic, haveAnswers)) {
+      throw new UserErrorException("комментарий нельзя удалить")
+    }
+
     val comments = commentService.getCommentList(topic, currentUser.moderator)
     val cv = new CommentFilter(comments)
-    val list = cv.getCommentsSubtree(msgid, ImmutableSet.of())
+    val list = cv.getCommentsSubtree(msgid, Set.empty[Integer].asJava)
 
     val ignoreList = ignoreListDao.getJava(currentUser.user)
 
@@ -61,7 +66,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, ImmutableSet.of(),
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Integer].asJava,
         currentUser.user, tmpl.getProf, ignoreList)
     ).asJava)
   }
@@ -173,7 +178,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val ignoreList = ignoreListDao.getJava(currentUser.user)
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentForReplyto(comment, currentUser.user, tmpl.getProf, topic, ignoreList),
+      "comment" -> prepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList),
       "topic" -> topic
     ).asJava)
   }
