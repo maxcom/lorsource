@@ -20,6 +20,7 @@ import io.circe.parser.*
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.comment.Comment
+import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 
 import javax.sql.DataSource
@@ -66,7 +67,29 @@ class ReactionDao(ds: DataSource) {
         "UPDATE comments SET reactions = jsonb_set(reactions, ?, " +
           "COALESCE((SELECT jsonb_agg(val) FROM jsonb_array_elements(reactions->?) x(val) where val!=?::jsonb), '[]')) WHERE id=?",
         basePath, reaction, user.getId.toString, comment.id)
+    }
+  }
 
+
+  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Unit = {
+    val basePath = s"{$reaction}"
+
+    if (set) {
+      jdbcTemplate.update(
+        "UPDATE topics SET reactions = jsonb_insert(reactions, ?, '[]') WHERE id=?" +
+          " AND reactions->? is null", basePath, topic.id, reaction)
+
+      val path = s"{$reaction, -1}"
+
+      jdbcTemplate.update(
+        "UPDATE topics SET reactions = jsonb_insert(reactions, ?, ?, true) WHERE id=?" +
+          " AND NOT (reactions->? @> ?)",
+        path, user.getId.toString, topic.id, reaction, user.getId.toString)
+    } else {
+      jdbcTemplate.update(
+        "UPDATE topics SET reactions = jsonb_set(reactions, ?, " +
+          "COALESCE((SELECT jsonb_agg(val) FROM jsonb_array_elements(reactions->?) x(val) where val!=?::jsonb), '[]')) WHERE id=?",
+        basePath, reaction, user.getId.toString, topic.id)
     }
   }
 }

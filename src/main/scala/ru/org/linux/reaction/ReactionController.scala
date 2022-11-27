@@ -1,3 +1,17 @@
+/*
+ * Copyright 1998-2022 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package ru.org.linux.reaction
 
 import org.springframework.stereotype.Controller
@@ -21,10 +35,10 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
-  def commentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
+  def commentReaction(@RequestAttribute reactionsEnabled: Boolean,
                       @RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
-    val topic = topicDao.getById(topicId)
     val comment = commentDao.getById(commentId)
+    val topic = topicDao.getById(comment.topicId)
 
     currentUserOpt.filter(_ => reactionsEnabled) match {
       case None =>
@@ -47,11 +61,10 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
   }
 
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.POST))
-  def setCommentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
-                         @RequestParam("comment") commentId: Int,
+  def setCommentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("comment") commentId: Int,
                          @RequestParam("reaction") reactionAction: String): ModelAndView = AuthorizedOnly { currentUser =>
     val comment = commentDao.getById(commentId)
-    val topic = topicDao.getById(topicId)
+    val topic = topicDao.getById(comment.topicId)
 
     if (reactionsEnabled) {
       if (topic.deleted || comment.deleted) {
@@ -93,5 +106,32 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
           "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user)
         ).asJava)
     }
+  }
+
+  @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.POST))
+  def setTopicReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
+                         @RequestParam("reaction") reactionAction: String): ModelAndView = AuthorizedOnly { currentUser =>
+    val topic = topicDao.getById(topicId)
+
+    if (reactionsEnabled) {
+      val group = groupDao.getGroup(topic.groupId)
+      val topicAuthor = userService.getUserCached(topic.authorUserId)
+
+      permissionService.checkView(group, topic, currentUser.user, topicAuthor, false)
+
+      if (topic.deleted) {
+        throw new AccessViolationException("Сообщение не доступно")
+      }
+
+      val Array(reaction, action) = reactionAction.split("-", 2)
+
+      if (!ReactionService.AllowedReactions.contains(reaction)) {
+        throw new AccessViolationException("unsupported reaction")
+      }
+
+      reactionService.setTopicReaction(topic, currentUser.user, reaction, action == "true")
+    }
+
+    new ModelAndView(new RedirectView(topic.getLink))
   }
 }

@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.AllowedReactions
-import ru.org.linux.topic.TopicDao
+import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserService}
 
 import javax.annotation.Nullable
@@ -42,6 +42,9 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction]) {
   // empty is a keyword in jsp
   // used in jsp
   def isEmptyMap: Boolean = !reactions.exists(_._2.count > 0)
+
+  // used in jsp
+  def isTotal: Boolean = reactions.forall(_._2.count > 0)
 }
 
 object PreparedReactions {
@@ -77,5 +80,10 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
   def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Unit = transactional() { _ =>
     reactionDao.setCommentReaction(comment, user, reaction, set)
     topicDao.updateLastmod(comment.topicId, false)
+  }
+
+  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Unit = transactional() { _ =>
+    reactionDao.setTopicReaction(topic, user, reaction, set)
+    topicDao.updateLastmod(topic.id, false)
   }
 }

@@ -49,6 +49,15 @@
             </button>
           </c:if>
         </c:forEach>
+
+        <c:if test="${not all and not reactions.total and currentUser != null}">
+          <c:if test="${comment==null}">
+            <a class="reaction" href="/reactions?topic=${topic.id}">&raquo;</a>
+          </c:if>
+          <c:if test="${comment!=null}">
+            <a class="reaction"  href="/reactions?topic=${topic.id}&comment=${comment.id}">&raquo;</a>
+          </c:if>
+        </c:if>
       </form>
     </div>
   </c:if>
