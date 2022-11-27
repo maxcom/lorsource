@@ -408,6 +408,23 @@ $(document).ready(function() {
     });
   }
 
+  function initReactionsUI() {
+    $('.reactions .reaction-show').on('click', function(event) {
+      event.preventDefault();
+
+      if ($(this).parents('.reactions').find('.zero-reactions').is(":hidden")) {
+        $('.reactions .zero-reactions').hide();
+        $('.reactions .reaction-show').html("&raquo;");
+
+        $(this).parents('.reactions').find('.zero-reactions').show();
+        $(this).html("&laquo;");
+      } else {
+        $('.reactions .zero-reactions').hide();
+        $('.reactions .reaction-show').html("&raquo;");
+      }
+    })
+  }
+
   initCtrlEnter();
 
   initSamepageCommentNavigation();
@@ -417,6 +434,7 @@ $(document).ready(function() {
   $(window).bind('hashchange', replace_state);
 
   initCodeSpoilers();
+  initReactionsUI();
 });
 
 function fixTimezone(serverTz) {

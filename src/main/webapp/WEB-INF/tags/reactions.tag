@@ -52,11 +52,21 @@
 
         <c:if test="${not all and not reactions.total and currentUser != null and not topic.deleted and not (comment!=null and comment.deleted)}">
           <c:if test="${comment==null}">
-            <a class="reaction" href="/reactions?topic=${topic.id}">&raquo;</a>
+            <a class="reaction reaction-show" href="/reactions?topic=${topic.id}">&raquo;</a>
           </c:if>
           <c:if test="${comment!=null}">
-            <a class="reaction"  href="/reactions?topic=${topic.id}&comment=${comment.id}">&raquo;</a>
+            <a class="reaction reaction-show" href="/reactions?topic=${topic.id}&comment=${comment.id}">&raquo;</a>
           </c:if>
+
+          <span class="zero-reactions">
+            <c:forEach var="r" items="${reactions.map}">
+              <c:if test="${!all && r.value.count == 0}">
+                <button name="reaction" value="${r.key}-true" class="reaction">
+                  <c:out value="${r.key}" escapeXml="true"/> 0
+                </button>
+              </c:if>
+            </c:forEach>
+          </span>
         </c:if>
       </form>
     </div>
