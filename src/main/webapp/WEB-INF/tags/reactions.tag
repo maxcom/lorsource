@@ -30,7 +30,7 @@
           <input type="hidden" name="comment" value="${comment.id}">
         </c:if>
 
-        <c:set var="disabled"><c:if test="${currentUser==null}">disabled</c:if></c:set>
+        <c:set var="disabled"><c:if test="${currentUser==null or topic.deleted or (comment!=null and comment.deleted)}">disabled</c:if></c:set>
 
         <c:forEach var="r" items="${reactions.map}">
           <c:if test="${all || r.value.count > 0}">
@@ -50,7 +50,7 @@
           </c:if>
         </c:forEach>
 
-        <c:if test="${not all and not reactions.total and currentUser != null}">
+        <c:if test="${not all and not reactions.total and currentUser != null and not topic.deleted and not (comment!=null and comment.deleted)}">
           <c:if test="${comment==null}">
             <a class="reaction" href="/reactions?topic=${topic.id}">&raquo;</a>
           </c:if>
