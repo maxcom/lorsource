@@ -24,6 +24,7 @@
   <c:if test="${all || not reactions.emptyMap}">
     <div class="reactions">
       <form action="/reactions" method="POST">
+        <lor:csrf/>
         <input type="hidden" name="topic" value="${topic.id}">
         <c:if test="${comment != null}">
           <input type="hidden" name="comment" value="${comment.id}">
@@ -34,7 +35,7 @@
         <c:forEach var="r" items="${reactions.map}">
           <c:if test="${all || r.value.count > 0}">
             <c:set var="title">
-              <c:forEach var="user" items="${r.value.topUsers}">${user.nick} </c:forEach>
+              <c:forEach var="user" items="${r.value.topUsers}">${user.nick}<c:out value=" "/></c:forEach>
 
               <c:if test="${r.value.hasMore}">...</c:if>
             </c:set>
@@ -43,7 +44,7 @@
               <c:if test="${r.value.clicked}">btn-primary</c:if>
             </c:set>
 
-            <button name="${r.key}" value="${not r.value.clicked}" class="reaction ${clicked}" title="${title}" ${disabled}>
+            <button name="reaction" value="${r.key}-${not r.value.clicked}" class="reaction ${clicked}" title="${title}" ${disabled}>
               <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}
             </button>
           </c:if>

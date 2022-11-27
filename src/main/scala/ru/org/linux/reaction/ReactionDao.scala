@@ -17,6 +17,12 @@ package ru.org.linux.reaction
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import io.circe.parser.*
+import org.springframework.scala.jdbc.core.JdbcTemplate
+import org.springframework.stereotype.Repository
+import ru.org.linux.comment.Comment
+import ru.org.linux.user.User
+
+import javax.sql.DataSource
 
 // reaction -> Seq[UserId]
 case class Reactions(reactions: Map[String, Seq[Int]])
@@ -34,5 +40,33 @@ object ReactionDao extends StrictLogging {
 
       Map.empty[String, Seq[Int]]
     }.get)
+  }
+}
+
+@Repository
+class ReactionDao(ds: DataSource) {
+  private val jdbcTemplate = new JdbcTemplate(ds)
+
+  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Unit = {
+    val basePath = s"{$reaction}"
+
+    if (set) {
+      jdbcTemplate.update(
+        "UPDATE comments SET reactions = jsonb_insert(reactions, ?, '[]') WHERE id=?" +
+          " AND reactions->? is null", basePath, comment.id, reaction)
+
+      val path = s"{$reaction, -1}"
+
+      jdbcTemplate.update(
+        "UPDATE comments SET reactions = jsonb_insert(reactions, ?, ?, true) WHERE id=?" +
+          " AND NOT (reactions->? @> ?)",
+        path, user.getId.toString, comment.id, reaction, user.getId.toString)
+    } else {
+      jdbcTemplate.update(
+        "UPDATE comments SET reactions = jsonb_set(reactions, ?, " +
+          "COALESCE((SELECT jsonb_agg(val) FROM jsonb_array_elements(reactions->?) x(val) where val!=?::jsonb), '[]')) WHERE id=?",
+        basePath, reaction, user.getId.toString, comment.id)
+
+    }
   }
 }

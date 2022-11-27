@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.comment.{CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.Template
@@ -18,7 +18,8 @@ import scala.jdk.CollectionConverters.*
 @RequestMapping(Array("/reactions"))
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
                          groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
-                         ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService) {
+                         ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
+                         reactionService: ReactionService) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
   def commentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
                       @RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
@@ -29,7 +30,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
-        if (topic.isDeleted || comment.isDeleted || topic.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+        if (topic.deleted || comment.deleted || topic.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
           throw new AccessViolationException("Сообщение не доступно")
         }
 
@@ -43,6 +44,30 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
             commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList)
         ).asJava)
     }
+  }
+
+  @RequestMapping(params = Array("comment"), method = Array(RequestMethod.POST))
+  def setCommentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
+                         @RequestParam("comment") commentId: Int,
+                         @RequestParam("reaction") reactionAction: String): ModelAndView = AuthorizedOnly { currentUser =>
+    val comment = commentDao.getById(commentId)
+    val topic = topicDao.getById(topicId)
+
+    if (reactionsEnabled) {
+      if (topic.deleted || comment.deleted) {
+        throw new AccessViolationException("Сообщение не доступно")
+      }
+
+      val Array(reaction, action) = reactionAction.split("-", 2)
+
+      if (!ReactionService.AllowedReactions.contains(reaction)) {
+        throw new AccessViolationException("unsupported reaction")
+      }
+
+      reactionService.setCommentReaction(comment, currentUser.user, reaction, action=="true")
+    }
+
+    new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
   }
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.GET))

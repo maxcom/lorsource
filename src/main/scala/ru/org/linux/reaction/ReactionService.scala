@@ -14,9 +14,13 @@
  */
 package ru.org.linux.reaction
 
+import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.AllowedReactions
+import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.{User, UserService}
 
 import javax.annotation.Nullable
@@ -53,7 +57,8 @@ object ReactionService {
 }
 
 @Service
-class ReactionService(userService: UserService) {
+class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
+                      val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User): PreparedReactions = {
     PreparedReactions(allZeros ++
       reactions.reactions
@@ -67,5 +72,10 @@ class ReactionService(userService: UserService) {
             hasMore = users.sizeIs > 3, clicked = clicked)
         }
     )
+  }
+
+  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Unit = transactional() { _ =>
+    reactionDao.setCommentReaction(comment, user, reaction, set)
+    topicDao.updateLastmod(comment.topicId, false)
   }
 }

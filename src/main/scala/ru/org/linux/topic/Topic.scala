@@ -161,7 +161,7 @@ object Topic {
       resolved = original.resolved,
       sectionId = sectionId,
       id = original.id,
-      postscore = original.getPostscore,
+      postscore = original.postscore,
       sticky = original.sticky,
       deleted = original.deleted,
       expired = original.expired,
