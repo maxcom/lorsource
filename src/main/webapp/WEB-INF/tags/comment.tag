@@ -17,6 +17,7 @@
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="commentsAllowed" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="allReactions" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -131,7 +132,7 @@
         </div>
       </c:if>
 
-      <lor:reactions reactions="${comment.reactions}"/>
+      <lor:reactions reactions="${comment.reactions}" all="${allReactions}"/>
     </div>
   </div>
 

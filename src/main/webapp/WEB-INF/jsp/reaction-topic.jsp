@@ -19,20 +19,12 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Восстановление сообщения</title>
+<title>Реакция на сообщение</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Восстановление сообщения</h1>
-Вы можете восстановить удалённое сообщение.
-
 <div class=messages>
-  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
+  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedTopic}" message="${topic}" showMenu="false"
+             allReactions="true"/>
 </div>
-
-<form method=POST action="undelete">
-  <lor:csrf/>
-  <input type=hidden name=msgid value="${message.id}">
-  <button type=submit name=undel class="btn btn-primary">Восстановить</button>
-</form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

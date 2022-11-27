@@ -14,14 +14,15 @@
   --%>
 <%@ tag pageEncoding="UTF-8" %>
 <%@ attribute name="reactions" required="true" type="ru.org.linux.reaction.PreparedReactions" %>
+<%@ attribute name="all" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <c:if test="${reactionsEnabled}">
-  <c:if test="${not reactions.emptyMap}">
+  <c:if test="${all || not reactions.emptyMap}">
     <div class="reactions">
       <c:forEach var="r" items="${reactions.map}">
-        <c:if test="${r.value.count > 0}">
+        <c:if test="${all || r.value.count > 0}">
           <c:set var="title">
             <c:forEach var="user" items="${r.value.topUsers}">${user.nick} </c:forEach>
 

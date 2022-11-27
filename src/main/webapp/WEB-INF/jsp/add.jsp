@@ -67,7 +67,7 @@
 <c:if test="${message != null}">
 <h1>Предпросмотр</h1>
 <div class=messages>
-  <lor:message messageMenu="${topicMenu}" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
+  <lor:topic messageMenu="${topicMenu}" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
 <h1>Добавить в «${group.title}»</h1>

@@ -38,9 +38,8 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         val tmpl = Template.getTemplate
 
         new ModelAndView("reaction-comment", Map[String, Any](
-          "comment" -> comment,
           "topic" -> topic,
-          "commentPrepared" ->
+          "preparedComment" ->
             commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList)
         ).asJava)
     }
@@ -65,7 +64,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         }
 
         new ModelAndView("reaction-topic", Map(
-          "message" -> topic,
+          "topic" -> topic,
           "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user)
         ).asJava)
     }

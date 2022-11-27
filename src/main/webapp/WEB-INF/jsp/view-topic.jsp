@@ -202,7 +202,7 @@
 </c:if>
 </c:set>
 
-<lor:message
+<lor:topic
         memoriesInfo="${memoriesInfo}"
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 

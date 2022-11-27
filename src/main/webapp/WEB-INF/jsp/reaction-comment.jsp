@@ -1,4 +1,3 @@
-<%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,23 +12,21 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Возврат в неподтвержденные</title>
+<title>Реакция на комментарий</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Возврат в неподтвержденные</h1>
-Вы можете отменить подтверждение и вернуть топик в список неподтвержденных.
-<form method=POST action="uncommit.jsp">
-<lor:csrf/>
-<input type=hidden name=msgid value="${message.id}">
-<div class=messages>
-  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
+<div class="messages">
+  <div class="comment">
+    <lor:comment commentsAllowed="false" showMenu="false" comment="${preparedComment}" topic="${topic}"
+                 allReactions="true"/>
+  </div>
 </div>
-<input type=submit value="Отменить подтверждение">
-</form>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
