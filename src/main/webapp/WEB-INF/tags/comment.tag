@@ -132,7 +132,7 @@
         </div>
       </c:if>
 
-      <lor:reactions reactions="${comment.reactions}" all="${allReactions}"/>
+      <lor:reactions reactions="${comment.reactions}" all="${allReactions}" topic="${topic}" comment="${comment}"/>
     </div>
   </div>
 

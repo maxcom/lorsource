@@ -1,7 +1,7 @@
 package ru.org.linux.reaction
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping, RequestParam}
+import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters.*
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
                          groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService) {
-  @RequestMapping(params = Array("comment"))
+  @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
   def commentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
                       @RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val topic = topicDao.getById(topicId)
@@ -45,7 +45,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     }
   }
 
-  @RequestMapping(params = Array("!comment"))
+  @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.GET))
   def topicReaction(@RequestAttribute reactionsEnabled: Boolean,
                     @RequestParam("topic") topicId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val topic = topicDao.getById(topicId)

@@ -231,7 +231,7 @@
         </div>
       </c:if>
 
-    <lor:reactions reactions="${preparedMessage.reactions}" all="${allReactions}"/>
+    <lor:reactions reactions="${preparedMessage.reactions}" all="${allReactions}" topic="${message}"/>
   </div>
 </div>
 </article>

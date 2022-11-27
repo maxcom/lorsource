@@ -429,6 +429,12 @@ fieldset legend {
   }
 }
 
+#bd .reaction {
+  &:hover {
+    box-shadow: 0 0 1px 1px $link_color;
+  }
+}
+
 #bd nav .btn {
   border: 1px solid transparent;
 }
