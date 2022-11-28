@@ -430,7 +430,7 @@ fieldset legend {
 }
 
 #bd .reaction {
-  &:hover {
+  &:hover:enabled {
     box-shadow: 0 0 1px 1px $link_color;
   }
 }

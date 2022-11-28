@@ -102,7 +102,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser))
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser, topic, Some(comment)))
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -153,7 +153,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     PreparedComment(comment = comment, author = author, reply = None, editable = false, remark = None,
       userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
       answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
-      processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.empty)
+      processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled)
   }
 
   def prepareCommentListRSS(list: java.util.List[Comment]): java.util.List[PreparedRSSComment] = {

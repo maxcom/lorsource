@@ -24,8 +24,11 @@
     padding: 2px 6px;
     background: inherit;
     color: inherit;
-    cursor: pointer;
     text-decoration: none;
+  }
+
+  .reaction:enabled {
+    cursor: pointer;
   }
 
   .zero-reactions {

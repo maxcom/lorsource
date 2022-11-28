@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.AllowedReactions
-import ru.org.linux.topic.{Topic, TopicDao}
+import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{User, UserService}
 
 import javax.annotation.Nullable
@@ -35,7 +35,8 @@ object PreparedReaction {
   val empty: PreparedReaction = PreparedReaction(0, Seq.empty.asJava, hasMore = false, clicked = false)
 }
 
-case class PreparedReactions(reactions: Map[String, PreparedReaction]) {
+case class PreparedReactions(reactions: Map[String, PreparedReaction],
+                             @BooleanBeanProperty allowInteract: Boolean) {
   // used in jsp
   def getMap: java.util.Map[String, PreparedReaction] = reactions.asJava
 
@@ -48,7 +49,7 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction]) {
 }
 
 object PreparedReactions {
-  val empty: PreparedReactions = PreparedReactions(Map.empty)
+  val emptyDisabled: PreparedReactions = PreparedReactions(Map.empty, allowInteract = false)
 
   val allZeros: Map[String, PreparedReaction] =
     AllowedReactions.view.map(_ -> PreparedReaction.empty).to(TreeMap)
@@ -62,7 +63,19 @@ object ReactionService {
 @Service
 class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User): PreparedReactions = {
+  def allowInteract(@Nullable currentUser: User, topic: Topic, comment: Option[Comment]): Boolean = {
+    val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
+
+    currentUser != null &&
+      !topic.deleted &&
+      comment.forall(! _.deleted) &&
+      currentUser.getId != authorId &&
+      (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
+  }
+
+  def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User,
+              topic: Topic, comment: Option[Comment]): PreparedReactions = {
+
     PreparedReactions(allZeros ++
       reactions.reactions
         .view
@@ -71,10 +84,10 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
           val users = userService.getUsersCached(filteredUserIds)
           val clicked = Option(currentUser).map(_.getId).exists(userIds.contains)
 
+
           PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
             hasMore = users.sizeIs > 3, clicked = clicked)
-        }
-    )
+        }, allowInteract = allowInteract(currentUser, topic, comment))
   }
 
   def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Unit = transactional() { _ =>
