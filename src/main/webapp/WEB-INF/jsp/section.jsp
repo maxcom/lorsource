@@ -32,7 +32,7 @@
     <li>
       <a class="navLink" href="${group.url}">${group.title}</a>
 
-      (сегодня ${group.stat3})
+      (${group.stat3} за сутки)
 
       <c:if test="${group.info != null}">
         — <em><c:out value="${group.info}" escapeXml="false"/></em>
