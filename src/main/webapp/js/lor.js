@@ -409,17 +409,23 @@ $(document).ready(function() {
   }
 
   function initReactionsUI() {
-    $('.reactions .reaction-show').on('click', function(event) {
+    $('.reaction-show').on('click', function(event) {
       event.preventDefault();
 
-      if ($(this).parents('.reactions').find('.zero-reactions').is(":hidden")) {
-        $('.reactions .zero-reactions').hide();
+      var reactions = $(this).parents('.msg_body').find('.reactions');
+
+      if (reactions.is(":hidden") || reactions.find('.zero-reactions').is(":hidden")) {
+        $('.zero-reactions').hide();
         $('.reactions .reaction-show').html("&raquo;");
 
-        $(this).parents('.reactions').find('.zero-reactions').show();
-        $(this).html("&laquo;");
+        if (reactions.hasClass("zero-reactions")) {
+          reactions.show();
+        } else {
+          reactions.find('.zero-reactions').show();
+          $(this).html("&laquo;");
+        }
       } else {
-        $('.reactions .zero-reactions').hide();
+        $('.zero-reactions').hide();
         $('.reactions .reaction-show').html("&raquo;");
       }
     })

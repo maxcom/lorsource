@@ -108,7 +108,7 @@
             </c:if>
 
             <c:if test="${reactionsEnabled and comment.reactions.emptyMap and comment.reactions.allowInteract}">
-              <li><a class="reactions-show-all" href="/reactions?topic=${topic.id}&comment=${comment.id}">Реакции</a></li>
+              <li><a class="reaction-show" href="/reactions?topic=${topic.id}&comment=${comment.id}">Реакции</a></li>
             </c:if>
 
             <c:if test="${comment.editable}">

@@ -206,7 +206,7 @@
         </c:if>
 
         <c:if test="${reactionsEnabled and preparedMessage.reactions.emptyMap and preparedMessage.reactions.allowInteract}">
-          <li><a class="reactions-show-all" href="/reactions?topic=${message.id}">Реакции</a></li>
+          <li><a class="reaction-show" href="/reactions?topic=${message.id}">Реакции</a></li>
         </c:if>
 
         <c:if test="${messageMenu.editable}">
