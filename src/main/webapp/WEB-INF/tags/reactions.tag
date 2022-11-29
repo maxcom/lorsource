@@ -23,7 +23,7 @@
 <c:if test="${reactionsEnabled}">
   <c:set var="mainClass"><c:if test="${reactions.emptyMap and not all}">zero-reactions</c:if></c:set>
   <div class="reactions ${mainClass}">
-    <form action="/reactions" method="POST">
+    <form class="reactions-form" action="/reactions" method="POST">
       <lor:csrf/>
       <input type="hidden" name="topic" value="${topic.id}">
       <c:if test="${comment != null}">
@@ -46,7 +46,7 @@
 
           <button name="reaction" value="${r.key}-${not r.value.clicked}" class="reaction ${clicked}"
                   title="${title}" ${disabled}>
-            <c:out value="${r.key}" escapeXml="true"/> ${r.value.count}
+            <c:out value="${r.key}" escapeXml="true"/> <span class="reaction-count">${r.value.count}</span>
           </button>
         </c:if>
       </c:forEach>
@@ -67,7 +67,7 @@
             <c:forEach var="r" items="${reactions.map}">
               <c:if test="${!all && r.value.count == 0}">
                 <button name="reaction" value="${r.key}-true" class="reaction">
-                  <c:out value="${r.key}" escapeXml="true"/> 0
+                  <c:out value="${r.key}" escapeXml="true"/> <span class="reaction-count">0</span>
                 </button>
               </c:if>
             </c:forEach>

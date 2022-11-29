@@ -429,6 +429,40 @@ $(document).ready(function() {
         $('.reactions .reaction-show').html("&raquo;");
       }
     })
+
+    $script.ready('plugins', function () {
+      $('button.reaction').on('click', function(event) {
+        event.preventDefault();
+
+        var value = $(this).attr('value');
+        var btn = $(this);
+        var form = $(this).parents(".reactions-form")
+
+        var options = {
+          url: "/reactions/ajax",
+          data: { "reaction" : value },
+          success: function(response) {
+            btn.find('.reaction-count').text(response.count);
+
+            if (value.endsWith('-true')) {
+              form.find("button.btn-primary").each(function () {
+                $(this).attr('value', $(this).attr('value').replace(/-.*/, "-true"));
+                $(this).find(".reaction-count").text($(this).find(".reaction-count").text() - 1);
+                $(this).removeClass("btn-primary");
+              });
+
+              btn.attr('value', value.replace(/-.*/, "-false"));
+              btn.addClass("btn-primary");
+            } else {
+              btn.attr('value', value.replace(/-.*/, "-true"));
+              btn.removeClass("btn-primary");
+            }
+          }
+        };
+
+        $(this).parents('.reactions-form').ajaxSubmit(options);
+      });
+    })
   }
 
   initCtrlEnter();

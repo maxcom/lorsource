@@ -78,25 +78,33 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
     PreparedReactions(allZeros ++
       reactions.reactions
+        .groupMap(_._2)(_._1)
         .view
         .mapValues { userIds =>
-          val filteredUserIds = userIds.toSet -- ignoreList
-          val users = userService.getUsersCached(filteredUserIds)
-          val clicked = Option(currentUser).map(_.getId).exists(userIds.contains)
+          val userIdsSet = userIds.toSet
 
+          val filteredUserIds = userIdsSet -- ignoreList
+          val users = userService.getUsersCached(filteredUserIds)
+          val clicked = Option(currentUser).map(_.getId).exists(userIdsSet.contains)
 
           PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
             hasMore = users.sizeIs > 3, clicked = clicked)
         }, allowInteract = allowInteract(currentUser, topic, comment))
   }
 
-  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Unit = transactional() { _ =>
-    reactionDao.setCommentReaction(comment, user, reaction, set)
+  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Int = transactional() { _ =>
+    val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
+
     topicDao.updateLastmod(comment.topicId, false)
+
+    newCount
   }
 
-  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Unit = transactional() { _ =>
-    reactionDao.setTopicReaction(topic, user, reaction, set)
+  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int = transactional() { _ =>
+    val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
+
     topicDao.updateLastmod(topic.id, false)
+
+    newCount
   }
 }

@@ -17,6 +17,7 @@ package ru.org.linux.reaction
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import io.circe.parser.*
+import io.circe.syntax.*
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.comment.Comment
@@ -26,7 +27,7 @@ import ru.org.linux.user.User
 import javax.sql.DataSource
 
 // reaction -> Seq[UserId]
-case class Reactions(reactions: Map[String, Seq[Int]])
+case class Reactions(reactions: Map[Int, String])
 
 object Reactions {
   val empty: Reactions = Reactions(Map.empty)
@@ -34,12 +35,12 @@ object Reactions {
 
 object ReactionDao extends StrictLogging {
   def parse(json: String): Reactions = {
-    val parsed: Either[Error, Map[String, Seq[Int]]] = decode[Map[String, Seq[Int]]](json)
+    val parsed: Either[Error, Map[Int, String]] = decode[Map[Int, String]](json)
 
     Reactions(parsed.toTry.recover { ex =>
       logger.warn("Can't parse reactions", ex)
 
-      Map.empty[String, Seq[Int]]
+      Map.empty[Int, String]
     }.get)
   }
 }
@@ -48,48 +49,31 @@ object ReactionDao extends StrictLogging {
 class ReactionDao(ds: DataSource) {
   private val jdbcTemplate = new JdbcTemplate(ds)
 
-  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Unit = {
-    val basePath = s"{$reaction}"
-
+  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Int = {
     if (set) {
-      jdbcTemplate.update(
-        "UPDATE comments SET reactions = jsonb_insert(reactions, ?, '[]') WHERE id=?" +
-          " AND reactions->? is null", basePath, comment.id, reaction)
+      val add = Map(user.getId -> reaction).asJson.noSpaces
 
-      val path = s"{$reaction, -1}"
-
-      jdbcTemplate.update(
-        "UPDATE comments SET reactions = jsonb_insert(reactions, ?, ?, true) WHERE id=?" +
-          " AND NOT (reactions->? @> ?)",
-        path, user.getId.toString, comment.id, reaction, user.getId.toString)
+      jdbcTemplate.update("UPDATE comments SET reactions = reactions || ? WHERE id=?", add, comment.id)
     } else {
-      jdbcTemplate.update(
-        "UPDATE comments SET reactions = jsonb_set(reactions, ?, " +
-          "COALESCE((SELECT jsonb_agg(val) FROM jsonb_array_elements(reactions->?) x(val) where val!=?::jsonb), '[]')) WHERE id=?",
-        basePath, reaction, user.getId.toString, comment.id)
+      jdbcTemplate.update("UPDATE comments SET reactions = reactions - ? WHERE id=?", user.getId.toString, comment.id)
     }
+
+    val r = jdbcTemplate.queryForObject[String]("SELECT reactions FROM comments WHERE id=?", comment.id)
+
+    ReactionDao.parse(r.get).reactions.values.count(_ == reaction)
   }
 
-
-  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Unit = {
-    val basePath = s"{$reaction}"
-
+  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int = {
     if (set) {
-      jdbcTemplate.update(
-        "UPDATE topics SET reactions = jsonb_insert(reactions, ?, '[]') WHERE id=?" +
-          " AND reactions->? is null", basePath, topic.id, reaction)
+      val add = Map(user.getId -> reaction).asJson.noSpaces
 
-      val path = s"{$reaction, -1}"
-
-      jdbcTemplate.update(
-        "UPDATE topics SET reactions = jsonb_insert(reactions, ?, ?, true) WHERE id=?" +
-          " AND NOT (reactions->? @> ?)",
-        path, user.getId.toString, topic.id, reaction, user.getId.toString)
+      jdbcTemplate.update("UPDATE topics SET reactions = reactions || ? WHERE id=?", add, topic.id)
     } else {
-      jdbcTemplate.update(
-        "UPDATE topics SET reactions = jsonb_set(reactions, ?, " +
-          "COALESCE((SELECT jsonb_agg(val) FROM jsonb_array_elements(reactions->?) x(val) where val!=?::jsonb), '[]')) WHERE id=?",
-        basePath, reaction, user.getId.toString, topic.id)
+      jdbcTemplate.update("UPDATE topics SET reactions = reactions - ? WHERE id=?", user.getId.toString, topic.id)
     }
+
+    val r = jdbcTemplate.queryForObject[String]("SELECT reactions FROM topics WHERE id=?", topic.id)
+
+    ReactionDao.parse(r.get).reactions.values.count(_ == reaction)
   }
 }

@@ -25,13 +25,13 @@ class ReactionsDaoSpec extends Specification {
       val parsed = ReactionDao.parse(
         """
           |{
-          | "гаф-гаф": [1, 2, 22],
-          | "тяф-тяф": [9, 8, 77]
+          | "1": "гаф-гаф",
+          | "2": "тяф-тяф"
           |}
           |""".stripMargin)
 
       parsed.reactions must haveSize(2)
-      parsed.reactions.get("гаф-гаф") must beSome
+      parsed.reactions.get(1) must beSome("гаф-гаф")
     }
   }
 }
