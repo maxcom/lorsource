@@ -60,9 +60,8 @@ object PreparedReactions {
 }
 
 object ReactionService {
-  // thumbs down: "\uD83D\uDC4E"
   // beer: "\uD83C\uDF7A" (fix sort order)
-  val AllowedReactions: Set[String] = Set("\uD83D\uDC4D", "\uD83D\uDE0A", "\uD83D\uDE31",
+  val AllowedReactions: Set[String] = Set("\uD83D\uDC4D", "\uD83D\uDC4E", "\uD83D\uDE0A", "\uD83D\uDE31",
     "\uD83E\uDD26", "\uD83D\uDD25", "\uD83E\uDD14")
 }
 
