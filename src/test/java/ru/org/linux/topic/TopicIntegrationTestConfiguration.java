@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import akka.actor.ActorRef;
 import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -108,5 +109,10 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public ElasticClient elasticClient() {
     return mock(ElasticClient.class);
+  }
+
+  @Bean("realtimeHubWS")
+  public ActorRef realtimeHub() {
+    return mock(ActorRef.class);
   }
 }
