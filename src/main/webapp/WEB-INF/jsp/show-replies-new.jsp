@@ -116,6 +116,9 @@
       <c:when test="${topic.event.eventType == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
+      <c:when test="${topic.event.eventType == 'REACTION'}">
+        ${topic.event.reaction}
+      </c:when>
     </c:choose>
   </td>
   <td>

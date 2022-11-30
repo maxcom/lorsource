@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 1998-2022 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2022113001" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            alter type event_type add value 'REACTION';
+        </sql>
+        
+        <addColumn tableName="user_events">
+            <column name="origin_user" type="int">
+                <constraints foreignKeyName="event_type_origin_fkey" nullable="true" references="users(id)"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="user_events" indexName="user_events_origin_idx">
+            <column name="origin_user"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2022113003" author="Maxim Valyanskiy">
+        <sql splitStatements="false">
+            create unique index  user_events_reactions_upsert_idx
+                on user_events(message_id, comment_id, origin_user) NULLS NOT DISTINCT
+                where type='REACTION';
+        </sql>
+    </changeSet>
+</databaseChangeLog>

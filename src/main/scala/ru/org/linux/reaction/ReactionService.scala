@@ -14,14 +14,18 @@
  */
 package ru.org.linux.reaction
 
+import akka.actor.ActorRef
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.auth.CommonContextFilter
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.AllowedReactions
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.user.{User, UserService}
+import ru.org.linux.user.{User, UserEventDao, UserService}
 
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
@@ -56,17 +60,22 @@ object PreparedReactions {
 }
 
 object ReactionService {
-  val AllowedReactions: Set[String] = Set("\uD83D\uDC4D", "\uD83D\uDC4E", "\uD83D\uDE0A", "\uD83D\uDE31",
+  // thumbs down: "\uD83D\uDC4E"
+  // beer: "\uD83C\uDF7A" (fix sort order)
+  val AllowedReactions: Set[String] = Set("\uD83D\uDC4D", "\uD83D\uDE0A", "\uD83D\uDE31",
     "\uD83E\uDD26", "\uD83D\uDD25", "\uD83E\uDD14")
 }
 
 @Service
 class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
+                      userEventDao: UserEventDao, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def allowInteract(@Nullable currentUser: User, topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
+    val author = userService.getUserCached(authorId)
 
     currentUser != null &&
+      CommonContextFilter.reactionsEnabledFor(author) &&
       !topic.deleted &&
       comment.forall(! _.deleted) &&
       currentUser.getId != authorId &&
@@ -92,19 +101,44 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
         }, allowInteract = allowInteract(currentUser, topic, comment))
   }
 
-  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Int = transactional() { _ =>
-    val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
+  def setCommentReaction(topic: Topic, comment: Comment, user: User, reaction: String,
+                         set: Boolean): Int = {
+    val r = transactional() { _ =>
+      val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
 
-    topicDao.updateLastmod(comment.topicId, false)
+      topicDao.updateLastmod(comment.topicId, false)
 
-    newCount
+      if (set) {
+        userEventDao.insertReactionNotification(user, topic, Some(comment))
+      }
+
+      newCount
+    }
+
+    if (set) {
+      realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(comment.userid))
+    }
+
+    r
   }
 
-  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int = transactional() { _ =>
-    val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
+  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int = {
+    val r = transactional() { _ =>
+      val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
 
-    topicDao.updateLastmod(topic.id, false)
+      topicDao.updateLastmod(topic.id, false)
 
-    newCount
+      if (set) {
+        userEventDao.insertReactionNotification(user, topic, None)
+      }
+
+      newCount
+    }
+
+    if (set) {
+      realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(topic.authorUserId))
+    }
+
+    r
   }
 }

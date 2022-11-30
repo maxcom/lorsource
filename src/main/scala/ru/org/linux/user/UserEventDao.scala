@@ -23,6 +23,8 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
+import ru.org.linux.reaction.{ReactionDao, ReactionService}
+import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
 import java.util
@@ -37,7 +39,7 @@ object UserEventDao {
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg
+      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
@@ -49,7 +51,7 @@ object UserEventDao {
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg
+      |  user_events.message as ev_msg, origin_user, comments.reactions as creations, topics.reactions as treactions
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
@@ -102,6 +104,15 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     insertTopicUsersNotified.executeBatch(batch*)
   }
 
+  def insertReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit = {
+    val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
+
+    jdbcTemplate.update("INSERT INTO " +
+        "user_events (userid, type, private, message_id, comment_id, origin_user)" +
+        "VALUES (?, 'REACTION', false, ?, ?, ?) ON CONFLICT DO NOTHING",
+      authorId, topic.getId, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
+  }
+
   def getNotifiedUsers(topicId: Int): collection.Seq[Integer] =
     jdbcTemplate.queryForSeq[Integer]("SELECT userid FROM topic_users_notified WHERE topic=?", topicId)
 
@@ -111,11 +122,9 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param userId идентификационный номер пользователь которому сбрасываем
    * @param topId  сбрасываем уведомления с идентификатором не больше этого
    */
-  def resetUnreadReplies(userId: Int, topId: Int): Unit = {
-    transactional() { _ =>
-      jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId)
-      recalcEventCount(Seq(userId))
-    }
+  def resetUnreadReplies(userId: Int, topId: Int): Unit = transactional() { _ =>
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId)
+    recalcEventCount(Seq(userId))
   }
 
   def recalcEventCount(userids: collection.Seq[Integer]): Unit = {
@@ -191,7 +200,18 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       val eventMessage = resultSet.getString("ev_msg")
       val unread = resultSet.getBoolean("unread")
 
-      UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread, resultSet.getInt("tAuthor"), resultSet.getInt("id"))
+      val originUser = resultSet.getInt("origin_user")
+
+      val reaction = {
+        val topicReactions = resultSet.getString("t_reactions")
+        val commentReactions = resultSet.getString("c_reactions")
+
+        ReactionDao.parse(Option(commentReactions).getOrElse(topicReactions)).reactions.getOrElse(originUser, "X")
+      }
+
+      UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,
+        resultSet.getInt("tAuthor"), resultSet.getInt("id"),
+        originUser, reaction)
     }
   }
 

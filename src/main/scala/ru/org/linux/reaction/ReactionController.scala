@@ -24,7 +24,7 @@ import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
-import ru.org.linux.user.{IgnoreListDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, UserEventDao, UserService}
 
 import scala.jdk.CollectionConverters.*
 
@@ -73,7 +73,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     }
 
     if (reactionsEnabled) {
-      reactionService.setCommentReaction(comment, currentUser.user, reaction, action == "true")
+      reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, action == "true")
     } else {
       comment.reactions.reactions.values.count(_ == reaction)
     }

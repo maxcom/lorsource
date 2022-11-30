@@ -23,6 +23,7 @@ import scala.beans.BeanProperty
 case class UserEvent(@BeanProperty cid: Int, commentAuthor: Int, groupId: Int,
                      @BeanProperty subj: String, @BeanProperty topicId: Int,
                      @BeanProperty eventType: UserEventFilterEnum, @BeanProperty eventMessage: String,
-                     @BeanProperty eventDate: Timestamp, @BeanProperty unread: Boolean, topicAuthor: Int, id: Int) {
-  def isComment = cid > 0
+                     @BeanProperty eventDate: Timestamp, @BeanProperty unread: Boolean, topicAuthor: Int, id: Int,
+                     originUserId: Int, @BeanProperty reaction: String) {
+  def isComment: Boolean = cid > 0
 }

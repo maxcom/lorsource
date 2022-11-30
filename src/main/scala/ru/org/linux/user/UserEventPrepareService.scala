@@ -33,7 +33,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
    * @param withText возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
    */
   def prepare(events: collection.Seq[UserEvent], withText: Boolean): Seq[PreparedUserEvent] = {
-    val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor)).filter(_ != 0)
+    val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor) ++ events.map(_.originUserId)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 
     val tags = tagService.tagRefs(events.map(_.topicId).distinct).view.mapValues(_.map(_.name))
@@ -55,6 +55,12 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
         None
       }
 
+      val originAuthor = if (event.originUserId!=0) {
+        users.get(event.originUserId)
+      } else {
+        None
+      }
+
       val group = groupDao.getGroup(event.groupId)
 
       val topicAuthor = users(event.topicAuthor)
@@ -62,8 +68,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       PreparedUserEvent(
         event = event,
         messageText = text,
-        topicAuthor = topicAuthor,
-        commentAuthor = commentAuthor,
+        author = originAuthor.orElse(commentAuthor).getOrElse(topicAuthor),
         bonus = loadBonus(event),
         section = sectionService.getSection(group.getSectionId),
         group = group,
@@ -88,7 +93,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
   }
 
   def prepareGrouped(events: collection.Seq[UserEvent]): Seq[PreparedUserEvent] = {
-    val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor)).filter(_ != 0)
+    val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor) ++ events.map(_.originUserId)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 
     val tags = tagService.tagRefs(events.map(_.topicId).distinct).view.mapValues(_.map(_.name))
@@ -109,11 +114,16 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
           val topicAuthor = users(event.topicAuthor)
 
+          val originAuthor = if (event.originUserId != 0) {
+            users.get(event.originUserId)
+          } else {
+            None
+          }
+
           Some(PreparedUserEvent(
             event = event,
             messageText = None,
-            topicAuthor = topicAuthor,
-            commentAuthor = commentAuthor,
+            author = originAuthor.orElse(commentAuthor).getOrElse(topicAuthor),
             bonus = loadBonus(event),
             section = sectionService.getSection(group.getSectionId),
             group = group,

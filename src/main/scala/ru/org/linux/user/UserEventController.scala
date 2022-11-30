@@ -16,7 +16,7 @@ package ru.org.linux.user
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
@@ -28,14 +28,15 @@ import ru.org.linux.util.StringUtil
 import java.util
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class UserEventController(feedView: UserEventFeedView, userService: UserService, userEventService: UserEventService,
                           prepareService: UserEventPrepareService, apiController: UserEventApiController) {
 
   @ModelAttribute("filterValues")
-  def filterValues: util.List[UserEventFilterEnum] = UserEventFilterEnum.values.toSeq.asJava
+  def filterValues(@RequestAttribute reactionsEnabled: Boolean): util.List[UserEventFilterEnum] =
+    UserEventFilterEnum.values.toSeq.filter(r => reactionsEnabled || r != UserEventFilterEnum.REACTION).asJava
 
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
   def resetNotifications(@RequestParam topId: Int): RedirectView = {

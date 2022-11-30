@@ -20,10 +20,10 @@ import ru.org.linux.section.Section
 
 import java.sql.Timestamp
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], topicAuthor: User,
-                             commentAuthor: Option[User], bonus: Option[Int], @BeanProperty section: Section,
+case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], @BeanProperty author: User,
+                             bonus: Option[Int], @BeanProperty section: Section,
                              group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
                              commentId: Int, @BeanProperty count: Int = 1, authors: Set[User]) {
   def withSimilar(event: UserEvent, author: User): PreparedUserEvent = {
@@ -36,8 +36,6 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
         authors = authors + author)
     }
   }
-
-  def getAuthor: User = commentAuthor.getOrElse(topicAuthor)
 
   def getMessageText: String = messageText.orNull
 
