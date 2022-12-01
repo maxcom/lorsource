@@ -166,6 +166,10 @@ p {
         &.event-unread-false {
           color: $text_color;
         }
+
+        &.event-unread-true:visited {
+          color: $table_link_color;
+        }
       }
 
       s {
