@@ -44,7 +44,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
-        if (!reactionService.allowInteract(currentUser.user, topic, Some(comment))) {
+        if (comment.deleted || topic.deleted || topic.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
           throw new AccessViolationException("Сообщение не доступно")
         }
 
@@ -118,7 +118,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
         permissionService.checkView(group, topic, currentUser.user, topicAuthor, false)
 
-        if (!reactionService.allowInteract(currentUser.user, topic, None)) {
+        if (topic.deleted) {
           throw new AccessViolationException("Сообщение не доступно")
         }
 
