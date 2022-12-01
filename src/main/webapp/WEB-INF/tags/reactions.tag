@@ -16,11 +16,12 @@
 <%@ attribute name="reactions" required="true" type="ru.org.linux.reaction.PreparedReactions" %>
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="comment" required="false" type="ru.org.linux.comment.PreparedComment" %>
-<%@ attribute name="all" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <c:if test="${reactionsEnabled}">
+  <c:set var="all" value="${reactionList != null}"/>
   <c:set var="mainClass"><c:if test="${reactions.emptyMap and not all}">zero-reactions</c:if></c:set>
   <div class="reactions ${mainClass}">
     <form class="reactions-form" action="/reactions" method="POST">
@@ -51,6 +52,15 @@
         </c:if>
       </c:forEach>
 
+      <c:if test="${not all && not reactions.emptyMap}">
+        <c:if test="${comment==null}">
+          <a class="reaction reaction-show-list" href="/reactions?topic=${topic.id}">?</a>
+        </c:if>
+        <c:if test="${comment!=null}">
+          <a class="reaction reaction-show-list" href="/reactions?topic=${topic.id}&comment=${comment.id}">?</a>
+        </c:if>
+      </c:if>
+
       <c:if test="${not all and not reactions.total and reactions.allowInteract}">
         <c:if test="${not reactions.emptyMap}">
           <c:if test="${comment==null}">
@@ -77,6 +87,16 @@
       </c:if>
     </form>
   </div>
+
+  <c:if test="${all}">
+    <div class="reactions">
+      <c:forEach var="r" items="${reactionList.list}">
+        <span class="reaction">
+          <c:out value="${r.reaction} " escapeXml="true"/> <lor:user user="${r.user}"/>
+        </span>
+      </c:forEach>
+    </div>
+  </c:if>
 </c:if>
 
 

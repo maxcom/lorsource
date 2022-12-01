@@ -24,7 +24,7 @@
 
 <div class=messages>
   <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedTopic}" message="${topic}" showMenu="false"
-             allReactions="true"/>
+             reactionList="${reactionList}"/>
 </div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

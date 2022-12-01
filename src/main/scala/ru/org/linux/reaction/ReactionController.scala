@@ -55,7 +55,8 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList)
+            commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList),
+          "reactionList" -> reactionService.prepareReactionList(comment.reactions)
         ).asJava)
     }
   }
@@ -123,7 +124,8 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
-          "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user)
+          "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user),
+          "reactionList" -> reactionService.prepareReactionList(topic.reactions)
         ).asJava)
     }
   }

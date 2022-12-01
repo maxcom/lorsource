@@ -24,7 +24,7 @@
 <%@ attribute name="showImageDelete" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="briefEditInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
-<%@ attribute name="allReactions" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -231,7 +231,7 @@
         </div>
       </c:if>
 
-    <lor:reactions reactions="${preparedMessage.reactions}" all="${allReactions}" topic="${message}"/>
+    <lor:reactions reactions="${preparedMessage.reactions}" reactionList="${reactionList}" topic="${message}"/>
   </div>
 </div>
 </article>

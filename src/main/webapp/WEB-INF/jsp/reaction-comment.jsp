@@ -25,7 +25,7 @@
 <div class="messages">
   <div class="comment">
     <lor:comment commentsAllowed="false" showMenu="false" comment="${preparedComment}" topic="${topic}"
-                 allReactions="true"/>
+                 reactionList="${reactionList}"/>
   </div>
 </div>
 

@@ -52,6 +52,12 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction],
   def isTotal: Boolean = reactions.forall(_._2.count > 0)
 }
 
+case class ReactionListItem(@BeanProperty user: User, @BeanProperty reaction: String)
+case class PreparedReactionList(reactions: Seq[ReactionListItem]) {
+  // used in jsp
+  def getList: java.util.List[ReactionListItem] = reactions.asJava
+}
+
 object PreparedReactions {
   val emptyDisabled: PreparedReactions = PreparedReactions(Map.empty, allowInteract = false)
 
@@ -81,9 +87,14 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
   }
 
+  def prepareReactionList(reactions: Reactions): PreparedReactionList = {
+    PreparedReactionList(reactions.reactions.map { r =>
+      ReactionListItem(userService.getUserCached(r._1), r._2)
+    }.toSeq.sortBy(-_.user.getScore))
+  }
+
   def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User,
               topic: Topic, comment: Option[Comment]): PreparedReactions = {
-
     PreparedReactions(allZeros ++
       reactions.reactions
         .groupMap(_._2)(_._1)
