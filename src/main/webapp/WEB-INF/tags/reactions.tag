@@ -52,7 +52,7 @@
         </c:if>
       </c:forEach>
 
-      <c:if test="${not all && not reactions.emptyMap}">
+      <c:if test="${not all and not reactions.emptyMap and currentUser != null}">
         <c:if test="${comment==null}">
           <a class="reaction reaction-show-list" href="/reactions?topic=${topic.id}">?</a>
         </c:if>
