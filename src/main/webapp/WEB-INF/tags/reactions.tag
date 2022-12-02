@@ -77,7 +77,7 @@
             <c:forEach var="r" items="${reactions.map}">
               <c:if test="${!all && r.value.count == 0}">
                 <button name="reaction" value="${r.key}-true" class="reaction">
-                  <c:out value="${r.key}" escapeXml="true"/> <span class="reaction-count">0</span>
+                  <c:out value="${r.key} " escapeXml="true"/> <span class="reaction-count">0</span>
                 </button>
               </c:if>
             </c:forEach>
