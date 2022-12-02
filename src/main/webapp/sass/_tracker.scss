@@ -65,6 +65,10 @@
     grid-column-end: 13;
     grid-row-start: 1;
     color: $text_color;
+
+    p {
+      padding-left: 0;
+    }
   }
 
   .tracker-title {
