@@ -47,7 +47,7 @@
 
           <button name="reaction" value="${r.key}-${not r.value.clicked}" class="reaction ${clicked}"
                   title="${title}" ${disabled}>
-            <c:out value="${r.key}" escapeXml="true"/> <span class="reaction-count">${r.value.count}</span>
+            <c:out value="${r.key} " escapeXml="true"/> <span class="reaction-count">${r.value.count}</span>
           </button>
         </c:if>
       </c:forEach>
