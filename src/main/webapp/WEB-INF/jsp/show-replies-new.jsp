@@ -122,6 +122,7 @@
     </c:choose>
   </td>
   <td>
+    <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
     <a href="${topic.link}" class="event-unread-${topic.event.unread}">
       <l:title>${topic.event.subj}</l:title>
     </a>
