@@ -109,8 +109,10 @@ public class Section implements Serializable {
 
   public static int getCommentPostscore(int id) {
     //TODO move this to database
-    if (id==SECTION_NEWS || id==SECTION_FORUM) {
+    if (id == SECTION_NEWS || id == SECTION_FORUM) {
       return TopicPermissionService.POSTSCORE_UNRESTRICTED;
+    } else if (id == SECTION_ARTICLES || id == SECTION_GALLERY) {
+      return 45;
     } else {
       return 50;
     }
