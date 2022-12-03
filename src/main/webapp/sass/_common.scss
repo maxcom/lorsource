@@ -34,7 +34,7 @@ $container_margin: 0;
     @media only screen and (min-width: 60em) { @content; }
   }
   @else if $media == tablet-and-desktops {
-    @media only screen and (min-width: 40em) { @content; }
+    @media only screen and (min-width: 47em) { @content; }
   }
 }
 
