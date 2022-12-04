@@ -89,6 +89,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     currentUser != null &&
       CommonContextFilter.reactionsEnabledFor(author) &&
       !topic.deleted &&
+      !topic.expired &&
       comment.forall(! _.deleted) &&
       currentUser.getId != authorId &&
       (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
