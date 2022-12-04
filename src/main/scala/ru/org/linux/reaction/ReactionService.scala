@@ -22,7 +22,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.CommonContextFilter
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
-import ru.org.linux.reaction.ReactionService.{AllowedReactions, DefinedReactions}
+import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{User, UserEventDao, UserService}

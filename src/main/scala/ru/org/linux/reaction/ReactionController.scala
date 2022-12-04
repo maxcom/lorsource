@@ -24,7 +24,7 @@ import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
-import ru.org.linux.user.{IgnoreListDao, UserEventDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, UserService}
 
 import scala.jdk.CollectionConverters.*
 
