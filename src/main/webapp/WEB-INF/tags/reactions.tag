@@ -37,9 +37,9 @@
       <c:forEach var="r" items="${reactions.map}">
         <c:if test="${all || r.value.count > 0}">
           <c:set var="title">
-            Реакция "<c:out escapeXml="true" value="${r.value.description}"/>" <!--
-          --><c:forEach var="user" items="${r.value.topUsers}">${user.nick}<c:out value=" "/></c:forEach> <!--
-          --><c:if test="${r.value.hasMore}">...</c:if>
+            Реакция "<c:out escapeXml="true" value="${r.value.description}"/>" <c:forEach var="user" items="${r.value.topUsers}">${user.nick}<c:out value=" "/></c:forEach>
+
+            <c:if test="${r.value.hasMore}">...</c:if>
           </c:set>
 
           <c:set var="clicked">
