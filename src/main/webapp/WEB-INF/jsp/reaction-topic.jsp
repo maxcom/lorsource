@@ -25,6 +25,8 @@
 <div class=messages>
   <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedTopic}" message="${topic}" showMenu="false"
              reactionList="${reactionList}"/>
+
+  <a class="btn btn-primary" href="${preparedTopic.message.link}">Вернуться</a>
 </div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

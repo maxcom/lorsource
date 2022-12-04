@@ -26,6 +26,8 @@
   <div class="comment">
     <lor:comment commentsAllowed="false" showMenu="false" comment="${preparedComment}" topic="${topic}"
                  reactionList="${reactionList}"/>
+
+    <a class="btn btn-primary" href="${topic.link}?cid=${preparedComment.id}">Вернуться</a>
   </div>
 </div>
 
