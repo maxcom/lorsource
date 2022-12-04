@@ -18,6 +18,7 @@
 <%@ attribute name="comment" required="false" type="ru.org.linux.comment.PreparedComment" %>
 <%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <c:if test="${reactionsEnabled}">
@@ -47,7 +48,7 @@
           </c:set>
 
           <button name="reaction" value="${r.key}-${not r.value.clicked}" class="reaction ${clicked}"
-                  title="${title}" ${disabled}>
+                  title="${fn:escapeXml(title)}" ${disabled}>
             <c:out value="${r.key} " escapeXml="true"/> <span class="reaction-count">${r.value.count}</span>
           </button>
         </c:if>
@@ -81,7 +82,8 @@
                   Реакция "<c:out escapeXml="true" value="${r.value.description}"/>"
                 </c:set>
 
-                <button name="reaction" value="${r.key}-true" title="${title}" ${disabled} class="reaction">
+                <button name="reaction" value="${r.key}-true" title="${fn:escapeXml(title)}"
+                    ${disabled} class="reaction">
                   <c:out value="${r.key} " escapeXml="true"/> <span class="reaction-count">0</span>
                 </button>
               </c:if>
