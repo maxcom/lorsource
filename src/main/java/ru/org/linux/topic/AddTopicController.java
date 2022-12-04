@@ -77,7 +77,7 @@ public class AddTopicController {
 
   private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
-  private GroupDao groupDao;
+  private final GroupDao groupDao;
   private final SectionService sectionService;
 
   private final TagService tagService;
@@ -105,7 +105,7 @@ public class AddTopicController {
                             GroupPermissionService groupPermissionService,
                             AddTopicRequestValidator addTopicRequestValidator, ImageService imageService,
                             TopicService topicService, @Qualifier("realtimeHubWS") ActorRef realtimeHubWS,
-                            MarkdownFormatter renderService) {
+                            MarkdownFormatter renderService, GroupDao groupDao) {
     this.searchQueueSender = searchQueueSender;
     this.captcha = captcha;
     this.sectionService = sectionService;
@@ -118,6 +118,7 @@ public class AddTopicController {
     this.topicService = topicService;
     this.realtimeHubWS = realtimeHubWS;
     this.renderService = renderService;
+    this.groupDao = groupDao;
   }
 
   @Autowired
@@ -128,11 +129,6 @@ public class AddTopicController {
   @Autowired
   public void setIpBlockDao(IPBlockDao ipBlockDao) {
     this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
-  public void setGroupDao(GroupDao groupDao) {
-    this.groupDao = groupDao;
   }
 
   @ModelAttribute("ipBlockInfo")

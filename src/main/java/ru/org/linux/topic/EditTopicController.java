@@ -78,13 +78,14 @@ public class EditTopicController {
   private final ActorRef realtimeHubWS;
   private final CaptchaService captcha;
   private final ImageService imageService;
+  private final TagService tagService;
 
   public EditTopicController(TopicDao messageDao, SearchQueueSender searchQueueSender, TopicService topicService,
                              TopicPrepareService prepareService, GroupDao groupDao, PollDao pollDao,
                              GroupPermissionService permissionService, CaptchaService captcha, MsgbaseDao msgbaseDao,
                              EditHistoryService editHistoryService, ImageService imageService,
                              EditTopicRequestValidator editTopicRequestValidator, IPBlockDao ipBlockDao,
-                             @Qualifier("realtimeHubWS") ActorRef realtimeHubWS) {
+                             @Qualifier("realtimeHubWS") ActorRef realtimeHubWS, TagService tagService) {
     this.messageDao = messageDao;
     this.searchQueueSender = searchQueueSender;
     this.topicService = topicService;
@@ -99,6 +100,7 @@ public class EditTopicController {
     this.editTopicRequestValidator = editTopicRequestValidator;
     this.ipBlockDao = ipBlockDao;
     this.realtimeHubWS = realtimeHubWS;
+    this.tagService = tagService;
   }
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
@@ -271,8 +273,9 @@ public class EditTopicController {
     final Topic topic = messageDao.getById(msgid);
       PreparedTopic preparedTopic = prepareService.prepareTopic(topic, AuthUtil.getCurrentUser());
     Group group = preparedTopic.getGroup();
+    Section section = preparedTopic.section();
 
-      User user = AuthUtil.getCurrentUser();
+    User user = AuthUtil.getCurrentUser();
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
@@ -393,15 +396,26 @@ public class EditTopicController {
 
     if (form.getTags()!=null) {
       newTags = TagName.parseAndSanitizeTags(form.getTags());
+
+      if (newTags.isEmpty()) {
+        newTags = null;
+      } else {
+        if (!permissionService.canCreateTag(section, user)) {
+          List<String> nonExistingTags = tagService.getNewTags(newTags);
+
+          if (!nonExistingTags.isEmpty()) {
+            errors.rejectValue("tags", null,
+                    "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")");
+          }
+        }
+      }
     }
 
     if (changeGroupId != null) {
       if (topic.getGroupId() != changeGroupId) {
         Group changeGroup = groupDao.getGroup(changeGroupId);
 
-        int section = topic.getSectionId();
-
-        if (changeGroup.getSectionId() != section) {
+        if (changeGroup.getSectionId() != topic.getSectionId()) {
           throw new AccessViolationException("Can't move topics between sections");
         }
       }
