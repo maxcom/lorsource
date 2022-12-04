@@ -42,13 +42,18 @@
   <style>
     @media screen and (max-width: 480px) {
       .yandex-adaptive {
-        min-height: 250px;
+        min-height: 90px;
         width: 100%;
+        max-height: 250px;
       }
     }
 
     @media screen and (min-width: 481px) {
-      .yandex-adaptive { min-height: 90px; width: 100% }
+      .yandex-adaptive {
+          min-height: 90px;
+          width: 100%;
+          max-height: 150px
+      }
     }
   </style>
 
