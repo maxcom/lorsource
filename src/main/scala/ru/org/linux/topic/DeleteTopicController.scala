@@ -44,7 +44,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val topic = topicDao.getById(msgid)
 
-    if (topic.isDeleted) {
+    if (topic.deleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
@@ -52,14 +52,14 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
-    val section = sectionService.getSection(topic.getSectionId)
+    val section = sectionService.getSection(topic.sectionId)
 
     new ModelAndView("delete", Map[String, Any](
-      "bonus" -> (!section.isPremoderated && !topic.isDraft && !topic.isExpired),
-      "author" -> userDao.getUser(topic.getAuthorUserId),
+      "bonus" -> (!section.isPremoderated && !topic.draft && !topic.expired),
+      "author" -> userDao.getUser(topic.authorUserId),
       "msgid" -> msgid,
-      "draft" -> topic.isDraft,
-      "uncommited" -> (section.isPremoderated && !topic.isCommited)
+      "draft" -> topic.draft,
+      "uncommited" -> (section.isPremoderated && !topic.commited)
     ).asJava)
   }
 
@@ -69,7 +69,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     val user = currentUser.user
 
     val message = topicDao.getById(msgid)
-    if (message.isDeleted) {
+    if (message.deleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
@@ -101,7 +101,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     val message = topicDao.getById(msgid)
     checkUndeletable(message, AuthUtil.getCurrentUser)
 
-    if (message.isDeleted) {
+    if (message.deleted) {
       topicDao.undelete(message)
 
       logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.getNick}")
