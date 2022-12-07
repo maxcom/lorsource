@@ -94,6 +94,9 @@
   Права на изображение <a href="https://www.mckusick.com/beastie/">BSD Daemon</a>
   принадлежат <a href="https://www.mckusick.com/beastie/mainpage/copyright.html">Marshall Kirk McKusick</a>.
 
+  <h2>Twemoji</h2>
+  На сайте используется изображения Emoji, созданные проектом <a href="https://github.com/twitter/twemoji">Twemoji</a>.
+
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
   <ul>
