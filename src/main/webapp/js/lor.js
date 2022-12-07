@@ -410,9 +410,7 @@ $(document).ready(function() {
 
   function initReactionsUI() {
     $script.ready('twemoji', function() {
-      $('.reactions').each(function () {
-        twemoji.parse(this);
-      })
+      twemoji.parse(document.body);
     });
 
     $('.reaction-show').on('click', function(event) {
