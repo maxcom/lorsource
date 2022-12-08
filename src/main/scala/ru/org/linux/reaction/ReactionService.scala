@@ -25,7 +25,7 @@ import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.user.{User, UserEventDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, User, UserEventDao, UserService}
 
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
@@ -81,6 +81,7 @@ object ReactionService {
 @Service
 class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
                       userEventDao: UserEventDao, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
+                      ignoreListDao: IgnoreListDao,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def allowInteract(@Nullable currentUser: User, topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
@@ -127,7 +128,11 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       topicDao.updateLastmod(comment.topicId, false)
 
       if (set) {
-        userEventDao.insertReactionNotification(user, topic, Some(comment))
+        val authorsIgnoreList = ignoreListDao.get(comment.userid)
+
+        if (!authorsIgnoreList.contains(user.getId)) {
+          userEventDao.insertReactionNotification(user, topic, Some(comment))
+        }
       }
 
       newCount
@@ -147,7 +152,11 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       topicDao.updateLastmod(topic.id, false)
 
       if (set) {
-        userEventDao.insertReactionNotification(user, topic, None)
+        val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
+
+        if (!authorsIgnoreList.contains(user.getId)) {
+          userEventDao.insertReactionNotification(user, topic, None)
+        }
       }
 
       newCount
