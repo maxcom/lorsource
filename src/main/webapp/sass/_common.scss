@@ -66,8 +66,22 @@ pre {
 
 #bd {
   margin-bottom: 2em;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  @include respond-to(tablet-and-desktops) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+#sitetitle {
+  padding-left: 0.5rem;
+
+  @include respond-to(tablet-and-desktops) {
+    padding-left: 1.5rem;
+  }
 }
 
 #bd nav {
