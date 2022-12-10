@@ -138,12 +138,6 @@ h6 {
   font-size: 1.098em
 }
 
-/* specific styles */
-
-.news {
-  border-top: 1px solid;
-}
-
 .msg_body {
   // sizes calculated at https://www.modularscale.com/?1&em&1.098
   h1 {
@@ -459,12 +453,18 @@ textarea.error {
 }
 
 .news {
+  border-top: 1px solid;
+
   .group {
     font-size: smaller;
   }
 
   .entry-userpic {
     padding-top: 5px;
+  }
+
+  .msg {
+    word-wrap: break-word;
   }
 }
 
