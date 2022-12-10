@@ -33,6 +33,7 @@
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
     <circe.version>0.14.3</circe.version>
+    <twemoji.version>14.0.2</twemoji.version>
   </properties>
 
   <dependencies>
@@ -452,6 +453,19 @@
       <version>${js-cookie.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>twemoji</artifactId>
+      <version>${twemoji.version}</version>
+
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <!-- MarkDown implementation -->
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
@@ -624,6 +638,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji/${twemoji.version}/dist/twemoji.min.js</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -834,6 +849,11 @@
                   <groupId>org.webjars.npm</groupId>
                   <artifactId>js-cookie</artifactId>
                   <version>${js-cookie.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>twemoji</artifactId>
+                  <version>${twemoji.version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>

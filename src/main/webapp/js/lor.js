@@ -409,7 +409,7 @@ $(document).ready(function() {
   }
 
   function initReactionsUI() {
-    $script.ready('twemoji', function() {
+    $script.ready('plugins', function() {
       twemoji.parse(document.body);
     });
 

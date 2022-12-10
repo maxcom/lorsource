@@ -63,6 +63,4 @@
   $script.ready('lorjs', function() {
     fixTimezone("${timezone}");
   });
-
-  $script('https://twemoji.maxcdn.com/v/latest/twemoji.min.js', 'twemoji');
 </script>
