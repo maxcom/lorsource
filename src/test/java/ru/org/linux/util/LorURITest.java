@@ -18,6 +18,7 @@ package ru.org.linux.util;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.topic.Topic;
@@ -353,5 +354,14 @@ public class LorURITest {
     assertTrue(uri.isTrueLorUrl());
     assertFalse(uri.isMessageUrl());
     assertFalse(uri.isCommentUrl());
+  }
+
+  @Test
+  @Ignore
+  public void testCppTag() throws Exception {
+    LorURL uri = new LorURL(mainLORURI, "http://www.linux.org.ru/tags/c++");
+    assertTrue(uri.isTrueLorUrl());
+
+    assertEquals("http://www.linux.org.ru/tags/c%2B%2B", uri.canonize(mainLORURI));
   }
 }
