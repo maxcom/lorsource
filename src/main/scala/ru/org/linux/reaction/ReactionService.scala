@@ -133,14 +133,14 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
         if (!authorsIgnoreList.contains(user.getId)) {
           userEventDao.insertReactionNotification(user, topic, Some(comment))
         }
+      } else {
+        userEventDao.deleteUnreadReactionNotification(user, topic, Some(comment))
       }
 
       newCount
     }
 
-    if (set) {
-      realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(comment.userid))
-    }
+    realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(comment.userid))
 
     r
   }
@@ -157,14 +157,14 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
         if (!authorsIgnoreList.contains(user.getId)) {
           userEventDao.insertReactionNotification(user, topic, None)
         }
+      } else {
+        userEventDao.deleteUnreadReactionNotification(user, topic, None)
       }
 
       newCount
     }
 
-    if (set) {
-      realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(topic.authorUserId))
-    }
+    realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(topic.authorUserId))
 
     r
   }

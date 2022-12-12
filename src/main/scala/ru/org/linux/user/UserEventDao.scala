@@ -113,6 +113,18 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       authorId, topic.getId, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
   }
 
+  def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit = {
+    val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
+
+    jdbcTemplate.update(
+        "DELETE FROM user_events " +
+          "WHERE userid=? AND message_id=? AND comment_id IS NOT DISTINCT FROM ? " +
+          "AND origin_user=? AND unread AND type='REACTION'",
+      authorId, topic.getId, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
+
+    recalcEventCount(Seq(authorId))
+  }
+
   def getNotifiedUsers(topicId: Int): collection.Seq[Integer] =
     jdbcTemplate.queryForSeq[Integer]("SELECT userid FROM topic_users_notified WHERE topic=?", topicId)
 
