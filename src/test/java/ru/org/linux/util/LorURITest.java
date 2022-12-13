@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -252,8 +252,8 @@ public class LorURITest {
     LorURL lorURI2 = new LorURL(mainLORURI, url13_2);
     LorURL lorURI3 = new LorURL(mainLORURI, url13_3);
     assertEquals("https://127.0.0.1:8085/view-news.jsp?tag=c++", lorURI1.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/view-news.jsp?tag=c%20%20", lorURI2.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/view-news.jsp?tag=c%20c", lorURI3.canonize(canon));
+    assertEquals("https://127.0.0.1:8085/view-news.jsp?tag=c++", lorURI2.canonize(canon));
+    assertEquals("https://127.0.0.1:8085/view-news.jsp?tag=c+c", lorURI3.canonize(canon));
   }
 
   @Test
@@ -357,11 +357,10 @@ public class LorURITest {
   }
 
   @Test
-  @Ignore
   public void testCppTag() throws Exception {
     LorURL uri = new LorURL(mainLORURI, "http://www.linux.org.ru/tags/c++");
     assertTrue(uri.isTrueLorUrl());
 
-    assertEquals("http://www.linux.org.ru/tags/c%2B%2B", uri.canonize(mainLORURI));
+    assertEquals("http://www.linux.org.ru/tags/c++", uri.canonize(mainLORURI));
   }
 }

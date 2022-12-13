@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,8 +14,6 @@
  */
 package ru.org.linux.util;
 
-import org.apache.commons.httpclient.HttpURL;
-import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.Group;
@@ -23,6 +21,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -252,17 +251,19 @@ public class LorURL {
     if(!_true_lor_url) {
       return toString();
     }
-    
-    String host = canonical.getHost();
-    int port = canonical.getPort();
-    String path = parsed.getPath();
-    String query = parsed.getQuery();
-    String fragment = parsed.getFragment();
 
-    if (canonical.getScheme().equals("http")) {
-      return (new HttpURL(null, host, port, path, query, fragment)).getEscapedURIReference();
-    } else {
-      return (new HttpsURL(null, host, port, path, query, fragment)).getEscapedURIReference();
+    try {
+      java.net.URI parsedURI = new java.net.URI(toString());
+
+      String host = canonical.getHost();
+      int port = canonical.getPort();
+      String path = parsedURI.getPath();
+      String query = parsedURI.getQuery();
+      String fragment = parsedURI.getFragment();
+
+      return new java.net.URI(canonical.getScheme(), null, host, port, path, query, fragment).toASCIIString();
+    } catch (URISyntaxException e) {
+      return toString();
     }
   }
 
