@@ -84,5 +84,5 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
 }
 
 object CommonContextFilter {
-  def reactionsEnabledFor(user: User): Boolean = user != null && user.getScore >= 100
+  def reactionsEnabledFor(user: User): Boolean = user != null
 }
