@@ -50,7 +50,7 @@ class TelegramPostsDao(ds: DataSource) {
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
         |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
-        |    having count (distinct comments.userid)>=13
+        |    having count (distinct comments.userid)>=14
         |    order by count(distinct comments.userid) desc
         |    limit 1)
         |""".stripMargin) { (resultSet, _) => Topic.fromResultSet(resultSet) }.headOption
