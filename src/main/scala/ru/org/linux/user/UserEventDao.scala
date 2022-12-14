@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.{ReactionDao, ReactionService}
 import ru.org.linux.topic.Topic
+import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.util.StringUtil
 
 import java.util
@@ -218,7 +219,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         val topicReactions = resultSet.getString("t_reactions")
         val commentReactions = resultSet.getString("c_reactions")
 
-        ReactionDao.parse(Option(commentReactions).getOrElse(topicReactions)).reactions.getOrElse(originUser, "X")
+        ReactionDao.parse(Option(commentReactions).getOrElse(topicReactions)).reactions.getOrElse(originUser, NoReaction)
       }
 
       UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,

@@ -27,3 +27,7 @@ case class UserEvent(@BeanProperty cid: Int, commentAuthor: Int, groupId: Int,
                      originUserId: Int, @BeanProperty reaction: String) {
   def isComment: Boolean = cid > 0
 }
+
+object UserEvent {
+  val NoReaction = "X"
+}
