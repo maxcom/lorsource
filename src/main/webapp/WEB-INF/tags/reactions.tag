@@ -98,7 +98,7 @@
     <div class="reactions">
       <c:forEach var="r" items="${reactionList.list}">
         <span class="reaction">
-          <c:out value="${r.reaction} " escapeXml="true"/> <lor:user user="${r.user}"/>
+          <c:out value="${r.reaction} " escapeXml="true"/> <lor:user user="${r.user}" link="true"/>
         </span>
       </c:forEach>
     </div>
