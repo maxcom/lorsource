@@ -88,6 +88,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     val author = userService.getUserCached(authorId)
 
     currentUser != null &&
+      !currentUser.isFrozen &&
       CommonContextFilter.reactionsEnabledFor(author) &&
       !topic.deleted &&
       !topic.expired &&
