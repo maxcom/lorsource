@@ -97,8 +97,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
   }
 
-  def prepareReactionList(reactions: Reactions): PreparedReactionList = {
-    PreparedReactionList(reactions.reactions.map { r =>
+  def prepareReactionList(reactions: Reactions, ignoreList: Set[Int]): PreparedReactionList = {
+    PreparedReactionList((reactions.reactions -- ignoreList).map { r =>
       ReactionListItem(userService.getUserCached(r._1), r._2)
     }.toSeq.sortBy(-_.user.getScore))
   }

@@ -48,15 +48,16 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
           throw new AccessViolationException("Сообщение не доступно")
         }
 
-        val ignoreList = ignoreListDao.getJava(currentUser.user)
+        val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
         val tmpl = Template.getTemplate
 
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList),
-          "reactionList" -> reactionService.prepareReactionList(comment.reactions)
+            commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic,
+              ignoreList.map(Integer.valueOf).asJava),
+          "reactionList" -> reactionService.prepareReactionList(comment.reactions, ignoreList)
         ).asJava)
     }
   }
@@ -122,10 +123,12 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
           throw new AccessViolationException("Сообщение не доступно")
         }
 
+        val ignoreList = ignoreListDao.get(currentUser.user.getId)
+
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
           "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user),
-          "reactionList" -> reactionService.prepareReactionList(topic.reactions)
+          "reactionList" -> reactionService.prepareReactionList(topic.reactions, ignoreList)
         ).asJava)
     }
   }
