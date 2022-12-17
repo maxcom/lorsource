@@ -14,6 +14,7 @@
  */
 package ru.org.linux.reaction
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -22,18 +23,23 @@ import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.auth.{AccessViolationException, CurrentUser}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
+import ru.org.linux.reaction.ReactionController.ReactionsLimit
 import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
-import ru.org.linux.user.{IgnoreListDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, UserEventDao, UserService}
 
 import scala.jdk.CollectionConverters.*
+
+object ReactionController {
+  def ReactionsLimit = 5 // per 10 minutes
+}
 
 @Controller
 @RequestMapping(Array("/reactions"))
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
                          groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
-                         reactionService: ReactionService) {
+                         reactionService: ReactionService, userEventDao: UserEventDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
   def commentReaction(@RequestAttribute reactionsEnabled: Boolean,
                       @RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
@@ -68,6 +74,10 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
     if (!reactionService.allowInteract(currentUser.user, topic, Some(comment))) {
       throw new AccessViolationException("Сообщение не доступно")
+    }
+
+    if (userEventDao.recentReactionCount(currentUser.user) > ReactionsLimit) {
+      throw new ReactionRateLimitException
     }
 
     if (!ReactionService.AllowedReactions.contains(reaction)) {
@@ -141,6 +151,10 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("Сообщение не доступно")
     }
 
+    if (userEventDao.recentReactionCount(currentUser.user) > ReactionsLimit) {
+      throw new ReactionRateLimitException
+    }
+
     if (!ReactionService.AllowedReactions.contains(reaction)) {
       throw new AccessViolationException("unsupported reaction")
     }
@@ -172,4 +186,14 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
     Map[String, AnyRef]("count" -> Integer.valueOf(count)).asJava
   }
+
+  @ExceptionHandler(Array(classOf[ReactionRateLimitException]))
+  @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+  def handleRateLimit = new ModelAndView(
+    "errors/good-penguin",
+    Map("msgHeader" -> "Попробуйте позже").asJava)
 }
+
+class ReactionRateLimitException extends RuntimeException
+
+

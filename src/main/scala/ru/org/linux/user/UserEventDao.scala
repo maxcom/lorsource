@@ -282,4 +282,9 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       userIds
     }
   }
+
+  def recentReactionCount(origin: User): Int = {
+    jdbcTemplate.queryForObject[Int]("SELECT count(*) FROM user_events WHERE type='REACTION' " +
+      "AND origin_user=? AND event_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.getId).getOrElse(0)
+  }
 }
