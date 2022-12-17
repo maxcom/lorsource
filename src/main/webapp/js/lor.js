@@ -449,6 +449,8 @@ $(document).ready(function() {
           url: "/reactions/ajax",
           data: { "reaction" : value },
           success: function(response) {
+            reactions.parents(".zero-reactions").removeClass("zero-reactions")
+
             btn.find('.reaction-count').text(response.count);
 
             if (value.endsWith('-true')) {
