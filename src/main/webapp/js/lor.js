@@ -441,6 +441,9 @@ $(document).ready(function() {
         var value = $(this).attr('value');
         var btn = $(this);
         var form = $(this).parents(".reactions-form")
+        var reactions = $(this).parents('.msg_body').find('.reactions form');
+
+        $(reactions).find(".error").remove();
 
         var options = {
           url: "/reactions/ajax",
@@ -461,6 +464,12 @@ $(document).ready(function() {
               btn.attr('value', value.replace(/-.*/, "-true"));
               btn.removeClass("btn-primary");
             }
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            reactions.append(
+              $("<div class=error>")
+                  .text("Не удалось выполнить запрос, попробуйте повторить еще раз. " + errorThrown)
+            );
           }
         };
 
