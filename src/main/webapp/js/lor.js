@@ -411,6 +411,15 @@ $(document).ready(function() {
   function initReactionsUI() {
     $script.ready('plugins', function() {
       twemoji.parse(document.body);
+
+      $(".reaction-anonymous").enable();
+      $(".reaction-anonymous").click(function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $(this).popover('show')
+      }).popover({
+        content: "Для добавления реакции нужно залогиниться!"
+      });
     });
 
     $('.reaction-show').on('click', function(event) {
@@ -435,7 +444,7 @@ $(document).ready(function() {
     })
 
     $script.ready('plugins', function () {
-      $('button.reaction').on('click', function(event) {
+      $('button.reaction').not(".reaction-anonymous").on('click', function(event) {
         event.preventDefault();
 
         var value = $(this).attr('value');

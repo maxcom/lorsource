@@ -131,7 +131,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
 
-        if (!authorsIgnoreList.contains(user.getId)) {
+        if (!authorsIgnoreList.contains(user.getId) && comment.userid!=User.ANONYMOUS_ID) {
           userEventDao.insertReactionNotification(user, topic, Some(comment))
         }
       } else {
@@ -155,7 +155,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
 
-        if (!authorsIgnoreList.contains(user.getId)) {
+        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId!=User.ANONYMOUS_ID) {
           userEventDao.insertReactionNotification(user, topic, None)
         }
       } else {
