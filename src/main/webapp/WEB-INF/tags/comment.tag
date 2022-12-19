@@ -86,8 +86,7 @@
             (всего
               <a href="${topic.link}/${comment.id}/history">
                 исправлений: ${comment.editSummary.editCount}
-              </a>
-            )
+              </a>)
           </span>
         </c:if>
 
