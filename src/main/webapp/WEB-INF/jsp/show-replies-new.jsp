@@ -116,9 +116,6 @@
       <c:when test="${topic.event.eventType == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
-      <c:when test="${topic.event.eventType == 'REACTION'}">
-        ${topic.event.reaction}
-      </c:when>
     </c:choose>
   </td>
   <td>
@@ -126,24 +123,38 @@
     <a href="${topic.link}" class="event-unread-${topic.event.unread}">
       <l:title>${topic.event.subj}</l:title>
     </a>
-    (${topic.section.name})<br>
-    <c:forEach var="tag" items="${topic.tags}">
-      <span class="tag">${tag}</span>
-    </c:forEach>
+    (${topic.section.name})
+    <c:if test="${topic.event.unread}">&nbsp;&bull;</c:if>
 
-      <c:if test="${topic.event.eventType == 'DELETED'}">
+    <c:choose>
+      <c:when test="${topic.event.eventType == 'REACTION'}">
+        <br>
+        <span class="reactions">
+          <span class="reaction">
+            <c:out value="${topic.event.reaction} " escapeXml="true"/> <lor:user user="${topic.author}" link="false"/>
+          </span>
+        </span>
+      </c:when>
+
+      <c:when test="${topic.event.eventType == 'TAG'}">
+        <br>
+        <c:forEach var="tag" items="${topic.tags}">
+          <span class="tag">${tag}</span>
+        </c:forEach>
+      </c:when>
+
+      <c:when test="${topic.event.eventType == 'DELETED'}">
         <br>
         <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
-      </c:if>
-
-    <c:if test="${topic.event.unread}">&bull;</c:if>
+      </c:when>
+    </c:choose>
   </td>
   <td title="${topic.authorsText}">
     <lor:dateinterval date="${topic.date}" compact="true"/><br>
     <c:if test="${topic.count > 1}">
       <i class="icon-comment"></i> ${topic.count}
     </c:if>
-    <c:if test="${topic.count == 1}">
+    <c:if test="${topic.count == 1 and topic.event.eventType != 'REACTION'}">
       <lor:user user="${topic.author}"/>
     </c:if>
   </td>
