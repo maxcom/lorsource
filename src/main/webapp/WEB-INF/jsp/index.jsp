@@ -88,9 +88,9 @@
       var ads = [
         {
           type: 'rimg',
-          img730: '/adv/linux-2022-12-730x90.png',
-          img320: '/adv/linux-2022-12-320x100.png',
-          href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=lesson-20-12-2022&utm_term=linux-org-ru#event-2476'
+          img730: '/adv/linux-banner-730x90.png',
+          img320: '/adv/linux-banner-320x100.png',
+          href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test-12-2022&utm_term=linux-org-ru'
         }
       ];
 
