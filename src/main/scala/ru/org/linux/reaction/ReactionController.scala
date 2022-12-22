@@ -41,12 +41,11 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService, userEventDao: UserEventDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
-  def commentReaction(@RequestAttribute reactionsEnabled: Boolean,
-                      @RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    currentUserOpt.filter(_ => reactionsEnabled) match {
+    currentUserOpt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
@@ -68,8 +67,8 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     }
   }
 
-  private def doSetCommentReaction(reactionsEnabled: Boolean, topic: Topic, comment: Comment,
-                                   reactionAction: String, currentUser: CurrentUser): Int = {
+  private def doSetCommentReaction(topic: Topic, comment: Comment, reactionAction: String,
+                                   currentUser: CurrentUser): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
     if (!reactionService.allowInteract(currentUser.user, topic, Some(comment))) {
@@ -84,43 +83,38 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("unsupported reaction")
     }
 
-    if (reactionsEnabled) {
-      reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, action == "true")
-    } else {
-      comment.reactions.reactions.values.count(_ == reaction)
-    }
+    reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, action == "true")
   }
 
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.POST))
-  def setCommentReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("comment") commentId: Int,
+  def setCommentReaction(@RequestParam("comment") commentId: Int,
                          @RequestParam("reaction") reactionAction: String): ModelAndView = AuthorizedOnly { currentUser =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    doSetCommentReaction(reactionsEnabled, topic, comment, reactionAction, currentUser)
+    doSetCommentReaction(topic, comment, reactionAction, currentUser)
 
     new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
   }
 
   @RequestMapping(value=Array("/ajax"), params = Array("comment"), method = Array(RequestMethod.POST))
   @ResponseBody
-  def setCommentReactionAjax(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("comment") commentId: Int,
-                         @RequestParam("reaction") reactionAction: String): java.util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
+  def setCommentReactionAjax(@RequestParam("comment") commentId: Int,
+                             @RequestParam("reaction") reactionAction: String): java.util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    val count = doSetCommentReaction(reactionsEnabled, topic, comment, reactionAction, currentUser)
+    val count = doSetCommentReaction(topic, comment, reactionAction, currentUser)
 
     Map[String, AnyRef]("count" -> Integer.valueOf(count)).asJava
   }
 
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.GET))
-  def topicReaction(@RequestAttribute reactionsEnabled: Boolean,
-                    @RequestParam("topic") topicId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val topic = topicDao.getById(topicId)
 
-    currentUserOpt.filter(_ => reactionsEnabled) match {
+    currentUserOpt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink))
       case Some(currentUser) =>
@@ -143,8 +137,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     }
   }
 
-  private def doSetTopicReaction(reactionsEnabled: Boolean, topic: Topic,
-                                 reactionAction: String, currentUser: CurrentUser): Int = {
+  private def doSetTopicReaction(topic: Topic, reactionAction: String, currentUser: CurrentUser): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
     if (!reactionService.allowInteract(currentUser.user, topic, None)) {
@@ -159,30 +152,26 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("unsupported reaction")
     }
 
-    if (reactionsEnabled) {
-      reactionService.setTopicReaction(topic, currentUser.user, reaction, action == "true")
-    } else {
-      topic.reactions.reactions.values.count(_ == reaction)
-    }
+    reactionService.setTopicReaction(topic, currentUser.user, reaction, action == "true")
   }
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.POST))
-  def setTopicReaction(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
+  def setTopicReaction(@RequestParam("topic") topicId: Int,
                        @RequestParam("reaction") reactionAction: String): ModelAndView = AuthorizedOnly { currentUser =>
     val topic = topicDao.getById(topicId)
 
-    doSetTopicReaction(reactionsEnabled, topic, reactionAction, currentUser)
+    doSetTopicReaction(topic, reactionAction, currentUser)
 
     new ModelAndView(new RedirectView(topic.getLink))
   }
 
   @RequestMapping(value = Array("/ajax"), params = Array("!comment"), method = Array(RequestMethod.POST))
   @ResponseBody
-  def setTopicReactionAjax(@RequestAttribute reactionsEnabled: Boolean, @RequestParam("topic") topicId: Int,
+  def setTopicReactionAjax(@RequestParam("topic") topicId: Int,
                            @RequestParam("reaction") reactionAction: String): java.util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
     val topic = topicDao.getById(topicId)
 
-    val count = doSetTopicReaction(reactionsEnabled, topic, reactionAction, currentUser)
+    val count = doSetTopicReaction(topic, reactionAction, currentUser)
 
     Map[String, AnyRef]("count" -> Integer.valueOf(count)).asJava
   }

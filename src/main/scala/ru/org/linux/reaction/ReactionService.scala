@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.CommonContextFilter
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
@@ -85,11 +84,9 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def allowInteract(@Nullable currentUser: User, topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
-    val author = userService.getUserCached(authorId)
 
     currentUser != null &&
       !currentUser.isFrozen &&
-      CommonContextFilter.reactionsEnabledFor(author) &&
       !topic.deleted &&
       !topic.expired &&
       comment.forall(! _.deleted) &&

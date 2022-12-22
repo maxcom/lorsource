@@ -21,11 +21,10 @@ import org.springframework.web.filter.GenericFilterBean
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.user.User
 
 import java.util.Locale
-import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 class CommonContextFilter extends GenericFilterBean with InitializingBean {
   final private val russian = new Locale("ru")
@@ -53,8 +52,6 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     request.setAttribute("template", new Template)
     request.setAttribute("currentUser", currentUser)
 
-    request.setAttribute("reactionsEnabled", CommonContextFilter.reactionsEnabledFor(currentUser))
-
     request.setCharacterEncoding("utf-8")
     res.setLocale(russian)
 
@@ -81,8 +78,4 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
       cookies.view.map(c => c.getName -> c.getValue).toMap
     }.getOrElse(Map.empty)
   }
-}
-
-object CommonContextFilter {
-  def reactionsEnabledFor(user: User): Boolean = true
 }
