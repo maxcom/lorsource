@@ -99,7 +99,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         StatUpdater.MAX_EVENTS, 0, eventFilter
       ).filterNot(r => r.eventType == UserEventFilterEnum.REACTION && r.reaction == NoReaction)
 
-      val prepared = prepareService.prepareGrouped(list)
+      val prepared = prepareService.prepareGrouped(list, !tmpl.getProf.isOldTracker)
 
       if (list.nonEmpty) {
         params.put("enableReset", true)
@@ -187,7 +187,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         }
 
         val list = userEventService.getUserEvents(user, showPrivate, topics, offset, UserEventFilterEnum.ALL)
-        val prepared = prepareService.prepare(list, feedRequested)
+        val prepared = prepareService.prepareSimple(list, feedRequested)
         params.put("isMyNotifications", false)
         params.put("topicsList", prepared.asJava)
         params.put("hasMore", list.size == topics)

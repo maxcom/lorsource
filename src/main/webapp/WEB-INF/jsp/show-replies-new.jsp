@@ -130,9 +130,11 @@
       <c:when test="${topic.event.eventType == 'REACTION'}">
         <br>
         <span class="reactions">
-          <span class="reaction">
-            <c:out value="${topic.event.reaction} " escapeXml="true"/> <lor:user user="${topic.author}" link="false"/>
-          </span>
+          <c:forEach var="reaction" items="${topic.reactionsList}">
+            <span class="reaction">
+              <c:out value="${reaction.reaction} " escapeXml="true"/> <lor:user user="${reaction.user}" link="false"/>
+            </span>
+          </c:forEach>
         </span>
       </c:when>
 

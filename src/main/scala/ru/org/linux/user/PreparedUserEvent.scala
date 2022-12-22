@@ -16,6 +16,7 @@
 package ru.org.linux.user
 
 import ru.org.linux.group.Group
+import ru.org.linux.reaction.ReactionListItem
 import ru.org.linux.section.Section
 
 import java.sql.Timestamp
@@ -25,8 +26,9 @@ import scala.jdk.CollectionConverters.*
 case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], @BeanProperty author: User,
                              bonus: Option[Int], @BeanProperty section: Section,
                              group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
-                             commentId: Int, @BeanProperty count: Int = 1, authors: Set[User]) {
-  def withSimilar(event: UserEvent, author: User): PreparedUserEvent = {
+                             commentId: Int, @BeanProperty count: Int = 1, authors: Set[User],
+                             reactions: Seq[ReactionListItem]) {
+  def withSimilarFav(event: UserEvent, author: User): PreparedUserEvent = {
     assume(this.event.unread == event.unread)
 
     if (event.unread) {
@@ -34,6 +36,19 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
     } else {
       copy(count = count + 1, lastId = event.id, date = event.eventDate, commentId = event.cid,
         authors = authors + author)
+    }
+  }
+
+  def withSimilarReaction(similarEvent: UserEvent, originUser: User): PreparedUserEvent = {
+    assume(event.cid == similarEvent.cid)
+    assume(event.topicId == similarEvent.topicId)
+    assume(similarEvent.originUserId == originUser.getId)
+
+    if (event.unread) {
+      copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction), lastId = similarEvent.id)
+    } else {
+      copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction), date = event.eventDate,
+        lastId = similarEvent.id)
     }
   }
 
@@ -60,4 +75,6 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
   } else {
     ""
   }
+
+  def getReactionsList: java.util.List[ReactionListItem] = reactions.asJava
 }
