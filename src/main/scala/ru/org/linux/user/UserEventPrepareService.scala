@@ -155,17 +155,31 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
   private def groupReactions(toGroup: scala.collection.Seq[UserEvent], users: Map[Int, User],
                              tags: Map[Int, collection.Seq[String]]): Seq[PreparedUserEvent] = {
      toGroup.foldRight(Seq.empty[PreparedUserEvent]) { case (event, acc) =>
-       val similarIdx = acc.indexWhere { existing =>
-         existing.event.cid == event.cid &&
-           existing.event.topicId == event.topicId &&
-           existing.event.unread == event.unread &&
-           (Math.abs(event.eventDate.getTime - existing.event.eventDate.getTime) < 30 * 60 * 1000)
+       val replaceIdx = {
+         val similarIdx = acc.indexWhere { existing =>
+           existing.event.cid == event.cid &&
+             existing.event.topicId == event.topicId &&
+             existing.event.unread == event.unread &&
+             (Math.abs(event.eventDate.getTime - existing.event.eventDate.getTime) < 30 * 60 * 1000)
+         }
+
+         val lastSimilar = if (acc.lastOption.exists { existing =>
+           existing.event.cid == event.cid &&
+             existing.event.topicId == event.topicId &&
+             existing.event.unread == event.unread
+         }) {
+           acc.length - 1
+         } else {
+           -1
+         }
+
+         if (similarIdx != -1) similarIdx else lastSimilar
        }
 
-       if (similarIdx == -1) {
+       if (replaceIdx == -1) {
          acc :+ prepare(event, withText = false, users, tags)
        } else {
-         acc.updated(similarIdx, acc(similarIdx).withSimilarReaction(event, users(event.originUserId)))
+         acc.updated(replaceIdx, acc(replaceIdx).withSimilarReaction(event, users(event.originUserId)))
        }
      }
   }
