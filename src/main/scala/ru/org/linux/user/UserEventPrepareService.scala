@@ -154,7 +154,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
   private def groupReactions(toGroup: scala.collection.Seq[UserEvent], users: Map[Int, User],
                              tags: Map[Int, collection.Seq[String]]): Seq[PreparedUserEvent] = {
-     toGroup.foldRight(Seq.empty[PreparedUserEvent]) { case (event, acc) =>
+     toGroup.foldRight(Vector.empty[PreparedUserEvent]) { case (event, acc) =>
        val replaceIdx = {
          val similarIdx = acc.indexWhere { existing =>
            existing.event.cid == event.cid &&
