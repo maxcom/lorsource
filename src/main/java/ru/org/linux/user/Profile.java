@@ -41,6 +41,8 @@ public class Profile {
   public static final String TRACKER_MODE = "trackerMode";
   public static final String OLD_TRACKER = "oldTracker";
 
+  public static final String REACTION_NOTIFICATION_PROPERTY = "reactionNotification";
+
   private String style;
   private String formatMode;
   private int messages;
@@ -52,6 +54,7 @@ public class Profile {
   private boolean showAnonymous;
   private boolean oldTracker;
   private TrackerFilterEnum trackerMode;
+  private boolean reactionNotification;
 
   private List<String> boxes;
 
@@ -71,6 +74,7 @@ public class Profile {
             .orElse(DefaultProfile.DEFAULT_TRACKER_MODE);
 
     oldTracker = p.getBoolean(OLD_TRACKER);
+    reactionNotification = p.getBoolean(REACTION_NOTIFICATION_PROPERTY);
 
     this.boxes = boxes;
   }
@@ -89,6 +93,7 @@ public class Profile {
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setString(TRACKER_MODE, trackerMode.getValue());
     p.setBoolean(OLD_TRACKER, oldTracker);
+    p.setBoolean(REACTION_NOTIFICATION_PROPERTY, reactionNotification);
 
     return p.getSettings();
   }
@@ -205,7 +210,7 @@ public class Profile {
   public List<String> getBoxlets() {
     List<String> list = boxes;
 
-    if (list==null) {
+    if (list == null) {
       return (List<String>) DefaultProfile.getDefaultProfile().get(BOXES_MAIN2_PROPERTY);
     } else {
       return list;
@@ -223,5 +228,13 @@ public class Profile {
 
   public static Profile createDefault() {
     return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
+  }
+
+  public boolean isReactionNotificationEnabled() {
+    return reactionNotification;
+  }
+
+  public void setReactionNotification(boolean reactionNotification) {
+    this.reactionNotification = reactionNotification;
   }
 }

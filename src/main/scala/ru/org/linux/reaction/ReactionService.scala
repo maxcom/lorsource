@@ -24,7 +24,7 @@ import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.user.{IgnoreListDao, User, UserEventDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
@@ -80,7 +80,7 @@ object ReactionService {
 @Service
 class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
                       userEventDao: UserEventDao, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
-                      ignoreListDao: IgnoreListDao,
+                      ignoreListDao: IgnoreListDao, profileDao: ProfileDao,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def allowInteract(@Nullable currentUser: User, topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
@@ -118,6 +118,9 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
         }, allowInteract = allowInteract(currentUser, topic, comment))
   }
 
+  private def isNotificationsEnabledFor(userId: Int): Boolean =
+    profileDao.readProfile(userId).isReactionNotificationEnabled
+
   def setCommentReaction(topic: Topic, comment: Comment, user: User, reaction: String,
                          set: Boolean): Int = {
     val r = transactional() { _ =>
@@ -128,7 +131,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
 
-        if (!authorsIgnoreList.contains(user.getId) && comment.userid!=User.ANONYMOUS_ID) {
+        if (!authorsIgnoreList.contains(user.getId) && comment.userid!=User.ANONYMOUS_ID &&
+            isNotificationsEnabledFor(comment.userid)) {
           userEventDao.insertReactionNotification(user, topic, Some(comment))
         }
       } else {
@@ -152,7 +156,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
 
-        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId!=User.ANONYMOUS_ID) {
+        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId!=User.ANONYMOUS_ID &&
+            isNotificationsEnabledFor(topic.authorUserId)) {
           userEventDao.insertReactionNotification(user, topic, None)
         }
       } else {

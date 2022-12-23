@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DefaultProfile;
@@ -23,7 +22,6 @@ import ru.org.linux.util.ProfileHashtable;
 
 import javax.annotation.Nonnull;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Types;
@@ -34,15 +32,14 @@ import java.util.Map;
 
 @Repository
 public class ProfileDao {
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
-  @Autowired
-  private void setDataSource(DataSource ds) {
+  public ProfileDao(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
   @Nonnull
-  public Profile readProfile(@NotNull User user) {
+  public Profile readProfile(int userId) {
     List<Profile> profiles = jdbcTemplate.query(
             "SELECT settings, main FROM user_settings WHERE id=?",
             (resultSet, i) -> {
@@ -60,7 +57,7 @@ public class ProfileDao {
                 );
               }
             },
-            user.getId()
+            userId
     );
 
     if (profiles.isEmpty()) {
@@ -70,11 +67,11 @@ public class ProfileDao {
     }
   }
 
-  public void deleteProfile(@Nonnull User user) {
+  public void deleteProfile(User user) {
     jdbcTemplate.update("DELETE FROM user_settings WHERE id=?", user.getId());
   }
 
-  public void writeProfile(@Nonnull final User user, @Nonnull final Profile profile) {
+  public void writeProfile(User user, Profile profile) {
     String[] boxlets = null;
 
     List<String> customBoxlets = profile.getCustomBoxlets();

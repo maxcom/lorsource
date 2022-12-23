@@ -27,7 +27,7 @@ import ru.org.linux.tracker.TrackerFilterEnum
 
 import java.util
 import javax.servlet.ServletRequest
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (Array ("/people/{nick}/settings") )
@@ -108,6 +108,8 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     tmpl.getProf.setAvatarMode(avatar)
     tmpl.getProf.setShowAnonymous("on" == request.getParameter("showanonymous"))
+    tmpl.getProf.setReactionNotification("on" == request.getParameter("reactionNotification"))
+
     profileDao.writeProfile(currentUser.user, tmpl.getProf)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))

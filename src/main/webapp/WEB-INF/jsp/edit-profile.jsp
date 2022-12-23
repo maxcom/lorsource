@@ -58,6 +58,11 @@ $script.ready('plugins', function() {
     <td><input type="checkbox" name="oldTracker"
                <c:if test="${template.prof.oldTracker}">checked</c:if> ></td>
   </tr>
+  <tr>
+    <td>Уведомлять о реакциях</td>
+    <td><input type="checkbox" name="reactionNotification"
+               <c:if test="${template.prof.reactionNotificationEnabled}">checked</c:if> ></td>
+  </tr>
   <tr><td colspan=2><hr></td></tr>
 
 

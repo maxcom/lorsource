@@ -55,7 +55,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       }
     }
 
-    return new UserDetailsImpl(user, retrieveUserAuthorities(user), profileDao.readProfile(user));
+    return new UserDetailsImpl(user, retrieveUserAuthorities(user), profileDao.readProfile(user.getId()));
   }
 
   private static Collection<GrantedAuthority> retrieveUserAuthorities(User user) {
