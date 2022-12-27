@@ -70,11 +70,11 @@ p {
 
   @include clearfix;
 
-    li {
-        float: left;
-        margin-right: 0.5em;
-        margin-top: 0.5em;
-    }
+  li {
+    margin-right: 0.2em;
+    margin-top: 0.5em;
+    display: inline-block;
+  }
 }
 
 .news {
@@ -221,6 +221,17 @@ p {
       text-decoration: underline;
       color: $link_color;
     }
+  }
+}
+
+#topProfile {
+  float: right;
+  font-size: 1.1em;
+  margin-top: 1rem;
+  margin-right: 0.8rem;
+
+  a {
+    color: $hd_user_color !important;
   }
 }
 

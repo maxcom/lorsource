@@ -23,15 +23,17 @@
 <% out.flush(); %>
 <body>
 <div id="hd">
+  <div id="topProfile">
+    <c:if test="${template.sessionAuthorized}">
+      <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
+      <a style="text-decoration: none" href="${userUrl}">${currentUser.nick}</a>
+    </c:if>
+  </div>
+
   <a id="sitetitle" href="/">LINUX.ORG.RU</a>
 
   <div class="menu">
     <div id="loginGreating">
-      <c:if test="${template.sessionAuthorized}">
-        <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
-        <a style="text-decoration: none" href="${userUrl}">${currentUser.nick}</a>
-      </c:if>
-
       <c:if test="${not template.sessionAuthorized}">
         <div id="regmenu" class="head">
           <a href="${configuration.secureUrl}register.jsp">Регистрация</a> -
