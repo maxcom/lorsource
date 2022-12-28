@@ -44,10 +44,6 @@ p {
 
 #hd {
   margin-bottom: 0.5em;
-
-  .menu a {
-    color: $main_menu_color;
-  }
 }
 
 #sitetitle {
@@ -74,6 +70,10 @@ p {
     margin-right: 0.2em;
     margin-top: 0.5em;
     display: inline-block;
+  }
+
+  a {
+    color: $main_menu_color;
   }
 }
 

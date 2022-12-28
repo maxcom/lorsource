@@ -63,27 +63,35 @@ p {
 	margin-bottom: 1em;
 }
 
-#hd {
-  padding-left: 1em;
-  margin-bottom: 0.5em;
-
-  h1 {
-    color: $header_color;
-  }
-
-  .menu a {
-    color: $main_menu_color;
-  }
-}
-
 #sitetitle {
+  font-weight: 600;
+  font-family: "Open Sans", sans-serif;
+  padding-top: 0.5rem;
   font-size: 2em;
-  font-weight: bold;
-  margin-right: 1em;
   text-decoration: none;
   display: block;
   float: left;
   color: $header_color;
+  padding-right: 0.5em;
+  margin-right: 0.5em;
+}
+
+#hd .menu {
+  padding-top: 0.5rem;
+  margin-left: 0.5rem;
+  font-size: 1.1em;
+
+  @include clearfix;
+
+  li {
+    margin-right: 0.2em;
+    margin-top: 0.5em;
+    display: inline-block;
+  }
+
+  a {
+    color: $main_menu_color;
+  }
 }
 
 #hd .menu {
@@ -259,6 +267,13 @@ p {
       color: $link_color;
     }
   }
+}
+
+#topProfile {
+  float: right;
+  font-size: 1.1em;
+  margin-top: 1rem;
+  margin-right: 0.8rem;
 }
 
 #loginGreating {
