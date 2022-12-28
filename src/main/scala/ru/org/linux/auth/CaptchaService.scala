@@ -16,8 +16,6 @@ package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
-import io.circe.generic.extras.Configuration
-import io.circe.generic.extras.semiauto.*
 import io.circe.parser.*
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
@@ -72,7 +70,6 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
 case class CaptchaResponse(success: Boolean, errorCodes: Option[Seq[String]])
 
 object CaptchaResponse {
-  implicit val customConfig: Configuration = Configuration.default.withKebabCaseMemberNames
-
-  implicit val decoder: Decoder[CaptchaResponse] = deriveConfiguredDecoder
+  implicit val decoder: Decoder[CaptchaResponse] =
+    Decoder.forProduct2("success", "error-codes")(CaptchaResponse.apply)
 }
