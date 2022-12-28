@@ -25,7 +25,6 @@ import ru.org.linux.topic.TagTopicListController
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util
-import scala.collection.Seq
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -142,11 +141,9 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
    * @return список тегов по первому символу
    */
   def getTagsByPrefix(prefix: String, threshold: Int): util.Map[TagRef, Integer] = {
-    val result = for (
-      info <- tagDao.getTagsByPrefix(prefix, threshold)
-    ) yield TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
-
-    SortedMap(result.toSeq*).asJava
+    tagDao.getTagsByPrefix(prefix, threshold).view.map { info =>
+      TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
+    }.to(SortedMap).asJava
   }
 }
 
