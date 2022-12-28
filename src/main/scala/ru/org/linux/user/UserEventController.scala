@@ -36,7 +36,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
                           prepareService: UserEventPrepareService, apiController: UserEventApiController) {
 
   @ModelAttribute("filterValues")
-  val filterValues: util.List[UserEventFilterEnum] = UserEventFilterEnum.values.toSeq.asJava
+  def filterValues: util.List[UserEventFilterEnum] = UserEventFilterEnum.values.toSeq.asJava
 
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
   def resetNotifications(@RequestParam topId: Int): RedirectView = {
