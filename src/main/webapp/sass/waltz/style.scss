@@ -94,18 +94,6 @@ p {
   }
 }
 
-#hd .menu {
-    font-size: 1.1em;
-
-    @include clearfix;
-
-    li {
-        float: left;
-        margin-right: 0.5em;
-        margin-top: 0.5em;
-    }
-}
-
 .news {
 	margin-bottom: 1em;
     border-top: none;
