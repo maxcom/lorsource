@@ -1,4 +1,19 @@
 /*
+ * Copyright 1998-2022 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+/*
  * Copyright 2011-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,19 +31,18 @@
 
 package org.springframework.scala.jdbc.core
 
-import java.sql._
-
+import java.sql.*
 import javax.sql.DataSource
 import org.springframework.dao.{DataAccessException, IncorrectResultSizeDataAccessException}
-import org.springframework.jdbc.core._
+import org.springframework.jdbc.core.*
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
-import org.springframework.scala.jdbc.core.JdbcCallbackConversions._
+import org.springframework.scala.jdbc.core.JdbcCallbackConversions.*
 import org.springframework.scala.util.TypeTagUtils.typeToClass
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
-import scala.collection.Seq
+import scala.collection.{Seq, immutable}
 
 /**
  * Scala-based convenience wrapper for the Spring
@@ -127,6 +141,20 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 		javaTemplate.query(sql, asRowCallbackHandler(rowCallback))
 	}
 
+	private class VectorExtractor[T](rowMapper: (ResultSet, Int) => T) extends ResultSetExtractor[Vector[T]] {
+		override def extractData(rs: ResultSet): Vector[T] = {
+			var rowNum: Int = 0
+			val results = Vector.newBuilder[T]
+
+			while (rs.next()) {
+				results.addOne(rowMapper(rs, rowNum))
+				rowNum += 1
+			}
+
+			results.result()
+		}
+	}
+
 	/**
 	 * Execute a query given static SQL, mapping each row to a Java object via a RowMapper.
 	 *
@@ -136,9 +164,8 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 * @throws DataAccessException if there is any problem executing the query
 	 */
 	@throws(classOf[DataAccessException])
-	def queryAndMap[T](sql: String)(rowMapper: (ResultSet, Int) => T): Seq[T] = {
-		javaTemplate.query(sql, rowMapper).asScala
-	}
+	def queryAndMap[T](sql: String)(rowMapper: (ResultSet, Int) => T): immutable.Seq[T] =
+		javaTemplate.query(sql, new VectorExtractor[T](rowMapper))
 
 	/**
 	 * Execute a query for a result Map, given static SQL.
@@ -265,7 +292,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def batchUpdate(sql: Seq[String]): Seq[Int] = {
-		javaTemplate.batchUpdate(sql.toSeq: _*)
+		javaTemplate.batchUpdate(sql.toSeq *)
 	}
 
 	//-------------------------------------------------------------------------
@@ -521,8 +548,8 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def queryAndMap[T](sql: String, args: Any*)
-	                  (rowMapper: (ResultSet, Int) => T): Seq[T] = {
-		javaTemplate.query(sql, asInstanceOfAnyRef(args).toArray, rowMapper).asScala
+	                  (rowMapper: (ResultSet, Int) => T): immutable.Seq[T] = {
+		javaTemplate.query(sql, asInstanceOfAnyRef(args).toArray, new VectorExtractor(rowMapper))
 	}
 
 	/**
@@ -658,7 +685,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def queryForMap(sql: String, args: Any*): Map[String, Any] = {
-		asInstanceOfAny(javaTemplate.queryForMap(sql, asInstanceOfAnyRef(args): _*))
+		asInstanceOfAny(javaTemplate.queryForMap(sql, asInstanceOfAnyRef(args) *))
 	}
 
 	/**
@@ -699,7 +726,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryForSeq[T: ClassTag](sql: String, args: Any*): Seq[T] = {
 		javaTemplate
-				.queryForList(sql, typeToClass[T], asInstanceOfAnyRef(args): _*)
+				.queryForList(sql, typeToClass[T], asInstanceOfAnyRef(args) *)
 				.asScala
 	}
 
@@ -742,7 +769,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def queryForMappedColumns(sql: String, args: Any*): Seq[Map[String, Any]] = {
-		javaTemplate.queryForList(sql, asInstanceOfAnyRef(args): _*).asScala
+		javaTemplate.queryForList(sql, asInstanceOfAnyRef(args) *).asScala
 				.map(mappedRow => asInstanceOfAny(mappedRow))
 	}
 
@@ -778,7 +805,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def queryForRowSet(sql: String, args: Any*): SqlRowSet = {
-		javaTemplate.queryForRowSet(sql, asInstanceOfAnyRef(args): _*)
+		javaTemplate.queryForRowSet(sql, asInstanceOfAnyRef(args) *)
 	}
 
 	/**
@@ -854,7 +881,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 */
 	@throws(classOf[DataAccessException])
 	def update(sql: String, args: Any*): Int = {
-		javaTemplate.update(sql, asInstanceOfAnyRef(args): _*)
+		javaTemplate.update(sql, asInstanceOfAnyRef(args) *)
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,11 +26,10 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.tag.TagInfo
 
-import scala.jdk.CollectionConverters._
-import scala.collection.Seq
+import scala.jdk.CollectionConverters.*
 
 @Repository
-class TopicTagDao(ds:DataSource) {
+class TopicTagDao(ds: DataSource) {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
@@ -64,7 +63,7 @@ class TopicTagDao(ds:DataSource) {
    * @param msgid идентификационный номер топика
    * @return список тегов топика
    */
-  def getTags(msgid:Int):Seq[TagInfo] = {
+  def getTags(msgid: Int): Seq[TagInfo] = {
     jdbcTemplate.queryAndMap(
       "SELECT tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
       msgid
@@ -117,7 +116,7 @@ class TopicTagDao(ds:DataSource) {
     jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)")
   }
 
-  def getTags(topics: Seq[Int]): Seq[(Int, TagInfo)] = {
+  def getTags(topics: collection.Seq[Int]): collection.Seq[(Int, TagInfo)] = {
     if (topics.isEmpty) {
       Vector.empty
     } else {

@@ -29,7 +29,7 @@ case class BoxletTopic(@BeanProperty url: String, @BeanProperty title: String, @
 class BoxletTopicDao(sectionService: SectionService, dataSource: DataSource) {
   private val jdbcTemplate = new JdbcTemplate(dataSource)
 
-  def top10(commentsPerPage: Int): collection.Seq[BoxletTopic] = {
+  def top10(commentsPerPage: Int): Seq[BoxletTopic] = {
     val sql =
       s"""
          |select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c
@@ -42,7 +42,7 @@ class BoxletTopicDao(sectionService: SectionService, dataSource: DataSource) {
     jdbcTemplate.queryAndMap(sql)(rsToTopic(commentsPerPage))
   }
 
-  def articles(commentsPerPage: Int): collection.Seq[BoxletTopic] = {
+  def articles(commentsPerPage: Int): Seq[BoxletTopic] = {
     val sql =
       s"""
          |select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c

@@ -30,6 +30,6 @@ class SectionDaoImpl(val ds: DataSource) extends SectionDao {
   override def getAllSections: Seq[Section] = {
     jdbcTemplate.queryAndMap("SELECT id, name, imagepost, imageallowed, vote, moderate, scroll_mode, restrict_topics FROM sections ORDER BY id") {
       (rs, _) => new Section(rs)
-    }.toVector
+    }
   }
 }

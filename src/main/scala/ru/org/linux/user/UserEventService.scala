@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
-import ru.org.linux.user.UserEventFilterEnum._
+import ru.org.linux.user.UserEventFilterEnum.*
 
 import java.util
 import java.util.Optional
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Service
 class UserEventService(userEventDao: UserEventDao, val transactionManager: PlatformTransactionManager)
@@ -105,7 +105,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @return список уведомлений
    */
   def getUserEvents(user: User, showPrivate: Boolean, topics: Int, offset: Int,
-                    eventFilter: UserEventFilterEnum): collection.Seq[UserEvent] = {
+                    eventFilter: UserEventFilterEnum): Seq[UserEvent] = {
     val eventFilterType = if (eventFilter!=ALL) {
       Some(eventFilter.getType)
     } else {

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
-import ru.org.linux.reaction.{ReactionDao, ReactionService}
+import ru.org.linux.reaction.ReactionDao
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.util.StringUtil
@@ -111,7 +111,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     jdbcTemplate.update("INSERT INTO " +
         "user_events (userid, type, private, message_id, comment_id, origin_user)" +
         "VALUES (?, 'REACTION', false, ?, ?, ?) ON CONFLICT DO NOTHING",
-      authorId, topic.getId, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
+      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
   }
 
   def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit = {
@@ -121,7 +121,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         "DELETE FROM user_events " +
           "WHERE userid=? AND message_id=? AND comment_id IS NOT DISTINCT FROM ? " +
           "AND origin_user=? AND unread AND type='REACTION'",
-      authorId, topic.getId, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
+      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
 
     recalcEventCount(Seq(authorId))
   }
@@ -183,7 +183,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @return список уведомлений
    */
   def getRepliesForUser(userId: Int, showPrivate: Boolean, topics: Int, offset: Int,
-                        eventFilterType: Option[String]): collection.Seq[UserEvent] = {
+                        eventFilterType: Option[String]): Seq[UserEvent] = {
     val queryString = if (showPrivate) {
       val queryPart = if (eventFilterType.isDefined) {
         s" AND type = '${eventFilterType.get}' "

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,10 +23,9 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.tag.TagDao._
+import ru.org.linux.tag.TagDao.*
 
-import scala.jdk.CollectionConverters._
-import scala.collection.Seq
+import scala.jdk.CollectionConverters.*
 
 @Repository
 class TagDao(ds:DataSource) extends StrictLogging {
@@ -72,7 +71,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
    *
    * @return список первых букв тегов.
    */
-  private[tag] def getFirstLetters: Seq[String] = {
+  private[tag] def getFirstLetters: collection.Seq[String] = {
     val query =
       "select distinct firstchar from " +
         "(select lower(substr(value,1,1)) as firstchar from tags_values " +
@@ -104,7 +103,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
    * @param prefix       префикс имени тега
    * @return список тегов
    */
-  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): Seq[String] = {
+  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): collection.Seq[String] = {
     val query = "select value from tags_values " +
       "where value like ? and counter >= ? order by counter DESC LIMIT ?"
 
