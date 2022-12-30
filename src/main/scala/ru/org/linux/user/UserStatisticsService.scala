@@ -17,7 +17,6 @@ package ru.org.linux.user
 
 import java.sql.Timestamp
 import java.util.{Date, TimeZone}
-import java.util.concurrent.CompletionStage
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.requests.searches.{DateHistogramInterval, SearchResponse}
@@ -29,7 +28,6 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService.*
 
 import scala.beans.BeanProperty
-import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.*
 import scala.concurrent.duration.*
@@ -81,7 +79,7 @@ class UserStatisticsService(
     )
   }
 
-  def getYearStats(user: User, timezone: DateTimeZone): CompletionStage[java.util.Map[Long, Long]] = {
+  def getYearStats(user: User, timezone: DateTimeZone): Future[Map[Long, Long]] = {
     Future.successful(elastic).flatMap {
       _ execute {
         val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/M"))
@@ -94,9 +92,9 @@ class UserStatisticsService(
       } map {
         _.result.aggregations.dateHistogram("days").buckets.map { bucket =>
           bucket.timestamp/1000 -> bucket.docCount
-        }.toMap.asJava
+        }.toMap
       }
-    }.toJava
+    }
   }
 
   private def timeoutHandler(response: SearchResponse): Future[SearchResponse] = {
@@ -163,7 +161,7 @@ object UserStatisticsService {
     }
   }
 
-  case class TopicStats(firstTopic:Option[DateTime], lastTopic:Option[DateTime], sectionCount:Seq[(String, Long)])
+  case class TopicStats(firstTopic: Option[DateTime], lastTopic: Option[DateTime], sectionCount: Seq[(String, Long)])
 }
 
 case class UserStats (
