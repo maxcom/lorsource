@@ -124,15 +124,15 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
    * @param count      количество тегов
    * @return список тегов по первому символу
    */
-  def suggestTagsByPrefix(prefix: String, count: Int): util.List[String] =
-    tagDao.getTopTagsByPrefix(prefix, 2, count).asJava
+  def suggestTagsByPrefix(prefix: String, count: Int): Seq[String] =
+    tagDao.getTopTagsByPrefix(prefix, 2, count)
 
   /**
    * Получить уникальный список первых букв тегов.
    *
    * @return список первых букв тегов
    */
-  def getFirstLetters: util.List[String] = tagDao.getFirstLetters.asJava
+  def getFirstLetters: Seq[String] = tagDao.getFirstLetters
 
   /**
    * Получить список тегов по префиксу.
@@ -140,10 +140,10 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
    * @param prefix     префикс
    * @return список тегов по первому символу
    */
-  def getTagsByPrefix(prefix: String, threshold: Int): util.Map[TagRef, Integer] = {
+  def getTagsByPrefix(prefix: String, threshold: Int): Map[TagRef, Int] = {
     tagDao.getTagsByPrefix(prefix, threshold).view.map { info =>
-      TagService.tagRef(info) -> (info.topicCount:java.lang.Integer)
-    }.to(SortedMap).asJava
+      TagService.tagRef(info) -> info.topicCount
+    }.to(SortedMap)
   }
 }
 
