@@ -19,14 +19,12 @@ import com.google.common.base.Strings;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
@@ -47,41 +45,48 @@ import java.util.stream.Collectors;
 public class WhoisController {
   private static final Logger logger = LoggerFactory.getLogger(WhoisController.class);
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private IgnoreListDao ignoreListDao;
+  private final IgnoreListDao ignoreListDao;
 
-  @Autowired
-  private LorCodeService lorCodeService;
+  private final LorCodeService lorCodeService;
 
-  @Autowired
-  private UserTagService userTagService;
+  private final UserTagService userTagService;
 
-  @Autowired
-  private TopicPermissionService topicPermissionService;
+  private final TopicPermissionService topicPermissionService;
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
 
-  @Autowired
-  private UserStatisticsService userStatisticsService;
+  private final UserStatisticsService userStatisticsService;
 
-  @Autowired
-  private UserLogDao userLogDao;
+  private final UserLogDao userLogDao;
 
-  @Autowired
-  private UserLogPrepareService userLogPrepareService;
+  private final UserLogPrepareService userLogPrepareService;
 
-  @Autowired
-  private MemoriesDao memoriesDao;
+  private final MemoriesDao memoriesDao;
 
-  @Autowired
-  private TopicDao topicDao;
+  private final TopicDao topicDao;
 
-  @Autowired
-  private RemarkDao remarkDao;
+  private final RemarkDao remarkDao;
+
+  public WhoisController(UserStatisticsService userStatisticsService, UserDao userDao, IgnoreListDao ignoreListDao,
+                         LorCodeService lorCodeService, UserTagService userTagService,
+                         TopicPermissionService topicPermissionService, UserService userService,
+                         UserLogDao userLogDao, UserLogPrepareService userLogPrepareService, RemarkDao remarkDao,
+                         MemoriesDao memoriesDao, TopicDao topicDao) {
+    this.userStatisticsService = userStatisticsService;
+    this.userDao = userDao;
+    this.ignoreListDao = ignoreListDao;
+    this.lorCodeService = lorCodeService;
+    this.userTagService = userTagService;
+    this.topicPermissionService = topicPermissionService;
+    this.userService = userService;
+    this.userLogDao = userLogDao;
+    this.userLogPrepareService = userLogPrepareService;
+    this.remarkDao = remarkDao;
+    this.memoriesDao = memoriesDao;
+    this.topicDao = topicDao;
+  }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView getInfoNew(@PathVariable String nick) throws Exception {
@@ -116,7 +121,7 @@ public class WhoisController {
       mv.getModel().put("freezer", freezer);
     }
 
-      boolean viewByOwner = tmpl.isSessionAuthorized() && AuthUtil.getNick().equals(nick);
+    boolean viewByOwner = tmpl.isSessionAuthorized() && AuthUtil.getNick().equals(nick);
 
     if (tmpl.isModeratorSession()) {
       mv.getModel().put(
@@ -180,32 +185,6 @@ public class WhoisController {
         mv.addObject("userlog", userLogPrepareService.prepare(logItems));
       }
     }
-
-    return mv;
-  }
-
-  @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="wipe")
-  public ModelAndView wipe(@PathVariable String nick) {
-    Template tmpl = Template.getTemplate();
-
-    if (!tmpl.isModeratorSession()) {
-      throw new AccessViolationException("not moderator");
-    }
-
-    User user = userService.getUser(nick);
-
-    if (!user.isBlockable()) {
-      throw new AccessViolationException("Пользователя нельзя заблокировать");
-    }
-
-    if (user.isBlocked()) {
-      throw new UserErrorException("Пользователь уже блокирован");
-    }
-
-    ModelAndView mv = new ModelAndView("wipe-user");
-    mv.getModel().put("user", user);
-
-    mv.getModel().put("commentCount", userDao.getExactCommentCount(user));
 
     return mv;
   }

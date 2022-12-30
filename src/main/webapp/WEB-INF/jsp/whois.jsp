@@ -463,7 +463,7 @@
                 <label>Причина: <input type="text" name="reason" size="40" required></label>
                 <button type='submit' name='action' value="block">заблокировать</button><br>
 
-                [<a href="/people/${user.nick}/profile?wipe">перейти к блокировке с удалением сообщений</a>]
+                [<a href="/people/${user.nick}/profile/wipe">перейти к блокировке с удалением сообщений</a>]
             </c:if>
         </form>
     </div>

@@ -19,10 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
@@ -342,6 +339,31 @@ public class UserModificationController {
     return now;
   }
 
+  @RequestMapping(value="/people/{nick}/profile/wipe", method = {RequestMethod.GET, RequestMethod.HEAD})
+  public ModelAndView wipe(@PathVariable String nick) {
+    Template tmpl = Template.getTemplate();
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("not moderator");
+    }
+
+    User user = userService.getUser(nick);
+
+    if (!user.isBlockable()) {
+      throw new AccessViolationException("Пользователя нельзя заблокировать");
+    }
+
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь уже блокирован");
+    }
+
+    ModelAndView mv = new ModelAndView("wipe-user");
+    mv.getModel().put("user", user);
+
+    mv.getModel().put("commentCount", userDao.getExactCommentCount(user));
+
+    return mv;
+  }
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
