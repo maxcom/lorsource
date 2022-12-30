@@ -71,7 +71,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
    *
    * @return список первых букв тегов.
    */
-  private[tag] def getFirstLetters: collection.Seq[String] = {
+  private[tag] def getFirstLetters: Seq[String] = {
     val query =
       "select distinct firstchar from " +
         "(select lower(substr(value,1,1)) as firstchar from tags_values " +
@@ -103,7 +103,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
    * @param prefix       префикс имени тега
    * @return список тегов
    */
-  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): collection.Seq[String] = {
+  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): Seq[String] = {
     val query = "select value from tags_values " +
       "where value like ? and counter >= ? order by counter DESC LIMIT ?"
 

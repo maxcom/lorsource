@@ -34,7 +34,7 @@ package org.springframework.scala.jdbc.core
 import java.sql.*
 import javax.sql.DataSource
 import org.springframework.dao.{DataAccessException, IncorrectResultSizeDataAccessException}
-import org.springframework.jdbc.core.*
+import org.springframework.jdbc.core.{SingleColumnRowMapper, *}
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
 import org.springframework.scala.jdbc.core.JdbcCallbackConversions.*
@@ -233,8 +233,10 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 * @throws DataAccessException if there is any problem executing the query
 	 */
 	@throws(classOf[DataAccessException])
-	def queryForSeq[T: ClassTag](sql: String): Seq[T] = {
-		javaTemplate.queryForList(sql, typeToClass[T]).asScala
+	def queryForSeq[T: ClassTag](sql: String): immutable.Seq[T] = {
+		val mapper = new SingleColumnRowMapper(typeToClass[T])
+
+		queryAndMap(sql)((p, n) => mapper.mapRow(p, n))
 	}
 
 	/**
@@ -724,10 +726,10 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	 * @throws DataAccessException if the query fails
 	 */
 	@throws(classOf[DataAccessException])
-	def queryForSeq[T: ClassTag](sql: String, args: Any*): Seq[T] = {
-		javaTemplate
-				.queryForList(sql, typeToClass[T], asInstanceOfAnyRef(args) *)
-				.asScala
+	def queryForSeq[T: ClassTag](sql: String, args: Any*): immutable.Seq[T] = {
+		val mapper = new SingleColumnRowMapper[T](typeToClass[T])
+
+		queryAndMap(sql, args*)((r, n) => mapper.mapRow(r, n))
 	}
 
 	/**

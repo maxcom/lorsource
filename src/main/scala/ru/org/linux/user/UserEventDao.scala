@@ -126,7 +126,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     recalcEventCount(Seq(authorId))
   }
 
-  def getNotifiedUsers(topicId: Int): collection.Seq[Integer] =
+  def getNotifiedUsers(topicId: Int): Seq[Integer] =
     jdbcTemplate.queryForSeq[Integer]("SELECT userid FROM topic_users_notified WHERE topic=?", topicId)
 
   /**

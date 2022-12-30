@@ -25,7 +25,7 @@ import java.security.SecureRandom
 import java.sql.Timestamp
 import java.util.Base64
 import javax.sql.DataSource
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Repository
 class UserInvitesDao(ds: DataSource) {
@@ -75,7 +75,7 @@ class UserInvitesDao(ds: DataSource) {
 
   def markUsed(token: String, newUserId: Int): Boolean = {
     jdbcTemplate.update("update user_invites set invited_user=? where invite_code=? and invited_user is null and valid_until>CURRENT_TIMESTAMP",
-      newUserId, token) > 0;
+      newUserId, token) > 0
   }
 
   // returns total and user's counts
@@ -89,7 +89,7 @@ class UserInvitesDao(ds: DataSource) {
   def getAllInvitedUsers(user: User): Seq[Int] =
     jdbcTemplate.queryForSeq[Int](
       "select invited_user from user_invites where owner = ? and invited_user is not null order by issue_date",
-      user.getId).toSeq
+      user.getId)
 }
 
 object UserInvitesDao {
