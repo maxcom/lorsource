@@ -15,12 +15,10 @@
 
 package ru.org.linux.comment
 
-import java.util
-import java.util.Optional
 import akka.actor.ActorRef
-
-import javax.servlet.http.HttpServletRequest
-import javax.validation.Valid
+import io.circe.generic.semiauto.*
+import io.circe.syntax.*
+import io.circe.{Encoder, Json}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
@@ -38,6 +36,10 @@ import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
 
+import java.util
+import java.util.Optional
+import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -160,7 +162,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     method = Array(RequestMethod.POST))
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                     @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): util.Map[String, AnyRef] = {
+                     @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): Json = {
     val user = commentService.getCommentUser(add, errors)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
@@ -172,14 +174,15 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
     }
 
-    (if (add.isPreviewMode || errors.hasErrors || comment == null) {
-      val errorsList = errors.getAllErrors.asScala.map(_.getDefaultMessage)
+    if (add.isPreviewMode || errors.hasErrors || comment == null) {
+      val errorsList = errors.getAllErrors.asScala.map(_.getDefaultMessage).toSeq
 
       if (comment != null) {
-        Map("errors" -> errorsList.asJava,
-          "preview" -> commentPrepareService.prepareCommentForEdit(comment, msg))
+        val preparedComment = commentPrepareService.prepareCommentForEdit(comment, msg)
+
+        CommentPreview(errorsList, Some(preparedComment.processedMessage)).asJson
       } else {
-        Map("errors" -> errorsList.asJava)
+        CommentPreview(errorsList, None).asJson
       }
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
@@ -190,8 +193,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
       realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions.asScala.map(_.toInt).toSet)
 
-      Map("url" -> (add.getTopic.getLink + "?cid=" + msgid))
-    }).asJava
+      Map("url" -> (add.getTopic.getLink + "?cid=" + msgid)).asJson
+    }
   }
 
   @InitBinder(Array("add"))
@@ -199,4 +202,10 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
   @InitBinder
   def initBinder(binder: WebDataBinder): Unit = commentService.initBinder(binder)
+}
+
+case class CommentPreview(errors: Seq[String], preview: Option[String])
+
+object CommentPreview {
+  implicit val encoder: Encoder[CommentPreview] = deriveEncoder[CommentPreview]
 }

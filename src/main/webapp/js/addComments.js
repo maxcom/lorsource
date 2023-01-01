@@ -138,11 +138,7 @@ $script.ready(['jquery', 'hljs'], function() {
     function displayPreview(data) {
       var title = "Предпросмотр";
 
-      if (data['preview']['title']) {
-        title = data['preview']['title'];
-      }
-
-      commentPreview.html("<h2>"+title+"</h2>"+data['preview']['processedMessage']);
+      commentPreview.html("<h2>"+title+"</h2>"+data['preview']);
       $('pre code', commentPreview).each(function(i, block) {
         hljs.highlightBlock(block);
       });
