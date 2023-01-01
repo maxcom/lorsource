@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository
 
 import java.sql.ResultSet
 import javax.sql.DataSource
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Repository
 class RemarkDao(ds: DataSource) {
@@ -68,9 +68,6 @@ class RemarkDao(ds: DataSource) {
 
     r
   }
-
-  def getRemarksJava(user: User, refs: java.lang.Iterable[User]): java.util.Map[Integer, Remark] =
-    getRemarks(user, refs.asScala).map(p => Integer.valueOf(p._1) -> p._2).asJava
 
   private def setRemark(user: User, ref: User, text: String):Unit = {
     if (text.nonEmpty) {
