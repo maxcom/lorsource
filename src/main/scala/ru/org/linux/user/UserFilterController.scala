@@ -15,6 +15,8 @@
 package ru.org.linux.user
 
 import com.google.common.base.Joiner
+import io.circe.Json
+import io.circe.syntax.*
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import org.springframework.web.servlet.ModelAndView
@@ -24,7 +26,6 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.site.BadInputException
 import ru.org.linux.tag.{TagName, TagNotFoundException}
 
-import java.util
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
@@ -126,13 +127,13 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
   @RequestMapping(value = Array("/user-filter/favorite-tag"), method = Array(RequestMethod.POST),
     params = Array("add"), headers = Array("Accept=application/json"))
   @ResponseBody
-  def favoriteTagAddJSON(@RequestParam tagName: String): util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
+  def favoriteTagAddJSON(@RequestParam tagName: String): Json = AuthorizedOnly { currentUser =>
     try {
       val id = userTagService.favoriteAdd(currentUser.user, tagName)
-      Map[String, AnyRef]("count" -> Integer.valueOf(userTagService.countFavs(id))).asJava
+      Map("count" -> userTagService.countFavs(id)).asJson
     } catch {
       case e: TagNotFoundException =>
-        Map[String, AnyRef]("error" -> e.getMessage).asJava
+        Map("error" -> e.getMessage).asJson
     }
   }
 
@@ -160,10 +161,10 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
   @ResponseBody
   @RequestMapping(value = Array("/user-filter/favorite-tag"), method = Array(RequestMethod.POST), params = Array("del"),
     headers = Array("Accept=application/json"))
-  def favoriteTagDelJSON(@RequestParam tagName: String): util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
+  def favoriteTagDelJSON(@RequestParam tagName: String): Json = AuthorizedOnly { currentUser =>
     val tagId = userTagService.favoriteDel(currentUser.user, tagName)
 
-    Map[String, AnyRef]("count" -> Integer.valueOf(userTagService.countFavs(tagId))).asJava
+    Map("count" -> userTagService.countFavs(tagId)).asJson
   }
 
   /**
@@ -200,19 +201,22 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
   @ResponseBody
   @RequestMapping(value = Array("/user-filter/ignore-tag"), method = Array(RequestMethod.POST), params = Array("add"),
     headers = Array("Accept=application/json"))
-  def ignoreTagAddJSON(@RequestParam tagName: String): util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
-    if (currentUser.moderator) throw new AccessViolationException("Модераторам нельзя игнорировать теги")
+  def ignoreTagAddJSON(@RequestParam tagName: String): Json = AuthorizedOnly { currentUser =>
+    if (currentUser.moderator) {
+      throw new AccessViolationException("Модераторам нельзя игнорировать теги")
+    }
+
     val errorMessage = userTagService.addMultiplyTags(currentUser.user, tagName, isFavorite = false)
 
     if (!errorMessage.isEmpty) {
-      Map[String, AnyRef]("error" -> Joiner.on("; ").join(errorMessage)).asJava
+      Map("error" -> Joiner.on("; ").join(errorMessage)).asJson
     } else {
       try {
         val tagId = userTagService.ignoreAdd(currentUser.user, tagName)
-        Map[String, AnyRef]("count" -> Integer.valueOf(userTagService.countIgnore(tagId))).asJava
+        Map("count" -> userTagService.countIgnore(tagId)).asJson
       } catch {
         case e: TagNotFoundException =>
-          Map[String, AnyRef]("error" -> e.getMessage).asJava
+          Map("error" -> e.getMessage).asJson
       }
     }
   }
@@ -245,13 +249,13 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
   @ResponseBody
   @RequestMapping(value = Array("/user-filter/ignore-tag"), method = Array(RequestMethod.POST), params = Array("del"),
     headers = Array("Accept=application/json"))
-  def ignoreTagDelJSON(@RequestParam tagName: String): util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
+  def ignoreTagDelJSON(@RequestParam tagName: String): Json = AuthorizedOnly { currentUser =>
     if (currentUser.moderator) {
       throw new AccessViolationException("Модераторам нельзя игнорировать теги")
     }
 
     val tagId = userTagService.ignoreDel(currentUser.user, tagName)
 
-    Map[String, AnyRef]("count" -> Integer.valueOf(userTagService.countIgnore(tagId))).asJava
+    Map("count" -> Integer.valueOf(userTagService.countIgnore(tagId))).asJson
   }
 }
