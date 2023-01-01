@@ -16,6 +16,8 @@ package ru.org.linux.auth
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
+import io.circe.{Encoder, Json}
+import io.circe.syntax.*
 import org.springframework.security.authentication.{AccountStatusException, AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
@@ -24,22 +26,20 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.site.PublicApi
 import ru.org.linux.user.UserDao
 
 import java.util.concurrent.CompletionStage
 import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
-import scala.compat.java8.FutureConverters._
+import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Promise
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Random, Try}
 
-@PublicApi
-case class LoginStatus(success: Boolean, username: String) {
-  def isLoggedIn: Boolean = success
+case class LoginStatus(success: Boolean, username: String)
 
-  def getUsername: String = username
+object LoginStatus {
+  implicit val encoder: Encoder[LoginStatus] = Encoder.forProduct1("loggedIn")(_.success)
 }
 
 @Controller
@@ -80,7 +80,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
   @RequestMapping(value = Array("/ajax_login_process"), method = Array(RequestMethod.POST))
   @ResponseBody
   def loginAjax(@RequestParam("nick") username: String, @RequestParam("passwd") password: String,
-                request: HttpServletRequest, response: HttpServletResponse): CompletionStage[LoginStatus] = {
+                request: HttpServletRequest, response: HttpServletResponse): CompletionStage[Json] = {
     val token = new UsernamePasswordAuthenticationToken(username, password)
     try {
       val details = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
@@ -89,20 +89,20 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
       val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
       if (!userDetails.getUser.isActivated) {
-        delayResponse { LoginStatus(success = false, "User not activated") }
+        delayResponse { LoginStatus(success = false, "User not activated").asJson }
       } else {
         SecurityContextHolder.getContext.setAuthentication(auth)
         rememberMeServices.loginSuccess(request, response, auth)
 
         delayResponse {
           AuthUtil.updateLastLogin(auth, userDao)
-          LoginStatus(auth.isAuthenticated, auth.getName)
+          LoginStatus(auth.isAuthenticated, auth.getName).asJson
         }
       }
     } catch {
       case e@(_: LockedException | _: BadCredentialsException | _: UsernameNotFoundException) =>
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
-        delayResponse { LoginStatus(success = false, "Bad credentials") }
+        delayResponse { LoginStatus(success = false, "Bad credentials").asJson }
     }
   }
 
