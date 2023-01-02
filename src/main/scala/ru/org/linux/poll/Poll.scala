@@ -14,7 +14,11 @@
  */
 package ru.org.linux.poll
 
+import io.circe.{Decoder, Encoder}
+
 import java.util
+import io.circe.generic.semiauto.*
+
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters.*
@@ -26,6 +30,9 @@ object Poll {
 
   def apply(id: Int, topic: Int, multiSelect: Boolean, variants: java.util.List[PollVariant]): Poll =
     Poll(id, topic, multiSelect, variants.asScala.toSeq)
+
+  implicit val encoder: Encoder[Poll] = deriveEncoder[Poll]
+  implicit val decoder: Decoder[Poll] = deriveDecoder[Poll]
 }
 
 case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanProperty multiSelect: Boolean,
@@ -40,6 +47,9 @@ case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanPro
 object PollVariant {
   def toMap(list: java.lang.Iterable[PollVariant]): util.Map[Integer, String] =
     list.asScala.map(v => Integer.valueOf(v.id) -> v.label).to(TreeMap).asJava
+
+  implicit val encoder: Encoder[PollVariant] = deriveEncoder[PollVariant]
+  implicit val decoder: Decoder[PollVariant] = deriveDecoder[PollVariant]
 }
 
 case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String)

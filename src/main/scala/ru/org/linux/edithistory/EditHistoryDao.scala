@@ -14,8 +14,8 @@
  */
 package ru.org.linux.edithistory
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import io.circe.parser.*
+import io.circe.syntax.*
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
@@ -53,10 +53,7 @@ class EditHistoryDao(dataSource: DataSource) {
     if (resultSet.wasNull) editHistoryRecord.setOldminor(null)
 
     Option(resultSet.getString("oldpoll")).map { json =>
-      val mapper = new ObjectMapper()
-      mapper.registerModule(DefaultScalaModule)
-
-      mapper.readerFor(classOf[Poll]).readValue(json).asInstanceOf[Poll]
+      parse(json).toTry.flatMap(_.as[Poll].toTry).get
     }.foreach(editHistoryRecord.setOldPoll)
 
     editHistoryRecord
@@ -99,12 +96,7 @@ class EditHistoryDao(dataSource: DataSource) {
       "object_type" -> record.getObjectType,
       "oldminor" -> record.getOldminor,
       "oldimage" -> record.getOldimage,
-      "oldpoll" -> Option(record.getOldPoll).map { oldPoll =>
-        val mapper = new ObjectMapper()
-        mapper.registerModule(DefaultScalaModule)
-
-        mapper.writerFor(classOf[Poll]).writeValueAsString(oldPoll)
-      }.orNull
+      "oldpoll" -> Option(record.getOldPoll).map(_.asJson).orNull
     ).asJava)
   }
 }
