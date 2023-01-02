@@ -48,7 +48,7 @@ class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
 
   @ResponseBody
   @RequestMapping(value = Array("/memories.jsp"), params = Array("remove"), method = Array(RequestMethod.POST))
-  def remove(@RequestParam("id") id: Int): Int = AuthorizedOnly { currentUser =>
+  def remove(@RequestParam("id") id: Int): Json = AuthorizedOnly { currentUser =>
     memoriesDao.getMemoriesListItem(id).map { m =>
       if (m.getUserid != currentUser.user.getId) {
         throw new AccessViolationException("Нельзя удалить чужую запись")
@@ -63,6 +63,6 @@ class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
       } else {
         memoriesInfo.favsCount
       }
-    }.orElse(-1)
+    }.orElse(-1).asJson
   }
 }

@@ -15,6 +15,8 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
+import io.circe.Json
+import io.circe.syntax.EncoderOps
 import org.jasypt.util.text.AES256TextEncryptor
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
@@ -236,8 +238,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @ResponseBody
   @RequestMapping(Array("check-login"))
-  def ajaxLoginCheck(@RequestParam nick: String):String = {
-    if (nick.isEmpty) {
+  def ajaxLoginCheck(@RequestParam nick: String): Json = {
+    (if (nick.isEmpty) {
       "Не задан nick."
     } else if (!StringUtil.checkLoginName(nick)) {
       "Некорректное имя пользователя."
@@ -247,7 +249,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       "Это имя пользователя уже используется. Пожалуйста выберите другое имя."
     } else {
       "true"
-    }
+    }).asJson
   }
 
   @InitBinder(Array("form"))

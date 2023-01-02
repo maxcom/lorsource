@@ -30,17 +30,18 @@ import javax.servlet.http.HttpServletResponse
 class UserEventApiController(userEventService: UserEventService, realtimeHubWS: ActorRef) {
   @ResponseBody
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
-  def getEventsCount(response: HttpServletResponse): Int = AuthorizedOnly { _ =>
+  def getEventsCount(response: HttpServletResponse): Json = AuthorizedOnly { _ =>
     response.setHeader("Cache-control", "no-cache")
-    AuthUtil.getCurrentUser.getUnreadEvents
+    AuthUtil.getCurrentUser.getUnreadEvents.asJson
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
   @ResponseBody
-  def resetNotifications(@RequestParam topId: Int): String = AuthorizedOnly { currentUser =>
+  def resetNotifications(@RequestParam topId: Int): Json = AuthorizedOnly { currentUser =>
     userEventService.resetUnreadReplies(currentUser.user, topId)
     RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.user.getId))
-    "ok"
+
+    "ok".asJson
   }
 
   @ResponseBody

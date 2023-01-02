@@ -14,36 +14,17 @@
  */
 package ru.org.linux.spring
 
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.circe.Json
 import io.circe.parser.*
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.http.{HttpInputMessage, HttpOutputMessage, MediaType}
+import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.http.converter.{AbstractHttpMessageConverter, StringHttpMessageConverter}
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.http.{HttpInputMessage, HttpOutputMessage, MediaType}
 import org.springframework.util.StreamUtils
 
 import java.nio.charset.StandardCharsets
 
 @Configuration
 class JsonConfiguration {
-  @Bean(name = Array("jacksonMessageConverter"))
-  def jsonConverter: MappingJackson2HttpMessageConverter = {
-    val converter = new MappingJackson2HttpMessageConverter {
-      override def canWrite(clazz: Class[?], mediaType: MediaType): Boolean =
-        !classOf[Json].isAssignableFrom(clazz) && super.canWrite(clazz, mediaType)
-    }
-
-    converter.setPrettyPrint(true)
-    converter.getObjectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-
-    converter
-  }
-
-  @Bean(name = Array("stringMessageConverter"))
-  def stringMessageConverter = new StringHttpMessageConverter
-
   @Bean(name = Array("circeMessageConverter"))
   def circeConverter = new AbstractHttpMessageConverter[Json](MediaType.APPLICATION_JSON) {
     override def supports(clazz: Class[?]): Boolean = classOf[Json].isAssignableFrom(clazz)
