@@ -14,21 +14,20 @@
  */
 package ru.org.linux.user
 
+import io.circe.Json
+import io.circe.syntax.*
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.topic.TopicDao
 
-import java.util
-import scala.jdk.CollectionConverters.MapHasAsJava
-
 @Controller
 class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
   @ResponseBody
   @RequestMapping(value = Array("/memories.jsp"), params = Array("add"), method = Array(RequestMethod.POST))
   def add(@RequestParam("msgid") msgid: Int,
-          @RequestParam("watch") watch: Boolean): util.Map[String, Integer] = AuthorizedOnly { currentUser =>
+          @RequestParam("watch") watch: Boolean): Json = AuthorizedOnly { currentUser =>
     val topic = messageDao.getById(msgid)
 
     if (topic.deleted) {
@@ -44,7 +43,7 @@ class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
       memoriesInfo.favsCount
     }
 
-    Map("id" -> Integer.valueOf(id), "count" -> Integer.valueOf(count)).asJava
+    Map("id" -> Integer.valueOf(id), "count" -> Integer.valueOf(count)).asJson
   }
 
   @ResponseBody

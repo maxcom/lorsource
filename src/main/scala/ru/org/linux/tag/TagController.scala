@@ -16,6 +16,8 @@ package ru.org.linux.tag
 
 import com.google.common.base.Strings
 import com.typesafe.scalalogging.StrictLogging
+import io.circe.Json
+import io.circe.syntax.*
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.annotation.*
@@ -25,7 +27,6 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.topic.TagTopicListController
 
-import java.util
 import java.util.Objects
 import scala.jdk.CollectionConverters.*
 
@@ -84,10 +85,10 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    */
   @ResponseBody
   @RequestMapping(value = Array("/tags"), params = Array("term"))
-  def showTagListHandlerJSON(@RequestParam("term") term: String): util.List[String] = {
+  def showTagListHandlerJSON(@RequestParam("term") term: String): Json = {
     val tags = tagService.suggestTagsByPrefix(term, 10)
 
-    tags.filter(TagName.isGoodTag).asJava
+    tags.filter(TagName.isGoodTag).asJson
   }
 
   /**

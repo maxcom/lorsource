@@ -14,6 +14,8 @@
  */
 package ru.org.linux.reaction
 
+import io.circe.Json
+import io.circe.syntax.*
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -100,13 +102,13 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
   @RequestMapping(value=Array("/ajax"), params = Array("comment"), method = Array(RequestMethod.POST))
   @ResponseBody
   def setCommentReactionAjax(@RequestParam("comment") commentId: Int,
-                             @RequestParam("reaction") reactionAction: String): java.util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
+                             @RequestParam("reaction") reactionAction: String): Json = AuthorizedOnly { currentUser =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
     val count = doSetCommentReaction(topic, comment, reactionAction, currentUser)
 
-    Map[String, AnyRef]("count" -> Integer.valueOf(count)).asJava
+    Map("count" -> Integer.valueOf(count)).asJson
   }
 
 
@@ -168,12 +170,12 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
   @RequestMapping(value = Array("/ajax"), params = Array("!comment"), method = Array(RequestMethod.POST))
   @ResponseBody
   def setTopicReactionAjax(@RequestParam("topic") topicId: Int,
-                           @RequestParam("reaction") reactionAction: String): java.util.Map[String, AnyRef] = AuthorizedOnly { currentUser =>
+                           @RequestParam("reaction") reactionAction: String): Json = AuthorizedOnly { currentUser =>
     val topic = topicDao.getById(topicId)
 
     val count = doSetTopicReaction(topic, reactionAction, currentUser)
 
-    Map[String, AnyRef]("count" -> Integer.valueOf(count)).asJava
+    Map("count" -> Integer.valueOf(count)).asJson
   }
 
   @ExceptionHandler(Array(classOf[ReactionRateLimitException]))

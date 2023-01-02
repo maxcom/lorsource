@@ -16,6 +16,8 @@ package ru.org.linux.user
 
 import com.google.common.base.Strings
 import com.typesafe.scalalogging.StrictLogging
+import io.circe.Json
+import io.circe.syntax.*
 import org.joda.time.DateTimeZone
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -29,7 +31,6 @@ import ru.org.linux.util.bbcode.LorCodeService
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.util
 import java.util.concurrent.CompletionStage
 import javax.servlet.http.HttpServletRequest
 import scala.compat.java8.FutureConverters.FutureOps
@@ -162,7 +163,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD), params = Array("year-stats"))
   @ResponseBody
-  def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[util.Map[Long, Long]] = AuthorizedOpt { currentUser =>
+  def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = AuthorizedOpt { currentUser =>
     val user = userService.getUser(nick)
 
     if (!currentUser.exists(_.moderator)) {
@@ -171,6 +172,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
 
-    userStatisticsService.getYearStats(user, timezone).map(_.asJava).toJava
+    userStatisticsService.getYearStats(user, timezone).map(_.asJson).toJava
   }
 }

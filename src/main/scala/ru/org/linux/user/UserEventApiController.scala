@@ -16,6 +16,8 @@ package ru.org.linux.user
 
 import akka.actor.ActorRef
 import com.google.common.collect.ImmutableList
+import io.circe.Json
+import io.circe.syntax.*
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import ru.org.linux.auth.AuthUtil
@@ -23,7 +25,6 @@ import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.realtime.RealtimeEventHub
 
 import javax.servlet.http.HttpServletResponse
-import scala.jdk.CollectionConverters.*
 
 @Controller
 class UserEventApiController(userEventService: UserEventService, realtimeHubWS: ActorRef) {
@@ -45,11 +46,11 @@ class UserEventApiController(userEventService: UserEventService, realtimeHubWS: 
   @ResponseBody
   @RequestMapping(value = Array("/yandex-tableau"), method = Array(RequestMethod.GET),
     produces = Array("application/json"))
-  def getYandexWidget(response: HttpServletResponse): java.util.Map[String, Int] = AuthorizedOpt {
+  def getYandexWidget(response: HttpServletResponse): Json = AuthorizedOpt {
     case None =>
-      Map.empty[String, Int].asJava
+      Map.empty[String, Int].asJson
     case Some(currentUser) =>
       response.setHeader("Cache-control", "no-cache")
-      Map("notifications" -> currentUser.user.getUnreadEvents).asJava
+      Map("notifications" -> currentUser.user.getUnreadEvents).asJson
   }
 }
