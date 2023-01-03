@@ -249,7 +249,13 @@
       <lor:date date="${item.lastdate}"/>
   </td>
   <td>
+    <c:if test="${item.blocked}">
+      <s>
+    </c:if>
     <a href="/people/${item.nick}/profile">${item.nick}</a>
+    <c:if test="${item.blocked}">
+      </s>
+    </c:if>
   </td>
   <td>
     <c:out escapeXml="true" value="${item.userAgent}"/>

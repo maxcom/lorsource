@@ -207,13 +207,13 @@ public class SameIPController {
     params.put("limit", limit);
 
     return namedJdbcTemplate.query(
-            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
+            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent, blocked " +
                     "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
                     "JOIN users u ON c.userid = u.id " +
                     "WHERE c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
                     ipQuery +
                     userAgentQuery +
-                    "GROUP BY u.nick, c.ua_id, ua.name " +
+                    "GROUP BY u.nick, blocked, c.ua_id, ua.name " +
                     "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
                     "LIMIT :limit",
             params,
@@ -268,11 +268,13 @@ public class SameIPController {
     private final Timestamp lastdate;
     private final String nick;
     private final String userAgent;
+    private final boolean blocked;
 
     private UserItem(ResultSet rs) throws SQLException {
       lastdate = rs.getTimestamp("lastdate");
       nick = rs.getString("nick");
       userAgent = rs.getString("user_agent");
+      blocked = rs.getBoolean("blocked");
     }
 
     public Timestamp getLastdate() {
@@ -285,6 +287,10 @@ public class SameIPController {
 
     public String getUserAgent() {
       return userAgent;
+    }
+
+    public boolean isBlocked() {
+      return blocked;
     }
   }
 }
