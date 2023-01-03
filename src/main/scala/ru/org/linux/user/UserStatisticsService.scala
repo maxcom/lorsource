@@ -87,7 +87,7 @@ class UserStatisticsService(
         search(MessageIndex) size 0 timeout 30.seconds query root aggs
           dateHistogramAgg("days", "postdate")
             .timeZone(TimeZone.getTimeZone(timezone.getID))
-            .interval(DateHistogramInterval.days(1))
+            .calendarInterval(DateHistogramInterval.days(1))
             .minDocCount(1)
       } map {
         _.result.aggregations.dateHistogram("days").buckets.map { bucket =>

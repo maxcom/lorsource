@@ -33,8 +33,8 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     } else {
       boolQuery.
         should(
-          commonTermsQuery("title") query queryText lowFreqMinimumShouldMatch 2,
-          commonTermsQuery("message") query queryText lowFreqMinimumShouldMatch 2,
+          commonTermsQuery("title", queryText) lowFreqMinimumShouldMatch 2,
+          commonTermsQuery("message", queryText) lowFreqMinimumShouldMatch 2,
           matchPhraseQuery("message", queryText)).minimumShouldMatch(1)
     }
   }
