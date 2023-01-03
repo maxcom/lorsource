@@ -51,7 +51,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       throw new UserBanedException(user, userDao.getBanInfoClass(user))
     }
 
-    if (!user.isActivated && currentUserOpt.exists(_.moderator)) {
+    if (!user.isActivated && !currentUserOpt.exists(_.moderator)) {
       throw new UserNotFoundException(user.getName)
     }
 
