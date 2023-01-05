@@ -307,19 +307,6 @@ blockquote {
   }
 }
 
-@include respond-to(desktops) {
-  .medium-image-container {
-    width: 80%;
-  }
-
-  .news .medium-image-container {
-    margin-left: 1em;
-    width: 40%;
-    float: right;
-    text-align: left;
-  }
-}
-
 .photo {
     border-radius: 5px;
 }

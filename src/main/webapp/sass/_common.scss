@@ -793,6 +793,19 @@ figure.medium-image {
   margin: 1em auto;
 }
 
+@include respond-to(desktops) {
+  .medium-image-container {
+    width: 80%;
+  }
+
+  .news .medium-image-container {
+    margin-left: 1em;
+    width: 40%;
+    float: right;
+    text-align: left;
+  }
+}
+
 @media screen and (min-width: 768px) {
   #cal-heatmap {
     min-height: 100px;
