@@ -1,4 +1,3 @@
-<%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2022 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
@@ -24,12 +24,12 @@
 
 <h1>Возврат в неподтвержденные</h1>
 Вы можете отменить подтверждение и вернуть топик в список неподтвержденных.
-<form method=POST action="uncommit.jsp">
-<lor:csrf/>
-<input type=hidden name=msgid value="${message.id}">
 <div class=messages>
   <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
-<input type=submit value="Отменить подтверждение">
+<form method=POST action="uncommit.jsp">
+  <lor:csrf/>
+  <input type=hidden name=msgid value="${message.id}">
+  <button type=submit name=undel class="btn btn-primary">Отменить подтверждение</button>
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

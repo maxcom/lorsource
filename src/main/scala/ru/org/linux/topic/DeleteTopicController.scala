@@ -19,8 +19,8 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
@@ -98,17 +98,18 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.POST))
   def undelete(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val message = topicDao.getById(msgid)
-    checkUndeletable(message, AuthUtil.getCurrentUser)
+    val topic = topicDao.getById(msgid)
+    checkUndeletable(topic, currentUser.user)
 
-    if (message.deleted) {
-      topicDao.undelete(message)
+    if (topic.deleted) {
+      topicDao.undelete(topic)
 
       logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.getNick}")
 
       searchQueueSender.updateMessage(msgid, true)
     }
 
-    new ModelAndView("action-done", "message", "Сообщение восстановлено")
+    new ModelAndView("action-done",
+      Map("message" -> "Сообщение восстановлено", "link" -> topic.getLink).asJava)
   }
 }

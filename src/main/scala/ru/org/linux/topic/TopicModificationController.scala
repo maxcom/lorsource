@@ -29,8 +29,8 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{UserDao, UserErrorException}
 
-import scala.compat.java8.OptionConverters._
-import scala.jdk.CollectionConverters._
+import scala.compat.java8.OptionConverters.*
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
@@ -166,17 +166,18 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.POST))
   def uncommit(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { currentUser =>
-    val message = messageDao.getById(msgid)
+    val topic = messageDao.getById(msgid)
 
-    checkUncommitable(message)
+    checkUncommitable(topic)
 
-    messageDao.uncommit(message)
+    messageDao.uncommit(topic)
 
-    searchQueueSender.updateMessage(message.getId, true)
+    searchQueueSender.updateMessage(topic.getId, true)
 
     logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.getNick}")
 
-    new ModelAndView("action-done", "message", "Подтверждение отменено")
+    new ModelAndView("action-done",
+      Map("message" -> "Подтверждение отменено", "link" -> topic.getLink).asJava)
   }
 
   private def checkUncommitable(message: Topic): Unit = {
