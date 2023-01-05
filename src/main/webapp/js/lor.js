@@ -399,7 +399,7 @@ $(document).ready(function() {
   }
 
   function initCodeSpoilers() {
-    $('.code').each(function() {
+    $('div.code').each(function() {
       if (this.scrollHeight > this.clientHeight) {
         $(this)
           .append($('<a href="#" class="spoiler-open">Развернуть</a>').on('click', spoilerShow))
