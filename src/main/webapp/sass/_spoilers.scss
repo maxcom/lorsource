@@ -15,11 +15,16 @@
 
 .code {
   position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .code.spoiled {
-  height: 512px;
   overflow-y: hidden;
+}
+
+.code.unspoiled {
+  max-height: none;
 }
 
 .code .spoiler-open {

@@ -520,3 +520,8 @@ fieldset legend {
   border: 1px solid $preview_border_color;
   padding: 0.3rem;
 }
+
+.code .spoiler-open {
+  background: linear-gradient(rgba($button_background, 0.5), $button_background);
+  color: $button_text_color;
+}

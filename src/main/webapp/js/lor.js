@@ -393,15 +393,15 @@ $(document).ready(function() {
   function spoilerShow() {
     var $this = $(this);
     $this.parent().removeClass('spoiled');
+    $this.parent().addClass('unspoiled');
     $this.remove();
     return false;
   }
 
   function initCodeSpoilers() {
     $('.code').each(function() {
-      var $this = $(this);
-      if ($this.height() > 512) {
-        $this
+      if (this.scrollHeight > this.clientHeight) {
+        $(this)
           .append($('<a href="#" class="spoiler-open">Развернуть</a>').on('click', spoilerShow))
           .addClass('spoiled');
       }
