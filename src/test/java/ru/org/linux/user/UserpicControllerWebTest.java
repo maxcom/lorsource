@@ -17,21 +17,26 @@ package ru.org.linux.user;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.multipart.FormDataBodyPart;
+import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.jersey.multipart.file.FileDataBodyPart;
 import org.apache.commons.httpclient.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.test.WebHelper;
 
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.MediaType;
+import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -53,6 +58,21 @@ public class UserpicControllerWebTest {
     userDao.unblock(user, user);
   }
 
+  private ClientResponse addPhoto(String filename, String auth) {
+    File file = new File(filename);
+
+    FormDataMultiPart form = new FormDataMultiPart();
+    form.bodyPart(new FormDataBodyPart("csrf", "csrf"));
+    form.bodyPart(new FileDataBodyPart("file", file));
+
+    return resource
+            .path("addphoto.jsp")
+            .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+            .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
+            .type(MediaType.MULTIPART_FORM_DATA_TYPE)
+            .post(ClientResponse.class, form);
+  }
+
   @Before
   public void initResource() {
     Client client = new Client();
@@ -71,10 +91,12 @@ public class UserpicControllerWebTest {
   @Test
   public void testPage() {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
+
     ClientResponse cr = resource
         .path("addphoto.jsp")
         .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
         .get(ClientResponse.class);
+
     assertEquals(HttpStatus.SC_OK, cr.getStatus());
   }
 
@@ -84,7 +106,7 @@ public class UserpicControllerWebTest {
    */
   public void testInvalidImage() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/database.xml", auth);
+    ClientResponse cr = addPhoto("src/test/resources/database.xml", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Invalid image", doc.select(".error").text()); // сообщение об ошипке
@@ -96,7 +118,7 @@ public class UserpicControllerWebTest {
    */
   public void testInvalid2Image() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/pcard.jpg", auth);
+    ClientResponse cr = addPhoto("src/main/webapp/img/pcard.jpg", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Сбой загрузки изображения: слишком большой файл", doc.select(".error").text()); // сообщение об ошипке
@@ -108,7 +130,7 @@ public class UserpicControllerWebTest {
    */
   public void testInvalid3Image() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/img/twitter.png", auth);
+    ClientResponse cr = addPhoto("src/main/webapp/img/twitter.png", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Сбой загрузки изображения: недопустимые размеры фотографии", doc.select(".error").text()); // сообщение об ошипке
@@ -120,7 +142,7 @@ public class UserpicControllerWebTest {
    */
   public void testInvalid4Image() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/images/animated.gif", auth);
+    ClientResponse cr = addPhoto("src/test/resources/images/animated.gif", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке
@@ -132,7 +154,7 @@ public class UserpicControllerWebTest {
    */
   public void testValidImage() {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/main/webapp/tango/img/android.png", auth);
+    ClientResponse cr = addPhoto("src/main/webapp/tango/img/android.png", auth);
     assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
     final String redirect = cr.getLocation().toString();
     final String url = "http://127.0.0.1:8080/people/JB/profile";
@@ -149,10 +171,9 @@ public class UserpicControllerWebTest {
    */
   public void testAPNGImage() throws IOException {
     String auth = WebHelper.doLogin(resource, "JB", "passwd");
-    ClientResponse cr = WebHelper.addPhoto(resource, "src/test/resources/images/i_want_to_be_a_hero__apng_animated__by_tamalesyatole-d5ht8eu.png", auth);
+    ClientResponse cr = addPhoto("src/test/resources/images/i_want_to_be_a_hero__apng_animated__by_tamalesyatole-d5ht8eu.png", auth);
     assertEquals(HttpStatus.SC_BAD_REQUEST, cr.getStatus());
     Document doc = Jsoup.parse(cr.getEntityInputStream(), "UTF-8", resource.getURI().toString());
     assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text()); // сообщение об ошипке
   }
-
 }

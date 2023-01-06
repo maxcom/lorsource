@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,38 +18,17 @@ package ru.org.linux.test;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
-import com.sun.jersey.multipart.file.FileDataBodyPart;
+import org.apache.commons.httpclient.HttpStatus;
+import org.junit.Assert;
 import ru.org.linux.csrf.CSRFProtectionService;
 
 import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import java.io.File;
 
-/**
- */
 public class WebHelper {
 
   public static final String AUTH_COOKIE = "remember_me";
   public static final String MAIN_URL = "http://127.0.0.1:8080/";
-
-  public static ClientResponse addPhoto(WebResource resource, String filename, String auth) {
-    File file = new File(filename);
-
-    FormDataMultiPart form = new FormDataMultiPart();
-    form.bodyPart(new FormDataBodyPart("csrf", "csrf"));
-    form.bodyPart(new FileDataBodyPart("file", file));
-
-    return resource
-        .path("addphoto.jsp")
-        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
-        .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
-        .type(MediaType.MULTIPART_FORM_DATA_TYPE)
-        .post(ClientResponse.class, form);
-
-  }
 
   public static String doLogin(WebResource resource, String user, String password) {
     MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
@@ -63,9 +42,9 @@ public class WebHelper {
             .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
             .post(ClientResponse.class, formData);
 
+    Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus());
 
-    String auth = getAuthCookie(cr);
-    return auth;
+    return getAuthCookie(cr);
   }
 
   public static String getAuthCookie(ClientResponse cr) {
@@ -75,9 +54,6 @@ public class WebHelper {
       }
     }
 
-    System.out.println("cookies:" + cr.getCookies());
     return null;
   }
-
-
 }
