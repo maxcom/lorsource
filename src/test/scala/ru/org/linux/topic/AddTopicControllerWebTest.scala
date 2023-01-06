@@ -46,7 +46,9 @@ class AddTopicControllerWebTest extends Specification {
 
   "post form" should {
     "open and have CSRF" in {
-      val cr = resource.path("add-section.jsp").queryParam("section", Integer.toString(Section.SECTION_NEWS)).get(classOf[ClientResponse])
+      val cr = resource.path("add-section.jsp")
+        .queryParam("section", Integer.toString(Section.SECTION_NEWS))
+        .get(classOf[ClientResponse])
 
       cr.getStatus must be equalTo HttpStatus.SC_OK
 
