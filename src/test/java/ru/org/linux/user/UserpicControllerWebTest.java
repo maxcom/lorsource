@@ -28,12 +28,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.csrf.CSRFProtectionService;
 import ru.org.linux.test.WebHelper;
 
+import javax.sql.DataSource;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
@@ -44,7 +46,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextHierarchy({
-        @ContextConfiguration("classpath:database.xml"),
+        @ContextConfiguration("classpath:database-admin.xml"),
         @ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 })
 public class UserpicControllerWebTest {
@@ -53,8 +55,19 @@ public class UserpicControllerWebTest {
   @Autowired
   private UserDao userDao;
 
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void setDatasource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
+  }
+
+
   private void rescueJB() {
     final User user = userDao.getUser(userDao.findUserId("JB"));
+
+    jdbcTemplate.update("DELETE FROM user_log WHERE userid=?", user.getId());
+
     userDao.unblock(user, user);
   }
 

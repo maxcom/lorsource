@@ -82,7 +82,7 @@ public class UserpicController {
       throw new AccessViolationException("Not authorized");
     }
 
-      User currentUser = AuthUtil.getCurrentUser();
+    User currentUser = AuthUtil.getCurrentUser();
 
     if (!userService.canLoadUserpic(currentUser)) {
       throw new AccessViolationException("Forbidden");
