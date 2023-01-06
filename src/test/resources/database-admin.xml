@@ -30,7 +30,7 @@
       <value>maxcom</value>
     </property>
     <property name="password">
-      <value>linuxweb</value>
+      <value>maxcom</value>
     </property>
     <property name="maximumPoolSize" value="1"/>
   </bean>
