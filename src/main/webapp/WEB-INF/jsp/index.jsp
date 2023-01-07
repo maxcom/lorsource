@@ -50,7 +50,8 @@
 
     @media screen and (min-width: 481px) {
       .yandex-adaptive {
-          min-height: 90px;
+          min-height: 150px;
+          height: 150px;
           width: 100%;
           max-height: 150px
       }

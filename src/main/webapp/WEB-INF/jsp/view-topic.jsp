@@ -224,7 +224,12 @@
 }
 
 @media screen and (min-width: 481px) {
-  .yandex-adaptive { min-height: 90px; width: 100% }
+  .yandex-adaptive {
+      min-height: 150px;
+      width: 100%;
+      max-height: 150px;
+      height: 150px;
+  }
 }
 
 @media screen and (min-width: 1024px) {
