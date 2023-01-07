@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,7 +29,8 @@ object UserEventDaoIntegrationTest {
 }
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")), new ContextConfiguration(classes = Array(classOf[UserEventDaoIntegrationTestConfiguration]))))
+@ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")),
+  new ContextConfiguration(classes = Array(classOf[UserEventDaoIntegrationTestConfiguration]))))
 @Transactional
 class UserEventDaoIntegrationTest {
   @Autowired
@@ -41,7 +42,9 @@ class UserEventDaoIntegrationTest {
   @Test
   def testAdd(): Unit = {
     createSimpleEvent()
-    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, true, 50, 0, None)
+
+    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, None)
+
     assertEquals(1, events.size)
   }
 
@@ -50,12 +53,12 @@ class UserEventDaoIntegrationTest {
     userEventDao.insertTopicNotification(UserEventDaoIntegrationTest.TestTopicId, Seq(UserEventDaoIntegrationTest.TestUserId))
 
   @Test(expected = classOf[DuplicateKeyException])
-  def testInsertTopicUserNotificationDup() = {
+  def testInsertTopicUserNotificationDup(): Unit = {
     userEventDao.insertTopicNotification(UserEventDaoIntegrationTest.TestTopicId, Seq(UserEventDaoIntegrationTest.TestUserId))
     userEventDao.insertTopicNotification(UserEventDaoIntegrationTest.TestTopicId, Seq(UserEventDaoIntegrationTest.TestUserId))
   }
 
-  private def createSimpleEvent() =
+  private def createSimpleEvent(): Unit =
     userEventDao.addEvent(
       eventType = UserEventFilterEnum.TAG.toString,
       userId = UserEventDaoIntegrationTest.TestUserId,
@@ -67,10 +70,10 @@ class UserEventDaoIntegrationTest {
   @Test
   def testAddRemove(): Unit = {
     createSimpleEvent()
-    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, true, 50, 0, None)
+    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, None)
     assertEquals(1, events.size)
     userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId))
-    val eventsAfterDelete = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, true, 50, 0, None)
+    val eventsAfterDelete = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, None)
     assertEquals(0, eventsAfterDelete.size)
   }
 
