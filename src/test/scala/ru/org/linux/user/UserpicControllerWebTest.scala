@@ -112,7 +112,7 @@ class UserpicControllerWebTest {
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
     assertEquals("Ошибка! Сбой загрузки изображения: слишком большой файл",
-      doc.select(".error").text) // сообщение об ошипке
+      doc.select(".error").text) // сообщение об ошибке
   }
 
   /**
@@ -128,7 +128,7 @@ class UserpicControllerWebTest {
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
     assertEquals("Ошибка! Сбой загрузки изображения: недопустимые размеры фотографии",
-      doc.select(".error").text) // сообщение об ошипке
+      doc.select(".error").text) // сообщение об ошибке
   }
 
   /**
@@ -144,7 +144,7 @@ class UserpicControllerWebTest {
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
     assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима",
-      doc.select(".error").text) // сообщение об ошипке
+      doc.select(".error").text) // сообщение об ошибке
   }
 
   /**
@@ -180,6 +180,6 @@ class UserpicControllerWebTest {
 
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
-    assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text) // сообщение об ошипке
+    assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text) // сообщение об ошибке
   }
 }
