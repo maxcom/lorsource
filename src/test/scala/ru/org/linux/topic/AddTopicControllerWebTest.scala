@@ -14,9 +14,6 @@
  */
 package ru.org.linux.topic
 
-import com.sun.jersey.api.client.{Client, ClientResponse, WebResource}
-import com.sun.jersey.core.util.MultivaluedMapImpl
-import org.apache.commons.httpclient.HttpStatus
 import org.jsoup.Jsoup
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
@@ -24,9 +21,10 @@ import org.specs2.runner.JUnitRunner
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
+import sttp.client3.*
+import sttp.model.StatusCode
 
-import javax.ws.rs.core.Cookie
-import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.jdk.CollectionConverters.*
 
 object AddTopicControllerWebTest {
   private val TestGroup = 4068
@@ -37,22 +35,15 @@ object AddTopicControllerWebTest {
 
 @RunWith(classOf[JUnitRunner])
 class AddTopicControllerWebTest extends Specification {
-  private val resource: WebResource = {
-    val client = new Client
-    client.setFollowRedirects(false)
-
-    client.resource(WebHelper.MAIN_URL)
-  }
-
   "post form" should {
     "open and have CSRF" in {
-      val cr = resource.path("add-section.jsp")
-        .queryParam("section", Integer.toString(Section.SECTION_NEWS))
-        .get(classOf[ClientResponse])
+      val response = basicRequest
+        .get(uri"${WebHelper.MainUrl}add-section.jsp?section=${Section.SECTION_NEWS}")
+        .send(WebHelper.backend)
 
-      cr.getStatus must be equalTo HttpStatus.SC_OK
+      response.code must be equalTo StatusCode.Ok
 
-      val doc = Jsoup.parse(cr.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
       doc.select("input[name=csrf]").asScala must not be empty
     }
@@ -60,16 +51,16 @@ class AddTopicControllerWebTest extends Specification {
 
   "post action" should {
     "reject request without CSRF" in {
-      val formData = new MultivaluedMapImpl
+      val response = basicRequest
+        .body(Map(
+          "section" -> Section.SECTION_FORUM.toString,
+          "group" -> AddTopicControllerWebTest.TestGroup.toString))
+        .post(WebHelper.MainUrl.addPath("add.jsp"))
+        .send(WebHelper.backend)
 
-      formData.add("section", Integer.toString(Section.SECTION_FORUM))
-      formData.add("group", Integer.toString(AddTopicControllerWebTest.TestGroup))
+      response.code must be equalTo StatusCode.Ok
 
-      val cr = resource.path("add.jsp").post(classOf[ClientResponse], formData)
-
-      cr.getStatus must be equalTo HttpStatus.SC_OK
-
-      val doc = Jsoup.parse(cr.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val doc = Jsoup.parse(response.body.merge, WebHelper.MainUrl.toString())
 
       doc.select("#messageForm").asScala must not be empty
       doc.select(".error").asScala must not be empty
@@ -77,34 +68,26 @@ class AddTopicControllerWebTest extends Specification {
     }
 
     "perform post" in {
-      val auth = WebHelper.doLogin(resource, AddTopicControllerWebTest.TestUser, AddTopicControllerWebTest.TestPassword)
+      val auth = WebHelper.doLogin(AddTopicControllerWebTest.TestUser, AddTopicControllerWebTest.TestPassword)
 
-      val formData = new MultivaluedMapImpl
+      val response = basicRequest
+        .body(Map(
+          "section" -> Section.SECTION_FORUM.toString,
+          "group" -> AddTopicControllerWebTest.TestGroup.toString,
+          "csrf" -> "csrf",
+          "title" -> AddTopicControllerWebTest.TestTitle))
+        .cookie(WebHelper.AuthCookie, auth)
+        .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+        .post(WebHelper.MainUrl.addPath("add.jsp"))
+        .send(WebHelper.backend)
 
-      formData.add("section", Integer.toString(Section.SECTION_FORUM))
-      formData.add("group", Integer.toString(AddTopicControllerWebTest.TestGroup))
-      formData.add("csrf", "csrf")
-      formData.add("title", AddTopicControllerWebTest.TestTitle)
-
-      val cr = resource.path("add.jsp")
-        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
-        .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
-        .post(classOf[ClientResponse], formData)
-
-      val doc = Jsoup.parse(cr.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
       doc.select("#messageForm").asScala must be empty
 
-      cr.getStatus must be equalTo HttpStatus.SC_MOVED_TEMPORARILY
+      response.code must be equalTo StatusCode.Ok
 
-      val tempPage = resource.uri(cr.getLocation).get(classOf[ClientResponse])
-      tempPage.getStatus must be equalTo HttpStatus.SC_MOVED_TEMPORARILY
-
-      val page = resource.uri(tempPage.getLocation).get(classOf[ClientResponse])
-
-      page.getStatus must be equalTo HttpStatus.SC_OK
-
-      val finalDoc = Jsoup.parse(page.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val finalDoc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
       finalDoc.select("h1[itemprop=headline] a").text must be equalTo AddTopicControllerWebTest.TestTitle
     }

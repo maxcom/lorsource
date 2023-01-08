@@ -14,34 +14,33 @@
  */
 package ru.org.linux.test
 
-import com.sun.jersey.api.client.{ClientResponse, WebResource}
-import com.sun.jersey.core.util.MultivaluedMapImpl
-import org.apache.commons.httpclient.HttpStatus
+import com.sun.jersey.api.client.ClientResponse
 import org.junit.Assert
 import ru.org.linux.csrf.CSRFProtectionService
+import sttp.client3.*
+import sttp.model.{StatusCode, Uri}
 
-import javax.ws.rs.core.Cookie
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 object WebHelper {
-  val AUTH_COOKIE = "remember_me"
-  val MAIN_URL = "http://127.0.0.1:8080/"
+  val AuthCookie = "remember_me"
+  val MainUrl: Uri = Uri.unsafeParse("http://127.0.0.1:8080/")
 
-  def doLogin(resource: WebResource, user: String, password: String): String = {
-    val formData = new MultivaluedMapImpl
+  val backend: SttpBackend[Identity, Any] = HttpClientSyncBackend()
 
-    formData.add("nick", user)
-    formData.add("passwd", password)
-    formData.add("csrf", "csrf")
-    val cr = resource.path("login_process")
-      .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
-      .post(classOf[ClientResponse], formData)
+  def doLogin(user: String, password: String): String = {
+    val response = basicRequest
+      .body(Map("nick" -> user, "passwd" -> password, "csrf" -> "csrf"))
+      .cookie(CSRFProtectionService.CSRF_COOKIE -> "csrf")
+      .post( MainUrl.addPath("login_process"))
+      .followRedirects(false)
+      .send(backend)
 
-    Assert.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr.getStatus)
+    Assert.assertEquals(StatusCode.Found, response.code)
 
-    getAuthCookie(cr)
+    response.unsafeCookies.find(_.name == AuthCookie).map(_.value).orNull
   }
 
   def getAuthCookie(cr: ClientResponse): String =
-    cr.getCookies.asScala.find(_.getName == AUTH_COOKIE).map(_.getValue).orNull
+    cr.getCookies.asScala.find(_.getName == AuthCookie).map(_.getValue).orNull
 }

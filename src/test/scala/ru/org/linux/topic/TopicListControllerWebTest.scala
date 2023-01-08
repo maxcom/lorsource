@@ -26,7 +26,7 @@ class TopicListControllerWebTest extends Specification {
   private val resource: WebResource = {
     val client = new Client
     client.setFollowRedirects(false)
-    client.resource(WebHelper.MAIN_URL)
+    client.resource(WebHelper.MainUrl.toString())
   }
 
   "TopicListController" should {

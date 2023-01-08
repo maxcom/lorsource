@@ -368,12 +368,12 @@ public class AddTopicController {
       RealtimeEventHub.notifyEvents(realtimeHubWS, result._2);
     }
 
-    String messageUrl = "view-message.jsp?msgid=" + msgid;
+    String topicUrl = previewMsg.withId(msgid).getLink();
 
     if (!section.isPremoderated() || previewMsg.isDraft()) {
-      return new ModelAndView(new RedirectView(messageUrl));
+      return new ModelAndView(new RedirectView(topicUrl, false, false));
     } else {
-      params.put("url", messageUrl);
+      params.put("url", topicUrl);
       params.put("authorized", AuthUtil.isSessionAuthorized());
 
       return new ModelAndView("add-done-moderated", params);

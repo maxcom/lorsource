@@ -68,6 +68,8 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
       Section.getSectionLink(sectionId) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + id + "/page" + page
     }
   }
+
+  def withId(id: Int): Topic = copy(id = id)
 }
 
 object Topic {
@@ -129,7 +131,7 @@ object Topic {
       commitby = 0,
       postdate = Timestamp.from(Instant.now()),
       commitDate = null,
-      groupUrl = "",
+      groupUrl = group.getUrlName,
       lastModified = Timestamp.from(Instant.now()),
       commentCount = 0,
       commited = false,

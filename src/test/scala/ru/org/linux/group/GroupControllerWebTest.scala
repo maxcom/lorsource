@@ -30,11 +30,11 @@ class GroupControllerWebTest extends Specification {
   private val resource = {
     val client = new Client
     client.setFollowRedirects(false)
-    client.resource(WebHelper.MAIN_URL)
+    client.resource(WebHelper.MainUrl.toString())
   }
 
   class AuthenticatedUser(user: String) extends Scope {
-    val auth: String = WebHelper.doLogin(resource, user, "passwd")
+    val auth: String = WebHelper.doLogin(user, "passwd")
   }
 
   "talks page" should {
@@ -50,7 +50,7 @@ class GroupControllerWebTest extends Specification {
 
     "contain info and edit link for moderator" in new AuthenticatedUser("maxcom") {
       val cr = resource.path("/forum/talks/")
-        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
         .get(classOf[ClientResponse])
 
       cr.getStatus must be equalTo HttpStatus.SC_OK
@@ -69,7 +69,7 @@ class GroupControllerWebTest extends Specification {
   "job page" should {
     "contain empty info for moderator" in new AuthenticatedUser("maxcom")  {
       val cr = resource.path("/forum/job/")
-        .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+        .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
         .get(classOf[ClientResponse])
 
       cr.getStatus must be equalTo HttpStatus.SC_OK

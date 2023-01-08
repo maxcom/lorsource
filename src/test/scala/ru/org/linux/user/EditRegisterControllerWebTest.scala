@@ -51,7 +51,7 @@ class EditRegisterControllerWebTest {
   private val resource: WebResource = {
     val client = new Client
     client.setFollowRedirects(false)
-    client.resource(WebHelper.MAIN_URL)
+    client.resource(WebHelper.MainUrl.toString())
   }
 
   @Autowired
@@ -86,10 +86,10 @@ class EditRegisterControllerWebTest {
    * */
   @Test
   def testSimple(): Unit = {
-    val auth = WebHelper.doLogin(resource, "JB", EditRegisterControllerWebTest.JB_PASS)
+    val auth = WebHelper.doLogin("JB", EditRegisterControllerWebTest.JB_PASS)
 
     val cr = resource.path("people/JB/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
       .get(classOf[ClientResponse])
     assertEquals(HttpStatus.SC_OK, cr.getStatus)
 
@@ -118,7 +118,7 @@ class EditRegisterControllerWebTest {
     formData.add("oldpass", EditRegisterControllerWebTest.JB_PASS)
 
     val cr2 = resource.path("people/maxcom/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
       .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
       .post(classOf[ClientResponse], formData)
 
@@ -128,10 +128,10 @@ class EditRegisterControllerWebTest {
 
   @Test
   def testChangePassword(): Unit = {
-    val auth = WebHelper.doLogin(resource, "maxcom", EditRegisterControllerWebTest.MAXCOM_PASS)
+    val auth = WebHelper.doLogin("maxcom", EditRegisterControllerWebTest.MAXCOM_PASS)
 
     val cr = resource.path("people/maxcom/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
       .get(classOf[ClientResponse])
 
     assertEquals(HttpStatus.SC_OK, cr.getStatus)
@@ -161,7 +161,7 @@ class EditRegisterControllerWebTest {
     formData.add("password2", "passwd2")
 
     val cr2 = resource.path("people/maxcom/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
       .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
       .post(classOf[ClientResponse], formData)
 
@@ -171,7 +171,7 @@ class EditRegisterControllerWebTest {
     assertNotNull(newAuth)
 
     val cr3 = resource.uri(cr2.getLocation)
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, newAuth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, newAuth, "/", "127.0.0.1", 1))
       .get(classOf[ClientResponse])
 
     assertEquals(HttpStatus.SC_OK, cr3.getStatus)
@@ -189,7 +189,7 @@ class EditRegisterControllerWebTest {
     formData2.add("password2", "passwd")
 
     val cr4 = resource.path("people/maxcom/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, newAuth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, newAuth, "/", "127.0.0.1", 1))
       .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
       .post(classOf[ClientResponse], formData2)
 
@@ -198,7 +198,7 @@ class EditRegisterControllerWebTest {
     val newAuth2 = WebHelper.getAuthCookie(cr4)
 
     val cr5 = resource.uri(cr4.getLocation)
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, newAuth2, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, newAuth2, "/", "127.0.0.1", 1))
       .get(classOf[ClientResponse])
 
     assertEquals(HttpStatus.SC_OK, cr5.getStatus)
@@ -206,10 +206,10 @@ class EditRegisterControllerWebTest {
 
   @Test
   def testChange(): Unit = {
-    val auth = WebHelper.doLogin(resource, "JB", EditRegisterControllerWebTest.JB_PASS)
+    val auth = WebHelper.doLogin("JB", EditRegisterControllerWebTest.JB_PASS)
 
     val cr = resource.path("people/JB/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
       .get(classOf[ClientResponse])
 
     assertEquals(HttpStatus.SC_OK, cr.getStatus)
@@ -238,7 +238,7 @@ class EditRegisterControllerWebTest {
     formData.add("csrf", "csrf")
 
     val cr2 = resource.path("people/JB/edit")
-      .cookie(new Cookie(WebHelper.AUTH_COOKIE, auth, "/", "127.0.0.1", 1))
+      .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
       .cookie(new Cookie(CSRFProtectionService.CSRF_COOKIE, "csrf"))
       .post(classOf[ClientResponse], formData)
 

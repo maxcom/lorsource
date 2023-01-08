@@ -361,6 +361,12 @@
     </dependency>
 
     <dependency>
+      <groupId>com.softwaremill.sttp.client3</groupId>
+      <artifactId>core_${scala.suffix}</artifactId>
+      <version>3.8.7</version>
+    </dependency>
+
+    <dependency>
       <groupId>io.circe</groupId>
       <artifactId>circe-core_${scala.suffix}</artifactId>
       <version>${circe.version}</version>

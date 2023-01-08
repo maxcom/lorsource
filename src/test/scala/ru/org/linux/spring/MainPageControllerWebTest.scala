@@ -14,26 +14,20 @@
  */
 package ru.org.linux.spring
 
-import com.sun.jersey.api.client.{Client, ClientResponse, WebResource}
-import org.apache.commons.httpclient.HttpStatus
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import ru.org.linux.test.WebHelper
+import sttp.client3.*
+import sttp.model.StatusCode
 
 @RunWith(classOf[JUnitRunner])
 class MainPageControllerWebTest extends Specification {
-  private val resource: WebResource =  {
-    val client = new Client
-    client.setFollowRedirects(false)
-     client.resource(WebHelper.MAIN_URL)
-  }
-
   "main page" should {
     "open with code 200" in {
-      val cr = resource.path("/").get(classOf[ClientResponse])
+      val response = basicRequest.get(WebHelper.MainUrl).send(WebHelper.backend)
 
-      cr.getStatus must be equalTo HttpStatus.SC_OK
+      response.code must be equalTo StatusCode.Ok
     }
   }
 }
