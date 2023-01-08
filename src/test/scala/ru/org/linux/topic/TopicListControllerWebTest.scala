@@ -14,26 +14,22 @@
  */
 package ru.org.linux.topic
 
-import com.sun.jersey.api.client.{Client, ClientResponse, WebResource}
-import org.apache.commons.httpclient.HttpStatus
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import ru.org.linux.test.WebHelper
+import sttp.client3.*
+import sttp.model.StatusCode
 
 @RunWith(classOf[JUnitRunner])
 class TopicListControllerWebTest extends Specification {
-  private val resource: WebResource = {
-    val client = new Client
-    client.setFollowRedirects(false)
-    client.resource(WebHelper.MainUrl.toString())
-  }
-
   "TopicListController" should {
     "load archive with 200 code" in {
-      val cr = resource.path("/news/archive/2007/5").get(classOf[ClientResponse])
+      val response = basicRequest
+        .get(WebHelper.MainUrl.addPath("news", "archive", "2007", "5"))
+        .send(WebHelper.backend)
 
-      cr.getStatus must be equalTo HttpStatus.SC_OK
+      response.code must be equalTo StatusCode.Ok
     }
   }
 }
