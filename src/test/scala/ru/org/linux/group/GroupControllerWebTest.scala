@@ -14,48 +14,43 @@
  */
 package ru.org.linux.group
 
-import com.sun.jersey.api.client.{Client, ClientResponse}
-import org.apache.commons.httpclient.HttpStatus
 import org.jsoup.Jsoup
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.Scope
 import ru.org.linux.test.WebHelper
-
-import javax.ws.rs.core.Cookie
+import sttp.client3.*
+import sttp.model.StatusCode
 
 @RunWith(classOf[JUnitRunner])
 class GroupControllerWebTest extends Specification {
-  private val resource = {
-    val client = new Client
-    client.setFollowRedirects(false)
-    client.resource(WebHelper.MainUrl.toString())
-  }
-
   class AuthenticatedUser(user: String) extends Scope {
     val auth: String = WebHelper.doLogin(user, "passwd")
   }
 
   "talks page" should {
     "contain info" in {
-      val cr = resource.path("/forum/talks/").get(classOf[ClientResponse])
+      val response = basicRequest
+        .get(WebHelper.MainUrl.addPath("forum", "talks"))
+        .send(WebHelper.backend)
 
-      cr.getStatus must be equalTo HttpStatus.SC_OK
+      response.code must be equalTo StatusCode.Ok
 
-      val doc = Jsoup.parse(cr.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
       doc.select(".infoblock").text must not be empty
     }
 
     "contain info and edit link for moderator" in new AuthenticatedUser("maxcom") {
-      val cr = resource.path("/forum/talks/")
-        .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
-        .get(classOf[ClientResponse])
+      val response = basicRequest
+        .get(WebHelper.MainUrl.addPath("forum", "talks"))
+        .cookie(WebHelper.AuthCookie, auth)
+        .send(WebHelper.backend)
 
-      cr.getStatus must be equalTo HttpStatus.SC_OK
+      response.code must be equalTo StatusCode.Ok
 
-      val doc = Jsoup.parse(cr.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
       doc.select(".infoblock").text must not be empty
 
@@ -68,13 +63,14 @@ class GroupControllerWebTest extends Specification {
 
   "job page" should {
     "contain empty info for moderator" in new AuthenticatedUser("maxcom")  {
-      val cr = resource.path("/forum/job/")
-        .cookie(new Cookie(WebHelper.AuthCookie, auth, "/", "127.0.0.1", 1))
-        .get(classOf[ClientResponse])
+      val response = basicRequest
+        .get(WebHelper.MainUrl.addPath("forum", "job"))
+        .cookie(WebHelper.AuthCookie, auth)
+        .send(WebHelper.backend)
 
-      cr.getStatus must be equalTo HttpStatus.SC_OK
+      response.code must be equalTo StatusCode.Ok
 
-      val doc = Jsoup.parse(cr.getEntityInputStream, "UTF-8", resource.getURI.toString)
+      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
       // кстати, у форумов без userinfo кнопочки нет (
       doc.select(".infoblock").text must be empty
