@@ -26,8 +26,10 @@ import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.test.WebHelper
+import ru.org.linux.test.WebHelper.AuthCookie
 
 import javax.ws.rs.core.Cookie
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 object EditRegisterControllerWebTest {
   private val MAXCOM_NAME = "Максим Валянский"
@@ -167,7 +169,7 @@ class EditRegisterControllerWebTest {
 
     assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr2.getStatus)
 
-    val newAuth = WebHelper.getAuthCookie(cr2)
+    val newAuth = getAuthCookie(cr2)
     assertNotNull(newAuth)
 
     val cr3 = resource.uri(cr2.getLocation)
@@ -195,7 +197,7 @@ class EditRegisterControllerWebTest {
 
     assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, cr4.getStatus)
 
-    val newAuth2 = WebHelper.getAuthCookie(cr4)
+    val newAuth2 = getAuthCookie(cr4)
 
     val cr5 = resource.uri(cr4.getLocation)
       .cookie(new Cookie(WebHelper.AuthCookie, newAuth2, "/", "127.0.0.1", 1))
@@ -248,4 +250,7 @@ class EditRegisterControllerWebTest {
     assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text)
     assertEquals("/people/JB/edit", doc2.getElementById("editRegForm").attr("action"))
   }
+
+  private def getAuthCookie(cr: ClientResponse): String =
+    cr.getCookies.asScala.find(_.getName == AuthCookie).map(_.getValue).orNull
 }

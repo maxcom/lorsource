@@ -14,13 +14,10 @@
  */
 package ru.org.linux.test
 
-import com.sun.jersey.api.client.ClientResponse
 import org.junit.Assert
 import ru.org.linux.csrf.CSRFProtectionService
 import sttp.client3.*
 import sttp.model.{StatusCode, Uri}
-
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 object WebHelper {
   val AuthCookie = "remember_me"
@@ -40,7 +37,4 @@ object WebHelper {
 
     response.unsafeCookies.find(_.name == AuthCookie).map(_.value).orNull
   }
-
-  def getAuthCookie(cr: ClientResponse): String =
-    cr.getCookies.asScala.find(_.getName == AuthCookie).map(_.getValue).orNull
 }
