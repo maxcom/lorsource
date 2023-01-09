@@ -17,6 +17,7 @@ package ru.org.linux.telegram
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.telegram.TelegramPostsDao.RequiredActiveUsers
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 
 import javax.sql.DataSource
@@ -50,7 +51,7 @@ class TelegramPostsDao(ds: DataSource) {
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
         |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
-        |    having count (distinct comments.userid)>=14
+        |    having count (distinct comments.userid)>=${RequiredActiveUsers}
         |    order by count(distinct comments.userid) desc
         |    limit 1)
         |""".stripMargin) { (resultSet, _) => Topic.fromResultSet(resultSet) }.headOption
@@ -67,4 +68,8 @@ class TelegramPostsDao(ds: DataSource) {
   def storeDeletion(post: Int): Int = {
     jdbcTemplate.update("delete from telegram_posts where telegram_id=?", post)
   }
+}
+
+object TelegramPostsDao {
+  val RequiredActiveUsers = 5 // 14
 }
