@@ -14,21 +14,16 @@
  */
 package ru.org.linux
 
-import akka.actor.ActorSystem
 import org.springframework.context.annotation.{Bean, Configuration}
-import play.api.libs.ws.StandaloneWSClient
-import play.api.libs.ws.ahc.StandaloneAhcWSClient
 import sttp.client3.*
+
+import scala.concurrent.Future
 
 @Configuration
 class HttpClientConfiguration {
   @Bean
-  def httpClient(actorSystem: ActorSystem): StandaloneWSClient = {
-    implicit val system: ActorSystem = actorSystem
-
-    StandaloneAhcWSClient()
-  }
+  def syncClient(): SttpBackend[Identity, Any] = HttpClientSyncBackend()
 
   @Bean
-  def syncClient(): SttpBackend[Identity, Any] = HttpClientSyncBackend()
+  def asyncClient(): SttpBackend[Future, Any] = HttpClientFutureBackend()
 }

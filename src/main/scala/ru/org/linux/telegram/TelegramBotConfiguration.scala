@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,15 +17,17 @@ package ru.org.linux.telegram
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import org.springframework.context.annotation.{Bean, Configuration}
-import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicTagDao
+import sttp.client3.SttpBackend
+
+import scala.concurrent.Future
 
 @Configuration
 class TelegramBotConfiguration {
   @Bean(name=Array("telegramBot"))
-  def telegramBotActor(actorSystem: ActorSystem, dao: TelegramPostsDao, wsClient: StandaloneWSClient,
+  def telegramBotActor(actorSystem: ActorSystem, dao: TelegramPostsDao, httpClient: SttpBackend[Future, Any],
                        config: SiteConfig, topicTagDao: TopicTagDao): ActorRef = {
-    actorSystem.actorOf(Props(new TelegramBotActor(dao, wsClient, config, topicTagDao)))
+    actorSystem.actorOf(Props(new TelegramBotActor(dao, httpClient, config, topicTagDao)))
   }
 }

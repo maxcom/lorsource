@@ -18,14 +18,16 @@ package ru.org.linux.telegram
 import akka.actor.{Actor, ActorLogging, Status, Timers}
 import akka.pattern.PipeToSupport
 import io.circe.parser.*
-import play.api.libs.ws.{StandaloneWSClient, StandaloneWSResponse}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.telegram.TelegramBotActor.Check
 import ru.org.linux.topic.{Topic, TopicTagDao}
+import sttp.client3.*
 
+import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 
-class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, config: SiteConfig, topicTagDao: TopicTagDao)
+class TelegramBotActor(dao: TelegramPostsDao, httpClient: SttpBackend[Future, Any], config: SiteConfig,
+                       topicTagDao: TopicTagDao)
   extends Actor with Timers with ActorLogging with PipeToSupport {
 
   timers.startTimerAtFixedRate(Check, Check, 10.minutes)
@@ -45,11 +47,10 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
           } else {
             val text = s"${topic.getTitleUnescaped} ${tags.map("#" + _.name.filterNot(_ == ' ')).mkString(" ")}\n\n${config.getSecureUrlWithoutSlash + topic.getLink}"
 
-            wsClient
-              .url(s"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage")
-              .addQueryStringParameters("chat_id" -> "@best_of_lor")
-              .addQueryStringParameters("text" -> text)
-              .get()
+            basicRequest
+              .get(uri"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage"
+                .addParams("chat_id" -> "@best_of_lor", "text" -> text))
+              .send(httpClient)
               .pipeTo(self)
 
             context.become(posting(topic))
@@ -61,11 +62,10 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
             case Some(toDelete) =>
               log.info("Deleting " + toDelete)
 
-              wsClient
-                .url(s"https://api.telegram.org/bot${config.getTelegramToken}/deleteMessage")
-                .addQueryStringParameters("chat_id" -> "@best_of_lor")
-                .addQueryStringParameters("message_id" -> toDelete.toString)
-                .get()
+              basicRequest
+                .get(uri"https://api.telegram.org/bot${config.getTelegramToken}/deleteMessage"
+                  .addParams("chat_id" -> "@best_of_lor", "message_id" -> toDelete.toString))
+                .send(httpClient)
                 .pipeTo(self)
 
               context.become(deleting(toDelete))
@@ -75,20 +75,21 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
   }
 
   private def posting(topic: Topic): Receive = {
-    case r: StandaloneWSResponse =>
-      if (r.status>=200 && r.status < 300) {
-        val json = parse(r.body)
+    case r: Response[Either[String, String]] =>
+      r.body match {
+        case Right(body) =>
+          val json = parse(body)
 
-        val telegramId = json.flatMap(
-          _.hcursor.downField("result").downField("message_id").as[Int]
-        ).toTry.get
+          val telegramId = json.flatMap(
+            _.hcursor.downField("result").downField("message_id").as[Int]
+          ).toTry.get
 
-        log.info(s"Post success! telegramId = $telegramId")
-        dao.storePost(topic, telegramId)
-        context.become(receive)
-      } else {
-        log.error(s"Failed to post: status=${r.status} body=${r.body}")
-        context.become(receive)
+          log.info(s"Post success! telegramId = $telegramId")
+          dao.storePost(topic, telegramId)
+          context.become(receive)
+        case Left(error) =>
+          log.error(s"Failed to post: status=${r.code} body=$error")
+          context.become(receive)
       }
     case Status.Failure(ex) =>
       log.error(ex, "Posting failed")
@@ -96,13 +97,13 @@ class TelegramBotActor(dao: TelegramPostsDao, wsClient: StandaloneWSClient, conf
   }
 
   private def deleting(telegramId: Int): Receive = {
-    case r: StandaloneWSResponse =>
-      if (r.status>=200 && r.status < 300) {
+    case r: Response[Either[String, String]] =>
+      if (r.isSuccess) {
         log.info(s"Delete success! telegramId = $telegramId")
         dao.storeDeletion(telegramId)
         context.become(receive)
       } else {
-        log.error(s"Failed to delete: status=${r.status} body=${r.body}")
+        log.error(s"Failed to delete: status=${r.code} body=${r.body}")
         context.become(receive)
       }
     case Status.Failure(ex) =>

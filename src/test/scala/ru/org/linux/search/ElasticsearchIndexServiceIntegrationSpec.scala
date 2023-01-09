@@ -25,7 +25,6 @@ import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import org.testcontainers.utility.DockerImageName
-import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 
@@ -74,7 +73,4 @@ class SearchIntegrationTestConfiguration {
 
   @Bean
   def floodProtector: FloodProtector = Mockito.mock(classOf[FloodProtector])
-
-  @Bean
-  def httpClient: StandaloneWSClient = Mockito.mock(classOf[StandaloneWSClient])
 }

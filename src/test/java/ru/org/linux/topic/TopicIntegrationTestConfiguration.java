@@ -19,7 +19,6 @@ import akka.actor.ActorRef;
 import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
-import play.api.libs.ws.StandaloneWSClient;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.TorBlockUpdater;
 import ru.org.linux.comment.CommentPrepareService;
@@ -102,11 +101,6 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public SearchQueueSender searchQueueSender() {
     return mock(SearchQueueSender.class);
-  }
-
-  @Bean
-  public StandaloneWSClient httpClient() {
-    return mock(StandaloneWSClient.class);
   }
 
   @Bean
