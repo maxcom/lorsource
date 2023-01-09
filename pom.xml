@@ -34,6 +34,7 @@
     <js-cookie.version>3.0.1</js-cookie.version>
     <circe.version>0.14.3</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
+    <sttp.version>3.8.7</sttp.version>
   </properties>
 
   <dependencies>
@@ -363,7 +364,13 @@
     <dependency>
       <groupId>com.softwaremill.sttp.client3</groupId>
       <artifactId>core_${scala.suffix}</artifactId>
-      <version>3.8.7</version>
+      <version>${sttp.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.softwaremill.sttp.client3</groupId>
+      <artifactId>circe_${scala.suffix}</artifactId>
+      <version>${sttp.version}</version>
     </dependency>
 
     <dependency>

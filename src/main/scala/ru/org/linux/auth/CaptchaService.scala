@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,21 +16,17 @@ package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
-import io.circe.parser.*
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
-import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedSimpleForm
-import play.api.libs.ws.StandaloneWSClient
 import ru.org.linux.spring.SiteConfig
+import sttp.client3.circe.*
+import sttp.client3.*
 
 import javax.servlet.ServletRequest
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.*
 import scala.util.control.NonFatal
 
 @Service
-class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) extends StrictLogging {
+class CaptchaService(httpClient: SttpBackend[Identity, Any], siteConfig: SiteConfig) extends StrictLogging {
   def checkCaptcha(request: ServletRequest, errors: Errors): Unit = {
     val captchaResponse = request.getParameter("h-captcha-response")
 
@@ -44,14 +40,13 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
           "remoteip" -> request.getRemoteAddr,
           "sitekey" -> siteConfig.getCaptchaPublicKey)
 
-        val apiResponse = Await.result(wsClient
-          .url("https://hcaptcha.com/siteverify")
-          .post(params)
-          .map { response =>
-            val jsonData = response.body
+        val response = basicRequest
+          .body(params)
+          .post(uri"https://hcaptcha.com/siteverify")
+          .response(asJson[CaptchaResponse])
+          .send(httpClient)
 
-            decode[CaptchaResponse](jsonData).toTry.get
-          }, 1 minute)
+        val apiResponse = response.body.toTry.get
 
         if (!apiResponse.success) {
           val errorTexts = apiResponse.errorCodes.toSeq.flatten
@@ -61,7 +56,7 @@ class CaptchaService(wsClient: StandaloneWSClient, siteConfig: SiteConfig) exten
       } catch {
         case NonFatal(e) =>
           logger.warn("Unable to check captcha", e)
-          errors.reject(null, "Unable to check captcha: " + e.getMessage)
+          errors.reject(null, "Unable to check captcha: " + e.toString)
       }
     }
   }

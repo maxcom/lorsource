@@ -38,6 +38,7 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.MemoriesDao;
+import sttp.client3.SttpBackend;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -107,6 +108,9 @@ public class TopicIntegrationTestConfiguration {
   public StandaloneWSClient httpClient() {
     return mock(StandaloneWSClient.class);
   }
+
+  @Bean
+  public SttpBackend<Object, Object> syncClient() { return mock(SttpBackend.class); }
 
   @Bean
   public ElasticClient elasticClient() {
