@@ -21,6 +21,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import play.api.libs.ws.StandaloneWSClient;
 import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.TorBlockUpdater;
 import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.edithistory.EditHistoryService;
@@ -62,7 +63,8 @@ import static org.mockito.Mockito.mock;
                                 MoreLikeThisService.class,
                                 EmailService.class,
                                 ExceptionResolver.class,
-                                RealtimeWebsocketHandler.class
+                                RealtimeWebsocketHandler.class,
+                                TorBlockUpdater.class
                         }
                 )
         }
