@@ -71,5 +71,5 @@ class TelegramPostsDao(ds: DataSource) {
 }
 
 object TelegramPostsDao {
-  val RequiredActiveUsers = 5 // 14
+  val RequiredActiveUsers = 14
 }
