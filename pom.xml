@@ -364,7 +364,6 @@
       <groupId>com.softwaremill.sttp.client3</groupId>
       <artifactId>core_${scala.suffix}</artifactId>
       <version>3.8.7</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>

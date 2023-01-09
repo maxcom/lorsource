@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2022 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import akka.actor.ActorSystem
 import org.springframework.context.annotation.{Bean, Configuration}
 import play.api.libs.ws.StandaloneWSClient
 import play.api.libs.ws.ahc.StandaloneAhcWSClient
+import sttp.client3.*
 
 @Configuration
 class HttpClientConfiguration {
@@ -27,4 +28,7 @@ class HttpClientConfiguration {
 
     StandaloneAhcWSClient()
   }
+
+  @Bean
+  def syncClient(): SttpBackend[Identity, Any] = HttpClientSyncBackend()
 }
