@@ -44,7 +44,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     new ModelAndView("setpostscore", Map(
       "message" -> message,
-      "group" -> groupDao.getGroup(message.getGroupId)
+      "group" -> groupDao.getGroup(message.groupId)
     ).asJava)
   }
 
@@ -71,19 +71,19 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     messageDao.setTopicOptions(topic, postscore, sticky, notop)
 
     val out = new StringBuilder
-    if (topic.getPostscore != postscore) {
+    if (topic.postscore != postscore) {
       out.append("Установлен новый уровень записи: ").append(postScoreInfoFull(postscore)).append("<br>")
       logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${currentUser.user.getNick}")
 
-      searchQueueSender.updateMessage(topic.getId, true)
+      searchQueueSender.updateMessage(topic.id, true)
     }
 
-    if (topic.isSticky != sticky) {
+    if (topic.sticky != sticky) {
       out.append("Новое значение sticky: ").append(sticky).append("<br>")
       logger.info(s"Новое значение sticky: $sticky")
     }
 
-    if (topic.isNotop != notop) {
+    if (topic.notop != notop) {
       out.append("Новое значение notop: ").append(notop).append("<br>")
       logger.info(s"Новое значение notop: $notop")
     }
@@ -99,19 +99,19 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   def moveTopic(@RequestParam msgid: Int,
                 @RequestParam("moveto") newgr: Int): RedirectView = ModeratorOnly { currentUser =>
     val msg = messageDao.getById(msgid)
-    if (msg.isDeleted) {
+    if (msg.deleted) {
       throw new AccessViolationException("Сообщение удалено")
     }
 
     val newGrp = groupDao.getGroup(newgr)
 
-    if (msg.getGroupId != newGrp.getId) {
+    if (msg.groupId != newGrp.getId) {
       val moveInfo = if (!newGrp.isLinksAllowed) {
-        val moveFrom = msg.getGroupUrl
-        val linktext = msg.getLinktext
-        val url = msg.getUrl
+        val moveFrom = msg.groupUrl
+        val linktext = msg.linktext
+        val url = msg.url
 
-        val markup = msgbaseDao.getMessageText(msg.getId).markup
+        val markup = msgbaseDao.getMessageText(msg.id).markup
 
         Some(textService.moveInfo(markup, url, linktext, currentUser.user, moveFrom))
       } else {
@@ -119,10 +119,10 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
-      logger.info(s"topic ${msg.getId} moved by ${currentUser.user.getNick} from news/forum ${msg.getGroupUrl} to forum ${newGrp.getTitle}")
+      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.getTitle}")
     }
 
-    searchQueueSender.updateMessage(msg.getId, true)
+    searchQueueSender.updateMessage(msg.id, true)
 
     new RedirectView(TopicLinkBuilder.baseLink(msg).forceLastmod.build)
   }
@@ -135,7 +135,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     new ModelAndView("mtn", Map (
       "message" -> topic,
       "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.getAuthorUserId)
+      "author" -> userDao.getUserCached(topic.authorUserId)
     ).asJava)
   }
 
@@ -143,12 +143,12 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   @throws[Exception]
   def moveTopicForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val section = sectionService.getSection(topic.getSectionId)
+    val section = sectionService.getSection(topic.sectionId)
 
     new ModelAndView("mtn", Map(
       "message" -> topic,
       "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.getAuthorUserId)
+      "author" -> userDao.getUserCached(topic.authorUserId)
     ).asJava)
   }
 
@@ -172,7 +172,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     messageDao.uncommit(topic)
 
-    searchQueueSender.updateMessage(topic.getId, true)
+    searchQueueSender.updateMessage(topic.id, true)
 
     logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.getNick}")
 
@@ -181,13 +181,13 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   private def checkUncommitable(message: Topic): Unit = {
-    if (message.isExpired) {
+    if (message.expired) {
       throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения")
     }
-    if (message.isDeleted) {
+    if (message.deleted) {
       throw new AccessViolationException("сообщение удалено")
     }
-    if (!message.isCommited) {
+    if (!message.commited) {
       throw new AccessViolationException("сообщение не подтверждено")
     }
   }
