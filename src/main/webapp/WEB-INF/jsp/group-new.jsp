@@ -64,18 +64,18 @@
 
 <nav>
   <c:if test="${year!=null}">
-    <a class="btn btn-default" href="${group.url}">Новые темы</a>
-    <a class="btn btn-default" href="${group.url}?lastmod=true">Последние комментарии</a>
+    <a class="btn btn-default" href="${group.url}">Новые</a>
+    <a class="btn btn-default" href="${group.url}?lastmod=true">Активные</a>
     <a href="${group.url}archive/" class="btn btn-selected">Архив</a>
   </c:if>
   <c:if test="${year==null}">
     <c:if test="${!lastmod}">
-      <a class="btn btn-selected" href="${group.url}">Новые темы</a>
-      <a class="btn btn-default" href="${group.url}?lastmod=true">Последние комментарии</a>
+      <a class="btn btn-selected" href="${group.url}">Новые</a>
+      <a class="btn btn-default" href="${group.url}?lastmod=true">Активные</a>
     </c:if>
     <c:if test="${lastmod}">
-      <a class="btn btn-default" href="${group.url}">Новые темы</a>
-      <a class="btn btn-selected" href="${group.url}?lastmod=true">Последние комментарии</a>
+      <a class="btn btn-default" href="${group.url}">Новые</a>
+      <a class="btn btn-selected" href="${group.url}?lastmod=true">Активные</a>
     </c:if>
     <a href="${group.url}archive/" class="btn btn-default">Архив</a>
     <c:if test="${template.moderatorSession}">
