@@ -110,7 +110,7 @@
   }
 
   @media screen and (min-width: 481px) {
-    .yandex-adaptive { min-height: 90px; width: 100% }
+    .yandex-adaptive { min-height: 90px; width: 100%; max-height: 150px }
   }
 </style>
 <!-- Yandex.RTB R-A-337082-4 -->
