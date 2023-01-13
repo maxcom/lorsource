@@ -31,7 +31,7 @@ import scala.jdk.OptionConverters.RichOptional
 object GroupPermissionService {
   private val DeletePeriod = Duration.standardDays(3)
   private val EditPeriod = Duration.standardDays(14)
-  private val CreateTagScore = 400
+  private val CreateTagScore = 200
 }
 
 @Service
