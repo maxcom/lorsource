@@ -67,7 +67,8 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
         count(MessageIndex).query(
           boolQuery().filter(
             termQuery("is_comment", "false"),
-            termQuery("tag", tag), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")))
+            termQuery("tag", tag),
+            termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")))
       }
     } map {
       _.result.count
