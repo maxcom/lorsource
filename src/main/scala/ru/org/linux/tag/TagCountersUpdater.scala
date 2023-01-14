@@ -23,11 +23,11 @@ import ru.org.linux.user.UserTagDao
 @Component
 class TagCountersUpdater(topicTagDao: TopicTagDao, userTagDao: UserTagDao) extends StrictLogging {
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 5 * 60 * 1000)
-  def recalcTagsCounters() = topicTagDao.reCalculateAllCounters()
+  def recalcTagsCounters(): Unit = topicTagDao.reCalculateAllCounters()
 
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 5 * 60 * 1000)
-  def deleteUnusedTags() = {
-    val count = userTagDao.deleteUnusedTags
+  def deleteUnusedTags(): Unit = {
+    val count = userTagDao.deleteUnusedTags()
 
     if (count > 0) {
       logger.info(s"Deleted $count empty favorite tags")

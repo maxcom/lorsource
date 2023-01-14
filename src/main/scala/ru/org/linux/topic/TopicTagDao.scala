@@ -15,10 +15,6 @@
 
 package ru.org.linux.topic
 
-import java.sql.ResultSet
-import javax.sql.DataSource
-
-import com.google.common.collect.ImmutableMap
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -26,6 +22,8 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.tag.TagInfo
 
+import java.sql.ResultSet
+import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 
 @Repository
@@ -112,19 +110,23 @@ class TopicTagDao(ds: DataSource) {
   /**
    * пересчёт счётчиков использования.
    */
-  def reCalculateAllCounters():Unit = {
-    jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)")
+  def reCalculateAllCounters(): Unit = {
+    jdbcTemplate.update(
+      """update tags_values set counter =
+        | (select count(*) from tags join topics on tags.msgid=topics.id
+        |   join groups on topics.groupid = groups.id
+        |   join sections on sections.id = groups.section
+        |   where tags.tagid=tags_values.id and not deleted and (topics.moderate or not sections.moderate))"""
+      .stripMargin)
   }
 
   def getTags(topics: collection.Seq[Int]): collection.Seq[(Int, TagInfo)] = {
     if (topics.isEmpty) {
       Vector.empty
     } else {
-      val topicIds = topics.asJava
-
       namedJdbcTemplate.query(
         "SELECT msgid, tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
-        ImmutableMap.of("list", topicIds),
+        Map("list" -> topics.asJava).asJava,
         new RowMapper[(Int, TagInfo)]() {
           def mapRow(resultSet: ResultSet, rowNum: Int): (Int, TagInfo) =
             resultSet.getInt("msgid") -> TagInfo(
