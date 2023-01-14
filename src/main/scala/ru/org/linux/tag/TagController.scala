@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil.ModeratorOnly
+import ru.org.linux.auth.AuthUtil.{AuthorizedOpt, ModeratorOnly}
 import ru.org.linux.topic.TagTopicListController
 
 import java.util.Objects
@@ -50,7 +50,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    */
   @RequestMapping(Array("/tags/{firstLetter}"))
   @throws[TagNotFoundException]
-  def showTagListHandler(@PathVariable firstLetter: String): ModelAndView = {
+  def showTagListHandler(@PathVariable firstLetter: String): ModelAndView = AuthorizedOpt { currentUser =>
     val modelAndView = new ModelAndView("tags")
 
     val firstLetters = tagService.getFirstLetters
@@ -62,7 +62,14 @@ class TagController(tagModificationService: TagModificationService, tagService: 
       modelAndView.addObject("tagcloud", list)
     } else {
       modelAndView.addObject("currentLetter", firstLetter)
-      val tags = tagService.getTagsByPrefix(firstLetter, 1)
+
+      val threshold = if (currentUser.exists(u => u.corrector || u.moderator)) {
+        1
+      } else {
+        2
+      }
+
+      val tags = tagService.getTagsByPrefix(firstLetter, threshold)
 
       if (tags.isEmpty) {
         throw new TagNotFoundException("Tag list is empty")
