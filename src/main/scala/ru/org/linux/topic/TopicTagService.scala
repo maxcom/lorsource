@@ -71,16 +71,16 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * Получить все теги сообщения по идентификационному номеру сообщения.
    *
    */
-  def getTags(topic: Topic): java.util.List[String] = topicTagDao.getTags(topic.getId).map(_.name).asJava
+  def getTags(topic: Topic): java.util.List[String] = topicTagDao.getTags(topic.id).map(_.name).asJava
 
   private def getTags(msgId:Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
-  def getTagRefs(topic: Topic): java.util.List[TagRef] = topicTagDao.getTags(topic.getId).map(tagRef).asJava
+  def getTagRefs(topic: Topic): java.util.List[TagRef] = topicTagDao.getTags(topic.id).map(t => tagRef(t)).asJava
 
   def getTagRefs(topics: Seq[Topic]): ImmutableListMultimap[Integer, TagRef] = {
     val builder = ImmutableListMultimap.builder[Integer,TagRef]()
 
-    val tags = topicTagDao.getTags(topics.map(_.getId))
+    val tags = topicTagDao.getTags(topics.map(_.id))
 
     for ((msgid, tag) <- tags) {
       builder.put(msgid, tagRef(tag))

@@ -144,14 +144,14 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
    */
   def getTagsByPrefix(prefix: String, threshold: Int): Map[TagRef, Int] = {
     tagDao.getTagsByPrefix(prefix, threshold).view.map { info =>
-      TagService.tagRef(info) -> info.topicCount
+      TagService.tagRef(info, threshold) -> info.topicCount
     }.to(SortedMap)
   }
 }
 
 object TagService {
-  def tagRef(tag: TagInfo): TagRef = TagRef(tag.name,
-    if (TagName.isGoodTag(tag.name) && tag.topicCount > 1) {
+  def tagRef(tag: TagInfo, threshold: Int = 2): TagRef = TagRef(tag.name,
+    if (TagName.isGoodTag(tag.name) && tag.topicCount >= threshold) {
       Some(TagTopicListController.tagListUrl(tag.name))
     } else {
       None

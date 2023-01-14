@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
@@ -26,6 +25,8 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagService}
 import ru.org.linux.user.UserTagService
+
+import javax.servlet.http.HttpServletResponse
 
 @Controller
 object TagTopicListController {
