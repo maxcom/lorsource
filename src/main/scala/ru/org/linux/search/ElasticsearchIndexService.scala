@@ -80,7 +80,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
   private def reindexComments(topic: Topic, comments: CommentList): MSeq[BulkCompatibleRequest] = {
     for (comment <- comments.getList.asScala) yield {
       if (comment.deleted) {
-        delete(comment.id.toString) from MessageIndexType
+        deleteById(MessageIndexType, comment.id.toString)
       } else {
         val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.id))
         val group = groupDao.getGroup(topic.groupId)
@@ -102,13 +102,13 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
 
       executeBulk(bulk(topicIndex +: commentsIndex))
     } else {
-      val topicDelete = delete(topic.id.toString) from MessageIndexType
+      val topicDelete = deleteById(MessageIndexType, topic.id.toString)
 
       val commentsDelete = if (withComments) {
         val comments = commentService.getCommentList(topic, showDeleted = true).getList.asScala
 
         comments.map {
-          comment => delete(comment.id.toString) from MessageIndexType
+          comment => deleteById(MessageIndexType, comment.id.toString)
         }
       } else Seq.empty
 
@@ -135,7 +135,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
       val group = groupDao.getGroup(topic.groupId)
 
       if (!topicPermissionService.isTopicSearchable(topic, group) || comment.deleted) {
-        delete(comment.id.toString) from MessageIndexType
+        deleteById(MessageIndexType, comment.id.toString)
       } else {
         val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.id))
         indexOfComment(topic, comment, message, group)
