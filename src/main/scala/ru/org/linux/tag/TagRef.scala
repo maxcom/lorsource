@@ -19,7 +19,7 @@ import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 import scala.collection.Seq
 
-case class TagRef(@BeanProperty name:String, @BeanProperty url:Option[String]) extends Ordered[TagRef] {
+case class TagRef(@BeanProperty name: String, @BeanProperty url: Option[String]) extends Ordered[TagRef] {
   def compare(that: TagRef): Int = name.compareTo(that.name)
 }
 

@@ -351,7 +351,7 @@ a {
   }
 }
 
-#bd a.tag {
+#bd .tag {
   color: $tag_color;
   &.tag:visited {
     color: $tag_color;

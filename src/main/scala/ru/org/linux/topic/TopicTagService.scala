@@ -71,7 +71,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * Получить все теги сообщения по идентификационному номеру сообщения.
    *
    */
-  def getTags(topic:Topic): java.util.List[String] = topicTagDao.getTags(topic.getId).map(_.name).asJava
+  def getTags(topic: Topic): java.util.List[String] = topicTagDao.getTags(topic.getId).map(_.name).asJava
 
   private def getTags(msgId:Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
