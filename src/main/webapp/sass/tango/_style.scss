@@ -351,11 +351,19 @@ a {
   }
 }
 
-#bd .tag {
+#bd a.tag {
   color: $tag_color;
   &.tag:visited {
     color: $tag_color;
   }
+}
+
+.msg .tag {
+  color: $tag_color;
+}
+
+.news .tag {
+  color: $tag_color;
 }
 
 .messages .msg {
