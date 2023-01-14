@@ -18,7 +18,7 @@ package ru.org.linux.tag
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import org.springframework.stereotype.Service
-import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
+import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
 
@@ -65,8 +65,9 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     Future.successful(elastic) flatMap {
       _ execute {
         count(MessageIndex).query(
-          boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag))
-        )
+          boolQuery().filter(
+            termQuery("is_comment", "false"),
+            termQuery("tag", tag), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")))
       }
     } map {
       _.result.count
