@@ -300,7 +300,7 @@ public class TopicDao {
     if (newTags != null) {
       List<String> oldTags = topicTagService.getTags(msg);
 
-      boolean modifiedTags = topicTagService.updateTags(msg.getId(), oldTags, newTags);
+      boolean modifiedTags = topicTagService.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
         editHistoryRecord.setOldtags(TagService.tagsToString(oldTags));

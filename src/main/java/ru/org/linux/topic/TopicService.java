@@ -120,7 +120,7 @@ public class TopicService {
 
     List<String> tags = TagName.parseAndSanitizeTags(form.getTags());
 
-    topicTagService.updateTags(msgid, ImmutableList.of(), tags);
+    topicTagService.updateTags(msgid, tags);
 
     Set<Integer> notified;
 
@@ -160,8 +160,8 @@ public class TopicService {
 
     Set<Integer> userRefIds = userRefs
             .stream()
-            .filter(userRef -> !notifiedUsers.contains(userRef.getId()))
             .map(User::getId)
+            .filter(id -> !notifiedUsers.contains(id))
             .collect(Collectors.toSet());
 
     // не оповещать пользователей. которые ранее были оповещены через упоминание

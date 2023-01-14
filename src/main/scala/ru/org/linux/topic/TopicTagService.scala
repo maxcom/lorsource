@@ -20,12 +20,12 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.tag.TagService._
-import ru.org.linux.tag._
-import ru.org.linux.topic.TopicTagService._
+import ru.org.linux.tag.*
+import ru.org.linux.tag.TagService.*
+import ru.org.linux.topic.TopicTagService.*
 
 import scala.collection.Map
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Service
 class TopicTagService(val transactionManager: PlatformTransactionManager, tagService: TagService,
@@ -38,7 +38,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * @param tagList новый список тегов.
    * @return true если были произведены изменения
    */
-  def updateTags(msgId: Int, oldTags: java.util.List[String], tagList: java.util.List[String]): Boolean = {
+  def updateTags(msgId: Int, tagList: java.util.List[String]): Boolean = {
     transactional() { _ =>
       logger.debug(s"Обновление списка тегов [${tagList.toString}] для топика msgId=$msgId")
 
@@ -53,7 +53,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
         topicTagDao.addTag(msgId, id)
       }
 
-      val deleteTags = oldTags.asScala.filterNot(tagList.contains)
+      val deleteTags = oldTags.filterNot(tagList.contains)
 
       for (tag <- deleteTags) {
         val id = tagService.getOrCreateTag(tag)
@@ -73,7 +73,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    */
   def getTags(topic:Topic): java.util.List[String] = topicTagDao.getTags(topic.getId).map(_.name).asJava
 
-  private def getTags(msgId:Int): java.util.List[String] = topicTagDao.getTags(msgId).map(_.name).asJava
+  private def getTags(msgId:Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
   def getTagRefs(topic: Topic): java.util.List[TagRef] =
     topicTagDao.getTags(topic.getId).map(tagRef).asJava
