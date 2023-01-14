@@ -73,10 +73,8 @@ class TagTopicListController (
   @RequestMapping(
     value = Array("/tag/{tag}"),
     method = Array(RequestMethod.GET, RequestMethod.HEAD),
-    params = Array("section")
-  )
+    params = Array("section"))
   def tagFeed(
-               request: HttpServletRequest,
                response: HttpServletResponse,
                @PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,

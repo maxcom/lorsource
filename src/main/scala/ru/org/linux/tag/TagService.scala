@@ -149,7 +149,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
 
 object TagService {
   def tagRef(tag: TagInfo): TagRef = TagRef(tag.name,
-    if (TagName.isGoodTag(tag.name)) {
+    if (TagName.isGoodTag(tag.name) && tag.topicCount > 1) {
       Some(TagTopicListController.tagListUrl(tag.name))
     } else {
       None
