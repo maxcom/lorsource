@@ -35,6 +35,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
@@ -47,7 +48,7 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Predicates.*;
+import static com.google.common.base.Predicates.in;
 
 @Service
 public class TopicService {
@@ -55,6 +56,9 @@ public class TopicService {
 
   @Autowired
   private TopicDao topicDao;
+
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   @Autowired
   private SectionService sectionService;
@@ -99,10 +103,11 @@ public class TopicService {
     final int msgid = topicDao.saveNewMessage(
             previewMsg,
             user,
-            message,
             request.getHeader("User-Agent"),
             group
     );
+
+    msgbaseDao.saveNewMessage(message, msgid);
 
     Section section = sectionService.getSection(group.getSectionId());
 
@@ -166,7 +171,7 @@ public class TopicService {
 
     // не оповещать пользователей. которые ранее были оповещены через упоминание
     List<Integer> tagUsers = userIdListByTags.stream()
-            .filter(not(or(in(userRefIds), in(notifiedUsers)))).collect(Collectors.toList());
+            .filter((in(userRefIds).or(in(notifiedUsers))).negate()).collect(Collectors.toList());
 
     userEventService.addUserRefEvent(userRefIds, msgid);
     userEventService.addUserTagEvent(tagUsers, msgid);

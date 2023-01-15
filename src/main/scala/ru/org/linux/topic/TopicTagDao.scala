@@ -15,11 +15,12 @@
 
 package ru.org.linux.topic
 
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
+import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.tag.TagInfo
 
 import java.sql.ResultSet
@@ -27,7 +28,7 @@ import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 
 @Repository
-class TopicTagDao(ds: DataSource) {
+class TopicTagDao(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   private val jdbcTemplate = new JdbcTemplate(ds)
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
@@ -37,11 +38,11 @@ class TopicTagDao(ds: DataSource) {
    * @param msgId идентификационный номер топика
    * @param tagId идентификационный номер тега
    */
-  def addTag(msgId:Int, tagId:Int):Unit = {
-    try {
-      jdbcTemplate.update("INSERT INTO tags VALUES(?,?)", msgId, tagId)
-    } catch {
-      case _:DuplicateKeyException =>
+  def addTag(msgId: Int, tagId: Int): Unit = transactional() { _ =>
+    val inserted = jdbcTemplate.update("INSERT INTO tags VALUES(?,?) ON CONFLICT DO NOTHING", msgId, tagId)
+
+    if (inserted>0) {
+      jdbcTemplate.update("UPDATE tags_values SET counter = counter + 1 WHERE id = ?", tagId)
     }
   }
 
@@ -51,7 +52,7 @@ class TopicTagDao(ds: DataSource) {
    * @param msgId идентификационный номер топика
    * @param tagId идентификационный номер тега
    */
-  def deleteTag(msgId:Int, tagId:Int):Unit = {
+  def deleteTag(msgId: Int, tagId: Int): Unit = {
     jdbcTemplate.update("DELETE FROM tags WHERE msgid=? and tagid=?", msgId, tagId)
   }
 
