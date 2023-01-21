@@ -15,7 +15,7 @@
 
 package ru.org.linux.user;
 
-import com.sun.syndication.feed.synd.*;
+import com.rometools.rome.feed.synd.*;
 import org.apache.commons.text.StringEscapeUtils;
 import ru.org.linux.spring.AbstractRomeView;
 import ru.org.linux.spring.SiteConfig;

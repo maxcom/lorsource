@@ -16,7 +16,7 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import org.jdom.Verifier;
+import org.jdom2.Verifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;

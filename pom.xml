@@ -192,6 +192,7 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <version>${dependency.spring.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
@@ -216,13 +217,13 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <version>3.0.1</version>
+      <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
-      <version>2.1</version>
+      <artifactId>javax.servlet.jsp-api</artifactId>
+      <version>2.3.3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -236,9 +237,9 @@
       <version>1.6.2</version>
     </dependency>
     <dependency>
-      <groupId>rome</groupId>
+      <groupId>com.rometools</groupId>
       <artifactId>rome</artifactId>
-      <version>1.0</version>
+      <version>1.18.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
