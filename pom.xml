@@ -57,12 +57,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.vividsolutions</groupId>
-      <artifactId>jts</artifactId>
-      <version>1.13</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.sksamuel.elastic4s</groupId>
       <artifactId>elastic4s-client-esjava_${scala.suffix}</artifactId>
       <version>${elastic4s.version}</version>
