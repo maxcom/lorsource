@@ -34,6 +34,7 @@
     <circe.version>0.14.3</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
     <sttp.version>3.8.7</sttp.version>
+    <flexmark.version>0.42.14</flexmark.version>
   </properties>
 
   <dependencies>
@@ -449,8 +450,32 @@
     <!-- MarkDown implementation -->
     <dependency>
       <groupId>com.vladsch.flexmark</groupId>
-      <artifactId>flexmark-all</artifactId>
-      <version>0.42.14</version>
+      <artifactId>flexmark</artifactId>
+      <version>${flexmark.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-ext-autolink</artifactId>
+      <version>${flexmark.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-ext-gfm-strikethrough</artifactId>
+      <version>${flexmark.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-ext-tables</artifactId>
+      <version>${flexmark.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-ext-typographic</artifactId>
+      <version>${flexmark.version}</version>
     </dependency>
 
     <dependency>
