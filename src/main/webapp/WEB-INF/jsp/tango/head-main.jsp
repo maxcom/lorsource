@@ -30,7 +30,7 @@
     </c:if>
   </div>
 
-  <a id="sitetitle" href="/">LINUX.ORG.RU</a>
+  <span id="sitetitle"><a href="/">LINUX.ORG.RU</a></span>
 
   <div class="menu">
     <div id="loginGreating">

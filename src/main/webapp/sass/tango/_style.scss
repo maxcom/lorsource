@@ -51,12 +51,15 @@ p {
   font-family: "Open Sans", sans-serif;
   padding-top: 0.5rem;
   font-size: 2em;
-  text-decoration: none;
   display: block;
   float: left;
-  color: $site_title_color;
   padding-right: 0.5em;
   margin-right: 0.5em;
+
+  a {
+    color: $site_title_color;
+    text-decoration: none;
+  }
 }
 
 #hd .menu {

@@ -68,12 +68,15 @@ p {
   font-family: "Open Sans", sans-serif;
   padding-top: 0.5rem;
   font-size: 2em;
-  text-decoration: none;
   display: block;
   float: left;
-  color: $header_color;
   padding-right: 0.5em;
   margin-right: 0.5em;
+
+  a {
+    text-decoration: none;
+    color: $header_color;
+  }
 }
 
 #hd .menu {
