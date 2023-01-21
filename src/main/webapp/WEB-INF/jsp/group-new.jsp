@@ -79,7 +79,7 @@
     </c:if>
     <a href="${group.url}archive/" class="btn btn-default">Архив</a>
     <c:if test="${template.moderatorSession}">
-      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править группу</a>
+      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править</a>
     </c:if>
     <c:if test="${addable}">
       <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
