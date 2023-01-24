@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,19 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.email.EmailService;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMessage.RecipientType;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Properties;
 
 @Controller
 @RequestMapping("/lostpwd.jsp")
@@ -43,10 +36,12 @@ public class LostPasswordController {
   private final UserDao userDao;
 
   private final UserService userService;
+  private final EmailService emailService;
 
-  public LostPasswordController(UserDao userDao, UserService userService) {
+  public LostPasswordController(UserDao userDao, UserService userService, EmailService emailService) {
     this.userDao = userDao;
     this.userService = userService;
+    this.emailService = emailService;
   }
 
   @RequestMapping(method=RequestMethod.GET)
@@ -83,36 +78,16 @@ public class LostPasswordController {
     Timestamp now = new Timestamp(System.currentTimeMillis());
 
     try {
-      sendEmail(user, now);
+      String resetCode = userService.getResetCode(user.getNick(), user.getEmail(), now);
+
+      emailService.sendPasswordReset(user, resetCode);
       userDao.updateResetDate(user, now);
 
-      return new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email");
+      return new ModelAndView("action-done", "message",
+              "Инструкция по сбросу пароля была отправлена на ваш email");
     } catch (AddressException ex) {
       throw new UserErrorException("Incorrect email address");
     }
-  }
-
-  private void sendEmail(User user, Timestamp resetDate) throws MessagingException {
-    Properties props = new Properties();
-    props.put("mail.smtp.host", "localhost");
-    Session mailSession = Session.getDefaultInstance(props, null);
-
-    MimeMessage msg = new MimeMessage(mailSession);
-    msg.setFrom(new InternetAddress("no-reply@linux.org.ru"));
-
-    String resetCode = userService.getResetCode(user.getNick(), user.getEmail(), resetDate);
-
-    msg.addRecipient(RecipientType.TO, new InternetAddress(user.getEmail()));
-    msg.setSubject("Your password @linux.org.ru");
-    msg.setSentDate(new Date());
-    msg.setText(
-      "Здравствуйте!\n\n" +
-      "Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password\n\n" +
-      "Ваш ник "+user.getNick()+", код подтверждения: " + resetCode + "\n\n" +
-      "Удачи!"
-    );
-
-    Transport.send(msg);
   }
 
   @ExceptionHandler(UserErrorException.class)

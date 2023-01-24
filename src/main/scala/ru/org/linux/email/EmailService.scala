@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthUtil
+import ru.org.linux.email.EmailService.createMessage
 import ru.org.linux.exception.ExceptionMailingActor
 import ru.org.linux.site.DateFormats
 import ru.org.linux.spring.SiteConfig
@@ -31,7 +32,7 @@ import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
 import java.util.{Date, Properties}
 import javax.mail.internet.{InternetAddress, MimeMessage}
-import javax.mail.{Message, Session, Transport}
+import javax.mail.{Message, MessagingException, Session, Transport}
 import javax.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters.*
 
@@ -183,6 +184,26 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     exceptionMailingActor ! ExceptionMailingActor.Report(exception.getClass, text.toString())
 
     "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал."
+  }
+
+  @throws[MessagingException]
+  def sendPasswordReset(user: User, resetCode: String): Unit = {
+    val msg = createMessage
+    msg.setFrom(new InternetAddress("no-reply@linux.org.ru"))
+    msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail))
+    msg.setSubject("Your password @linux.org.ru")
+    msg.setSentDate(new Date)
+
+    msg.setText(
+      s"""Здравствуйте!
+         |
+         |Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password
+         |
+         |Ваш ник ${user.getNick}, код подтверждения: $resetCode
+         |
+         |Удачи!""".stripMargin)
+
+    Transport.send(msg)
   }
 }
 
