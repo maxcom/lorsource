@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -308,51 +308,50 @@ function replace_state() {
     }
 }
 
-$script.ready('plugins', function() {
-  function initLoginForm() {
-    var options = {
-      type:"post",
-      dataType:"json",
-      xhrFields: {
-        withCredentials: true
-      },
-      success:function (response, status) {
-        if (response.loggedIn) {
-          window.location.reload();
-        } else {
+function initLoginForm() {
+  $(function () {
+    $script.ready('plugins', function () {
+      var options = {
+        type: "post",
+        dataType: "json",
+        xhrFields: {
+          withCredentials: true
+        },
+        success: function (response, status) {
+          if (response.loggedIn) {
+            window.location.reload();
+          } else {
+            alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
+            window.location = "/login.jsp";
+          }
+        },
+        error: function (response, status) {
           alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
           window.location = "/login.jsp";
         }
-      },
-      error:function (response, status) {
-        alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
-        window.location = "/login.jsp";
-      }
-    };
+      };
 
-    $('#regform').ajaxForm(options);
+      $('#regform').ajaxForm(options);
 
-    $('#loginbutton').bind('click', function (e) {
-      $("#regmenu").fadeOut("fast", function () {
-        $("#regform").fadeIn("fast", function () {
-          $("#regform input[name='nick']").focus();
+      $('#loginbutton').bind('click', function (e) {
+        $("#regmenu").fadeOut("fast", function () {
+          $("#regform").fadeIn("fast", function () {
+            $("#regform input[name='nick']").focus();
+          });
         });
+        return false;
       });
-      return false;
-    });
 
-    $('#hide_loginbutton').bind('click', function (e) {
-      $("#regform").fadeOut("fast", function () {
-        $("#regmenu").fadeIn("fast");
+      $('#hide_loginbutton').bind('click', function (e) {
+        $("#regform").fadeOut("fast", function () {
+          $("#regmenu").fadeIn("fast");
+        });
+        return false;
       });
-      return false;
     });
-  }
-
-  $(function() {
-    initLoginForm();
   });
-});
+}
+
 
 $(document).ready(function() {
   function initCtrlEnter() {

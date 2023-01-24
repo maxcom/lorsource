@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,17 +27,21 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.StringUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 
 @Controller
 public class ResetPasswordController {
   private static final Logger logger = LoggerFactory.getLogger(ResetPasswordController.class);
 
-  @Autowired
-  private UserDao userDao;
+  private final UserDao userDao;
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+
+  public ResetPasswordController(UserDao userDao, UserService userService) {
+    this.userDao = userDao;
+    this.userService = userService;
+  }
 
   @RequestMapping(value="/people/{nick}/profile", method = {RequestMethod.GET, RequestMethod.HEAD}, params="reset-password")
   public ModelAndView showModeratorForm(@PathVariable String nick) {
@@ -63,10 +67,8 @@ public class ResetPasswordController {
   }
 
   @RequestMapping(value="/reset-password", method=RequestMethod.POST)
-  public ModelAndView resetPassword(
-    @RequestParam("nick") String nick,
-    @RequestParam("code") String formCode
-  ) {
+  public ModelAndView resetPassword(HttpServletRequest request, @RequestParam("nick") String nick,
+                                    @RequestParam("code") String formCode) {
     User user = userService.getUser(nick);
 
     user.checkBlocked();
@@ -90,6 +92,8 @@ public class ResetPasswordController {
     }
 
     String password = userDao.resetPassword(user);
+
+    request.setAttribute("enableAjaxLogin", false);
 
     return new ModelAndView(
             "action-done",

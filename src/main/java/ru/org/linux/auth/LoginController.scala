@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -71,6 +71,8 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
       case e@(_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
 
+        request.setAttribute("enableAjaxLogin", false)
+
         delayResponse {
           new ModelAndView(new RedirectView("/login.jsp?error=true"))
         }
@@ -131,7 +133,11 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
       new ModelAndView(new RedirectView("/login.jsp"))
 
   @RequestMapping(value = Array("/login.jsp"), method = Array(RequestMethod.GET))
-  def loginForm = new ModelAndView("login-form")
+  def loginForm(request: HttpServletRequest): ModelAndView = {
+    request.setAttribute("enableAjaxLogin", false)
+
+    new ModelAndView("login-form")
+  }
 
   private def delayResponse[T](resp : => T): CompletionStage[T] = {
     val r = Random.nextInt(2000) + 1000 // 1 to 3 seconds
