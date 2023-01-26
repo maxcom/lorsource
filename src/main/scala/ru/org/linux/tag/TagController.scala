@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -198,16 +198,21 @@ class TagController(tagModificationService: TagModificationService, tagService: 
       errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!")
     }
 
-    if (!Strings.isNullOrEmpty(tagRequestDelete.getTagName) && !TagName.isGoodTag(tagRequestDelete.getTagName)) {
+    val performDelete = Strings.isNullOrEmpty(tagRequestDelete.getTagName)
+    if (!performDelete && !TagName.isGoodTag(tagRequestDelete.getTagName)) {
       errors.rejectValue("tagName", "", "Некорректный тег: '" + tagRequestDelete.getTagName + "'")
     }
 
-    if (Objects.equals(tagRequestDelete.getOldTagName, tagRequestDelete.getTagName)) {
+    if (tagRequestDelete.getOldTagName == tagRequestDelete.getTagName) {
       errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!")
     }
 
+    if (tagRequestDelete.isCreateSynonym && performDelete) {
+      errors.rejectValue("tagName", "", "Не указан тег для создания синонима!")
+    }
+
     if (!errors.hasErrors) {
-      val firstLetter = if (Strings.isNullOrEmpty(tagRequestDelete.getTagName)) {
+      val firstLetter = if (performDelete) {
         tagModificationService.delete(tagRequestDelete.getOldTagName)
         tagRequestDelete.getOldTagName.substring(0, 1)
       } else {

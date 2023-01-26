@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -43,6 +43,8 @@ public class TagRequest {
 
     private String oldTagName;
 
+    private boolean createSynonym;
+
     public String getTagName() {
       return tagName;
     }
@@ -57,6 +59,14 @@ public class TagRequest {
 
     public void setOldTagName(String oldTagName) {
       this.oldTagName = oldTagName;
+    }
+
+    public boolean isCreateSynonym() {
+      return createSynonym;
+    }
+
+    public void setCreateSynonym(boolean createSynonym) {
+      this.createSynonym = createSynonym;
     }
   }
 }

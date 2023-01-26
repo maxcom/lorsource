@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -63,17 +63,29 @@
 
 <p><strong>Внимание!</strong> Удаление метки нельзя отменить. Изменение не отражается в истории правок топика.</p>
 
- <form:form modelAttribute="tagRequestDelete" method="POST" action="/tags/delete" enctype="multipart/form-data" >
+ <form:form modelAttribute="tagRequestDelete" method="POST" action="/tags/delete" enctype="multipart/form-data">
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
-  <label for="tagName">Метка. которой нужно заменить удаляемую (пусто - удалить без замены):</label>
-  <form:input autofocus="autofocus" autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
-  <br>
-  <br>
-  <button type="submit" class="btn btn-danger">Удалить</button>
-  <c:url var="list_url" value="/tags/${firstLetter}" />
-  <button type="button" class="btn btn-default" onClick="window.location='${list_url}';">Отменить</button>
-</form:form>
+  <div class="control-group">
+   <label for="tagName">Метка, которой нужно заменить удаляемую (пусто - удалить без замены):</label>
+   <form:input autofocus="autofocus" autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
+  </div>
+
+<%--
+  <div class="control-group">
+   <label>
+    <form:checkbox id="createSynonym" path="createSynonym"/>
+    создать синоним
+   </label>
+  </div>
+--%>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <c:url var="list_url" value="/tags/${firstLetter}"/>
+    <button type="button" class="btn btn-default" onClick="window.location='${list_url}';">Отменить</button>
+  </div>
+ </form:form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
