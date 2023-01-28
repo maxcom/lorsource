@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -71,7 +71,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
     if (url.isMessageUrl) {
       topicDao.findById(url.getMessageId).asScala match {
         case Some(message) =>
-          val deleted = if (url.isCommentUrl && !message.isDeleted) {
+          val deleted = if (url.isCommentUrl && !message.deleted) {
             try {
               commentDao.getById(url.getCommentId).deleted
             } catch {
@@ -79,7 +79,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
                 false
             }
           } else {
-            message.isDeleted
+            message.deleted
           }
 
           html.srcPos(node.getText)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,18 +31,18 @@
 
 package org.springframework.scala.jdbc.core
 
-import java.sql.*
-import javax.sql.DataSource
 import org.springframework.dao.{DataAccessException, IncorrectResultSizeDataAccessException}
-import org.springframework.jdbc.core.{SingleColumnRowMapper, *}
+import org.springframework.jdbc.core.*
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
 import org.springframework.scala.jdbc.core.JdbcCallbackConversions.*
 import org.springframework.scala.util.TypeTagUtils.typeToClass
 
+import java.sql.*
+import javax.sql.DataSource
+import scala.collection.{Seq, immutable}
 import scala.jdk.CollectionConverters.*
 import scala.reflect.ClassTag
-import scala.collection.{Seq, immutable}
 
 /**
  * Scala-based convenience wrapper for the Spring

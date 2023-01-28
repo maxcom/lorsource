@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,16 +39,16 @@ class MemoriesDao(ds: DataSource) {
     doAddToMemories(user, topic, watch)
   } catch {
     case _: DuplicateKeyException =>
-      getId(user, topic.getId, watch)
+      getId(user, topic.id, watch)
   }
 
   @Transactional(rollbackFor = Array(classOf[Exception]), propagation = Propagation.REQUIRED)
   private def doAddToMemories(user: User, topic: Topic, watch: Boolean) = {
-    val id = getId(user, topic.getId, watch)
+    val id = getId(user, topic.id, watch)
 
     if (id == 0) {
       insertTemplate.executeAndReturnKey(ImmutableMap.of("userid", user.getId,
-        "topic", topic.getId, "watch", watch)).intValue
+        "topic", topic.id, "watch", watch)).intValue
     } else {
       id
     }

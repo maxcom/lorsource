@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -272,7 +272,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     // не лучший вариант, так как включает комментарии
     // по хорошему тут надо учитывать только правки текста топика
-    val lastModified = messages.asScala.view.map(_.getLastModified.getTime).maxOption
+    val lastModified = messages.asScala.view.map(_.lastModified.getTime).maxOption
 
     if (lastModified.exists(webRequest.checkNotModified)) {
       null

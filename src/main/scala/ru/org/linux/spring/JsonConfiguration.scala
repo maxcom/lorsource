@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package ru.org.linux.spring
 import io.circe.Json
 import io.circe.parser.*
 import org.springframework.context.annotation.{Bean, Configuration}
-import org.springframework.http.converter.{AbstractHttpMessageConverter, StringHttpMessageConverter}
+import org.springframework.http.converter.AbstractHttpMessageConverter
 import org.springframework.http.{HttpInputMessage, HttpOutputMessage, MediaType}
 import org.springframework.util.StreamUtils
 

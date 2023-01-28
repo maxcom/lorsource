@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -102,7 +102,7 @@ class MoreLikeThisService(
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
     search(MessageIndex) query {
-      boolQuery.should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.id.toString))
+      boolQuery().should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.id.toString))
     } fetchSource true sourceInclude("title", "postdate", "section", "group")
   }
 

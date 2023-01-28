@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,7 +31,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     if (queryText.isEmpty) {
       matchAllQuery()
     } else {
-      boolQuery.
+      boolQuery().
         should(
           commonTermsQuery("title", queryText) lowFreqMinimumShouldMatch 2,
           commonTermsQuery("message", queryText) lowFreqMinimumShouldMatch 2,
@@ -48,7 +48,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
   private def wrapQuery(q: Query, filters: Seq[Query]) = {
     if (filters.nonEmpty) {
-      boolQuery.must(q).filter(filters)
+      boolQuery().must(q).filter(filters)
     } else {
       q
     }
@@ -87,7 +87,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
     val future = elastic execute {
       search(ElasticsearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
-        filterAggregation("sections") query matchAllQuery subAggregations (
+        filterAggregation("sections") query matchAllQuery() subAggregations (
             termsAggregation("sections") field "section" size 50 subAggregations (
               termsAggregation("groups") field "group" size 50
             )
@@ -107,7 +107,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
   private def andFilters(filters: Seq[Query]) = {
     filters match {
-      case Seq()       => matchAllQuery
+      case Seq()       => matchAllQuery()
       case Seq(single) => single
       case other       => must(other)
     }

@@ -27,7 +27,6 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.{AuthorizedOpt, ModeratorOnly}
 import ru.org.linux.topic.TagTopicListController
 
-import java.util.Objects
 import scala.jdk.CollectionConverters.*
 
 @Controller
