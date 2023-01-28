@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -40,7 +40,7 @@ public class TagDaoIntegrationTest {
 
   @Test
   public void testTagNotFound() {
-    Option<Object> fetch = tagDao.getTagId("fdsfsdfdsfsdfs");
+    Option<Object> fetch = tagDao.getTagId("fdsfsdfdsfsdfs", false);
 
     assertTrue(fetch.isEmpty());
   }
@@ -48,7 +48,7 @@ public class TagDaoIntegrationTest {
   @Test
   public void createAndGetTest() {
     int id = tagDao.createTag("test-tag");
-    Option<Object> fetchId = tagDao.getTagId("test-tag");
+    Option<Object> fetchId = tagDao.getTagId("test-tag", false);
 
     assertEquals(Option.apply((Object) id), fetchId);
   }

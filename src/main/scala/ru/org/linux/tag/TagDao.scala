@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,10 +28,19 @@ import ru.org.linux.tag.TagDao.*
 import scala.jdk.CollectionConverters.*
 
 @Repository
-class TagDao(ds:DataSource) extends StrictLogging {
+class TagDao(ds: DataSource) extends StrictLogging {
   private val jdbcTemplate = new JdbcTemplate(ds)
-  private val simpleJdbcInsert =
-    new SimpleJdbcInsert(ds).withTableName("tags_values").usingColumns("value").usingGeneratedKeyColumns("id")
+
+  private val tagInsert =
+    new SimpleJdbcInsert(ds)
+      .withTableName("tags_values")
+      .usingColumns("value")
+      .usingGeneratedKeyColumns("id")
+
+  private val tagSynonymInsert =
+    new SimpleJdbcInsert(ds)
+      .withTableName("tags_synonyms")
+      .usingColumns("value", "tagid")
 
   /**
    * Создать новый тег.
@@ -42,9 +51,32 @@ class TagDao(ds:DataSource) extends StrictLogging {
   def createTag(tagName: String): Int = {
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
 
-    val id = simpleJdbcInsert.executeAndReturnKey(Map("value" -> tagName).asJava).intValue
+    val id = tagInsert.executeAndReturnKey(Map("value" -> tagName).asJava).intValue
     logger.debug(s"Создан тег: '$tagName' id=$id")
     id
+  }
+
+  /**
+   * Создать синоним тега.
+   *
+   * @param tagName название синонома тега
+   * @param id тег на который создаем синоним
+   */
+  def createTagSynonym(tagName: String, id: Int): Unit = {
+    assume(TagName.isGoodTag(tagName), "Tag name must be valid")
+
+    tagSynonymInsert.execute(Map("value" -> tagName, "tagid" -> id).asJava)
+    logger.debug(s"Создан синоним: '$tagName' id=$id")
+  }
+
+  /**
+   * Изменить синоним тега.
+   *
+   * @param oldId старый тег
+   * @param newId новый тег
+   */
+  def updateTagSynonym(oldId: Int, newId: Int): Unit = {
+    jdbcTemplate.update("UPDATE tags_synonyms SET tagid=? WHERE tagid=?", newId, oldId)
   }
 
   /**
@@ -62,7 +94,8 @@ class TagDao(ds:DataSource) extends StrictLogging {
    *
    * @param tagId идентификационный номер тега
    */
-  def deleteTag(tagId: Int):Unit = {
+  def deleteTag(tagId: Int): Unit = {
+    jdbcTemplate.update("DELETE FROM tags_synonyms WHERE tagid=?", tagId)
     jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId)
   }
 
@@ -120,7 +153,7 @@ class TagDao(ds:DataSource) extends StrictLogging {
    * @param skipZero пропускать неиспользуемые теги
    * @return идентификационный номер
    */
-  def getTagId(tag: String, skipZero: Boolean): Option[Int] = {
+  def getTagId(tag: String, skipZero: Boolean = false): Option[Int] = {
     try {
       jdbcTemplate.queryForObject[Integer](
         "SELECT id FROM tags_values WHERE value=?" + (if (skipZero) " AND counter>0" else ""),
@@ -131,7 +164,22 @@ class TagDao(ds:DataSource) extends StrictLogging {
     }
   }
 
-  def getTagId(tag: String):Option[Int] = getTagId(tag, skipZero = false)
+  /**
+   * Получение идентификационного номера тега по названию из таблицы синонимов.
+   *
+   * @param tag      название тега
+   * @return идентификационный номер
+   */
+  def getTagSynonymId(tag: String): Option[Int] = {
+    try {
+      jdbcTemplate.queryForObject[Integer](
+        "SELECT tagid FROM tags_synonyms WHERE value=?",
+        tag
+      ).map(_.toInt)
+    } catch {
+      case _: EmptyResultDataAccessException => None
+    }
+  }
 
   def getTagInfo(tagId: Int): TagInfo = {
     jdbcTemplate.queryForObjectAndMap(

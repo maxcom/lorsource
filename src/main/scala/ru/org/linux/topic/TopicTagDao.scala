@@ -104,7 +104,7 @@ class TopicTagDao(ds: DataSource, val transactionManager: PlatformTransactionMan
    *
    * @param tagId идентификационный номер тега
    */
-  def deleteTag(tagId:Int): Unit = {
+  def deleteTag(tagId: Int): Unit = {
     jdbcTemplate.update("DELETE FROM tags WHERE tagid=?", tagId)
   }
 

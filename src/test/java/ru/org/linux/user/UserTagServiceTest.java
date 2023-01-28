@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -73,7 +73,7 @@ public class UserTagServiceTest {
 
   @Test
   public void favoriteAddTest() throws TagNotFoundException {
-    when(tagDao.getTagId("tag1")).thenReturn(Option.apply((Object) 2));
+    when(tagDao.getTagId("tag1", false)).thenReturn(Option.apply((Object) 2));
     userTagService.favoriteAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(true));
   }

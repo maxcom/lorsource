@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -72,7 +72,7 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
     * @param tagName    название тега
     * @param newTagName новое название тега
     */
-  def merge(tagName: String, newTagName: String): Unit = {
+  def merge(tagName: String, newTagName: String, createSynonym: Boolean): Unit = {
     val newTagId = transactional() { _ =>
       val oldTagId = tagService.getTagId(tagName)
 
@@ -84,16 +84,19 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
       topicTagDao.replaceTag(oldTagId, newTagId)
       topicTagDao.increaseCounterById(newTagId, tagCount)
 
-      logger.debug(s"Счётчик использование тега '$newTagName' увеличен на $tagCount")
-
       userTagDao.replaceTag(oldTagId, newTagId)
+      tagDao.updateTagSynonym(oldTagId, newTagId)
 
-      logger.debug("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName)
+      logger.info("Удаляемый тег '{}' заменён тегом '{}'", tagName, newTagName)
 
       userTagDao.deleteTags(oldTagId)
       topicTagDao.deleteTag(oldTagId)
 
       tagDao.deleteTag(oldTagId)
+
+      if (createSynonym) {
+        tagDao.createTagSynonym(tagName, newTagId)
+      }
 
       newTagId
     }

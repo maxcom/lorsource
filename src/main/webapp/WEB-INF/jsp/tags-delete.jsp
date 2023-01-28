@@ -72,14 +72,12 @@
    <form:input autofocus="autofocus" autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
   </div>
 
-<%--
   <div class="control-group">
    <label>
     <form:checkbox id="createSynonym" path="createSynonym"/>
     создать синоним
    </label>
   </div>
---%>
 
   <div class="form-actions">
     <button type="submit" class="btn btn-danger">Удалить</button>

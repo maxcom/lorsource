@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -52,7 +52,9 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     * @param tagName название тега
     * @return идентификационный номер тега
     */
-  def getOrCreateTag(tagName: String): Int = tagDao.getTagId(tagName).getOrElse(tagDao.createTag(tagName))
+  def getOrCreateTag(tagName: String): Int = {
+    tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
+  }
 
   @throws(classOf[TagNotFoundException])
   def getTagInfo(tag: String, skipZero: Boolean): TagInfo = {

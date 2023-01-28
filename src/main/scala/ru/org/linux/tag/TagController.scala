@@ -185,44 +185,44 @@ class TagController(tagModificationService: TagModificationService, tagService: 
   /**
    * Обработка данных с формы изменения тега.
    *
-   * @param tagRequestDelete форма удаления тега
+   * @param request форма удаления тега
    * @param errors           обработчик ошибок ввода для формы
    * @return объект web-модели
    */
   @RequestMapping(value = Array("/tags/delete"), method = Array(RequestMethod.POST))
   @throws[AccessViolationException]
-  def deleteTagSubmitHandler(@ModelAttribute("tagRequestDelete") tagRequestDelete: TagRequest.Delete,
+  def deleteTagSubmitHandler(@ModelAttribute("tagRequestDelete") request: TagRequest.Delete,
                              errors: Errors): ModelAndView = ModeratorOnly { currentUser =>
-    if (tagService.getTagIdOpt(tagRequestDelete.getOldTagName).isEmpty) {
+    if (tagService.getTagIdOpt(request.getOldTagName).isEmpty) {
       errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!")
     }
 
-    val performDelete = Strings.isNullOrEmpty(tagRequestDelete.getTagName)
-    if (!performDelete && !TagName.isGoodTag(tagRequestDelete.getTagName)) {
-      errors.rejectValue("tagName", "", "Некорректный тег: '" + tagRequestDelete.getTagName + "'")
+    val performDelete = Strings.isNullOrEmpty(request.getTagName)
+    if (!performDelete && !TagName.isGoodTag(request.getTagName)) {
+      errors.rejectValue("tagName", "", "Некорректный тег: '" + request.getTagName + "'")
     }
 
-    if (tagRequestDelete.getOldTagName == tagRequestDelete.getTagName) {
+    if (request.getOldTagName == request.getTagName) {
       errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!")
     }
 
-    if (tagRequestDelete.isCreateSynonym && performDelete) {
+    if (request.isCreateSynonym && performDelete) {
       errors.rejectValue("tagName", "", "Не указан тег для создания синонима!")
     }
 
     if (!errors.hasErrors) {
       val firstLetter = if (performDelete) {
-        tagModificationService.delete(tagRequestDelete.getOldTagName)
-        tagRequestDelete.getOldTagName.substring(0, 1)
+        tagModificationService.delete(request.getOldTagName)
+        request.getOldTagName.substring(0, 1)
       } else {
-        tagModificationService.merge(tagRequestDelete.getOldTagName, tagRequestDelete.getTagName)
-        tagRequestDelete.getTagName.substring(0, 1)
+        tagModificationService.merge(request.getOldTagName, request.getTagName, request.isCreateSynonym)
+        request.getTagName.substring(0, 1)
       }
 
-      logger.info("Тег '{}' удален пользователем {}", tagRequestDelete.getOldTagName, currentUser.user.getNick)
+      logger.info("Тег '{}' удален пользователем {}", request.getOldTagName, currentUser.user.getNick)
       redirectToListPage(firstLetter)
     } else {
-      val firstLetter = tagRequestDelete.getOldTagName.substring(0, 1)
+      val firstLetter = request.getOldTagName.substring(0, 1)
 
       val modelAndView = new ModelAndView("tags-delete")
       modelAndView.addObject("firstLetter", firstLetter)
