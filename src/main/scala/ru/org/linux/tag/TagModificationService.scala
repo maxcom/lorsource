@@ -34,9 +34,10 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
     * @param oldTagName старое название тега
     * @param tagName    новое название тега
     */
-  def change(oldTagName: String, tagName: String): Unit = {
+  def change(oldTagName: String, tagName: String): Unit = transactional() { _ =>
     val oldTagId = tagService.getTagId(oldTagName)
 
+    tagDao.deleteTagSynonym(tagName)
     tagDao.changeTag(oldTagId, tagName)
 
     topicTagDao.processTopicsByTag(oldTagId, searchQueueSender.updateMessage(_, true))

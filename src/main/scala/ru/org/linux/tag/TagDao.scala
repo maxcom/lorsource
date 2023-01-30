@@ -100,6 +100,15 @@ class TagDao(ds: DataSource) extends StrictLogging {
   }
 
   /**
+   * Удалить синоним тега.
+   *
+   * @param tagId идентификационный номер тега
+   */
+  def deleteTagSynonym(tagName: String): Unit = {
+    jdbcTemplate.update("DELETE FROM tags_synonyms WHERE value=?", tagName)
+  }
+
+  /**
    * Получение списка первых букв тегов.
    *
    * @return список первых букв тегов.
