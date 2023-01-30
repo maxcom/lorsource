@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import org.apache.commons.text.WordUtils
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
@@ -85,49 +86,54 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
         Seq.empty
     }
 
-    val tagInfo = tagService.getTagInfo(tag, skipZero = currentUserObj.forall(!_.moderator))
+    tagService.getTagInfo(tag, skipZero = currentUserObj.forall(!_.moderator)) match {
+      case None =>
+        tagService.getTagBySynonym(tag).map { mainName =>
+          Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
+        }.getOrElse(throw new TagNotFoundException())
+      case Some(tagInfo) =>
+        val sections = getNewsSection(tag, currentUser) ++ getGallerySection(tag, tagInfo.id, currentUser) ++
+          getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser) ++
+          getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser) ++
+          getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY, currentUser)
 
-    val sections = getNewsSection(tag, currentUser) ++ getGallerySection(tag, tagInfo.id, currentUser) ++
-      getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser) ++
-      getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser) ++
-      getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY, currentUser)
+        val tmpl = Template.getTemplate
 
-    val tmpl = Template.getTemplate
+        val model = Map(
+          "tag" -> tag,
+          "title" -> WordUtils.capitalize(tag),
+          "favsCount" -> userTagService.countFavs(tagInfo.id),
+          "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
+          "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
+          "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator))
+        ) ++ sections ++ favs
 
-    val model = Map(
-      "tag" -> tag,
-      "title" -> WordUtils.capitalize(tag),
-      "favsCount" -> userTagService.countFavs(tagInfo.id),
-      "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-      "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
-      "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator))
-    ) ++ sections ++ favs
+        val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
+          case ex: TimeoutException =>
+            logger.warn(s"Tag related search timed out (${ex.getMessage})")
+            None
+          case ex =>
+            logger.warn("Unable to find related tags", ex)
+            None
+        }
 
-    val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
-      case ex: TimeoutException =>
-        logger.warn(s"Tag related search timed out (${ex.getMessage})")
-        None
-      case ex =>
-        logger.warn("Unable to find related tags", ex)
-        None
+        val safeCountF = countF withTimeout deadline.timeLeft recover {
+          case ex: TimeoutException =>
+            logger.warn(s"Tag topics count timed out (${ex.getMessage})")
+            tagInfo.topicCount.toLong
+          case ex =>
+            logger.warn("Unable to count tag topics", ex)
+            tagInfo.topicCount.toLong
+        }
+
+        (for {
+          counter <- safeCountF
+          related <- safeRelatedF
+        } yield {
+          new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
+        }).toJava
     }
-
-    val safeCountF = countF withTimeout deadline.timeLeft recover {
-      case ex: TimeoutException =>
-        logger.warn(s"Tag topics count timed out (${ex.getMessage})")
-        tagInfo.topicCount.toLong
-      case ex =>
-        logger.warn("Unable to count tag topics", ex)
-        tagInfo.topicCount.toLong
-    }
-
-    (for {
-      counter <- safeCountF
-      related <- safeRelatedF
-    } yield {
-      new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
-    }).toJava
-  }
+}
 
   private def getNewsSection(tag: String, currentUser: Option[User]) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)

@@ -56,12 +56,11 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
   }
 
-  @throws(classOf[TagNotFoundException])
-  def getTagInfo(tag: String, skipZero: Boolean): TagInfo = {
-    val tagId = tagDao.getTagId(tag, skipZero).getOrElse(throw new TagNotFoundException())
+  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] =
+    tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
 
-    tagDao.getTagInfo(tagId)
-  }
+  def getTagBySynonym(tagName: String): Option[TagRef] =
+    tagDao.getTagSynonymId(tagName).map(tagDao.getTagInfo).map(i => tagRef(i, threshold = 0))
 
   def countTagTopics(tag: String): Future[Long] = {
     Future.successful(elastic) flatMap {

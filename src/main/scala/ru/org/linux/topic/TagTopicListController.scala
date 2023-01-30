@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.tag.{TagName, TagService}
+import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 import ru.org.linux.user.UserTagService
 
 import javax.servlet.http.HttpServletResponse
@@ -81,65 +81,71 @@ class TagTopicListController (
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
   ): ModelAndView = {
-    val modelAndView = new ModelAndView("tag-topics")
-
-    val section = if (sectionId != 0) {
-      sectionService.idToSection.get(sectionId)
-    } else {
-      None
-    }
-
-    section.foreach(s => modelAndView.addObject("section", s))
-
     TagName.checkTag(tag)
 
-    TopicListController.setExpireHeaders(response, null, null)
+    tagService.getTagInfo(tag, skipZero = true) match {
+      case Some(tagInfo) =>
+        val section = if (sectionId != 0) {
+          sectionService.idToSection.get(sectionId)
+        } else {
+          None
+        }
 
-    val title = getTitle(tag, section)
+        val modelAndView = new ModelAndView("tag-topics")
 
-    modelAndView.addObject("navtitle", title)
-    modelAndView.addObject("ptitle", title)
+        section.foreach(s => modelAndView.addObject("section", s))
+        TopicListController.setExpireHeaders(response, null, null)
 
-    val tmpl = Template.getTemplate
+        val title = getTitle(tag, section)
 
-    val offset = topicListService.fixOffset(rawOffset)
-    val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, AuthUtil.getCurrentUser)
+        modelAndView.addObject("navtitle", title)
+        modelAndView.addObject("ptitle", title)
 
-    val preparedTopics =
-      prepareService.prepareTopicsForUser(topics, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false)
+        val tmpl = Template.getTemplate
 
-    modelAndView.addObject("messages", preparedTopics)
-    modelAndView.addObject("offsetNavigation", true)
-    modelAndView.addObject("tag", tag)
-    modelAndView.addObject("section", sectionId)
-    modelAndView.addObject("offset", offset)
-    modelAndView.addObject("sectionList", sectionService.getSectionList)
+        val offset = topicListService.fixOffset(rawOffset)
 
-    if (tmpl.isSessionAuthorized) {
-      modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
-      modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
+        modelAndView.addObject("offsetNavigation", true)
+        modelAndView.addObject("tag", tag)
+        modelAndView.addObject("section", sectionId)
+        modelAndView.addObject("offset", offset)
+        modelAndView.addObject("sectionList", sectionService.getSectionList)
 
-      if (!tmpl.isModeratorSession) {
-        modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
-        modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
-      }
+        if (tmpl.isSessionAuthorized) {
+          modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
+          modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
+
+          if (!tmpl.isModeratorSession) {
+            modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
+            modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
+          }
+        }
+
+        val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, AuthUtil.getCurrentUser)
+
+        val preparedTopics =
+          prepareService.prepareTopicsForUser(topics, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false)
+
+        modelAndView.addObject("messages", preparedTopics)
+
+        modelAndView.addObject("counter", tagInfo.topicCount)
+        modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
+        modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
+
+        if (offset < 200 && preparedTopics.size == 20) {
+          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + 20))
+        }
+
+        if (offset >= 20) {
+          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - 20))
+        }
+
+        modelAndView
+      case None =>
+        tagService.getTagBySynonym(tag).map { mainName =>
+          new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false))
+        }.getOrElse(throw new TagNotFoundException())
     }
-
-    val tagInfo = tagService.getTagInfo(tag, skipZero = true)
-
-    modelAndView.addObject("counter", tagInfo.topicCount)
-    modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
-    modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
-
-    if (offset < 200 && preparedTopics.size == 20) {
-      modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + 20))
-    }
-
-    if (offset >= 20) {
-      modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - 20))
-    }
-
-    modelAndView
   }
 
   @RequestMapping(
