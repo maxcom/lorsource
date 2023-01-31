@@ -146,11 +146,16 @@ class TagDao(ds: DataSource) extends StrictLogging {
    * @return список тегов
    */
   private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): Seq[String] = {
-    val query = "select value from tags_values " +
-      "where value like ? and counter >= ? order by counter DESC LIMIT ?"
+    val query =
+      """select value from
+        |   (select s.value, counter from tags_synonyms s join tags_values v on s.tagid=v.id where s.value like ?
+        |   union all
+        |   select value, counter from tags_values where value like ?) j
+        | where counter>=? order by counter desc limit ?""".stripMargin
 
-    val tags = jdbcTemplate.queryForSeq[String](query,
-      escapeLikeWildcards(prefix) + "%", minCount, count)
+    val wildcard = escapeLikeWildcards(prefix) + "%"
+
+    val tags = jdbcTemplate.queryForSeq[String](query, wildcard, wildcard, minCount, count)
 
     tags.sorted
   }
