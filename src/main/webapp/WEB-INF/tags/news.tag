@@ -103,7 +103,7 @@
     try {
       String htmlPathPrefix = ((SiteConfig) request.getAttribute("configuration")).getHTMLPathPrefix();
       ImageInfo info = new ImageInfo(htmlPathPrefix + "tango" + image);
-      out.append("<img src=\"/").append("tango").append(image).append("\" ").append(info.getCode()).append(" alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("<img class=\"groupimg\" src=\"/").append("tango").append(image).append("\" ").append(info.getCode()).append(" alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
       out.append("[bad image] <img class=newsimage src=\"/").append("tango").append(image).append("\" " + " alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
