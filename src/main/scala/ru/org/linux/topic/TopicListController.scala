@@ -177,7 +177,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val group = groupDao.getGroup(section, groupName)
 
-    val activeTagsF = activeTopTags(section, None, deadline)
+    val activeTagsF = activeTopTags(section, group, deadline)
 
     val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, Some(group))
 
