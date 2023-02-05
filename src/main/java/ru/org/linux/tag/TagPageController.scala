@@ -99,13 +99,16 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
         val tmpl = Template.getTemplate
 
+        val synonyms = tagService.getSynonymsFor(tagInfo.id)
+
         val model = Map(
           "tag" -> tag,
           "title" -> WordUtils.capitalize(tag),
           "favsCount" -> userTagService.countFavs(tagInfo.id),
           "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
           "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
-          "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator))
+          "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator)),
+          "synonyms" -> synonyms.asJava
         ) ++ sections ++ favs
 
         val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {

@@ -32,6 +32,7 @@ import scala.jdk.CollectionConverters.*
 
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient) {
+
   import ru.org.linux.tag.TagService.*
 
   /**
@@ -47,11 +48,11 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   def getTagIdOpt(tag: String): Option[Int] = tagDao.getTagId(tag)
 
   /**
-    * Получение идентификационного номера тега по названию, либо создание нового тега.
-    *
-    * @param tagName название тега
-    * @return идентификационный номер тега
-    */
+   * Получение идентификационного номера тега по названию, либо создание нового тега.
+   *
+   * @param tagName название тега
+   * @return идентификационный номер тега
+   */
   def getOrCreateTag(tagName: String): Int = {
     tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
   }
@@ -99,17 +100,17 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       _ execute {
         search(MessageIndex).size(0).query(
           boolQuery().filter(
+            termQuery("is_comment", "false"),
+            termQuery("section", section.getUrlName),
+            rangeQuery("postdate").gte("now/d-1y")
+          )).aggs {
+          sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
+            boolQuery().filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
-              rangeQuery("postdate").gte("now/d-1y")
-          )).aggs {
-            sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
-              boolQuery().filter(
-                termQuery("is_comment", "false"),
-                termQuery("section", section.getUrlName),
-                rangeQuery("postdate").gte(
-                  ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate)))
-          }
+              rangeQuery("postdate").gte(
+                ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate)))
+        }
       }
     } map { r =>
       (for {
@@ -123,8 +124,8 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   /**
    * Получить список популярных тегов по префиксу.
    *
-   * @param prefix     префикс
-   * @param count      количество тегов
+   * @param prefix префикс
+   * @param count  количество тегов
    * @return список тегов по первому символу
    */
   def suggestTagsByPrefix(prefix: String, count: Int): Seq[String] =
@@ -140,7 +141,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
   /**
    * Получить список тегов по префиксу.
    *
-   * @param prefix     префикс
+   * @param prefix префикс
    * @return список тегов по первому символу
    */
   def getTagsByPrefix(prefix: String, threshold: Int): Map[TagRef, Int] = {
@@ -148,8 +149,9 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       TagService.tagRef(info, threshold) -> info.topicCount
     }.to(SortedMap)
   }
-}
 
+  def getSynonymsFor(tagId: Int): Seq[TagRef] = tagDao.getSynonymsFor(tagId).map(name => TagRef(name, None))
+}
 object TagService {
   def tagRef(tag: TagInfo, threshold: Int = 2): TagRef = TagRef(tag.name,
     if (TagName.isGoodTag(tag.name) && tag.topicCount >= threshold) {

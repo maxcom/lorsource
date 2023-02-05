@@ -200,6 +200,10 @@ class TagDao(ds: DataSource) extends StrictLogging {
       "SELECT counter, value, id  FROM tags_values WHERE id=?", tagId
     )(tagInfoMapper).get
   }
+
+  def getSynonymsFor(tagId: Int): Seq[String] = {
+    jdbcTemplate.queryForSeq[String]("SELECT value FROM tags_synonyms WHERE tagid=?", tagId)
+  }
 }
 
 object TagDao {
