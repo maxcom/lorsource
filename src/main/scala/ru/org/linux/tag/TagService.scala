@@ -18,6 +18,7 @@ package ru.org.linux.tag
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import org.springframework.stereotype.Service
+import ru.org.linux.group.Group
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
@@ -95,15 +96,19 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
-  def getActiveTopTags(section: Section): Future[Seq[TagRef]] = {
+  def getActiveTopTags(section: Section, group: Option[Group] = None): Future[Seq[TagRef]] = {
+    val groupFilter = group.map(g => termQuery("group", g.getUrlName))
+
+    val filters = Seq(
+      termQuery("is_comment", "false"),
+      termQuery("section", section.getUrlName),
+      rangeQuery("postdate").gte("now/d-1y")
+    ) ++ groupFilter
+
     Future.successful(elastic) flatMap {
       _ execute {
         search(MessageIndex).size(0).query(
-          boolQuery().filter(
-            termQuery("is_comment", "false"),
-            termQuery("section", section.getUrlName),
-            rangeQuery("postdate").gte("now/d-1y")
-          )).aggs {
+          boolQuery().filter(filters)).aggs {
           sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
             boolQuery().filter(
               termQuery("is_comment", "false"),

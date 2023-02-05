@@ -28,7 +28,7 @@ import ru.org.linux.auth.AuthUtil
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
-import ru.org.linux.tag.{TagPageController, TagService}
+import ru.org.linux.tag.{TagPageController, TagRef, TagService}
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.RichFuture.*
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletResponse
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.*
+import scala.concurrent.duration.Deadline
 import scala.jdk.CollectionConverters.*
 
 object TopicListController {
@@ -125,6 +126,19 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView
   }
 
+  private def activeTopTags(section: Section, group: Option[Group], deadline: Deadline): Future[Seq[TagRef]] = {
+    val activeTagsF = tagService.getActiveTopTags(section, group)
+
+    activeTagsF.withTimeout(deadline.timeLeft).recover {
+      case ex: TimeoutException =>
+        logger.warn(s"Active top tags search timed out (${ex.getMessage})")
+        Seq.empty
+      case ex =>
+        logger.warn("Unable to find active top tags", ex)
+        Seq.empty
+    }
+  }
+
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
   def topics(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
              response: HttpServletResponse): CompletionStage[ModelAndView] = {
@@ -132,15 +146,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val section = sectionService.getSectionByName(sectionName)
 
-    val activeTagsF = {
-      tagService.getActiveTopTags(section) map { activeTags =>
-        if (activeTags.nonEmpty) {
-          Some(activeTags)
-        } else {
-          None
-        }
-      }
-    }
+    val activeTagsF = activeTopTags(section, None, deadline)
 
     val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, None)
 
@@ -148,20 +154,13 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("url", section.getNewsViewerLink)
     modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
 
-    activeTagsF withTimeout deadline.timeLeft recover {
-      case ex: TimeoutException =>
-        logger.warn(s"Active top tags search timed out (${ex.getMessage})")
-        None
-      case ex =>
-        logger.warn("Unable to find active top tags", ex)
-        None
-    } map { activeTags =>
-      activeTags foreach { tags =>
-        modelAndView.addObject("activeTags", tags.asJava)
+    activeTagsF.map { activeTags =>
+      if (activeTags.nonEmpty) {
+        modelAndView.addObject("activeTags", activeTags.asJava)
       }
 
       modelAndView
-    } toJava
+    }.toJava
   }
 
   @RequestMapping(Array("/forum/lenta"))
@@ -171,10 +170,27 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
   def topicsByGroup(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
-                    @PathVariable("group") groupName: String, response: HttpServletResponse): ModelAndView = {
+                    @PathVariable("group") groupName: String, response: HttpServletResponse): CompletionStage[ModelAndView] = {
+    val deadline = TagPageController.Timeout.fromNow
+
     val section = sectionService.getSectionByName(sectionName)
 
-    group(section, topicListForm, groupName, response)
+    val group = groupDao.getGroup(section, groupName)
+
+    val activeTagsF = activeTopTags(section, None, deadline)
+
+    val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, Some(group))
+
+    modelAndView.addObject("ptitle", s"${section.getName} - ${group.getTitle}")
+    modelAndView.addObject("url", group.getUrl)
+
+    activeTagsF.map { activeTags =>
+      if (activeTags.nonEmpty) {
+        modelAndView.addObject("activeTags", activeTags.asJava)
+      }
+
+      modelAndView
+    }.toJava
   }
 
   @RequestMapping(Array("/{section}/archive/{year}/{month}"))
@@ -281,18 +297,6 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
       modelAndView
     }
-  }
-
-  private def group(section: Section, topicListForm: TopicListRequest, groupName: String,
-                    response: HttpServletResponse): ModelAndView = {
-    val group = groupDao.getGroup(section, groupName)
-
-    val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, Some(group))
-
-    modelAndView.addObject("ptitle", s"${section.getName} - ${group.getTitle}")
-    modelAndView.addObject("url", group.getUrl)
-
-    modelAndView
   }
 
   private def checkRequestConditions(section: Section, group: Option[Group], topicListForm: TopicListRequest): Unit = {
