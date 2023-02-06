@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -43,11 +43,13 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @param user пользователь удаляющий сообщение
     * @return признак возможности удаления
     */
-  private def isDeletableByUser(topic: Topic, user: User): Boolean = {
+  private def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean = {
     if (topic.authorUserId != user.getId) {
       false
     } else if (topic.draft) {
       true
+    } else if (section.isPremoderated && topic.commited) {
+      false
     } else {
       val deleteDeadline = new DateTime(topic.postdate).plus(DeletePeriod)
 
@@ -134,10 +136,12 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     if (user.isAdministrator) {
       true
     } else {
-      val deletableByUser = isDeletableByUser(topic, user)
+      val section = sectionService.getSection(topic.sectionId)
+
+      val deletableByUser = isDeletableByUser(topic, user, section)
 
       if (!deletableByUser && user.isModerator) {
-        isDeletableByModerator(topic, user)
+        isDeletableByModerator(topic, user, section)
       } else {
         deletableByUser
       }
@@ -150,10 +154,8 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @param moderator пользователь удаляющий сообщение
     * @return признак возможности удаления
     */
-  private def isDeletableByModerator(topic: Topic, moderator: User) = {
+  private def isDeletableByModerator(topic: Topic, moderator: User, section: Section) = {
     val deleteDeadline = new DateTime(topic.postdate).plusMonths(1)
-
-    val section = sectionService.getSection(topic.sectionId)
 
     if (section.isPremoderated && !topic.commited) {
       true
