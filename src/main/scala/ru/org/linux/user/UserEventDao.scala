@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -233,8 +233,14 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       if (topics.isEmpty) {
         Seq.empty
       } else {
-        val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')", ImmutableMap.of("list", topics.asJava), classOf[Integer])
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH')", ImmutableMap.of("list", topics.asJava))
+        val affectedUsers = namedJdbcTemplate.queryForList(
+          "SELECT DISTINCT (userid) FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION')",
+          ImmutableMap.of("list", topics.asJava), classOf[Integer])
+
+        namedJdbcTemplate.update(
+          "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION')",
+          ImmutableMap.of("list", topics.asJava))
+
         affectedUsers.asScala
       }
     }
@@ -245,8 +251,13 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       if (comments.isEmpty) {
         Seq.empty
       } else {
-        val affectedUsers = namedJdbcTemplate.queryForList("SELECT DISTINCT (userid) FROM user_events " + "WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments.asJava), classOf[Integer])
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF')", ImmutableMap.of("list", comments.asJava))
+        val affectedUsers = namedJdbcTemplate.queryForList(
+          "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION')",
+          ImmutableMap.of("list", comments.asJava), classOf[Integer])
+
+        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION')",
+          ImmutableMap.of("list", comments.asJava))
+
         affectedUsers.asScala
       }
     }
