@@ -67,7 +67,12 @@ public class GroupPermissionServiceTest {
     assertEquals(user.getId(), resultSet.getInt("userid"));
     assertEquals(user.getId(), message.getAuthorUserId());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null, null);
+    Section section = mock(Section.class);
+    when(section.isPremoderated()).thenReturn(false);
+    SectionService sectionService = mock(SectionService.class);
+    when(sectionService.getSection(3)).thenReturn(section);
+
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
     assertTrue(permissionService.isDeletable(message, user));
   }
@@ -107,7 +112,12 @@ public class GroupPermissionServiceTest {
     assertEquals(user.getId(), resultSet.getInt("userid"));
     assertEquals(user.getId(), message.getAuthorUserId());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null, null);
+    Section section = mock(Section.class);
+    when(section.isPremoderated()).thenReturn(false);
+    SectionService sectionService = mock(SectionService.class);
+    when(sectionService.getSection(3)).thenReturn(section);
+
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
@@ -148,7 +158,12 @@ public class GroupPermissionServiceTest {
     assertNotEquals(user.getId(), resultSet.getInt("userid"));
     assertNotEquals(user.getId(), message.getAuthorUserId());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null, null);
+    Section section = mock(Section.class);
+    when(section.isPremoderated()).thenReturn(false);
+    SectionService sectionService = mock(SectionService.class);
+    when(sectionService.getSection(3)).thenReturn(section);
+
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
@@ -189,7 +204,12 @@ public class GroupPermissionServiceTest {
     assertNotEquals(user.getId(), resultSet.getInt("userid"));
     assertNotEquals(user.getId(), message.getAuthorUserId());
 
-    GroupPermissionService permissionService = new GroupPermissionService(null, null);
+    Section section = mock(Section.class);
+    when(section.isPremoderated()).thenReturn(false);
+    SectionService sectionService = mock(SectionService.class);
+    when(sectionService.getSection(3)).thenReturn(section);
+
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
     assertFalse(permissionService.isDeletable(message, user));
   }
