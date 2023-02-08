@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,8 +36,8 @@ class BoxletTopicDao(sectionService: SectionService, dataSource: DataSource) {
          |from topics join groups on groups.id = topics.groupid
          |where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and
          |not deleted and not notop and
-         |topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS} and
-         |groupid!=19390 order by c desc, msgid limit 10""".stripMargin
+         |topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
+         |order by c desc, msgid limit 10""".stripMargin
 
     jdbcTemplate.queryAndMap(sql)(rsToTopic(commentsPerPage))
   }

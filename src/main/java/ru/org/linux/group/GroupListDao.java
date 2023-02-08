@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -116,9 +116,9 @@ public class GroupListDao {
     + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid " +
           "except select tags.msgid from tags, user_tags where " +
           "tags.tagid=user_tags.tag_id and user_tags.is_favorite = true and user_id=:userid) ";
-  private static final String queryPartNoTalks = " AND not t.groupid in (8404, 19390) ";
-  private static final String queryPartTech = " AND not t.groupid in (8404, 4068, 19392, 19390, 9326, 19405) AND section=2 ";
-  private static final String queryPartMain = " AND not t.groupid in (8404, 4068, 19392, 19390, 19405) ";
+  private static final String queryPartNoTalks = " AND not t.groupid = 8404 ";
+  private static final String queryPartTech = " AND not t.groupid in (8404, 4068, 9326, 19405) AND section=2 ";
+  private static final String queryPartMain = " AND not t.groupid in (8404, 4068, 19405) ";
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
@@ -160,36 +160,18 @@ public class GroupListDao {
 
   public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, User currentUser,
                                                int topics, int offset, int messagesInPage) {
-    String partFilter;
-    switch (filter) {
-      case ALL:
-        partFilter = "";
-        break;
-      case NOTALKS:
-        partFilter = queryPartNoTalks;
-        break;
-      case MAIN:
-        partFilter = queryPartMain;
-        break;
-      case TECH:
-        partFilter = queryPartTech;
-        break;
-      default:
-        partFilter = "";
-    }
+    String partFilter = switch (filter) {
+      case NOTALKS -> queryPartNoTalks;
+      case MAIN -> queryPartMain;
+      case TECH -> queryPartTech;
+      default -> "";
+    };
 
-    String userFilter;
-
-    switch (filter) {
-      case SCORE50:
-        userFilter = " AND userid IN (SELECT id FROM users WHERE score<50) ";
-        break;
-      case SCORE100:
-        userFilter = " AND userid IN (SELECT id FROM users WHERE score<100) ";
-        break;
-      default:
-        userFilter = "";
-    }
+    String userFilter = switch (filter) {
+      case SCORE50 -> " AND userid IN (SELECT id FROM users WHERE score<50) ";
+      case SCORE100 -> " AND userid IN (SELECT id FROM users WHERE score<100) ";
+      default -> "";
+    };
 
     String dateFilter = ">CURRENT_TIMESTAMP-'4 days'::interval ";
 

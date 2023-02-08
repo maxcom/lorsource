@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -182,10 +182,6 @@ public class TopicPermissionService {
         if (!viewByAuthor) {
           throw new MessageNotFoundException(message.getId(), "Нельзя посмотреть чужой черновик");
         }
-      }
-
-      if (group.getCommentsRestriction() == -1 && unauthorized) {
-        throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
       boolean viewByCorrector = currentUser != null && currentUser.canCorrect();
@@ -474,7 +470,6 @@ public class TopicPermissionService {
     return !msg.isDeleted()
             && !msg.isDraft()
             && (msg.getPostscore() != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
-            && (group.getCommentsRestriction() != -1)
             && (!group.isPremoderated() || msg.isCommited() || msg.getAuthorUserId() != User.ANONYMOUS_ID);
   }
 }
