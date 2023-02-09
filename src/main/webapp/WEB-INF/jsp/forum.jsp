@@ -69,7 +69,7 @@
 
 <p>
   <i class="icon-rss"></i><a href="section-rss.jsp?section=${section.id}">RSS-подписка на весь форум</a><br>
-  <i class="icon-rss"></i><a href="section-rss.jsp?section=${section.id}&filter=tech">RSS-подписка на технические форум</a><br>
+  <i class="icon-rss"></i><a href="section-rss.jsp?section=${section.id}&filter=tech">RSS-подписка на технический форум</a><br>
   <i class="icon-rss"></i><a href="section-rss.jsp?section=${section.id}&filter=notalks">RSS-подписка на форум без Talks</a>
 </p>
 
