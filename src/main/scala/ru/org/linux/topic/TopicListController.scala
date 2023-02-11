@@ -26,7 +26,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
-import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
+import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
 import ru.org.linux.tag.{TagPageController, TagRef, TagService}
 import ru.org.linux.user.UserErrorException
@@ -104,7 +104,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("url", "view-news.jsp")
     modelAndView.addObject("section", section)
     modelAndView.addObject("archiveLink", section.getArchiveLink)
-    modelAndView.addObject("groupList", groupDao.getGroups(section))
+
+    modelAndView.addObject("groupList",
+      SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
 
     TopicListController.setExpireHeaders(response, topicListForm.getYear, topicListForm.getMonth)
 

@@ -84,8 +84,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
     val section = sectionService.getSection(Section.SECTION_FORUM)
 
-    params.put("groupList",
-      groupDao.getGroups(section).asScala.sortBy(g => (SectionController.NonTech.contains(g.getId), g.getId)).asJava)
+    params.put("groupList", SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
 
     val group = groupDao.getGroup(section, groupName)
 

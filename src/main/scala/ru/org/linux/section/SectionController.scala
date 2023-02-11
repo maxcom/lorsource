@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestParam, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.section.Section.SECTION_FORUM
 import ru.org.linux.section.SectionController.NonTech
 
@@ -52,4 +52,7 @@ class SectionController(sectionService: SectionService, groupDao: GroupDao) {
 
 object SectionController {
   val NonTech: Set[Int] = Set(8404, 4068, 9326, 19405)
+
+  def groupsSorted(groups: collection.Seq[Group]): collection.Seq[Group] =
+    groups.sortBy(g => (SectionController.NonTech.contains(g.getId), g.getId))
 }
