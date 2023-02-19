@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -37,7 +37,6 @@
 <div id="mainpage">
 <div id="news">
 
-<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -81,7 +80,7 @@
   </script>
   </div>
 </c:if>
---%>
+<%--
   <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -104,6 +103,7 @@
       init_interpage_adv(ads);
     });
   </script>
+--%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
