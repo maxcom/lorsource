@@ -178,6 +178,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
 
     modelAndView.addObject("firstLetter", firstLetter)
     modelAndView.addObject("tagRequestDelete", tagRequestDelete)
+    modelAndView.addObject("synonym", tagService.getTagBySynonym(oldTagName).isDefined)
 
     modelAndView
   }
@@ -193,21 +194,26 @@ class TagController(tagModificationService: TagModificationService, tagService: 
   @throws[AccessViolationException]
   def deleteTagSubmitHandler(@ModelAttribute("tagRequestDelete") request: TagRequest.Delete,
                              errors: Errors): ModelAndView = ModeratorOnly { currentUser =>
-    if (tagService.getTagIdOpt(request.getOldTagName).isEmpty) {
-      errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!")
-    }
+    val synonym = tagService.getTagBySynonym(request.getOldTagName).isDefined
 
-    val performDelete = Strings.isNullOrEmpty(request.getTagName)
-    if (!performDelete && !TagName.isGoodTag(request.getTagName)) {
-      errors.rejectValue("tagName", "", "Некорректный тег: '" + request.getTagName + "'")
-    }
+    val performDelete = synonym || Strings.isNullOrEmpty(request.getTagName)
 
-    if (request.getOldTagName == request.getTagName) {
-      errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!")
-    }
+    if (!synonym) {
+      if (tagService.getTagIdOpt(request.getOldTagName).isEmpty) {
+        errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!")
+      }
 
-    if (request.isCreateSynonym && performDelete) {
-      errors.rejectValue("tagName", "", "Не указан тег для создания синонима!")
+      if (!performDelete && !TagName.isGoodTag(request.getTagName)) {
+        errors.rejectValue("tagName", "", "Некорректный тег: '" + request.getTagName + "'")
+      }
+
+      if (request.getOldTagName == request.getTagName) {
+        errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!")
+      }
+
+      if (request.isCreateSynonym && performDelete) {
+        errors.rejectValue("tagName", "", "Не указан тег для создания синонима!")
+      }
     }
 
     if (!errors.hasErrors) {
@@ -226,6 +232,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
 
       val modelAndView = new ModelAndView("tags-delete")
       modelAndView.addObject("firstLetter", firstLetter)
+      modelAndView.addObject("synonym", synonym)
 
       modelAndView
     }

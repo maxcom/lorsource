@@ -50,17 +50,26 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
     */
   def delete(tagName: String): Unit = {
     val toUpdate = transactional() { _ =>
-      val oldTagId = tagService.getTagId(tagName)
+      tagService.getTagIdOpt(tagName) match {
+        case Some(oldTagId) =>
+          val toUpdate = mutable.Buffer[Int]()
+          topicTagDao.processTopicsByTag(oldTagId, toUpdate += _)
 
-      val toUpdate = mutable.Buffer[Int]()
-      topicTagDao.processTopicsByTag(oldTagId, toUpdate += _)
+          userTagDao.deleteTags(oldTagId)
+          topicTagDao.deleteTag(oldTagId)
 
-      userTagDao.deleteTags(oldTagId)
-      topicTagDao.deleteTag(oldTagId)
+          tagDao.deleteTag(oldTagId)
 
-      tagDao.deleteTag(oldTagId)
+          toUpdate
+        case None =>
+          if (tagDao.getTagSynonymId(tagName).isEmpty) {
+            throw new TagNotFoundException
+          }
 
-      toUpdate
+          tagDao.deleteTagSynonym(tagName)
+
+          Seq.empty
+      }
     }
 
     toUpdate.foreach(searchQueueSender.updateMessage(_, true))

@@ -67,6 +67,8 @@
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
+
+  <c:if test="${not synonym}">
   <div class="control-group">
    <label for="tagName">Метка, которой нужно заменить удаляемую (пусто - удалить без замены):</label>
    <form:input autofocus="autofocus" autocapitalize="off" id="tagName" path="tagName" style="width: 40em" />
@@ -78,6 +80,7 @@
     создать синоним
    </label>
   </div>
+  </c:if>
 
   <div class="form-actions">
     <button type="submit" class="btn btn-danger">Удалить</button>

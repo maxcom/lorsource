@@ -88,7 +88,7 @@
   </c:if>
 
   <c:if test="${not empty synonyms}">
-    Синонимы: <l:tags list="${synonyms}"/>
+    Синонимы: <l:tags list="${synonyms}" deletable="${showDelete}"/>
   </c:if>
 
   <c:if test="${showDelete}">
