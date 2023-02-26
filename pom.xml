@@ -17,17 +17,17 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>5.3.25</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
-    <jdbc.postgresql.version>42.5.3</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.5.4</jdbc.postgresql.version>
     <elastic4s.version>7.13.0</elastic4s.version>
     <scala.version>2.13.10</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.17.3</activemq.version>
+    <activemq.version>5.17.4</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>9.4.50.v20221201</jetty.version>
     <akka.version>2.6.20</akka.version>
-    <log4j.version>2.19.0</log4j.version>
+    <log4j.version>2.20.0</log4j.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
