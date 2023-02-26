@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,13 +25,12 @@ import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.net.URLEncoder
-import javax.servlet.http.HttpServletRequest
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @ModelAttribute("filters")
-  def getFilter(request: HttpServletRequest): java.util.List[TrackerFilterEnum] = {
+  def getFilter: java.util.List[TrackerFilterEnum] = {
     val tmpl = Template.getTemplate
 
     if (tmpl.isModeratorSession) {
@@ -43,8 +42,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
   @RequestMapping(Array("/tracker.jsp"))
   @throws[Exception]
-  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String,
-                    request: HttpServletRequest): View = {
+  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = {
     val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
     val redirectView = new RedirectView("/tracker/")
@@ -68,8 +66,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @RequestMapping(Array("/tracker"))
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
-              @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int,
-              request: HttpServletRequest): ModelAndView = {
+              @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int): ModelAndView = {
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
     val tmpl = Template.getTemplate
