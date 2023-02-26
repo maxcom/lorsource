@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -60,14 +60,14 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val cv = new CommentFilter(comments)
     val list = cv.getCommentsSubtree(msgid, Set.empty[Integer].asJava)
 
-    val ignoreList = ignoreListDao.getJava(currentUser.user)
+    val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
     new ModelAndView("delete_comment", Map[String, Any](
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
       "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Integer].asJava,
-        currentUser.user, tmpl.getProf, ignoreList)
+        Some(currentUser.user), tmpl.getProf, ignoreList)
     ).asJava)
   }
 

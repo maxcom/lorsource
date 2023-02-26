@@ -73,7 +73,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
                                    currentUser: CurrentUser): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
-    if (!reactionService.allowInteract(currentUser.user, topic, Some(comment))) {
+    if (!reactionService.allowInteract(Some(currentUser.user), topic, Some(comment))) {
       throw new AccessViolationException("Сообщение не доступно")
     }
 
@@ -142,7 +142,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
   private def doSetTopicReaction(topic: Topic, reactionAction: String, currentUser: CurrentUser): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
-    if (!reactionService.allowInteract(currentUser.user, topic, None)) {
+    if (!reactionService.allowInteract(Some(currentUser.user), topic, None)) {
       throw new AccessViolationException("Сообщение не доступно")
     }
 

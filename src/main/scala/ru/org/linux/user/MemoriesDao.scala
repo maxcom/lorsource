@@ -23,7 +23,7 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.{Propagation, Transactional}
 import ru.org.linux.topic.Topic
-import scala.compat.java8.OptionConverters._
+import scala.compat.java8.OptionConverters.*
 
 @Repository
 class MemoriesDao(ds: DataSource) {
@@ -67,7 +67,7 @@ class MemoriesDao(ds: DataSource) {
   /**
     * get number of memories/favs for topic
     */
-  def getTopicInfo(topic: Int, currentUser: User): MemoriesInfo = {
+  def getTopicInfo(topic: Int, currentUserOpt: Option[User]): MemoriesInfo = {
     val res: MemoriesInfo = jdbcTemplate.queryAndMap("SELECT watch, count(*) FROM memories WHERE topic=? GROUP BY watch", topic){ (rs, _) =>
       if (rs.getBoolean("watch")) {
         MemoriesInfo(watchCount = rs.getInt("count"), favsCount = 0, watchId = 0, favId = 0)
@@ -82,22 +82,23 @@ class MemoriesDao(ds: DataSource) {
         favId = 0)
     }
 
-    if (currentUser != null) {
-      val ids = jdbcTemplate.queryAndMap("SELECT id, watch FROM memories WHERE userid=? AND topic=?", currentUser.getId, topic) {
-        (rs, _) => rs.getInt("id") -> rs.getBoolean("watch")
-      }
+    currentUserOpt match {
+      case Some(currentUser) =>
+        val ids = jdbcTemplate.queryAndMap("SELECT id, watch FROM memories WHERE userid=? AND topic=?", currentUser.getId, topic) {
+          (rs, _) => rs.getInt("id") -> rs.getBoolean("watch")
+        }
 
-      var watchId = 0
-      var favsId = 0
+        var watchId = 0
+        var favsId = 0
 
-      for (p <- ids) {
-        if (p._2) watchId = p._1
-        else favsId = p._1
-      }
+        for (p <- ids) {
+          if (p._2) watchId = p._1
+          else favsId = p._1
+        }
 
-      MemoriesInfo(watchCount = res.watchCount, favsCount = res.favsCount, watchId = watchId, favId = favsId)
-    } else {
-      res
+        MemoriesInfo(watchCount = res.watchCount, favsCount = res.favsCount, watchId = watchId, favId = favsId)
+      case None =>
+        res
     }
   }
 

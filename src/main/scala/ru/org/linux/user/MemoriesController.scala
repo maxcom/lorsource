@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -35,7 +35,7 @@ class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
     }
 
     val id = memoriesDao.addToMemories(currentUser.user, topic, watch)
-    val memoriesInfo = memoriesDao.getTopicInfo(msgid, currentUser.user)
+    val memoriesInfo = memoriesDao.getTopicInfo(msgid, Some(currentUser.user))
 
     val count = if (watch) {
       memoriesInfo.watchCount
@@ -56,7 +56,7 @@ class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
 
       memoriesDao.delete(id)
 
-      val memoriesInfo = memoriesDao.getTopicInfo(m.getTopic, currentUser.user)
+      val memoriesInfo = memoriesDao.getTopicInfo(m.getTopic, Some(currentUser.user))
 
       if (m.isWatch) {
         memoriesInfo.watchCount

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,6 @@ import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 
-import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters.*
@@ -82,15 +81,15 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
                       userEventDao: UserEventDao, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
                       ignoreListDao: IgnoreListDao, profileDao: ProfileDao,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  def allowInteract(@Nullable currentUser: User, topic: Topic, comment: Option[Comment]): Boolean = {
+  def allowInteract(currentUser: Option[User], topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
 
-    currentUser != null &&
-      !currentUser.isFrozen &&
+    currentUser.isDefined &&
+      !currentUser.exists(_.isFrozen) &&
       !topic.deleted &&
       !topic.expired &&
       comment.forall(! _.deleted) &&
-      currentUser.getId != authorId &&
+      currentUser.forall(_.getId != authorId) &&
       (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
   }
 
@@ -100,7 +99,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     }.toSeq.sortBy(-_.user.getScore))
   }
 
-  def prepare(reactions: Reactions, ignoreList: Set[Int], @Nullable currentUser: User,
+  def prepare(reactions: Reactions, ignoreList: Set[Int], currentUser: Option[User],
               topic: Topic, comment: Option[Comment]): PreparedReactions = {
     PreparedReactions(allZeros ++
       reactions.reactions
@@ -111,7 +110,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
           val filteredUserIds = userIdsSet -- ignoreList
           val users = userService.getUsersCached(filteredUserIds)
-          val clicked = Option(currentUser).map(_.getId).exists(userIdsSet.contains)
+          val clicked = currentUser.map(_.getId).exists(userIdsSet.contains)
 
           r -> PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
             hasMore = users.sizeIs > 3, clicked = clicked, DefinedReactions.getOrElse(r, r))

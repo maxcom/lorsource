@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -81,7 +81,7 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
   def getDeletedComments(user: User): util.List[CommentsListItem] = commentDao.getDeletedComments(user.getId)
 
   @throws[UserNotFoundException]
-  def makeHideSet(comments: CommentList, filterChain: Int, ignoreList: util.Set[Integer]): util.Set[Integer] = {
+  def makeHideSet(comments: CommentList, filterChain: Int, ignoreList: Set[Int]): util.Set[Integer] = {
     if (filterChain == CommentFilter.FILTER_NONE) {
       Set.empty[Integer].asJava
     } else {
@@ -94,7 +94,7 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
 
       /* hide ignored */
       if ((filterChain & CommentFilter.FILTER_IGNORED) > 0) {
-        if (!ignoreList.isEmpty) comments.getRoot.hideIgnored(hideSet, ignoreList)
+        if (ignoreList.nonEmpty) comments.getRoot.hideIgnored(hideSet, ignoreList.map(Integer.valueOf).asJava)
       }
 
       hideSet

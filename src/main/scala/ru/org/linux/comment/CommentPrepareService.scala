@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,7 +37,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
-                             hideSet: Set[Int], samePageComments: Set[Int], @Nullable currentUser: User,
+                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[User],
                              group: Group, ignoreList: Set[Int]) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
@@ -85,15 +85,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).getNick, i.getReason))
     val editSummary = loadEditSummary(comment)
 
-    val (postIP, userAgent) = if (currentUser != null && currentUser.isModerator) {
+    val (postIP, userAgent) = if (currentUser != null && currentUser.exists(_.isModerator)) {
       (Option(comment.postIP), userAgentDao.getUserAgentById(comment.userAgentId).toScala)
     } else {
       (None, None)
     }
 
-    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser, deleteInfo.toJava)
-    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser, topic, hasAnswers)
-    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser, hasAnswers, topic, messageText.markup)
+    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.orNull, deleteInfo.toJava)
+    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.orNull, topic, hasAnswers)
+    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.orNull, hasAnswers, topic, messageText.markup)
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
 
@@ -134,7 +134,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val group = groupDao.getGroup(topic.groupId)
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
-      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = currentUser,
+      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = Option(currentUser),
       group = group, ignoreList = ignoreList.asScala.map(_.toInt).toSet)
   }
 
@@ -164,8 +164,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentList(comments: CommentList, list: java.util.List[Comment], topic: Topic,
-                         hideSet: java.util.Set[Integer], @Nullable currentUser: User,
-                         profile: Profile, ignoreList: java.util.Set[Integer]): java.util.List[PreparedComment] = {
+                         hideSet: java.util.Set[Integer], currentUser: Option[User],
+                         profile: Profile, ignoreList: Set[Int]): java.util.List[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty.asJava
     } else {
@@ -173,11 +173,9 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       val users = userService.getUsersCachedMap(list.asScala.map(_.userid))
       val group = groupDao.getGroup(topic.groupId)
 
-      val remarks = if (currentUser != null) {
-        remarkDao.getRemarks(currentUser, users.values)
-      } else {
-        Map.empty[Int, Remark]
-      }
+      val remarks = currentUser.map { user =>
+        remarkDao.getRemarks(user, users.values)
+      }.getOrElse(Map.empty[Int, Remark])
 
       val samePageComments = list.asScala.map(_.id).toSet
 
@@ -189,7 +187,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val remark = remarks.get(author.getId)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSetScala,
-          samePageComments, currentUser, group, ignoreList.asScala.map(_.toInt).toSet)
+          samePageComments, currentUser, group, ignoreList)
       }.asJava
     }
   }

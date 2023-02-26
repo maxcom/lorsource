@@ -43,8 +43,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
       msgbaseDao.getMessageText(message.id), None)
 
-  def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: User, text: MessageText): PreparedTopic =
-    prepareTopic(message, tags.asScala, minimizeCut = false, None, user, text, None)
+  def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: Option[User], text: MessageText): PreparedTopic =
+    prepareTopic(message, tags.asScala, minimizeCut = false, None, user.orNull, text, None)
 
   def prepareTopicPreview(message: Topic, tags: java.util.List[TagRef], @Nullable newPoll: Poll, text: MessageText,
                           @Nullable image: Image): PreparedTopic =
@@ -136,7 +136,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
       TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
-      reactionPrepareService.prepare(topic.reactions, ignoreList, currentUser, topic, None))
+      reactionPrepareService.prepare(topic.reactions, ignoreList, Option(currentUser), topic, None))
   } catch {
     case e: PollNotFoundException =>
       throw new RuntimeException(e)
