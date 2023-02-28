@@ -14,7 +14,6 @@
  */
 package ru.org.linux.topic
 
-import com.google.common.collect.{ImmutableList, ImmutableSet}
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -42,7 +41,7 @@ import java.util.concurrent.{Callable, TimeUnit}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava, SetHasAsJava}
 
 object TopicController {
   private val RSS_DEFAULT = 20
@@ -159,11 +158,18 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     if (currentUserOpt.isDefined) {
       val editInfoSummary = editHistoryService.editInfoSummary(topic.id, TOPIC)
-      if (editInfoSummary.nonEmpty) params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get))
+
+      if (editInfoSummary.nonEmpty) {
+        params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get))
+      }
     }
 
     val group = preparedMessage.group
-    if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) return new ModelAndView(new RedirectView(topic.getLink))
+
+    if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) {
+      return new ModelAndView(new RedirectView(topic.getLink))
+    }
+
     val showDeleted = request.getParameter("deleted") != null
 
     if (showDeleted) {
@@ -252,10 +258,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       params.put("threadMode", Boolean.box(true))
       params.put("threadRoot", Integer.valueOf(threadRoot))
 
-      (cv.getCommentsSubtree(threadRoot, hideSet), cv.getCommentsSubtree(threadRoot, ImmutableSet.of).size)
+      (cv.getCommentsSubtree(threadRoot, hideSet), cv.getCommentsSubtree(threadRoot, Set.empty[Integer].asJava).size)
     } else {
       (cv.getCommentsForPage(false, page, tmpl.getProf.getMessages, hideSet),
-        cv.getCommentsForPage(false, page, tmpl.getProf.getMessages, ImmutableSet.of).size)
+        cv.getCommentsForPage(false, page, tmpl.getProf.getMessages, Set.empty[Integer].asJava).size)
     }
 
     params.put("unfilteredCount", Integer.valueOf(unfilteredCount))
@@ -302,7 +308,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
   private def getCommentList(topic: Topic, group: Group, showDeleted: Boolean): CommentList = {
     if (permissionService.getPostscore(group, topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS && !showDeleted) {
-      new CommentList(ImmutableList.of, Instant.EPOCH)
+      new CommentList(Seq.empty.asJava, Instant.EPOCH)
     } else {
       commentService.getCommentList(topic, showDeleted)
     }
@@ -319,32 +325,34 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val group = preparedMessage.group
 
     if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) {
-      return new ModelAndView(new RedirectView(topic.getLink + "?output=rss"))
+      new ModelAndView(new RedirectView(topic.getLink + "?output=rss"))
+    } else {
+      if (topic.expired) {
+        throw new MessageNotFoundException(topic.id, "no more comments")
+      }
+
+      permissionService.checkView(group, topic, currentUserOpt.map(_.user).orNull, preparedMessage.author, false)
+      params.put("message", topic)
+      params.put("preparedMessage", preparedMessage)
+
+      if (topic.expired) {
+        response.setDateHeader("Expires", System.currentTimeMillis + 30 * 24 * 60 * 60 * 1000L)
+      }
+
+      val comments = getCommentList(topic, group, showDeleted = false)
+
+      val cv = new CommentFilter(comments)
+
+      val commentsFiltered =
+        cv.getCommentsForPage(true, 0, TopicController.RSS_DEFAULT, Set.empty[Integer].asJava)
+
+      val commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered)
+
+      params.put("commentsPrepared", commentsPrepared)
+      params.put("mainURL", siteConfig.getSecureUrl)
+
+      new ModelAndView("view-message-rss", params.asJava)
     }
-
-    if (topic.expired) {
-      throw new MessageNotFoundException(topic.id, "no more comments")
-    }
-
-    permissionService.checkView(group, topic, currentUserOpt.map(_.user).orNull, preparedMessage.author, false)
-    params.put("message", topic)
-    params.put("preparedMessage", preparedMessage)
-
-    if (topic.expired) {
-      response.setDateHeader("Expires", System.currentTimeMillis + 30 * 24 * 60 * 60 * 1000L)
-    }
-
-    val comments = getCommentList(topic, group, showDeleted = false)
-
-    val cv = new CommentFilter(comments)
-
-    val commentsFiltered = cv.getCommentsForPage(true, 0, TopicController.RSS_DEFAULT, ImmutableSet.of)
-    val commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered)
-
-    params.put("commentsPrepared", commentsPrepared)
-    params.put("mainURL", siteConfig.getSecureUrl)
-
-    new ModelAndView("view-message-rss", params.asJava)
   }
 
   private def loadTopicScroller(params: mutable.Map[String, AnyRef], topic: Topic, currentUser: Option[User],
@@ -435,13 +443,13 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     var node = comments.getNode(cid)
 
     if (node == null && skipDeleted) {
-      val list = comments.getList
+      val list = comments.getList.asScala
 
       if (list.isEmpty) {
         return new ModelAndView(new RedirectView(topic.getLink))
       }
 
-      val c = list.stream.filter((v: Comment) => v.id > cid).findFirst.orElse(list.get(list.size - 1))
+      val c = list.find(_.id > cid).getOrElse(list.last)
       node = comments.getNode(c.id)
     }
 
@@ -454,7 +462,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     }
 
     if (node == null) {
-      throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует")
+      throw new MessageNotFoundException(topic, cid, s"Сообщение #$cid было удалено или не существует")
     }
 
     val tmpl = Template.getTemplate
