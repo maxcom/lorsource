@@ -37,6 +37,7 @@
 <div id="mainpage">
 <div id="news">
 
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -80,30 +81,38 @@
   </script>
   </div>
 </c:if>
-<%--
-  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
+--%>
+  <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
   <script type="text/javascript">
     $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'rimg',
-          img730: '/adv/linux-banner-730-90.png',
-          img320: '/adv/linux-banner-320-100.png',
-          href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test-02-2023&utm_term=linux-org-ru'
-        },
-        {
-          type: 'rimg',
-          img730: '/adv/devops-banner-730-90.png',
-          img320: '/adv/devops-banner-320-100.png',
-          href: 'https://otus.ru/lessons/devops-praktiki-i-instrumenty/?utm_source=partners&utm_medium=cpm&utm_campaign=devops&utm_content=mops-test-01-2023&utm_term=linux-org-ru'
-        }
-      ];
+        var ads = [
+            {
+                type: 'rimg',
+                img730: '/adv/Observe_OL1_730x90.png',
+                img320: '/adv/Observe_OL1_320x100.png',
+                img980: '/adv/Observe_OL1_980x120.png',
+                href: 'https://otus.ru/lessons/monitoring/?utm_source=partners&utm_medium=cpm&utm_campaign=monitoring&utm_term=linuxorg&utm_content=lesson-10-03-2023#event-2712'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/Observe_OL2_320x100.png',
+                img730: '/adv/Observe_OL2_730x90.png',
+                img980: '/adv/Observe_OL2_980x120.png',
+                href: 'https://otus.ru/lessons/monitoring/?utm_source=partners&utm_medium=cpm&utm_campaign=monitoring&utm_term=linuxorg&utm_content=lesson-23-03-2023#event-2713'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/Observe_Welcome_320x100.png',
+                img730: '/adv/Observe_Welcome_730x90.png',
+                img980: '/adv/Observe_Welcome_980x120.png',
+                href: 'https://otus.ru/lessons/monitoring/?utm_source=partners&utm_medium=cpm&utm_campaign=monitoring&utm_term=linuxorg&utm_content=welcome_banner'
+            }
+        ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">

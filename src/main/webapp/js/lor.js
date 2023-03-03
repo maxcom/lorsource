@@ -91,26 +91,34 @@ function init_interpage_adv(ads) {
             $('#interpage').append(anchor);
         }
 
-        if (ad.type==='rimg') {
-            var anchor = $('<a>');
-            anchor.attr('href', ad.href);
-            anchor.attr('target', '_blank');
+      if (ad.type === 'rimg') {
+        var anchor = $('<a>');
+        anchor.attr('href', ad.href);
+        anchor.attr('target', '_blank');
 
-            var img = $('<img>');
+        var img = $('<img>');
 
-            if (window.matchMedia("(min-width: 768px)").matches) {
-                // img.attr('width', 728);
-                img.attr('height', 90);
-                img.attr('src', ad.img730);
-            } else {
-                img.attr('width', 320);
-                img.attr('height', 100);
-                img.attr('src', ad.img320);
-            }
+        var interpage = $('#interpage')
 
-            anchor.append(img);
-            $('#interpage').append(anchor);
+        if (interpage.width() > 1024) {
+          // img.attr('width', 728);
+          img.attr('height', 120);
+          img.attr('src', ad.img980);
+        } else if (interpage.width() > 768) {
+          // img.attr('width', 728);
+          img.attr('height', 90);
+          img.attr('src', ad.img730);
+          img.attr('style', "margin-top: 15px");
+        } else {
+          img.attr('width', 320);
+          img.attr('height', 100);
+          img.attr('style', "margin-top: 5px");
+          img.attr('src', ad.img320);
         }
+
+        anchor.append(img);
+        $('#interpage').append(anchor);
+      }
     });
 }
 
