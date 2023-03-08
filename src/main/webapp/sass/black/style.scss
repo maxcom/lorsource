@@ -232,6 +232,10 @@ blockquote {
   white-space: nowrap;
 }
 
+#related-topics-list {
+  overflow-x: hidden;  
+}
+
 #comments .userpic {
   margin-top: .75em;
 }
