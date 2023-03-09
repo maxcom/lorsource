@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -244,10 +244,10 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       userScoreLoss < MaxInviteScoreLoss
   }
 
-  def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String,
-                 ip: String, invite: Option[String], userAgent: Option[String]): Int = {
+  def createUser(nick: String, password: String, mail: InternetAddress, ip: String, invite: Option[String],
+                 userAgent: Option[String], language: Option[String]): Int = {
     transactional() { _ =>
-      val newUserId = userDao.createUser(name, nick, password, url, mail, town)
+      val newUserId = userDao.createUser("", nick, password, null, mail, null)
 
       invite.foreach { token =>
         val marked = userInvitesDao.markUsed(token, newUserId)
@@ -261,7 +261,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
-      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).asJava, userAgentId)
+      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).asJava, userAgentId, language.asJava)
 
       newUserId
     }

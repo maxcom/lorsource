@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -137,8 +137,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
     if (!errors.hasErrors) {
       val mail = new InternetAddress(form.getEmail.toLowerCase)
-      val userid = userService.createUser("", form.getNick, form.getPassword, null, mail, null,
-        request.getRemoteAddr, Option(invite), Option(request.getHeader("user-agent")))
+      val userid = userService.createUser(nick = form.getNick, password = form.getPassword, mail = mail,
+        ip = request.getRemoteAddr, invite = Option(invite), userAgent = Option(request.getHeader("user-agent")),
+        language = Option(request.getHeader("accept-language")))
 
       logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 

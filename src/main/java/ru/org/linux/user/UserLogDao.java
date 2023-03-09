@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,6 +46,7 @@ public class UserLogDao {
   public static final String OPTION_IP = "ip";
   public static final String OPTION_USET_AGENT = "user_agent";
   public static final String OPTION_INVITED_BY = "invited_by";
+  public static final String OPTION_ACCEPT_LANGUAGE = "accept_lang";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -291,19 +292,21 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy, int userAgent) {
-    ImmutableMap<String, String> params;
+  public void logRegister(int userid, @Nonnull String ip, Optional<Integer> invitedBy, int userAgent,
+                          Optional<String> language) {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
-    params = invitedBy
-            .map(integer -> ImmutableMap.of(OPTION_IP, ip, OPTION_USET_AGENT, Integer.toString(userAgent), OPTION_INVITED_BY, integer.toString()))
-            .orElseGet(() -> ImmutableMap.of(OPTION_IP, ip, OPTION_USET_AGENT, Integer.toString(userAgent)));
+    builder.put(OPTION_IP, ip);
+    builder.put(OPTION_USET_AGENT, Integer.toString(userAgent));
+    language.ifPresent(lang -> builder.put(OPTION_ACCEPT_LANGUAGE, lang));
+    invitedBy.ifPresent(user -> builder.put(OPTION_INVITED_BY, user.toString()));
 
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             userid,
             userid,
             UserLogAction.REGISTER.toString(),
-            params
+            builder.build()
     );
   }
 
