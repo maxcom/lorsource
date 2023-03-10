@@ -89,13 +89,6 @@
         var ads = [
             {
                 type: 'rimg',
-                img730: '/adv/Observe_OL1_730x90.png',
-                img320: '/adv/Observe_OL1_320x100.png',
-                img980: '/adv/Observe_OL1_980x120.png',
-                href: 'https://otus.ru/lessons/monitoring/?utm_source=partners&utm_medium=cpm&utm_campaign=monitoring&utm_term=linuxorg&utm_content=lesson-10-03-2023#event-2712'
-            },
-            {
-                type: 'rimg',
                 img320: '/adv/Observe_OL2_320x100.png',
                 img730: '/adv/Observe_OL2_730x90.png',
                 img980: '/adv/Observe_OL2_980x120.png',
