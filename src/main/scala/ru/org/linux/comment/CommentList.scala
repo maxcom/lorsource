@@ -62,7 +62,7 @@ class CommentList(val comments: Seq[Comment], val lastmod: Instant) {
     builder.result()
   }
 
-  def getNode(msgid: Int): CommentNode = nodeIndex(msgid)
+  def getNode(msgid: Int): CommentNode = nodeIndex.get(msgid).orNull
 
   def getCommentPage(comment: Comment, messages: Int): Int = {
     val index = comments.indexOf(comment)
