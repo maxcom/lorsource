@@ -163,25 +163,25 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }.asJava
   }
 
-  def prepareCommentList(comments: CommentList, list: java.util.List[Comment], topic: Topic,
+  def prepareCommentList(comments: CommentList, list: collection.Seq[Comment], topic: Topic,
                          hideSet: java.util.Set[Integer], currentUser: Option[User],
                          profile: Profile, ignoreList: Set[Int]): java.util.List[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty.asJava
     } else {
-      val texts = msgbaseDao.getMessageText(list.asScala.map(c => Integer.valueOf(c.id)).asJava)
-      val users = userService.getUsersCachedMap(list.asScala.map(_.userid))
+      val texts = msgbaseDao.getMessageText(list.map(c => Integer.valueOf(c.id)).asJava)
+      val users = userService.getUsersCachedMap(list.map(_.userid))
       val group = groupDao.getGroup(topic.groupId)
 
       val remarks = currentUser.map { user =>
         remarkDao.getRemarks(user, users.values)
       }.getOrElse(Map.empty[Int, Remark])
 
-      val samePageComments = list.asScala.map(_.id).toSet
+      val samePageComments = list.map(_.id).toSet
 
       val hideSetScala = hideSet.asScala.view.map(_.toInt).toSet
 
-      list.asScala.map { comment =>
+      list.map { comment =>
         val text = texts.get(comment.id)
         val author = users(comment.userid)
         val remark = remarks.get(author.getId)
@@ -206,8 +206,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }.asJava
   }
 
-  def buildDateJumpSet(comments: java.util.List[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
-    val commentDates = comments.asScala.view.map { c =>
+  def buildDateJumpSet(comments: collection.Seq[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
+    val commentDates = comments.view.map { c =>
       c.id -> new DateTime(c.postdate)
     }
 

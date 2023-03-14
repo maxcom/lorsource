@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -311,7 +311,7 @@
   </div>
 </c:if>
 
-<c:if test="${filterMode!=defaultFilterMode}">
+<c:if test="${filterModeShow}">
   <div class=nav>
     Показаны все комментарии. <a href="${message.getLinkPage(page)}">Скрыть</a> игнорируемые.
   </div>

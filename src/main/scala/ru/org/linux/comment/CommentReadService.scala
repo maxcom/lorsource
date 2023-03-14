@@ -24,6 +24,7 @@ import ru.org.linux.user.UserDao
 import ru.org.linux.user.UserNotFoundException
 
 import java.util
+import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.*
 
 @Service
@@ -99,5 +100,24 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
 
       hideSet
     }
+  }
+
+  def getCommentsSubtree(comments: CommentList, parentId: Int, hideSet: util.Set[Integer]): Seq[Comment] = {
+    val parentNode = comments.getNode(parentId)
+
+    if (parentNode == null) {
+      throw new MessageNotFoundException(parentId)
+    }
+
+    val childList = new ArrayBuffer[Comment]()
+
+    parentNode.foreach((comment: Comment) => {
+      if (!hideSet.contains(comment.getId)) {
+        childList += comment
+      }
+
+    })
+
+    childList.toSeq
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,12 +19,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ru.org.linux.user.Profile;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommentList implements Serializable {
   private final ImmutableList<Comment> comments;
@@ -80,7 +77,6 @@ public class CommentList implements Serializable {
     }
   }
 
-  @Nonnull
   public ImmutableList<Comment> getList() {
     return comments;
   }
@@ -93,13 +89,13 @@ public class CommentList implements Serializable {
     return nodeIndex.get(msgid);
   }
 
-  private int getCommentPage(@Nonnull Comment comment, int messages) {
+  private int getCommentPage(Comment comment, int messages) {
     int index = comments.indexOf(comment);
 
     return index / messages;
   }
 
-  public int getCommentPage(@Nonnull Comment comment, @Nonnull Profile profile) {
+  public int getCommentPage(Comment comment, Profile profile) {
     int messages = profile.getMessages();
 
     return getCommentPage(comment, messages);
@@ -107,5 +103,33 @@ public class CommentList implements Serializable {
 
   public Instant getLastmod() {
     return lastmod;
+  }
+
+  public List<Comment> getCommentsForPage(boolean reverse, int page, int messagesPerPage, Set<Integer> hideSet) {
+    int offset = 0;
+    int limit = 0;
+
+    if (page != -1) {
+      limit = messagesPerPage;
+      offset = messagesPerPage * page;
+    }
+
+    List<Comment> out = new ArrayList<>();
+
+    for (ListIterator<Comment> i = comments.listIterator(reverse ? comments.size():0); reverse ?i.hasPrevious():i.hasNext();) {
+      int index = reverse ?(comments.size()-i.previousIndex()):i.nextIndex();
+
+      Comment comment = reverse ?i.previous():i.next();
+
+      if (index< offset || (limit !=0 && index>= offset + limit)) {
+        continue;
+      }
+
+      if (!hideSet.contains(comment.getId())) {
+        out.add(comment);
+      }
+    }
+
+    return out;
   }
 }

@@ -57,8 +57,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     val comments = commentService.getCommentList(topic, currentUser.moderator)
-    val cv = new CommentFilter(comments)
-    val list = cv.getCommentsSubtree(msgid, Set.empty[Integer].asJava)
+    val list = commentService.getCommentsSubtree(comments, msgid, Set.empty[Integer].asJava)
 
     val ignoreList = ignoreListDao.get(currentUser.user.getId)
 

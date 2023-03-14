@@ -64,11 +64,11 @@ object TopicController {
     filterMode
   }
 
-  private def buildPages(topic: Topic, messagesPerPage: Int, filterMode: Int, defaultFilterMode: Int, currentPage: Int): PagesInfo = {
+  private def buildPages(topic: Topic, messagesPerPage: Int, filterModeShow: Boolean, currentPage: Int): PagesInfo = {
     var base = TopicLinkBuilder.baseLink(topic).lastmod(messagesPerPage)
 
-    if (filterMode != defaultFilterMode) {
-      base = base.filter(filterMode)
+    if (filterModeShow) {
+      base = base.filterShow()
     }
 
     val out = for (i <- 0 until topic.getPageCount(messagesPerPage)) yield {
@@ -231,37 +231,28 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       ignoreListDao.get(currentUser.user.getId)
     }.getOrElse(Set.empty)
 
-    val defaultFilterMode = TopicController.getDefaultFilter(tmpl.getProf, ignoreList.isEmpty)
-
-    var filterMode = 0
-
-    if (filter != null) {
-      filterMode = CommentFilter.parseFilterChain(filter)
-
-      if (ignoreList.nonEmpty && filterMode == CommentFilter.FILTER_ANONYMOUS) {
-        filterMode += CommentFilter.FILTER_IGNORED
-      }
-    } else {
-      filterMode = defaultFilterMode
+    val (filterMode, filterModeShow) = if (filter=="show") {
+      (CommentFilter.FILTER_NONE, true)
+    } else{
+      (TopicController.getDefaultFilter(tmpl.getProf, ignoreList.isEmpty), false)
     }
 
-    params.put("filterMode", CommentFilter.toString(filterMode))
-    params.put("defaultFilterMode", CommentFilter.toString(defaultFilterMode))
+    params.put("filterModeShow", Boolean.box(filterModeShow))
 
     loadTopicScroller(params, topic, currentUserOpt.map(_.user), ignoreList.nonEmpty)
 
     val comments = getCommentList(topic, group, showDeleted)
     val hideSet = commentService.makeHideSet(comments, filterMode, ignoreList)
-    val cv = new CommentFilter(comments)
 
     val (commentsFiltered, unfilteredCount) = if (threadRoot != 0) {
       params.put("threadMode", Boolean.box(true))
       params.put("threadRoot", Integer.valueOf(threadRoot))
 
-      (cv.getCommentsSubtree(threadRoot, hideSet), cv.getCommentsSubtree(threadRoot, Set.empty[Integer].asJava).size)
+      (commentService.getCommentsSubtree(comments, threadRoot, hideSet),
+        commentService.getCommentsSubtree(comments, threadRoot, Set.empty[Integer].asJava).size)
     } else {
-      (cv.getCommentsForPage(false, page, tmpl.getProf.getMessages, hideSet),
-        cv.getCommentsForPage(false, page, tmpl.getProf.getMessages, Set.empty[Integer].asJava).size)
+      (comments.getCommentsForPage(false, page, tmpl.getProf.getMessages, hideSet).asScala,
+        comments.getCommentsForPage(false, page, tmpl.getProf.getMessages, Set.empty[Integer].asJava).size)
     }
 
     params.put("unfilteredCount", Integer.valueOf(unfilteredCount))
@@ -293,7 +284,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("add", add)
 
     if (pages > 1 && !showDeleted && threadRoot == 0 && !comments.getList.isEmpty) {
-      params.put("pages", TopicController.buildPages(topic, tmpl.getProf.getMessages, filterMode, defaultFilterMode, page))
+      params.put("pages", TopicController.buildPages(topic, tmpl.getProf.getMessages, filterModeShow, page))
     }
 
     params.put("moreLikeThisGetter", new Callable[java.util.List[java.util.List[MoreLikeThisTopic]]] {
@@ -341,10 +332,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
       val comments = getCommentList(topic, group, showDeleted = false)
 
-      val cv = new CommentFilter(comments)
-
       val commentsFiltered =
-        cv.getCommentsForPage(true, 0, TopicController.RSS_DEFAULT, Set.empty[Integer].asJava)
+        comments.getCommentsForPage(true, 0, TopicController.RSS_DEFAULT, Set.empty[Integer].asJava)
 
       val commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered)
 
@@ -478,7 +467,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(tmpl.getProf, ignoreList.isEmpty), ignoreList)
 
       if (hideSet.contains(node.getComment.id)) {
-        redirectUrl = redirectUrl.filter(CommentFilter.FILTER_NONE)
+        redirectUrl = redirectUrl.filterShow()
       }
     }
 

@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.org.linux.comment.CommentFilter;
 
 public class TopicLinkBuilder {
   private final Topic topic;
@@ -82,11 +81,9 @@ public class TopicLinkBuilder {
     }
   }
 
-  public TopicLinkBuilder filter(int filter) { // TODO: use Enum for filter
-    String value = CommentFilter.toString(filter);
-
-    if (!value.equals(this.filter)) {
-      return new TopicLinkBuilder(topic, page, showDeleted, lastmod, comment, value);
+  public TopicLinkBuilder filterShow() {
+    if (!"show".equals(this.filter)) {
+      return new TopicLinkBuilder(topic, page, showDeleted, lastmod, comment, "show");
     } else {
       return this;
     }
