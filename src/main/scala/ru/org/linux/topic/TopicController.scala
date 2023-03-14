@@ -441,7 +441,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     var comments = getCommentList(topic, group, showDeleted = false)
 
-    var node = comments.getNode(cid)
+    var node = comments.getNodeOpt(cid).orNull
 
     if (node == null && skipDeleted) {
       val list = comments.comments

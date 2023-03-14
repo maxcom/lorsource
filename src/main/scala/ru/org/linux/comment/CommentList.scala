@@ -14,6 +14,8 @@
  */
 package ru.org.linux.comment
 
+import ru.org.linux.site.MessageNotFoundException
+
 import java.time.Instant
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
@@ -62,7 +64,9 @@ class CommentList(val comments: Seq[Comment], val lastmod: Instant) {
     builder.result()
   }
 
-  def getNode(msgid: Int): CommentNode = nodeIndex.get(msgid).orNull
+  def getNode(msgid: Int): CommentNode = nodeIndex.getOrElse(msgid,throw new MessageNotFoundException(msgid))
+
+  def getNodeOpt(msgid: Int): Option[CommentNode] = nodeIndex.get(msgid)
 
   def getCommentPage(comment: Comment, messages: Int): Int = {
     val index = comments.indexOf(comment)

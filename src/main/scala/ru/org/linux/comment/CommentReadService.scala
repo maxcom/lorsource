@@ -103,10 +103,6 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
   def getCommentsSubtree(comments: CommentList, parentId: Int, hideSet: Set[Int]): Seq[Comment] = {
     val parentNode = comments.getNode(parentId)
 
-    if (parentNode == null) {
-      throw new MessageNotFoundException(parentId)
-    }
-
     val childList = new ArrayBuffer[Comment]()
 
     parentNode.foreach((comment: Comment) => {

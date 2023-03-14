@@ -43,16 +43,14 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
       val replyInfo: Option[ReplyInfo] = if (comment.replyTo != 0) {
-        val replyNode = comments.get.getNode(comment.replyTo)
-        val replyDeleted = replyNode == null
-
-        if (replyDeleted) { // ответ на удаленный комментарий
-          Some(new ReplyInfo(comment.replyTo, true))
-        } else {
-          val reply = replyNode.getComment
-          val samePage = samePageComments.contains(reply.id)
-          val replyAuthor = userService.getUserCached(reply.userid).getNick
-          Some(new ReplyInfo(reply.id, replyAuthor, Strings.emptyToNull(reply.title.trim), reply.postdate, samePage, false))
+        comments.get.getNodeOpt(comment.replyTo) match {
+          case None => // ответ на удаленный комментарий
+            Some(new ReplyInfo(comment.replyTo, true))
+          case Some(replyNode) =>
+            val reply = replyNode.getComment
+            val samePage = samePageComments.contains(reply.id)
+            val replyAuthor = userService.getUserCached(reply.userid).getNick
+            Some(new ReplyInfo(reply.id, replyAuthor, Strings.emptyToNull(reply.title.trim), reply.postdate, samePage, false))
         }
       } else {
         None
