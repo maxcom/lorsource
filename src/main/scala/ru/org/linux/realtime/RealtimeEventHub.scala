@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -219,7 +219,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
       val last = maybeComment.getOrElse(0)
 
       val comments = if (topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
-        commentService.getCommentList(topic, showDeleted = false).getList.asScala
+        commentService.getCommentList(topic, showDeleted = false).comments
       } else {
         Seq.empty
       }

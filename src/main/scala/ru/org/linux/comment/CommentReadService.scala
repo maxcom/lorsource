@@ -21,7 +21,6 @@ import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 import ru.org.linux.user.UserDao
-import ru.org.linux.user.UserNotFoundException
 
 import java.util
 import scala.collection.mutable.ArrayBuffer
@@ -59,12 +58,12 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
    */
   def getCommentList(topic: Topic, showDeleted: Boolean): CommentList = {
     if (showDeleted) {
-      new CommentList(commentDao.getCommentList(topic.id, true), topic.lastModified.toInstant)
+      new CommentList(commentDao.getCommentList(topic.id, true).asScala.toSeq, topic.lastModified.toInstant)
     } else {
       val commentList = cache.getIfPresent(topic.id)
 
-      if (commentList == null || commentList.getLastmod.isBefore(topic.lastModified.toInstant)) {
-        val newList = new CommentList(commentDao.getCommentList(topic.id, false), topic.lastModified.toInstant)
+      if (commentList == null || commentList.lastmod.isBefore(topic.lastModified.toInstant)) {
+        val newList = new CommentList(commentDao.getCommentList(topic.id, false).asScala.toSeq, topic.lastModified.toInstant)
         cache.put(topic.id, newList)
         newList
       } else {
@@ -81,28 +80,27 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
    */
   def getDeletedComments(user: User): util.List[CommentsListItem] = commentDao.getDeletedComments(user.getId)
 
-  @throws[UserNotFoundException]
-  def makeHideSet(comments: CommentList, filterChain: Int, ignoreList: Set[Int]): util.Set[Integer] = {
+  def makeHideSet(comments: CommentList, filterChain: Int, ignoreList: Set[Int]): Set[Int] = {
     if (filterChain == CommentFilter.FILTER_NONE) {
-      Set.empty[Integer].asJava
+      Set.empty[Int]
     } else {
       val hideSet = new util.HashSet[Integer]
 
       /* hide anonymous */
       if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {
-        comments.getRoot.hideAnonymous(userDao, hideSet)
+        comments.root.hideAnonymous(userDao, hideSet)
       }
 
       /* hide ignored */
-      if ((filterChain & CommentFilter.FILTER_IGNORED) > 0) {
-        if (ignoreList.nonEmpty) comments.getRoot.hideIgnored(hideSet, ignoreList.map(Integer.valueOf).asJava)
+      if ((filterChain & CommentFilter.FILTER_IGNORED) > 0 && ignoreList.nonEmpty) {
+        comments.root.hideIgnored(hideSet, ignoreList.map(Integer.valueOf).asJava)
       }
 
-      hideSet
+      hideSet.asScala.view.map(_.toInt).toSet
     }
   }
 
-  def getCommentsSubtree(comments: CommentList, parentId: Int, hideSet: util.Set[Integer]): Seq[Comment] = {
+  def getCommentsSubtree(comments: CommentList, parentId: Int, hideSet: Set[Int]): Seq[Comment] = {
     val parentNode = comments.getNode(parentId)
 
     if (parentNode == null) {
@@ -112,7 +110,7 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
     val childList = new ArrayBuffer[Comment]()
 
     parentNode.foreach((comment: Comment) => {
-      if (!hideSet.contains(comment.getId)) {
+      if (!hideSet.contains(comment.id)) {
         childList += comment
       }
 

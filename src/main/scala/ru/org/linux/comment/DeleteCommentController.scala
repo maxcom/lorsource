@@ -57,7 +57,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     val comments = commentService.getCommentList(topic, currentUser.moderator)
-    val list = commentService.getCommentsSubtree(comments, msgid, Set.empty[Integer].asJava)
+    val list = commentService.getCommentsSubtree(comments, msgid, Set.empty[Int])
 
     val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
@@ -65,16 +65,16 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Integer].asJava,
+      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Int],
         Some(currentUser.user), tmpl.getProf, ignoreList)
     ).asJava)
   }
 
   private def findNextComment(comment: Comment): Option[Comment] = {
     val updatedTopic = topicDao.getById(comment.topicId)
-    val commentList = commentService.getCommentList(updatedTopic, showDeleted = false)
+    val commentList = commentService.getCommentList(updatedTopic, showDeleted = false).comments
 
-    commentList.getList.asScala.find(_.id >= comment.id)
+    commentList.find(_.id >= comment.id)
   }
 
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.POST))

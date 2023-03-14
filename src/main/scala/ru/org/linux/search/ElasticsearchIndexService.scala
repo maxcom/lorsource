@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.StringEscapeUtils
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
-import ru.org.linux.comment.{Comment, CommentList, CommentReadService}
+import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
@@ -77,8 +77,8 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
                                 elastic: ElasticClient, topicPermissionService: TopicPermissionService) extends StrictLogging {
   import ElasticsearchIndexService.*
 
-  private def reindexComments(topic: Topic, comments: CommentList): MSeq[BulkCompatibleRequest] = {
-    for (comment <- comments.getList.asScala) yield {
+  private def reindexComments(topic: Topic, comments: Seq[Comment]): MSeq[BulkCompatibleRequest] = {
+    for (comment <- comments) yield {
       if (comment.deleted) {
         deleteById(MessageIndexType, comment.id.toString)
       } else {
@@ -97,7 +97,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
       val topicIndex = indexOfTopic(topic, group)
 
       val commentsIndex = if (withComments) {
-        reindexComments(topic, commentService.getCommentList(topic, showDeleted = true))
+        reindexComments(topic, commentService.getCommentList(topic, showDeleted = true).comments)
       } else Seq.empty
 
       executeBulk(bulk(topicIndex +: commentsIndex))
@@ -105,7 +105,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
       val topicDelete = deleteById(MessageIndexType, topic.id.toString)
 
       val commentsDelete = if (withComments) {
-        val comments = commentService.getCommentList(topic, showDeleted = true).getList.asScala
+        val comments = commentService.getCommentList(topic, showDeleted = true).comments
 
         comments.map {
           comment => deleteById(MessageIndexType, comment.id.toString)

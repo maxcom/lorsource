@@ -156,15 +156,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled)
   }
 
-  def prepareCommentListRSS(list: java.util.List[Comment]): java.util.List[PreparedRSSComment] = {
-    list.asScala.map { comment =>
+  def prepareCommentListRSS(list: Seq[Comment]): Seq[PreparedRSSComment] = {
+    list.map { comment =>
       val messageText = msgbaseDao.getMessageText(comment.id)
       prepareRSSComment(messageText, comment)
-    }.asJava
+    }
   }
 
   def prepareCommentList(comments: CommentList, list: collection.Seq[Comment], topic: Topic,
-                         hideSet: java.util.Set[Integer], currentUser: Option[User],
+                         hideSet: Set[Int], currentUser: Option[User],
                          profile: Profile, ignoreList: Set[Int]): java.util.List[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty.asJava
@@ -179,14 +179,12 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
       val samePageComments = list.map(_.id).toSet
 
-      val hideSetScala = hideSet.asScala.view.map(_.toInt).toSet
-
       list.map { comment =>
         val text = texts.get(comment.id)
         val author = users(comment.userid)
         val remark = remarks.get(author.getId)
 
-        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSetScala,
+        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSet,
           samePageComments, currentUser, group, ignoreList)
       }.asJava
     }

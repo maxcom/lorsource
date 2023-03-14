@@ -41,7 +41,7 @@ import java.util.concurrent.{Callable, TimeUnit}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava, SetHasAsJava}
+import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
 
 object TopicController {
   private val RSS_DEFAULT = 20
@@ -249,10 +249,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       params.put("threadRoot", Integer.valueOf(threadRoot))
 
       (commentService.getCommentsSubtree(comments, threadRoot, hideSet),
-        commentService.getCommentsSubtree(comments, threadRoot, Set.empty[Integer].asJava).size)
+        commentService.getCommentsSubtree(comments, threadRoot, Set.empty[Int]).size)
     } else {
-      (comments.getCommentsForPage(page, tmpl.getProf.getMessages, hideSet).asScala,
-        comments.getCommentsForPage(page, tmpl.getProf.getMessages, Set.empty[Integer].asJava).size)
+      (getCommentsForPage(comments, page, tmpl.getProf.getMessages, hideSet),
+        getCommentsForPage(comments, page, tmpl.getProf.getMessages, Set.empty[Int]).size)
     }
 
     params.put("unfilteredCount", Integer.valueOf(unfilteredCount))
@@ -268,10 +268,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     params.put("commentsPrepared", commentsPrepared)
 
-    if (comments.getList.isEmpty) {
+    if (comments.comments.isEmpty) {
       params.put("lastCommentId", Integer.valueOf(0))
     } else {
-      params.put("lastCommentId", Integer.valueOf(comments.getList.get(comments.getList.size - 1).id))
+      params.put("lastCommentId", Integer.valueOf(comments.comments.last.id))
     }
 
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
@@ -283,12 +283,12 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     add.setMode(tmpl.getFormatMode)
     params.put("add", add)
 
-    if (pages > 1 && !showDeleted && threadRoot == 0 && !comments.getList.isEmpty) {
+    if (pages > 1 && !showDeleted && threadRoot == 0 && comments.comments.nonEmpty) {
       params.put("pages", TopicController.buildPages(topic, tmpl.getProf.getMessages, filterModeShow, page))
     }
 
     params.put("moreLikeThisGetter", new Callable[java.util.List[java.util.List[MoreLikeThisTopic]]] {
-      def call() = moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
+      override def call() = moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
     })
 
     params.put("showDeletedButton", Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.map(_.user).orNull) && !showDeleted))
@@ -299,7 +299,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
   private def getCommentList(topic: Topic, group: Group, showDeleted: Boolean): CommentList = {
     if (permissionService.getPostscore(group, topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS && !showDeleted) {
-      new CommentList(Seq.empty.asJava, Instant.EPOCH)
+      new CommentList(Seq.empty, Instant.EPOCH)
     } else {
       commentService.getCommentList(topic, showDeleted)
     }
@@ -330,16 +330,29 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
         response.setDateHeader("Expires", System.currentTimeMillis + 30 * 24 * 60 * 60 * 1000L)
       }
 
-      val comments = getCommentList(topic, group, showDeleted = false)
+      val comments = getCommentList(topic, group, showDeleted = false).comments
 
-      val commentsFiltered = comments.getLastCommentsReversed(TopicController.RSS_DEFAULT)
+      val commentsFiltered = comments.view.reverse.take(TopicController.RSS_DEFAULT).toSeq
 
       val commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered)
 
-      params.put("commentsPrepared", commentsPrepared)
+      params.put("commentsPrepared", commentsPrepared.asJava)
       params.put("mainURL", siteConfig.getSecureUrl)
 
       new ModelAndView("view-message-rss", params.asJava)
+    }
+  }
+
+  private def getCommentsForPage(commentList: CommentList, page: Int, messagesPerPage: Int, hideSet: Set[Int]): Seq[Comment] = {
+    val comments = commentList.comments
+
+    if (page != -1) {
+      val limit = messagesPerPage
+      val offset = messagesPerPage * page
+
+      comments.view.slice(offset, Math.min(offset + limit, comments.size)).filter(comment => !hideSet.contains(comment.id)).toSeq
+    } else {
+      comments.view.filter(comment => !hideSet.contains(comment.id)).toSeq
     }
   }
 
@@ -431,7 +444,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     var node = comments.getNode(cid)
 
     if (node == null && skipDeleted) {
-      val list = comments.getList.asScala
+      val list = comments.comments
 
       if (list.isEmpty) {
         return new ModelAndView(new RedirectView(topic.getLink))
@@ -455,7 +468,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     val tmpl = Template.getTemplate
 
-    val pagenum = if (deleted) 0 else comments.getCommentPage(node.getComment, tmpl.getProf)
+    val pagenum = if (deleted) 0 else comments.getCommentPage(node.getComment, tmpl.getProf.getMessages)
 
     var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(tmpl.getProf.getMessages).comment(node.getComment.id)
 
