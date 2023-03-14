@@ -251,8 +251,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       (commentService.getCommentsSubtree(comments, threadRoot, hideSet),
         commentService.getCommentsSubtree(comments, threadRoot, Set.empty[Integer].asJava).size)
     } else {
-      (comments.getCommentsForPage(false, page, tmpl.getProf.getMessages, hideSet).asScala,
-        comments.getCommentsForPage(false, page, tmpl.getProf.getMessages, Set.empty[Integer].asJava).size)
+      (comments.getCommentsForPage(page, tmpl.getProf.getMessages, hideSet).asScala,
+        comments.getCommentsForPage(page, tmpl.getProf.getMessages, Set.empty[Integer].asJava).size)
     }
 
     params.put("unfilteredCount", Integer.valueOf(unfilteredCount))
@@ -332,8 +332,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
       val comments = getCommentList(topic, group, showDeleted = false)
 
-      val commentsFiltered =
-        comments.getCommentsForPage(true, 0, TopicController.RSS_DEFAULT, Set.empty[Integer].asJava)
+      val commentsFiltered = comments.getLastCommentsReversed(TopicController.RSS_DEFAULT)
 
       val commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered)
 

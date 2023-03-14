@@ -22,6 +22,7 @@ import ru.org.linux.user.Profile;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommentList implements Serializable {
   private final ImmutableList<Comment> comments;
@@ -105,31 +106,20 @@ public class CommentList implements Serializable {
     return lastmod;
   }
 
-  public List<Comment> getCommentsForPage(boolean reverse, int page, int messagesPerPage, Set<Integer> hideSet) {
-    int offset = 0;
-    int limit = 0;
-
+  public List<Comment> getCommentsForPage(int page, int messagesPerPage, Set<Integer> hideSet) {
     if (page != -1) {
-      limit = messagesPerPage;
-      offset = messagesPerPage * page;
+      int limit = messagesPerPage;
+      int offset = messagesPerPage * page;
+
+      return comments.subList(offset, Math.min(offset+limit, comments.size()))
+              .stream().filter(comment -> !hideSet.contains(comment.getId())).collect(Collectors.toList());
+    } else {
+      return comments.stream().filter(comment -> !hideSet.contains(comment.getId())).collect(Collectors.toList());
     }
 
-    List<Comment> out = new ArrayList<>();
+  }
 
-    for (ListIterator<Comment> i = comments.listIterator(reverse ? comments.size():0); reverse ?i.hasPrevious():i.hasNext();) {
-      int index = reverse ?(comments.size()-i.previousIndex()):i.nextIndex();
-
-      Comment comment = reverse ?i.previous():i.next();
-
-      if (index< offset || (limit !=0 && index>= offset + limit)) {
-        continue;
-      }
-
-      if (!hideSet.contains(comment.getId())) {
-        out.add(comment);
-      }
-    }
-
-    return out;
+  public List<Comment> getLastCommentsReversed(int messagesPerPage) {
+    return comments.reverse().subList(0, Math.min(messagesPerPage, comments.size()));
   }
 }
