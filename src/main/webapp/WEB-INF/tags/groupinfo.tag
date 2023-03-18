@@ -1,5 +1,3 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
   ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +15,9 @@
 <%@ tag pageEncoding="utf-8" %>
 <%@ attribute name="group" required="true" type="ru.org.linux.group.PreparedGroupInfo" %>
 <%@ attribute name="activeTags" required="false" type="java.util.List<java.lang.String>" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <div class="infoblock">
   <c:if test="${not empty group.info}">
     <p style="margin-top: 0"><em>${group.info}</em></p>
