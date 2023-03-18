@@ -38,7 +38,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
                              hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[User],
-                             group: Group, ignoreList: Set[Int]) = {
+                             group: Group, ignoreList: Set[Int], filterShow: Boolean) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
@@ -62,10 +62,23 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       val answerCount = replysFiltered.size
 
       if (answerCount > 1) {
-        (Some(s"${topic.getLink}/thread/${comment.id}#comments"), false, answerCount, replyInfo, true)
+        val link = if (!filterShow) {
+          s"${topic.getLink}/thread/${comment.id}#comments"
+        } else {
+          s"${topic.getLink}/thread/${comment.id}?filter=show#comments"
+        }
+
+        (Some(link), false, answerCount, replyInfo, true)
       } else if (answerCount == 1) {
         val answerSamepage = samePageComments.contains(replysFiltered.head.getComment.id)
-        (Some(s"${topic.getLink}?cid=${replysFiltered.head.getComment.id}"), answerSamepage, 1, replyInfo, true)
+
+        val link = if (!filterShow) {
+          s"${topic.getLink}?cid=${replysFiltered.head.getComment.id}"
+        } else {
+          s"${topic.getLink}?filter=show&cid=${replysFiltered.head.getComment.id}"
+        }
+
+        (Some(link), answerSamepage, 1, replyInfo, true)
       } else {
         (None, false, 0, replyInfo, false)
       }
@@ -133,7 +146,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
       profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = Option(currentUser),
-      group = group, ignoreList = ignoreList.asScala.map(_.toInt).toSet)
+      group = group, ignoreList = ignoreList.asScala.map(_.toInt).toSet, filterShow = false)
   }
 
   /**
@@ -161,11 +174,11 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  def prepareCommentList(comments: CommentList, list: collection.Seq[Comment], topic: Topic,
-                         hideSet: Set[Int], currentUser: Option[User],
-                         profile: Profile, ignoreList: Set[Int]): java.util.List[PreparedComment] = {
+  def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
+                         currentUser: Option[User], profile: Profile, ignoreList: Set[Int],
+                         filterShow: Boolean): Seq[PreparedComment] = {
     if (list.isEmpty) {
-      Seq.empty.asJava
+      Seq.empty
     } else {
       val texts = msgbaseDao.getMessageText(list.map(c => Integer.valueOf(c.id)).asJava)
       val users = userService.getUsersCachedMap(list.map(_.userid))
@@ -183,8 +196,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val remark = remarks.get(author.getId)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSet,
-          samePageComments, currentUser, group, ignoreList)
-      }.asJava
+          samePageComments, currentUser, group, ignoreList, filterShow)
+      }
     }
   }
 

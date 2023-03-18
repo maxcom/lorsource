@@ -66,7 +66,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "comments" -> comments,
       "topic" -> topic,
       "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Int],
-        Some(currentUser.user), tmpl.getProf, ignoreList)
+        Some(currentUser.user), tmpl.getProf, ignoreList, filterShow = false).asJava
     ).asJava)
   }
 

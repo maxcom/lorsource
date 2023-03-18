@@ -264,9 +264,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       hideSet = hideSet,
       currentUser = currentUserOpt.map(_.user),
       profile = tmpl.getProf,
-      ignoreList = ignoreList)
+      ignoreList = ignoreList,
+      filterShow = filterModeShow)
 
-    params.put("commentsPrepared", commentsPrepared)
+    params.put("commentsPrepared", commentsPrepared.asJava)
 
     if (comments.comments.isEmpty) {
       params.put("lastCommentId", Integer.valueOf(0))
@@ -316,7 +317,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val group = preparedMessage.group
 
     if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) {
-      new ModelAndView(new RedirectView(topic.getLink + "?output=rss"))
+      new ModelAndView(new RedirectView(s"${topic.getLink}?output=rss"))
     } else {
       if (topic.expired) {
         throw new MessageNotFoundException(topic.id, "no more comments")
